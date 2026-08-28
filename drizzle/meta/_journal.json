@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1783378014322,
+      "tag": "0000_romantic_talos",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1783448778978,
+      "tag": "0001_eager_skrulls",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1783544057099,
+      "tag": "0002_big_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1783624163939,
+      "tag": "0003_wandering_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787610016676,
+      "tag": "0004_robust_bushwacker",
+      "breakpoints": true
+    }
+  ]
+}

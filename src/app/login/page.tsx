@@ -1,0 +1,126 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { fazerLogin } from "./actions";
+
+export default function LoginPage() {
+  const [documento, setDocumento] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function aoEnviar(e: React.FormEvent) {
+    e.preventDefault();
+    setErro(null);
+    startTransition(async () => {
+      const resultado = await fazerLogin({ documento, senha });
+      if (!resultado.ok) {
+        setErro(resultado.erro);
+      }
+    });
+  }
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-24 w-[28rem] h-[28rem] rounded-full opacity-30 blur-3xl animate-blob"
+        style={{ background: "var(--gradient-hero)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-40 -right-24 w-[26rem] h-[26rem] rounded-full opacity-20 blur-3xl animate-blob"
+        style={{ background: "var(--gradient-hero)", animationDelay: "-7s" }}
+      />
+
+      <div className="relative w-full max-w-sm animate-fade-in-up">
+        <div className="text-center mb-10">
+          <h1 className="font-serif text-3xl font-bold text-foreground">
+            Cidade
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: "var(--gradient-hero)" }}
+            >
+              IA
+            </span>
+          </h1>
+          <p className="text-sm text-muted mt-2">
+            Inteligência Artificial para Gestão Pública
+          </p>
+        </div>
+
+        <form
+          onSubmit={aoEnviar}
+          className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4"
+        >
+          <div>
+            <label className="block text-sm font-medium mb-1.5" htmlFor="documento">
+              CPF/CNPJ
+            </label>
+            <input
+              id="documento"
+              name="documento"
+              autoComplete="username"
+              value={documento}
+              onChange={(e) => setDocumento(e.target.value)}
+              placeholder="000.000.000-00"
+              className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5" htmlFor="senha">
+              Senha
+            </label>
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              autoComplete="current-password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="••••••••"
+              className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition"
+              required
+            />
+          </div>
+
+          {erro && (
+            <p className="text-sm rounded-lg px-3 py-2 border" style={{ color: "var(--urgente)", background: "var(--urgente-tint)", borderColor: "var(--urgente-borda)" }}>
+              {erro}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full py-2.5 transition disabled:opacity-60"
+          >
+            {pending ? "Entrando..." : "Entrar"}
+          </button>
+
+          <div className="text-center">
+            <Link
+              href="/login/esqueci-senha"
+              className="text-xs text-muted hover:text-brand transition"
+            >
+              Esqueceu sua senha?
+            </Link>
+          </div>
+        </form>
+
+        <div className="mt-6 text-center border-t border-border pt-6">
+          <p className="text-sm text-muted mb-3">Primeiro acesso?</p>
+          <Link
+            href="/cadastro"
+            className="inline-block w-full rounded-full border border-brand text-brand font-semibold text-sm py-2.5 hover:bg-brand-tint transition"
+          >
+            Cadastrar Prefeitura
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

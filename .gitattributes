@@ -1,0 +1,26 @@
+# Normalize line endings for all files
+* text=auto
+
+# Code files
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.sql text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.eot binary
+*.otf binary
+*.ttf binary
+*.woff binary
+*.woff2 binary

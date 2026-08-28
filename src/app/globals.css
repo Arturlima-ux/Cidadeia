@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+/* ==================================================================
+   Sistema visual "Brasília Cívica" — global (site público + produto).
+   Referência: arquitetura cívica brasileira. Azul institucional como
+   cor primária, verde cerrado como acento, concreto claro como fundo.
+   O elemento assinatura é o arco (ver .arco-card / .arco-badge).
+   ================================================================== */
+:root {
+  /* superfícies */
+  --background: #f2f1ed; /* Concreto Claro */
+  --card: #fdfdfb; /* Branco Marfim */
+  --foreground: #22201c; /* Grafite Ipê */
+  --muted: #635f57;
+  --border: rgba(27, 58, 107, 0.14);
+
+  /* marca */
+  --brand: #1b3a6b; /* Azul Planalto */
+  --brand-dark: #142c52;
+  --brand-tint: #e8ecf3;
+  --accent: #4a7856; /* Verde Cerrado */
+  --accent-tint: #e7eee9;
+  --gradient-hero: linear-gradient(135deg, #1b3a6b 0%, #2c5490 55%, #4a7856 100%);
+
+  /* status — um só lugar define urgente/médio/info, usado no produto
+     inteiro (alertas, central, sugestões da IA, badges de painel). */
+  --urgente: #b3261e;
+  --urgente-tint: #fdeceb;
+  --urgente-borda: #f3c9c6;
+  --medio: #8a5a12;
+  --medio-tint: #fdf1dd;
+  --medio-borda: #f0dcb4;
+  --info: #2f6d4f;
+  --info-tint: #e7eee9;
+  --info-borda: #c5dbcd;
+
+  --danger: var(--urgente);
+  --warning: var(--medio);
+
+  /* elevação */
+  --shadow-sm: 0 1px 2px rgba(27, 58, 107, 0.05), 0 1px 1px rgba(27, 58, 107, 0.03);
+  --shadow-md: 0 4px 16px -4px rgba(27, 58, 107, 0.1), 0 2px 6px -2px rgba(27, 58, 107, 0.06);
+  --shadow-lg: 0 16px 40px -12px rgba(27, 58, 107, 0.18);
+
+  /* tipografia — Fraunces (títulos, escultural) + Public Sans (UI,
+     desenhada originalmente para uso governamental). Fallback de sistema
+     mantido caso o download da fonte falhe. */
+  --font-titulo: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-corpo: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-tint: var(--brand-tint);
+  --color-accent: var(--accent);
+  --color-accent-tint: var(--accent-tint);
+  --color-card: var(--card);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-urgente: var(--urgente);
+  --color-medio: var(--medio);
+  --color-info: var(--info);
+  --font-sans: var(--font-corpo);
+  --font-serif: var(--font-titulo);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-corpo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, 6%) scale(1.08);
+  }
+  66% {
+    transform: translate(-3%, -4%) scale(0.96);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer-text {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-blob {
+    animation: blob 14s ease-in-out infinite;
+  }
+  .animate-pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+  .card-interactive {
+    transition:
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s ease;
+  }
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-sm);
+  }
+  .shadow-elevated:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .text-shimmer {
+    background: linear-gradient(100deg, var(--brand) 30%, var(--accent) 45%, var(--brand) 60%);
+    background-size: 220% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer-text 5s linear infinite;
+  }
+
+  /* ── Elemento assinatura: o arco ──
+     Canto superior-esquerdo arredondado como um vão arquitetônico. Repetido
+     em escalas diferentes (card, badge, seção) pra criar reconhecimento. */
+  .arco-card {
+    border-radius: 34px 12px 12px 12px;
+  }
+  .arco-card-sm {
+    border-radius: 22px 10px 10px 10px;
+  }
+  .arco-badge {
+    border-radius: 50% 50% 6px 6px / 60% 60% 6px 6px;
+  }
+  .arco-topo {
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .text-shimmer,
+  .animate-blob,
+  .animate-pulse-soft,
+  .animate-fade-in-up {
+    animation: none !important;
+  }
+}
+
+* {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button,
+a {
+  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-duration: 0.18s;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Foco visível e consistente — acessibilidade (navegação por teclado). */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
