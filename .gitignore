@@ -51,3 +51,7 @@ next-env.d.ts
 
 # Backup das migrations antigas do SQLite (pré-migração para Postgres)
 drizzle_sqlite_backup/
+
+# Arquivo temporário para o token do GitHub — NUNCA versionar
+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
+
