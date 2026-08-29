@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Fraunces, Public_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Public_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-// Tipografia do sistema "Brasília Cívica": Fraunces nos títulos (serifada,
-// peso escultural) e Public Sans na UI (desenhada para uso governamental).
-const fraunces = Fraunces({
+// Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
+// contemporânea) e Public Sans na UI (desenhada para uso governamental).
+// Substituiu a serifada Fraunces, que dava ao site ar de documento impresso.
+const fonteTitulo = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  weight: ["600", "700", "800"],
+  variable: "--font-titulo-familia",
   display: "swap",
 });
 const publicSans = Public_Sans({
@@ -40,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`h-full antialiased ${fraunces.variable} ${publicSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

@@ -1,26 +1,29 @@
 @import "tailwindcss";
 
 /* ==================================================================
-   Sistema visual "Brasília Cívica" — global (site público + produto).
-   Referência: arquitetura cívica brasileira. Azul institucional como
-   cor primária, verde cerrado como acento, concreto claro como fundo.
-   O elemento assinatura é o arco (ver .arco-card / .arco-badge).
+   Sistema visual "Quadra" — global (site público + produto).
+   Registro das empresas estabelecidas de software público: branco e azul
+   institucional, sem o bege que dava cara de documento antigo. O elemento
+   assinatura é a marca Quadra (ver components/site/MarcaQuadra.tsx); o
+   arco continua vivo nos cards do produto (.arco-card / .arco-badge).
    ================================================================== */
 :root {
   /* superfícies */
-  --background: #f2f1ed; /* Concreto Claro */
-  --card: #fdfdfb; /* Branco Marfim */
-  --foreground: #22201c; /* Grafite Ipê */
-  --muted: #635f57;
-  --border: rgba(27, 58, 107, 0.14);
+  --background: #ffffff;
+  --superficie: #f5f8fc; /* faixas alternadas de seção */
+  --card: #ffffff;
+  --foreground: #12203a;
+  --muted: #55637a;
+  --border: #e2e8f2;
 
   /* marca */
-  --brand: #1b3a6b; /* Azul Planalto */
-  --brand-dark: #142c52;
-  --brand-tint: #e8ecf3;
-  --accent: #4a7856; /* Verde Cerrado */
-  --accent-tint: #e7eee9;
-  --gradient-hero: linear-gradient(135deg, #1b3a6b 0%, #2c5490 55%, #4a7856 100%);
+  --brand: #1560d4; /* azul institucional, para ação e link */
+  --brand-dark: #0b3a82;
+  --brand-tint: #e8f0fc;
+  --brand-profundo: #0b2350; /* fundo das faixas escuras e da barra utilitária */
+  --accent: #147a52;
+  --accent-tint: #e6f4ee;
+  --gradient-hero: linear-gradient(115deg, #0b2350 0%, #134089 60%, #1560d4 100%);
 
   /* status — um só lugar define urgente/médio/info, usado no produto
      inteiro (alertas, central, sugestões da IA, badges de painel). */
@@ -38,19 +41,24 @@
   --warning: var(--medio);
 
   /* elevação */
-  --shadow-sm: 0 1px 2px rgba(27, 58, 107, 0.05), 0 1px 1px rgba(27, 58, 107, 0.03);
-  --shadow-md: 0 4px 16px -4px rgba(27, 58, 107, 0.1), 0 2px 6px -2px rgba(27, 58, 107, 0.06);
-  --shadow-lg: 0 16px 40px -12px rgba(27, 58, 107, 0.18);
+  --shadow-sm: 0 1px 2px rgba(18, 32, 58, 0.04);
+  --shadow-md: 0 4px 16px -4px rgba(18, 32, 58, 0.1), 0 2px 6px -2px rgba(18, 32, 58, 0.06);
+  --shadow-lg: 0 24px 60px -22px rgba(11, 35, 80, 0.28);
 
-  /* tipografia — Fraunces (títulos, escultural) + Public Sans (UI,
-     desenhada originalmente para uso governamental). Fallback de sistema
-     mantido caso o download da fonte falhe. */
-  --font-titulo: var(--font-fraunces), ui-serif, Georgia, serif;
+  /* tipografia — Plus Jakarta Sans nos títulos (geométrica, contemporânea,
+     substituiu a serifada Fraunces que dava ar de documento impresso) e
+     Public Sans na UI, desenhada originalmente para uso governamental.
+     Fallback de sistema mantido caso o download da fonte falhe.
+     O nome da variável segue sendo --font-titulo, e a classe do Tailwind
+     segue sendo font-serif, para não trocar centenas de usos no produto. */
+  --font-titulo: var(--font-titulo-familia), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-corpo: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-superficie: var(--superficie);
+  --color-brand-profundo: var(--brand-profundo);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
