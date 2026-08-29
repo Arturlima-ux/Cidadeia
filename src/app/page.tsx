@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { lerSessao } from "@/lib/sessao";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
+import { DOCUMENTOS } from "@/lib/kit-contratacao";
 import { formatarMoeda, formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -51,13 +52,21 @@ const CANAIS_PUBLICOS = [
   },
 ];
 
+// A lista sai do próprio kit, para a home não prometer um documento que
+// deixou de existir — nem esconder um que passou a existir.
 const KIT = [
-  { nome: "Termo de referência", detalhe: "Modelo pronto para editar", pronto: false },
-  { nome: "Minuta de contrato", detalhe: "Com prazo, reajuste e rescisão", pronto: false },
-  { nome: "Certidões de regularidade", detalhe: "Federal, FGTS, trabalhista e estadual", pronto: false },
-  { nome: "Acordo de tratamento de dados", detalhe: "LGPD — município como controlador", pronto: false },
-  { nome: "Acordo de nível de serviço", detalhe: "Disponibilidade e prazo de suporte", pronto: false },
-  { nome: "Exportação dos dados", detalhe: "JSON e CSV, a qualquer momento", pronto: true },
+  ...DOCUMENTOS.map((d) => ({
+    nome: d.nome,
+    detalhe: d.geramos ? d.subtitulo : "Emitido por órgão oficial — ver a lista",
+    pronto: d.geramos,
+    href: `/kit#${d.chave}`,
+  })),
+  {
+    nome: "Exportação dos dados",
+    detalhe: "JSON e CSV, a qualquer momento",
+    pronto: true,
+    href: "/kit",
+  },
 ];
 
 const OBJECOES = [
@@ -166,7 +175,7 @@ export default async function LandingPage() {
                   Montar minha proposta
                 </Link>
                 <Link
-                  href="#kit"
+                  href="/kit"
                   className="border-[1.5px] border-white/35 font-semibold text-sm rounded-xl px-5 py-3.5 hover:bg-white/10 transition"
                 >
                   Ver o kit de contratação
@@ -295,10 +304,10 @@ export default async function LandingPage() {
                 processo montado.
               </p>
               <Link
-                href="/suporte?assunto=kit"
+                href="/kit"
                 className="self-start bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-5 py-3 transition shadow-elevated mt-1"
               >
-                Pedir o kit
+                Abrir o kit completo
               </Link>
             </div>
           </Reveal>
@@ -306,7 +315,10 @@ export default async function LandingPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {KIT.map((item, i) => (
               <Reveal key={item.nome} delay={i * 60}>
-                <div className="h-full bg-card border border-border rounded-2xl p-5 flex items-center gap-4 card-interactive">
+                <Link
+                  href={item.href}
+                  className="h-full bg-card border border-border rounded-2xl p-5 flex items-center gap-4 card-interactive hover:border-brand"
+                >
                   <span
                     className="w-10 h-10 arco-card-sm flex items-center justify-center shrink-0"
                     style={{
@@ -320,15 +332,7 @@ export default async function LandingPage() {
                     <p className="font-semibold text-sm">{item.nome}</p>
                     <p className="text-xs text-muted mt-0.5 leading-relaxed">{item.detalhe}</p>
                   </div>
-                  {item.pronto && (
-                    <span
-                      className="ml-auto shrink-0 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1"
-                      style={{ color: "var(--accent)", background: "var(--accent-tint)" }}
-                    >
-                      No ar
-                    </span>
-                  )}
-                </div>
+                </Link>
               </Reveal>
             ))}
           </div>
