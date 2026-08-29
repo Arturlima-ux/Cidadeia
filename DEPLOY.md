@@ -14,9 +14,11 @@ Guia para publicar o CidadeIA. O build de produção já foi validado localmente
 2. Faça login **com o GitHub** (botão "Continue with GitHub")
 3. Na lista de repositórios, escolha **`Arturlima-ux/Cidadeia`**
    - Se não aparecer: clique em "Adjust GitHub App Permissions" e libere o acesso
-4. **Root Directory**: clique em `Edit` e selecione **`cidadeia-app`**
-   - ⚠️ Passo crítico. O `package.json` está nessa subpasta, não na raiz do repositório.
-     Sem isso o build falha com "No package.json found".
+4. **Root Directory**: **deixe como está** (`./`, ou `Cidadeia (root)`).
+   O repositório Git foi criado dentro de `cidadeia-app`, então essa pasta **é**
+   a raiz do repositório — o `package.json`, `src/` e `drizzle/` estão no
+   primeiro nível. A Vercel mostra o ícone do Next.js ao lado de "root"
+   justamente porque detectou o projeto ali.
 5. Framework Preset: **Next.js** (a Vercel detecta sozinha)
 6. **Não clique em Deploy ainda** — configure as variáveis abaixo primeiro.
 
@@ -106,7 +108,7 @@ git push
 
 | Erro | Causa |
 |---|---|
-| `No package.json found` | Root Directory não foi definido como `cidadeia-app` (passo 1.4) |
+| `No package.json found` | Root Directory foi alterado indevidamente — precisa ficar na raiz (`./`) |
 | `AUTH_SECRET não configurado` | Faltou a variável, ou foi salva só em Preview e não em Production |
 | `DATABASE_URL não configurado` | Idem |
 | Erro de conexão com o banco | Confira se copiou a connection string do **pooler** (porta 6543), não a direta |
