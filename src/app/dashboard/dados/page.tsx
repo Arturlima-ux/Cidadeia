@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { contarLinhas } from "@/lib/dados-exportacao";
 import { TABELAS_EXPORTAVEIS, TABELAS_NAO_EXPORTADAS } from "@/lib/exportacao";
@@ -22,12 +23,20 @@ export default async function MeusDadosPage() {
 
   return (
     <div className="max-w-3xl space-y-8">
-      <div>
-        <h1 className="font-serif text-2xl font-bold">Meus dados</h1>
-        <p className="text-muted text-sm mt-1.5 leading-relaxed">
-          Os dados cadastrados aqui são do município. Baixe todos, a qualquer
-          momento, em formato aberto — sem pedir autorização e sem custo.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Meus dados</h1>
+          <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-xl">
+            Os dados cadastrados aqui são do município. Baixe todos, a qualquer
+            momento, em formato aberto — sem pedir autorização e sem custo.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/dados/importar"
+          className="shrink-0 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
+        >
+          Importar de outro sistema →
+        </Link>
       </div>
 
       {/* Exportação completa */}
