@@ -14,12 +14,14 @@ export default function InsightIA({
   acao,
   modulo,
 }: {
-  acao: (modulo: ModuloInsight) => Promise<RespostaIA>;
+  acao: (modulo: ModuloInsight, forcar?: boolean) => Promise<RespostaIA>;
   modulo: ModuloInsight;
 }) {
   const [resultado, setResultado] = useState<RespostaIA | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // Ao entrar na página, aproveita o cache (não gasta chamada de API se
+  // um insight recente já existe).
   useEffect(() => {
     startTransition(async () => {
       const r = await acao(modulo);
@@ -28,9 +30,10 @@ export default function InsightIA({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modulo]);
 
+  // "Atualizar" é pedido explícito do usuário — aí sim ignora o cache.
   function atualizar() {
     startTransition(async () => {
-      const r = await acao(modulo);
+      const r = await acao(modulo, true);
       setResultado(r);
     });
   }

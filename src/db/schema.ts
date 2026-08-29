@@ -274,6 +274,22 @@ export const investimentos = pgTable("investimentos", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── CACHE DOS INSIGHTS DE IA POR MÓDULO ──
+// Sem isto, cada abertura de página de secretaria dispara uma chamada paga
+// à API da Anthropic — abrir a mesma tela 10 vezes custava 10 chamadas,
+// mesmo sem nenhum dado ter mudado. A chave é prefeitura+módulo.
+export const insightsCache = pgTable("insights_cache", {
+  chave: text("chave").primaryKey(), // `${prefeituraId}:${modulo}`
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  modulo: text("modulo").notNull(),
+  texto: text("texto").notNull(),
+  geradoEm: text("gerado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 // ── CENTRAL INTELIGENTE (briefing automático cruzando todos os módulos) ──
 // Uma linha por prefeitura — recalculada automaticamente quando fica velha
 // (ver lib/central-inteligente.ts), não a cada carregamento de página.
