@@ -82,7 +82,12 @@ function montarGrupos(
 
   grupos.push({
     titulo: "Conta",
-    itens: [{ href: "/dashboard/modulos", label: "Módulos", icone: "modulos" }],
+    itens: [
+      { href: "/dashboard/modulos", label: "Módulos", icone: "modulos" },
+      // Fora de qualquer trava de plano: a exportação existe justamente para
+      // a prefeitura poder sair levando os dados dela.
+      { href: "/dashboard/dados", label: "Meus dados", icone: "download" },
+    ],
   });
 
   return grupos;
