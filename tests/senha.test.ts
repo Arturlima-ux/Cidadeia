@@ -19,15 +19,46 @@ describe("senhaForte", () => {
   });
 });
 
-describe("hash de senha", () => {
-  it("verifica corretamente a senha certa e rejeita a errada", async () => {
-    const hash = await gerarHashSenha("minhaSenha123");
-    expect(await verificarSenha("minhaSenha123", hash)).toBe(true);
-    expect(await verificarSenha("outraSenha123", hash)).toBe(false);
-  });
+// bcrypt com 12 rounds é lento DE PROPÓSITO — é isso que trava ataque de
+// força bruta. Cada hash leva ~1-3s em máquina modesta, e este teste faz
+// três operações, o que estourava o limite padrão de 5s do vitest de forma
+// intermitente. O timeout maior não afrouxa a verificação: ela continua
+// exatamente a mesma, só deixa de falhar por lentidão da máquina.
+const TIMEOUT_BCRYPT = 30_000;
 
-  it("nunca guarda a senha em texto puro no hash", async () => {
-    const hash = await gerarHashSenha("senhaSecreta123");
-    expect(hash).not.toContain("senhaSecreta123");
-  });
+describe("hash de senha", () => {
+  it(
+    "verifica corretamente a senha certa e rejeita a errada",
+    async () => {
+      const hash = await gerarHashSenha("minhaSenha123");
+      expect(await verificarSenha("minhaSenha123", hash)).toBe(true);
+      expect(await verificarSenha("outraSenha123", hash)).toBe(false);
+    },
+    TIMEOUT_BCRYPT
+  );
+
+  it(
+    "nunca guarda a senha em texto puro no hash",
+    async () => {
+      const hash = await gerarHashSenha("senhaSecreta123");
+      expect(hash).not.toContain("senhaSecreta123");
+    },
+    TIMEOUT_BCRYPT
+  );
+
+  it(
+    "gera hash diferente para a mesma senha (salt aleatório)",
+    async () => {
+      // Sem salt distinto, duas contas com a mesma senha teriam hash igual —
+      // e quebrar um quebraria os dois.
+      const [a, b] = await Promise.all([
+        gerarHashSenha("mesmaSenha123"),
+        gerarHashSenha("mesmaSenha123"),
+      ]);
+      expect(a).not.toBe(b);
+      expect(await verificarSenha("mesmaSenha123", a)).toBe(true);
+      expect(await verificarSenha("mesmaSenha123", b)).toBe(true);
+    },
+    TIMEOUT_BCRYPT
+  );
 });

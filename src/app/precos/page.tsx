@@ -4,9 +4,10 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import { PLANOS_ADDON } from "@/lib/planos";
-import { IconCheck, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
+import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
+  essencial: IconAlertas,
   saude: IconSaude,
   educacao: IconEducacao,
   obras: IconObras,
@@ -27,31 +28,9 @@ export default function PrecosPage() {
         <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
           <h1 className="font-serif text-4xl font-bold">Preços</h1>
           <p className="text-muted text-base mt-4 leading-relaxed">
-            O Essencial é incluso e sem custo pra toda prefeitura. Cada secretaria é um
-            módulo avulso, contratado separadamente conforme o que sua gestão precisa.
+            Cada área é um módulo avulso, contratado separadamente conforme o que
+            sua gestão precisa. Você paga só pelo que usa.
           </p>
-        </section>
-      </Reveal>
-
-      <Reveal>
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-10">
-          <div className="rounded-2xl border border-brand bg-brand-tint p-6 flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white text-brand flex items-center justify-center shrink-0">
-              <IconCheck className="w-5 h-5" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <p className="font-semibold text-base">Essencial</p>
-                <span className="text-xs font-semibold bg-card border rounded-full px-2.5 py-1" style={{ color: "var(--info)", borderColor: "var(--info-borda)" }}>
-                  Sem custo adicional
-                </span>
-              </div>
-              <p className="text-sm text-muted mt-1.5 leading-relaxed">
-                Protocolo via WhatsApp, Portal da Transparência e Ouvidoria — incluso
-                automaticamente assim que você cria a conta.
-              </p>
-            </div>
-          </div>
         </section>
       </Reveal>
 
@@ -68,7 +47,7 @@ export default function PrecosPage() {
       </Reveal>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-16">
-        <h2 className="font-serif text-xl font-bold mb-5">Módulos por secretaria</h2>
+        <h2 className="font-serif text-xl font-bold mb-5">Módulos disponíveis</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           {PLANOS_ADDON.map((p, i) => {
             const Icone = ICONE_ADDON[p.chave];
@@ -99,8 +78,8 @@ export default function PrecosPage() {
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">O valor de cada módulo varia pelo porte do município.</p>
             <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-lg mx-auto">
-              Crie sua conta gratuitamente pra explorar o Essencial, e fale com a gente
-              pra receber uma proposta com valores pra sua prefeitura.
+              Criar a conta é gratuito. Fale com a gente pra receber uma proposta
+              com os valores dos módulos que sua prefeitura precisa.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link

@@ -100,7 +100,7 @@ export async function cadastrarPrefeitura(
       // Quem cria a conta é registrado como prefeito(a) — sem pedir o nome
       // de novo num campo separado.
       prefeito: dados.nomeResponsavel,
-      planosContratados: "[]", // só o Essencial por padrão; resto ativa depois no Marketplace
+      planosContratados: "[]", // nenhum módulo por padrão — contratados no Marketplace
     });
 
     await db.insert(usuarios).values({

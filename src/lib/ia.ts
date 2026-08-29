@@ -255,7 +255,7 @@ nenhum número que não esteja aqui):
 
 Prefeitura: ${prefeitura?.nome ?? "não informado"}
 Município/UF: ${prefeitura?.municipio ?? "?"} / ${prefeitura?.estado ?? "?"}
-${!ehSecretario ? `Prefeito(a): ${prefeitura?.prefeito ?? "não informado"}\nPopulação: ${prefeitura?.populacao ?? "não informado"}\nPlanos contratados: Essencial (sempre incluso)${planosAtivos.length > 0 ? ", " + planosAtivos.join(", ") : ""}\nMaior problema declarado no cadastro: ${prefeitura?.maiorProblema ?? "não informado"}` : ""}
+${!ehSecretario ? `Prefeito(a): ${prefeitura?.prefeito ?? "não informado"}\nPopulação: ${prefeitura?.populacao ?? "não informado"}\nPlanos contratados: ${planosAtivos.length > 0 ? planosAtivos.join(", ") : "NENHUM módulo contratado ainda"}\nMaior problema declarado no cadastro: ${prefeitura?.maiorProblema ?? "não informado"}` : ""}
 
 ${secaoFinanceira}
 

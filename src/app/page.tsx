@@ -80,7 +80,7 @@ const PASSOS = [
   {
     numero: "2",
     titulo: "Ative os módulos que precisa",
-    descricao: "Essencial já vem incluso. Adicione Saúde, Educação, Obras, Licitações e/ou Gestão quando quiser.",
+    descricao: "Contrate Essencial, Saúde, Educação, Obras, Licitações e/ou Gestão — só o que sua prefeitura usa.",
   },
   {
     numero: "3",
@@ -90,6 +90,7 @@ const PASSOS = [
 ];
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
+  essencial: IconAlertas,
   saude: IconSaude,
   educacao: IconEducacao,
   obras: IconObras,
@@ -317,28 +318,8 @@ export default async function LandingPage() {
           <div className="max-w-xl mb-10">
             <h2 className="font-serif text-3xl font-bold">Módulos sob demanda</h2>
             <p className="text-muted mt-3 leading-relaxed">
-              Essencial vem incluso pra toda prefeitura. Cada secretaria é um módulo avulso.
+              Cada área é um módulo avulso. Contrate só o que sua prefeitura precisa.
             </p>
-          </div>
-        </Reveal>
-
-        <Reveal>
-          <div
-            className="border border-brand bg-brand-tint p-5 flex items-center justify-between gap-4 mb-2"
-            style={{ borderRadius: "28px 10px 10px 10px" }}
-          >
-            <div className="flex items-center gap-3">
-              <IconCheck className="w-5 h-5 text-brand-dark shrink-0" />
-              <div>
-                <p className="font-semibold text-sm">Essencial</p>
-                <p className="text-xs text-muted mt-0.5">
-                  Protocolo via WhatsApp + Transparência + Ouvidoria — incluso automaticamente.
-                </p>
-              </div>
-            </div>
-            <span className="shrink-0 text-xs font-semibold bg-card border rounded-full px-2.5 py-1" style={{ color: "var(--info)", borderColor: "var(--info-borda)" }}>
-              Sem custo adicional
-            </span>
           </div>
         </Reveal>
 

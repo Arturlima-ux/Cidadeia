@@ -39,19 +39,6 @@ export default async function MarketplacePage() {
 
       <AbasModulos ativa="marketplace" />
 
-      <div className="rounded-xl border border-brand bg-brand-tint p-4 flex items-center justify-between gap-4">
-        <div>
-          <p className="font-semibold text-sm">Essencial</p>
-          <p className="text-xs text-muted mt-1 leading-relaxed">
-            Protocolo via WhatsApp + Transparência + Ouvidoria — incluso
-            automaticamente pra toda prefeitura, sem custo adicional.
-          </p>
-        </div>
-        <span className="shrink-0 text-xs font-semibold rounded-full px-2.5 py-1" style={{ color: "var(--info)", background: "var(--info-tint)" }}>
-          Incluso
-        </span>
-      </div>
-
       <div className="grid sm:grid-cols-2 gap-4">
         {PLANOS_ADDON.map((p) => {
           const ativo = planosAtivos.includes(p.chave);

@@ -1,18 +1,33 @@
 // ── REGRAS DE PLANO ──
-// Modelo modular: toda prefeitura tem o Essencial (Protocolo via WhatsApp +
-// Transparência + Ouvidoria), incluso e sempre ativo. A partir disso, cada
-// secretaria é um plano avulso que a prefeitura contrata separadamente —
-// e cada um já vem com IA aplicada àquela área. "Gestão" é o plano que
-// libera a visão do prefeito sobre a prefeitura inteira (financeiro geral,
-// alertas gerais, histórico, relatório executivo e administração de
-// usuários/secretários).
+// Modelo modular: cada área é um plano avulso que a prefeitura contrata
+// separadamente. "Gestão" libera a visão do prefeito sobre a prefeitura
+// inteira (financeiro geral, alertas, histórico, relatório executivo e
+// administração de usuários). "Essencial" reúne os canais de relação com o
+// cidadão: Protocolo, Ouvidoria e Portal da Transparência.
 //
-// Não existe mais limite de QUANTIDADE em nada (relatórios em PDF
-// continuam ilimitados) — o que varia por plano é só O QUE fica disponível.
+// Essencial DEIXOU de ser incluído automaticamente — antes ele era anunciado
+// como grátis e sempre ativo, o que era um problema duplo: dava de graça um
+// módulo que custa para operar, e prometia três funcionalidades que ainda não
+// existiam. Agora é contratado como qualquer outro.
+//
+// Não existe limite de QUANTIDADE em nada (relatórios em PDF continuam
+// ilimitados) — o que varia por plano é só O QUE fica disponível.
 
-export type PlanoAddon = "saude" | "educacao" | "obras" | "licitacoes" | "gestao";
+export type PlanoAddon =
+  | "essencial"
+  | "saude"
+  | "educacao"
+  | "obras"
+  | "licitacoes"
+  | "gestao";
 
 export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string }[] = [
+  {
+    chave: "essencial",
+    nome: "Essencial",
+    descricao:
+      "Canais de relação com o cidadão: Protocolo de atendimento, Ouvidoria e Portal da Transparência público do município.",
+  },
   {
     chave: "saude",
     nome: "Saúde",
@@ -77,6 +92,7 @@ export function planoDaSecretaria(secretaria: string): PlanoAddon | null {
 }
 
 export const HREF_PLANO_ADDON: Record<PlanoAddon, string> = {
+  essencial: "/dashboard/atendimento",
   saude: "/dashboard/secretarias/saude",
   educacao: "/dashboard/secretarias/educacao",
   obras: "/dashboard/secretarias/obras",
@@ -91,6 +107,7 @@ export const HREF_PLANO_ADDON: Record<PlanoAddon, string> = {
 // EXEMPLO — só pra você ver a estrutura funcionando; ele não cobra nada de
 // verdade, é preciso trocar pelo link real antes de ir pra produção.
 const VARIAVEL_AMBIENTE_POR_PLANO: Record<PlanoAddon, string> = {
+  essencial: "CHECKOUT_URL_ESSENCIAL",
   saude: "CHECKOUT_URL_SAUDE",
   educacao: "CHECKOUT_URL_EDUCACAO",
   obras: "CHECKOUT_URL_OBRAS",

@@ -33,21 +33,6 @@ export default async function MeusModulosPage() {
       <AbasModulos ativa="meus" />
 
       <div className="grid sm:grid-cols-2 gap-3">
-        <Link
-          href="/dashboard"
-          className="rounded-xl border border-brand bg-brand-tint p-4 hover:border-brand-dark transition"
-        >
-          <div className="flex items-center justify-between">
-            <p className="font-semibold text-sm">Essencial</p>
-            <span className="text-xs font-semibold rounded-full px-2 py-0.5" style={{ color: "var(--info)", background: "var(--info-tint)" }}>
-              Incluso
-            </span>
-          </div>
-          <p className="text-xs text-muted mt-1.5 leading-relaxed">
-            Protocolo via WhatsApp · Transparência · Ouvidoria
-          </p>
-        </Link>
-
         {contratados.map((p) => (
           <Link
             key={p.chave}

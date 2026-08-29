@@ -274,6 +274,68 @@ export const investimentos = pgTable("investimentos", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── ATENDIMENTO AO CIDADÃO (plano Essencial) ──
+// Uma única tabela cobre Protocolo e Ouvidoria: os dois são "o cidadão manda
+// algo, a prefeitura responde e acompanha o status". O que muda é o `tipo`,
+// que define o vocabulário na tela e o tratamento (ouvidoria admite anônimo,
+// protocolo exige identificação para poder responder).
+export const atendimentos = pgTable("atendimentos", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  // Número curto que o cidadão anota para acompanhar depois.
+  protocolo: text("protocolo").notNull().unique(),
+  tipo: text("tipo", {
+    enum: ["protocolo", "denuncia", "reclamacao", "sugestao", "elogio", "informacao"],
+  }).notNull(),
+  // Dados do cidadão — opcionais porque a Lei 13.460/2017 garante o direito
+  // de manifestação anônima na ouvidoria.
+  nome: text("nome"),
+  email: text("email"),
+  telefone: text("telefone"),
+  anonimo: boolean("anonimo").notNull().default(false),
+  secretaria: text("secretaria"),
+  assunto: text("assunto").notNull(),
+  mensagem: text("mensagem").notNull(),
+  status: text("status", {
+    enum: ["aberto", "em_analise", "respondido", "encerrado"],
+  })
+    .notNull()
+    .default("aberto"),
+  resposta: text("resposta"),
+  respondidoEm: text("respondido_em"),
+  // Chave que o cidadão usa junto com o protocolo para consultar — evita que
+  // alguém liste manifestações alheias só chutando números sequenciais.
+  chaveConsulta: text("chave_consulta").notNull(),
+  origem: text("origem", { enum: ["site", "whatsapp", "presencial"] })
+    .notNull()
+    .default("site"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── CONFIGURAÇÃO PÚBLICA DA PREFEITURA (Portal da Transparência) ──
+// Controla o que a prefeitura expõe no portal público e como o cidadão a
+// encontra (slug na URL) e fala com ela (WhatsApp).
+export const configPublica = pgTable("config_publica", {
+  prefeituraId: text("prefeitura_id")
+    .primaryKey()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  // Endereço público: /transparencia/<slug>
+  slug: text("slug").notNull().unique(),
+  portalAtivo: boolean("portal_ativo").notNull().default(false),
+  // Só dígitos, com DDI+DDD (ex: 5585999998888). Usado no link wa.me.
+  whatsappNumero: text("whatsapp_numero"),
+  mostrarFinanceiro: boolean("mostrar_financeiro").notNull().default(true),
+  mostrarObras: boolean("mostrar_obras").notNull().default(true),
+  mostrarLicitacoes: boolean("mostrar_licitacoes").notNull().default(true),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 // ── CACHE DOS INSIGHTS DE IA POR MÓDULO ──
 // Sem isto, cada abertura de página de secretaria dispara uma chamada paga
 // à API da Anthropic — abrir a mesma tela 10 vezes custava 10 chamadas,

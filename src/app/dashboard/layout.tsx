@@ -55,6 +55,14 @@ function montarGrupos(
     },
   ];
 
+  if (planosAtivos.includes("essencial")) {
+    grupos[0].itens.push({
+      href: "/dashboard/atendimento",
+      label: "Atendimento",
+      icone: "alertas",
+    });
+  }
+
   if (secretariasAtivas.length > 0) {
     grupos.push({ titulo: "Secretarias", itens: secretariasAtivas });
   }
@@ -138,9 +146,11 @@ export default async function DashboardLayout({
             </div>
           </Link>
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-dark bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md">
-              Essencial
-            </span>
+            {planosAtivos.length === 0 && (
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-black/5 border border-border px-2.5 py-1 rounded-md">
+                Nenhum módulo contratado
+              </span>
+            )}
             {planosAtivos.map((p) => (
               <span
                 key={p}

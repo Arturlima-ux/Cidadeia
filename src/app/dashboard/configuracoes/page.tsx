@@ -76,15 +76,10 @@ export default async function ConfiguracoesPage() {
           </Link>
         </div>
         <p className="text-xs text-muted mb-4">
-          Essencial (Protocolo via WhatsApp + Transparência + Ouvidoria) é a base,
-          incluído para toda prefeitura. Cada secretaria e a Gestão são planos
-          avulsos.
+          Cada área é um módulo contratado separadamente — você paga só pelo que
+          a prefeitura usa.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm">
-            <span>Essencial</span>
-            <PilulaStatus label="Incluso" tom="positivo" className="shrink-0" />
-          </div>
           {PLANOS_ADDON.map((p) => {
             const ativo = planosAtivos.includes(p.chave);
             return (

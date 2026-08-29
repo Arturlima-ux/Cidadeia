@@ -16,7 +16,7 @@ const PERGUNTAS = [
   {
     pergunta: "Posso testar antes de contratar algum módulo?",
     resposta:
-      "Sim. O Essencial já vem incluso sem custo assim que você cria a conta, então dá pra explorar o painel, cadastrar dados e ver como funciona antes de contratar Saúde, Educação, Obras, Licitações ou Gestão.",
+      "Criar a conta é gratuito e sem cartão — você já entra no painel e vê como o sistema é organizado. Os módulos (Essencial, Saúde, Educação, Obras, Licitações e Gestão) são contratados separadamente; fale com a gente para combinar um período de avaliação do que sua prefeitura quer testar.",
   },
   {
     pergunta: "A IA pode inventar números ou dados que não existem?",
