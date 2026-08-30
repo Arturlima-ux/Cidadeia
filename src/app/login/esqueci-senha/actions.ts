@@ -29,6 +29,22 @@ export async function solicitarRecuperacao(
 
   const documento = normalizarDocumento(parsed.data.documento);
 
+  try {
+    return await processarRecuperacao(documento);
+  } catch (erro) {
+    // Esta tela é pública e sem login: qualquer exceção que escape daqui vira
+    // a fronteira de erro do Next ("Algo deu errado"), que não diz nada a
+    // quem está tentando entrar e ainda parece site quebrado. Melhor devolver
+    // uma mensagem acionável e deixar o motivo real no log do servidor.
+    console.error("[recuperacao] falha inesperada:", erro);
+    return {
+      ok: false,
+      erro: "Não conseguimos processar o pedido agora. Tente de novo em alguns minutos.",
+    };
+  }
+}
+
+async function processarRecuperacao(documento: string): Promise<ResultadoSolicitacao> {
   // Limite silencioso: se estourar, cai no mesmo retorno de "conta não
   // encontrada" — evita tanto spam de e-mail quanto vazar que a conta existe.
   const podeSolicitar = await limitarUso(`recuperacao:${documento}`, 3, 15);

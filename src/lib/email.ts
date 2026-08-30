@@ -20,19 +20,33 @@ export async function enviarEmail(params: {
     return { enviado: false, motivo: "Envio de e-mail não configurado neste ambiente." };
   }
 
-  const resposta = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: remetente,
-      to: params.para,
-      subject: params.assunto,
-      html: params.html,
-    }),
-  });
+  // A chamada de rede fica dentro de try/catch porque uma falha aqui — DNS,
+  // timeout, chave revogada — não pode derrubar a tela de quem pediu a
+  // recuperação de senha. Sem isso, o erro subia até a fronteira de erro do
+  // Next e o usuário via "Algo deu errado" em vez da mensagem de sempre.
+  let resposta: Response;
+  try {
+    resposta = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: remetente,
+        to: params.para,
+        subject: params.assunto,
+        html: params.html,
+      }),
+      // Sem limite, uma API lenta prende a requisição até o timeout da
+      // função serverless e o usuário fica olhando para o botão travado.
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (erro) {
+    const motivo = erro instanceof Error ? erro.message : String(erro);
+    console.error(`[email] Não foi possível falar com a Resend: ${motivo}`);
+    return { enviado: false, motivo: "Falha ao enviar o e-mail. Tente novamente." };
+  }
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
