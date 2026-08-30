@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { usuarios } from "@/db/schema";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { enviarEmail } from "./email";
+import { linkApp } from "@/lib/url-app";
 
 // Avisa por e-mail quem tem visão geral da prefeitura (prefeito/admin) quando
 // um alerta urgente é criado — manualmente ou aprovado a partir de uma
@@ -26,12 +27,11 @@ export async function notificarAlertaUrgente(params: {
 
     if (destinatarios.length === 0) return;
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const html = `
       <p><strong>Novo alerta urgente registrado na CidadeIA.</strong></p>
       <p>${params.titulo}</p>
       ${params.descricao ? `<p>${params.descricao}</p>` : ""}
-      <p><a href="${baseUrl}/dashboard/alertas">Ver na plataforma</a></p>
+      <p><a href="${linkApp("/dashboard/alertas")}">Ver na plataforma</a></p>
     `;
 
     await Promise.all(

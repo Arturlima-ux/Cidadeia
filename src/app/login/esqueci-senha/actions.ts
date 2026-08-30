@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { usuarios, tokensRecuperacaoSenha } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { normalizarDocumento } from "@/lib/documento";
+import { linkApp } from "@/lib/url-app";
 import { enviarEmail } from "@/lib/email";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
@@ -57,8 +58,7 @@ export async function solicitarRecuperacao(
     expiraEm: new Date(Date.now() + DURACAO_TOKEN_MS).toISOString(),
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const link = `${baseUrl}/login/redefinir-senha?token=${token}`;
+  const link = linkApp(`/login/redefinir-senha?token=${token}`);
 
   const resultado = await enviarEmail({
     para: usuario.email,
