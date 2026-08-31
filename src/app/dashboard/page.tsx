@@ -11,21 +11,12 @@ import { IconIA, IconDownload, IconSetaCima, IconSetaBaixo } from "@/components/
 import ValorAnimado from "@/components/ValorAnimado";
 import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "./insight-actions";
+import { fusoDoEstado, saudacao, dataPorExtenso } from "@/lib/horario";
 
-function saudacao() {
-  const hora = new Date().getHours();
-  if (hora < 12) return "Bom dia";
-  if (hora < 18) return "Boa tarde";
-  return "Boa noite";
-}
-
-function formatarDataLonga() {
-  return new Date().toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-}
+// A saudação e a data saem de lib/horario.ts, no fuso do estado da
+// prefeitura. Calcular aqui com `new Date().getHours()` devolvia a hora do
+// servidor da Vercel, que roda em UTC: às 22h no Ceará o painel dizia
+// "Bom dia" e exibia a data do dia seguinte.
 
 /** % de variação entre dois valores. null se não der pra calcular. */
 function calcularDelta(atual: number | null, anterior: number | null): number | null {
@@ -56,15 +47,17 @@ export default async function DashboardPage() {
   const temDadosFinanceiros =
     snapshot && (snapshot.receita !== null || snapshot.despesas !== null);
 
+  const fuso = fusoDoEstado(prefeitura?.estado);
+
   return (
     <div className="max-w-5xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted capitalize">
-            {formatarDataLonga()}
+            {dataPorExtenso(fuso)}
           </p>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold mt-1">
-            {saudacao()}, {prefeitura?.prefeito ? `Prefeito(a) ${prefeitura.prefeito}` : sessao?.nome}.
+            {saudacao(fuso)}, {prefeitura?.prefeito ? `Prefeito(a) ${prefeitura.prefeito}` : sessao?.nome}.
           </h1>
           <p className="text-muted text-sm mt-1.5">
             {listaAlertas.length > 0

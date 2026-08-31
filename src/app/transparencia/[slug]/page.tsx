@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { fusoDoEstado, dataNumerica } from "@/lib/horario";
 import Link from "next/link";
 import { buscarPortal } from "../actions";
 import { db } from "@/db";
@@ -28,14 +29,9 @@ const LABEL_OBRA: Record<string, string> = {
   paralisada: "Paralisada",
 };
 
-function formatarData(iso: string | null) {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR");
-  } catch {
-    return "—";
-  }
-}
+// A data sai de lib/horario.ts, no fuso do estado do município. Este portal
+// é o que o cidadão abre: mostrar "última atualização" no fuso do servidor
+// (UTC) faria a página parecer atualizada um dia à frente do que de fato foi.
 
 export default async function PortalTransparencia({
   params,
@@ -100,7 +96,7 @@ export default async function PortalTransparencia({
             <h2 className="font-serif text-2xl font-bold mb-1">Execução orçamentária</h2>
             <p className="text-sm text-muted mb-5">
               {snapshot
-                ? `Última atualização: ${formatarData(snapshot.atualizadoEm)}`
+                ? `Última atualização: ${dataNumerica(snapshot.atualizadoEm, fusoDoEstado(portal.estado))}`
                 : "Nenhum dado publicado ainda."}
             </p>
 

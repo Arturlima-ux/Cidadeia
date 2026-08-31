@@ -6,6 +6,7 @@ import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import { buscarAtendimentos, buscarConfigPublica, responderAtendimento, salvarConfigPublica } from "./actions";
 import PainelResposta from "./PainelResposta";
 import ConfigPortal from "./ConfigPortal";
+import { fusoDoEstado, dataCurta } from "@/lib/horario";
 import { NOME_TIPO, NOME_STATUS, type TipoAtendimento } from "@/lib/atendimento";
 
 const TOM_STATUS: Record<string, TomStatus> = {
@@ -15,13 +16,10 @@ const TOM_STATUS: Record<string, TomStatus> = {
   encerrado: "neutro",
 };
 
-function formatarData(iso: string) {
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-  } catch {
-    return "—";
-  }
-}
+// A data sai de lib/horario.ts, no fuso do estado da prefeitura. Formatar
+// no servidor sem fuso mostrava o dia em UTC: uma manifestação registrada
+// às 21h aparecia com a data do dia seguinte, e o cidadão que anotou o dia
+// não reconhecia o próprio protocolo.
 
 export default async function AtendimentoPage() {
   const ctx = await contextoDashboard();
@@ -34,6 +32,8 @@ export default async function AtendimentoPage() {
 
   const abertos = lista.filter((a) => a.status === "aberto" || a.status === "em_analise");
   const fechados = lista.filter((a) => a.status === "respondido" || a.status === "encerrado");
+
+  const fuso = fusoDoEstado(ctx.prefeitura?.estado);
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -89,7 +89,7 @@ export default async function AtendimentoPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-xs font-semibold">{a.protocolo}</span>
                       <span className="text-[11px] text-muted">
-                        {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · {formatarData(a.createdAt)}
+                        {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · {dataCurta(a.createdAt, fuso)}
                       </span>
                       {a.anonimo && (
                         <span className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-black/5 rounded-full px-2 py-0.5">
