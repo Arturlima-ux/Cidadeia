@@ -4,7 +4,7 @@ import { lerSessao } from "@/lib/sessao";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
-import { formatarMoeda, formatarMoedaExata } from "@/lib/formatadores";
+import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -146,78 +146,77 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SiteHeader />
 
-      {/* ═══ HERO — responde "posso contratar?" antes de qualquer outra coisa ═══ */}
-      <section className="relative overflow-hidden text-white" style={{ background: "var(--gradient-hero)" }}>
+      {/* ═══ HERO — promete o CAMINHO, não o produto ═══
+          Curto e centrado de propósito: quem chega quer saber se consegue
+          contratar, não ler especificação. O número do limite fica na seção
+          seguinte, para o herói não virar um painel de dados. */}
+      <section
+        className="relative overflow-hidden border-b border-border"
+        style={{ background: "linear-gradient(180deg, var(--brand-tint) 0%, var(--background) 100%)" }}
+      >
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-32 -right-24 w-[38rem] h-[38rem] rounded-full opacity-20"
-          style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 65%)" }}
+          className="pointer-events-none absolute inset-0 opacity-[0.5]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            maskImage: "radial-gradient(ellipse 60% 50% at 50% 0%, #000 20%, transparent 75%)",
+          }}
         />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-16 grid lg:grid-cols-[1fr_380px] gap-10 lg:gap-12 items-center">
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-8 py-16 sm:py-20 text-center flex flex-col items-center gap-5">
           <Reveal>
-            <div className="flex flex-col gap-5">
-              <span className="self-start text-xs font-bold uppercase tracking-[0.1em] rounded-full px-4 py-1.5 border border-white/25 bg-white/10">
-                {LIMITE_DISPENSA.base}
-              </span>
-              <h1 className="font-serif text-[2.4rem] leading-[1.08] sm:text-5xl sm:leading-[1.07] font-extrabold tracking-[-0.035em]">
-                Sua prefeitura pode contratar hoje, por dispensa de licitação.
-              </h1>
-              <p className="text-white/80 text-base sm:text-lg leading-relaxed max-w-xl">
-                Abaixo do limite anual de dispensa, a contratação é direta — sem
-                edital, sem pregão e sem esperar o próximo exercício. Monte a
-                proposta da sua prefeitura e veja na hora se ela cabe no limite.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 mt-1">
-                <Link
-                  href="#proposta"
-                  className="bg-white text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-6 py-3.5 hover:opacity-90 transition"
-                >
-                  Montar minha proposta
-                </Link>
-                <Link
-                  href="/kit"
-                  className="border-[1.5px] border-white/35 font-semibold text-sm rounded-xl px-5 py-3.5 hover:bg-white/10 transition"
-                >
-                  Ver o kit de contratação
-                </Link>
-              </div>
+            <span
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] rounded-full px-4 py-1.5 border"
+              style={{
+                color: "var(--accent)",
+                background: "var(--accent-tint)",
+                borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+              Sem reunião obrigatória
+            </span>
+          </Reveal>
+
+          <Reveal delay={90}>
+            <h1 className="font-serif text-[2.5rem] leading-[1.06] sm:text-[3.4rem] sm:leading-[1.04] font-extrabold tracking-[-0.04em] max-w-3xl">
+              Da primeira dúvida ao contrato assinado, sem uma reunião sequer.
+            </h1>
+          </Reveal>
+
+          <Reveal delay={170}>
+            <p className="text-muted text-base sm:text-lg leading-relaxed max-w-xl">
+              Você não precisa da gente para descobrir se pode contratar, quanto
+              custa, nem o que vai assinar. Está tudo nesta página.
+            </p>
+          </Reveal>
+
+          <Reveal delay={250}>
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-2">
+              <Link
+                href="#proposta"
+                className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+              >
+                Montar minha proposta
+              </Link>
+              <Link
+                href="/kit"
+                className="border-[1.5px] border-border bg-card font-semibold text-sm rounded-xl px-6 py-3.5 hover:border-brand hover:text-brand transition"
+              >
+                Baixar o kit de contratação
+              </Link>
             </div>
           </Reveal>
 
-          {/* Cartão do limite — o número que o secretário precisa citar. */}
-          <Reveal delay={140}>
-            <div className="bg-card text-foreground rounded-2xl p-6 shadow-[var(--shadow-lg)]">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                Limite de dispensa em {LIMITE_DISPENSA.ano}
-              </p>
-              <p className="font-serif text-[2.35rem] leading-none font-extrabold tracking-[-0.04em] mt-3">
-                {formatarMoedaExata(LIMITE_DISPENSA.valor)}
-              </p>
-              <p className="text-sm text-muted mt-2 leading-relaxed">
-                por contratação, no exercício — para serviços e compras em geral.
-              </p>
-              <div className="h-px bg-border my-4" />
-              <ul className="flex flex-col gap-2">
-                {["Sem edital e sem pregão", "Dispensa eletrônica, processo curto", "Termo de referência já pronto"].map(
-                  (item) => (
-                    <li key={item} className="flex gap-2.5 text-sm text-muted leading-snug">
-                      <IconCheck className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
-                      {item}
-                    </li>
-                  )
-                )}
-              </ul>
-              <p className="text-xs text-muted leading-relaxed border-t border-border pt-3 mt-4">
-                Valor atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
-                {LIMITE_DISPENSA.vigenteDesde} — reajustado todo ano. É vedado
-                fracionar a despesa para caber no limite: o que conta é o total
-                anual do objeto.
-              </p>
-            </div>
+          <Reveal delay={320}>
+            <p className="text-xs text-muted mt-1">
+              Sem cartão de crédito · sem instalação · dados do município sempre exportáveis
+            </p>
           </Reveal>
         </div>
       </section>
-
       {/* ═══ COMO CONTRATAR ═══ */}
       <section id="como-contratar" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
         <Reveal>
@@ -232,6 +231,50 @@ export default async function LandingPage() {
             </p>
           </div>
         </Reveal>
+        {/* O número que o secretário precisa citar no processo. Fica aqui, e
+            não no herói, para a primeira tela não virar painel de dados. */}
+        <Reveal>
+          <div
+            className="rounded-2xl border p-6 sm:p-7 mb-6 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10"
+            style={{ borderColor: "var(--accent)", background: "var(--accent-tint)" }}
+          >
+            <div className="shrink-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                Limite de dispensa em {LIMITE_DISPENSA.ano}
+              </p>
+              <p className="font-serif text-[2.5rem] leading-none font-extrabold tracking-[-0.04em] mt-2">
+                {formatarMoedaExata(LIMITE_DISPENSA.valor)}
+              </p>
+              <p className="text-sm text-muted mt-2">por contratação, no exercício</p>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                {[
+                  "Sem edital e sem pregão",
+                  "Dispensa eletrônica, processo curto",
+                  "Termo de referência já pronto",
+                  LIMITE_DISPENSA.base,
+                ].map((item) => (
+                  <li key={item} className="flex gap-2.5 text-sm leading-snug">
+                    <IconCheck
+                      className="w-4 h-4 shrink-0 mt-0.5"
+                      style={{ color: "var(--accent)" }}
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted leading-relaxed mt-4 pt-4 border-t border-[color:var(--accent)]/25">
+                Valor atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
+                {LIMITE_DISPENSA.vigenteDesde} — reajustado todo ano. É vedado
+                fracionar a despesa para caber no limite: o que conta é o total
+                anual do objeto.
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
         <div className="grid md:grid-cols-3 gap-5">
           {CAMINHOS.map((c, i) => {
             const destaque = c.chave === "dispensa";
