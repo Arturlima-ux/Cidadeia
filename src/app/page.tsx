@@ -4,7 +4,7 @@ import { lerSessao } from "@/lib/sessao";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
-import { EXIGENCIAS } from "@/lib/diagnostico";
+import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -40,11 +40,12 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
   licitacoes: IconLicitacoes,
 };
 
+// As mesmas quatro leis que o herói nomeia, na ordem em que ele as nomeia.
 const CONFORMIDADE_TOPO = [
   "Lei 12.527/2011 · LAI",
   "Lei 13.460/2017 · Ouvidoria",
+  "LC 101/2000 · LRF",
   "Lei 13.709/2018 · LGPD",
-  "Prestação de contas ao TCE",
 ];
 
 // A comparação é o argumento mais forte da página: o visitante sente o que
@@ -242,36 +243,48 @@ export default async function LandingPage() {
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
                   />
-                  Exercício de {LIMITE_DISPENSA.ano} · aberto
+                  Conformidade · exercício de {LIMITE_DISPENSA.ano}
                 </span>
 
-                <h1 className="font-serif text-[2.9rem] leading-[0.98] sm:text-[3.9rem] sm:leading-[0.96] font-extrabold tracking-[-0.045em] mt-6 max-w-[20ch]">
-                  Sua prefeitura pode contratar hoje. Sem licitação.
+                {/* A dobra abria com COMO COMPRAR — dispensa, limite, valor —
+                    e a primeira coisa que o prefeito lia era um convite a
+                    gastar sem licitar. Correto pelo art. 75, II, e mesmo
+                    assim o pior som possível para quem vive com medo de
+                    improbidade. Pior: ele descia a tela inteira sem descobrir
+                    o que o sistema faz.
+
+                    Agora abre pelo risco que ele já corre com ou sem a gente.
+                    A dispensa continua na página — desceu para junto do
+                    preço, que é onde ela remove objeção em vez de criar. */}
+                <h1 className="font-serif text-[2.9rem] leading-[1.0] sm:text-[3.8rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[16ch] [text-wrap:balance]">
+                  Seu município já descumpre a LAI?
                 </h1>
 
-                <p className="text-muted text-base sm:text-lg leading-relaxed mt-6 max-w-[46ch]">
-                  Abaixo do limite anual de dispensa, a contratação é direta: sem
-                  edital, sem pregão, sem esperar o próximo exercício. O valor
-                  está nesta página — não atrás de uma reunião.
+                <p className="text-muted text-base sm:text-lg leading-relaxed mt-6 max-w-[48ch]">
+                  {EXIGENCIAS.length} exigências da Lei de Acesso à Informação,
+                  da Lei 13.460, da Lei de Responsabilidade Fiscal e da LGPD.
+                  Responda em dois minutos e veja quais o seu município atende —
+                  cada pendência sai com o artigo que a cria, antes de aparecer
+                  no parecer do Tribunal de Contas.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 mt-8">
                   <Link
-                    href="#proposta"
+                    href="/diagnostico"
                     className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
                   >
-                    Ver quanto custa&nbsp;&nbsp;→
+                    Fazer o diagnóstico&nbsp;&nbsp;→
                   </Link>
                   <Link
-                    href="/kit"
+                    href="#proposta"
                     className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
                   >
-                    Baixar o processo pronto
+                    Ver quanto custa
                   </Link>
                 </div>
 
                 <p className="text-xs text-muted mt-4">
-                  Sem cartão de crédito · sem instalação · dados sempre exportáveis
+                  Dois minutos · sem cadastro · nada é enviado
                 </p>
 
                 {/* A prova sobe para o herói. Ficava na quarta seção, depois
@@ -311,38 +324,47 @@ export default async function LandingPage() {
               </div>
             </Reveal>
 
-            {/* cartão da oferta */}
+            {/* O cartão exibia R$ 65.492,11 em corpo 43 — o maior elemento
+                da tela era um número que NÃO é o preço do produto. Quem passa
+                o olho lê "custa 65 mil". Agora o número grande é a contagem
+                de exigências: não é dinheiro, e não dá para ler errado. */}
             <Reveal delay={140}>
               <div className="vidro rounded-2xl p-7">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                  Limite de dispensa · {LIMITE_DISPENSA.ano}
+                  O que é verificado
                 </p>
-                <p className="font-serif text-[2.7rem] leading-none font-extrabold tracking-[-0.05em] mt-3 tabular-nums">
-                  {formatarMoedaExata(LIMITE_DISPENSA.valor)}
+                <p className="font-serif text-[3.2rem] leading-none font-extrabold tracking-[-0.05em] mt-3 tabular-nums">
+                  {EXIGENCIAS.length}
                 </p>
-                <p className="text-sm text-muted mt-2">por contratação, no exercício</p>
+                <p className="text-sm text-muted mt-2">exigências, em quatro blocos</p>
 
-                <ul className="flex flex-col gap-2.5 mt-6">
-                  {[
-                    "Contratação direta, sem edital",
-                    "Termo de referência já redigido",
-                    LIMITE_DISPENSA.base,
-                  ].map((item) => (
-                    <li key={item} className="flex gap-2.5 text-sm leading-snug">
-                      <IconCheck
-                        className="w-4 h-4 shrink-0 mt-0.5"
-                        style={{ color: "var(--accent)" }}
-                      />
-                      {item}
-                    </li>
-                  ))}
+                <ul className="flex flex-col gap-3 mt-6">
+                  {BLOCOS.map((b) => {
+                    const doBloco = exigenciasDoBloco(b);
+                    return (
+                      <li key={b} className="flex items-baseline justify-between gap-4">
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold leading-snug">
+                            {NOME_BLOCO[b]}
+                          </span>
+                          <span className="block text-xs font-mono text-muted mt-0.5">
+                            {doBloco[0]?.lei.replace(/\s*\(.*\)$/, "")}
+                          </span>
+                        </span>
+                        <span
+                          className="text-sm font-bold tabular-nums shrink-0"
+                          style={{ color: "var(--accent-claro)" }}
+                        >
+                          {doBloco.length}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <p className="text-xs text-muted leading-relaxed border-t border-border pt-4 mt-6">
-                  Atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
-                  {LIMITE_DISPENSA.vigenteDesde} e reajustado todo ano. É vedado
-                  fracionar a despesa para caber no limite: o que conta é o total
-                  anual do objeto.
+                  {naoResolvemos.length} delas continuam com a prefeitura mesmo
+                  contratando o CidadeIA — e estão na lista assim mesmo.
                 </p>
               </div>
             </Reveal>
@@ -432,6 +454,48 @@ export default async function LandingPage() {
                 </p>
               </div>
             </Reveal>
+            {/* Todo o conteúdo do antigo cartão do herói, inteiro, no lugar
+                onde ele trabalha: encostado no preço. Aqui o limite responde
+                "e eu posso comprar isso?"; lá em cima ele perguntava "quer
+                gastar 65 mil sem licitar?" antes de dizer o que o produto é. */}
+            <Reveal delay={80}>
+              <div className="vidro rounded-2xl p-6 sm:p-7 mb-6 grid sm:grid-cols-[auto_1fr] gap-6 sm:gap-8">
+                <div className="shrink-0">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                    Limite de dispensa · {LIMITE_DISPENSA.ano}
+                  </p>
+                  <p className="font-serif text-[2.4rem] leading-none font-extrabold tracking-[-0.05em] mt-2.5 tabular-nums">
+                    {formatarMoedaExata(LIMITE_DISPENSA.valor)}
+                  </p>
+                  <p className="text-xs text-muted mt-2">por contratação, no exercício</p>
+                </div>
+
+                <div className="sm:border-l border-border sm:pl-8">
+                  <ul className="flex flex-col gap-2.5">
+                    {[
+                      "Contratação direta, sem edital",
+                      "Termo de referência já redigido",
+                      LIMITE_DISPENSA.base,
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm leading-snug">
+                        <IconCheck
+                          className="w-4 h-4 shrink-0 mt-0.5"
+                          style={{ color: "var(--accent)" }}
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-muted leading-relaxed border-t border-border pt-4 mt-4">
+                    Atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
+                    {LIMITE_DISPENSA.vigenteDesde} e reajustado todo ano. É vedado
+                    fracionar a despesa para caber no limite: o que conta é o total
+                    anual do objeto.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+
             <Reveal delay={120}>
               <MontadorProposta />
             </Reveal>
@@ -502,59 +566,36 @@ export default async function LandingPage() {
           </Reveal>
         </section>
 
-        {/* ═══ DIAGNÓSTICO ═══
-            A saída para quem rolou o preço e não converteu. Sem cliente para
-            exibir, a única prova que podemos oferecer de graça é conhecimento
-            da obrigação legal — e ela vale mais cedo do que o preço, porque
-            cria o problema que o preço resolve. */}
+        {/* ═══ DIAGNÓSTICO — lembrete ═══
+            Era uma seção inteira, com um cartão que repetia quase palavra por
+            palavra o do herói. Agora que a oferta do diagnóstico ABRE a
+            página, aqui basta a porta: quem desceu até o preço e não converteu
+            ainda tem para onde ir. */}
         <section className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <div className="grid lg:grid-cols-[1fr_360px] gap-10 lg:gap-14 items-center">
-              <Reveal>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
+            <Reveal>
+              <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-6">
                 <div>
                   <Olho>Diagnóstico gratuito</Olho>
-                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
-                    Antes de comprar, descubra o que já está em falta.
+                  <h2 className="font-serif text-2xl sm:text-[2rem] font-extrabold tracking-[-0.035em] leading-[1.1] mt-4 max-w-[22ch]">
+                    Ainda em dúvida? Comece descobrindo o que já falta.
                   </h2>
-                  <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
-                    {EXIGENCIAS.length} exigências da LAI, da Lei 13.460, da Lei
-                    de Responsabilidade Fiscal e da LGPD. Dois minutos, sem
-                    cadastro, sem pedir e-mail — e a lista sai com o artigo de
-                    cada pendência, para levar ao jurídico.
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 mt-8">
-                    <Link
-                      href="/diagnostico"
-                      className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
-                    >
-                      Fazer o diagnóstico&nbsp;&nbsp;→
-                    </Link>
-                    <span className="text-xs text-muted">
-                      Nada é enviado. As respostas ficam no seu navegador.
-                    </span>
-                  </div>
-                </div>
-              </Reveal>
-
-              <Reveal delay={140}>
-                <div className="vidro rounded-2xl p-7">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                    Inclui as que não resolvemos
-                  </p>
-                  <p className="text-sm leading-relaxed mt-4">
-                    {naoResolvemos.length} das {EXIGENCIAS.length} exigências
-                    continuam com a prefeitura mesmo contratando o CidadeIA —
-                    entre elas {naoResolvemos[0]?.artigo} da{" "}
-                    {naoResolvemos[0]?.lei.replace(/\s*\(.*\)$/, "")}.
-                  </p>
-                  <p className="text-sm text-muted leading-relaxed border-t border-border pt-4 mt-5">
-                    Estão no resultado porque um diagnóstico em que tudo por
-                    acaso é resolvido por quem o publicou não é diagnóstico, é
-                    proposta comercial disfarçada.
+                  <p className="text-sm text-muted leading-relaxed mt-3 max-w-[58ch]">
+                    {EXIGENCIAS.length} exigências, dois minutos, sem cadastro —
+                    inclusive as {naoResolvemos.length} que continuam com a
+                    prefeitura mesmo contratando o CidadeIA. Um diagnóstico em
+                    que tudo por acaso é resolvido por quem o publicou não é
+                    diagnóstico, é proposta comercial disfarçada.
                   </p>
                 </div>
-              </Reveal>
-            </div>
+                <Link
+                  href="/diagnostico"
+                  className="shrink-0 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                >
+                  Fazer o diagnóstico&nbsp;&nbsp;→
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </section>
 
