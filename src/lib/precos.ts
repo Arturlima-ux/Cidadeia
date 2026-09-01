@@ -9,8 +9,14 @@ import { caminhoSugerido, type CaminhoContratacao } from "@/lib/contratacao";
 
 export type PorteMunicipio = "ate10k" | "de10a50k" | "acima50k";
 
+// A primeira faixa é escrita como intervalo fechado, "0 a 10 mil", e não como
+// teto ("Até 10 mil"). A diferença não é cosmética: quase metade dos 5.570
+// municípios brasileiros tem menos de 10 mil habitantes, e é justamente o
+// prefeito desses que assume não caber em software de gestão. Um teto convida
+// a pensar "será que sou pequeno demais?"; um intervalo que começa no zero
+// responde a pergunta antes de ela ser feita.
 export const PORTES: { chave: PorteMunicipio; rotulo: string; detalhe: string }[] = [
-  { chave: "ate10k", rotulo: "Até 10 mil", detalhe: "habitantes" },
+  { chave: "ate10k", rotulo: "0 a 10 mil", detalhe: "habitantes" },
   { chave: "de10a50k", rotulo: "10 a 50 mil", detalhe: "habitantes" },
   { chave: "acima50k", rotulo: "Acima de 50 mil", detalhe: "habitantes" },
 ];

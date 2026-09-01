@@ -11,7 +11,7 @@ import { buscarUnidadesSaude, buscarUltimoIndicadorSaude } from "@/app/dashboard
 import { buscarEscolas, buscarUltimoIndicadorEducacao } from "@/app/dashboard/secretarias/educacao/actions";
 import { buscarObras } from "@/app/dashboard/secretarias/obras/actions";
 import { buscarLicitacoes } from "@/app/dashboard/secretarias/licitacoes/actions";
-import { planosContratadosDe } from "@/lib/planos";
+import { planosContratadosDe, type PlanoAddon } from "@/lib/planos";
 import { projetarProximoPeriodo } from "@/lib/projecao";
 import { montarEficacia } from "@/lib/montar-eficacia";
 import {
@@ -21,6 +21,8 @@ import {
   detectarSaldoNegativo,
   type DeteccaoAutomatica,
 } from "@/lib/deteccao-automatica";
+import { provedorIA, ESFORCO_PADRAO, MODELO_ANTHROPIC_PADRAO } from "@/lib/provedor-ia";
+import { analisarModulo, textoAnalise, type DadosAnalise } from "@/lib/analise-local";
 
 export type MensagemChat = { papel: "user" | "assistant"; texto: string };
 
@@ -305,12 +307,15 @@ export async function perguntarIA(
   novaPergunta: string,
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ): Promise<RespostaIA> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  // O chat é a única das três chamadas que NÃO tem substituto determinístico:
+  // pergunta aberta sobre os próprios dados é exatamente o que regra não faz.
+  // Aqui a mensagem de erro precisa ser útil, e não um traceback disfarçado.
+  const provedor = provedorIA();
+  if (provedor.nome === "nenhum") {
     return {
       ok: false,
       erro:
-        "A IA Central ainda não está configurada neste ambiente: falta a variável ANTHROPIC_API_KEY no .env. Veja o README para instruções de como gerar uma chave.",
+        "A Central de IA ainda não está configurada neste ambiente. Enquanto isso, os painéis de cada secretaria continuam trazendo a análise automática, que não depende de IA.",
     };
   }
 
@@ -325,34 +330,52 @@ export async function perguntarIA(
     };
   }
 
-  const client = new Anthropic({ apiKey });
+  return provedor.conversar({
+    sistema: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
+    maxTokens: 800,
+    esforco: ESFORCO_PADRAO.chat,
+    mensagens: [...historico, { papel: "user", texto: novaPergunta }],
+  });
+}
 
-  try {
-    const resposta = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: 800,
-      system: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
-      messages: [
-        ...historico.map((m) => ({
-          role: m.papel,
-          content: m.texto,
-        })),
-        { role: "user" as const, content: novaPergunta },
-      ],
-    });
+/**
+ * Carrega, no escopo que o usuário pode ver, os dados brutos que a análise
+ * determinística de lib/analise-local.ts consome.
+ *
+ * Repare que isto NÃO é o `montarContexto`: aquele produz texto para um
+ * modelo ler; este produz objetos para regras calcularem. São propósitos
+ * diferentes e formatos diferentes, e tentar servir aos dois com uma
+ * estrutura só acabaria com regra fazendo parse de string.
+ *
+ * A ausência da chave importa: quando a prefeitura não contratou o módulo (ou
+ * o secretário não tem acesso a ele), o campo fica indefinido em vez de vir
+ * vazio — a análise distingue "não faz parte do seu contrato" de "está
+ * contratado e sem nada cadastrado".
+ */
+async function carregarDadosAnalise(
+  prefeituraId: string,
+  restricaoCargo?: { cargo: string; secretaria?: string | null }
+): Promise<DadosAnalise> {
+  const escopo = await escopoVisivel(prefeituraId, restricaoCargo);
 
-    const bloco = resposta.content.find((b) => b.type === "text");
-    if (!bloco || bloco.type !== "text") {
-      return { ok: false, erro: "A IA não retornou uma resposta em texto." };
-    }
-    return { ok: true, texto: bloco.text };
-  } catch (e) {
-    console.error("[IA Central] falha na chamada à API:", e);
-    return {
-      ok: false,
-      erro: "Não foi possível falar com a IA agora. Tente novamente em instantes.",
-    };
-  }
+  const [indicadorSaude, unidades, indicadorEducacao, escolas, listaObras, listaLicitacoes, snapshot] =
+    await Promise.all([
+      escopo.saude ? buscarUltimoIndicadorSaude(prefeituraId) : Promise.resolve(null),
+      escopo.saude ? buscarUnidadesSaude(prefeituraId) : Promise.resolve([]),
+      escopo.educacao ? buscarUltimoIndicadorEducacao(prefeituraId) : Promise.resolve(null),
+      escopo.educacao ? buscarEscolas(prefeituraId) : Promise.resolve([]),
+      escopo.obras ? buscarObras(prefeituraId) : Promise.resolve([]),
+      escopo.licitacoes ? buscarLicitacoes(prefeituraId) : Promise.resolve([]),
+      escopo.financeiro ? buscarUltimoSnapshot(prefeituraId) : Promise.resolve(null),
+    ]);
+
+  const dados: DadosAnalise = {};
+  if (escopo.saude) dados.saude = { indicador: indicadorSaude, unidades };
+  if (escopo.educacao) dados.educacao = { indicador: indicadorEducacao, escolas };
+  if (escopo.obras) dados.obras = listaObras;
+  if (escopo.licitacoes) dados.licitacoes = listaLicitacoes;
+  if (escopo.financeiro) dados.financeiro = { snapshot };
+  return dados;
 }
 
 export type ModuloInsight = "geral" | "saude" | "educacao" | "obras" | "licitacoes";
@@ -375,12 +398,24 @@ export async function gerarInsightModulo(
   modulo: ModuloInsight,
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ): Promise<RespostaIA> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return {
-      ok: false,
-      erro: "Insight por IA ainda não está configurado neste ambiente: falta a variável ANTHROPIC_API_KEY no .env.",
-    };
+  // ── Sem provedor de modelo, o insight NÃO some ──
+  //
+  // Antes esta função devolvia um erro sobre variável de ambiente faltando, e
+  // o painel de cada secretaria ficava com um aviso de configuração no lugar
+  // da análise. Do lado do prefeito isso é indistinguível de produto quebrado.
+  //
+  // A análise determinística de lib/analise-local.ts responde à mesma
+  // pergunta — o que mais importa agora, e o que fazer — a partir das mesmas
+  // regras que já sustentam os alertas automáticos. Custa zero, não depende de
+  // rede e, num órgão público, tem uma vantagem que o modelo não tem: dá para
+  // explicar ao Tribunal de Contas de onde saiu cada frase.
+  //
+  // Com provedor configurado, o modelo assume; a análise local vira a rede de
+  // proteção para quando ele falhar.
+  const provedor = provedorIA();
+
+  if (provedor.nome === "nenhum") {
+    return insightLocal(prefeituraId, modulo, restricaoCargo);
   }
 
   let contexto: string;
@@ -391,34 +426,51 @@ export async function gerarInsightModulo(
     return { ok: false, erro: "Não foi possível carregar os dados para gerar o insight agora." };
   }
 
-  const client = new Anthropic({ apiKey });
+  const resposta = await provedor.conversar({
+    sistema: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
+    maxTokens: 300,
+    esforco: ESFORCO_PADRAO.insight,
+    mensagens: [
+      {
+        papel: "user",
+        texto:
+          `Com base só nos dados reais de ${LABEL_MODULO_INSIGHT[modulo]} mostrados acima, ` +
+          "dê um insight curto (no máximo 2 frases) sobre o ponto mais importante agora, " +
+          "e uma ação concreta sugerida em uma frase. Se não houver dados suficientes pra " +
+          "dizer algo útil, diga isso claramente em vez de forçar um insight genérico. " +
+          "Não enumere tudo — só o que mais importa.",
+      },
+    ],
+  });
 
+  // Modelo indisponível não pode virar tela vazia: a análise por regra
+  // responde a mesma pergunta e o painel continua útil.
+  if (!resposta.ok) {
+    console.error("[Insight IA] provedor falhou, caindo para a análise local:", resposta.erro);
+    return insightLocal(prefeituraId, modulo, restricaoCargo);
+  }
+  return resposta;
+}
+
+/**
+ * Insight calculado por regra, sem chamar modelo nenhum.
+ *
+ * Devolve `ok: true` inclusive quando não há dado — porque "os indicadores de
+ * Saúde nunca foram preenchidos" É a informação mais útil que existe naquele
+ * momento, e mostrá-la como erro de sistema esconde do gestor exatamente o
+ * que ele precisa resolver.
+ */
+async function insightLocal(
+  prefeituraId: string,
+  modulo: ModuloInsight,
+  restricaoCargo?: { cargo: string; secretaria?: string | null }
+): Promise<RespostaIA> {
   try {
-    const resposta = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: 300,
-      system: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
-      messages: [
-        {
-          role: "user",
-          content:
-            `Com base só nos dados reais de ${LABEL_MODULO_INSIGHT[modulo]} mostrados acima, ` +
-            "dê um insight curto (no máximo 2 frases) sobre o ponto mais importante agora, " +
-            "e uma ação concreta sugerida em uma frase. Se não houver dados suficientes pra " +
-            "dizer algo útil, diga isso claramente em vez de forçar um insight genérico. " +
-            "Não enumere tudo — só o que mais importa.",
-        },
-      ],
-    });
-
-    const bloco = resposta.content.find((b) => b.type === "text");
-    if (!bloco || bloco.type !== "text") {
-      return { ok: false, erro: "A IA não retornou uma resposta em texto." };
-    }
-    return { ok: true, texto: bloco.text };
+    const dados = await carregarDadosAnalise(prefeituraId, restricaoCargo);
+    return { ok: true, texto: textoAnalise(analisarModulo(modulo, dados)) };
   } catch (e) {
-    console.error("[Insight IA] falha na chamada à API:", e);
-    return { ok: false, erro: "Não foi possível falar com a IA agora. Tente novamente em instantes." };
+    console.error("[Insight local] falha ao carregar dados:", e);
+    return { ok: false, erro: "Não foi possível carregar os dados para gerar o insight agora." };
   }
 }
 
@@ -461,21 +513,54 @@ function paraSugestao(d: DeteccaoAutomatica): SugestaoAlertaIA {
  * saldo negativo) — mesmo escopo de secretaria/plano que o resto do
  * contexto, mas sem custo de IA e sem risco de a IA "esquecer" de checar.
  */
+/**
+ * O que este usuário pode ver: cruzamento de plano contratado com cargo.
+ *
+ * Ficou numa função só porque é uma regra de ISOLAMENTO, não de apresentação:
+ * secretário de Saúde não pode ver dado de Educação, e nenhum deles vê o
+ * financeiro consolidado. Duplicar isso em cada lugar que carrega dados é
+ * como as duas cópias divergem — e a que ficar para trás vira vazamento
+ * silencioso entre secretarias.
+ */
+async function escopoVisivel(
+  prefeituraId: string,
+  restricaoCargo?: { cargo: string; secretaria?: string | null }
+) {
+  const ehSecretario = restricaoCargo?.cargo === "secretario";
+  const minha = restricaoCargo?.secretaria;
+
+  const prefeitura = await buscarPrefeitura(prefeituraId);
+  const planos = planosContratadosDe(prefeitura?.planosContratados);
+
+  // Tipado de propósito: `as never` compilaria, mas apagaria justamente a
+  // checagem que garante que o nome da área existe entre os módulos reais.
+  // Um erro de digitação aqui abriria ou fecharia acesso em silêncio.
+  const daSecretaria = (area: PlanoAddon) =>
+    planos.includes(area) && (!ehSecretario || minha === area);
+
+  return {
+    saude: daSecretaria("saude"),
+    educacao: daSecretaria("educacao"),
+    obras: daSecretaria("obras"),
+    licitacoes: daSecretaria("licitacoes"),
+    // O consolidado é do gabinete: nenhum secretário o enxerga, tenha ele o
+    // módulo de Gestão ou não.
+    financeiro: !ehSecretario && planos.includes("gestao"),
+  };
+}
+
 export async function gerarDeteccoesAutomaticas(
   prefeituraId: string,
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ): Promise<DeteccaoAutomatica[]> {
-  const ehSecretario = restricaoCargo?.cargo === "secretario";
-  const minhaSecretaria = restricaoCargo?.secretaria;
-
-  const prefeitura = await buscarPrefeitura(prefeituraId);
-  const planosAtivos = planosContratadosDe(prefeitura?.planosContratados);
-
-  const mostrarSaude = planosAtivos.includes("saude") && (!ehSecretario || minhaSecretaria === "saude");
-  const mostrarEducacao = planosAtivos.includes("educacao") && (!ehSecretario || minhaSecretaria === "educacao");
-  const mostrarObras = planosAtivos.includes("obras") && (!ehSecretario || minhaSecretaria === "obras");
-  const mostrarLicitacoes = planosAtivos.includes("licitacoes") && (!ehSecretario || minhaSecretaria === "licitacoes");
-  const mostrarFinanceiro = !ehSecretario && planosAtivos.includes("gestao");
+  const escopo = await escopoVisivel(prefeituraId, restricaoCargo);
+  const {
+    saude: mostrarSaude,
+    educacao: mostrarEducacao,
+    obras: mostrarObras,
+    licitacoes: mostrarLicitacoes,
+    financeiro: mostrarFinanceiro,
+  } = escopo;
 
   const [indicadorSaude, indicadorEducacao, listaObras, listaLicitacoes, snapshot] = await Promise.all([
     mostrarSaude ? buscarUltimoIndicadorSaude(prefeituraId) : Promise.resolve(null),
@@ -513,8 +598,18 @@ export async function gerarSugestoesAlertas(
   }
   const sugestoesAutomaticas = deteccoes.map(paraSugestao);
 
+  // Esta é a única das três chamadas que usa TOOL USE, para receber a lista
+  // de sugestões já estruturada em vez de fazer parse de texto. Tool use não
+  // é portável entre provedores — o formato é da Anthropic —, então esta
+  // função não passa pela abstração de lib/provedor-ia.ts e só roda quando o
+  // provedor configurado é o da Anthropic.
+  //
+  // Não perder nada nos outros casos é o ponto: `sugestoesAutomaticas` já
+  // trouxe tudo que as regras determinísticas encontraram. Sem modelo, a
+  // funcionalidade continua entregando — com menos alcance, não quebrada.
+  const provedor = provedorIA();
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  if (provedor.nome !== "anthropic" || !apiKey) {
     return { ok: true, sugestoes: sugestoesAutomaticas };
   }
 
@@ -532,9 +627,18 @@ export async function gerarSugestoesAlertas(
 
   try {
     const resposta = await client.messages.create({
-      model: "claude-sonnet-5",
+      model: provedor.modelo ?? MODELO_ANTHROPIC_PADRAO,
       max_tokens: 1500,
-      system: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
+      output_config: { effort: ESFORCO_PADRAO.sugestaoAlertas },
+      // O prompt de sistema tem ~3.500 tokens e vai inteiro em toda chamada.
+      // Marcado para cache, a releitura custa ~10% do preço normal.
+      system: [
+        {
+          type: "text" as const,
+          text: `${SYSTEM_PROMPT_BASE}\n\n${contexto}`,
+          cache_control: { type: "ephemeral" as const },
+        },
+      ],
       messages: [
         {
           role: "user",
