@@ -52,7 +52,7 @@ const PERGUNTAS = [
 
 export default function FaqPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="tema-noite min-h-screen">
       <SiteHeader />
 
       <Reveal>

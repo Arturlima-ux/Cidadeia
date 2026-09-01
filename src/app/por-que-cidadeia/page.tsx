@@ -28,7 +28,7 @@ const SOLUCOES = [
 
 export default function PorQueCidadeIAPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="tema-noite min-h-screen">
       <SiteHeader />
 
       <Reveal>
@@ -75,7 +75,10 @@ export default function PorQueCidadeIAPage() {
               <div className="space-y-3">
                 {SOLUCOES.map((texto) => (
                   <div key={texto} className="flex items-start gap-3 bg-brand-tint border border-brand/15 rounded-xl p-4">
-                    <span className="w-6 h-6 rounded-full bg-white text-brand flex items-center justify-center shrink-0 mt-0.5">
+                    {/* Era um círculo branco: sobre o fundo escuro virava um
+                        ponto aceso no meio do texto. O disco agora usa o
+                        token da marca e funciona nos dois temas. */}
+                    <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center shrink-0 mt-0.5">
                       <IconCheck className="w-3.5 h-3.5" />
                     </span>
                     <p className="text-sm leading-relaxed">{texto}</p>

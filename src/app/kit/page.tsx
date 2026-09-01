@@ -69,7 +69,7 @@ export default function KitPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="tema-noite min-h-screen">
       <SiteHeader />
 
       {/* ── capa ── */}
