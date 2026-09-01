@@ -5,6 +5,7 @@ import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
 import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
+import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -40,12 +41,31 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
   licitacoes: IconLicitacoes,
 };
 
-// As mesmas quatro leis que o herói nomeia, na ordem em que ele as nomeia.
-const CONFORMIDADE_TOPO = [
-  "Lei 12.527/2011 · LAI",
-  "Lei 13.460/2017 · Ouvidoria",
-  "LC 101/2000 · LRF",
-  "Lei 13.709/2018 · LGPD",
+// Sinais de que existe alguém do outro lado, sem inventar credencial que não
+// temos. Cada linha aponta para algo que o visitante consegue abrir e
+// conferir sozinho — que é a única forma de autoridade disponível para quem
+// ainda não tem carteira de clientes para exibir.
+const AUTORIDADE = [
+  {
+    titulo: "O portal já está no ar",
+    texto:
+      "Endereço público de um município real, aberto sem cadastro. Não é ambiente de demonstração montado para a visita.",
+  },
+  {
+    titulo: "O contrato é público antes da venda",
+    texto:
+      "Termo de referência, minuta e acordo de tratamento de dados ficam para download sem cadastro. Dá para o jurídico reprovar antes de você falar com a gente.",
+  },
+  {
+    titulo: "A saída está escrita",
+    texto:
+      "Exportação em CSV e JSON a qualquer momento, sem custo e sem pedir autorização. Quem prende cliente por dificuldade de sair não escreve isso na home.",
+  },
+  {
+    titulo: "O diagnóstico admite o que não fazemos",
+    texto:
+      "Parte das exigências continua com a prefeitura mesmo contratando o sistema, e elas aparecem no resultado com nome e artigo.",
+  },
 ];
 
 // A comparação é o argumento mais forte da página: o visitante sente o que
@@ -197,6 +217,13 @@ export default async function LandingPage() {
   // Derivado, nunca escrito à mão: se alguém marcar mais uma exigência como
   // não resolvida, o texto da home acompanha em vez de mentir.
   const naoResolvemos = EXIGENCIAS.filter((e) => !e.resolvemos);
+  const modulos = modulosNaOrdemDaHome();
+
+  // A leitura por IA depende da chave da Anthropic no ambiente. Sem ela as
+  // funções de insight devolvem erro em vez de resposta, então a home não
+  // anuncia o recurso — prometer na página o que o servidor não executa é o
+  // tipo de furo que o primeiro cliente descobre sozinho, no pior momento.
+  const iaAtiva = Boolean(process.env.ANTHROPIC_API_KEY);
 
   return (
     <div className="tema-noite min-h-screen overflow-x-hidden relative">
@@ -260,12 +287,23 @@ export default async function LandingPage() {
                   Seu município já descumpre a LAI?
                 </h1>
 
-                <p className="text-muted text-base sm:text-lg leading-relaxed mt-6 max-w-[48ch]">
-                  {EXIGENCIAS.length} exigências da Lei de Acesso à Informação,
-                  da Lei 13.460, da Lei de Responsabilidade Fiscal e da LGPD.
-                  Responda em dois minutos e veja quais o seu município atende —
-                  cada pendência sai com o artigo que a cria, antes de aparecer
-                  no parecer do Tribunal de Contas.
+                {/* O que o herói NÃO dizia: o que o produto é. Quem lia só a
+                    primeira dobra saía achando que o CidadeIA é ferramenta de
+                    compliance, e não um sistema de gestão — o gancho da
+                    conformidade estava vendendo risco jurídico no lugar da
+                    plataforma. O nome do produto agora aparece antes do
+                    gancho, e o gancho vira o primeiro passo dentro dele. */}
+                <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[50ch]">
+                  O CidadeIA é o sistema de gestão da prefeitura: saúde,
+                  educação, obras, licitações, transparência e ouvidoria numa
+                  base só, com alerta automático por secretaria.
+                </p>
+
+                <p className="text-muted text-base leading-relaxed mt-4 max-w-[50ch]">
+                  Comece pelo que já está em jogo — {EXIGENCIAS.length}{" "}
+                  exigências da LAI, da Lei 13.460, da LRF e da LGPD, cada
+                  pendência com o artigo que a cria. Antes de aparecer no
+                  parecer do Tribunal de Contas.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 mt-8">
@@ -309,17 +347,6 @@ export default async function LandingPage() {
                     </span>
                   </Link>
 
-                  {/* Todas as quatro govtechs que estudamos oferecem falar
-                      com gente na primeira dobra. Vender por autoatendimento
-                      não significa esconder a pessoa: numa decisão que passa
-                      por jurídico e Tribunal de Contas, alguém vai querer
-                      perguntar antes de assinar. */}
-                  <Link
-                    href="/suporte?assunto=proposta"
-                    className="text-sm font-semibold text-muted hover:text-foreground transition"
-                  >
-                    Prefere falar com alguém? →
-                  </Link>
                 </div>
               </div>
             </Reveal>
@@ -371,18 +398,29 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ═══ SELOS ═══ */}
-        <div className="border-y border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-            {CONFORMIDADE_TOPO.map((s) => (
-              <span key={s} className="flex items-center gap-2 text-xs text-muted font-mono">
-                <span
-                  className="w-[5px] h-[5px] rounded-full shrink-0"
-                  style={{ background: "var(--accent)" }}
-                />
-                {s}
-              </span>
-            ))}
+        {/* ═══ O SISTEMA ═══
+            Aqui havia uma tarja de quatro leis, que repetia o cartão do herói
+            — ele já mostra a lei de cada bloco do diagnóstico. O espaço logo
+            abaixo da dobra passa a responder a pergunta que ela deixava em
+            aberto: afinal, o que é isto? */}
+        <div className="border-y border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">
+              Um sistema, seis áreas
+            </span>
+            {modulos.map(({ chave, nome }) => {
+              const Icone = ICONE_ADDON[chave];
+              return (
+                <Link
+                  key={chave}
+                  href="#solucoes"
+                  className="flex items-center gap-2 text-sm font-semibold hover:text-brand-claro transition"
+                >
+                  <Icone className="w-4 h-4 shrink-0" style={{ color: "var(--brand-claro)" }} />
+                  {nome}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -566,6 +604,74 @@ export default async function LandingPage() {
           </Reveal>
         </section>
 
+        {/* ═══ AUTORIDADE ═══
+            Em venda B2G o maior freio é risco percebido, e a home não dava
+            nenhum sinal de quem constrói isto. O problema é que os sinais
+            usuais — número de municípios, logotipo de cliente, depoimento de
+            secretário — todos exigem uma carteira que ainda não existe, e
+            nenhum deles pode ser inventado.
+
+            A saída é trocar credencial por comportamento verificável: cada
+            item aqui aponta para algo que o visitante abre e confere sozinho.
+            E a seção começa admitindo que a empresa é nova, porque um
+            comprador público desconfiado descobre isso em cinco minutos, e é
+            muito melhor que ele leia primeiro aqui. */}
+        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <Reveal>
+              <div className="max-w-2xl">
+                <Olho>Quem está do outro lado</Olho>
+                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
+                  Não temos cem prefeituras para mostrar.
+                </h2>
+                <p className="text-muted leading-relaxed mt-5 max-w-[54ch]">
+                  O CidadeIA é novo, e não vamos pendurar aqui logotipo de
+                  município que não é cliente nem depoimento que não existe.
+                  Autoridade emprestada é o que quebra na primeira checagem do
+                  setor jurídico. O que dá para conferir hoje é isto:
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid sm:grid-cols-2 gap-4 mt-10">
+              {AUTORIDADE.map((a, i) => (
+                <Reveal key={a.titulo} delay={i * 70}>
+                  <div
+                    className="h-full border border-border rounded-2xl p-6"
+                    style={{ background: "var(--card)" }}
+                  >
+                    <h3 className="font-semibold flex items-start gap-2.5 leading-snug">
+                      <IconCheck
+                        className="w-4 h-4 shrink-0 mt-1"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      {a.titulo}
+                    </h3>
+                    <p className="text-sm text-muted mt-2.5 leading-relaxed">{a.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8">
+                <Link
+                  href="/por-que-cidadeia"
+                  className="text-sm font-bold text-brand hover:text-brand-claro transition"
+                >
+                  Por que o CidadeIA existe →
+                </Link>
+                <Link
+                  href="/suporte?assunto=proposta"
+                  className="text-sm font-semibold text-muted hover:text-foreground transition"
+                >
+                  Falar com quem construiu
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* ═══ DIAGNÓSTICO — lembrete ═══
             Era uma seção inteira, com um cartão que repetia quase palavra por
             palavra o do herói. Agora que a oferta do diagnóstico ABRE a
@@ -617,42 +723,88 @@ export default async function LandingPage() {
               </div>
             </Reveal>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-              {PLANOS_ADDON.map((p, i) => {
-                const Icone = ICONE_ADDON[p.chave];
-                const destaque = p.chave === "essencial";
+            {/* Cada módulo era uma frase de uma linha. Um comprador público
+                conservador não consegue defender uma contratação internamente
+                com uma frase — ele precisa de superfície suficiente para
+                montar a justificativa. Cada item abaixo corresponde a um
+                campo que existe no banco ou a uma regra que roda no código
+                (ver lib/modulos-detalhe.ts).
+
+                O selo "Mais contratado" saiu do Essencial: afirmava um dado
+                de venda comparativo que não temos. */}
+            <div className="grid md:grid-cols-2 gap-4 mt-10">
+              {modulos.map(({ chave, nome, detalhe }, i) => {
+                const Icone = ICONE_ADDON[chave];
                 return (
-                  <Reveal key={p.chave} delay={i * 60}>
+                  <Reveal key={chave} delay={i * 60}>
                     <div
-                      className={`h-full flex flex-col gap-3 rounded-2xl border p-6 card-interactive ${
-                        destaque ? "border-brand" : "border-border"
-                      }`}
+                      className="h-full flex flex-col gap-4 rounded-2xl border border-border p-6 sm:p-7 card-interactive"
                       style={{ background: "var(--card)" }}
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-4">
                         <span
-                          className="w-11 h-11 arco-card-sm flex items-center justify-center"
+                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
                           style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
                         >
                           <Icone className="w-5 h-5" />
                         </span>
-                        {destaque && (
-                          <span
-                            className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1"
-                            style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
+                        <div className="min-w-0">
+                          <h3 className="font-serif text-xl font-bold leading-tight">{nome}</h3>
+                          <p className="text-sm text-muted leading-relaxed mt-1">
+                            {detalhe.resumo}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ul className="flex flex-col gap-2 flex-1">
+                        {detalhe.capacidades.map((c) => (
+                          <li key={c} className="flex gap-2.5 text-sm leading-snug">
+                            <IconCheck
+                              className="w-4 h-4 shrink-0 mt-0.5"
+                              style={{ color: "var(--accent)" }}
+                            />
+                            <span className="text-muted">{c}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {detalhe.automacao && (
+                        <SeloLinha rotulo="Automático" tom="accent">
+                          {detalhe.automacao}
+                        </SeloLinha>
+                      )}
+                      {/* A linha de IA só aparece quando o ambiente tem a
+                          chave da Anthropic. Sem ela as funções devolvem erro
+                          explicando isso, e anunciar na home um recurso que o
+                          servidor não consegue executar seria vender o que
+                          não é entregue. Configurada a chave, o texto volta
+                          sozinho — aqui e no resto da página. */}
+                      {iaAtiva && detalhe.ia && (
+                        <SeloLinha rotulo="IA" tom="brand">
+                          {detalhe.ia}
+                        </SeloLinha>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4">
+                        <Link
+                          href="#proposta"
+                          className="text-sm font-bold text-brand hover:text-brand-claro transition"
+                        >
+                          Ver na proposta →
+                        </Link>
+                        {detalhe.noPortal && portalVitrine && (
+                          <Link
+                            href={`/transparencia/${portalVitrine.slug}`}
+                            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground transition"
                           >
-                            Mais contratado
-                          </span>
+                            <span
+                              className="w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ background: "var(--accent)" }}
+                            />
+                            Conferir no portal
+                          </Link>
                         )}
                       </div>
-                      <h3 className="font-serif text-xl font-bold">{p.nome}</h3>
-                      <p className="text-sm text-muted leading-relaxed flex-1">{p.descricao}</p>
-                      <Link
-                        href="#proposta"
-                        className="text-sm font-bold text-brand hover:text-brand-claro transition border-t border-border pt-3 mt-1"
-                      >
-                        Ver na proposta →
-                      </Link>
                     </div>
                   </Reveal>
                 );
@@ -916,16 +1068,23 @@ export default async function LandingPage() {
                 >
                   Receber proposta e kit&nbsp;&nbsp;→
                 </Link>
+                {/* Aqui havia "Criar conta grátis". A conta é criada mesmo,
+                    mas nasce sem nenhum módulo, e o botão de ativar aponta
+                    para um checkout que ainda não existe
+                    (VARIAVEL_AMBIENTE_POR_PLANO em lib/planos.ts cai numa URL
+                    de exemplo). Era a segunda ação mais visível da página
+                    levando a um beco sem saída. Volta quando o checkout
+                    estiver configurado. */}
                 <Link
-                  href="/cadastro"
+                  href="/kit"
                   className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
                 >
-                  Criar conta grátis
+                  Só o kit, por enquanto
                 </Link>
               </div>
 
               <p className="text-xs text-muted mt-5">
-                Sem cartão de crédito · leva poucos minutos
+                Sem compromisso · o kit baixa sem cadastro
               </p>
             </div>
           </Reveal>
@@ -933,6 +1092,37 @@ export default async function LandingPage() {
 
         <SiteFooter />
       </div>
+    </div>
+  );
+}
+
+/**
+ * Linha etiquetada dentro do card de módulo.
+ *
+ * Separa visualmente o que é regra determinística ("Automático") do que é
+ * chamada ao modelo ("IA"). Fundir as duas na mesma frase venderia um `if`
+ * como inteligência artificial.
+ */
+function SeloLinha({
+  rotulo,
+  tom,
+  children,
+}: {
+  rotulo: string;
+  tom: "accent" | "brand";
+  children: React.ReactNode;
+}) {
+  const cor = tom === "accent" ? "var(--accent-claro)" : "var(--brand-claro)";
+  const fundo = tom === "accent" ? "var(--accent-tint)" : "var(--brand-tint)";
+  return (
+    <div className="flex gap-3 items-start">
+      <span
+        className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0"
+        style={{ background: fundo, color: cor }}
+      >
+        {rotulo}
+      </span>
+      <p className="text-sm text-muted leading-relaxed">{children}</p>
     </div>
   );
 }

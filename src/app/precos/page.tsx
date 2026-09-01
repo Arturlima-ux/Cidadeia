@@ -78,21 +78,25 @@ export default function PrecosPage() {
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">O valor de cada módulo varia pelo porte do município.</p>
             <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-lg mx-auto">
-              Criar a conta é gratuito. Fale com a gente pra receber uma proposta
-              com os valores dos módulos que sua prefeitura precisa.
+              Contratação em prefeitura passa por proposta, processo e empenho —
+              não por cartão. Fale com a gente e o valor dos módulos vem junto do
+              termo de referência.
             </p>
+            {/* A ação cheia era "Criar conta grátis", que leva a uma conta sem
+                módulo nenhum e a um checkout ainda não configurado. Quem fecha
+                a contratação é a proposta; a conta vem depois dela. */}
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/cadastro"
+                href="/suporte?assunto=proposta"
                 className="bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full px-6 py-2.5 transition"
               >
-                Criar conta grátis
+                Receber proposta
               </Link>
               <Link
-                href="/suporte"
+                href="/diagnostico"
                 className="text-sm font-semibold text-foreground hover:text-brand transition border border-border rounded-full px-6 py-2.5"
               >
-                Falar com a gente
+                Fazer o diagnóstico
               </Link>
             </div>
           </div>

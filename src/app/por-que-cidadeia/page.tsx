@@ -126,11 +126,14 @@ export default function PorQueCidadeIAPage() {
               Sua gestão merece ver o próprio resultado com clareza.
             </h2>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+              {/* Era "Criar conta grátis" — conta que nasce sem módulo e cujo
+                  botão de ativar aponta para um checkout inexistente. O
+                  diagnóstico é a ação gratuita que funciona de verdade. */}
               <Link
-                href="/cadastro"
+                href="/diagnostico"
                 className="group bg-white text-brand-dark font-semibold text-sm rounded-full px-6 py-3 hover:bg-white/90 transition inline-flex items-center gap-1.5"
               >
-                Criar conta grátis
+                Fazer o diagnóstico
                 <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
               </Link>
               <Link

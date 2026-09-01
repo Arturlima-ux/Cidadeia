@@ -199,11 +199,15 @@ export default function MontadorProposta() {
           >
             Receber proposta e termo de referência
           </Link>
+          {/* Era "Criar conta e testar grátis". A conta é criada, mas nasce
+              sem módulo nenhum e o botão de ativar leva a um checkout que
+              ainda não existe — ou seja, prometia um teste que não acontece.
+              O kit é a segunda ação real: baixa na hora, sem cadastro. */}
           <Link
-            href="/cadastro"
+            href="/kit"
             className="border border-white/25 font-semibold text-sm rounded-xl px-4 py-3 text-center hover:bg-white/10 transition"
           >
-            Criar conta e testar grátis
+            Baixar o kit de contratação
           </Link>
         </div>
       </div>

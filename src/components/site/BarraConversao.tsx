@@ -50,15 +50,21 @@ export default function BarraConversao() {
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={24} />
           </Link>
-          <div className="flex items-center gap-4">
-            {/* A barra persegue o visitante a página inteira: se o único
-                caminho nela for o botão de preço, quem tem uma pergunta em
-                vez de uma decisão não tem para onde ir. */}
+          {/* Esta barra cobre o cabeçalho quando aparece, ocupando o mesmo
+              lugar na tela. Enquanto o botão cheio de uma dizia "Ver quanto
+              custa" e o da outra "Falar com especialista", o caminho
+              principal do site trocava sozinho conforme a rolagem — que é
+              exatamente a confusão de ter dois CTAs concorrentes.
+
+              A ação cheia agora é a MESMA nas duas, e é a que realmente
+              fecha: contratação em prefeitura passa por proposta, processo e
+              empenho. Preço e kit continuam a um clique, como links. */}
+          <div className="flex items-center gap-5">
             <Link
-              href="/suporte?assunto=proposta"
+              href="#proposta"
               className="hidden lg:inline text-sm font-semibold text-muted hover:text-foreground transition"
             >
-              Falar com especialista
+              Ver quanto custa
             </Link>
             <Link
               href="/kit"
@@ -67,10 +73,10 @@ export default function BarraConversao() {
               Kit de contratação
             </Link>
             <Link
-              href="#proposta"
+              href="/suporte?assunto=proposta"
               className="text-sm font-bold text-white bg-brand hover:bg-brand-dark rounded-xl px-5 py-2.5 transition shadow-elevated"
             >
-              Ver quanto custa
+              Falar com especialista
             </Link>
           </div>
         </div>
@@ -88,13 +94,13 @@ export default function BarraConversao() {
         }}
       >
         <span className="text-xs text-muted leading-tight flex-1">
-          Cabe na dispensa? Veja em 30 segundos.
+          Proposta com valor, kit e base legal — no mesmo e-mail.
         </span>
         <Link
-          href="#proposta"
+          href="/suporte?assunto=proposta"
           className="shrink-0 text-sm font-bold text-white bg-brand rounded-xl px-4 py-2.5"
         >
-          Ver o valor
+          Falar
         </Link>
       </div>
     </>
