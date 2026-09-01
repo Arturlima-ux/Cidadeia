@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 
 const LINKS = [
+  { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/#solucoes", label: "Soluções" },
   { href: "/#como-contratar", label: "Como contratar" },
   { href: "/#conformidade", label: "Conformidade" },
@@ -42,7 +43,7 @@ export default function SiteHeader() {
             <MarcaCompleta tamanho={30} />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted">
+          <nav className="hidden lg:flex items-center gap-5 text-sm font-medium text-muted">
             {LINKS.map((l) => (
               <Link key={l.href} href={l.href} className="hover:text-foreground transition">
                 {l.label}
@@ -57,11 +58,15 @@ export default function SiteHeader() {
             >
               Entrar
             </Link>
+            {/* Era "Solicitar demonstração" — a mesma frase que a home usa
+                como exemplo do que as incumbentes fazem para esconder preço.
+                O botão mais visível do site não pode contradizer o argumento
+                central da página que ele encabeça. */}
             <Link
-              href="/suporte?assunto=demonstracao"
+              href="/suporte?assunto=proposta"
               className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
             >
-              Solicitar demonstração
+              Falar com especialista
             </Link>
           </div>
         </div>

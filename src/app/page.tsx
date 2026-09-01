@@ -4,6 +4,8 @@ import { lerSessao } from "@/lib/sessao";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
+import { EXIGENCIAS } from "@/lib/diagnostico";
+import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -182,6 +184,19 @@ export default async function LandingPage() {
 
   const kitBaixavel = DOCUMENTOS.filter((d) => d.geramos);
 
+  // Prova social é o eixo de conversão de toda govtech estabelecida, e é
+  // exatamente o que não temos. O substituto é prova VERIFICÁVEL: em vez de
+  // afirmar quantos clientes existem, mostramos portais que qualquer um abre
+  // agora. O número sai do banco — nunca é escrito à mão — e quando não há
+  // portal (ou o banco não responde) a página convida a conferir sem
+  // prometer quantidade nenhuma.
+  const { portais } = await listarPortaisPublicados();
+  const portalVitrine = portais[0] ?? null;
+
+  // Derivado, nunca escrito à mão: se alguém marcar mais uma exigência como
+  // não resolvida, o texto da home acompanha em vez de mentir.
+  const naoResolvemos = EXIGENCIAS.filter((e) => !e.resolvemos);
+
   return (
     <div className="tema-noite min-h-screen overflow-x-hidden relative">
       {/* atmosfera — profundidade barata, só dois borrões e uma malha */}
@@ -258,6 +273,41 @@ export default async function LandingPage() {
                 <p className="text-xs text-muted mt-4">
                   Sem cartão de crédito · sem instalação · dados sempre exportáveis
                 </p>
+
+                {/* A prova sobe para o herói. Ficava na quarta seção, depois
+                    do preço — quem desistia antes nunca via que dá para
+                    conferir. Nas govtechs estabelecidas a prova abre a
+                    página; a delas é logo de cliente, a nossa é um endereço
+                    que abre. */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 pt-7 border-t border-border">
+                  <Link
+                    href={portalVitrine ? `/transparencia/${portalVitrine.slug}` : "/transparencia"}
+                    className="group inline-flex items-center gap-2.5 text-sm font-semibold hover:text-brand-claro transition"
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
+                      style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
+                    />
+                    {portalVitrine
+                      ? `Portal de ${portalVitrine.municipio} · ${portalVitrine.estado}`
+                      : "Ver um portal publicado"}
+                    <span className="text-muted font-normal group-hover:text-brand-claro transition">
+                      — abra sem login
+                    </span>
+                  </Link>
+
+                  {/* Todas as quatro govtechs que estudamos oferecem falar
+                      com gente na primeira dobra. Vender por autoatendimento
+                      não significa esconder a pessoa: numa decisão que passa
+                      por jurídico e Tribunal de Contas, alguém vai querer
+                      perguntar antes de assinar. */}
+                  <Link
+                    href="/suporte?assunto=proposta"
+                    className="text-sm font-semibold text-muted hover:text-foreground transition"
+                  >
+                    Prefere falar com alguém? →
+                  </Link>
+                </div>
               </div>
             </Reveal>
 
@@ -425,15 +475,87 @@ export default async function LandingPage() {
           </div>
 
           <Reveal>
-            <div className="mt-8 text-center">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {/* Município de verdade, nome na tela, endereço que responde.
+                  É o mais perto de um muro de logos que dá para fazer com
+                  honestidade antes de existir uma carteira de clientes. */}
+              {portais.slice(0, 4).map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/transparencia/${p.slug}`}
+                  className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3.5 transition"
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: "var(--accent)" }}
+                  />
+                  {p.municipio} · {p.estado}
+                </Link>
+              ))}
               <Link
                 href="/transparencia"
                 className="inline-block border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-3.5 transition"
               >
-                Abrir um portal publicado
+                {portais.length > 4 ? "Ver todos os portais" : "Abrir um portal publicado"}
               </Link>
             </div>
           </Reveal>
+        </section>
+
+        {/* ═══ DIAGNÓSTICO ═══
+            A saída para quem rolou o preço e não converteu. Sem cliente para
+            exibir, a única prova que podemos oferecer de graça é conhecimento
+            da obrigação legal — e ela vale mais cedo do que o preço, porque
+            cria o problema que o preço resolve. */}
+        <section className="border-t border-border">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <div className="grid lg:grid-cols-[1fr_360px] gap-10 lg:gap-14 items-center">
+              <Reveal>
+                <div>
+                  <Olho>Diagnóstico gratuito</Olho>
+                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
+                    Antes de comprar, descubra o que já está em falta.
+                  </h2>
+                  <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
+                    {EXIGENCIAS.length} exigências da LAI, da Lei 13.460, da Lei
+                    de Responsabilidade Fiscal e da LGPD. Dois minutos, sem
+                    cadastro, sem pedir e-mail — e a lista sai com o artigo de
+                    cada pendência, para levar ao jurídico.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 mt-8">
+                    <Link
+                      href="/diagnostico"
+                      className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                    >
+                      Fazer o diagnóstico&nbsp;&nbsp;→
+                    </Link>
+                    <span className="text-xs text-muted">
+                      Nada é enviado. As respostas ficam no seu navegador.
+                    </span>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal delay={140}>
+                <div className="vidro rounded-2xl p-7">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                    Inclui as que não resolvemos
+                  </p>
+                  <p className="text-sm leading-relaxed mt-4">
+                    {naoResolvemos.length} das {EXIGENCIAS.length} exigências
+                    continuam com a prefeitura mesmo contratando o CidadeIA —
+                    entre elas {naoResolvemos[0]?.artigo} da{" "}
+                    {naoResolvemos[0]?.lei.replace(/\s*\(.*\)$/, "")}.
+                  </p>
+                  <p className="text-sm text-muted leading-relaxed border-t border-border pt-4 mt-5">
+                    Estão no resultado porque um diagnóstico em que tudo por
+                    acaso é resolvido por quem o publicou não é diagnóstico, é
+                    proposta comercial disfarçada.
+                  </p>
+                </div>
+              </Reveal>
+            </div>
+          </div>
         </section>
 
         {/* ═══ SOLUÇÕES ═══ */}

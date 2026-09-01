@@ -50,7 +50,16 @@ export default function BarraConversao() {
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={24} />
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* A barra persegue o visitante a página inteira: se o único
+                caminho nela for o botão de preço, quem tem uma pergunta em
+                vez de uma decisão não tem para onde ir. */}
+            <Link
+              href="/suporte?assunto=proposta"
+              className="hidden lg:inline text-sm font-semibold text-muted hover:text-foreground transition"
+            >
+              Falar com especialista
+            </Link>
             <Link
               href="/kit"
               className="hidden md:inline text-sm font-semibold text-muted hover:text-foreground transition"
