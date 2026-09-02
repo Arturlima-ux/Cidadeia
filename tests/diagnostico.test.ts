@@ -43,8 +43,12 @@ describe("catálogo de exigências", () => {
     // teste: uma lista em que tudo é resolvido pelo produto que a publicou é
     // material de venda disfarçado, e o gestor percebe. Se alguém marcar
     // todas como resolvidas para "melhorar a conversão", a suíte quebra.
+    //
+    // O piso caiu de três para dois quando o painel de publicações passou a
+    // cobrir a estrutura das secretarias e a Carta de Serviços. Baixar o piso
+    // só é legítimo junto com o código que resolveu a exigência.
     const naoResolvidas = EXIGENCIAS.filter((e) => !e.resolvemos);
-    expect(naoResolvidas.length).toBeGreaterThanOrEqual(3);
+    expect(naoResolvidas.length).toBeGreaterThanOrEqual(2);
     expect(totalQueResolvemos()).toBeLessThan(EXIGENCIAS.length);
   });
 });

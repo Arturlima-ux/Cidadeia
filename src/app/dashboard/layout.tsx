@@ -56,11 +56,22 @@ function montarGrupos(
   ];
 
   if (planosAtivos.includes("essencial")) {
-    grupos[0].itens.push({
-      href: "/dashboard/atendimento",
-      label: "Atendimento",
-      icone: "alertas",
-    });
+    // Os dois lados do portal ficam juntos, e nesta ordem: o gestor publica e
+    // logo abaixo responde quem escreveu de volta. Separá-los em grupos
+    // diferentes faria parecer que são funcionalidades distintas, quando são
+    // as duas metades da mesma relação com o cidadão.
+    grupos[0].itens.push(
+      {
+        href: "/dashboard/publicacoes",
+        label: "Publicações do portal",
+        icone: "visao-geral",
+      },
+      {
+        href: "/dashboard/atendimento",
+        label: "Atendimento",
+        icone: "alertas",
+      }
+    );
   }
 
   if (secretariasAtivas.length > 0) {

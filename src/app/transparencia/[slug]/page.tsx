@@ -3,13 +3,14 @@ import { fusoDoEstado, dataNumerica } from "@/lib/horario";
 import Link from "next/link";
 import { buscarPortal } from "../actions";
 import { db } from "@/db";
-import { dashboardSnapshots, obras, licitacoes } from "@/db/schema";
+import { dashboardSnapshots, obras, licitacoes, publicacoes } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { formatarMoeda } from "@/lib/formatadores";
 import { planosContratadosDe } from "@/lib/planos";
 import { IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import FormularioCidadao from "../FormularioCidadao";
+import SecoesPublicadas from "../SecoesPublicadas";
 
 export const metadata = { title: "Portal da Transparência" };
 
@@ -47,7 +48,7 @@ export default async function PortalTransparencia({
   const planos = planosContratadosDe(portal.planosContratados);
   if (!planos.includes("essencial")) notFound();
 
-  const [snapshot, listaObras, listaLicitacoes] = await Promise.all([
+  const [snapshot, listaObras, listaLicitacoes, listaPublicacoes] = await Promise.all([
     portal.mostrarFinanceiro
       ? db
           .select()
@@ -71,6 +72,11 @@ export default async function PortalTransparencia({
           .where(eq(licitacoes.prefeituraId, portal.prefeituraId))
           .orderBy(desc(licitacoes.createdAt))
       : Promise.resolve([]),
+    db
+      .select()
+      .from(publicacoes)
+      .where(eq(publicacoes.prefeituraId, portal.prefeituraId))
+      .orderBy(desc(publicacoes.atualizadoEm)),
   ]);
 
   return (
@@ -213,6 +219,8 @@ export default async function PortalTransparencia({
         )}
 
         {/* OUVIDORIA / PROTOCOLO */}
+        <SecoesPublicadas publicacoes={listaPublicacoes} />
+
         <section id="atendimento" className="scroll-mt-8">
           <h2 className="font-serif text-2xl font-bold mb-1">Fale com a prefeitura</h2>
           <p className="text-sm text-muted mb-5 max-w-2xl leading-relaxed">

@@ -14,10 +14,15 @@
 // temos como verificar isso, e inventar um veredito sobre um órgão público
 // seria fabricar registro. O diagnóstico vale porque é honesto sobre isso.
 //
-// A segunda regra é o campo `resolvemos`. Quatro das exigências abaixo o
+// A segunda regra é o campo `resolvemos`. Parte das exigências abaixo o
 // CidadeIA NÃO atende, e isso está escrito na cara do gestor. Uma lista em
 // que tudo por acaso é resolvido pelo produto que a publicou não convence
 // ninguém que já viu uma proposta comercial.
+//
+// O número diminui quando o produto de fato passa a resolver algo — foi o que
+// aconteceu com a estrutura das secretarias e a Carta de Serviços quando o
+// painel de publicações foi construído. O que não pode acontecer é diminuir
+// porque alguém quis melhorar a conversão.
 
 export type Bloco = "transparencia" | "atendimento" | "dados" | "protecao";
 
@@ -53,9 +58,9 @@ export const EXIGENCIAS: Exigencia[] = [
     artigo: "art. 8º, § 1º, I",
     risco:
       "É o item que o cidadão mais aciona em pedido de informação, e o primeiro que a corregedoria confere.",
-    resolvemos: false,
+    resolvemos: true,
     comoResolve:
-      "Isso é conteúdo do site institucional da prefeitura. O CidadeIA publica o portal de transparência, não substitui a página oficial do município.",
+      "O painel de publicações tem campos próprios para secretaria, endereço, telefone e horário, e eles aparecem no portal público. O conteúdo é da prefeitura, como a lista de obras também é — o que entregamos é onde publicar e a garantia de que fica no ar.",
   },
   {
     id: "despesas",
@@ -140,9 +145,9 @@ export const EXIGENCIAS: Exigencia[] = [
     artigo: "art. 7º",
     risco:
       "É obrigação de todo órgão público e uma das menos cumpridas por município pequeno.",
-    resolvemos: false,
+    resolvemos: true,
     comoResolve:
-      "O CidadeIA não redige a Carta de Serviços. Ela depende de um levantamento dos serviços e prazos de cada secretaria, feito pela prefeitura.",
+      "Cada serviço é publicado com os campos que o art. 7º exige: o que o cidadão precisa levar, o prazo de atendimento e onde solicitar. O conjunto deles forma a Carta no portal. O levantamento dos serviços continua sendo da prefeitura — nós damos a estrutura que impede publicar pela metade.",
   },
 
   // ── dados abertos ──

@@ -41,13 +41,14 @@ export type ModuloDetalhe = {
 export const MODULOS_DETALHE: ModuloDetalhe[] = [
   {
     chave: "essencial",
-    resumo: "Os três canais de relação com o cidadão, abertos ao público.",
+    resumo: "O portal do município: a prefeitura publica de um lado, o cidadão lê e se manifesta do outro.",
     capacidades: [
       "Protocolo com número e chave privada de consulta emitidos na hora",
       "Ouvidoria que aceita manifestação sem identificação, com protocolo aleatório",
       "Portal com endereço público próprio do município, que abre sem cadastro",
       "Reclamação, denúncia, sugestão, elogio e pedido de informação no mesmo canal",
       "Contagem do prazo legal de resposta, com aviso antes de vencer",
+      "Publicação de comunicados, Carta de Serviços, secretarias e perguntas frequentes no portal",
     ],
     automacao:
       "Conta os 20 dias da Lei de Acesso à Informação e os 30 da Lei 13.460 por manifestação, avisa cinco dias antes de vencer e separa o que já venceu.",

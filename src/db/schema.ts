@@ -453,3 +453,40 @@ export const basesMinimos = pgTable("bases_minimos", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── PUBLICAÇÕES DO PORTAL DA TRANSPARÊNCIA ──
+//
+// A metade do portal que faltava: onde o prefeito e o secretário publicam, e o
+// cidadão apenas lê. É o mesmo dado dos dois lados, com permissões opostas.
+//
+// Os tipos são fechados e cada um corresponde a um inciso do art. 8º da LAI ou
+// a um artigo da Lei 13.460 (ver lib/publicacoes.ts) — é o que permite ao
+// painel dizer qual obrigação está descoberta, em vez de virar um blog.
+export const publicacoes = pgTable("publicacoes", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  tipo: text("tipo", {
+    enum: ["comunicado", "servico", "estrutura", "faq", "repasse", "documento"],
+  }).notNull(),
+  titulo: text("titulo").notNull(),
+  conteudo: text("conteudo").notNull(),
+  secretaria: text("secretaria"),
+  // Campos dos tipos estruturados. A Carta de Serviços exige, por lei, dizer o
+  // que o cidadão precisa levar e em quanto tempo será atendido; guardar isso
+  // solto dentro do texto impediria de checar se a exigência foi cumprida.
+  requisitos: text("requisitos"),
+  prazo: text("prazo"),
+  contato: text("contato"),
+  linkExterno: text("link_externo"),
+  // Rascunho por padrão: publicar é ato deliberado. O contrário faria texto
+  // pela metade aparecer no endereço público no instante em que fosse salvo.
+  publicado: boolean("publicado").notNull().default(false),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
