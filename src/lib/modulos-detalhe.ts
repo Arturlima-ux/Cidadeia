@@ -47,8 +47,10 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
       "Ouvidoria que aceita manifestação sem identificação, com protocolo aleatório",
       "Portal com endereço público próprio do município, que abre sem cadastro",
       "Reclamação, denúncia, sugestão, elogio e pedido de informação no mesmo canal",
+      "Contagem do prazo legal de resposta, com aviso antes de vencer",
     ],
-    automacao: null,
+    automacao:
+      "Conta os 20 dias da Lei de Acesso à Informação e os 30 da Lei 13.460 por manifestação, avisa cinco dias antes de vencer e separa o que já venceu.",
     ia: "As manifestações entram no contexto que o modelo lê para sugerir alertas.",
     noPortal: true,
   },

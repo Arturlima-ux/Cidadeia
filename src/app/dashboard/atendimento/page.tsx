@@ -6,6 +6,7 @@ import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import { buscarAtendimentos, buscarConfigPublica, responderAtendimento, salvarConfigPublica } from "./actions";
 import PainelResposta from "./PainelResposta";
 import ConfigPortal from "./ConfigPortal";
+import PainelPrazos from "./PainelPrazos";
 import { fusoDoEstado, dataCurta } from "@/lib/horario";
 import { NOME_TIPO, NOME_STATUS, type TipoAtendimento } from "@/lib/atendimento";
 
@@ -33,6 +34,19 @@ export default async function AtendimentoPage() {
   const abertos = lista.filter((a) => a.status === "aberto" || a.status === "em_analise");
   const fechados = lista.filter((a) => a.status === "respondido" || a.status === "encerrado");
 
+  // O painel de prazos olha a lista inteira, inclusive respondidos: é assim
+  // que ele sabe distinguir "cumpriu" de "ninguém abriu ainda".
+  const paraPrazo = lista.map((a) => ({
+    id: a.id,
+    protocolo: a.protocolo,
+    assunto: a.assunto,
+    tipo: a.tipo,
+    status: a.status,
+    abertoEm: a.createdAt,
+    respondidoEm: a.respondidoEm,
+    prorrogado: a.prazoProrrogado,
+  }));
+
   const fuso = fusoDoEstado(ctx.prefeitura?.estado);
 
   return (
@@ -45,6 +59,8 @@ export default async function AtendimentoPage() {
           de protocolo; você responde aqui.
         </p>
       </div>
+
+      <PainelPrazos atendimentos={paraPrazo} />
 
       <ConfigPortal
         acao={salvarConfigPublica}

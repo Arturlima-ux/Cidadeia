@@ -79,6 +79,31 @@ export async function responderAtendimento(formData: FormData): Promise<Resultad
   return { ok: true };
 }
 
+/**
+ * Registra a prorrogação formal do prazo de resposta.
+ *
+ * A LAI (art. 11, § 2º) e a Lei 13.460 (art. 16) só admitem o prazo extra
+ * mediante justificativa expressa comunicada ao cidadão. O sistema não pode
+ * conceder isso sozinho — daí ser um ato do servidor, registrado, e não uma
+ * tolerância automática do painel quando o prazo aperta.
+ */
+export async function prorrogarPrazo(id: string): Promise<ResultadoAcao> {
+  let sessao;
+  try {
+    sessao = await exigirAcesso();
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+
+  await db
+    .update(atendimentos)
+    .set({ prazoProrrogado: true })
+    .where(and(eq(atendimentos.id, id), eq(atendimentos.prefeituraId, sessao.prefeituraId)));
+
+  revalidatePath("/dashboard/atendimento");
+  return { ok: true };
+}
+
 const schemaConfig = z.object({
   portalAtivo: z.boolean(),
   whatsappNumero: z.string().optional(),

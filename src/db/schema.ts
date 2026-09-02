@@ -305,6 +305,11 @@ export const atendimentos = pgTable("atendimentos", {
     .default("aberto"),
   resposta: text("resposta"),
   respondidoEm: text("respondido_em"),
+  // A LAI (art. 11, § 2º) e a Lei 13.460 (art. 16) permitem prorrogar o prazo
+  // de resposta, mas exigem justificativa expressa comunicada ao cidadão. Por
+  // isso é um campo MARCADO pelo servidor, e não uma dedução nossa: o painel
+  // não pode conceder sozinho um prazo extra que depende de um ato formal.
+  prazoProrrogado: boolean("prazo_prorrogado").notNull().default(false),
   // Chave que o cidadão usa junto com o protocolo para consultar — evita que
   // alguém liste manifestações alheias só chutando números sequenciais.
   chaveConsulta: text("chave_consulta").notNull(),
