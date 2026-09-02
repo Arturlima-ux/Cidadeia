@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 
 const LINKS = [
+  { href: "/raio-x", label: "Raio-X" },
   { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/#solucoes", label: "Soluções" },
   { href: "/#como-contratar", label: "Como contratar" },
