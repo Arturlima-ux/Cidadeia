@@ -12,6 +12,8 @@ import ValorAnimado from "@/components/ValorAnimado";
 import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "./insight-actions";
 import { fusoDoEstado, saudacao, dataPorExtenso } from "@/lib/horario";
+import PainelAtencao from "@/components/PainelAtencao";
+import { gerarDeteccoesAutomaticas } from "@/lib/ia";
 
 // A saudação e a data saem de lib/horario.ts, no fuso do estado da
 // prefeitura. Calcular aqui com `new Date().getHours()` devolvia a hora do
@@ -31,9 +33,21 @@ export default async function DashboardPage() {
   const { sessao, prefeitura } = ctx;
 
   // Antes eram dois `await` em sequência — não dependem um do outro.
-  const [historico, todosAlertas] = await Promise.all([
+  //
+  // As detecções entram junto: elas passaram a ABRIR o painel, e carregá-las
+  // depois faria a lista mais importante da tela ser a última a aparecer.
+  const [historico, todosAlertas, achados] = await Promise.all([
     buscarHistoricoSnapshots(sessao.prefeituraId),
     buscarAlertas(sessao.prefeituraId),
+    gerarDeteccoesAutomaticas(sessao.prefeituraId, {
+      cargo: sessao.cargo,
+      secretaria: sessao.secretaria,
+    }).catch((e) => {
+      // Falha na detecção não pode derrubar o painel inteiro: o resto da tela
+      // continua útil, e a seção mostra o estado vazio em vez de erro.
+      console.error("[Painel] falha nas detecções:", e);
+      return [];
+    }),
   ]);
   const snapshot = historico[historico.length - 1] ?? null;
   const anterior = historico.length > 1 ? historico[historico.length - 2] : null;
@@ -59,8 +73,12 @@ export default async function DashboardPage() {
           <h1 className="font-serif text-2xl sm:text-3xl font-bold mt-1">
             {saudacao(fuso)}, {prefeitura?.prefeito ? `Prefeito(a) ${prefeitura.prefeito}` : sessao?.nome}.
           </h1>
+          {/* A saudação encolheu para uma linha. Ela é cortesia, não conteúdo:
+              o que o prefeito precisa ver primeiro está logo abaixo. */}
           <p className="text-muted text-sm mt-1.5">
-            {listaAlertas.length > 0
+            {achados.length > 0
+              ? `${achados.length} ${achados.length === 1 ? "ponto pede" : "pontos pedem"} sua decisão hoje.`
+              : listaAlertas.length > 0
               ? `Sua prefeitura possui ${listaAlertas.length} alerta${listaAlertas.length > 1 ? "s" : ""} em aberto.`
               : "Nenhum alerta em aberto no momento."}
           </p>
@@ -73,6 +91,11 @@ export default async function DashboardPage() {
           Relatório executivo (PDF)
         </a>
       </div>
+
+      {/* A lista do que exige decisão abre o painel. Antes a tela começava por
+          receita e despesas — números que dizem como ESTÁ, não o que fazer —, e
+          o que precisava de ação ficava numa tela separada que ninguém abria. */}
+      <PainelAtencao achados={achados} />
 
       <InsightIA acao={gerarInsightIA} modulo="geral" />
 
