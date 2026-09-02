@@ -99,28 +99,19 @@ export default async function DashboardPage() {
 
       <InsightIA acao={gerarInsightIA} modulo="geral" />
 
-      {/* IA Central */}
+      {/* A IA Central era um cartão grande, com ícone em gradiente e três
+          linhas de texto, logo abaixo da lista de decisões — competindo com
+          ela pela mesma atenção. Virou um link: continua a um clique, sem
+          disputar o primeiro lugar da tela com o que exige ação hoje. */}
       <Link
         href="/dashboard/ia"
-        className="group card-interactive shadow-elevated bg-card border border-border arco-card p-5 flex items-start gap-4 hover:border-brand/40 transition"
+        className="group inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark transition"
       >
-        <div
-          className="arco-badge w-10 h-10 text-white flex items-center justify-center shrink-0"
-          style={{ background: "var(--gradient-hero)" }}
-        >
-          <IconIA className="w-5 h-5" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold inline-flex items-center gap-1">
-            Converse com a IA Central
-            <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </p>
-          <p className="text-sm text-muted mt-1 leading-relaxed">
-            Pergunte sobre os indicadores e alertas registrados na sua prefeitura.
-            As respostas usam só os dados reais já cadastrados — nada de números
-            inventados.
-          </p>
-        </div>
+        <IconIA className="w-4 h-4" />
+        Perguntar à IA Central sobre estes números
+        <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
+          →
+        </span>
       </Link>
 
       {/* VISÃO GERAL */}
@@ -132,9 +123,16 @@ export default async function DashboardPage() {
           <DetalhesSnapshotForm />
         </div>
 
+        {/* Os três números e a eficiência ficavam em quatro blocos separados,
+            empilhados, ocupando quase uma tela. São contexto: dizem como está,
+            não o que fazer. Cabem num painel só, e a lista de decisões acima
+            fica sendo a maior coisa da página — como no material de venda. */}
         {temDadosFinanceiros ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div
+            className="arco-card border border-border p-5 sm:p-6 grid gap-6 sm:grid-cols-[1fr_auto] items-center"
+            style={{ background: "var(--card)" }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <CardMetrica
                 label="Receita"
                 valorNumerico={snapshot!.receita}
@@ -142,6 +140,7 @@ export default async function DashboardPage() {
                 cor="var(--brand)"
                 delta={calcularDelta(snapshot!.receita, anterior?.receita ?? null)}
                 upEhBom
+                semCartao
               />
               <CardMetrica
                 label="Despesas"
@@ -150,6 +149,7 @@ export default async function DashboardPage() {
                 cor="var(--urgente)"
                 delta={calcularDelta(snapshot!.despesas, anterior?.despesas ?? null)}
                 upEhBom={false}
+                semCartao
               />
               <CardMetrica
                 label="Saldo"
@@ -158,27 +158,23 @@ export default async function DashboardPage() {
                 cor="var(--accent)"
                 delta={calcularDelta(snapshot!.saldo, anterior?.saldo ?? null)}
                 upEhBom
+                semCartao
               />
             </div>
 
             {snapshot!.indiceTransparencia !== null && (
-              <div className="card-interactive shadow-elevated bg-card border border-border arco-card p-5 flex items-center justify-between flex-wrap gap-4">
+              <div className="sm:border-l border-border sm:pl-6 flex items-center gap-4">
                 <GaugeEficiencia
                   valor={snapshot!.indiceTransparencia}
                   label="Eficiência da gestão"
-                  sublabel="Baseado no Índice de Transparência mais recente registrado."
+                  sublabel="Índice de Transparência mais recente."
                 />
                 {(() => {
                   const delta = calcularDelta(
                     snapshot!.indiceTransparencia,
                     anterior?.indiceTransparencia ?? null
                   );
-                  return delta !== null ? (
-                    <div className="text-right">
-                      <DeltaBadge percentual={delta} upEhBom />
-                      <p className="text-[10px] text-muted mt-0.5">vs. registro anterior</p>
-                    </div>
-                  ) : null;
+                  return delta !== null ? <DeltaBadge percentual={delta} upEhBom /> : null;
                 })()}
               </div>
             )}
@@ -242,6 +238,7 @@ function CardMetrica({
   cor,
   delta,
   upEhBom,
+  semCartao,
 }: {
   label: string;
   valorNumerico: number | null;
@@ -249,7 +246,38 @@ function CardMetrica({
   cor: string;
   delta?: number | null;
   upEhBom?: boolean;
+  /**
+   * Sem moldura própria, para viver dentro de um painel maior.
+   *
+   * Três cartões com borda e sombra dentro de outro cartão criam moldura sobre
+   * moldura, e o olho passa a ver seis objetos onde há um grupo de números.
+   */
+  semCartao?: boolean;
 }) {
+  if (semCartao) {
+    return (
+      <div className="border-l-2 pl-3.5" style={{ borderColor: cor }}>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
+        <div className="flex items-baseline gap-2 mt-1">
+          {valorNumerico !== null ? (
+            <ValorAnimado
+              valor={valorNumerico}
+              tipo={tipo}
+              className="text-xl font-serif font-bold leading-tight"
+            />
+          ) : (
+            <span className="text-xl font-serif font-bold leading-tight text-muted">—</span>
+          )}
+        </div>
+        {delta !== null && delta !== undefined && (
+          <div className="mt-1.5">
+            <DeltaBadge percentual={delta} upEhBom={upEhBom ?? false} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="card-interactive shadow-elevated relative overflow-hidden bg-card border border-border arco-card-sm p-4">
       <span
