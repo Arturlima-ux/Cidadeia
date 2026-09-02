@@ -282,14 +282,25 @@ export default async function LandingPage() {
               "radial-gradient(circle at center, rgba(47,191,135,0.14) 0%, rgba(47,191,135,0.07) 40%, transparent 70%)",
           }}
         />
+        {/* A malha ficava desbotada por `mask-image`. Máscara obriga o
+            navegador a manter uma camada de composição separada e a recompor a
+            cada quadro — caro, e nesta camada fixa ficava caro o tempo todo.
+
+            Duas camadas planas fazem o mesmo: a grade inteira, e por cima um
+            degradê da cor de fundo que a apaga descendo. É só pintura. */}
         <div
           className="absolute inset-0 opacity-70"
           style={{
             backgroundImage:
               "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
             backgroundSize: "64px 64px",
-            maskImage: "radial-gradient(ellipse 70% 46% at 50% 0%, #000 10%, transparent 72%)",
-            WebkitMaskImage: "radial-gradient(ellipse 70% 46% at 50% 0%, #000 10%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, transparent 0%, var(--background) 55%)",
           }}
         />
       </div>
