@@ -258,15 +258,29 @@ export default async function LandingPage() {
 
   return (
     <div className="tema-noite min-h-screen overflow-x-hidden relative">
-      {/* atmosfera — profundidade barata, só dois borrões e uma malha */}
+      {/* ── atmosfera ──
+          Eram dois círculos de 736px e 608px com `filter: blur(90px)`, numa
+          camada fixa. O comentário antigo os chamava de "profundidade barata";
+          eram o oposto: blur de 90px sobre elemento desse tamanho aloca uma
+          textura enorme e a convolução ficava viva durante toda a rolagem,
+          porque a camada é position:fixed.
+
+          Gradiente radial produz a mesma mancha suave — é literalmente uma
+          interpolação de cor — e custa uma pintura só, sem filtro nenhum. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div
-          className="absolute -top-64 -left-40 w-[46rem] h-[46rem] rounded-full"
-          style={{ background: "rgba(61,134,240,0.18)", filter: "blur(90px)" }}
+          className="absolute -top-64 -left-40 w-[46rem] h-[46rem]"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(61,134,240,0.20) 0%, rgba(61,134,240,0.10) 40%, transparent 70%)",
+          }}
         />
         <div
-          className="absolute -bottom-56 -right-32 w-[38rem] h-[38rem] rounded-full"
-          style={{ background: "rgba(47,191,135,0.12)", filter: "blur(90px)" }}
+          className="absolute -bottom-56 -right-32 w-[38rem] h-[38rem]"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(47,191,135,0.14) 0%, rgba(47,191,135,0.07) 40%, transparent 70%)",
+          }}
         />
         <div
           className="absolute inset-0 opacity-70"

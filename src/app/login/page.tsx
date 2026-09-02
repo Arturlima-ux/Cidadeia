@@ -23,15 +23,30 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      {/* Eram dois círculos com `blur-3xl` e `animate-blob`: transformar um
+          elemento borrado obriga o navegador a repintar a camada desfocada a
+          cada quadro, e a animação é infinita — o computador nunca descansa
+          enquanto a tela de login estiver aberta, que costuma ser o tempo todo
+          num balcão de prefeitura.
+
+          Gradiente radial dá a mesma mancha, parado e sem filtro. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -left-24 w-[28rem] h-[28rem] rounded-full opacity-30 blur-3xl animate-blob"
-        style={{ background: "var(--gradient-hero)" }}
+        className="pointer-events-none absolute -top-32 -left-24 w-[28rem] h-[28rem]"
+        style={{
+          background:
+            "radial-gradient(circle at center, var(--brand) 0%, transparent 65%)",
+          opacity: 0.28,
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 -right-24 w-[26rem] h-[26rem] rounded-full opacity-20 blur-3xl animate-blob"
-        style={{ background: "var(--gradient-hero)", animationDelay: "-7s" }}
+        className="pointer-events-none absolute -bottom-40 -right-24 w-[26rem] h-[26rem]"
+        style={{
+          background:
+            "radial-gradient(circle at center, var(--accent) 0%, transparent 65%)",
+          opacity: 0.18,
+        }}
       />
 
       <div className="relative w-full max-w-sm animate-fade-in-up">

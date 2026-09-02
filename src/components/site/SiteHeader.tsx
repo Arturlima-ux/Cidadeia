@@ -51,7 +51,11 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      <div className="border-b border-border bg-background/90 backdrop-blur">
+      {/* Opaco, sem backdrop-blur. O cabeçalho é sticky e fica na tela o tempo
+          todo: com desfoque de fundo, o navegador reamostra e reborra a página
+          inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
+          90% de opacidade o desfoque quase não aparecia; pagava-se caro à toa. */}
+      <div className="border-b border-border bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-[74px] flex items-center justify-between gap-6">
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={30} />

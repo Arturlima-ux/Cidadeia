@@ -86,10 +86,17 @@ export default function CadastroPage() {
 
   return (
     <div className="relative min-h-screen bg-background px-4 py-10 overflow-hidden">
+      {/* Mesma troca do login: gradiente radial parado no lugar de um círculo
+          borrado em animação infinita, que repintava a camada desfocada a cada
+          quadro enquanto a página estivesse aberta. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 w-[26rem] h-[26rem] rounded-full opacity-20 blur-3xl animate-blob"
-        style={{ background: "var(--gradient-hero)" }}
+        className="pointer-events-none absolute -top-32 -right-24 w-[26rem] h-[26rem]"
+        style={{
+          background:
+            "radial-gradient(circle at center, var(--brand) 0%, transparent 65%)",
+          opacity: 0.18,
+        }}
       />
 
       <div className="relative max-w-md mx-auto animate-fade-in-up">

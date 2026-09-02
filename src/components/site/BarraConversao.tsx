@@ -40,11 +40,11 @@ export default function BarraConversao() {
         className={`hidden sm:block fixed top-0 inset-x-0 z-40 border-b transition-transform duration-300 ${
           visivel ? "translate-y-0 border-border" : "-translate-y-full border-transparent"
         }`}
-        style={{
-          background: "color-mix(in srgb, var(--background) 84%, transparent)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-        }}
+        // Opaca, sem desfoque de fundo. Esta barra é FIXA: com backdrop-filter,
+        // o navegador reamostrava e reborrava a página inteira atrás dela a
+        // cada quadro — o efeito mais caro possível, no elemento que passa mais
+        // tempo na tela. Sobre fundo escuro, 84% e opaco são quase idênticos.
+        style={{ background: "var(--background)" }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-[62px] flex items-center justify-between gap-4">
           <Link href="/" aria-label="CidadeIA — início">
@@ -97,11 +97,7 @@ export default function BarraConversao() {
         className={`sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
           visivel ? "translate-y-0" : "translate-y-full"
         }`}
-        style={{
-          background: "color-mix(in srgb, var(--background) 92%, transparent)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-        }}
+        style={{ background: "var(--background)" }}
       >
         <span className="text-xs text-muted leading-tight flex-1">
           Proposta com valor, kit e base legal — no mesmo e-mail.
