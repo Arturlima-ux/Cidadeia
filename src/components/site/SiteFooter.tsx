@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
+import { linhaIdentificacao } from "@/lib/empresa";
 
 const COLUNAS = [
   {
@@ -54,11 +55,19 @@ export default function SiteFooter() {
               Sistema de gestão pública municipal, do gabinete ao balcão de
               atendimento.
             </p>
-            <p className="text-xs mt-4 leading-relaxed text-white/50">
-              [RAZÃO SOCIAL]
-              <br />
-              CNPJ [XX.XXX.XXX/0001-XX]
-            </p>
+            {/* Aqui havia "[RAZÃO SOCIAL]" e "CNPJ [XX.XXX.XXX/0001-XX]"
+                literalmente publicados. Num site que vende conformidade
+                jurídica, o marcador de posição custa mais que a ausência: o
+                jurídico da prefeitura rola até o fim antes de aprovar, e
+                encontrava ali a prova de que ninguém tinha revisado a página.
+
+                Enquanto o CNPJ não existir, não se mostra nada. Preenchido em
+                lib/empresa.ts, aparece sozinho. */}
+            {linhaIdentificacao() && (
+              <p className="text-xs mt-4 leading-relaxed text-white/50">
+                {linhaIdentificacao()}
+              </p>
+            )}
           </div>
 
           {COLUNAS.map((c) => (

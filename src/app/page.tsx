@@ -13,6 +13,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import BarraConversao from "@/components/site/BarraConversao";
+import PainelDemonstracao from "@/components/site/PainelDemonstracao";
 import {
   IconCheck,
   IconAlertas,
@@ -25,13 +26,15 @@ import {
   IconHistorico,
 } from "@/components/icons";
 
-// A página responde, na ordem, o que trava uma compra em prefeitura:
-// posso contratar? → por que não com a incumbente? → quanto custa? →
-// funciona mesmo? → o que exatamente eu levo? → quem monta o processo? →
-// e as objeções? → a lei está atendida? → como implanta?
+// ── A ORDEM DA PÁGINA ──
 //
-// A oferta abre a página em vez de fechá-la: quem chega quer saber se PODE
-// comprar antes de saber o que está comprando.
+// O que é → o que faz → por que não a incumbente → quanto custa → funciona
+// mesmo → quem está do outro lado → como se contrata → a lei está atendida.
+//
+// O detalhe dos módulos ficava na nona seção, DEPOIS do preço. Quem chegava
+// sem saber o que é o CidadeIA — um vereador, um assessor, alguém que não é o
+// jurídico — via o valor antes de entender o que estava comprando, e a página
+// só fazia sentido para quem já sabia. Agora o produto vem antes da conta.
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
   essencial: IconAlertas,
@@ -480,6 +483,141 @@ export default async function LandingPage() {
           </div>
         </div>
 
+        {/* ═══ O PAINEL ═══
+            A página explicava o produto inteiro por texto. Quem chegava sem
+            saber o que é o CidadeIA lia sobre conformidade, preço e base legal
+            sem nunca ver a tela que está comprando. Aqui ela aparece — e antes
+            do detalhe dos módulos, porque a forma vem antes da lista. */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+          <div className="grid lg:grid-cols-[1fr_1.15fr] gap-10 lg:gap-14 items-center">
+            <Reveal>
+              <div>
+                <Olho>A tela do prefeito</Olho>
+                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
+                  Abre mostrando o que precisa de decisão.
+                </h2>
+                <p className="text-muted leading-relaxed mt-5 max-w-[46ch]">
+                  Não é um relatório para procurar. É uma lista curta do que
+                  está fora do lugar hoje — com o número, o artigo da lei e o
+                  atalho para a tela onde se resolve.
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay={140}>
+              <PainelDemonstracao />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ═══ SOLUÇÕES ═══ */}
+        <section id="solucoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <Olho>Módulos</Olho>
+                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[16ch]">
+                    Contrate por área, não por pacote.
+                  </h2>
+                </div>
+                <p className="text-sm text-muted leading-relaxed max-w-sm">
+                  Um município de 8 mil habitantes não paga pelo que uma capital
+                  usa. Sem limite de relatórios e sem cobrança por usuário.
+                </p>
+              </div>
+            </Reveal>
+
+            {/* Cada módulo era uma frase de uma linha. Um comprador público
+                conservador não consegue defender uma contratação internamente
+                com uma frase — ele precisa de superfície suficiente para
+                montar a justificativa. Cada item abaixo corresponde a um
+                campo que existe no banco ou a uma regra que roda no código
+                (ver lib/modulos-detalhe.ts).
+
+                O selo "Mais contratado" saiu do Essencial: afirmava um dado
+                de venda comparativo que não temos. */}
+            <div className="grid md:grid-cols-2 gap-4 mt-10">
+              {modulos.map(({ chave, nome, detalhe }, i) => {
+                const Icone = ICONE_ADDON[chave];
+                return (
+                  <Reveal key={chave} delay={i * 60}>
+                    <div
+                      className="h-full flex flex-col gap-4 rounded-2xl border border-border p-6 sm:p-7 card-interactive"
+                      style={{ background: "var(--card)" }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <span
+                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
+                          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
+                        >
+                          <Icone className="w-5 h-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <h3 className="font-serif text-xl font-bold leading-tight">{nome}</h3>
+                          <p className="text-sm text-muted leading-relaxed mt-1">
+                            {detalhe.resumo}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ul className="flex flex-col gap-2 flex-1">
+                        {detalhe.capacidades.map((c) => (
+                          <li key={c} className="flex gap-2.5 text-sm leading-snug">
+                            <IconCheck
+                              className="w-4 h-4 shrink-0 mt-0.5"
+                              style={{ color: "var(--accent)" }}
+                            />
+                            <span className="text-muted">{c}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {detalhe.automacao && (
+                        <SeloLinha rotulo="Automático" tom="accent">
+                          {detalhe.automacao}
+                        </SeloLinha>
+                      )}
+                      {/* A linha de IA só aparece quando o ambiente tem a
+                          chave da Anthropic. Sem ela as funções devolvem erro
+                          explicando isso, e anunciar na home um recurso que o
+                          servidor não consegue executar seria vender o que
+                          não é entregue. Configurada a chave, o texto volta
+                          sozinho — aqui e no resto da página. */}
+                      {iaAtiva && detalhe.ia && (
+                        <SeloLinha rotulo="IA" tom="brand">
+                          {detalhe.ia}
+                        </SeloLinha>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4">
+                        <Link
+                          href="#proposta"
+                          className="text-sm font-bold text-brand hover:text-brand-claro transition"
+                        >
+                          Ver na proposta →
+                        </Link>
+                        {detalhe.noPortal && portalVitrine && (
+                          <Link
+                            href={`/transparencia/${portalVitrine.slug}`}
+                            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground transition"
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ background: "var(--accent)" }}
+                            />
+                            Conferir no portal
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* ═══ VERSUS ═══ */}
         <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <Reveal>
@@ -836,9 +974,13 @@ export default async function LandingPage() {
                     diagnóstico, é proposta comercial disfarçada.
                   </p>
                 </div>
+                {/* Contornado, não cheio: é o MESMO destino do botão do herói.
+                    Repetir o botão cheio faz a página parecer ter dois começos
+                    e apaga a hierarquia — sobram só três ações principais na
+                    home, cada uma com um trabalho distinto. */}
                 <Link
                   href="/diagnostico"
-                  className="shrink-0 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                  className="shrink-0 border border-border font-semibold text-sm rounded-xl px-7 py-4 transition hover:border-brand hover:text-brand-claro"
                 >
                   Fazer o diagnóstico&nbsp;&nbsp;→
                 </Link>
@@ -847,113 +989,6 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ═══ SOLUÇÕES ═══ */}
-        <section id="solucoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-6">
-                <div>
-                  <Olho>Módulos</Olho>
-                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[16ch]">
-                    Contrate por área, não por pacote.
-                  </h2>
-                </div>
-                <p className="text-sm text-muted leading-relaxed max-w-sm">
-                  Um município de 8 mil habitantes não paga pelo que uma capital
-                  usa. Sem limite de relatórios e sem cobrança por usuário.
-                </p>
-              </div>
-            </Reveal>
-
-            {/* Cada módulo era uma frase de uma linha. Um comprador público
-                conservador não consegue defender uma contratação internamente
-                com uma frase — ele precisa de superfície suficiente para
-                montar a justificativa. Cada item abaixo corresponde a um
-                campo que existe no banco ou a uma regra que roda no código
-                (ver lib/modulos-detalhe.ts).
-
-                O selo "Mais contratado" saiu do Essencial: afirmava um dado
-                de venda comparativo que não temos. */}
-            <div className="grid md:grid-cols-2 gap-4 mt-10">
-              {modulos.map(({ chave, nome, detalhe }, i) => {
-                const Icone = ICONE_ADDON[chave];
-                return (
-                  <Reveal key={chave} delay={i * 60}>
-                    <div
-                      className="h-full flex flex-col gap-4 rounded-2xl border border-border p-6 sm:p-7 card-interactive"
-                      style={{ background: "var(--card)" }}
-                    >
-                      <div className="flex items-start gap-4">
-                        <span
-                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
-                          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
-                        >
-                          <Icone className="w-5 h-5" />
-                        </span>
-                        <div className="min-w-0">
-                          <h3 className="font-serif text-xl font-bold leading-tight">{nome}</h3>
-                          <p className="text-sm text-muted leading-relaxed mt-1">
-                            {detalhe.resumo}
-                          </p>
-                        </div>
-                      </div>
-
-                      <ul className="flex flex-col gap-2 flex-1">
-                        {detalhe.capacidades.map((c) => (
-                          <li key={c} className="flex gap-2.5 text-sm leading-snug">
-                            <IconCheck
-                              className="w-4 h-4 shrink-0 mt-0.5"
-                              style={{ color: "var(--accent)" }}
-                            />
-                            <span className="text-muted">{c}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {detalhe.automacao && (
-                        <SeloLinha rotulo="Automático" tom="accent">
-                          {detalhe.automacao}
-                        </SeloLinha>
-                      )}
-                      {/* A linha de IA só aparece quando o ambiente tem a
-                          chave da Anthropic. Sem ela as funções devolvem erro
-                          explicando isso, e anunciar na home um recurso que o
-                          servidor não consegue executar seria vender o que
-                          não é entregue. Configurada a chave, o texto volta
-                          sozinho — aqui e no resto da página. */}
-                      {iaAtiva && detalhe.ia && (
-                        <SeloLinha rotulo="IA" tom="brand">
-                          {detalhe.ia}
-                        </SeloLinha>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4">
-                        <Link
-                          href="#proposta"
-                          className="text-sm font-bold text-brand hover:text-brand-claro transition"
-                        >
-                          Ver na proposta →
-                        </Link>
-                        {detalhe.noPortal && portalVitrine && (
-                          <Link
-                            href={`/transparencia/${portalVitrine.slug}`}
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground transition"
-                          >
-                            <span
-                              className="w-1.5 h-1.5 rounded-full shrink-0"
-                              style={{ background: "var(--accent)" }}
-                            />
-                            Conferir no portal
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </Reveal>
-                );
-              })}
-            </div>
-          </div>
-        </section>
 
         {/* ═══ KIT ═══ */}
         <section id="kit" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
@@ -969,9 +1004,12 @@ export default async function LandingPage() {
                   que precisa montar o processo do zero. Baixe sem cadastro, leve
                   para a reunião, volte se fizer sentido.
                 </p>
+                {/* Também contornado: o kit é apoio ao processo, não o passo
+                    do funil. O fecho da página é que carrega a ação de
+                    converter, e ele já entrega o kit junto da proposta. */}
                 <Link
                   href="/kit"
-                  className="inline-block mt-6 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated"
+                  className="inline-block mt-6 border border-border font-semibold text-sm rounded-xl px-6 py-3.5 transition hover:border-brand hover:text-brand-claro"
                 >
                   Abrir o kit completo
                 </Link>
