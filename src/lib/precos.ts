@@ -31,18 +31,35 @@ export function porteDaPopulacao(populacao: number | null | undefined): PorteMun
 /**
  * Tabela de preços mensais, em reais.
  *
- * `null` significa PREÇO AINDA NÃO DEFINIDO — e é assim que nasce, de
- * propósito. Enquanto for null, a página mostra "sob consulta" e o montador
- * avisa que o total está incompleto, em vez de exibir um número inventado.
- * Para ligar a calculadora da home, basta preencher os valores aqui.
+ * `null` significa PREÇO AINDA NÃO DEFINIDO. Enquanto houver null, a página
+ * mostra "sob consulta" e o montador avisa que o total está incompleto, em vez
+ * de exibir um número inventado.
+ *
+ * ── COMO ESTES VALORES FORAM ESCOLHIDOS ──
+ *
+ * O teto não é o mercado, é a lei. A promessa central do site é caber na
+ * dispensa por valor, então NENHUMA combinação pode passar do limite anual do
+ * art. 75, II — hoje R$ 65.492,11. A combinação mais cara possível (município
+ * acima de 50 mil contratando os seis módulos) fecha o ano em R$ 47.880, ou
+ * 73% do limite: sobra folga para reajuste e para o município crescer de faixa
+ * sem quebrar o argumento da home.
+ *
+ * A faixa pequena carrega margem maior de propósito. Com poucos clientes, é o
+ * custo fixo de infraestrutura que pesa — não o custo variável por município —,
+ * e a prefeitura de menos de 10 mil habitantes é quase metade do mercado
+ * brasileiro por número de entes.
+ *
+ * O teste de contratacao.test.ts trava a regra que importa: se alguém subir um
+ * preço a ponto de a soma dos seis estourar a dispensa, a suíte quebra antes de
+ * a home passar a mentir.
  */
 export const PRECO_MENSAL: Record<PlanoAddon, Record<PorteMunicipio, number | null>> = {
-  essencial: { ate10k: null, de10a50k: null, acima50k: null },
-  gestao: { ate10k: null, de10a50k: null, acima50k: null },
-  saude: { ate10k: null, de10a50k: null, acima50k: null },
-  educacao: { ate10k: null, de10a50k: null, acima50k: null },
-  obras: { ate10k: null, de10a50k: null, acima50k: null },
-  licitacoes: { ate10k: null, de10a50k: null, acima50k: null },
+  essencial: { ate10k: 490, de10a50k: 690, acima50k: 950 },
+  gestao: { ate10k: 360, de10a50k: 520, acima50k: 740 },
+  saude: { ate10k: 290, de10a50k: 450, acima50k: 630 },
+  educacao: { ate10k: 290, de10a50k: 450, acima50k: 630 },
+  obras: { ate10k: 240, de10a50k: 370, acima50k: 520 },
+  licitacoes: { ate10k: 240, de10a50k: 370, acima50k: 520 },
 };
 
 export function precoDefinido(modulo: PlanoAddon, porte: PorteMunicipio): boolean {

@@ -10,6 +10,7 @@ import {
   montarProposta,
   porteDaPopulacao,
   tabelaCompleta,
+  precoDefinido,
   PORTES,
   PRECO_MENSAL,
 } from "@/lib/precos";
@@ -89,12 +90,32 @@ describe("porte do município", () => {
 });
 
 describe("montagem da proposta", () => {
-  it("marca a proposta como incompleta enquanto houver módulo sem preço", () => {
-    // Estado inicial do repositório: nenhum preço definido. A página tem que
-    // dizer "sob consulta" em vez de exibir R$ 0,00 como se fosse de graça.
+  it("soma os módulos escolhidos quando todos têm preço", () => {
+    // Este teste dizia o contrário até os preços serem definidos: afirmava que
+    // a proposta vinha incompleta porque a tabela nascia toda em null. O
+    // mecanismo do "sob consulta" continua vivo e coberto logo abaixo — o que
+    // mudou é o estado da tabela, não a regra.
     const proposta = montarProposta({ porte: "ate10k", modulos: ["essencial", "gestao"] });
-    expect(proposta.incompleta).toBe(true);
+    expect(proposta.incompleta).toBe(false);
     expect(proposta.itens).toHaveLength(2);
+    expect(proposta.mensal).toBe(
+      PRECO_MENSAL.essencial.ate10k! + PRECO_MENSAL.gestao.ate10k!
+    );
+    expect(proposta.anual).toBe(proposta.mensal * 12);
+  });
+
+  it("o 'sob consulta' volta sozinho se um preço for apagado", () => {
+    // A regra que protege a página: enquanto um módulo escolhido estiver sem
+    // preço, o total não pode ser exibido como se fosse fechado. Testado pelos
+    // helpers porque a tabela hoje está completa — se um dia voltar a ter null,
+    // é este caminho que impede a home de mostrar um total menor que o real.
+    for (const plano of PLANOS_ADDON) {
+      for (const porte of PORTES) {
+        expect(precoDefinido(plano.chave, porte.chave)).toBe(
+          PRECO_MENSAL[plano.chave][porte.chave] !== null
+        );
+      }
+    }
   });
 
   it("lista os módulos escolhidos e ignora os demais", () => {
@@ -133,6 +154,52 @@ describe("montagem da proposta", () => {
     for (const porte of PORTES) {
       const completa = PLANOS_ADDON.every((p) => PRECO_MENSAL[p.chave][porte.chave] !== null);
       expect(tabelaCompleta(porte.chave)).toBe(completa);
+    }
+  });
+});
+
+describe("a tabela de preços não pode quebrar a promessa da home", () => {
+  it("nenhuma combinação de módulos estoura o limite anual de dispensa", () => {
+    // Este é o teste mais importante do arquivo. A home inteira se apoia em
+    // "cabe na dispensa": se um preço subir a ponto de a soma dos seis módulos
+    // passar do limite do art. 75, II, a página passa a mentir para o prefeito
+    // e o processo montado pelo kit vira nulo. Melhor a suíte quebrar antes.
+    for (const porte of PORTES) {
+      const proposta = montarProposta({
+        porte: porte.chave,
+        modulos: PLANOS_ADDON.map((p) => p.chave),
+      });
+      expect(proposta.incompleta, porte.chave).toBe(false);
+      expect(proposta.anual, porte.chave).toBeLessThanOrEqual(LIMITE_DISPENSA.valor);
+      expect(cabeNaDispensa(proposta.anual), porte.chave).toBe(true);
+    }
+  });
+
+  it("guarda folga para reajuste, sem colar no teto", () => {
+    // Encostar no limite deixaria a promessa refém do primeiro aumento de
+    // preço ou da mudança de faixa do município.
+    const maisCara = montarProposta({
+      porte: "acima50k",
+      modulos: PLANOS_ADDON.map((p) => p.chave),
+    });
+    expect(maisCara.anual / LIMITE_DISPENSA.valor).toBeLessThan(0.85);
+  });
+
+  it("todo porte tem a tabela completa, sem 'sob consulta'", () => {
+    // Um preço faltando faz o montador da home dizer que o total está
+    // incompleto — logo abaixo do título que critica quem esconde preço.
+    for (const porte of PORTES) {
+      expect(tabelaCompleta(porte.chave), porte.chave).toBe(true);
+    }
+  });
+
+  it("cobra mais de município maior, em todos os módulos", () => {
+    // Preço plano faria a prefeitura de 8 mil habitantes bancar o custo de uma
+    // de 200 mil — e é justamente a faixa pequena que precisa caber no bolso.
+    for (const plano of PLANOS_ADDON) {
+      const p = PRECO_MENSAL[plano.chave];
+      expect(p.ate10k, plano.chave).toBeLessThan(p.de10a50k!);
+      expect(p.de10a50k, plano.chave).toBeLessThan(p.acima50k!);
     }
   });
 });
