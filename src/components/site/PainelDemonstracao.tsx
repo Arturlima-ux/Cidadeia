@@ -20,11 +20,13 @@ import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes } from "@/componen
 // lib/deteccao-automatica.ts e alimentam a Central Inteligente: licitação com
 // prazo vencido, obra sem atualização, indicador parado e saldo negativo.
 //
-// A primeira versão desta lista trazia o mínimo constitucional e a conferência
-// no PNCP. As duas coisas existem no produto, mas em telas próprias — não
-// entram nesta lista. Um desenho que junta numa tela só o que o sistema mostra
-// em três é exatamente o tipo de promessa que a primeira demonstração ao vivo
-// desmente.
+// O mínimo constitucional e o prazo de resposta ao cidadão passaram a entrar
+// na Central junto com essas quatro (ver escopoVisivel em lib/ia.ts) — o
+// desenho aqui mostra uma amostra, não a lista exaustiva.
+//
+// A conferência no PNCP continua fora, e de propósito: depende de rede contra
+// um serviço que limita requisição, e a Central carrega a cada abertura de
+// tela. Fica sob demanda, na tela de Licitações.
 const ALERTAS = [
   {
     icone: IconLicitacoes,

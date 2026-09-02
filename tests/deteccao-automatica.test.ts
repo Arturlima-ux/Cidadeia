@@ -4,6 +4,8 @@ import {
   detectarObrasParadas,
   detectarIndicadorDesatualizado,
   detectarSaldoNegativo,
+  detectarMinimoConstitucional,
+  detectarPrazoAtendimento,
 } from "@/lib/deteccao-automatica";
 
 function diasAtras(dias: number): string {
@@ -122,5 +124,75 @@ describe("detectarSaldoNegativo", () => {
     expect(r).toHaveLength(1);
     expect(r[0].prioridade).toBe("urgente");
     expect(r[0].descricao).toContain("500");
+  });
+});
+
+describe("mínimo constitucional na Central", () => {
+  const base = {
+    area: "saude" as const,
+    nomeArea: "Saúde",
+    percentualAtual: 12.4,
+    exigido: 15,
+    faltamReais: 214_000,
+  };
+
+  it("não avisa sobre o que já está cumprido ou no ritmo", () => {
+    // A Central é uma lista do que exige DECISÃO. Item resolvido ali só afasta
+    // a atenção do que não está.
+    expect(detectarMinimoConstitucional([{ ...base, situacao: "cumprido" }])).toHaveLength(0);
+    expect(detectarMinimoConstitucional([{ ...base, situacao: "no_caminho" }])).toHaveLength(0);
+  });
+
+  it("herda a severidade do módulo de mínimos, sem recalcular", () => {
+    // A regra de severidade lá leva em conta o esforço de aceleração e os meses
+    // restantes. Julgar de novo aqui produziria duas verdades sobre o mesmo
+    // número — e a tela mostraria uma enquanto o painel mostra outra.
+    const critico = detectarMinimoConstitucional([{ ...base, situacao: "critico" }]);
+    const risco = detectarMinimoConstitucional([{ ...base, situacao: "risco" }]);
+    expect(critico[0].prioridade).toBe("urgente");
+    expect(risco[0].prioridade).toBe("medio");
+  });
+
+  it("diz o percentual e quanto falta em reais", () => {
+    // Percentual sozinho não é acionável: o gestor precisa do valor a empenhar.
+    const [a] = detectarMinimoConstitucional([{ ...base, situacao: "critico" }]);
+    expect(a.titulo).toContain("12,4%");
+    expect(a.descricao).toContain("15%");
+    expect(a.descricao).toMatch(/214/);
+    expect(a.secretaria).toBe("saude");
+  });
+
+  it("com nenhuma base informada não inventa achado", () => {
+    expect(detectarMinimoConstitucional([])).toHaveLength(0);
+  });
+});
+
+describe("prazo de atendimento na Central", () => {
+  it("agrupa em vez de listar um a um", () => {
+    // Trinta protocolos atrasados virariam trinta linhas e afogariam o resto da
+    // Central — o prefeito pararia de olhar a tela.
+    const achados = detectarPrazoAtendimento({ vencidos: 30, vencendo: 4 });
+    expect(achados).toHaveLength(2);
+    expect(achados[0].titulo).toContain("30");
+    expect(achados[1].titulo).toContain("4");
+  });
+
+  it("separa o vencido do que ainda dá para salvar", () => {
+    const achados = detectarPrazoAtendimento({ vencidos: 2, vencendo: 3 });
+    expect(achados[0].prioridade).toBe("urgente");
+    expect(achados[1].prioridade).toBe("medio");
+    expect(achados[1].descricao).toContain("prorrogação");
+  });
+
+  it("concorda em número e gênero", () => {
+    // Texto de sistema que erra a concordância parece descuidado justamente na
+    // tela que precisa parecer confiável.
+    const um = detectarPrazoAtendimento({ vencidos: 1, vencendo: 1 });
+    expect(um[0].titulo).toContain("1 manifestação com prazo vencido");
+    expect(um[1].titulo).toContain("1 manifestação vence");
+  });
+
+  it("nada vencido, nada a dizer", () => {
+    expect(detectarPrazoAtendimento({ vencidos: 0, vencendo: 0 })).toHaveLength(0);
   });
 });

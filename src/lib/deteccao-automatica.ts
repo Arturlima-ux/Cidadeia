@@ -126,3 +126,96 @@ export function detectarSaldoNegativo(
     },
   ];
 }
+
+// ── DETECTORES QUE FALTAVAM NA CENTRAL ──
+//
+// O mínimo constitucional e o prazo de resposta ao cidadão viviam só nas telas
+// próprias. Na prática isso obrigava o prefeito a visitar três lugares para
+// saber os três riscos — e o risco que ele não visita é o que estoura.
+//
+// A conferência no PNCP fica de fora de propósito: ela depende de chamada de
+// rede a um serviço que limita requisição com facilidade, e a Central carrega
+// a cada abertura de tela. Continua sob demanda, na tela de Licitações.
+
+/**
+ * Mínimo de educação ou saúde abaixo do exigido.
+ *
+ * Recebe a avaliação já calculada por lib/minimos-constitucionais.ts em vez de
+ * recalcular: a regra de severidade daquele módulo leva em conta o esforço de
+ * aceleração e os meses restantes, e duplicar esse julgamento aqui produziria
+ * duas verdades sobre o mesmo número.
+ */
+export function detectarMinimoConstitucional(entradas: {
+  area: "educacao" | "saude";
+  nomeArea: string;
+  percentualAtual: number;
+  exigido: number;
+  faltamReais: number;
+  situacao: "cumprido" | "no_caminho" | "risco" | "critico";
+}[]): DeteccaoAutomatica[] {
+  const achados: DeteccaoAutomatica[] = [];
+
+  for (const e of entradas) {
+    if (e.situacao === "cumprido" || e.situacao === "no_caminho") continue;
+
+    const reais = e.faltamReais.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      maximumFractionDigits: 0,
+    });
+
+    achados.push({
+      categoria: "financeiro",
+      prioridade: e.situacao === "critico" ? "urgente" : "medio",
+      secretaria: e.area,
+      titulo: `Mínimo em ${e.nomeArea}: ${e.percentualAtual.toFixed(1).replace(".", ",")}%`,
+      descricao:
+        `Abaixo do mínimo de ${e.exigido}% exigido por lei. Faltam ${reais} até o fim do ` +
+        `exercício — aplicar menos que o mínimo é a causa mais comum de rejeição de contas.`,
+    });
+  }
+
+  return achados;
+}
+
+/**
+ * Manifestação do cidadão com prazo legal vencido ou perto de vencer.
+ *
+ * Agrupa em vez de listar uma a uma: numa prefeitura com trinta protocolos
+ * atrasados, trinta linhas afogariam todo o resto da Central e o prefeito
+ * pararia de olhar a tela.
+ */
+export function detectarPrazoAtendimento(resumo: {
+  vencidos: number;
+  vencendo: number;
+}): DeteccaoAutomatica[] {
+  const achados: DeteccaoAutomatica[] = [];
+
+  if (resumo.vencidos > 0) {
+    const plural = resumo.vencidos > 1;
+    achados.push({
+      categoria: "prazo",
+      prioridade: "urgente",
+      secretaria: null,
+      titulo: `${resumo.vencidos} ${plural ? "manifestações com prazo vencido" : "manifestação com prazo vencido"}`,
+      descricao:
+        "Pedido de informação tem 20 dias pela Lei de Acesso à Informação; as demais " +
+        "manifestações têm 30 dias pela Lei 13.460. O prazo já passou.",
+    });
+  }
+
+  if (resumo.vencendo > 0) {
+    const plural = resumo.vencendo > 1;
+    achados.push({
+      categoria: "prazo",
+      prioridade: "medio",
+      secretaria: null,
+      titulo: `${resumo.vencendo} ${plural ? "manifestações vencem" : "manifestação vence"} nos próximos dias`,
+      descricao:
+        "Ainda dá para responder no prazo, ou formalizar a prorrogação prevista em lei " +
+        "com justificativa comunicada ao cidadão.",
+    });
+  }
+
+  return achados;
+}

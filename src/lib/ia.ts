@@ -19,10 +19,17 @@ import {
   detectarObrasParadas,
   detectarIndicadorDesatualizado,
   detectarSaldoNegativo,
+  detectarMinimoConstitucional,
+  detectarPrazoAtendimento,
   type DeteccaoAutomatica,
 } from "@/lib/deteccao-automatica";
 import { provedorIA, ESFORCO_PADRAO, MODELO_ANTHROPIC_PADRAO } from "@/lib/provedor-ia";
 import { analisarModulo, textoAnalise, type DadosAnalise } from "@/lib/analise-local";
+import { MINIMOS, avaliarMinimo } from "@/lib/minimos-constitucionais";
+import { montarPainelPrazos } from "@/lib/prazo-atendimento";
+import { db } from "@/db";
+import { basesMinimos, atendimentos } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export type MensagemChat = { papel: "user" | "assistant"; texto: string };
 
@@ -546,6 +553,10 @@ async function escopoVisivel(
     // O consolidado é do gabinete: nenhum secretário o enxerga, tenha ele o
     // módulo de Gestão ou não.
     financeiro: !ehSecretario && planos.includes("gestao"),
+    // Atendimento ao cidadão vem do Essencial. Também é visão de gabinete: um
+    // secretário de Obras não precisa saber quantos protocolos da prefeitura
+    // inteira estão vencendo.
+    essencial: !ehSecretario && planos.includes("essencial"),
   };
 }
 
@@ -570,13 +581,82 @@ export async function gerarDeteccoesAutomaticas(
     mostrarFinanceiro ? buscarUltimoSnapshot(prefeituraId) : Promise.resolve(null),
   ]);
 
+  // ── Os dois que faltavam ──
+  //
+  // O mínimo constitucional e o prazo de resposta ao cidadão viviam só nas
+  // telas próprias, o que obrigava o prefeito a visitar três lugares para
+  // conhecer os três riscos — e o risco que ninguém visita é o que estoura.
+  //
+  // A conferência no PNCP continua de fora, e de propósito: depende de rede
+  // contra um serviço que limita requisição com facilidade, e esta função roda
+  // a cada abertura da Central. Fica sob demanda, na tela de Licitações.
+  const [minimos, prazos] = await Promise.all([
+    mostrarFinanceiro ? detectarMinimosDoExercicio(prefeituraId) : Promise.resolve([]),
+    escopo.essencial ? detectarPrazosDoAtendimento(prefeituraId) : Promise.resolve([]),
+  ]);
+
   return [
     ...(mostrarObras ? detectarObrasParadas(listaObras) : []),
     ...(mostrarLicitacoes ? detectarLicitacoesVencendo(listaLicitacoes) : []),
     ...(mostrarSaude ? detectarIndicadorDesatualizado("saude", indicadorSaude) : []),
     ...(mostrarEducacao ? detectarIndicadorDesatualizado("educacao", indicadorEducacao) : []),
     ...(mostrarFinanceiro ? detectarSaldoNegativo(snapshot) : []),
+    ...minimos,
+    ...prazos,
   ];
+}
+
+/** Carrega as bases informadas e avalia os dois mínimos do exercício corrente. */
+async function detectarMinimosDoExercicio(prefeituraId: string): Promise<DeteccaoAutomatica[]> {
+  const exercicio = new Date().getFullYear();
+
+  const bases = await db
+    .select()
+    .from(basesMinimos)
+    .where(
+      and(eq(basesMinimos.prefeituraId, prefeituraId), eq(basesMinimos.exercicio, exercicio))
+    );
+
+  const entradas = bases
+    .filter((b) => b.baseCalculo > 0)
+    .map((b) => {
+      const a = avaliarMinimo({
+        area: b.area,
+        base: b.baseCalculo,
+        aplicado: b.aplicado,
+        mesesDecorridos: b.mesReferencia,
+      });
+      return {
+        area: b.area,
+        nomeArea: MINIMOS[b.area].area,
+        percentualAtual: a.percentualAtual,
+        exigido: a.exigido,
+        faltamReais: a.faltaProjetadaNoAno ?? a.faltaSobreBaseAtual,
+        situacao: a.situacao,
+      };
+    });
+
+  return detectarMinimoConstitucional(entradas);
+}
+
+/** Conta as manifestações vencidas e a vencer, sem listar uma a uma. */
+async function detectarPrazosDoAtendimento(prefeituraId: string): Promise<DeteccaoAutomatica[]> {
+  const linhas = await db
+    .select({
+      tipo: atendimentos.tipo,
+      status: atendimentos.status,
+      abertoEm: atendimentos.createdAt,
+      respondidoEm: atendimentos.respondidoEm,
+      prorrogado: atendimentos.prazoProrrogado,
+    })
+    .from(atendimentos)
+    .where(eq(atendimentos.prefeituraId, prefeituraId));
+
+  const painel = montarPainelPrazos(linhas);
+  return detectarPrazoAtendimento({
+    vencidos: painel.vencidos.length,
+    vencendo: painel.vencendo.length,
+  });
 }
 
 /**
