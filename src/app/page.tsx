@@ -132,21 +132,6 @@ const VERSUS = [
   },
 ];
 
-const CANAIS = [
-  {
-    titulo: "Portal da Transparência",
-    texto: "Endereço público próprio do município, com receita, despesa e investimentos.",
-  },
-  {
-    titulo: "Protocolo com consulta",
-    texto: "Número e chave privada na hora. O cidadão acompanha sozinho, sem ligar.",
-  },
-  {
-    titulo: "Ouvidoria anônima",
-    texto: "Denúncia sem identificação e protocolo não sequencial — como exige a lei.",
-  },
-];
-
 const OBJECOES = [
   {
     pergunta: "E se mudar o prefeito?",
@@ -734,68 +719,99 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ═══ PROVA ═══ */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <Reveal>
-            <div className="max-w-2xl">
-              <Olho>Prova</Olho>
-              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
-                Não peça fé. Abra pelo celular, agora.
-              </h2>
-              <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
-                Os três canais públicos estão no ar e abrem sem login. Antes de
-                assinar qualquer coisa, o secretário confere.
-              </p>
-            </div>
-          </Reveal>
+        {/* ═══ PROVA E AUTORIDADE ═══
+            Eram DUAS seções separadas — "Não peça fé, abra e confira" e "Não
+            temos cem prefeituras para mostrar" — dizendo a mesma coisa com
+            palavras diferentes, e ainda separadas por uma terceira seção no
+            meio, o que fazia a repetição parecer desorganização.
 
-          <div className="grid md:grid-cols-3 gap-4 mt-10">
-            {CANAIS.map((c, i) => (
-              <Reveal key={c.titulo} delay={i * 90}>
-                <div className="vidro rounded-2xl p-6 h-full">
-                  <span
-                    className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider"
-                    style={{ color: "var(--accent-claro)" }}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full animate-pulse-soft"
-                      style={{ background: "var(--accent)" }}
-                    />
-                    No ar
-                  </span>
-                  <h3 className="font-serif text-lg font-bold mt-4">{c.titulo}</h3>
-                  <p className="text-sm text-muted mt-2 leading-relaxed">{c.texto}</p>
+            Fundidas: uma admissão, uma prova clicável e uma lista do que dá
+            para conferir. Saíram junto os três cartões de canais, que
+            repetiam o que as capacidades do módulo Essencial já detalham logo
+            acima.
+
+            O formato também muda de propósito. Depois de quatro seções em
+            grade de cartões, mais uma grade some no meio das outras — aqui é
+            lista, para o olho ter onde descansar. */}
+        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <div className="grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16">
+              <Reveal>
+                <div>
+                  <Olho>Quem está do outro lado</Olho>
+                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
+                    Não temos cem prefeituras para mostrar.
+                  </h2>
+                  <p className="text-muted leading-relaxed mt-5 max-w-[46ch]">
+                    O CidadeIA é novo, e não vamos pendurar aqui logotipo de
+                    município que não é cliente. Autoridade emprestada quebra na
+                    primeira checagem do jurídico. Em vez disso: abra e confira.
+                  </p>
+
+                  {/* A prova clicável fica junto da admissão, não numa seção
+                      própria. Município de verdade, nome na tela, endereço que
+                      responde — o mais perto de um muro de logos que dá para
+                      fazer com honestidade. */}
+                  <div className="flex flex-wrap items-center gap-3 mt-7">
+                    {portais.slice(0, 3).map((p) => (
+                      <Link
+                        key={p.slug}
+                        href={`/transparencia/${p.slug}`}
+                        className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3 transition"
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
+                          style={{ background: "var(--accent)" }}
+                        />
+                        {p.municipio} · {p.estado}
+                      </Link>
+                    ))}
+                    <Link
+                      href="/transparencia"
+                      className="text-sm font-semibold text-muted hover:text-foreground transition"
+                    >
+                      {portais.length > 3 ? "ver todos" : "abrir um portal"} →
+                    </Link>
+                  </div>
                 </div>
               </Reveal>
-            ))}
-          </div>
 
-          <Reveal>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              {/* Município de verdade, nome na tela, endereço que responde.
-                  É o mais perto de um muro de logos que dá para fazer com
-                  honestidade antes de existir uma carteira de clientes. */}
-              {portais.slice(0, 4).map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/transparencia/${p.slug}`}
-                  className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3.5 transition"
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{ background: "var(--accent)" }}
-                  />
-                  {p.municipio} · {p.estado}
-                </Link>
-              ))}
-              <Link
-                href="/transparencia"
-                className="inline-block border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-3.5 transition"
-              >
-                {portais.length > 4 ? "Ver todos os portais" : "Abrir um portal publicado"}
-              </Link>
+              <Reveal delay={120}>
+                <ul className="flex flex-col">
+                  {AUTORIDADE.map((a) => (
+                    <li
+                      key={a.titulo}
+                      className="flex gap-3.5 py-4 border-b border-border last:border-b-0 first:pt-0"
+                    >
+                      <IconCheck
+                        className="w-4 h-4 shrink-0 mt-1"
+                        style={{ color: "var(--accent)" }}
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm leading-snug">{a.titulo}</p>
+                        <p className="text-sm text-muted mt-1 leading-relaxed">{a.texto}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6">
+                  <Link
+                    href="/por-que-cidadeia"
+                    className="text-sm font-bold text-brand hover:text-brand-claro transition"
+                  >
+                    Por que o CidadeIA existe →
+                  </Link>
+                  <Link
+                    href="/suporte?assunto=proposta"
+                    className="text-sm font-semibold text-muted hover:text-foreground transition"
+                  >
+                    Falar com quem construiu
+                  </Link>
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
+          </div>
         </section>
 
 
@@ -881,74 +897,6 @@ export default async function LandingPage() {
                 })}
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ═══ AUTORIDADE ═══
-            Em venda B2G o maior freio é risco percebido, e a home não dava
-            nenhum sinal de quem constrói isto. O problema é que os sinais
-            usuais — número de municípios, logotipo de cliente, depoimento de
-            secretário — todos exigem uma carteira que ainda não existe, e
-            nenhum deles pode ser inventado.
-
-            A saída é trocar credencial por comportamento verificável: cada
-            item aqui aponta para algo que o visitante abre e confere sozinho.
-            E a seção começa admitindo que a empresa é nova, porque um
-            comprador público desconfiado descobre isso em cinco minutos, e é
-            muito melhor que ele leia primeiro aqui. */}
-        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <Reveal>
-              <div className="max-w-2xl">
-                <Olho>Quem está do outro lado</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
-                  Não temos cem prefeituras para mostrar.
-                </h2>
-                <p className="text-muted leading-relaxed mt-5 max-w-[54ch]">
-                  O CidadeIA é novo, e não vamos pendurar aqui logotipo de
-                  município que não é cliente nem depoimento que não existe.
-                  Autoridade emprestada é o que quebra na primeira checagem do
-                  setor jurídico. O que dá para conferir hoje é isto:
-                </p>
-              </div>
-            </Reveal>
-
-            <div className="grid sm:grid-cols-2 gap-4 mt-10">
-              {AUTORIDADE.map((a, i) => (
-                <Reveal key={a.titulo} delay={i * 70}>
-                  <div
-                    className="h-full border border-border rounded-2xl p-6"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <h3 className="font-semibold flex items-start gap-2.5 leading-snug">
-                      <IconCheck
-                        className="w-4 h-4 shrink-0 mt-1"
-                        style={{ color: "var(--accent)" }}
-                      />
-                      {a.titulo}
-                    </h3>
-                    <p className="text-sm text-muted mt-2.5 leading-relaxed">{a.texto}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-
-            <Reveal>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8">
-                <Link
-                  href="/por-que-cidadeia"
-                  className="text-sm font-bold text-brand hover:text-brand-claro transition"
-                >
-                  Por que o CidadeIA existe →
-                </Link>
-                <Link
-                  href="/suporte?assunto=proposta"
-                  className="text-sm font-semibold text-muted hover:text-foreground transition"
-                >
-                  Falar com quem construiu
-                </Link>
-              </div>
-            </Reveal>
           </div>
         </section>
 
@@ -1058,17 +1006,36 @@ export default async function LandingPage() {
                 </p>
               </div>
             </Reveal>
-            <div className="grid md:grid-cols-2 gap-4">
-              {OBJECOES.map((o, i) => (
-                <Reveal key={o.pergunta} delay={i * 50}>
-                  <div
-                    className="h-full border border-border rounded-2xl p-6"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <h3 className="font-semibold">{o.pergunta}</h3>
-                    <p className="text-sm text-muted mt-2.5 leading-relaxed">{o.resposta}</p>
-                  </div>
-                </Reveal>
+            {/* Eram seis cartões abertos numa grade, ocupando uma tela inteira
+                de respostas que a maioria não estava procurando. Objeção é
+                assim: cada leitor tem uma ou duas, não as seis — e quem não
+                tem nenhuma só precisa passar por cima.
+
+                Fechadas, a seção cabe em meia tela e as perguntas viram um
+                índice varrível. Quem tem a dúvida abre a dela; quem não tem
+                rola direto. O conteúdo continua inteiro na página, inclusive
+                para busca do navegador, porque <details> não esconde do Ctrl+F
+                nem do leitor de tela. */}
+            <div className="max-w-3xl mx-auto border-t border-border">
+              {OBJECOES.map((o) => (
+                <details
+                  key={o.pergunta}
+                  className="group border-b border-border"
+                >
+                  <summary className="flex items-center justify-between gap-4 py-4 cursor-pointer list-none font-semibold text-sm sm:text-base hover:text-brand-claro transition">
+                    {o.pergunta}
+                    <span
+                      aria-hidden
+                      className="shrink-0 text-lg leading-none transition-transform group-open:rotate-45"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-sm text-muted leading-relaxed pb-5 pr-8 -mt-1">
+                    {o.resposta}
+                  </p>
+                </details>
               ))}
             </div>
           </div>
