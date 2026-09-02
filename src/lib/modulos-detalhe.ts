@@ -111,13 +111,14 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     chave: "licitacoes",
     resumo: "Os processos e os prazos que ninguém pode perder.",
     capacidades: [
+      "Conferência de quais processos constam no Portal Nacional de Contratações Públicas",
       "Número, objeto, modalidade, valor estimado e fornecedor de cada processo",
       "Prazo final acompanhado processo a processo",
       "Observação de risco registrada junto ao processo",
       "Relatório da secretaria em PDF",
     ],
     automacao:
-      "Avisa 7 e 3 dias antes do prazo final, e destaca o processo cujo prazo já venceu.",
+      "Consulta o PNCP e aponta o processo que não foi divulgado lá — divulgação é condição de eficácia do contrato. Avisa 7 e 3 dias antes do prazo final e destaca o que já venceu.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: true,
   },

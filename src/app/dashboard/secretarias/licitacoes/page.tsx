@@ -7,6 +7,7 @@ import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
+import PainelPncp from "./PainelPncp";
 
 const LABEL_STATUS: Record<string, string> = {
   planejamento: "Planejamento",
@@ -56,6 +57,8 @@ export default async function LicitacoesPage() {
           Baixar relatório (PDF)
         </a>
       </div>
+
+      <PainelPncp ano={new Date().getFullYear()} />
 
       <InsightIA acao={gerarInsightIA} modulo="licitacoes" />
 
