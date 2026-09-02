@@ -112,13 +112,14 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     resumo: "Os processos e os prazos que ninguém pode perder.",
     capacidades: [
       "Conferência de quais processos constam no Portal Nacional de Contratações Públicas",
+      "Soma das dispensas de mesmo objeto no exercício, contra o limite anual",
       "Número, objeto, modalidade, valor estimado e fornecedor de cada processo",
       "Prazo final acompanhado processo a processo",
       "Observação de risco registrada junto ao processo",
       "Relatório da secretaria em PDF",
     ],
     automacao:
-      "Consulta o PNCP e aponta o processo que não foi divulgado lá — divulgação é condição de eficácia do contrato. Avisa 7 e 3 dias antes do prazo final e destaca o que já venceu.",
+      "Consulta o PNCP e aponta o processo que não foi divulgado lá — divulgação é condição de eficácia do contrato. Agrupa dispensas de objeto semelhante e avisa quando a soma do exercício se aproxima do limite, antes do próximo empenho. Avisa 7 e 3 dias antes do prazo final.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: true,
   },

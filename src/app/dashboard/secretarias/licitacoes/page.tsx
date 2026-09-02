@@ -8,6 +8,8 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import PainelPncp from "./PainelPncp";
+import PainelFracionamento from "./PainelFracionamento";
+import type { ProcessoDispensa } from "@/lib/fracionamento";
 
 const LABEL_STATUS: Record<string, string> = {
   planejamento: "Planejamento",
@@ -35,6 +37,26 @@ export default async function LicitacoesPage() {
   if (!ctx.temPlano("licitacoes")) return <BloqueioPlano plano="licitacoes" />;
 
   const lista = await buscarLicitacoes(ctx.sessao.prefeituraId);
+
+  // Só dispensas entram na verificação de fracionamento: o limite do art. 75
+  // é da dispensa por valor, e somar um pregão junto inflaria o grupo com
+  // dinheiro que já passou por licitação.
+  const exercicio = new Date().getFullYear();
+  const dispensasDoExercicio: ProcessoDispensa[] = lista
+    .filter(
+      (l) =>
+        /dispensa/i.test(l.modalidade ?? "") &&
+        l.valorEstimado !== null &&
+        l.status !== "cancelada" &&
+        (l.createdAt ?? "").startsWith(String(exercicio))
+    )
+    .map((l) => ({
+      id: l.id,
+      numero: l.numero,
+      objeto: l.objeto,
+      valor: l.valorEstimado as number,
+      data: l.createdAt ?? "",
+    }));
   const comObservacaoRisco = lista.filter((l) => l.observacaoRisco);
 
   return (
@@ -59,6 +81,8 @@ export default async function LicitacoesPage() {
       </div>
 
       <PainelPncp ano={new Date().getFullYear()} />
+
+      <PainelFracionamento processos={dispensasDoExercicio} exercicio={exercicio} />
 
       <InsightIA acao={gerarInsightIA} modulo="licitacoes" />
 
