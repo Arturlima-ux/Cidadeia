@@ -412,3 +412,39 @@ export const alertasSugeridos = pgTable("alertas_sugeridos", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── BASE DE CÁLCULO DOS MÍNIMOS CONSTITUCIONAIS ──
+//
+// A despesa aplicada nós conseguimos sozinhos: vem do SICONFI, por função
+// orçamentária. A BASE — receita resultante de impostos e transferências — não
+// sai limpa de nenhuma API pública: o Anexo 01 do RREO mistura transferência
+// de imposto com repasse do SUS e convênio, e os anexos oficiais que trariam o
+// número pronto (RREO 08 e 12) voltam vazios na API do Tesouro para todos os
+// municípios testados.
+//
+// Então a base é informada pelo contador da prefeitura, que é quem de fato a
+// fecha, e guardada por exercício e área. Guardamos junto o mês de referência
+// porque é ele que separa "aplicou pouco" de "ainda é março".
+export const basesMinimos = pgTable("bases_minimos", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  exercicio: integer("exercicio").notNull(),
+  area: text("area", { enum: ["educacao", "saude"] }).notNull(),
+  /** Receita que serve de base ao percentual, acumulada no exercício. */
+  baseCalculo: doublePrecision("base_calculo").notNull(),
+  /**
+   * Despesa aplicada acumulada. Pode vir do SICONFI ou ser corrigida à mão —
+   * o contador às vezes tem número mais atual que o último RREO publicado.
+   */
+  aplicado: doublePrecision("aplicado").notNull(),
+  /** 1 a 12. Até que mês do exercício os dois valores acima acumulam. */
+  mesReferencia: integer("mes_referencia").notNull(),
+  origemAplicado: text("origem_aplicado", { enum: ["manual", "siconfi"] })
+    .notNull()
+    .default("manual"),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

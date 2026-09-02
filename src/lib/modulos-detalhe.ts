@@ -56,12 +56,14 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     chave: "gestao",
     resumo: "A visão do prefeito sobre a prefeitura inteira, numa tela só.",
     capacidades: [
+      "Acompanhamento dos mínimos de 25% em educação e 15% em saúde, durante o exercício",
       "Receita, despesa, investimento e saldo consolidados do município",
       "Alertas de todas as secretarias reunidos numa lista única",
       "Relatório executivo em PDF, sem limite de geração",
       "Administração de usuários: cada secretário só enxerga a própria área",
     ],
-    automacao: "Aponta saldo negativo assim que ele aparece no último registro.",
+    automacao:
+      "Calcula quanto falta aplicar para fechar o ano dentro dos mínimos constitucionais, e quantas vezes o ritmo mensal precisa subir para chegar lá. Aponta saldo negativo assim que aparece.",
     ia: "Sugere alertas a partir dos dados já cadastrados — sempre para aprovação humana, nunca publicados sozinhos.",
     noPortal: false,
   },
