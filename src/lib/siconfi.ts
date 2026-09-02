@@ -168,3 +168,106 @@ export async function buscarDespesasSiconfi(
 
   return { ok: true, despesas, instituicao: itens[0]?.instituicao ?? null };
 }
+
+// ── CONFERÊNCIA DE ENTREGA (RREO) ──
+//
+// O que separa um calendário de obrigações de uma agenda de papel: aqui dá
+// para saber se a entrega ACONTECEU. Os dois relatórios são publicados na
+// mesma API aberta, por exercício e período — se o período esperado não volta
+// de lá, é porque não foi enviado, e o alerta se apaga sozinho no dia em que
+// a publicação aparece.
+//
+// SIOPS e SIOPE não têm consulta pública equivalente. Continuam como lembrete
+// de data, e a tela precisa dizer qual é qual: afirmar entrega que não
+// verificamos seria pior do que não afirmar nada.
+
+/**
+ * O parâmetro `nr_periodo` é obrigatório: sem ele a consulta volta vazia, o
+ * que seria indistinguível de "não entregou". Por isso a verificação é uma
+ * chamada por período, com pausa entre elas — a API é aberta e gratuita, e
+ * martelá-la seria abusar de infraestrutura pública.
+ */
+const PAUSA_SICONFI_MS = 900;
+
+/** Só o suficiente para saber se existe registro; não lemos o conteúdo. */
+const LIMITE_SONDAGEM = 1;
+
+function aguardar(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function periodoFoiEntregue(
+  url: string,
+  parametros: Record<string, string>
+): Promise<boolean | null> {
+  const query = new URLSearchParams({ ...parametros, limit: String(LIMITE_SONDAGEM) });
+  try {
+    const resposta = await fetch(`${url}?${query}`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!resposta.ok) return null;
+    const json = (await resposta.json()) as { items?: unknown[] };
+    return (json.items?.length ?? 0) > 0;
+  } catch {
+    // Null e false querem dizer coisas diferentes, e a diferença é o ponto:
+    // false é "o Tesouro não tem esse período"; null é "não conseguimos
+    // perguntar". Colapsar os dois faria um timeout nosso virar acusação de
+    // atraso contra a prefeitura.
+    return null;
+  }
+}
+
+export type EntregaConferida = {
+  /** Chave no formato `${obrigacao}:${numero}`, como o calendário espera. */
+  chave: string;
+  entregue: boolean;
+};
+
+export type ResultadoConferenciaEntregas = {
+  entregues: Set<string>;
+  /** Períodos que não conseguimos consultar — a tela não deve chamá-los de atraso. */
+  inconclusivos: string[];
+};
+
+/**
+ * Confere, no Tesouro, quais RREO do exercício já foram publicados.
+ *
+ * Só o RREO: o endpoint de RGF do Tesouro devolve zero registro para todos os
+ * municípios testados, e uma conferência que sempre responde "não entregue"
+ * acusaria de falha quem cumpriu. Ver o comentário em obrigacoes-fiscais.ts.
+ */
+export async function conferirEntregasSiconfi(
+  codigoIbge: string,
+  exercicio: number,
+  opcoes: { periodosRreo: number[] }
+): Promise<ResultadoConferenciaEntregas> {
+  const entregues = new Set<string>();
+  const inconclusivos: string[] = [];
+  let primeira = true;
+
+  const sondagens: { chave: string; url: string; parametros: Record<string, string> }[] = [
+    ...opcoes.periodosRreo.map((n) => ({
+      chave: `rreo:${n}`,
+      url: URL_SICONFI,
+      parametros: {
+        an_exercicio: String(exercicio),
+        nr_periodo: String(n),
+        co_tipo_demonstrativo: "RREO",
+        no_anexo: "RREO-Anexo 02",
+        id_ente: codigoIbge,
+      },
+    })),
+  ];
+
+  for (const sondagem of sondagens) {
+    if (!primeira) await aguardar(PAUSA_SICONFI_MS);
+    primeira = false;
+
+    const resultado = await periodoFoiEntregue(sondagem.url, sondagem.parametros);
+    if (resultado === true) entregues.add(sondagem.chave);
+    else if (resultado === null) inconclusivos.push(sondagem.chave);
+  }
+
+  return { entregues, inconclusivos };
+}

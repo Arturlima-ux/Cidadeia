@@ -13,6 +13,8 @@ import {
 } from "@/lib/minimos-constitucionais";
 import { buscarBases, somarAplicadoLancado } from "./actions";
 import FormularioBase from "./FormularioBase";
+import PainelObrigacoes from "./PainelObrigacoes";
+import { podeOptarPorSemestral } from "@/lib/obrigacoes-fiscais";
 
 export const metadata = { title: "Mínimos constitucionais — CidadeIA" };
 
@@ -136,6 +138,8 @@ export default async function MinimosPage() {
           );
         })}
       </div>
+
+      <PainelObrigacoes podeSemestral={podeOptarPorSemestral(prefeitura.populacao)} />
 
       <div
         className="border rounded-xl p-5 text-sm leading-relaxed"
