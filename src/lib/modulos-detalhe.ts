@@ -61,6 +61,8 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     capacidades: [
       "Acompanhamento dos mínimos de 25% em educação e 15% em saúde, durante o exercício",
       "Calendário das obrigações fiscais do ano — RREO, gestão fiscal, SIOPS e SIOPE",
+      "Mapa único da cidade com obras, escolas e unidades de saúde, e a obra atrasada em destaque",
+      "Modo apresentação em tela cheia para o gabinete ou a sessão da câmara",
       "Receita, despesa, investimento e saldo consolidados do município",
       "Alertas de todas as secretarias reunidos numa lista única",
       "Relatório executivo em PDF, sem limite de geração",

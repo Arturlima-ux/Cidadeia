@@ -83,6 +83,8 @@ function montarGrupos(
       titulo: "Gestão",
       itens: [
         { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },
+        { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
+        { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },
         { href: "/dashboard/minimos", label: "Mínimos constitucionais", icone: "visao-geral" },
         { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
         { href: "/dashboard/historico", label: "Histórico", icone: "historico" },
