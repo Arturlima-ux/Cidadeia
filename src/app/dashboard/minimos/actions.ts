@@ -6,7 +6,7 @@ import { basesMinimos, investimentos } from "@/db/schema";
 import { and, eq, like } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
 import { gerarId } from "@/lib/id";
-import { AREAS_MINIMO, type AreaMinimo } from "@/lib/minimos-constitucionais";
+import type { AreaMinimo } from "@/lib/minimos-constitucionais";
 import { revalidatePath } from "next/cache";
 
 export type LinhaBase = {
@@ -148,5 +148,3 @@ export async function salvarBase(formData: FormData): Promise<ResultadoSalvar> {
   revalidatePath("/dashboard/minimos");
   return { ok: true };
 }
-
-export { AREAS_MINIMO };
