@@ -42,7 +42,7 @@ export default async function MarketplacePage() {
       <div className="grid sm:grid-cols-2 gap-4">
         {PLANOS_ADDON.map((p) => {
           const ativo = planosAtivos.includes(p.chave);
-          const { url, ehExemplo } = linkContratacao(p.chave);
+          const { url } = linkContratacao(p.chave);
           return (
             <div
               key={p.chave}
@@ -70,7 +70,13 @@ export default async function MarketplacePage() {
                   Abrir módulo
                 </Link>
               ) : (
-                <>
+                // Sem checkout configurado, o botão leva ao caminho que a
+                // contratação pública de fato percorre — proposta, processo,
+                // empenho — em vez de a um pagamento que a tesouraria não
+                // faria. Antes daqui saía um link para uma URL inexistente, e
+                // logo abaixo o CLIENTE lia um aviso pedindo para configurar
+                // o .env.
+                url ? (
                   <a
                     href={url}
                     target="_blank"
@@ -79,13 +85,14 @@ export default async function MarketplacePage() {
                   >
                     Contratar
                   </a>
-                  {ehExemplo && (
-                    <p className="text-xs mt-2" style={{ color: "var(--medio)" }}>
-                      ⚠ Link de exemplo — configure{" "}
-                      {`CHECKOUT_URL_${p.chave.toUpperCase()}`} no .env.
-                    </p>
-                  )}
-                </>
+                ) : (
+                  <Link
+                    href={`/suporte?assunto=proposta&modulo=${encodeURIComponent(p.nome)}`}
+                    className="mt-4 text-center bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-4 py-2 transition"
+                  >
+                    Pedir proposta
+                  </Link>
+                )
               )}
             </div>
           );
@@ -93,10 +100,10 @@ export default async function MarketplacePage() {
       </div>
 
       <p className="text-xs text-muted leading-relaxed">
-        O botão "Contratar" abre o checkout em uma página externa. Depois do
-        pagamento, a ativação do módulo nesta conta ainda é feita manualmente
-        pela nossa equipe — ainda não temos integração automática (webhook)
-        confirmando o pagamento em tempo real.
+        Contratação em prefeitura não passa por cartão: passa por proposta,
+        processo de dispensa ou licitação, empenho e nota fiscal. O pedido de
+        proposta abre esse caminho, e o módulo é ativado nesta conta assim que o
+        contrato estiver assinado.
       </p>
     </div>
   );

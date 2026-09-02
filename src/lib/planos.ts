@@ -101,11 +101,26 @@ export const HREF_PLANO_ADDON: Record<PlanoAddon, string> = {
 };
 
 // ── LINK DE CONTRATAÇÃO (checkout externo) ──
-// Cada plano tem uma variável de ambiente própria com o link de pagamento
-// (ex: um Payment Link do Stripe, do Mercado Pago, ou um formulário/typeform
-// de vendas). Enquanto a variável não for configurada, cai num link de
-// EXEMPLO — só pra você ver a estrutura funcionando; ele não cobra nada de
-// verdade, é preciso trocar pelo link real antes de ir pra produção.
+// Link de pagamento externo por módulo, quando existir.
+//
+// ── POR QUE ISTO PROVAVELMENTE NUNCA VAI SER USADO ──
+//
+// Prefeitura não paga com cartão. O pagamento municipal segue empenho,
+// liquidação e ordem bancária, feito pela tesouraria contra nota fiscal e
+// dentro do processo de contratação — não existe secretário assinando SaaS no
+// checkout, e se existisse o Tribunal de Contas perguntaria por quê.
+//
+// O caminho real é o que o site já constrói: diagnóstico, proposta, kit,
+// dispensa, empenho, nota. A ativação do módulo é ato nosso depois do contrato
+// assinado, não consequência de um pagamento online.
+//
+// A variável fica aqui porque pode haver exceção — uma autarquia, um consórcio
+// intermunicipal, um piloto pago por outra via. Se ela existir, o botão usa.
+// Se não existir, o botão leva à proposta, que é o caminho de verdade.
+//
+// Antes isto caía num link de EXEMPLO (`buy.stripe.com/EXEMPLO_troque_saude`),
+// uma URL que não existe. O botão mais importante do Marketplace levava a um
+// beco sem saída, e o aviso de "configure o .env" aparecia para o CLIENTE.
 const VARIAVEL_AMBIENTE_POR_PLANO: Record<PlanoAddon, string> = {
   essencial: "CHECKOUT_URL_ESSENCIAL",
   saude: "CHECKOUT_URL_SAUDE",
@@ -115,14 +130,9 @@ const VARIAVEL_AMBIENTE_POR_PLANO: Record<PlanoAddon, string> = {
   gestao: "CHECKOUT_URL_GESTAO",
 };
 
-export function linkContratacao(addon: PlanoAddon): { url: string; ehExemplo: boolean } {
+/** URL de pagamento configurada para o módulo, ou null quando não há. */
+export function linkContratacao(addon: PlanoAddon): { url: string | null } {
   const variavel = VARIAVEL_AMBIENTE_POR_PLANO[addon];
-  const configurado = process.env[variavel];
-  if (configurado) {
-    return { url: configurado, ehExemplo: false };
-  }
-  return {
-    url: `https://buy.stripe.com/EXEMPLO_troque_${addon}`,
-    ehExemplo: true,
-  };
+  const configurado = process.env[variavel]?.trim();
+  return configurado ? { url: configurado } : { url: null };
 }
