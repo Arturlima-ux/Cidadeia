@@ -22,6 +22,7 @@ import {
   IconObras,
   IconLicitacoes,
   IconDownload,
+  IconHistorico,
 } from "@/components/icons";
 
 // A página responde, na ordem, o que trava uma compra em prefeitura:
@@ -65,6 +66,36 @@ const AUTORIDADE = [
     titulo: "O diagnóstico admite o que não fazemos",
     texto:
       "Parte das exigências continua com a prefeitura mesmo contratando o sistema, e elas aparecem no resultado com nome e artigo.",
+  },
+];
+
+// O que o morador pode fazer, com a lei que garante cada coisa.
+//
+// A lei aparece de propósito: para o prefeito ela é conformidade a cumprir,
+// para o cidadão é o direito que ele tem. Mesmo artigo, leitura oposta — e
+// citá-lo aqui muda o tom de "serviço que a prefeitura oferece" para "coisa
+// que já é sua".
+const DIREITOS_CIDADAO = [
+  {
+    icone: IconVisaoGeral,
+    titulo: "Ver para onde vai o dinheiro",
+    texto:
+      "Receita, despesa, obras em andamento e licitações do seu município, numa página que abre sem cadastro.",
+    lei: "Lei 12.527/2011 · art. 8º",
+  },
+  {
+    icone: IconHistorico,
+    titulo: "Acompanhar seu pedido pelo número",
+    texto:
+      "Abriu um protocolo? Recebe número e chave na hora e acompanha o andamento sozinho, sem ligar para a prefeitura.",
+    lei: "Lei 13.460/2017 · art. 10, VI",
+  },
+  {
+    icone: IconAlertas,
+    titulo: "Denunciar sem dizer quem você é",
+    texto:
+      "A ouvidoria aceita manifestação anônima, e o protocolo é aleatório — ninguém consegue descobrir quantas denúncias existem nem chegar às vizinhas.",
+    lei: "Lei 13.460/2017 · art. 10",
   },
 ];
 
@@ -602,6 +633,92 @@ export default async function LandingPage() {
               </Link>
             </div>
           </Reveal>
+        </section>
+
+
+        {/* ═══ PARA O CIDADÃO ═══
+            A página inteira fala com quem compra. Só que o produto tem um
+            segundo público que não decide nada e usa mais: o morador que abre
+            o portal para consultar um protocolo ou registrar uma denúncia.
+
+            Ele chegava aqui e não encontrava porta — o único caminho era um
+            link pequeno na barra utilitária do topo. Esta seção existe para
+            ele, e por isso muda de tom: não vende, não cita preço e não pede
+            cadastro. Só diz o que dá para fazer e abre a porta.
+
+            Fica DEPOIS da prova de propósito. Quem está avaliando a compra
+            acabou de ver os canais funcionando; ver a quem eles servem, em
+            seguida, reforça o argumento em vez de interromper. */}
+        <section className="border-t border-border">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-center">
+              <Reveal>
+                <div>
+                  <Olho>Para o cidadão</Olho>
+                  <h2 className="font-serif text-3xl sm:text-[2.6rem] font-extrabold tracking-[-0.035em] leading-[1.05] mt-5 max-w-[18ch]">
+                    Você mora numa cidade que usa o CidadeIA?
+                  </h2>
+                  <p className="text-muted leading-relaxed mt-5 max-w-[50ch]">
+                    Então três coisas são suas por direito, e nenhuma delas
+                    depende de pedir favor a ninguém: ver para onde vai o
+                    dinheiro, acompanhar um pedido pelo número, e denunciar sem
+                    dizer quem você é.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 mt-8">
+                    <Link
+                      href="/transparencia"
+                      className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                    >
+                      Abrir o portal da minha cidade&nbsp;&nbsp;→
+                    </Link>
+                    {portalVitrine && (
+                      <Link
+                        href={`/transparencia/${portalVitrine.slug}`}
+                        className="inline-flex items-center gap-2.5 text-sm font-semibold text-muted hover:text-foreground transition"
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
+                          style={{ background: "var(--accent)" }}
+                        />
+                        Ver um exemplo: {portalVitrine.municipio}
+                      </Link>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted mt-5">
+                    Sem cadastro · sem login · sem instalar aplicativo
+                  </p>
+                </div>
+              </Reveal>
+
+              <div className="flex flex-col gap-3">
+                {DIREITOS_CIDADAO.map((d, i) => {
+                  const Icone = d.icone;
+                  return (
+                    <Reveal key={d.titulo} delay={i * 80}>
+                      <div
+                        className="flex gap-4 rounded-2xl border border-border p-5 sm:p-6"
+                        style={{ background: "var(--card)" }}
+                      >
+                        <span
+                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
+                          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
+                        >
+                          <Icone className="w-5 h-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold leading-snug">{d.titulo}</h3>
+                          <p className="text-sm text-muted mt-1.5 leading-relaxed">{d.texto}</p>
+                          <p className="text-xs font-mono text-muted mt-2.5">{d.lei}</p>
+                        </div>
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* ═══ AUTORIDADE ═══

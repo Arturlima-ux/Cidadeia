@@ -72,6 +72,16 @@ export default function BarraConversao() {
             >
               Kit de contratação
             </Link>
+            {/* Esta barra cobre o cabeçalho enquanto a página rola — e com ele
+                some o único caminho do morador. Ele volta aqui, discreto: quem
+                está avaliando a compra ignora, e quem procurava o portal não
+                fica preso numa página de vendas. */}
+            <Link
+              href="/transparencia"
+              className="hidden md:inline text-sm font-semibold text-muted hover:text-foreground transition"
+            >
+              Portal do cidadão
+            </Link>
             <Link
               href="/suporte?assunto=proposta"
               className="text-sm font-bold text-white bg-brand hover:bg-brand-dark rounded-xl px-5 py-2.5 transition shadow-elevated"

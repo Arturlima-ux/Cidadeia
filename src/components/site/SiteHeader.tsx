@@ -24,13 +24,26 @@ export default function SiteHeader() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-2 flex items-center justify-between gap-4">
           <span className="hidden sm:inline">Atendimento: seg a sex, 8h às 18h</span>
           <div className="flex items-center gap-5 ml-auto">
-            <Link href="/transparencia" className="hover:text-white transition">
+            {/* O morador chega ao site por este link e por mais nenhum.
+                Ele fica em texto branco cheio, com o ponto verde de "no ar",
+                porque ao lado de "Área do servidor" em cinza ele desaparecia
+                — e quem procura o portal da própria cidade não vem lendo a
+                barra inteira, vem varrendo atrás de uma palavra conhecida. */}
+            <Link
+              href="/transparencia"
+              className="inline-flex items-center gap-1.5 text-white font-semibold hover:opacity-80 transition"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)] shrink-0" />
               Portal do cidadão
             </Link>
             <Link href="/login" className="hover:text-white transition">
               Área do servidor
             </Link>
-            <Link href="/suporte" className="text-white font-semibold hover:opacity-80 transition">
+            {/* Rebaixado para cinza: em branco cheio disputava a atenção com
+                o link do cidadão, e a conversa comercial já tem o botão
+                principal do cabeçalho logo abaixo. Esta barra é do morador e
+                do servidor. */}
+            <Link href="/suporte" className="hover:text-white transition">
               Fale conosco
             </Link>
           </div>
