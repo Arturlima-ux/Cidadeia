@@ -1,4 +1,4 @@
-import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes, IconAlertas } from "@/components/icons";
+import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes } from "@/components/icons";
 
 // ── O PRODUTO, VISÍVEL ──
 //
@@ -16,47 +16,85 @@ import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes, IconAlertas } fro
 // de um caso real, e a página inteira se apoia em não fingir. O rótulo fica
 // visível, não escondido no rodapé.
 
+// Os quatro achados correspondem, um a um, às regras que rodam de verdade em
+// lib/deteccao-automatica.ts e alimentam a Central Inteligente: licitação com
+// prazo vencido, obra sem atualização, indicador parado e saldo negativo.
+//
+// A primeira versão desta lista trazia o mínimo constitucional e a conferência
+// no PNCP. As duas coisas existem no produto, mas em telas próprias — não
+// entram nesta lista. Um desenho que junta numa tela só o que o sistema mostra
+// em três é exatamente o tipo de promessa que a primeira demonstração ao vivo
+// desmente.
 const ALERTAS = [
   {
-    icone: IconSaude,
-    titulo: "Mínimo em saúde: 13,8%",
-    detalhe: "Faltam R$ 214 mil até dezembro · exige 1,4× o ritmo mensal",
+    icone: IconLicitacoes,
+    titulo: "Licitação PE 014/2026 com prazo vencido",
+    detalhe: "Merenda escolar — o prazo passou há 2 dias e o processo segue aberto",
     tom: "urgente" as const,
   },
   {
-    icone: IconLicitacoes,
-    titulo: "PE 014/2026 não consta no PNCP",
-    detalhe: "Sem divulgação o contrato não produz efeito · art. 94",
+    icone: IconVisaoGeral,
+    titulo: "Saldo negativo no último registro",
+    detalhe: "R$ 84 mil negativos no fechamento mais recente",
     tom: "urgente" as const,
   },
   {
     icone: IconObras,
-    titulo: "Reforma da UBS Central parada há 41 dias",
+    titulo: "Obra “Reforma da UBS Central” sem atualização há 41 dias",
     detalhe: "20% executado, esperado 65%",
     tom: "medio" as const,
   },
   {
-    icone: IconAlertas,
-    titulo: "Pedido de informação vence em 3 dias",
-    detalhe: "Protocolo 202603-K7F2M · prazo da LAI, art. 11",
+    icone: IconSaude,
+    titulo: "Indicador de Saúde parado há 34 dias",
+    detalhe: "Tempo de atendimento e estoque de medicamentos sem novo lançamento",
     tom: "medio" as const,
   },
 ];
 
-const MENU = [
-  { nome: "Visão geral", ativo: true },
-  { nome: "Publicações do portal", ativo: false },
-  { nome: "Atendimento", ativo: false },
-  { nome: "Mínimos constitucionais", ativo: false },
-  { nome: "Mapa da cidade", ativo: false },
-  { nome: "Licitações", ativo: false },
+// O menu é o do sistema de verdade, com os mesmos rótulos e os mesmos grupos
+// de src/app/dashboard/layout.tsx. Um menu inventado tornaria a peça um
+// desenho bonito que não corresponde a nada — e a primeira demonstração ao
+// vivo desmentiria a página.
+//
+// Só as Secretarias aparecem resumidas: as quatro cabem em "Saúde, Educação,
+// Obras, Licitações" sem que o desenho vire uma lista de vinte linhas.
+const MENU: { grupo: string; itens: { nome: string; ativo?: boolean }[] }[] = [
+  {
+    grupo: "Principal",
+    itens: [
+      { nome: "Visão Geral" },
+      { nome: "IA Central" },
+      { nome: "Publicações do portal" },
+      { nome: "Atendimento" },
+    ],
+  },
+  {
+    grupo: "Secretarias",
+    itens: [{ nome: "Saúde" }, { nome: "Educação" }, { nome: "Obras" }, { nome: "Licitações" }],
+  },
+  {
+    grupo: "Gestão",
+    itens: [
+      { nome: "Central Inteligente", ativo: true },
+      { nome: "Mínimos constitucionais" },
+      { nome: "Mapa da cidade" },
+      { nome: "Modo apresentação" },
+    ],
+  },
 ];
 
 export default function PainelDemonstracao() {
   return (
     <div className="rounded-2xl overflow-hidden border border-border shadow-[var(--shadow-lg)]">
-      {/* Barra de janela: dá contexto de "isto é uma tela de sistema" sem
-          precisar de captura de imagem. */}
+      {/* Barra de janela desenhada: dá o contexto de "isto é a tela de um
+          sistema" sem depender de captura de imagem.
+
+          As três bolinhas imitam os controles de janela do macOS — fechar,
+          minimizar, maximizar. São convenção de ilustração, não parte do
+          produto: o painel real não as tem, porque quem desenha controle de
+          janela é o sistema operacional, nunca a página. No Windows eles nem
+          ficam à esquerda, e sim à direita. */}
       <div
         className="flex items-center gap-2 px-4 py-2.5 border-b border-border"
         style={{ background: "var(--superficie)" }}
@@ -67,28 +105,35 @@ export default function PainelDemonstracao() {
           ))}
         </span>
         <span className="text-[11px] font-mono text-muted ml-2 truncate">
-          cidadeia.app / painel do prefeito
+          cidadeia.app / central inteligente
         </span>
       </div>
 
       <div className="grid sm:grid-cols-[168px_1fr]" style={{ background: "var(--card)" }}>
         {/* menu lateral */}
         <div
-          className="hidden sm:flex flex-col gap-0.5 p-3 border-r border-border"
+          className="hidden sm:flex flex-col gap-3 p-3 border-r border-border"
           style={{ background: "var(--superficie)" }}
         >
-          {MENU.map((m) => (
-            <span
-              key={m.nome}
-              className="text-[11px] rounded-lg px-2.5 py-2 leading-tight"
-              style={{
-                background: m.ativo ? "var(--brand-tint)" : "transparent",
-                color: m.ativo ? "var(--brand-claro)" : "var(--muted)",
-                fontWeight: m.ativo ? 600 : 400,
-              }}
-            >
-              {m.nome}
-            </span>
+          {MENU.map((g) => (
+            <div key={g.grupo} className="flex flex-col gap-0.5">
+              <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted px-2.5 pb-1">
+                {g.grupo}
+              </span>
+              {g.itens.map((m) => (
+                <span
+                  key={m.nome}
+                  className="text-[11px] rounded-lg px-2.5 py-1.5 leading-tight"
+                  style={{
+                    background: m.ativo ? "var(--brand-tint)" : "transparent",
+                    color: m.ativo ? "var(--brand-claro)" : "var(--muted)",
+                    fontWeight: m.ativo ? 600 : 400,
+                  }}
+                >
+                  {m.nome}
+                </span>
+              ))}
+            </div>
           ))}
         </div>
 
