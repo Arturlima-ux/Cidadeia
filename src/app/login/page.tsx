@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { fazerLogin } from "./actions";
 
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const sessaoExpirada = useSearchParams().get("sessao") === "expirada";
 
   function aoEnviar(e: React.FormEvent) {
     e.preventDefault();
@@ -101,6 +103,24 @@ export default function LoginPage() {
               required
             />
           </div>
+
+          {/* Quem chega de /sessao-encerrada foi devolvido porque a prefeitura
+              da sessão não existe mais. Sem esta linha ele reaparece no
+              formulário sem motivo aparente, o que parece defeito — e é
+              exatamente a impressão que este caso já causou uma vez. */}
+          {sessaoExpirada && !erro && (
+            <p
+              className="text-sm rounded-lg px-3 py-2 border leading-relaxed"
+              style={{
+                color: "var(--medio)",
+                background: "var(--medio-tint)",
+                borderColor: "var(--medio-borda)",
+              }}
+            >
+              Sua sessão foi encerrada porque o cadastro da prefeitura mudou.
+              Entre novamente.
+            </p>
+          )}
 
           {erro && (
             <p className="text-sm rounded-lg px-3 py-2 border" style={{ color: "var(--urgente)", background: "var(--urgente-tint)", borderColor: "var(--urgente-borda)" }}>

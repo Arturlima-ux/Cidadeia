@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { lerSessao, encerrarSessao } from "@/lib/sessao";
+import { lerSessao } from "@/lib/sessao";
 import { buscarPrefeitura, buscarUsuarioPorId } from "@/lib/dados-prefeitura";
 import { sair } from "@/app/login/actions";
 import { planosContratadosDe, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
@@ -126,10 +126,15 @@ export default async function DashboardLayout({
   const prefeitura = await buscarPrefeitura(sessao.prefeituraId);
   if (!prefeitura) {
     // Sessão válida (assinatura ok) mas apontando pra um registro que não
-    // existe mais — cookie de uma troca de banco, por exemplo. Limpa antes
-    // de mandar pro login, senão o usuário fica preso nesse mesmo loop.
-    await encerrarSessao();
-    redirect("/login");
+    // existe mais — conta de teste recriada, troca de banco, cliente
+    // encerrado. O cookie precisa sair, senão a próxima visita repete tudo.
+    //
+    // Mas apagar cookie AQUI lança: o Next só permite isso em Server Action ou
+    // Route Handler. E lançava de um jeito cruel — o cookie sobrevivia ao
+    // erro, então o usuário via "algo deu errado" a cada visita, sem botão que
+    // resolvesse, porque a causa viajava com ele. Daí a rota dedicada, que
+    // pode apagar e apaga.
+    redirect("/sessao-encerrada");
   }
 
   const usuarioAtual = await buscarUsuarioPorId(sessao.usuarioId);
