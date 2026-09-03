@@ -108,7 +108,7 @@ export default async function AtendimentoPage() {
                         {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · {dataCurta(a.createdAt, fuso)}
                       </span>
                       {a.anonimo && (
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-black/5 rounded-full px-2 py-0.5">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-sutil rounded-full px-2 py-0.5">
                           Anônimo
                         </span>
                       )}

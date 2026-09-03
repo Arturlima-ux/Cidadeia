@@ -1,7 +1,7 @@
 export type TomStatus = "neutro" | "andamento" | "positivo" | "atencao" | "negativo";
 
 const TONS: Record<TomStatus, { cor: string; fundo: string }> = {
-  neutro: { cor: "var(--muted)", fundo: "rgba(0,0,0,0.05)" },
+  neutro: { cor: "var(--muted)", fundo: "var(--sutil)" },
   andamento: { cor: "var(--brand)", fundo: "var(--brand-tint)" },
   positivo: { cor: "var(--info)", fundo: "var(--info-tint)" },
   atencao: { cor: "var(--medio)", fundo: "var(--medio-tint)" },

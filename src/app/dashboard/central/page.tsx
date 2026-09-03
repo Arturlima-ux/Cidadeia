@@ -92,13 +92,13 @@ export default async function CentralInteligentePage() {
                     {item.modulos.map((m) => (
                       <span
                         key={m}
-                        className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-black/5 rounded-full px-2 py-0.5"
+                        className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-sutil rounded-full px-2 py-0.5"
                       >
                         {m}
                       </span>
                     ))}
                     {item.automatico && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-dark bg-brand-tint rounded-full px-2 py-0.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-legivel bg-brand-tint rounded-full px-2 py-0.5">
                         Regra automática
                       </span>
                     )}

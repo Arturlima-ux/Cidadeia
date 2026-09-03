@@ -63,7 +63,7 @@ export default function SidebarNav({
                   href={item.href}
                   className={`relative flex items-center gap-2.5 pl-3 pr-3 py-2 text-sm transition ${
                     ativo
-                      ? "arco-card-sm bg-brand-tint text-brand-dark font-semibold"
+                      ? "arco-card-sm bg-brand-tint text-brand-legivel font-semibold"
                       : "rounded-lg text-foreground/80 hover:bg-brand-tint/50 hover:text-foreground"
                   }`}
                 >

@@ -135,7 +135,11 @@ export default async function DashboardLayout({
   const planosAtivos = planosContratadosDe(prefeitura.planosContratados);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    // O painel passa a usar o mesmo tema escuro do site. Antes ele era claro e
+    // o site escuro: quem via a página de vendas e depois entrava encontrava
+    // outro produto. O `.tema-noite` só troca tokens, e como as telas leem
+    // token em vez de cor fixa, basta envolver aqui para tudo acompanhar.
+    <div className="tema-noite min-h-screen flex">
       <DashboardSidebar
         grupos={montarGrupos(sessao, planosAtivos)}
         prefeituraNome={prefeitura.nome}
@@ -166,14 +170,14 @@ export default async function DashboardLayout({
           </Link>
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
             {planosAtivos.length === 0 && (
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-black/5 border border-border px-2.5 py-1 rounded-md">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
                 Nenhum módulo contratado
               </span>
             )}
             {planosAtivos.map((p) => (
               <span
                 key={p}
-                className="text-[11px] font-semibold uppercase tracking-wide text-brand-dark bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
+                className="text-[11px] font-semibold uppercase tracking-wide text-brand-legivel bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
               >
                 {NOME_PLANO_ADDON[p]}
               </span>

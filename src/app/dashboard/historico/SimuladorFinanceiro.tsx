@@ -85,11 +85,11 @@ export default function SimuladorFinanceiro({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-        <div className="bg-black/[.03] rounded-lg p-3">
+        <div className="bg-sutil rounded-lg p-3">
           <p className="text-[11px] text-muted">Nova receita</p>
           <p className="text-sm font-semibold mt-0.5">{formatarMoeda(novaReceita)}</p>
         </div>
-        <div className="bg-black/[.03] rounded-lg p-3">
+        <div className="bg-sutil rounded-lg p-3">
           <p className="text-[11px] text-muted">Nova despesa</p>
           <p className="text-sm font-semibold mt-0.5">{formatarMoeda(novaDespesa)}</p>
         </div>

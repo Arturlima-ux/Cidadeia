@@ -79,7 +79,7 @@ export default function ChatIA() {
                   ? "bg-brand text-white"
                   : m.erro
                     ? "border"
-                    : "bg-black/5 text-foreground"
+                    : "bg-sutil text-foreground"
               }`}
               style={
                 m.erro
@@ -98,7 +98,7 @@ export default function ChatIA() {
 
         {pending && (
           <div className="flex justify-start">
-            <div className="bg-black/5 rounded-2xl px-4 py-2.5 text-sm text-muted">
+            <div className="bg-sutil rounded-2xl px-4 py-2.5 text-sm text-muted">
               Analisando os dados...
             </div>
           </div>

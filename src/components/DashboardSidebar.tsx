@@ -67,7 +67,7 @@ export default function DashboardSidebar({
           aberto ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Link href="/dashboard/conta" className="px-5 py-5 border-b border-border block hover:bg-black/5 transition">
+        <Link href="/dashboard/conta" className="px-5 py-5 border-b border-border block hover:bg-sutil transition">
           <p className="font-serif text-lg font-bold tracking-tight">
             Cidade
             <span
@@ -84,7 +84,7 @@ export default function DashboardSidebar({
           <form action={sairAction}>
             <button
               type="submit"
-              className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-black/5 hover:text-foreground transition"
+              className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-sutil hover:text-foreground transition"
             >
               <IconSair className="w-4 h-4 shrink-0" />
               Sair

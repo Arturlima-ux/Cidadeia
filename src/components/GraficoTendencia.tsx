@@ -86,7 +86,7 @@ export default function GraficoTendencia({
       <div style={{ width: "100%", height: 200 }}>
         <ResponsiveContainer>
           <LineChart data={dadosFormatados} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,.06)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--sutil)" />
             <XAxis dataKey="data" tick={{ fontSize: 11 }} stroke="#999" />
             <YAxis tick={{ fontSize: 11 }} stroke="#999" width={44} />
             <Tooltip

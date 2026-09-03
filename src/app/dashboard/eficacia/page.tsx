@@ -44,7 +44,7 @@ const SITUACAO: Record<SituacaoEficacia, { label: string; cor: string; fundo: st
   sem_dados: {
     label: "Sem dados suficientes",
     cor: "var(--muted)",
-    fundo: "rgba(0,0,0,0.04)",
+    fundo: "var(--sutil)",
     borda: "var(--border)",
   },
 };
@@ -281,7 +281,7 @@ export default async function EficaciaPage() {
                       style={
                         i.origem === "siconfi"
                           ? { color: "var(--brand)", background: "var(--brand-tint)" }
-                          : { color: "var(--muted)", background: "rgba(0,0,0,0.05)" }
+                          : { color: "var(--muted)", background: "var(--sutil)" }
                       }
                     >
                       {i.origem === "siconfi" ? "Tesouro Nacional" : "Manual"}

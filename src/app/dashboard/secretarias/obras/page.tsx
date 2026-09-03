@@ -222,7 +222,7 @@ export default async function ObrasPage() {
                     className="self-start shrink-0"
                   />
                 </div>
-                <div className="w-full h-2 bg-black/5 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-sutil rounded-full overflow-hidden">
                   <div
                     className="h-full bg-brand rounded-full"
                     style={{ width: `${o.progressoAtual}%` }}

@@ -134,7 +134,7 @@ export function FormularioPerfil({
         />
       </div>
       {erro && <p className="text-xs text-danger">{erro}</p>}
-      {sucesso && <p className="text-xs text-brand-dark">Salvo.</p>}
+      {sucesso && <p className="text-xs text-brand-legivel">Salvo.</p>}
       <button
         type="submit"
         disabled={pending}
@@ -213,7 +213,7 @@ export function FormularioSenha({
         />
       </div>
       {erro && <p className="text-xs text-danger">{erro}</p>}
-      {sucesso && <p className="text-xs text-brand-dark">Senha alterada.</p>}
+      {sucesso && <p className="text-xs text-brand-legivel">Senha alterada.</p>}
       <button
         type="submit"
         disabled={pending}

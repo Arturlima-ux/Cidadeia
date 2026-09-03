@@ -67,7 +67,7 @@ export default function GaugeEficiencia({
             cy={tamanho / 2}
             r={raio}
             fill="none"
-            stroke="rgba(0,0,0,.07)"
+            stroke="var(--sutil)"
             strokeWidth={12}
           />
           <circle
