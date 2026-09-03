@@ -436,7 +436,7 @@ export const basesMinimos = pgTable("bases_minimos", {
     .notNull()
     .references(() => prefeituras.id, { onDelete: "cascade" }),
   exercicio: integer("exercicio").notNull(),
-  area: text("area", { enum: ["educacao", "saude"] }).notNull(),
+  area: text("area", { enum: ["educacao", "saude", "fundeb"] }).notNull(),
   /** Receita que serve de base ao percentual, acumulada no exercício. */
   baseCalculo: doublePrecision("base_calculo").notNull(),
   /**
@@ -449,6 +449,43 @@ export const basesMinimos = pgTable("bases_minimos", {
   origemAplicado: text("origem_aplicado", { enum: ["manual", "siconfi"] })
     .notNull()
     .default("manual"),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── DESPESA COM PESSOAL (TETO DA LRF) ──
+//
+// Mesma decisão da tabela acima, pelo mesmo motivo: nenhuma API pública
+// entrega o número pronto. Testamos o endpoint de RGF do SICONFI contra
+// municípios reais em vários exercícios e ele voltou zerado para todos — usar
+// aquilo faria o sistema acusar TODA prefeitura de gastar 0% com pessoal.
+// Então RCL e despesa vêm do contador, que é quem fecha o Relatório de Gestão
+// Fiscal.
+//
+// A diferença é que aqui guardamos VÁRIOS períodos por exercício, e não um
+// registro único. O art. 23 da LRF dá dois períodos de apuração para eliminar
+// o excedente, sendo pelo menos um terço no primeiro — sem o histórico não há
+// como dizer se a prefeitura está cumprindo esse cronograma ou só repetindo o
+// mesmo estouro.
+export const despesaPessoal = pgTable("despesa_pessoal", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  exercicio: integer("exercicio").notNull(),
+  /**
+   * Mês em que se encerra a janela de doze meses (art. 18, § 2º).
+   *
+   * Não é o mês da despesa: é o fim do período apurado. Guardar o mês em vez
+   * do número do quadrimestre acomoda também o município que publica RGF
+   * semestral por ter menos de 50 mil habitantes.
+   */
+  mesReferencia: integer("mes_referencia").notNull(),
+  /** Receita Corrente Líquida dos doze meses. */
+  rcl: doublePrecision("rcl").notNull(),
+  /** Despesa total com pessoal dos doze meses, na forma do art. 18. */
+  despesa: doublePrecision("despesa").notNull(),
   atualizadoEm: text("atualizado_em")
     .notNull()
     .default(sql`now()::text`),

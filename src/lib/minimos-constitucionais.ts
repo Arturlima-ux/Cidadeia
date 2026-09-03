@@ -45,11 +45,28 @@ export const MINIMOS = {
     base: "Art. 7º da Lei Complementar 141/2012",
     incideSobre: "produto da arrecadação dos impostos a que se refere o art. 156 da Constituição",
   },
+  // Um piso DENTRO da educação, não ao lado dela: o município pode cumprir os
+  // 25% do art. 212 com folga e mesmo assim descumprir este, porque aqui não
+  // se pergunta quanto foi para o ensino, e sim quanto do FUNDEB virou
+  // remuneração de professor. É o erro que passa despercebido justamente
+  // porque o número grande está verde.
+  //
+  // A EC 108/2020 subiu o piso de 60% para 70% e alargou o destinatário: era
+  // "profissionais do magistério", passou a ser "profissionais da educação
+  // básica" — quem lembra da regra antiga aplica o percentual errado sobre a
+  // base errada.
+  fundeb: {
+    percentual: 70,
+    area: "FUNDEB",
+    despesaLegal: "remuneração dos profissionais da educação básica em efetivo exercício",
+    base: "Art. 212-A, XI da Constituição Federal, regulamentado pelo art. 26 da Lei 14.113/2020",
+    incideSobre: "recursos anuais totais recebidos do FUNDEB, incluída a complementação da União",
+  },
 } as const;
 
 export type AreaMinimo = keyof typeof MINIMOS;
 
-export const AREAS_MINIMO: AreaMinimo[] = ["educacao", "saude"];
+export const AREAS_MINIMO: AreaMinimo[] = ["educacao", "saude", "fundeb"];
 
 /** Consequência de fechar o exercício abaixo do mínimo. */
 export const CONSEQUENCIA_LEGAL =

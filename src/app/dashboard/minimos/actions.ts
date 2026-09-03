@@ -61,6 +61,14 @@ export async function somarAplicadoLancado(
   const sessao = await lerSessao();
   if (!sessao) return { total: 0, temSiconfi: false };
 
+  // O FUNDEB não tem sugestão automática, e não é limitação: o que se mede
+  // nele é quanto dos recursos do fundo virou REMUNERAÇÃO de profissional da
+  // educação básica, e isso é um recorte da folha — não sai da soma dos
+  // investimentos lançados na secretaria, que inclui obra de escola, material
+  // e transporte. Sugerir aquele total aqui daria um número alto e errado, no
+  // campo onde errar para mais é justamente o que esconde o descumprimento.
+  if (area === "fundeb") return { total: 0, temSiconfi: false };
+
   const linhas = await db
     .select({ valor: investimentos.valor, origem: investimentos.origem })
     .from(investimentos)
@@ -80,7 +88,7 @@ export async function somarAplicadoLancado(
 
 const schema = z.object({
   exercicio: z.coerce.number().int().min(2000).max(2100),
-  area: z.enum(["educacao", "saude"]),
+  area: z.enum(["educacao", "saude", "fundeb"]),
   baseCalculo: z.coerce.number().min(0),
   aplicado: z.coerce.number().min(0),
   mesReferencia: z.coerce.number().int().min(1).max(12),

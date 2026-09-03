@@ -86,6 +86,7 @@ function montarGrupos(
         { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
         { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },
         { href: "/dashboard/minimos", label: "Mínimos constitucionais", icone: "visao-geral" },
+        { href: "/dashboard/pessoal", label: "Despesa com pessoal", icone: "visao-geral" },
         { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
         { href: "/dashboard/historico", label: "Histórico", icone: "historico" },
         { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },

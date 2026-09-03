@@ -25,6 +25,7 @@ const ICONE_POR_CATEGORIA: Record<
   estagnacao: IconObras,
   dado_desatualizado: IconAlertas,
   financeiro: IconVisaoGeral,
+  pessoal: IconVisaoGeral,
 };
 
 /**
@@ -38,6 +39,9 @@ const DESTINO_POR_CATEGORIA: Record<DeteccaoAutomatica["categoria"], string> = {
   estagnacao: "/dashboard/secretarias/obras",
   dado_desatualizado: "/dashboard/alertas",
   financeiro: "/dashboard/minimos",
+  // Teto da LRF tem tela própria justamente para não dividir espaço com os
+  // pisos: lá o número precisa subir, aqui precisa descer.
+  pessoal: "/dashboard/pessoal",
 };
 
 const TOM: Record<DeteccaoAutomatica["prioridade"], { cor: string; fundo: string; borda: string }> = {

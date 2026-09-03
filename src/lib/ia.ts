@@ -21,15 +21,17 @@ import {
   detectarSaldoNegativo,
   detectarMinimoConstitucional,
   detectarPrazoAtendimento,
+  detectarDespesaPessoal,
   type DeteccaoAutomatica,
 } from "@/lib/deteccao-automatica";
 import { provedorIA, ESFORCO_PADRAO, MODELO_ANTHROPIC_PADRAO } from "@/lib/provedor-ia";
 import { analisarModulo, textoAnalise, type DadosAnalise } from "@/lib/analise-local";
 import { MINIMOS, avaliarMinimo } from "@/lib/minimos-constitucionais";
+import { avaliarDespesaPessoal, avaliarReconducao } from "@/lib/despesa-pessoal";
 import { montarPainelPrazos } from "@/lib/prazo-atendimento";
 import { db } from "@/db";
-import { basesMinimos, atendimentos } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { basesMinimos, atendimentos, despesaPessoal } from "@/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 
 export type MensagemChat = { papel: "user" | "assistant"; texto: string };
 
@@ -590,9 +592,10 @@ export async function gerarDeteccoesAutomaticas(
   // A conferência no PNCP continua de fora, e de propósito: depende de rede
   // contra um serviço que limita requisição com facilidade, e esta função roda
   // a cada abertura da Central. Fica sob demanda, na tela de Licitações.
-  const [minimos, prazos] = await Promise.all([
+  const [minimos, prazos, pessoal] = await Promise.all([
     mostrarFinanceiro ? detectarMinimosDoExercicio(prefeituraId) : Promise.resolve([]),
     escopo.essencial ? detectarPrazosDoAtendimento(prefeituraId) : Promise.resolve([]),
+    mostrarFinanceiro ? detectarPessoalDoPeriodo(prefeituraId) : Promise.resolve([]),
   ]);
 
   return [
@@ -603,7 +606,44 @@ export async function gerarDeteccoesAutomaticas(
     ...(mostrarFinanceiro ? detectarSaldoNegativo(snapshot) : []),
     ...minimos,
     ...prazos,
+    ...pessoal,
   ];
+}
+
+/**
+ * Avalia o último período de despesa com pessoal informado.
+ *
+ * Lê alguns períodos, e não só o mais recente, porque o cronograma de
+ * recondução do art. 23 só existe em relação ao histórico: sem os anteriores
+ * não dá para separar "acabou de estourar" de "estourou e não corrigiu em dois
+ * períodos", que são um aviso e uma sanção iminente.
+ */
+async function detectarPessoalDoPeriodo(prefeituraId: string): Promise<DeteccaoAutomatica[]> {
+  const periodos = await db
+    .select({
+      exercicio: despesaPessoal.exercicio,
+      mesReferencia: despesaPessoal.mesReferencia,
+      rcl: despesaPessoal.rcl,
+      despesa: despesaPessoal.despesa,
+    })
+    .from(despesaPessoal)
+    .where(eq(despesaPessoal.prefeituraId, prefeituraId))
+    .orderBy(desc(despesaPessoal.exercicio), desc(despesaPessoal.mesReferencia))
+    .limit(8);
+
+  if (periodos.length === 0) return [];
+
+  const avaliacao = avaliarDespesaPessoal(periodos[0]);
+  if (!avaliacao) return [];
+
+  const reconducao = avaliarReconducao(periodos);
+
+  return detectarDespesaPessoal({
+    percentual: avaliacao.percentual,
+    situacao: avaliacao.situacao,
+    prazoEsgotado: reconducao?.prazoEsgotado ?? false,
+    foraDoCronograma: reconducao ? !reconducao.noCronograma : false,
+  });
 }
 
 /** Carrega as bases informadas e avalia os dois mínimos do exercício corrente. */

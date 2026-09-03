@@ -22,11 +22,19 @@ describe("percentuais e base legal", () => {
     expect(MINIMOS.educacao.base).toContain("212");
     expect(MINIMOS.saude.percentual).toBe(15);
     expect(MINIMOS.saude.base).toContain("141/2012");
+    expect(MINIMOS.fundeb.percentual).toBe(70);
+    expect(MINIMOS.fundeb.base).toContain("212-A");
+    expect(MINIMOS.fundeb.base).toContain("14.113/2020");
     expect(CONSEQUENCIA_LEGAL).toContain("64/1990");
   });
 
-  it("cobre exatamente as duas áreas com mínimo constitucional", () => {
-    expect([...AREAS_MINIMO].sort()).toEqual(["educacao", "saude"]);
+  it("cobre exatamente os pisos que a Constituição cria, e nenhum a mais", () => {
+    // Obras, gestão e assistência não entram porque não existe percentual
+    // obrigatório para elas — inventar um cobraria da prefeitura uma regra que
+    // a lei não impõe. O FUNDEB entra porque é piso de verdade, ainda que
+    // dentro da educação: dá para cumprir os 25% do art. 212 com folga e
+    // descumprir os 70% do art. 212-A no mesmo exercício.
+    expect([...AREAS_MINIMO].sort()).toEqual(["educacao", "fundeb", "saude"]);
   });
 });
 

@@ -7,7 +7,7 @@
  */
 
 export type DeteccaoAutomatica = {
-  categoria: "prazo" | "estagnacao" | "dado_desatualizado" | "financeiro";
+  categoria: "prazo" | "estagnacao" | "dado_desatualizado" | "financeiro" | "pessoal";
   prioridade: "urgente" | "medio" | "info";
   secretaria: string | null;
   titulo: string;
@@ -146,7 +146,7 @@ export function detectarSaldoNegativo(
  * duas verdades sobre o mesmo número.
  */
 export function detectarMinimoConstitucional(entradas: {
-  area: "educacao" | "saude";
+  area: "educacao" | "saude" | "fundeb";
   nomeArea: string;
   percentualAtual: number;
   exigido: number;
@@ -167,7 +167,9 @@ export function detectarMinimoConstitucional(entradas: {
     achados.push({
       categoria: "financeiro",
       prioridade: e.situacao === "critico" ? "urgente" : "medio",
-      secretaria: e.area,
+      // O piso do FUNDEB é cobrado do município, mas quem age sobre ele é a
+      // educação: é a folha da rede que precisa se mover.
+      secretaria: e.area === "fundeb" ? "educacao" : e.area,
       titulo: `Mínimo em ${e.nomeArea}: ${e.percentualAtual.toFixed(1).replace(".", ",")}%`,
       descricao:
         `Abaixo do mínimo de ${e.exigido}% exigido por lei. Faltam ${reais} até o fim do ` +
@@ -176,6 +178,83 @@ export function detectarMinimoConstitucional(entradas: {
   }
 
   return achados;
+}
+
+/**
+ * Despesa com pessoal no patamar de alerta, prudencial ou acima do teto.
+ *
+ * Recebe a avaliação já pronta de lib/despesa-pessoal.ts pelo mesmo motivo do
+ * detector acima: aquele módulo é quem sabe onde ficam as fronteiras da LRF, e
+ * repetir o julgamento aqui criaria duas verdades sobre o mesmo percentual.
+ *
+ * O patamar "confortável" não gera achado — nem deveria. Uma prefeitura em 40%
+ * está bem, e transformar isso em item na lista do prefeito treinaria ele a
+ * ignorar a lista.
+ */
+export function detectarDespesaPessoal(
+  entrada: {
+    percentual: number;
+    situacao: "confortavel" | "alerta" | "prudencial" | "excedido";
+    /** Cronograma de recondução do art. 23, quando há prazo correndo. */
+    prazoEsgotado: boolean;
+    foraDoCronograma: boolean;
+  } | null
+): DeteccaoAutomatica[] {
+  if (!entrada || entrada.situacao === "confortavel") return [];
+
+  const pct = `${entrada.percentual.toFixed(1).replace(".", ",")}%`;
+
+  if (entrada.situacao === "excedido") {
+    // Fora do cronograma ou com o prazo vencido, o assunto deixa de ser folha
+    // e vira convênio: é o art. 23, § 3º que bloqueia transferência voluntária.
+    const descricao = entrada.prazoEsgotado
+      ? "Passaram-se os dois períodos de apuração do art. 23 da LRF e o excesso continua. " +
+        "Enquanto durar, o município não recebe transferência voluntária, não obtém garantia " +
+        "de outro ente e não contrata operação de crédito."
+      : entrada.foraDoCronograma
+        ? "Acima do limite e fora do cronograma de recondução: a LRF exige eliminar pelo menos " +
+          "um terço do excedente no primeiro período seguinte e todo o resto no segundo."
+        : "Acima do limite legal. O excedente precisa ser eliminado em dois períodos de " +
+          "apuração, sendo pelo menos um terço já no primeiro.";
+
+    return [
+      {
+        categoria: "pessoal",
+        prioridade: "urgente",
+        secretaria: null,
+        titulo: `Despesa com pessoal em ${pct} — acima do teto de 54%`,
+        descricao,
+      },
+    ];
+  }
+
+  if (entrada.situacao === "prudencial") {
+    return [
+      {
+        categoria: "pessoal",
+        prioridade: "urgente",
+        secretaria: null,
+        titulo: `Despesa com pessoal em ${pct} — limite prudencial atingido`,
+        descricao:
+          "Ainda dentro da lei, mas as vedações do art. 22 da LRF já valem: sem reajuste, " +
+          "sem criar cargo, sem nomear — salvo reposição em educação, saúde e segurança — " +
+          "e sem hora extra fora da LDO.",
+      },
+    ];
+  }
+
+  return [
+    {
+      categoria: "pessoal",
+      prioridade: "medio",
+      secretaria: null,
+      titulo: `Despesa com pessoal em ${pct} — acima de 90% do limite`,
+      descricao:
+        "É o patamar em que o Tribunal de Contas emite alerta formal (art. 59, § 1º, II da " +
+        "LRF). Ainda dá para corrigir antes de perder a caneta para nomear e reajustar, que " +
+        "é o que acontece em 51,3%.",
+    },
+  ];
 }
 
 /**
