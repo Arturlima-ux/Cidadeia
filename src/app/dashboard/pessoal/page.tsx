@@ -83,17 +83,24 @@ export default async function PessoalPage() {
   // Município com menos de 50 mil habitantes publica o RGF semestralmente, e
   // cobrar dele o ritmo quadrimestral seria acusá-lo de atraso por seguir a
   // periodicidade que a lei lhe faculta.
-  const defasagem = atual
-    ? avaliarDefasagem({
-        exercicio: atual.exercicio,
-        mesReferencia: atual.mesReferencia,
-        hojeExercicio: exercicio,
-        hojeMes: mesAtual,
-        toleranciaMeses: podeOptarPorSemestral(prefeitura.populacao)
-          ? TOLERANCIA_PESSOAL_SEMESTRAL
-          : TOLERANCIA_PESSOAL,
-      })
-    : null;
+  //
+  // O exemplo fica de fora pela mesma razão da tela de mínimos: a guarda julga
+  // a idade de uma MEDIÇÃO real, e ilustração não tem medição. Aqui a
+  // tolerância mais larga faz a conta nunca estourar hoje — mas isso é
+  // coincidência de dois números, não garantia. Mexer no mês do exemplo ou
+  // apertar a tolerância traria o defeito de volta, em silêncio.
+  const defasagem =
+    atual && !semNenhumDado
+      ? avaliarDefasagem({
+          exercicio: atual.exercicio,
+          mesReferencia: atual.mesReferencia,
+          hojeExercicio: exercicio,
+          hojeMes: mesAtual,
+          toleranciaMeses: podeOptarPorSemestral(prefeitura.populacao)
+            ? TOLERANCIA_PESSOAL_SEMESTRAL
+            : TOLERANCIA_PESSOAL,
+        })
+      : null;
 
   const desatualizado = defasagem !== null && defasagem.situacao !== "atual";
   const vencido = defasagem?.situacao === "vencido";

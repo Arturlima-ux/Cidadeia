@@ -88,15 +88,23 @@ export default async function MinimosPage() {
     // cartão pode pintar um veredito ou só mostrar o valor: nada aqui obriga
     // o contador a voltar, e uma base de março continuaria dizendo "cumprido"
     // em outubro, em verde, com duas casas decimais.
-    const defasagem = salvo
-      ? avaliarDefasagem({
-          exercicio,
-          mesReferencia: salvo.mesReferencia,
-          hojeExercicio: exercicio,
-          hojeMes: mesAtual,
-          toleranciaMeses: TOLERANCIA_MINIMOS,
-        })
-      : null;
+    //
+    // O exemplo fica de fora, e não por conveniência: a guarda existe para
+    // impedir veredito sobre MEDIÇÃO velha de município real. Ilustração não
+    // tem data de medição para envelhecer. Sem esta exceção o exemplo tem mês
+    // fixo (agosto) e a partir de dezembro passaria a aparecer cinza, dizendo
+    // "medição antiga" sobre uma cidade que não existe — quebrando a
+    // demonstração justamente no fim do exercício, quando o assunto importa.
+    const defasagem =
+      salvo && !semNenhumDado
+        ? avaliarDefasagem({
+            exercicio,
+            mesReferencia: salvo.mesReferencia,
+            hojeExercicio: exercicio,
+            hojeMes: mesAtual,
+            toleranciaMeses: TOLERANCIA_MINIMOS,
+          })
+        : null;
 
     return { area, salvo, lancado, avaliacao, defasagem };
   });

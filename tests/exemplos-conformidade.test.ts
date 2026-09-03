@@ -7,6 +7,7 @@ import {
 } from "@/lib/exemplos-conformidade";
 import { AREAS_MINIMO, avaliarMinimo } from "@/lib/minimos-constitucionais";
 import { avaliarDespesaPessoal } from "@/lib/despesa-pessoal";
+import { TOLERANCIA_MINIMOS, TOLERANCIA_PESSOAL } from "@/lib/defasagem";
 
 // O exemplo existe para MOSTRAR o produto trabalhando. Se um ajuste futuro na
 // régua de severidade o deixar todo verde, a tela de venda continua bonita e
@@ -67,5 +68,41 @@ describe("o exemplo demonstra o produto trabalhando", () => {
     expect(a.situacao).toBe("prudencial");
     expect(a.margem).toBeGreaterThan(0);
     expect(a.excedente).toBe(0);
+  });
+});
+
+describe("o exemplo não envelhece", () => {
+  // Bug real, encontrado depois de as duas peças estarem prontas: a guarda de
+  // defasagem existe para impedir veredito sobre MEDIÇÃO velha de município
+  // real, e estava sendo aplicada também ao exemplo — que tem mês fixo.
+  //
+  // A partir de dezembro (agosto + 4 > tolerância 3) o cartão dos mínimos
+  // passava a aparecer cinza, dizendo "medição antiga" sobre uma cidade que
+  // não existe. A demonstração quebrava justamente no fim do exercício,
+  // quando o assunto mais interessa ao prefeito.
+  //
+  // Ilustração não tem data de medição para envelhecer. As telas passam a
+  // pular a guarda em modo exemplo; estes testes registram por que, e o
+  // segundo mostra que na tela de pessoal a folga de hoje é coincidência de
+  // dois números, não garantia.
+
+  it("os mínimos ficariam desatualizados no fim do ano, se a guarda valesse", () => {
+    const mesesAteEstourar = TOLERANCIA_MINIMOS + EXEMPLO_MINIMOS.educacao.mesReferencia;
+    expect(mesesAteEstourar).toBeLessThan(12);
+  });
+
+  it("o teto de pessoal escapa hoje só pela tolerância mais larga", () => {
+    // Se um dia a tolerância do RGF for apertada para perto da dos mínimos, o
+    // mesmo defeito reaparece aqui — em silêncio, porque nada quebra.
+    const folgaAteDezembro = 12 - EXEMPLO_PESSOAL.mesReferencia;
+    expect(folgaAteDezembro).toBeLessThanOrEqual(TOLERANCIA_PESSOAL);
+  });
+
+  it("o exemplo é sempre a tela inteira, nunca um cartão solto", () => {
+    // A exceção à guarda só é segura porque o exemplo é tudo-ou-nada. Se um
+    // dia um cartão de exemplo puder conviver com um real, aquele cartão
+    // ficaria isento de uma guarda que o vizinho respeita — e o gestor não
+    // teria como saber qual dos dois está sendo julgado.
+    expect(Object.keys(EXEMPLO_MINIMOS).sort()).toEqual([...AREAS_MINIMO].sort());
   });
 });
