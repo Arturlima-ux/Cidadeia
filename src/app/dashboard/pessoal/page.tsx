@@ -22,6 +22,8 @@ import {
   TOLERANCIA_PESSOAL_SEMESTRAL,
 } from "@/lib/defasagem";
 import { podeOptarPorSemestral } from "@/lib/obrigacoes-fiscais";
+import FaixaExemplo from "@/components/FaixaExemplo";
+import { EXEMPLO_PESSOAL, MUNICIPIO_EXEMPLO } from "@/lib/exemplos-conformidade";
 import { buscarPeriodos } from "./actions";
 import FormularioPessoal from "./FormularioPessoal";
 
@@ -43,6 +45,11 @@ function pct(v: number) {
   return `${v.toFixed(2).replace(".", ",")}%`;
 }
 
+/** Moldura de exemplo só quando é exemplo, sem duplicar o bloco de seções. */
+function Envoltorio({ exemplo, children }: { exemplo: boolean; children: React.ReactNode }) {
+  return exemplo ? <FaixaExemplo>{children}</FaixaExemplo> : <>{children}</>;
+}
+
 export default async function PessoalPage() {
   const { prefeitura, temPlano } = await contextoDashboard();
   if (!temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
@@ -59,7 +66,15 @@ export default async function PessoalPage() {
     new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, month: "numeric" }).format(agora)
   );
 
-  const periodos = await buscarPeriodos();
+  const gravados = await buscarPeriodos();
+
+  // Mesma regra da tela de mínimos: exemplo só com a tela inteiramente vazia,
+  // e sem nunca chegar ao formulário — ver "exemplos-conformidade.ts".
+  const semNenhumDado = gravados.length === 0;
+  const periodos = semNenhumDado
+    ? [{ ...EXEMPLO_PESSOAL, exercicio }]
+    : gravados;
+
   const atual = periodos[0] ?? null;
   const avaliacao = atual ? avaliarDespesaPessoal(atual) : null;
   const reconducao = avaliarReconducao(periodos);
@@ -100,14 +115,16 @@ export default async function PessoalPage() {
       <div>
         <h1 className="font-serif text-2xl font-bold">Despesa com pessoal</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
-          O teto da Lei de Responsabilidade Fiscal em {prefeitura.municipio}.
-          Aqui a lógica é a oposta dos mínimos: o número precisa{" "}
+          O teto da Lei de Responsabilidade Fiscal em{" "}
+          {semNenhumDado ? MUNICIPIO_EXEMPLO : prefeitura.municipio}. Aqui a
+          lógica é a oposta dos mínimos: o número precisa{" "}
           <strong>ficar abaixo</strong>, e o que muda a vida do prefeito chega
           antes do limite — em 51,3% ele ainda está legal, mas já não pode
           nomear nem reajustar.
         </p>
       </div>
 
+      <Envoltorio exemplo={semNenhumDado}>
       {avaliacao && atual ? (
         <section
           className="arco-card border p-6 sm:p-7 flex flex-col gap-5"
@@ -292,6 +309,7 @@ export default async function PessoalPage() {
           </ul>
         </section>
       )}
+      </Envoltorio>
 
       {/* ── Série histórica ── */}
       {periodos.length > 1 && (
@@ -359,11 +377,14 @@ export default async function PessoalPage() {
           </p>
         </div>
         <div className="bg-card border border-border rounded-xl p-5 sm:p-6">
+          {/* Lê `gravados`, não `periodos`: em modo exemplo o segundo é o
+              município fictício, e pré-preencher o formulário com ele faria o
+              gestor gravar 96 milhões inventados como RCL da prefeitura dele. */}
           <FormularioPessoal
-            exercicio={atual?.exercicio ?? exercicio}
-            mesSugerido={atual?.mesReferencia ?? mesAtual}
-            rcl={atual?.rcl ?? null}
-            despesa={atual?.despesa ?? null}
+            exercicio={gravados[0]?.exercicio ?? exercicio}
+            mesSugerido={gravados[0]?.mesReferencia ?? mesAtual}
+            rcl={gravados[0]?.rcl ?? null}
+            despesa={gravados[0]?.despesa ?? null}
           />
         </div>
       </div>

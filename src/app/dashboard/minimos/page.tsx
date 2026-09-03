@@ -16,6 +16,8 @@ import {
   descreverDefasagem,
   TOLERANCIA_MINIMOS,
 } from "@/lib/defasagem";
+import FaixaExemplo from "@/components/FaixaExemplo";
+import { EXEMPLO_MINIMOS, MUNICIPIO_EXEMPLO } from "@/lib/exemplos-conformidade";
 import { buscarBases, somarAplicadoLancado } from "./actions";
 import FormularioBase from "./FormularioBase";
 import PainelObrigacoes from "./PainelObrigacoes";
@@ -32,6 +34,14 @@ const TOM: Record<Situacao, { cor: string; fundo: string; borda: string }> = {
 
 function percentual(v: number) {
   return `${v.toFixed(2).replace(".", ",")}%`;
+}
+
+/**
+ * Coloca a moldura de exemplo só quando é exemplo, sem duplicar o bloco de
+ * cartões. Duas cópias do mesmo JSX é como uma delas para de ser atualizada.
+ */
+function Envoltorio({ exemplo, children }: { exemplo: boolean; children: React.ReactNode }) {
+  return exemplo ? <FaixaExemplo>{children}</FaixaExemplo> : <>{children}</>;
 }
 
 export default async function MinimosPage() {
@@ -55,8 +65,15 @@ export default async function MinimosPage() {
     AREAS_MINIMO.map(async (area) => ({ area, ...(await somarAplicadoLancado(exercicio, area)) }))
   );
 
+  // Tudo ou nada: o exemplo só aparece com a tela inteiramente vazia. Um
+  // cartão inventado ao lado de um verdadeiro é a forma mais fácil de o gestor
+  // levar o errado para uma reunião.
+  const semNenhumDado = bases.length === 0;
+
   const painel = AREAS_MINIMO.map((area) => {
-    const salvo = bases.find((b) => b.area === area) ?? null;
+    const salvo = semNenhumDado
+      ? { ...EXEMPLO_MINIMOS[area], origemAplicado: "manual" as const, area }
+      : (bases.find((b) => b.area === area) ?? null);
     const lancado = lancados.find((l) => l.area === area)!;
     const avaliacao: AvaliacaoMinimo | null = salvo
       ? avaliarMinimo({
@@ -89,12 +106,14 @@ export default async function MinimosPage() {
       <div>
         <h1 className="font-serif text-2xl font-bold">Mínimos constitucionais</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
-          Acompanhamento de {prefeitura.municipio} no exercício de {exercicio}.
-          Mostra quanto falta aplicar <strong>enquanto ainda dá para empenhar</strong> —
-          e não em dezembro, quando o contador fecha o demonstrativo.
+          Acompanhamento de {semNenhumDado ? MUNICIPIO_EXEMPLO : prefeitura.municipio} no
+          exercício de {exercicio}. Mostra quanto falta aplicar{" "}
+          <strong>enquanto ainda dá para empenhar</strong> — e não em dezembro,
+          quando o contador fecha o demonstrativo.
         </p>
       </div>
 
+      <Envoltorio exemplo={semNenhumDado}>
       <div className="grid sm:grid-cols-2 gap-4">
         {painel.map(({ area, avaliacao, salvo, defasagem }) => {
           const info = MINIMOS[area];
@@ -188,6 +207,7 @@ export default async function MinimosPage() {
           );
         })}
       </div>
+      </Envoltorio>
 
       <PainelObrigacoes podeSemestral={podeOptarPorSemestral(prefeitura.populacao)} />
 
@@ -206,20 +226,28 @@ export default async function MinimosPage() {
       <div className="space-y-6">
         <h2 className="font-serif text-lg font-bold">Informar os valores</h2>
         <div className="grid md:grid-cols-2 gap-5">
-          {painel.map(({ area, salvo, lancado }) => (
+          {/* Lê `bases`, não `painel`: com a tela em modo exemplo, `salvo` é o
+              município fictício, e pré-preencher o formulário com ele faria o
+              gestor gravar 48 milhões inventados como base da prefeitura dele
+              — bastaria clicar em Salvar sem reparar. O exemplo ilustra a
+              tela; nunca entra no campo que vira registro. */}
+          {painel.map(({ area, lancado }) => {
+            const gravado = bases.find((b) => b.area === area) ?? null;
+            return (
             <div key={area} className="bg-card border border-border rounded-xl p-5">
               <h3 className="font-semibold mb-4">{MINIMOS[area].area}</h3>
               <FormularioBase
                 area={area}
                 exercicio={exercicio}
-                baseCalculo={salvo?.baseCalculo ?? null}
-                aplicado={salvo?.aplicado ?? null}
-                mesReferencia={salvo?.mesReferencia ?? null}
+                baseCalculo={gravado?.baseCalculo ?? null}
+                aplicado={gravado?.aplicado ?? null}
+                mesReferencia={gravado?.mesReferencia ?? null}
                 sugestaoAplicado={lancado.total}
                 temSiconfi={lancado.temSiconfi}
               />
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
