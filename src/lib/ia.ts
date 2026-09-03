@@ -22,12 +22,19 @@ import {
   detectarMinimoConstitucional,
   detectarPrazoAtendimento,
   detectarDespesaPessoal,
+  detectarDadoDeConformidadeVelho,
   type DeteccaoAutomatica,
 } from "@/lib/deteccao-automatica";
 import { provedorIA, ESFORCO_PADRAO, MODELO_ANTHROPIC_PADRAO } from "@/lib/provedor-ia";
 import { analisarModulo, textoAnalise, type DadosAnalise } from "@/lib/analise-local";
 import { MINIMOS, avaliarMinimo } from "@/lib/minimos-constitucionais";
 import { avaliarDespesaPessoal, avaliarReconducao } from "@/lib/despesa-pessoal";
+import {
+  avaliarDefasagem,
+  descreverDefasagem,
+  TOLERANCIA_MINIMOS,
+  TOLERANCIA_PESSOAL,
+} from "@/lib/defasagem";
 import { montarPainelPrazos } from "@/lib/prazo-atendimento";
 import { db } from "@/db";
 import { basesMinimos, atendimentos, despesaPessoal } from "@/db/schema";
@@ -636,14 +643,46 @@ async function detectarPessoalDoPeriodo(prefeituraId: string): Promise<DeteccaoA
   const avaliacao = avaliarDespesaPessoal(periodos[0]);
   if (!avaliacao) return [];
 
+  const hoje = new Date();
+  const defasagem = avaliarDefasagem({
+    exercicio: periodos[0].exercicio,
+    mesReferencia: periodos[0].mesReferencia,
+    hojeExercicio: hoje.getFullYear(),
+    hojeMes: hoje.getMonth() + 1,
+    // A tolerância semestral depende da população, que esta função não carrega.
+    // Fica com a quadrimestral, que é a mais rígida: o custo de errar aqui é
+    // um aviso a mais para o município pequeno, contra a alternativa de deixar
+    // o município grande sem aviso por dois meses.
+    toleranciaMeses: TOLERANCIA_PESSOAL,
+  });
+
+  const velhos = detectarDadoDeConformidadeVelho([
+    {
+      destino: "pessoal",
+      rotulo: "Despesa com pessoal",
+      mesesDecorridos: defasagem.mesesDecorridos,
+      situacao: defasagem.situacao,
+      descricao: descreverDefasagem(defasagem, periodos[0]) ?? "",
+    },
+  ]);
+
+  // Mesma regra dos mínimos: dado vencido não acusa. Dizer que a prefeitura
+  // está acima do teto — o que dispara o prazo do art. 23 — com base em
+  // medição de nove meses atrás produziria corte de folha sobre um número que
+  // ninguém confirma.
+  if (defasagem.situacao === "vencido") return velhos;
+
   const reconducao = avaliarReconducao(periodos);
 
-  return detectarDespesaPessoal({
-    percentual: avaliacao.percentual,
-    situacao: avaliacao.situacao,
-    prazoEsgotado: reconducao?.prazoEsgotado ?? false,
-    foraDoCronograma: reconducao ? !reconducao.noCronograma : false,
-  });
+  return [
+    ...detectarDespesaPessoal({
+      percentual: avaliacao.percentual,
+      situacao: avaliacao.situacao,
+      prazoEsgotado: reconducao?.prazoEsgotado ?? false,
+      foraDoCronograma: reconducao ? !reconducao.noCronograma : false,
+    }),
+    ...velhos,
+  ];
 }
 
 /** Carrega as bases informadas e avalia os dois mínimos do exercício corrente. */
@@ -657,8 +696,32 @@ async function detectarMinimosDoExercicio(prefeituraId: string): Promise<Detecca
       and(eq(basesMinimos.prefeituraId, prefeituraId), eq(basesMinimos.exercicio, exercicio))
     );
 
-  const entradas = bases
-    .filter((b) => b.baseCalculo > 0)
+  const hoje = new Date();
+  const hojeMes = hoje.getMonth() + 1;
+
+  const validas = bases.filter((b) => b.baseCalculo > 0);
+
+  const defasagens = validas.map((b) => ({
+    area: b.area,
+    periodo: { exercicio: b.exercicio, mesReferencia: b.mesReferencia },
+    d: avaliarDefasagem({
+      exercicio: b.exercicio,
+      mesReferencia: b.mesReferencia,
+      hojeExercicio: exercicio,
+      hojeMes,
+      toleranciaMeses: TOLERANCIA_MINIMOS,
+    }),
+  }));
+
+  const entradas = validas
+    .filter((b) => {
+      // Dado vencido não sustenta acusação. Um percentual de sete meses atrás
+      // pode já ter sido corrigido, e "risco de rejeição de contas" é grave
+      // demais para sair de uma medição que ninguém confirma há dois ciclos.
+      // O achado de dado velho, logo abaixo, toma o lugar deste.
+      const dd = defasagens.find((x) => x.area === b.area)!;
+      return dd.d.situacao !== "vencido";
+    })
     .map((b) => {
       const a = avaliarMinimo({
         area: b.area,
@@ -676,7 +739,17 @@ async function detectarMinimosDoExercicio(prefeituraId: string): Promise<Detecca
       };
     });
 
-  return detectarMinimoConstitucional(entradas);
+  const velhos = detectarDadoDeConformidadeVelho(
+    defasagens.map((x) => ({
+      destino: "minimos" as const,
+      rotulo: `Mínimo em ${MINIMOS[x.area].area}`,
+      mesesDecorridos: x.d.mesesDecorridos,
+      situacao: x.d.situacao,
+      descricao: descreverDefasagem(x.d, x.periodo) ?? "",
+    }))
+  );
+
+  return [...detectarMinimoConstitucional(entradas), ...velhos];
 }
 
 /** Conta as manifestações vencidas e a vencer, sem listar uma a uma. */

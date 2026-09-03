@@ -15,6 +15,13 @@ import {
   avaliarReconducao,
   type SituacaoPessoal,
 } from "@/lib/despesa-pessoal";
+import {
+  avaliarDefasagem,
+  descreverDefasagem,
+  TOLERANCIA_PESSOAL,
+  TOLERANCIA_PESSOAL_SEMESTRAL,
+} from "@/lib/defasagem";
+import { podeOptarPorSemestral } from "@/lib/obrigacoes-fiscais";
 import { buscarPeriodos } from "./actions";
 import FormularioPessoal from "./FormularioPessoal";
 
@@ -56,7 +63,30 @@ export default async function PessoalPage() {
   const atual = periodos[0] ?? null;
   const avaliacao = atual ? avaliarDespesaPessoal(atual) : null;
   const reconducao = avaliarReconducao(periodos);
-  const tom = avaliacao ? TOM[avaliacao.situacao] : null;
+
+  // Município com menos de 50 mil habitantes publica o RGF semestralmente, e
+  // cobrar dele o ritmo quadrimestral seria acusá-lo de atraso por seguir a
+  // periodicidade que a lei lhe faculta.
+  const defasagem = atual
+    ? avaliarDefasagem({
+        exercicio: atual.exercicio,
+        mesReferencia: atual.mesReferencia,
+        hojeExercicio: exercicio,
+        hojeMes: mesAtual,
+        toleranciaMeses: podeOptarPorSemestral(prefeitura.populacao)
+          ? TOLERANCIA_PESSOAL_SEMESTRAL
+          : TOLERANCIA_PESSOAL,
+      })
+    : null;
+
+  const desatualizado = defasagem !== null && defasagem.situacao !== "atual";
+  const vencido = defasagem?.situacao === "vencido";
+  const avisoIdade = defasagem && atual ? descreverDefasagem(defasagem, atual) : null;
+
+  // Perde a cor do veredito, não o número: o verde é o que faz o gestor parar
+  // de olhar, e é justamente ele que não se sustenta sobre medição antiga.
+  const tom = avaliacao && !desatualizado ? TOM[avaliacao.situacao] : null;
+  const corNeutra = "var(--muted)";
 
   // A barra vai até 60% (o teto do município inteiro, art. 19, III) e não até
   // 100%: numa escala de 0 a 100 os três limites da LRF ficariam espremidos em
@@ -81,21 +111,28 @@ export default async function PessoalPage() {
       {avaliacao && atual ? (
         <section
           className="arco-card border p-6 sm:p-7 flex flex-col gap-5"
-          style={{ background: tom!.fundo, borderColor: tom!.borda }}
+          style={{
+            background: tom?.fundo ?? "var(--card)",
+            borderColor: tom?.borda ?? "var(--border)",
+          }}
         >
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <div>
               <p
                 className="font-serif text-[3rem] leading-none font-extrabold tracking-tight tabular-nums"
-                style={{ color: tom!.cor }}
+                style={{ color: tom?.cor ?? corNeutra }}
               >
                 {pct(avaliacao.percentual)}
               </p>
               <p
                 className="text-xs font-semibold uppercase tracking-wide mt-2"
-                style={{ color: tom!.cor }}
+                style={{ color: tom?.cor ?? corNeutra }}
               >
-                {NOME_SITUACAO_PESSOAL[avaliacao.situacao]}
+                {desatualizado
+                  ? vencido
+                    ? "Sem conclusão — dado vencido"
+                    : "Medição antiga"
+                  : NOME_SITUACAO_PESSOAL[avaliacao.situacao]}
               </p>
             </div>
             <p className="text-xs font-mono text-muted text-right">
@@ -111,7 +148,10 @@ export default async function PessoalPage() {
             <div className="relative h-2.5 rounded-full bg-sutil">
               <div
                 className="absolute inset-y-0 left-0 rounded-full transition-all"
-                style={{ width: posicao(avaliacao.percentual), background: tom!.cor }}
+                style={{
+                  width: posicao(avaliacao.percentual),
+                  background: tom?.cor ?? corNeutra,
+                }}
               />
               {[
                 { v: LIMITE_ALERTA, rotulo: "90% — alerta do TC" },
@@ -132,7 +172,22 @@ export default async function PessoalPage() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm border-t border-border/60 pt-4">
+          {avisoIdade && (
+            <p className="text-sm text-muted leading-relaxed border-t border-border/60 pt-4">
+              {avisoIdade}{" "}
+              {vencido
+                ? "Informe o período mais recente no formulário abaixo."
+                : "O Relatório de Gestão Fiscal do último período fecha os dois valores."}
+            </p>
+          )}
+
+          {/* Vencido cala as margens: "faltam R$ X até o limite" sobre medição
+              de nove meses atrás é convite a gastar uma folga que pode não
+              existir mais — e o erro nesta direção é o que estoura o teto. */}
+          <div
+            className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm border-t border-border/60 pt-4"
+            hidden={vencido}
+          >
             {avaliacao.situacao === "excedido" ? (
               <p className="sm:col-span-2">
                 Excedente de{" "}
@@ -172,7 +227,7 @@ export default async function PessoalPage() {
       )}
 
       {/* ── Recondução (art. 23) ── */}
-      {reconducao && (
+      {reconducao && !vencido && (
         <section
           className="border rounded-xl p-5 sm:p-6 space-y-3"
           style={{
@@ -223,7 +278,7 @@ export default async function PessoalPage() {
       )}
 
       {/* ── Vedações ── */}
-      {avaliacao && (avaliacao.situacao === "prudencial" || avaliacao.situacao === "excedido") && (
+      {avaliacao && !vencido && (avaliacao.situacao === "prudencial" || avaliacao.situacao === "excedido") && (
         <section className="bg-card border border-border rounded-xl p-5 sm:p-6">
           <h2 className="font-serif text-lg font-bold">O que a prefeitura não pode fazer agora</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">

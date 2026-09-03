@@ -11,6 +11,11 @@ import {
   type Situacao,
   type AvaliacaoMinimo,
 } from "@/lib/minimos-constitucionais";
+import {
+  avaliarDefasagem,
+  descreverDefasagem,
+  TOLERANCIA_MINIMOS,
+} from "@/lib/defasagem";
 import { buscarBases, somarAplicadoLancado } from "./actions";
 import FormularioBase from "./FormularioBase";
 import PainelObrigacoes from "./PainelObrigacoes";
@@ -36,11 +41,13 @@ export default async function MinimosPage() {
   // O exercício é o ano no fuso do município, não no do servidor: virar o ano
   // em UTC três horas antes faria a página abrir o exercício seguinte com a
   // prefeitura ainda fechando o anterior.
+  const agora = new Date();
+  const fuso = fusoDoEstado(prefeitura.estado);
   const exercicio = Number(
-    new Intl.DateTimeFormat("pt-BR", {
-      timeZone: fusoDoEstado(prefeitura.estado),
-      year: "numeric",
-    }).format(new Date())
+    new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, year: "numeric" }).format(agora)
+  );
+  const mesAtual = Number(
+    new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, month: "numeric" }).format(agora)
   );
 
   const bases = await buscarBases(exercicio);
@@ -59,7 +66,22 @@ export default async function MinimosPage() {
           mesesDecorridos: salvo.mesReferencia,
         })
       : null;
-    return { area, salvo, lancado, avaliacao };
+
+    // Quanto tempo faz que ninguém confirma este número. É o que decide se o
+    // cartão pode pintar um veredito ou só mostrar o valor: nada aqui obriga
+    // o contador a voltar, e uma base de março continuaria dizendo "cumprido"
+    // em outubro, em verde, com duas casas decimais.
+    const defasagem = salvo
+      ? avaliarDefasagem({
+          exercicio,
+          mesReferencia: salvo.mesReferencia,
+          hojeExercicio: exercicio,
+          hojeMes: mesAtual,
+          toleranciaMeses: TOLERANCIA_MINIMOS,
+        })
+      : null;
+
+    return { area, salvo, lancado, avaliacao, defasagem };
   });
 
   return (
@@ -74,9 +96,18 @@ export default async function MinimosPage() {
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        {painel.map(({ area, avaliacao }) => {
+        {painel.map(({ area, avaliacao, salvo, defasagem }) => {
           const info = MINIMOS[area];
-          const tom = avaliacao ? TOM[avaliacao.situacao] : null;
+
+          // Dado velho perde a cor do veredito, não o número. O verde é o que
+          // faz o gestor parar de olhar — e é justamente o verde que não pode
+          // ser afirmado sobre uma medição que ninguém confirma há meses.
+          const desatualizado = defasagem !== null && defasagem.situacao !== "atual";
+          const tom = avaliacao && !desatualizado ? TOM[avaliacao.situacao] : null;
+          const avisoIdade =
+            defasagem && salvo
+              ? descreverDefasagem(defasagem, { exercicio, mesReferencia: salvo.mesReferencia })
+              : null;
 
           return (
             <div
@@ -96,15 +127,34 @@ export default async function MinimosPage() {
                 <>
                   <p
                     className="font-serif text-[2.6rem] leading-none font-extrabold tracking-tight tabular-nums"
-                    style={{ color: tom!.cor }}
+                    style={{ color: tom?.cor ?? "var(--muted)" }}
                   >
                     {percentual(avaliacao.percentualAtual)}
                   </p>
-                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: tom!.cor }}>
-                    {NOME_SITUACAO[avaliacao.situacao]}
+                  <p
+                    className="text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: tom?.cor ?? "var(--muted)" }}
+                  >
+                    {desatualizado
+                      ? defasagem!.situacao === "vencido"
+                        ? "Sem conclusão — dado vencido"
+                        : "Medição antiga"
+                      : NOME_SITUACAO[avaliacao.situacao]}
                   </p>
 
-                  {avaliacao.situacao !== "cumprido" && (
+                  {avisoIdade && (
+                    <p className="text-xs text-muted leading-relaxed border-t border-border/60 pt-3 mt-1">
+                      {avisoIdade}
+                    </p>
+                  )}
+
+                  {/* Só o dado VENCIDO cala o "faltam X". Medição de quatro
+                      meses ainda orienta ordem de grandeza, e o aviso acima já
+                      tirou a falsa confiança; esconder o valor aí perderia a
+                      única informação acionável do cartão. Meio ano depois,
+                      não: aí seria ordem de gasto sobre número que ninguém
+                      confirma. */}
+                  {defasagem?.situacao !== "vencido" && avaliacao.situacao !== "cumprido" && (
                     <div className="text-sm leading-relaxed border-t border-border/60 pt-3 mt-1 space-y-1.5">
                       <p>
                         Faltam{" "}
@@ -118,7 +168,7 @@ export default async function MinimosPage() {
                       {avaliacao.fatorAceleracao !== null && (
                         <p className="text-muted">
                           Exige{" "}
-                          <strong style={{ color: tom!.cor }}>
+                          <strong style={{ color: tom?.cor ?? "var(--muted)" }}>
                             {avaliacao.fatorAceleracao.toFixed(1).replace(".", ",")}×
                           </strong>{" "}
                           o ritmo mensal atual nos {avaliacao.mesesRestantes} meses que restam.

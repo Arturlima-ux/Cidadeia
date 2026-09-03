@@ -258,6 +258,44 @@ export function detectarDespesaPessoal(
 }
 
 /**
+ * Base de cálculo ou apuração de pessoal que ninguém atualiza.
+ *
+ * Não é violação de norma — é cegueira sobre uma. Por isso entra como "médio"
+ * mesmo quando o dado está vencido: subir para urgente colocaria "atualize uma
+ * planilha" acima de "seu prazo do art. 23 está correndo", e a lista deixaria
+ * de ordenar por consequência.
+ *
+ * O que justifica o achado é que sem ele o gestor não descobre o problema: a
+ * tela de origem ficou cinza e sem veredito, e uma tela sem veredito é
+ * exatamente a que ninguém visita.
+ */
+export function detectarDadoDeConformidadeVelho(
+  entradas: {
+    /** Para onde o gestor vai resolver — decide a rota do achado. */
+    destino: "minimos" | "pessoal";
+    /** Nome do que está velho, como o gestor chama: "Saúde", "FUNDEB". */
+    rotulo: string;
+    mesesDecorridos: number;
+    situacao: "atual" | "desatualizado" | "vencido";
+    /** Frase pronta de lib/defasagem.ts — não reescrever aqui. */
+    descricao: string;
+  }[]
+): DeteccaoAutomatica[] {
+  return entradas
+    .filter((e) => e.situacao !== "atual")
+    .map((e) => ({
+      categoria: e.destino === "pessoal" ? ("pessoal" as const) : ("financeiro" as const),
+      prioridade: "medio" as const,
+      secretaria: null,
+      titulo:
+        e.situacao === "vencido"
+          ? `${e.rotulo}: sem atualização há ${e.mesesDecorridos} meses`
+          : `${e.rotulo}: dado de ${e.mesesDecorridos} meses atrás`,
+      descricao: e.descricao,
+    }));
+}
+
+/**
  * Manifestação do cidadão com prazo legal vencido ou perto de vencer.
  *
  * Agrupa em vez de listar uma a uma: numa prefeitura com trinta protocolos

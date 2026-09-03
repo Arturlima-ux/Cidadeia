@@ -1,5 +1,11 @@
 import type { PainelTelao } from "@/app/dashboard/apresentacao/Telao";
-import { MINIMOS, avaliarMinimo, type AreaMinimo } from "@/lib/minimos-constitucionais";
+import {
+  MINIMOS,
+  AREAS_MINIMO,
+  avaliarMinimo,
+  type AreaMinimo,
+} from "@/lib/minimos-constitucionais";
+import { avaliarDefasagem, nomeDoMes, TOLERANCIA_MINIMOS } from "@/lib/defasagem";
 
 // ── MONTAGEM DOS PAINÉIS DO TELÃO ──
 //
@@ -13,6 +19,15 @@ import { MINIMOS, avaliarMinimo, type AreaMinimo } from "@/lib/minimos-constituc
 
 export type DadosTelao = {
   municipio: string;
+  /**
+   * Exercício e mês corrente no fuso do município.
+   *
+   * Serve só para medir a idade da base de cálculo — e é aqui que o telão mais
+   * precisa dela. No painel do gestor, um "cumprido" verde sobre dado velho é
+   * um erro que ele corrige sozinho ao abrir o formulário; projetado numa
+   * sessão da câmara, vira declaração pública que o vereador vai cobrar.
+   */
+  hoje: { exercicio: number; mes: number };
   minimos: { area: AreaMinimo; base: number; aplicado: number; mesReferencia: number }[];
   obras: { status: string; progressoAtual: number; progressoEsperado: number }[];
   atendimentos: { status: string }[];
@@ -33,7 +48,7 @@ export function montarPaineisTelao(dados: DadosTelao): PainelTelao[] {
   const paineis: PainelTelao[] = [];
 
   // ── mínimos constitucionais ──
-  for (const area of ["educacao", "saude"] as AreaMinimo[]) {
+  for (const area of AREAS_MINIMO) {
     const info = MINIMOS[area];
     const registro = dados.minimos.find((m) => m.area === area);
 
@@ -56,6 +71,33 @@ export function montarPaineisTelao(dados: DadosTelao): PainelTelao[] {
       mesesDecorridos: registro.mesReferencia,
     });
     const cumprido = a.percentualAtual >= a.exigido;
+
+    // Idade da medição. O telão é o lugar onde afirmar sobre dado velho custa
+    // mais caro: o número fica projetado, em corpo grande, e ninguém vai parar
+    // a sessão para explicar que a base é de março.
+    const defasagem = avaliarDefasagem({
+      exercicio: dados.hoje.exercicio,
+      mesReferencia: registro.mesReferencia,
+      hojeExercicio: dados.hoje.exercicio,
+      hojeMes: dados.hoje.mes,
+      toleranciaMeses: TOLERANCIA_MINIMOS,
+    });
+
+    if (defasagem.situacao !== "atual") {
+      // Mostra o número e a data, sem veredito e sem cor. `semDado: false`
+      // porque o dado existe — o que não existe é a conclusão.
+      paineis.push({
+        chave: `minimo-${area}`,
+        rotulo: `Mínimo em ${info.area}`,
+        valor: `${a.percentualAtual.toFixed(1).replace(".", ",")}%`,
+        contexto: `Medido até ${nomeDoMes(registro.mesReferencia)}. Mínimo de ${
+          a.exigido
+        }% — a posição de hoje depende de fechamento mais recente.`,
+        tom: "neutro",
+        semDado: false,
+      });
+      continue;
+    }
 
     paineis.push({
       chave: `minimo-${area}`,

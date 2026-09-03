@@ -13,11 +13,13 @@ export default async function ApresentacaoPage() {
   const { sessao, prefeitura, temPlano } = await contextoDashboard();
   if (!temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
 
+  const agora = new Date();
+  const fuso = fusoDoEstado(prefeitura.estado);
   const exercicio = Number(
-    new Intl.DateTimeFormat("pt-BR", {
-      timeZone: fusoDoEstado(prefeitura.estado),
-      year: "numeric",
-    }).format(new Date())
+    new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, year: "numeric" }).format(agora)
+  );
+  const mesAtual = Number(
+    new Intl.DateTimeFormat("pt-BR", { timeZone: fuso, month: "numeric" }).format(agora)
   );
 
   const [bases, listaObras, listaAtendimentos, snapshot] = await Promise.all([
@@ -41,6 +43,7 @@ export default async function ApresentacaoPage() {
 
   const paineis = montarPaineisTelao({
     municipio: prefeitura.municipio,
+    hoje: { exercicio, mes: mesAtual },
     minimos: bases
       .filter((b) => b.exercicio === exercicio)
       .map((b) => ({
