@@ -12,7 +12,21 @@ const LINKS = [
   { href: "/faq", label: "FAQ" },
 ];
 
-export default function SiteHeader() {
+/**
+ * `sessaoAtiva` chega por propriedade, e não de `lerSessao()` aqui dentro.
+ *
+ * Ler cookie neste componente tornaria DINÂMICA toda página que usa o
+ * cabeçalho — preços, FAQ, sobre, kit, diagnóstico —, tirando todas do cache
+ * do CDN. Num produto que roda em computador de secretaria, essa conta pesa,
+ * e o ganho seria só trocar o rótulo de um botão.
+ *
+ * Então só a home informa, porque ela já é dinâmica por outro motivo (lista
+ * os portais publicados). As demais seguem estáticas e mostram "Entrar", que
+ * continua correto: leva ao login, que reconhece quem já tem sessão.
+ */
+export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: boolean }) {
+  const sessao = sessaoAtiva;
+
   return (
     <header className="sticky top-0 z-30">
       {/* Barra utilitária — é a assinatura do formato institucional: o
@@ -37,8 +51,8 @@ export default function SiteHeader() {
               <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)] shrink-0" />
               Portal do cidadão
             </Link>
-            <Link href="/login" className="hover:text-white transition">
-              Área do servidor
+            <Link href={sessao ? "/dashboard" : "/login"} className="hover:text-white transition">
+              {sessao ? "Meu painel" : "Área do servidor"}
             </Link>
             {/* Rebaixado para cinza: em branco cheio disputava a atenção com
                 o link do cidadão, e a conversa comercial já tem o botão
@@ -71,10 +85,10 @@ export default function SiteHeader() {
 
           <div className="flex items-center gap-3 shrink-0">
             <Link
-              href="/login"
+              href={sessao ? "/dashboard" : "/login"}
               className="hidden sm:inline text-sm font-semibold hover:text-brand transition"
             >
-              Entrar
+              {sessao ? "Ir para o painel" : "Entrar"}
             </Link>
             {/* Era "Solicitar demonstração" — a mesma frase que a home usa
                 como exemplo do que as incumbentes fazem para esconder preço.

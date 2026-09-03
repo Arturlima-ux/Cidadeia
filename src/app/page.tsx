@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { lerSessao } from "@/lib/sessao";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { LIMITE_DISPENSA, CAMINHOS } from "@/lib/contratacao";
@@ -219,8 +218,22 @@ const IMPLANTACAO = [
 ];
 
 export default async function LandingPage() {
+  // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
+  // já era cliente NÃO CONSEGUIA MAIS VER O SITE. Nem para conferir a própria
+  // página de transparência, nem para mostrar a um secretário, nem para
+  // revisar o que a página promete antes de uma reunião. Digitar o domínio
+  // levava ao painel, sempre, sem escapatória.
+  //
+  // A conveniência era real — cliente que digita o endereço quer o painel —
+  // mas virou prisão. Agora ela vive no cabeçalho: quem tem sessão vê "Ir
+  // para o painel" no lugar de "Entrar". Oferta em vez de imposição.
+  //
+  // A sessão é lida AQUI e passada ao cabeçalho, em vez de lida dentro dele:
+  // ler cookie no componente compartilhado tornaria dinâmica toda página que
+  // o usa — preços, FAQ, sobre, kit —, tirando todas do cache do CDN por
+  // causa do rótulo de um botão. Esta página já é dinâmica porque lista os
+  // portais publicados, então aqui a leitura não custa nada.
   const sessao = await lerSessao();
-  if (sessao) redirect("/dashboard");
 
   const kitBaixavel = DOCUMENTOS.filter((d) => d.geramos);
 
@@ -294,7 +307,7 @@ export default async function LandingPage() {
       </div>
 
       <div className="relative z-10">
-        <SiteHeader />
+        <SiteHeader sessaoAtiva={Boolean(sessao)} />
         <BarraConversao />
 
         {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
