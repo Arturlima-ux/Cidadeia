@@ -180,7 +180,10 @@ async function buscarPeriodo(
  * mil habitantes pode publicar semestralmente, e nada garante que a opção
  * registrada no nosso cadastro seja a que ele de fato usou.
  */
-export function periodosParaTentar(exercicioAtual: number): PeriodoRgf[] {
+export function periodosParaTentar(
+  exercicioAtual: number,
+  mesAtual: number
+): PeriodoRgf[] {
   const lista: PeriodoRgf[] = [];
   for (const exercicio of [exercicioAtual, exercicioAtual - 1]) {
     for (const periodicidade of ["Q", "S"] as Periodicidade[]) {
@@ -195,10 +198,18 @@ export function periodosParaTentar(exercicioAtual: number): PeriodoRgf[] {
       }
     }
   }
-  // Ordena por data de fechamento, do mais recente para o mais antigo, para
-  // que a busca não devolva um quadrimestre velho só por vir antes na lista.
-  return lista.sort(
-    (a, b) => b.exercicio - a.exercicio || b.mesReferencia - a.mesReferencia
+
+  return (
+    lista
+      // Descarta período que ainda nem terminou. Em setembro, o quadrimestre
+      // que fecha em dezembro não existe em lugar nenhum — e gastar as
+      // tentativas nele é o que fazia a busca não alcançar o exercício
+      // anterior. Foi assim que Toledo/MG apareceu como "sem RGF" tendo três
+      // períodos publicados.
+      .filter((p) => p.exercicio < exercicioAtual || p.mesReferencia <= mesAtual)
+      // Do fechamento mais recente para o mais antigo, para a busca não
+      // devolver um quadrimestre velho só por vir antes na lista.
+      .sort((a, b) => b.exercicio - a.exercicio || b.mesReferencia - a.mesReferencia)
   );
 }
 
@@ -212,9 +223,13 @@ export function periodosParaTentar(exercicioAtual: number): PeriodoRgf[] {
 export async function buscarRgfMaisRecente(
   codigoIbge: string,
   exercicioAtual: number,
-  tentativas = 5
+  mesAtual: number,
+  // Oito cobre o exercício corrente inteiro e ainda alcança o anterior. Cinco
+  // não alcançava: uma prefeitura em dia com o RGF do ano passado, mas ainda
+  // sem enviar o deste, aparecia como se nunca tivesse publicado nada.
+  tentativas = 8
 ): Promise<ResultadoRgf> {
-  const candidatos = periodosParaTentar(exercicioAtual).slice(0, tentativas);
+  const candidatos = periodosParaTentar(exercicioAtual, mesAtual).slice(0, tentativas);
 
   for (const periodo of candidatos) {
     const itens = await buscarPeriodo(codigoIbge, periodo);

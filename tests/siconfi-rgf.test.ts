@@ -107,7 +107,7 @@ describe("períodos", () => {
     // O gestor não sabe qual foi o último período que o Tesouro processou —
     // costuma haver semanas entre o envio e a publicação. A busca anda para
     // trás em vez de devolver "não encontrado" para período que nem venceu.
-    const lista = periodosParaTentar(2026);
+    const lista = periodosParaTentar(2026, 9);
     const chave = (p: PeriodoRgf) => p.exercicio * 100 + p.mesReferencia;
 
     expect(lista[0].exercicio).toBe(2026);
@@ -120,8 +120,36 @@ describe("períodos", () => {
     // Município abaixo de 50 mil habitantes pode publicar semestralmente, e
     // nada garante que a opção registrada no nosso cadastro seja a que ele de
     // fato usou. Tentar só uma perderia o relatório de quem escolheu a outra.
-    const lista = periodosParaTentar(2026);
+    const lista = periodosParaTentar(2026, 9);
     expect(lista.some((p) => p.periodicidade === "Q")).toBe(true);
     expect(lista.some((p) => p.periodicidade === "S")).toBe(true);
+  });
+});
+
+describe("janela de busca", () => {
+  it("descarta período que ainda não terminou", () => {
+    // O bug que este teste tranca: em setembro de 2026 o quadrimestre que
+    // fecha em dezembro não existe em lugar nenhum, e gastar as tentativas
+    // nele fazia a busca não alcançar o exercício anterior. Toledo/MG
+    // aparecia como "sem RGF" tendo três períodos publicados.
+    const lista = periodosParaTentar(2026, 9);
+    const futuros = lista.filter((p) => p.exercicio === 2026 && p.mesReferencia > 9);
+    expect(futuros).toHaveLength(0);
+  });
+
+  it("alcança o exercício anterior dentro das oito primeiras tentativas", () => {
+    // Prefeitura em dia com o RGF do ano passado, mas ainda sem enviar o deste,
+    // precisa ser encontrada. Do contrário o botão diz "nunca publicou" para
+    // quem publicou.
+    const oito = periodosParaTentar(2026, 9).slice(0, 8);
+    expect(oito.some((p) => p.exercicio === 2025)).toBe(true);
+  });
+
+  it("em janeiro, procura tudo no exercício anterior", () => {
+    // Caso extremo real: em 1º de janeiro nenhum período do ano corrente
+    // fechou, e a lista não pode vir vazia.
+    const lista = periodosParaTentar(2026, 1);
+    expect(lista.length).toBeGreaterThan(0);
+    expect(lista.every((p) => p.exercicio === 2025)).toBe(true);
   });
 });

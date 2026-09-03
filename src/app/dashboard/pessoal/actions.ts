@@ -163,9 +163,17 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
   if (!codigoIbge) {
     codigoIbge = await buscarCodigoIbge(prefeitura.municipio, prefeitura.estado);
     if (!codigoIbge) {
+      // Acontece em dois casos que o gestor precisa distinguir: conta de
+      // teste com município inventado, e cadastro com a UF errada — como
+      // "Barro Duro/CE", que existe, mas no Piauí. Nos dois a busca falha
+      // igual, e sem a explicação a tela parece defeituosa.
       return {
         ok: false,
-        erro: `Não foi possível identificar o código IBGE de ${prefeitura.municipio}/${prefeitura.estado}. Informe os valores à mão abaixo.`,
+        erro:
+          `O Tesouro não conhece um município chamado "${prefeitura.municipio}" em ${prefeitura.estado}. ` +
+          `Se esta é uma conta de teste com município fictício, é o esperado — a importação só existe ` +
+          `para município real. Se não for, confira o estado no cadastro: nome de município se repete ` +
+          `entre UFs, e um errado impede a busca. Enquanto isso, informe os valores à mão abaixo.`,
       };
     }
     await db
@@ -174,8 +182,12 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
       .where(eq(prefeituras.id, sessao.prefeituraId));
   }
 
-  const exercicio = new Date().getFullYear();
-  const resultado = await buscarRgfMaisRecente(codigoIbge, exercicio);
+  const agora = new Date();
+  const resultado = await buscarRgfMaisRecente(
+    codigoIbge,
+    agora.getFullYear(),
+    agora.getMonth() + 1
+  );
   if (!resultado.ok) return { ok: false, erro: resultado.erro };
 
   const { dados } = resultado;
