@@ -486,6 +486,17 @@ export const despesaPessoal = pgTable("despesa_pessoal", {
   rcl: doublePrecision("rcl").notNull(),
   /** Despesa total com pessoal dos doze meses, na forma do art. 18. */
   despesa: doublePrecision("despesa").notNull(),
+  /**
+   * De onde veio o período.
+   *
+   * O RGF publicado no Tesouro é o número oficial que o Tribunal de Contas
+   * vai olhar; o digitado é a estimativa do contador, normalmente mais atual
+   * e menos definitiva. Sem a marca, um sobrescreve o outro sem que ninguém
+   * saiba qual está na tela.
+   */
+  origem: text("origem", { enum: ["manual", "siconfi"] })
+    .notNull()
+    .default("manual"),
   atualizadoEm: text("atualizado_em")
     .notNull()
     .default(sql`now()::text`),

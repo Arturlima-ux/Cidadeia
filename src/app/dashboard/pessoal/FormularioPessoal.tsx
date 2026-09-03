@@ -76,7 +76,7 @@ export default function FormularioPessoal({
 
       <div>
         <label className="block text-sm font-medium mb-1.5" htmlFor="pessoal-rcl">
-          Receita Corrente Líquida do período
+          Receita Corrente Líquida ajustada do período
         </label>
         <input
           id="pessoal-rcl"
@@ -90,9 +90,12 @@ export default function FormularioPessoal({
           className={classeInput}
         />
         <p className="text-xs text-muted mt-1.5 leading-relaxed">
-          Receitas correntes dos doze meses, deduzidas a contribuição dos
-          servidores ao regime próprio e as receitas de compensação entre
-          regimes previdenciários (art. 2º, IV da LRF).
+          A RCL do art. 2º, IV, MENOS as deduções do art. 20, § 6º:
+          transferências obrigatórias da União relativas a emendas
+          parlamentares e à remuneração dos agentes comunitários de saúde. É
+          esta, e não a RCL cheia, que serve de base ao limite — usar a cheia
+          dá um percentual menor que o oficial. No RGF ela vem na linha
+          "Receita Corrente Líquida Ajustada para Cálculo dos Limites".
         </p>
       </div>
 

@@ -1,0 +1,170 @@
+[
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-11>",
+    "valor": 191232676.13
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-10>",
+    "valor": 140847647.42
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-9>",
+    "valor": 149922011.95
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-8>",
+    "valor": 143700339.96
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-7>",
+    "valor": 145996447.3
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-6>",
+    "valor": 150886970.84
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-5>",
+    "valor": 158774608.08
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-4>",
+    "valor": 153320404.09
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-3>",
+    "valor": 145959234.5
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-2>",
+    "valor": 225345233.12
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR-1>",
+    "valor": 149784515.01
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "<MR>",
+    "valor": 165082874.95
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "TOTAL (ÚLTIMOS 12 MESES) (a)",
+    "valor": 1920852963.35
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalLiquida",
+    "conta": "DESPESA LÍQUIDA COM PESSOAL (III) = (I - II)",
+    "coluna": "INSCRITAS EM RESTOS A PAGAR NÃO PROCESSADOS (b)",
+    "valor": 12174197.73
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "ReceitaCorrenteLiquidaLimiteLegal",
+    "conta": "RECEITA CORRENTE LIQUIDA - RCL (IV)",
+    "coluna": "Valor",
+    "valor": 4370927139.29
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "ReceitaCorrenteLiquidaAjustada",
+    "conta": "= RECEITA CORRENTE LÍQUIDA AJUSTADA PARA CÁLCULO DOS LIMITES DA DESPESA COM PESSOAL (V)",
+    "coluna": "Valor",
+    "valor": 4261106390.62
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalTotal",
+    "conta": "DESPESA TOTAL COM PESSOAL - DTP (VI) = (IIIa + IIIb)",
+    "coluna": "Valor",
+    "valor": 1933027161.08
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "DespesaComPessoalTotal",
+    "conta": "DESPESA TOTAL COM PESSOAL - DTP (VI) = (IIIa + IIIb)",
+    "coluna": "% sobre a RCL Ajustada",
+    "valor": 45.36
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimiteMaximoDespesaComPessoalTotal",
+    "conta": "LIMITE MÁXIMO (VII) (incisos I, II e III, art. 20 da LRF)",
+    "coluna": "Valor",
+    "valor": 2300997450.93
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimiteMaximoDespesaComPessoalTotal",
+    "conta": "LIMITE MÁXIMO (VII) (incisos I, II e III, art. 20 da LRF)",
+    "coluna": "% sobre a RCL Ajustada",
+    "valor": 54
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimitePrudencialDespesaComPessoalTotal",
+    "conta": "LIMITE PRUDENCIAL (VIII) = (0,95 x VII) (parágrafo único do art. 22 da LRF)",
+    "coluna": "Valor",
+    "valor": 2185947578.38
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimitePrudencialDespesaComPessoalTotal",
+    "conta": "LIMITE PRUDENCIAL (VIII) = (0,95 x VII) (parágrafo único do art. 22 da LRF)",
+    "coluna": "% sobre a RCL Ajustada",
+    "valor": 51.3
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimiteDeAlertaDespesaComPessoalTotal",
+    "conta": "LIMITE DE ALERTA (IX) = (0,90 x VII) (inciso II do §1º do art. 59 da LRF)",
+    "coluna": "Valor",
+    "valor": 2070897705.84
+  },
+  {
+    "instituicao": "Prefeitura Municipal de Teresina - PI",
+    "cod_conta": "LimiteDeAlertaDespesaComPessoalTotal",
+    "conta": "LIMITE DE ALERTA (IX) = (0,90 x VII) (inciso II do §1º do art. 59 da LRF)",
+    "coluna": "% sobre a RCL Ajustada",
+    "valor": 48.6
+  }
+]

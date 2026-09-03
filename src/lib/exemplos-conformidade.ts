@@ -57,4 +57,7 @@ export const EXEMPLO_PESSOAL = {
   rcl: 96_000_000,
   despesa: 49_900_000,
   mesReferencia: 8,
+  // Como se tivesse sido digitado. Marcar "siconfi" faria a tabela dizer que
+  // veio do Tesouro um número que não existe em relatório nenhum.
+  origem: "manual",
 } as const;

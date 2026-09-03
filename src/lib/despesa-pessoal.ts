@@ -105,7 +105,19 @@ export type PeriodoPessoal = {
    * mês cobre os dois casos sem obrigar o gestor a mentir sobre a data.
    */
   mesReferencia: number;
-  /** Receita Corrente Líquida dos doze meses, na forma do art. 2º, IV. */
+  /**
+   * Receita Corrente Líquida AJUSTADA dos doze meses.
+   *
+   * Não é a RCL do art. 2º, IV pura: o art. 20, § 6º manda deduzir dela as
+   * transferências obrigatórias da União relativas a emendas parlamentares e
+   * à remuneração dos agentes comunitários de saúde. É sobre a ajustada que o
+   * limite incide, e a diferença não é decorativa — em Teresina/2024 são R$ 110
+   * milhões, que movem o percentual de 44,22% para 45,36%.
+   *
+   * Usar a RCL cheia erra para MENOS, dizendo ao prefeito que ele tem folga
+   * que não tem. O RGF publica a ajustada pronta, na linha "Receita Corrente
+   * Líquida Ajustada para Cálculo dos Limites".
+   */
   rcl: number;
   /** Despesa total com pessoal dos doze meses, na forma do art. 18. */
   despesa: number;

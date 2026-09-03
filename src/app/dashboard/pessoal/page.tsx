@@ -26,6 +26,7 @@ import FaixaExemplo from "@/components/FaixaExemplo";
 import { EXEMPLO_PESSOAL, MUNICIPIO_EXEMPLO } from "@/lib/exemplos-conformidade";
 import { buscarPeriodos } from "./actions";
 import FormularioPessoal from "./FormularioPessoal";
+import BotaoImportar from "./BotaoImportar";
 
 export const metadata = { title: "Despesa com pessoal — CidadeIA" };
 
@@ -155,7 +156,7 @@ export default async function PessoalPage() {
             <p className="text-xs font-mono text-muted text-right">
               12 meses até {MESES[atual.mesReferencia - 1]} de {atual.exercicio}
               <br />
-              limite {LIMITE_PESSOAL}% da RCL
+              limite {LIMITE_PESSOAL}% da RCL ajustada
             </p>
           </div>
 
@@ -320,9 +321,10 @@ export default async function PessoalPage() {
               <thead className="bg-sutil text-left">
                 <tr>
                   <th className="px-4 py-2.5 font-semibold">Período</th>
-                  <th className="px-4 py-2.5 font-semibold text-right">RCL</th>
+                  <th className="px-4 py-2.5 font-semibold text-right">RCL ajustada</th>
                   <th className="px-4 py-2.5 font-semibold text-right">Despesa</th>
                   <th className="px-4 py-2.5 font-semibold text-right">% da RCL</th>
+                  <th className="px-4 py-2.5 font-semibold">Origem</th>
                 </tr>
               </thead>
               <tbody>
@@ -344,6 +346,13 @@ export default async function PessoalPage() {
                         style={{ color: a ? TOM[a.situacao].cor : undefined }}
                       >
                         {a ? pct(a.percentual) : "—"}
+                      </td>
+                      {/* Qual das duas fontes está naquela linha. O RGF é o
+                          número que o TC olha; o digitado costuma ser mais
+                          atual e menos definitivo — o gestor precisa saber
+                          qual ele está lendo antes de citar em reunião. */}
+                      <td className="px-4 py-2.5 text-xs text-muted">
+                        {p.origem === "siconfi" ? "RGF do Tesouro" : "Informado"}
                       </td>
                     </tr>
                   );
@@ -376,7 +385,10 @@ export default async function PessoalPage() {
             ritmo entre um lançamento e outro.
           </p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-5 sm:p-6">
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-6 space-y-6">
+          <BotaoImportar />
+          <div className="border-t border-border pt-6">
+          <p className="text-sm font-semibold mb-4">Ou informe à mão</p>
           {/* Lê `gravados`, não `periodos`: em modo exemplo o segundo é o
               município fictício, e pré-preencher o formulário com ele faria o
               gestor gravar 96 milhões inventados como RCL da prefeitura dele. */}
@@ -386,6 +398,7 @@ export default async function PessoalPage() {
             rcl={gravados[0]?.rcl ?? null}
             despesa={gravados[0]?.despesa ?? null}
           />
+          </div>
         </div>
       </div>
     </div>
