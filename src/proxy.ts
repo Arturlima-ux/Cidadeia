@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verificarTokenSessao } from "@/lib/sessao";
+import { deveForcarHttps } from "@/lib/forcar-https";
 
 const NOME_COOKIE = "cidadeia_sessao";
 
@@ -23,8 +24,19 @@ export default async function proxy(request: NextRequest) {
 
   // Força HTTPS em produção — o proxy/CDN na frente já costuma redirecionar,
   // mas isso garante o comportamento mesmo se o app for exposto direto.
-  const proto = request.headers.get("x-forwarded-proto");
-  if (process.env.NODE_ENV === "production" && proto === "http") {
+  //
+  // A exceção de endereço local não é conveniência: `next start` roda com
+  // NODE_ENV=production e o próprio servidor do Next preenche
+  // `x-forwarded-proto: http`, então sem ela toda rota respondia 308 para
+  // `https://localhost:3000`, onde não há TLS. O site parecia fora do ar sem
+  // nunca ter caído. Ver lib/forcar-https.ts.
+  if (
+    deveForcarHttps({
+      proto: request.headers.get("x-forwarded-proto"),
+      hostname: request.nextUrl.hostname,
+      ehProducao: process.env.NODE_ENV === "production",
+    })
+  ) {
     const url = request.nextUrl.clone();
     url.protocol = "https:";
     return NextResponse.redirect(url, 308);

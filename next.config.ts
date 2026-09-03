@@ -56,6 +56,21 @@ const nextConfig: NextConfig = {
       "object-src 'none'",
     ].join("; ");
 
+    // HSTS só onde existe HTTPS de verdade.
+    //
+    // Mandar HSTS a partir de localhost ENVENENA o cache do navegador para o
+    // host `localhost` inteiro. Não é só este projeto: todo outro app que você
+    // rodar em http://localhost passa a ser forçado para https, por dois anos,
+    // sem servidor para atender. E não some sozinho — a única saída é limpar a
+    // lista de HSTS do navegador na mão.
+    //
+    // (O 308 que deixava o localhost inacessível vinha de outro lugar, da nossa
+    // regra em lib/forcar-https.ts, e foi corrigido lá. Esta guarda continua
+    // valendo por si.)
+    //
+    // `VERCEL` é definida pela plataforma no build e em runtime.
+    const emProducaoReal = process.env.VERCEL === "1";
+
     return [
       {
         source: "/(.*)",
@@ -80,10 +95,14 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: csp,
           },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
-          },
+          ...(emProducaoReal
+            ? [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=63072000; includeSubDomains; preload",
+                },
+              ]
+            : []),
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
