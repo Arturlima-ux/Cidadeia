@@ -44,32 +44,55 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
   licitacoes: IconLicitacoes,
 };
 
+// ── O QUE O VISITANTE CONSEGUE CONFERIR AGORA ──
+//
 // Sinais de que existe alguém do outro lado, sem inventar credencial que não
-// temos. Cada linha aponta para algo que o visitante consegue abrir e
-// conferir sozinho — que é a única forma de autoridade disponível para quem
-// ainda não tem carteira de clientes para exibir.
-const AUTORIDADE = [
-  {
-    titulo: "O portal já está no ar",
-    texto:
-      "Endereço público de um município real, aberto sem cadastro. Não é ambiente de demonstração montado para a visita.",
-  },
-  {
-    titulo: "O contrato é público antes da venda",
-    texto:
-      "Termo de referência, minuta e acordo de tratamento de dados ficam para download sem cadastro. Dá para o jurídico reprovar antes de você falar com a gente.",
-  },
-  {
-    titulo: "A saída está escrita",
-    texto:
-      "Exportação em CSV e JSON a qualquer momento, sem custo e sem pedir autorização. Quem prende cliente por dificuldade de sair não escreve isso na home.",
-  },
-  {
-    titulo: "O diagnóstico admite o que não fazemos",
-    texto:
-      "Parte das exigências continua com a prefeitura mesmo contratando o sistema, e elas aparecem no resultado com nome e artigo.",
-  },
-];
+// temos. Cada linha aponta para algo que o visitante abre e confere sozinho —
+// a única forma de autoridade disponível para quem ainda não tem carteira de
+// clientes para exibir.
+//
+// É uma FUNÇÃO, e não uma lista fixa, por causa do primeiro item. Ele afirmava
+// "O portal já está no ar — endereço público de um município real" mesmo sem
+// nenhum portal publicado, e os botões ao lado levavam a uma página que
+// respondia "Nenhum portal publicado ainda".
+//
+// Era o pior defeito possível nesta seção: ela existe justamente para dizer
+// "não peça fé, confira" — e a conferência levava dez segundos e desmentia a
+// promessa. Um servidor cético não faz a segunda checagem depois dessa.
+//
+// Enquanto não houver o primeiro município no ar, o item sai. No lugar entra o
+// Raio-X, que é prova de verdade: lê dado federal público de QUALQUER
+// município e responde na hora, inclusive o de quem está lendo.
+function autoridadeVerificavel(temPortalNoAr: boolean) {
+  return [
+    temPortalNoAr
+      ? {
+          titulo: "O portal já está no ar",
+          texto:
+            "Endereço público de um município real, aberto sem cadastro. Não é ambiente de demonstração montado para a visita.",
+        }
+      : {
+          titulo: "Confira com o seu próprio município",
+          texto:
+            "O Raio-X lê os dados que a União já publica sobre qualquer prefeitura do país e responde na hora. Digite a sua e veja o que sai — sem cadastro, sem conversa com vendedor.",
+        },
+    {
+      titulo: "O contrato é público antes da venda",
+      texto:
+        "Termo de referência, minuta e acordo de tratamento de dados ficam para download sem cadastro. Dá para o jurídico reprovar antes de você falar com a gente.",
+    },
+    {
+      titulo: "A saída está escrita",
+      texto:
+        "Exportação em CSV e JSON a qualquer momento, sem custo e sem pedir autorização. Quem prende cliente por dificuldade de sair não escreve isso na home.",
+    },
+    {
+      titulo: "O diagnóstico admite o que não fazemos",
+      texto:
+        "Parte das exigências continua com a prefeitura mesmo contratando o sistema, e elas aparecem no resultado com nome e artigo.",
+    },
+  ];
+}
 
 // O que o morador pode fazer, com a lei que garante cada coisa.
 //
@@ -120,9 +143,15 @@ const VERSUS = [
     nos: "Vai pronto: termo de referência, minuta, LGPD e nível de serviço",
   },
   {
+    // Dizia "Abra e confira — três canais no ar, sem login", e os três canais
+    // são do portal do cidadão. Sem nenhum portal publicado, era a mesma
+    // promessa vazia da seção de prova, num lugar em que ninguém procuraria.
+    //
+    // O Raio-X substitui porque cumpre o mesmo papel — o cético confere sem
+    // pedir nada a ninguém — e funciona hoje, para qualquer município.
     pergunta: "Se funciona mesmo",
     eles: "Slide e vídeo gravado",
-    nos: "Abra e confira — três canais no ar, sem login",
+    nos: "Abra o Raio-X do seu município e confira, sem login",
   },
   {
     pergunta: "E se quiser sair",
@@ -388,19 +417,31 @@ export default async function LandingPage() {
                     página; a delas é logo de cliente, a nossa é um endereço
                     que abre. */}
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 pt-7 border-t border-border">
+                  {/* Sem portal no ar, este link dizia "Ver um portal
+                      publicado", com bolinha verde pulsando e "abra sem
+                      login" — e levava a uma página que responde "Nenhum
+                      portal publicado ainda". A prova mais visível da página
+                      provava o contrário do que prometia, em dez segundos.
+
+                      O Raio-X ocupa o lugar porque é conferível de verdade
+                      hoje: lê dado federal público de qualquer município,
+                      inclusive o de quem está lendo. A bolinha pulsando só
+                      aparece quando há de fato um endereço no ar. */}
                   <Link
-                    href={portalVitrine ? `/transparencia/${portalVitrine.slug}` : "/transparencia"}
+                    href={portalVitrine ? `/transparencia/${portalVitrine.slug}` : "/raio-x"}
                     className="group inline-flex items-center gap-2.5 text-sm font-semibold hover:text-brand-claro transition"
                   >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
-                      style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
-                    />
+                    {portalVitrine && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
+                        style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
+                      />
+                    )}
                     {portalVitrine
                       ? `Portal de ${portalVitrine.municipio} · ${portalVitrine.estado}`
-                      : "Ver um portal publicado"}
+                      : "Ver o Raio-X do seu município"}
                     <span className="text-muted font-normal group-hover:text-brand-claro transition">
-                      — abra sem login
+                      {portalVitrine ? "— abra sem login" : "— dado federal, sem cadastro"}
                     </span>
                   </Link>
 
@@ -765,33 +806,51 @@ export default async function LandingPage() {
                       própria. Município de verdade, nome na tela, endereço que
                       responde — o mais perto de um muro de logos que dá para
                       fazer com honestidade. */}
+                  {/* Sem nenhum portal, isto virava um "abrir um portal →"
+                      solto apontando para a página vazia. A seção inteira
+                      dizia "abra e confira" e entregava nada para abrir.
+
+                      Enquanto o primeiro município não sobe, o convite é o
+                      Raio-X — que responde de verdade, sobre a prefeitura de
+                      quem está lendo. */}
                   <div className="flex flex-wrap items-center gap-3 mt-7">
-                    {portais.slice(0, 3).map((p) => (
+                    {portais.length > 0 ? (
+                      <>
+                        {portais.slice(0, 3).map((p) => (
+                          <Link
+                            key={p.slug}
+                            href={`/transparencia/${p.slug}`}
+                            className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3 transition"
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
+                              style={{ background: "var(--accent)" }}
+                            />
+                            {p.municipio} · {p.estado}
+                          </Link>
+                        ))}
+                        <Link
+                          href="/transparencia"
+                          className="text-sm font-semibold text-muted hover:text-foreground transition"
+                        >
+                          {portais.length > 3 ? "ver todos" : "abrir um portal"} →
+                        </Link>
+                      </>
+                    ) : (
                       <Link
-                        key={p.slug}
-                        href={`/transparencia/${p.slug}`}
+                        href="/raio-x"
                         className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3 transition"
                       >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
-                          style={{ background: "var(--accent)" }}
-                        />
-                        {p.municipio} · {p.estado}
+                        Ver o Raio-X do seu município →
                       </Link>
-                    ))}
-                    <Link
-                      href="/transparencia"
-                      className="text-sm font-semibold text-muted hover:text-foreground transition"
-                    >
-                      {portais.length > 3 ? "ver todos" : "abrir um portal"} →
-                    </Link>
+                    )}
                   </div>
                 </div>
               </Reveal>
 
               <Reveal delay={120}>
                 <ul className="flex flex-col">
-                  {AUTORIDADE.map((a) => (
+                  {autoridadeVerificavel(Boolean(portalVitrine)).map((a) => (
                     <li
                       key={a.titulo}
                       className="flex gap-3.5 py-4 border-b border-border last:border-b-0 first:pt-0"

@@ -4,6 +4,8 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { PRECO_MENSAL, PORTES } from "@/lib/precos";
+import { formatarMoeda } from "@/lib/formatadores";
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
@@ -62,12 +64,38 @@ export default function PrecosPage() {
                   </div>
                   <p className="font-semibold text-sm">{p.nome}</p>
                   <p className="text-sm text-muted mt-1.5 leading-relaxed">{p.descricao}</p>
-                  <Link
-                    href={`/suporte?modulo=${encodeURIComponent(p.nome)}`}
-                    className="inline-block text-xs font-semibold text-brand hover:underline mt-3"
-                  >
-                    Sob consulta — pedir proposta →
-                  </Link>
+
+                  {/* Aqui dizia "Sob consulta — pedir proposta" em TODOS os
+                      módulos, enquanto a calculadora da home mostrava os
+                      valores. A página de preços era a única do site sem
+                      preço — e contradizia frontalmente o argumento central,
+                      que é "a conta está aberta, sem reunião com comercial".
+
+                      Os números saem da mesma tabela que alimenta a
+                      calculadora, então não há como as duas divergirem de
+                      novo. Onde o preço ainda não existe, o rótulo continua
+                      "sob consulta", que é honesto — mas hoje não é o caso de
+                      nenhum módulo. */}
+                  <dl className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-2 text-center">
+                    {PORTES.map((porte) => {
+                      const valor = PRECO_MENSAL[p.chave][porte.chave];
+                      return (
+                        <div key={porte.chave}>
+                          <dt className="text-[11px] text-muted leading-tight">{porte.rotulo}</dt>
+                          <dd className="font-serif text-base font-bold tabular-nums mt-0.5">
+                            {valor === null ? (
+                              <span className="text-xs font-sans font-medium text-muted">
+                                sob consulta
+                              </span>
+                            ) : (
+                              formatarMoeda(valor)
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                  <p className="text-[11px] text-muted mt-2 text-center">por mês</p>
                 </div>
               </Reveal>
             );
@@ -76,11 +104,12 @@ export default function PrecosPage() {
 
         <Reveal>
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center">
-            <p className="text-sm font-semibold">O valor de cada módulo varia pelo porte do município.</p>
+            <p className="text-sm font-semibold">Some só os módulos que a prefeitura vai usar.</p>
             <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-lg mx-auto">
-              Contratação em prefeitura passa por proposta, processo e empenho —
-              não por cartão. Fale com a gente e o valor dos módulos vem junto do
-              termo de referência.
+              A calculadora da página inicial fecha o total anual e diz se ele
+              cabe na dispensa por valor. Contratação em prefeitura passa por
+              proposta, processo e empenho — não por cartão —, e o valor vai
+              junto do termo de referência.
             </p>
             {/* A ação cheia era "Criar conta grátis", que leva a uma conta sem
                 módulo nenhum e a um checkout ainda não configurado. Quem fecha
