@@ -22,13 +22,12 @@ import {
   IconObras,
   IconLicitacoes,
   IconDownload,
-  IconHistorico,
 } from "@/components/icons";
 
 // ── A ORDEM DA PÁGINA ──
 //
 // O que é → o que faz → por que não a incumbente → quanto custa → dá para
-// conferir → o que o cidadão ganha → como sai do papel → antes de assinar.
+// conferir → como sai do papel → antes de assinar.
 //
 // O detalhe dos módulos ficava na nona seção, DEPOIS do preço. Quem chegava
 // sem saber o que é o CidadeIA — um vereador, um assessor, alguém que não é o
@@ -52,6 +51,14 @@ import {
 // "Diagnóstico — lembrete" repetia a oferta que ABRE a página, e o argumento
 // de honestidade que ela carregava já vive na lista de provas verificáveis.
 // Saiu inteira.
+//
+// "Para o cidadão" era uma seção com título grande, três cartões de direitos e
+// botão próprio, no meio do funil comercial. O morador precisava atravessar
+// hero de risco fiscal, módulos, tabela comparativa e calculadora de preço
+// para achar o que é dele — e dois públicos disputavam a mesma rolagem, sem
+// caminho claro para nenhum. O conteúdo mudou para /transparencia, que é a
+// página que ele de fato abre; aqui ficou uma faixa de duas linhas, porque
+// quem COMPRA também precisa saber que existe o outro lado.
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
   essencial: IconAlertas,
@@ -112,35 +119,6 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
   ];
 }
 
-// O que o morador pode fazer, com a lei que garante cada coisa.
-//
-// A lei aparece de propósito: para o prefeito ela é conformidade a cumprir,
-// para o cidadão é o direito que ele tem. Mesmo artigo, leitura oposta — e
-// citá-lo aqui muda o tom de "serviço que a prefeitura oferece" para "coisa
-// que já é sua".
-const DIREITOS_CIDADAO = [
-  {
-    icone: IconVisaoGeral,
-    titulo: "Ver para onde vai o dinheiro",
-    texto:
-      "Receita, despesa, obras em andamento e licitações do seu município, numa página que abre sem cadastro.",
-    lei: "Lei 12.527/2011 · art. 8º",
-  },
-  {
-    icone: IconHistorico,
-    titulo: "Acompanhar seu pedido pelo número",
-    texto:
-      "Abriu um protocolo? Recebe número e chave na hora e acompanha o andamento sozinho, sem ligar para a prefeitura.",
-    lei: "Lei 13.460/2017 · art. 10, VI",
-  },
-  {
-    icone: IconAlertas,
-    titulo: "Denunciar sem dizer quem você é",
-    texto:
-      "A ouvidoria aceita manifestação anônima, e o protocolo é aleatório — ninguém consegue descobrir quantas denúncias existem nem chegar às vizinhas.",
-    lei: "Lei 13.460/2017 · art. 10",
-  },
-];
 
 // A comparação é o argumento mais forte da página: o visitante sente o que
 // perde ao escolher a alternativa. Cada linha é verificável.
@@ -905,101 +883,44 @@ export default async function LandingPage() {
         </section>
 
 
-        {/* ═══ PARA O CIDADÃO ═══
-            A página inteira fala com quem compra. Só que o produto tem um
-            segundo público que não decide nada e usa mais: o morador que abre
-            o portal para consultar um protocolo ou registrar uma denúncia.
+        {/* ═══ A PORTA DO CIDADÃO ═══
+            Era uma SEÇÃO INTEIRA, com título grande, três cartões de direitos
+            e botão próprio. Duas coisas erradas nisso.
 
-            Ele chegava aqui e não encontrava porta — o único caminho era um
-            link pequeno na barra utilitária do topo. Esta seção existe para
-            ele, e por isso muda de tom: não vende, não cita preço e não pede
-            cadastro. Só diz o que dá para fazer e abre a porta.
+            A primeira: o morador não deveria precisar atravessar hero de risco
+            fiscal, módulos, tabela comparativa e calculadora de preço para
+            achar o que é dele. O conteúdo mudou para /transparencia, que é a
+            página que ele de fato abre — os três direitos, com a lei ao lado,
+            agora aparecem ANTES da lista de municípios.
 
-            Fica DEPOIS da prova de propósito. Quem está avaliando a compra
-            acabou de ver os canais funcionando; ver a quem eles servem, em
-            seguida, reforça o argumento em vez de interromper. */}
+            A segunda: dois públicos disputavam a mesma rolagem. O secretário
+            de fazenda e o morador liam a mesma página, e nenhum dos dois tinha
+            caminho claro. Separar deu a cada um o seu.
+
+            Sobra aqui esta faixa, e ela tem trabalho: quem compra precisa
+            saber que existe o outro lado — é metade do argumento de
+            conformidade. Uma faixa diz isso em duas linhas; uma seção gastava
+            uma tela inteira para dizer o mesmo. */}
         <section className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-center">
-              <Reveal>
-                <div>
-                  <Olho>Para o cidadão</Olho>
-                  <h2 className="font-serif text-3xl sm:text-[2.6rem] font-extrabold tracking-[-0.035em] leading-[1.05] mt-5 max-w-[18ch]">
-                    Você mora numa cidade que usa o CidadeIA?
-                  </h2>
-                  <p className="text-muted leading-relaxed mt-5 max-w-[50ch]">
-                    Então três coisas são suas por direito, e nenhuma delas
-                    depende de pedir favor a ninguém: ver para onde vai o
-                    dinheiro, acompanhar um pedido pelo número, e denunciar sem
-                    dizer quem você é.
-                  </p>
-
-                  {/* Este botão era CHEIO, o mesmo peso visual da ação que
-                      converte a venda — e apontava para o funil do cidadão.
-                      Dois destinos opostos disputando o olho do prefeito na
-                      mesma rolagem, e ele decide em meio segundo.
-
-                      Sobram duas ações cheias na página inteira, e elas não
-                      competem: diagnóstico no topo (qualifica) e proposta no
-                      fecho (converte). Todo o resto é contornado ou texto.
-
-                      O texto também mudou: dizia "Abrir o portal da minha
-                      cidade", que promete um portal existente. A página de
-                      destino é um índice — quando o município não está lá, ela
-                      diz isso. "Procurar" descreve o que de fato acontece. */}
-                  <div className="flex flex-wrap items-center gap-3 mt-8">
-                    <Link
-                      href="/transparencia"
-                      className="border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-6 py-3.5 transition"
-                    >
-                      Procurar a minha cidade&nbsp;&nbsp;→
-                    </Link>
-                    {portalVitrine && (
-                      <Link
-                        href={`/transparencia/${portalVitrine.slug}`}
-                        className="inline-flex items-center gap-2.5 text-sm font-semibold text-muted hover:text-foreground transition"
-                      >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
-                          style={{ background: "var(--accent)" }}
-                        />
-                        Ver um exemplo: {portalVitrine.municipio}
-                      </Link>
-                    )}
-                  </div>
-
-                  <p className="text-xs text-muted mt-5">
-                    Sem cadastro · sem login · sem instalar aplicativo
-                  </p>
-                </div>
-              </Reveal>
-
-              <div className="flex flex-col gap-3">
-                {DIREITOS_CIDADAO.map((d, i) => {
-                  const Icone = d.icone;
-                  return (
-                    <Reveal key={d.titulo} delay={i * 80}>
-                      <div
-                        className="flex gap-4 rounded-2xl border border-border p-5 sm:p-6"
-                        style={{ background: "var(--card)" }}
-                      >
-                        <span
-                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
-                          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
-                        >
-                          <Icone className="w-5 h-5" />
-                        </span>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold leading-snug">{d.titulo}</h3>
-                          <p className="text-sm text-muted mt-1.5 leading-relaxed">{d.texto}</p>
-                          <p className="text-xs font-mono text-muted mt-2.5">{d.lei}</p>
-                        </div>
-                      </div>
-                    </Reveal>
-                  );
-                })}
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
+            <Reveal>
+              <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4">
+                <p className="text-sm text-muted leading-relaxed max-w-[62ch]">
+                  <span className="text-foreground font-semibold">
+                    O morador tem entrada própria.
+                  </span>{" "}
+                  Ver para onde vai o dinheiro, acompanhar um pedido pelo número
+                  e denunciar sem se identificar — sem cadastro, sem login e sem
+                  passar por esta página de vendas.
+                </p>
+                <Link
+                  href="/transparencia"
+                  className="shrink-0 text-sm font-semibold text-muted hover:text-brand-claro transition"
+                >
+                  Portal do cidadão&nbsp;&nbsp;→
+                </Link>
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
