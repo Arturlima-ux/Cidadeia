@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { PRECO_MENSAL, PORTES } from "@/lib/precos";
 import { PLANOS_ADDON } from "@/lib/planos";
 
@@ -36,6 +36,17 @@ function semComentarios(codigo: string): string {
     .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "") // {/* comentário em JSX */}
     .replace(/\/\*[\s\S]*?\*\//g, "") // /* bloco */
     .replace(/^\s*\/\/.*$/gm, ""); // // linha
+}
+
+/** Todo .ts/.tsx sob um diretório, recursivamente. */
+function varrerFontes(dir: string): string[] {
+  const achados: string[] = [];
+  for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+    const caminho = `${dir}/${entrada.name}`;
+    if (entrada.isDirectory()) achados.push(...varrerFontes(caminho));
+    else if (/\.tsx?$/.test(entrada.name)) achados.push(caminho);
+  }
+  return achados;
 }
 
 const home = semComentarios(readFileSync("src/app/page.tsx", "utf8"));
@@ -156,10 +167,22 @@ describe("hierarquia de chamada para ação", () => {
     }
   });
 
-  it("não promete conversa, que é o que a página acusa a concorrência de exigir", () => {
-    // "Falar com especialista" no botão mais visível contradiz o argumento
-    // central: preço aberto, sem reunião antes.
-    expect(barra).not.toContain("Falar com especialista");
-    expect(home).not.toContain("Falar com especialista");
+  it("nenhum arquivo do site promete conversa antes do preço", () => {
+    // ── POR QUE ISTO VARRE O PROJETO INTEIRO ──
+    //
+    // A primeira versão conferia só a home e a barra fixa, e passou verde
+    // enquanto "Falar com especialista" continuava no BOTÃO DO CABEÇALHO —
+    // que aparece em todas as páginas e é o mais visível do site. O
+    // comentário ao lado daquele botão já dizia que ele não podia
+    // contradizer o argumento central; o texto contradizia mesmo assim.
+    //
+    // Um teste que confere só onde você lembrou de olhar dá a sensação de
+    // cobertura sem a cobertura. A frase é proibida no site inteiro: ela é
+    // exatamente a exigência que a home acusa as incumbentes de fazer.
+    const arquivos = varrerFontes("src");
+    const culpados = arquivos.filter((a) =>
+      semComentarios(readFileSync(a, "utf8")).includes("Falar com especialista")
+    );
+    expect(culpados).toEqual([]);
   });
 });

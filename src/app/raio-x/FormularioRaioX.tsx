@@ -207,7 +207,7 @@ function Resultado({ raioX }: { raioX: RaioX }) {
             href="/suporte?assunto=proposta"
             className="text-sm font-semibold text-muted hover:text-foreground transition"
           >
-            Falar com especialista
+            Receber proposta
           </Link>
         </div>
       </div>

@@ -94,11 +94,15 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 como exemplo do que as incumbentes fazem para esconder preço.
                 O botão mais visível do site não pode contradizer o argumento
                 central da página que ele encabeça. */}
+            {/* O comentário acima já dizia isto e o texto contradizia mesmo
+                assim: "Falar com especialista" é exatamente a exigência que a
+                home acusa as incumbentes de fazer, no botão que aparece em
+                TODAS as páginas. Mesmo destino do fecho, mesmas palavras. */}
             <Link
               href="/suporte?assunto=proposta"
               className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
             >
-              Falar com especialista
+              Receber proposta
             </Link>
           </div>
         </div>
