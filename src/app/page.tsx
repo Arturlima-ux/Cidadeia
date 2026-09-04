@@ -27,13 +27,31 @@ import {
 
 // ── A ORDEM DA PÁGINA ──
 //
-// O que é → o que faz → por que não a incumbente → quanto custa → funciona
-// mesmo → quem está do outro lado → como se contrata → a lei está atendida.
+// O que é → o que faz → por que não a incumbente → quanto custa → dá para
+// conferir → o que o cidadão ganha → como sai do papel → antes de assinar.
 //
 // O detalhe dos módulos ficava na nona seção, DEPOIS do preço. Quem chegava
 // sem saber o que é o CidadeIA — um vereador, um assessor, alguém que não é o
 // jurídico — via o valor antes de entender o que estava comprando, e a página
 // só fazia sentido para quem já sabia. Agora o produto vem antes da conta.
+//
+// ── POR QUE 11 BLOCOS, E NÃO 15 ──
+//
+// A página cresceu por acréscimo, e três histórias tinham chegado partidas:
+//
+// "Kit de contratação", "Como contratar" e "Implantação" eram seções seguidas
+// contando pedaços da MESMA resposta — como isso sai do papel. Viraram uma só,
+// em três bandas na ordem em que acontece: decidir o caminho, montar o
+// processo, entrar no ar.
+//
+// "Objeções" e "Conformidade" serviam o mesmo leitor, o que confere antes de
+// assinar, e estavam separadas por uma terceira seção no meio. "E a LGPD?" é a
+// versão informal de uma linha da tabela de conformidade; responder nos dois
+// lugares, longe um do outro, fazia a página parecer desorganizada.
+//
+// "Diagnóstico — lembrete" repetia a oferta que ABRE a página, e o argumento
+// de honestidade que ela carregava já vive na lista de provas verificáveis.
+// Saiu inteira.
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
   essencial: IconAlertas,
@@ -972,157 +990,31 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ═══ DIAGNÓSTICO — lembrete ═══
-            Era uma seção inteira, com um cartão que repetia quase palavra por
-            palavra o do herói. Agora que a oferta do diagnóstico ABRE a
-            página, aqui basta a porta: quem desceu até o preço e não converteu
-            ainda tem para onde ir. */}
-        <section className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
-            <Reveal>
-              <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-6">
-                <div>
-                  <Olho>Diagnóstico gratuito</Olho>
-                  <h2 className="font-serif text-2xl sm:text-[2rem] font-extrabold tracking-[-0.035em] leading-[1.1] mt-4 max-w-[22ch]">
-                    Ainda em dúvida? Comece descobrindo o que já falta.
-                  </h2>
-                  <p className="text-sm text-muted leading-relaxed mt-3 max-w-[58ch]">
-                    {EXIGENCIAS.length} exigências, dois minutos, sem cadastro —
-                    inclusive as {naoResolvemos.length} que continuam com a
-                    prefeitura mesmo contratando o CidadeIA. Um diagnóstico em
-                    que tudo por acaso é resolvido por quem o publicou não é
-                    diagnóstico, é proposta comercial disfarçada.
-                  </p>
-                </div>
-                {/* Contornado, não cheio: é o MESMO destino do botão do herói.
-                    Repetir o botão cheio faz a página parecer ter dois começos
-                    e apaga a hierarquia — sobram só três ações principais na
-                    home, cada uma com um trabalho distinto. */}
-                <Link
-                  href="/diagnostico"
-                  className="shrink-0 border border-border font-semibold text-sm rounded-xl px-7 py-4 transition hover:border-brand hover:text-brand-claro"
-                >
-                  Fazer o diagnóstico&nbsp;&nbsp;→
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+        {/* ═══ DO INTERESSE AO PORTAL NO AR ═══
+            Eram TRÊS seções seguidas contando um pedaço da mesma história:
+            "Kit de contratação" (o processo vai pronto), "Como contratar" (o
+            caminho legal) e "Implantação" (o que acontece depois de assinar).
+            Separadas, cada uma parecia um assunto novo, e o leitor precisava
+            remontar sozinho a sequência — sem nunca ver que ela existe.
 
-
-        {/* ═══ KIT ═══ */}
-        <section id="kit" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <div className="grid lg:grid-cols-[380px_1fr] gap-10 lg:gap-14 items-center">
-            <Reveal>
-              <div>
-                <Olho>Kit de contratação</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[16ch]">
-                  O jurídico só confere. Não redige.
-                </h2>
-                <p className="text-muted leading-relaxed mt-5">
-                  O que trava a assinatura quase nunca é a decisão — é o servidor
-                  que precisa montar o processo do zero. Baixe sem cadastro, leve
-                  para a reunião, volte se fizer sentido.
-                </p>
-                {/* Também contornado: o kit é apoio ao processo, não o passo
-                    do funil. O fecho da página é que carrega a ação de
-                    converter, e ele já entrega o kit junto da proposta. */}
-                <Link
-                  href="/kit"
-                  className="inline-block mt-6 border border-border font-semibold text-sm rounded-xl px-6 py-3.5 transition hover:border-brand hover:text-brand-claro"
-                >
-                  Abrir o kit completo
-                </Link>
-              </div>
-            </Reveal>
-
-            <div className="grid sm:grid-cols-2 gap-3">
-              {kitBaixavel.map((d, i) => (
-                <Reveal key={d.chave} delay={i * 60}>
-                  <Link
-                    href={`/kit#${d.chave}`}
-                    className="h-full flex items-center gap-4 rounded-2xl border border-border p-5 card-interactive hover:border-brand transition"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <span
-                      className="w-10 h-10 arco-card-sm flex items-center justify-center shrink-0"
-                      style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
-                    >
-                      <IconDownload className="w-[18px] h-[18px]" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-semibold text-sm">{d.nome}</span>
-                      <span className="block text-xs text-muted mt-0.5 leading-relaxed">
-                        {d.subtitulo}
-                      </span>
-                    </span>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══ OBJEÇÕES ═══ */}
-        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <Reveal>
-              <div className="text-center flex flex-col items-center gap-4 mb-10">
-                <Olho centrado>Antes de assinar</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02]">
-                  As perguntas que sempre voltam.
-                </h2>
-                <p className="text-muted leading-relaxed max-w-[52ch]">
-                  Respondidas aqui, por escrito, para você não precisar de uma
-                  reunião só para ouvir isso.
-                </p>
-              </div>
-            </Reveal>
-            {/* Eram seis cartões abertos numa grade, ocupando uma tela inteira
-                de respostas que a maioria não estava procurando. Objeção é
-                assim: cada leitor tem uma ou duas, não as seis — e quem não
-                tem nenhuma só precisa passar por cima.
-
-                Fechadas, a seção cabe em meia tela e as perguntas viram um
-                índice varrível. Quem tem a dúvida abre a dela; quem não tem
-                rola direto. O conteúdo continua inteiro na página, inclusive
-                para busca do navegador, porque <details> não esconde do Ctrl+F
-                nem do leitor de tela. */}
-            <div className="max-w-3xl mx-auto border-t border-border">
-              {OBJECOES.map((o) => (
-                <details
-                  key={o.pergunta}
-                  className="group border-b border-border"
-                >
-                  <summary className="flex items-center justify-between gap-4 py-4 cursor-pointer list-none font-semibold text-sm sm:text-base hover:text-brand-claro transition">
-                    {o.pergunta}
-                    <span
-                      aria-hidden
-                      className="shrink-0 text-lg leading-none transition-transform group-open:rotate-45"
-                      style={{ color: "var(--muted)" }}
-                    >
-                      +
-                    </span>
-                  </summary>
-                  <p className="text-sm text-muted leading-relaxed pb-5 pr-8 -mt-1">
-                    {o.resposta}
-                  </p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══ COMO CONTRATAR ═══ */}
+            Juntas, viram uma resposta só para a pergunta que o gestor de fato
+            faz: como isso sai do papel. Três bandas na ordem em que acontece:
+            decidir o caminho, montar o processo, entrar no ar. */}
         <section id="como-contratar" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <Reveal>
             <div className="max-w-2xl">
-              <Olho>Como contratar</Olho>
+              <Olho>Como sai do papel</Olho>
               <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
                 Três caminhos legais. Nenhum processo inventado.
               </h2>
+              <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
+                O que trava a assinatura quase nunca é a decisão — é o servidor
+                que precisa montar o processo do zero.
+              </p>
             </div>
           </Reveal>
+
+          {/* ── 1. o caminho ── */}
           <div className="grid md:grid-cols-3 gap-4 mt-10">
             {CAMINHOS.map((c, i) => {
               const destaque = c.chave === "dispensa";
@@ -1156,22 +1048,111 @@ export default async function LandingPage() {
               );
             })}
           </div>
-        </section>
 
-        {/* ═══ CONFORMIDADE ═══ */}
+          {/* ── 2. o processo, pronto ── */}
+          <div id="kit" className="mt-16 pt-12 border-t border-border">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4 mb-8">
+                <div>
+                  <p className="font-serif text-2xl font-extrabold tracking-[-0.03em]">
+                    O jurídico só confere. Não redige.
+                  </p>
+                  <p className="text-sm text-muted leading-relaxed mt-2 max-w-[52ch]">
+                    Baixe sem cadastro, leve para a reunião, volte se fizer
+                    sentido.
+                  </p>
+                </div>
+                {/* Contornado: o kit é apoio ao processo, não o passo do funil.
+                    O fecho da página carrega a ação de converter, e já entrega
+                    o kit junto da proposta. */}
+                <Link
+                  href="/kit"
+                  className="shrink-0 text-sm font-semibold text-muted hover:text-brand-claro transition"
+                >
+                  Abrir o kit completo&nbsp;&nbsp;→
+                </Link>
+              </div>
+            </Reveal>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {kitBaixavel.map((d, i) => (
+                <Reveal key={d.chave} delay={i * 60}>
+                  <Link
+                    href={`/kit#${d.chave}`}
+                    className="h-full flex items-center gap-3.5 rounded-2xl border border-border p-4 card-interactive hover:border-brand transition"
+                    style={{ background: "var(--card)" }}
+                  >
+                    <span
+                      className="w-9 h-9 arco-card-sm flex items-center justify-center shrink-0"
+                      style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
+                    >
+                      <IconDownload className="w-4 h-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-semibold text-sm leading-tight">{d.nome}</span>
+                      <span className="block text-xs text-muted mt-1 leading-relaxed">
+                        {d.subtitulo}
+                      </span>
+                    </span>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+
+          {/* ── 3. depois da assinatura ── */}
+          <div className="mt-16 pt-12 border-t border-border">
+            <Reveal>
+              <div className="mb-8">
+                <p className="font-serif text-2xl font-extrabold tracking-[-0.03em]">
+                  Da assinatura ao portal no ar.
+                </p>
+                <p className="text-sm text-muted leading-relaxed mt-2 max-w-[52ch]">
+                  Sem licitação de infraestrutura, sem servidor na prefeitura e
+                  sem equipe de tecnologia dedicada.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {IMPLANTACAO.map((p, i) => (
+                <Reveal key={p.n} delay={i * 90}>
+                  <div
+                    className="h-full border rounded-2xl p-6 flex flex-col gap-3"
+                    style={{
+                      background: p.fim ? "var(--accent-tint)" : "var(--card)",
+                      borderColor: p.fim ? "var(--info-borda)" : "var(--border)",
+                    }}
+                  >
+                    <span
+                      className="font-serif text-sm font-extrabold tracking-widest"
+                      style={{ color: p.fim ? "var(--accent-claro)" : "var(--brand-claro)" }}
+                    >
+                      {p.n}
+                    </span>
+                    <h3 className="font-semibold text-sm">{p.titulo}</h3>
+                    <p className="text-sm text-muted leading-relaxed">{p.texto}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+        {/* ═══ ANTES DE ASSINAR ═══ */}
         <section id="conformidade" className="border-y border-border" style={{ background: "var(--superficie)" }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
             <Reveal>
               <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
                 <div>
-                  <Olho>Conformidade legal</Olho>
+                  <Olho>Antes de assinar</Olho>
                   <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
-                    O que a lei exige, e o que o sistema entrega.
+                    O que a lei exige, e o que sempre perguntam.
                   </h2>
                 </div>
                 <p className="text-sm text-muted leading-relaxed max-w-xs">
-                  A seção que o setor jurídico da prefeitura abre antes de
-                  aprovar a contratação.
+                  A parte que o setor jurídico abre antes de aprovar a
+                  contratação — com as dúvidas que voltam em toda reunião logo
+                  abaixo.
                 </p>
               </div>
             </Reveal>
@@ -1214,45 +1195,47 @@ export default async function LandingPage() {
                 ))}
               </div>
             </Reveal>
-          </div>
-        </section>
 
-        {/* ═══ IMPLANTAÇÃO ═══ */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <Reveal>
-            <div className="max-w-2xl">
-              <Olho>Implantação</Olho>
-              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
-                Da assinatura ao portal no ar.
-              </h2>
-              <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
-                Sem licitação de infraestrutura, sem servidor na prefeitura e sem
-                equipe de tecnologia dedicada.
-              </p>
-            </div>
-          </Reveal>
+            {/* ── as objeções, que eram seção própria ──
+                Estavam separadas desta tabela por uma terceira seção no meio,
+                e serviam exatamente o mesmo leitor: quem está conferindo antes
+                de assinar. Uma pergunta como "e a LGPD?" é a versão informal
+                de uma linha da tabela acima — separá-las fazia a página
+                responder duas vezes, longe uma da outra.
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
-            {IMPLANTACAO.map((p, i) => (
-              <Reveal key={p.n} delay={i * 90}>
-                <div
-                  className="h-full border rounded-2xl p-6 flex flex-col gap-3"
-                  style={{
-                    background: p.fim ? "var(--accent-tint)" : "var(--card)",
-                    borderColor: p.fim ? "var(--info-borda)" : "var(--border)",
-                  }}
-                >
-                  <span
-                    className="font-serif text-sm font-extrabold tracking-widest"
-                    style={{ color: p.fim ? "var(--accent-claro)" : "var(--brand-claro)" }}
-                  >
-                    {p.n}
-                  </span>
-                  <h3 className="font-semibold text-sm">{p.titulo}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{p.texto}</p>
+                Continuam fechadas. Cada leitor tem uma ou duas dúvidas, não as
+                seis, e `details` não esconde o texto do Ctrl+F nem do leitor
+                de tela. */}
+            <Reveal>
+              <div className="max-w-3xl mx-auto mt-12 pt-10 border-t border-border">
+                <p className="text-sm font-semibold mb-1">
+                  As perguntas que sempre voltam
+                </p>
+                <p className="text-sm text-muted leading-relaxed mb-5">
+                  Respondidas por escrito, para você não precisar de uma reunião
+                  só para ouvir isso.
+                </p>
+                <div className="border-t border-border">
+                  {OBJECOES.map((o) => (
+                    <details key={o.pergunta} className="group border-b border-border">
+                      <summary className="flex items-center justify-between gap-4 py-4 cursor-pointer list-none font-semibold text-sm sm:text-base hover:text-brand-claro transition">
+                        {o.pergunta}
+                        <span
+                          aria-hidden
+                          className="shrink-0 text-lg leading-none transition-transform group-open:rotate-45"
+                          style={{ color: "var(--muted)" }}
+                        >
+                          +
+                        </span>
+                      </summary>
+                      <p className="text-sm text-muted leading-relaxed pb-5 pr-8 -mt-1">
+                        {o.resposta}
+                      </p>
+                    </details>
+                  ))}
                 </div>
-              </Reveal>
-            ))}
+              </div>
+            </Reveal>
           </div>
         </section>
 
