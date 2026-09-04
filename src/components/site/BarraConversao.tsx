@@ -82,11 +82,19 @@ export default function BarraConversao() {
             >
               Portal do cidadão
             </Link>
+            {/* Dizia "Falar com especialista" — a mesma exigência que a página
+                inteira acusa a concorrência de fazer, no botão que passa mais
+                tempo na tela. O destino sempre foi o mesmo do fecho; só a
+                promessa era outra, e a errada.
+
+                Agora as duas ações cheias dizem a mesma coisa porque levam ao
+                mesmo lugar. Promessa diferente para o mesmo destino faz o
+                visitante achar que são caminhos distintos e hesitar entre eles. */}
             <Link
               href="/suporte?assunto=proposta"
               className="text-sm font-bold text-white bg-brand hover:bg-brand-dark rounded-xl px-5 py-2.5 transition shadow-elevated"
             >
-              Falar com especialista
+              Receber proposta
             </Link>
           </div>
         </div>
@@ -102,11 +110,15 @@ export default function BarraConversao() {
         <span className="text-xs text-muted leading-tight flex-1">
           Proposta com valor, kit e base legal — no mesmo e-mail.
         </span>
+        {/* "Falar" era o resto de quando o botão do desktop dizia "Falar com
+            especialista". Sozinho ele promete conversa, que é justamente o que
+            a página diz não ser necessário. Mesmo destino, mesma palavra dos
+            outros dois. */}
         <Link
           href="/suporte?assunto=proposta"
           className="shrink-0 text-sm font-bold text-white bg-brand rounded-xl px-4 py-2.5"
         >
-          Falar
+          Proposta
         </Link>
       </div>
     </>

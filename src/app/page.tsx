@@ -934,12 +934,25 @@ export default async function LandingPage() {
                     dizer quem você é.
                   </p>
 
+                  {/* Este botão era CHEIO, o mesmo peso visual da ação que
+                      converte a venda — e apontava para o funil do cidadão.
+                      Dois destinos opostos disputando o olho do prefeito na
+                      mesma rolagem, e ele decide em meio segundo.
+
+                      Sobram duas ações cheias na página inteira, e elas não
+                      competem: diagnóstico no topo (qualifica) e proposta no
+                      fecho (converte). Todo o resto é contornado ou texto.
+
+                      O texto também mudou: dizia "Abrir o portal da minha
+                      cidade", que promete um portal existente. A página de
+                      destino é um índice — quando o município não está lá, ela
+                      diz isso. "Procurar" descreve o que de fato acontece. */}
                   <div className="flex flex-wrap items-center gap-3 mt-8">
                     <Link
                       href="/transparencia"
-                      className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                      className="border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-6 py-3.5 transition"
                     >
-                      Abrir o portal da minha cidade&nbsp;&nbsp;→
+                      Procurar a minha cidade&nbsp;&nbsp;→
                     </Link>
                     {portalVitrine && (
                       <Link
