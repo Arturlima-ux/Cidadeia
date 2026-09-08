@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 
 const CONTATO_EMAIL = "arturmlo2005@gmail.com";
 
@@ -31,10 +30,19 @@ const ASSUNTOS: Record<string, { assunto: string; nota: string }> = {
 
 const PADRAO = "Contato via site CidadeIA";
 
-export default function ContatoEmail() {
-  const searchParams = useSearchParams();
-  const modulo = searchParams.get("modulo");
-  const chave = searchParams.get("assunto");
+// `modulo` e `assunto` chegam por propriedade, do servidor.
+//
+// Liam a URL com useSearchParams, e isso fazia o Next desistir de
+// pré-renderizar /suporte: o HTML saía sem o bloco de contato, que só existia
+// depois do JavaScript rodar. Ver o comentário em app/login/page.tsx — mesmo
+// defeito, mesma origem.
+export default function ContatoEmail({
+  modulo,
+  chave,
+}: {
+  modulo?: string | null;
+  chave?: string | null;
+}) {
 
   // Módulo continua tendo precedência: veio de um card específico de preço.
   const escolhido = modulo ? null : chave ? ASSUNTOS[chave] : null;

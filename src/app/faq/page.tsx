@@ -14,9 +14,22 @@ const PERGUNTAS = [
       "Não. O CidadeIA foi feito pra ser usado direto pelo prefeito, secretários e responsáveis, sem precisar de conhecimento técnico. É só criar a conta e começar a registrar os dados da sua gestão.",
   },
   {
+    // A resposta dizia "criar a conta é gratuito e sem cartão — você já entra
+    // no painel e vê como o sistema é organizado". Meia verdade, e a metade
+    // que falta é a que decepciona: a conta é criada mesmo, mas nasce SEM
+    // módulo nenhum. O que ela abre é um painel com "Nenhum módulo contratado"
+    // e as telas bloqueadas — o oposto de ver como o sistema é organizado.
+    //
+    // Além disso o único caminho para o cadastro é a tela de login. Quem lê
+    // esta resposta e procura um botão "criar conta" não acha, o que faz a
+    // promessa parecer descuido antes mesmo de ser testada.
+    //
+    // Agora a resposta descreve o que acontece de verdade, e o Raio-X entra no
+    // lugar do teste que não existe: ele mostra o produto trabalhando sobre
+    // dado real do município de quem pergunta, sem cadastro nenhum.
     pergunta: "Posso testar antes de contratar algum módulo?",
     resposta:
-      "Criar a conta é gratuito e sem cartão — você já entra no painel e vê como o sistema é organizado. Os módulos (Essencial, Saúde, Educação, Obras, Licitações e Gestão) são contratados separadamente; fale com a gente para combinar um período de avaliação do que sua prefeitura quer testar.",
+      "Dá para ver o produto trabalhando sem criar nada: o Raio-X lê os dados que a União já publica sobre a sua prefeitura e responde na hora, sem cadastro. Conta você também pode abrir de graça e sem cartão, em /cadastro — mas ela nasce sem módulo ativo, então serve para reservar o acesso, não para conhecer o sistema. Os módulos (Essencial, Gestão, Saúde, Educação, Obras e Licitações) são liberados junto com a proposta, e é nessa conversa que se combina o período de avaliação.",
   },
   {
     pergunta: "A IA pode inventar números ou dados que não existem?",

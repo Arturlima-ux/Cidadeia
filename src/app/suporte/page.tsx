@@ -10,7 +10,14 @@ export const metadata = {
   title: "Suporte — CidadeIA",
 };
 
-export default function SuportePage() {
+export default async function SuportePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [chave: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : null);
+
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
@@ -31,7 +38,7 @@ export default function SuportePage() {
 
           <div className="bg-card border border-border rounded-2xl p-6 mt-8 text-left space-y-4">
             <Suspense fallback={null}>
-              <ContatoEmail />
+              <ContatoEmail modulo={texto(params.modulo)} chave={texto(params.assunto)} />
             </Suspense>
             <div className="border-t border-border pt-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-1">
