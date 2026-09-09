@@ -29,7 +29,11 @@ const PERGUNTAS = [
     // dado real do município de quem pergunta, sem cadastro nenhum.
     pergunta: "Posso testar antes de contratar algum módulo?",
     resposta:
-      "Dá para ver o produto trabalhando sem criar nada: o Raio-X lê os dados que a União já publica sobre a sua prefeitura e responde na hora, sem cadastro. Conta você também pode abrir de graça e sem cartão, em /cadastro — mas ela nasce sem módulo ativo, então serve para reservar o acesso, não para conhecer o sistema. Os módulos (Essencial, Gestão, Saúde, Educação, Obras e Licitações) são liberados junto com a proposta, e é nessa conversa que se combina o período de avaliação.",
+      "Dá para ver o produto trabalhando sem criar nada: o Raio-X lê os dados que a União já publica sobre a sua prefeitura e responde na hora, sem cadastro. A conta você também pode abrir de graça e sem cartão — mas ela nasce sem módulo ativo, então serve para reservar o acesso, não para conhecer o sistema. Os módulos (Essencial, Gestão, Saúde, Educação, Obras e Licitações) são liberados junto com a proposta, e é nessa conversa que se combina o período de avaliação.",
+    caminhos: [
+      { href: "/raio-x", rotulo: "Ver o Raio-X da minha prefeitura" },
+      { href: "/cadastro", rotulo: "Criar conta grátis" },
+    ],
   },
   {
     pergunta: "A IA pode inventar números ou dados que não existem?",
@@ -88,6 +92,31 @@ export default function FaqPage() {
                 </span>
               </summary>
               <p className="text-sm text-muted mt-3 leading-relaxed">{p.resposta}</p>
+
+              {/* ── A PORTA, ONDE A PROMESSA É FEITA ──
+                  A resposta sobre testar antes de contratar citava "/cadastro"
+                  como texto puro. Quem lia procurava um botão e não achava: o
+                  único link para o cadastro em todo o site está dentro da tela
+                  de login, e a home leva a "Fazer o diagnóstico" ou "Receber
+                  proposta".
+
+                  Uma resposta que diz "dá para fazer X" e não abre caminho
+                  para X faz o leitor concluir que X não existe. Aqui existe:
+                  são links discretos, que não disputam com as duas ações
+                  principais da página inicial. */}
+              {p.caminhos && (
+                <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 pt-3 border-t border-border">
+                  {p.caminhos.map((c) => (
+                    <Link
+                      key={c.href}
+                      href={c.href}
+                      className="text-sm font-semibold text-brand hover:text-brand-claro transition"
+                    >
+                      {c.rotulo}&nbsp;→
+                    </Link>
+                  ))}
+                </div>
+              )}
             </details>
           </Reveal>
         ))}
