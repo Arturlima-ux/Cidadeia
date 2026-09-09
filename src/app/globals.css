@@ -294,3 +294,41 @@ button:active {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ── REVELAR AO ROLAR, SEM ESCONDER DE QUEM NÃO TEM JAVASCRIPT ──
+   O componente Reveal aplicava `opacity: 0` no próprio elemento, direto no
+   HTML servido, e só devolvia a opacidade quando o IntersectionObserver
+   disparava. Quarenta elementos da home saíam invisíveis — para quem não
+   executa script, a página era uma folha em branco.
+
+   Agora o estado escondido mora aqui e depende de `.com-js`, classe que um
+   script no <head> adiciona. Sem script ela nunca chega, e o conteúdo aparece
+   normalmente; com script a animação é idêntica à de antes.
+
+   `--revelar-deslocamento` vem do elemento, porque a direção varia por bloco.
+   `will-change` só vale enquanto está escondido: mantê-lo depois promove o
+   elemento a uma camada de composição própria para sempre, o que na máquina
+   de um balcão de prefeitura custa memória de vídeo à toa. */
+.revelar {
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.com-js .revelar:not([data-visivel]) {
+  opacity: 0;
+  transform: var(--revelar-deslocamento, translateY(28px));
+  will-change: opacity, transform;
+}
+
+/* Quem pediu menos movimento no sistema não deve esperar animação para ler. */
+@media (prefers-reduced-motion: reduce) {
+  .com-js .revelar:not([data-visivel]) {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  .revelar {
+    transition: none;
+  }
+}

@@ -43,11 +43,26 @@ function obterObservador(): IntersectionObserver {
         }
       }
     },
-    { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+    { rootMargin: "0px 0px -10% 0px" }
   );
 
   return observador;
 }
+
+// ── O ESTADO ESCONDIDO SAIU DAQUI ──
+//
+// Este componente aplicava `opacity: 0` no estilo do próprio elemento, então o
+// HTML servido já saía com o conteúdo invisível — quarenta blocos assim na
+// home. Quem não executa JavaScript recebia uma página em branco: buscador,
+// pré-visualização de link em mensageiro, leitor de texto.
+//
+// Agora quem esconde é o CSS, e só quando a classe `.com-js` existe no
+// documento — ela é posta por um script no <head> (ver app/layout.tsx). Sem
+// script a regra não se aplica e o conteúdo aparece; com script a animação é a
+// mesma de antes, e começa antes da primeira pintura, sem piscar.
+//
+// O atributo `data-visivel` é o interruptor: ausente, o CSS esconde; presente,
+// o elemento volta ao normal e a transição roda.
 
 export default function Reveal({
   children,
@@ -86,20 +101,14 @@ export default function Reveal({
   return (
     <Tag
       ref={ref}
-      className={className}
-      style={{
-        opacity: visivel ? 1 : 0,
-        transform: visivel ? "translate(0, 0)" : DESLOCAMENTO[direcao],
-        transition:
-          "opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
-        transitionDelay: visivel ? `${delay}ms` : "0ms",
-        // `will-change` promove o elemento a uma camada de composição PRÓPRIA e
-        // o mantém lá enquanto a propriedade existir. Antes ficava fixo em
-        // "opacity, transform" — 29 camadas permanentes só na home, consumindo
-        // memória de vídeo e trabalho de composição muito depois de a animação
-        // ter acabado. Agora só vale antes de revelar, que é quando serve.
-        willChange: visivel ? "auto" : "opacity, transform",
-      }}
+      className={`revelar ${className}`}
+      data-visivel={visivel ? "1" : undefined}
+      style={
+        {
+          "--revelar-deslocamento": DESLOCAMENTO[direcao],
+          transitionDelay: visivel ? `${delay}ms` : "0ms",
+        } as React.CSSProperties
+      }
     >
       {children}
     </Tag>
