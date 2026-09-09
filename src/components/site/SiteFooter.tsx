@@ -91,10 +91,15 @@ export default function SiteFooter() {
         <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <span>© {new Date().getFullYear()} CidadeIA. Todos os direitos reservados.</span>
           <div className="flex items-center gap-5">
-            <Link href="/sobre" className="hover:text-white transition">
+            {/* Os dois apontavam para /sobre, que é "Segurança & LGPD" — uma
+                página sobre COMO o dado é protegido, não um documento dizendo
+                o que é coletado, com que base legal e por quanto tempo. Não é
+                a mesma coisa, e é a primeira pasta que o jurídico da
+                prefeitura abre antes de autorizar a contratação. */}
+            <Link href="/privacidade" className="hover:text-white transition">
               Política de privacidade
             </Link>
-            <Link href="/sobre" className="hover:text-white transition">
+            <Link href="/termos" className="hover:text-white transition">
               Termos de uso
             </Link>
           </div>

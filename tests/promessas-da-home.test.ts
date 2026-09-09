@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { PRECO_MENSAL, PORTES } from "@/lib/precos";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { POLITICA_PRIVACIDADE, TERMOS_DE_USO } from "@/lib/documentos-legais";
 
 // ── O QUE A PÁGINA PROMETE PRECISA SER VERDADE ──
 //
@@ -184,5 +185,53 @@ describe("hierarquia de chamada para ação", () => {
       semComentarios(readFileSync(a, "utf8")).includes("Falar com especialista")
     );
     expect(culpados).toEqual([]);
+  });
+});
+
+describe("documentos legais existem de verdade", () => {
+  // O rodapé linkava "Política de privacidade" e "Termos de uso" — os dois
+  // para /sobre, que é "Segurança & LGPD". Aquela página explica COMO o dado é
+  // protegido; não diz o que é coletado, com que base legal, nem por quanto
+  // tempo fica guardado. Não é a mesma coisa.
+  //
+  // Para um produto vendido a prefeitura isso não é detalhe: é a primeira
+  // pasta que o setor jurídico abre antes de autorizar a contratação, e
+  // encontrar uma página técnica no lugar do documento é o tipo de coisa que
+  // trava um processo por semanas.
+
+  const rodape = semComentarios(
+    readFileSync("src/components/site/SiteFooter.tsx", "utf8")
+  );
+
+  it("o rodapé aponta para páginas que existem", () => {
+    for (const rota of ["/privacidade", "/termos"]) {
+      expect(rodape, rota).toContain(`href="${rota}"`);
+      expect(() => readFileSync(`src/app${rota}/page.tsx`, "utf8")).not.toThrow();
+    }
+  });
+
+  it("nenhum dos dois aponta para a página de segurança", () => {
+    // Guarda contra a volta do atalho: /sobre continua existindo e continua
+    // linkada, mas como complemento, não como substituta.
+    const trecho = rodape.slice(rodape.indexOf("Política de privacidade") - 300);
+    expect(trecho.slice(0, 600)).not.toContain('href="/sobre"');
+  });
+
+  it("a política distingue controlador de operador", () => {
+    // É a distinção que decide quem responde por dado de cidadão que está no
+    // sistema. Trocá-la é o erro que faria o CidadeIA assumir obrigação do
+    // município — ou o contrário, deixar o cidadão sem a quem recorrer.
+    const politica = POLITICA_PRIVACIDADE.map((s) => s.paragrafos.join(" ")).join(" ");
+    expect(politica).toContain("controlador");
+    expect(politica).toContain("operador");
+  });
+
+  it("os termos dizem o que o sistema NÃO é", () => {
+    // Sem isto o documento vira só regra de uso, e a limitação mais importante
+    // do produto — acompanhamento não é demonstrativo oficial — fica só nas
+    // telas, onde ninguém do jurídico procura.
+    const termos = TERMOS_DE_USO.map((s) => `${s.titulo} ${s.paragrafos.join(" ")}`).join(" ");
+    expect(termos).toContain("NÃO é");
+    expect(termos).toContain("ACOMPANHAMENTO");
   });
 });
