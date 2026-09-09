@@ -12,7 +12,13 @@ export const metadata = {
  */
 export default function NaoEncontrada() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    // `tema-noite` porque o site inteiro é escuro. Sem isto o 404 aparecia
+    // BRANCO, com o cabeçalho escuro por cima — quem erra um endereço já está
+    // desconfiado, e uma página que parece de outro site confirma a desconfiança.
+    //
+    // Foi a fronteira de erro que teve o mesmo defeito, e passou despercebido
+    // aqui pela mesma razão: ninguém abre o 404 de propósito.
+    <div className="tema-noite min-h-screen bg-background flex flex-col">
       <SiteHeader />
 
       <main className="flex-1 flex items-center">

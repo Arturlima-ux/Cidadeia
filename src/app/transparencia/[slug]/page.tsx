@@ -80,7 +80,7 @@ export default async function PortalTransparencia({
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="tema-noite min-h-screen bg-background">
       {/* CABEÇALHO */}
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6">

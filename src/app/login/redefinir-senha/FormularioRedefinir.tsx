@@ -36,7 +36,7 @@ export default function FormularioRedefinir({ token }: { token: string }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="tema-noite min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <h1 className="font-serif text-2xl font-bold text-center mb-6">
           Criar nova senha

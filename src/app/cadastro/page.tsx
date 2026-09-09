@@ -85,7 +85,7 @@ export default function CadastroPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-background px-4 py-10 overflow-hidden">
+    <div className="tema-noite relative min-h-screen bg-background px-4 py-10 overflow-hidden">
       {/* Mesma troca do login: gradiente radial parado no lugar de um círculo
           borrado em animação infinita, que repintava a camada desfocada a cada
           quadro enquanto a página estivesse aberta. */}

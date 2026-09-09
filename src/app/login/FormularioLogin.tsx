@@ -22,7 +22,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+    <div className="tema-noite relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
       {/* Eram dois círculos com `blur-3xl` e `animate-blob`: transformar um
           elemento borrado obriga o navegador a repintar a camada desfocada a
           cada quadro, e a animação é infinita — o computador nunca descansa

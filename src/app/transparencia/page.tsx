@@ -26,7 +26,7 @@ export default async function IndicePortais() {
   const { portais, falhou } = await listarPortaisPublicados();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="tema-noite min-h-screen bg-background">
       <SiteHeader />
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 pb-10">
