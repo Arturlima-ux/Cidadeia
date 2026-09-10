@@ -84,6 +84,23 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
           </nav>
 
           <div className="flex items-center gap-3 shrink-0">
+            {/* "Cadastrar" só aparece sem sessão: existe pra dar rosto ao que
+                o FAQ já promete ("criar conta é grátis e sem cartão"), que
+                antes só era alcançável de dentro da tela de login — sem
+                nenhum link no cabeçalho ou na home apontando pra lá.
+
+                Em texto, não em botão: a página tem duas ações cheias que não
+                competem — diagnóstico no topo, proposta no fecho — e uma
+                terceira com peso reabriria a dispersão que a gente acabou de
+                arrumar. O que faltava não era destaque, era existir. */}
+            {!sessao && (
+              <Link
+                href="/cadastro"
+                className="hidden sm:inline text-sm font-semibold text-muted hover:text-brand transition"
+              >
+                Cadastrar
+              </Link>
+            )}
             <Link
               href={sessao ? "/dashboard" : "/login"}
               className="hidden sm:inline text-sm font-semibold hover:text-brand transition"
