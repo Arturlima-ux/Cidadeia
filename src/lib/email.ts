@@ -2,7 +2,19 @@
 // dependência de node_modules). Sem RESEND_API_KEY configurada, cai para
 // log no console (mesmo padrão de degradação graciosa usado em ia.ts para
 // ANTHROPIC_API_KEY), útil para testar o fluxo em desenvolvimento.
-export type ResultadoEnvioEmail = { enviado: true } | { enviado: false; motivo: string };
+// ── POR QUE A CAUSA VIAJA JUNTO ──
+// Três situações diferentes chegavam à tela como uma frase só, e essa frase
+// nomeava apenas UMA delas ("o envio não está configurado"). Quando a chave
+// estava certa e era a Resend que recusava — remetente sem domínio próprio só
+// entrega para o dono da conta —, a tela acusava configuração faltando e
+// mandava investigar o lugar errado. Quem lê a mensagem precisa saber se o
+// problema é do servidor (ninguém vai receber nada) ou daquele envio
+// específico (tentar de novo pode funcionar).
+export type CausaNaoEnviado = "nao-configurado" | "falha-no-envio";
+
+export type ResultadoEnvioEmail =
+  | { enviado: true }
+  | { enviado: false; causa: CausaNaoEnviado; motivo: string };
 
 export async function enviarEmail(params: {
   para: string;
@@ -17,7 +29,11 @@ export async function enviarEmail(params: {
       `[email] RESEND_API_KEY/RESEND_FROM_EMAIL não configurados — e-mail não enviado de verdade.\n` +
         `[email] Para: ${params.para}\n[email] Assunto: ${params.assunto}\n[email] Conteúdo:\n${params.html}`
     );
-    return { enviado: false, motivo: "Envio de e-mail não configurado neste ambiente." };
+    return {
+      enviado: false,
+      causa: "nao-configurado",
+      motivo: "Envio de e-mail não configurado neste ambiente.",
+    };
   }
 
   // A chamada de rede fica dentro de try/catch porque uma falha aqui — DNS,
@@ -45,13 +61,21 @@ export async function enviarEmail(params: {
   } catch (erro) {
     const motivo = erro instanceof Error ? erro.message : String(erro);
     console.error(`[email] Não foi possível falar com a Resend: ${motivo}`);
-    return { enviado: false, motivo: "Falha ao enviar o e-mail. Tente novamente." };
+    return {
+      enviado: false,
+      causa: "falha-no-envio",
+      motivo: "Falha ao enviar o e-mail.",
+    };
   }
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
     console.error(`[email] Falha ao enviar via Resend (${resposta.status}): ${detalhe}`);
-    return { enviado: false, motivo: "Falha ao enviar o e-mail. Tente novamente." };
+    return {
+      enviado: false,
+      causa: "falha-no-envio",
+      motivo: "Falha ao enviar o e-mail.",
+    };
   }
 
   return { enviado: true };

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { solicitarRecuperacao } from "./actions";
+import type { CausaNaoEnviado } from "@/lib/email";
 
 export default function EsqueciSenhaPage() {
   const [documento, setDocumento] = useState("");
@@ -10,7 +11,7 @@ export default function EsqueciSenhaPage() {
   // Quando o envio de e-mail não está configurado no servidor, a ação avisa.
   // Antes esse aviso era descartado e a tela dizia "enviamos um link" mesmo
   // assim — a pessoa esperava um e-mail que nunca ia chegar.
-  const [naoEnviado, setNaoEnviado] = useState<string | null>(null);
+  const [naoEnviado, setNaoEnviado] = useState<CausaNaoEnviado | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -21,7 +22,7 @@ export default function EsqueciSenhaPage() {
       const resultado = await solicitarRecuperacao({ documento });
       if (resultado.ok) {
         setEnviado(true);
-        setNaoEnviado(resultado.avisoDev ?? null);
+        setNaoEnviado(resultado.naoEnviado?.causa ?? null);
       } else {
         setErro(resultado.erro);
       }
@@ -57,9 +58,14 @@ export default function EsqueciSenhaPage() {
                     borderColor: "var(--medio-borda)",
                   }}
                 >
-                  <strong>O e-mail não foi enviado.</strong> O envio automático
-                  ainda não está configurado neste ambiente, então não adianta
-                  esperar na caixa de entrada.
+                  {/* A frase precisa nomear a causa certa. Fixa em "não está
+                      configurado", ela acusava o servidor mesmo quando a
+                      configuração estava correta e o provedor é que tinha
+                      recusado o envio — e mandava procurar no lugar errado. */}
+                  <strong>O e-mail não foi enviado.</strong>{" "}
+                  {naoEnviado === "nao-configurado"
+                    ? "O envio automático ainda não está configurado neste ambiente, então não adianta esperar na caixa de entrada."
+                    : "Tentamos enviar e o serviço de e-mail recusou. Não adianta esperar na caixa de entrada."}
                 </p>
                 <p className="text-sm text-muted leading-relaxed">
                   Fale com a gente pelo suporte e a senha é redefinida na mão.

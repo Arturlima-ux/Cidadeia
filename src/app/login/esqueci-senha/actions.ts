@@ -7,7 +7,7 @@ import { usuarios, tokensRecuperacaoSenha } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { normalizarDocumento } from "@/lib/documento";
 import { linkApp } from "@/lib/url-app";
-import { enviarEmail } from "@/lib/email";
+import { enviarEmail, type CausaNaoEnviado } from "@/lib/email";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
 
@@ -15,7 +15,9 @@ const schema = z.object({ documento: z.string().min(1) });
 
 const DURACAO_TOKEN_MS = 60 * 60 * 1000; // 1 hora
 
-export type ResultadoSolicitacao = { ok: true; avisoDev?: string } | { ok: false; erro: string };
+export type ResultadoSolicitacao =
+  | { ok: true; naoEnviado?: { causa: CausaNaoEnviado; motivo: string } }
+  | { ok: false; erro: string };
 
 // Sempre retorna a mesma mensagem de sucesso, exista ou não o documento —
 // evita que a tela de recuperação seja usada para descobrir quem tem conta.
@@ -83,7 +85,9 @@ async function processarRecuperacao(documento: string): Promise<ResultadoSolicit
   });
 
   if (!resultado.enviado) {
-    return { ok: true, avisoDev: resultado.motivo };
+    // A causa sobe junto: a tela precisa dizer se ninguém vai receber e-mail
+    // nenhum (servidor sem envio) ou se foi este envio que falhou.
+    return { ok: true, naoEnviado: { causa: resultado.causa, motivo: resultado.motivo } };
   }
 
   return { ok: true };
