@@ -64,12 +64,18 @@ export default function EsqueciSenhaPage() {
                 <p className="text-sm text-muted leading-relaxed">
                   Fale com a gente pelo suporte e a senha é redefinida na mão.
                 </p>
-                <Link
-                  href="/suporte?assunto=senha"
-                  className="inline-block text-sm font-semibold text-brand hover:underline"
-                >
-                  Falar com o suporte
-                </Link>
+                {/* Cada link no seu próprio bloco. Como `inline-block`
+                    soltos, os dois ficavam na MESMA linha e sem espaço entre
+                    eles: a tela mostrava "Falar com o suporte← Voltar para o
+                    login" grudado. `space-y-3` não separa o que flui inline. */}
+                <div>
+                  <Link
+                    href="/suporte?assunto=senha"
+                    className="inline-block text-sm font-semibold text-brand hover:underline"
+                  >
+                    Falar com o suporte
+                  </Link>
+                </div>
               </>
             ) : (
               <p className="text-sm leading-relaxed">
@@ -77,12 +83,14 @@ export default function EsqueciSenhaPage() {
                 redefinir a senha. Confira sua caixa de entrada (e o spam).
               </p>
             )}
-            <Link
-              href="/login"
-              className="inline-block text-sm font-semibold text-brand hover:underline"
-            >
-              ← Voltar para o login
-            </Link>
+            <div>
+              <Link
+                href="/login"
+                className="inline-block text-sm font-semibold text-brand hover:underline"
+              >
+                ← Voltar para o login
+              </Link>
+            </div>
           </div>
         ) : (
           <form
