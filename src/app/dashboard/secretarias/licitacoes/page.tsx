@@ -12,6 +12,7 @@ import { IconDownload } from "@/components/icons";
 import PainelPncp from "./PainelPncp";
 import PainelFracionamento from "./PainelFracionamento";
 import type { ProcessoDispensa } from "@/lib/fracionamento";
+import { detectarPadroes } from "@/lib/padroes-licitacoes";
 
 const LABEL_STATUS: Record<string, string> = {
   planejamento: "Planejamento",
@@ -61,6 +62,11 @@ export default async function LicitacoesPage() {
     }));
   const comObservacaoRisco = lista.filter((l) => l.observacaoRisco);
 
+  // Padrões que só aparecem olhando os processos juntos: o mesmo fornecedor
+  // vencendo em série e dispensa colada no limite. O fracionamento, que é o
+  // terceiro padrão clássico, tem o painel próprio logo acima.
+  const padroes = detectarPadroes(lista);
+
   return (
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -85,6 +91,20 @@ export default async function LicitacoesPage() {
       <PainelPncp ano={new Date().getFullYear()} />
 
       <PainelFracionamento processos={dispensasDoExercicio} exercicio={exercicio} />
+
+      {padroes.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+            Padrões entre processos
+          </h2>
+          {/* Contagens que pedem conferência no processo físico — nunca
+              constatação. O texto de cada aviso diz o que foi contado; a
+              ação diz o que pedir e a quem. */}
+          {padroes.map((pd) => (
+            <Aviso key={pd.chave} nivel="medio" titulo={pd.texto} itens={[pd.acao]} />
+          ))}
+        </div>
+      )}
 
       <InsightIA acao={gerarInsightIA} modulo="licitacoes" />
 

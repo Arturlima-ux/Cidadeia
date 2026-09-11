@@ -40,6 +40,7 @@ import {
   type UnidadeTendencia,
 } from "@/lib/tendencia";
 import { FUSO_PADRAO } from "@/lib/horario";
+import { detectarPadroes } from "@/lib/padroes-licitacoes";
 
 export type ModuloAnalise = "geral" | "saude" | "educacao" | "obras" | "licitacoes";
 
@@ -776,6 +777,23 @@ function analisarLicitacoes(licitacoes: Licitacao[]): AchadoLocal[] {
     }
   }
 
+
+  // ── Padrões entre processos ──
+  // O que um processo sozinho nunca mostra: o mesmo fornecedor vencendo em
+  // série, dispensa colada no limite, dispensas que somadas passam dele.
+  // Severidade "medio" em todos: são contagens que pedem conferência no
+  // processo físico, não constatações — o texto de cada um diz isso.
+  for (const padrao of detectarPadroes(licitacoes)) {
+    achados.push({
+      modulo: "licitacoes",
+      eixo: "execucao_financeira",
+      severidade: "medio",
+      chave: padrao.chave,
+      texto: padrao.texto,
+      acao: padrao.acao,
+      peso: padrao.peso,
+    });
+  }
   return achados;
 }
 
