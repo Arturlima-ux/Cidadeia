@@ -1,3 +1,4 @@
+import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import {
   buscarEscolas,
@@ -61,13 +62,13 @@ export default async function EducacaoPage() {
               label="Frequência"
               valor={
                 indicador.frequenciaPercentual !== null
-                  ? `${indicador.frequenciaPercentual}%`
+                  ? formatarPercentual(indicador.frequenciaPercentual)
                   : "—"
               }
             />
             <Card
               label="Nota média"
-              valor={indicador.notaMedia?.toString() ?? "—"}
+              valor={indicador.notaMedia !== null ? formatarNumero(indicador.notaMedia) : "—"}
             />
             <Card
               label="Alunos no transporte"
@@ -196,7 +197,7 @@ export default async function EducacaoPage() {
                 <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
                   {e.evasaoPercentual !== null && (
                     <PilulaStatus
-                      label={`Evasão ${e.evasaoPercentual}%`}
+                      label={`Evasão ${formatarPercentual(e.evasaoPercentual)}`}
                       tom={e.evasaoPercentual > 10 ? "negativo" : "andamento"}
                     />
                   )}

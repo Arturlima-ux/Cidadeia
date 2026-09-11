@@ -20,3 +20,16 @@ export function formatarMoedaExata(valor: number): string {
     maximumFractionDigits: 2,
   });
 }
+
+// ── NÚMERO EM PORTUGUÊS ──
+// Os cartões de indicador interpolavam o número cru: `${6.5}%` vira "6.5%",
+// com ponto, no mesmo painel em que a moeda sai "R$ 1.234,56". Nota 7,2
+// aparecia como "7.2". Para quem lê em português, "6.5" parece seis mil e
+// quinhentos — e num relatório de frequência escolar, isso muda a leitura.
+export function formatarNumero(valor: number, casasMax = 1): string {
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: casasMax }).format(valor);
+}
+
+export function formatarPercentual(valor: number, casasMax = 1): string {
+  return `${formatarNumero(valor, casasMax)}%`;
+}

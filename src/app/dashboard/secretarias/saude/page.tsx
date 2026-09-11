@@ -1,3 +1,4 @@
+import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import {
   buscarUnidadesSaude,
@@ -70,7 +71,7 @@ export default async function SaudePage() {
               label="Tempo médio de atendimento"
               valor={
                 indicador.tempoMedioAtendimentoMin !== null
-                  ? `${indicador.tempoMedioAtendimentoMin} min`
+                  ? `${formatarNumero(indicador.tempoMedioAtendimentoMin)} min`
                   : "—"
               }
             />
@@ -82,7 +83,7 @@ export default async function SaudePage() {
               label="Faltas"
               valor={
                 indicador.faltasPercentual !== null
-                  ? `${indicador.faltasPercentual}%`
+                  ? formatarPercentual(indicador.faltasPercentual)
                   : "—"
               }
             />
@@ -90,7 +91,7 @@ export default async function SaudePage() {
               label="Estoque de medicamentos"
               valor={
                 indicador.estoqueMedicamentosPercentual !== null
-                  ? `${indicador.estoqueMedicamentosPercentual}%`
+                  ? formatarPercentual(indicador.estoqueMedicamentosPercentual)
                   : "—"
               }
             />
