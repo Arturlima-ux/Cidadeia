@@ -1,4 +1,4 @@
-import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes } from "@/components/icons";
+import { IconVisaoGeral, IconSaude, IconObras, IconLicitacoes, IconIA } from "@/components/icons";
 
 // ── O PRODUTO, VISÍVEL ──
 //
@@ -65,7 +65,7 @@ const MENU: { grupo: string; itens: { nome: string; ativo?: boolean }[] }[] = [
   {
     grupo: "Principal",
     itens: [
-      { nome: "Visão Geral" },
+      { nome: "Visão Geral", ativo: true },
       { nome: "IA Central" },
       { nome: "Publicações do portal" },
       { nome: "Atendimento" },
@@ -78,7 +78,7 @@ const MENU: { grupo: string; itens: { nome: string; ativo?: boolean }[] }[] = [
   {
     grupo: "Gestão",
     itens: [
-      { nome: "Central Inteligente", ativo: true },
+      { nome: "Central Inteligente" },
       { nome: "Mínimos constitucionais" },
       { nome: "Mapa da cidade" },
       { nome: "Modo apresentação" },
@@ -107,7 +107,7 @@ export default function PainelDemonstracao() {
           ))}
         </span>
         <span className="text-[11px] font-mono text-muted ml-2 truncate">
-          cidadeia.app / central inteligente
+          /dashboard
         </span>
       </div>
 
@@ -141,9 +141,23 @@ export default function PainelDemonstracao() {
 
         {/* conteúdo */}
         <div className="p-4 sm:p-5">
-          <div className="flex items-baseline justify-between gap-3 mb-4">
+          {/* O topo da Visão Geral real: data, saudação pelo nome e a frase
+              que conta quantos pontos pedem decisão. É a primeira coisa que
+              o prefeito lê ao entrar — e a que diz que isto é dele. */}
+          <div className="mb-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+              Prefeitura Modelo · quinta-feira, 10 de setembro
+            </p>
+            <p className="font-serif font-bold text-base sm:text-lg leading-tight mt-1">
+              Bom dia, Prefeita Ana Ribeiro.
+            </p>
+            <p className="text-xs text-muted mt-1">4 pontos pedem sua decisão hoje.</p>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 mb-3">
             <p className="font-serif font-bold text-sm sm:text-base">O que precisa da sua atenção</p>
-            <span className="text-[11px] font-mono text-muted shrink-0">4 itens</span>
+            <span className="text-[11px] font-mono text-muted shrink-0">
+              4 itens<span style={{ color: "var(--urgente)" }}> · 2 urgentes</span>
+            </span>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -171,7 +185,32 @@ export default function PainelDemonstracao() {
             })}
           </div>
 
-          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
+          {/* A Visão Geral real mostra o Insight da IA logo abaixo da lista.
+              O texto segue o formato da análise local — constatação com a
+              história do número, depois "Ação sugerida:" — porque é isso que
+              a tela diz mesmo sem provedor de modelo configurado. */}
+          <div
+            className="mt-3 rounded-lg border p-3 flex gap-2.5 items-start"
+            style={{ borderColor: "var(--brand-tint)", background: "var(--brand-tint)" }}
+          >
+            <span
+              className="w-6 h-6 rounded-md text-white flex items-center justify-center shrink-0"
+              style={{ background: "var(--brand)" }}
+            >
+              <IconIA className="w-3 h-3" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-legivel">
+                Insight da IA
+              </p>
+              <p className="text-[11px] sm:text-xs leading-snug mt-1">
+                Saldo negativo de R$ 84 mil no fechamento mais recente — caiu R$ 132 mil
+                desde julho (era R$ 48 mil positivo). Ação sugerida: Peça à Secretaria de
+                Finanças a despesa aberta por função antes da próxima reunião.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
             <IconVisaoGeral className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--muted)" }} />
             <p className="text-[11px] text-muted leading-snug">
               Cada linha aponta para a tela onde se resolve — nenhuma exige

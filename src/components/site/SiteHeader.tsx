@@ -10,7 +10,7 @@ import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 const LINKS = [
   { href: "/#solucoes", label: "Soluções" },
   { href: "/precos", label: "Preços" },
-  { href: "/#como-contratar", label: "Como contratar" },
+  { href: "/como-contratar", label: "Como contratar" },
   { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/faq", label: "FAQ" },
 ];
