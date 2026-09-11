@@ -59,7 +59,10 @@ export const CAMINHOS: DescricaoCaminho[] = [
     chave: "dispensa",
     nome: "Dispensa por valor",
     resumo:
-      "Contratação direta quando o valor anual fica abaixo do limite. É o caminho da maioria dos municípios de pequeno porte.",
+      // Dizia "é o caminho da maioria dos municípios de pequeno porte" —
+      // estatística que ninguém mediu, num site que vende conformidade. O
+      // que dá para afirmar é o que a lei diz: abaixo do limite, sem edital.
+      "Contratação direta quando o valor anual fica abaixo do limite — sem edital, sem sessão pública, com o processo montado em dias.",
     base: LIMITE_DISPENSA.base,
   },
   {

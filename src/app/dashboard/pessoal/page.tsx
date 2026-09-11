@@ -242,11 +242,15 @@ export default async function PessoalPage() {
         <section className="arco-card border border-border p-6" style={{ background: "var(--card)" }}>
           <h2 className="font-serif text-lg font-bold">Nenhum período informado</h2>
           <p className="text-sm text-muted mt-2 leading-relaxed max-w-2xl">
-            Informe a Receita Corrente Líquida e a despesa com pessoal dos doze
-            meses no formulário abaixo. Os dois números saem do Relatório de
-            Gestão Fiscal que a prefeitura já publica — nenhuma API pública os
-            entrega prontos, e o endpoint de RGF do Tesouro volta zerado para
-            todos os municípios que testamos.
+            {/* Dizia que "o endpoint de RGF do Tesouro volta zerado para todos
+                os municípios que testamos". Era falso: a consulta estava
+                errada, foi corrigida, e a importação passou a funcionar — o
+                texto ficou para trás, acusando o Tesouro na tela. */}
+            Os dois números saem do Relatório de Gestão Fiscal que a prefeitura
+            já publica no SICONFI. O botão acima busca o período mais recente
+            sozinho; se o Tesouro ainda não tiver o RGF deste período, informe a
+            Receita Corrente Líquida e a despesa com pessoal dos doze meses no
+            formulário abaixo.
           </p>
         </section>
       )}

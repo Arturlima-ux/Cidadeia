@@ -235,3 +235,18 @@ describe("documentos legais existem de verdade", () => {
     expect(termos).toContain("ACOMPANHAMENTO");
   });
 });
+
+// ── AFIRMAÇÃO ESTATÍSTICA SEM FONTE ──
+// "É o caminho da maioria dos municípios" saiu do site porque ninguém mediu.
+// Num produto que vende conformidade, uma frase dessas é a primeira que o
+// jurídico da prefeitura pede para provar.
+describe("claims sem fonte", () => {
+  it("nenhum arquivo do site afirma 'maioria dos municípios' ou parecido", () => {
+    const suspeitos = varrerFontes("src").filter((a) =>
+      /maioria dos munic|maioria das prefeituras|todos os munic[ií]pios|a maioria dos gestores/i.test(
+        semComentarios(readFileSync(a, "utf8"))
+      )
+    );
+    expect(suspeitos).toEqual([]);
+  });
+});
