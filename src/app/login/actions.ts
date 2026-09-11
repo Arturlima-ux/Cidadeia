@@ -44,7 +44,6 @@ export async function fazerLogin(
       secretaria: usuarios.secretaria,
       senhaHash: usuarios.senhaHash,
       prefeituraNome: prefeituras.nome,
-      implantacaoConcluidaEm: prefeituras.implantacaoConcluidaEm,
     })
     .from(usuarios)
     .innerJoin(prefeituras, eq(usuarios.prefeituraId, prefeituras.id))
@@ -78,16 +77,11 @@ export async function fazerLogin(
     secretaria: usuario.secretaria,
   });
 
-  // ── A IMPLANTAÇÃO É A PORTA DE ENTRADA, NÃO UMA CATRACA ──
-  // Enquanto a lista não foi encerrada, entrar leva a ela. Só entrar: depois
-  // disso a pessoa navega livre. A versão anterior redirecionava a Visão
-  // Geral de volta para cá a cada clique — quem tentava ver o painel era
-  // devolvido à lista, sem saída além do botão de encerrar.
-  const primeiroDestino =
-    usuario.cargo !== "secretario" && !usuario.implantacaoConcluidaEm
-      ? "/dashboard/implantacao"
-      : "/dashboard";
-  redirect(primeiroDestino);
+  // Quem entra cai na Visão Geral — é ela que recebe, com a saudação e o
+  // nome. A Implantação fica no menu, primeiro item enquanto estiver aberta;
+  // já foi porta de entrada e catraca, e as duas versões atrapalhavam mais
+  // do que guiavam.
+  redirect("/dashboard");
 }
 
 export async function sair() {

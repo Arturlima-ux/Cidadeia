@@ -7,7 +7,6 @@ import {
   fraseDeProgresso,
 } from "@/lib/implantacao";
 import { IconCheck } from "@/components/icons";
-import { fusoDoEstado, saudacao, dataPorExtenso } from "@/lib/horario";
 import PassoComAcao from "./PassoComAcao";
 import BotaoConcluir from "./BotaoConcluir";
 
@@ -19,10 +18,9 @@ export const metadata = { title: "Implantação — CidadeIA" };
 // sem módulo contratado consegue usar de verdade — e é justamente ela que
 // diz o que fazer para as outras passarem a existir.
 //
-// Quem cadastrou chega aqui direto do cadastro, e quem entra pelo login
-// também — uma vez por entrada, enquanto a lista não for encerrada. Depois
-// de entrar, a navegação é livre: nenhuma outra tela manda de volta para cá.
-// A tela fica no menu, com os passos pendentes ainda pendentes.
+// Quem cadastrou chega aqui direto do cadastro. Quem entra pelo login cai
+// na Visão Geral, e encontra esta tela como primeiro item do menu enquanto
+// a lista estiver aberta. Nenhuma tela redireciona para cá.
 
 export default async function ImplantacaoPage() {
   const { sessao, prefeitura } = await contextoDashboard();
@@ -35,29 +33,16 @@ export default async function ImplantacaoPage() {
   // busca no SICONFI não tem como começar. O botão fica visível, mas
   // desabilitado, com a razão escrita — melhor que sumir sem explicar.
   const municipioReconhecido = passos.find((p) => p.chave === "municipio")?.feito ?? false;
-  const fuso = fusoDoEstado(prefeitura.estado);
 
   return (
     <div className="max-w-3xl space-y-8">
-      {/* É a primeira tela que a pessoa vê ao entrar — e abria com o
-          título "Implantação", seco, como se fosse uma tarefa. Recebe como a
-          Visão Geral recebe: a data, o nome de quem entrou. A lista vem
-          depois de dizer bom dia. */}
+      {/* Sem saudação: quem recebe é a Visão Geral. Esta é uma tela de
+          trabalho, e abre pelo nome da tarefa. */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted capitalize">
-          {dataPorExtenso(fuso)}
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">
+          {prefeitura.nome}
         </p>
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold mt-1">
-          {saudacao(fuso)}, {prefeitura.prefeito ? `Prefeito(a) ${prefeitura.prefeito}` : sessao.nome}.
-        </h1>
-        <p className="text-muted text-sm mt-1.5">
-          Bem-vindo(a) ao CidadeIA da {prefeitura.nome}. Antes do painel, seis passos
-          deixam o sistema com a cara do seu município.
-        </p>
-      </div>
-
-      <div>
-        <h2 className="font-serif text-xl font-bold">Implantação</h2>
+        <h1 className="font-serif text-2xl font-bold">Implantação</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-xl">
           {fraseDeProgresso(resumo)} Cada passo destrava uma parte do painel. Os que
           dependem de contratação ou de decisão da prefeitura ficam marcados — não
