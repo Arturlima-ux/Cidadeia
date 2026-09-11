@@ -19,6 +19,7 @@ const COLUNAS = [
     titulo: "Contratação",
     links: [
       { href: "/diagnostico", label: "Diagnóstico gratuito" },
+      { href: "/raio-x", label: "Raio-X do município" },
       { href: "/#como-contratar", label: "Como contratar" },
       { href: "/kit", label: "Kit de contratação" },
       { href: "/#conformidade", label: "Conformidade legal" },

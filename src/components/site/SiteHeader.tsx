@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 
+// ── CINCO ITENS, NA ORDEM EM QUE O PREFEITO PERGUNTA ──
+// Eram oito, e em tela de 1366px três deles quebravam em duas linhas — o
+// menu ficava serrilhado, e o cabeçalho inteiro somava 13 coisas clicáveis.
+// Saíram: "Conformidade" (é o assunto do herói logo abaixo — link para a
+// seção que já está na tela), "Quem somos" e "Raio-X" (a home oferece o
+// Raio-X no corpo, ao lado dos portais). Os três continuam no rodapé.
 const LINKS = [
-  { href: "/raio-x", label: "Raio-X" },
-  { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/#solucoes", label: "Soluções" },
-  { href: "/#como-contratar", label: "Como contratar" },
-  { href: "/#conformidade", label: "Conformidade" },
   { href: "/precos", label: "Preços" },
-  { href: "/por-que-cidadeia", label: "Quem somos" },
+  { href: "/#como-contratar", label: "Como contratar" },
+  { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/faq", label: "FAQ" },
 ];
 
@@ -77,7 +80,7 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
 
           <nav className="hidden lg:flex items-center gap-5 text-sm font-medium text-muted">
             {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-foreground transition">
+              <Link key={l.href} href={l.href} className="whitespace-nowrap hover:text-foreground transition">
                 {l.label}
               </Link>
             ))}
