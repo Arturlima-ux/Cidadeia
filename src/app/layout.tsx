@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Public_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
 
 // Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
@@ -14,17 +14,6 @@ const fonteTitulo = Plus_Jakarta_Sans({
 const publicSans = Public_Sans({
   subsets: ["latin"],
   variable: "--font-public-sans",
-  display: "swap",
-});
-// Usadas só no PainelExecutivo (mockup em frame escuro).
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter-real",
-  display: "swap",
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -42,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable}`}
     >
       <head>
         {/* ── MARCA QUE O JAVASCRIPT EXISTE ──

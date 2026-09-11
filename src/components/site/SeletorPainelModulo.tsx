@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import PainelExecutivo from "@/components/PainelExecutivo";
+import PainelModuloFiel from "@/components/site/PainelModuloFiel";
 import { PAINEIS_MODULOS } from "@/lib/paineis-modulos";
 
 export default function SeletorPainelModulo() {
@@ -27,16 +27,10 @@ export default function SeletorPainelModulo() {
         ))}
       </div>
 
-      <PainelExecutivo
-        key={painel.chave}
-        nomePrefeitura="Prefeitura Modelo"
-        metricas={painel.metricas}
-        eficienciaPct={painel.eficienciaPct}
-        eficienciaLabel={painel.eficienciaLabel}
-        alerta={painel.alerta}
-      />
+      <PainelModuloFiel key={painel.chave} painel={painel} />
       <p className="text-xs text-muted text-center mt-4">
-        Exemplo ilustrativo com dados fictícios — mesmo painel, cada módulo mostra as métricas da própria área.
+        Números fictícios de uma prefeitura modelo. A tela, os blocos e os
+        rótulos são os do painel de verdade.
       </p>
     </div>
   );
