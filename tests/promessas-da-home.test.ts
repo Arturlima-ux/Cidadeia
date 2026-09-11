@@ -90,10 +90,13 @@ describe("preço é o mesmo nas duas páginas", () => {
   });
 
   it("não anuncia sob consulta o que tem preço definido", () => {
-    // Enquanto todo módulo tiver valor nas três faixas, "sob consulta" não
-    // pode aparecer como rótulo fixo da página.
+    // Nas faixas que o site promete (até 100 mil), todo módulo tem valor, e
+    // "sob consulta" não pode aparecer como rótulo fixo da página. As faixas
+    // grandes nascem sem preço, e aí o rótulo é honesto.
     const todosTemPreco = PLANOS_ADDON.every((p) =>
-      PORTES.every((porte) => PRECO_MENSAL[p.chave][porte.chave] !== null)
+      PORTES.filter((porte) => porte.garanteDispensa).every(
+        (porte) => PRECO_MENSAL[p.chave][porte.chave] !== null
+      )
     );
     expect(todosTemPreco).toBe(true);
     expect(precos).not.toContain("Sob consulta — pedir proposta");

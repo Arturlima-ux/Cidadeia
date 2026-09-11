@@ -69,7 +69,13 @@ describe("porte do município", () => {
     expect(porteDaPopulacao(10_000)).toBe("ate10k");
     expect(porteDaPopulacao(10_001)).toBe("de10a50k");
     expect(porteDaPopulacao(50_000)).toBe("de10a50k");
-    expect(porteDaPopulacao(50_001)).toBe("acima50k");
+    expect(porteDaPopulacao(50_001)).toBe("de50a100k");
+    expect(porteDaPopulacao(100_000)).toBe("de50a100k");
+    expect(porteDaPopulacao(100_001)).toBe("de100a500k");
+    expect(porteDaPopulacao(500_000)).toBe("de100a500k");
+    expect(porteDaPopulacao(500_001)).toBe("de500ka1m");
+    expect(porteDaPopulacao(908_012)).toBe("de500ka1m"); // Teresina
+    expect(porteDaPopulacao(1_000_001)).toBe("acima1m");
   });
 
   it("cai na menor faixa quando a população não foi cadastrada", () => {
@@ -164,7 +170,10 @@ describe("a tabela de preços não pode quebrar a promessa da home", () => {
     // "cabe na dispensa": se um preço subir a ponto de a soma dos seis módulos
     // passar do limite do art. 75, II, a página passa a mentir para o prefeito
     // e o processo montado pelo kit vira nulo. Melhor a suíte quebrar antes.
-    for (const porte of PORTES) {
+    // Só nas faixas que PROMETEM caber. Nas grandes (100 mil+), o caminho
+    // esperado é o pregão, e o simulador diz isso — a promessa é "veja se
+    // cabe", não "cabe para qualquer município".
+    for (const porte of PORTES.filter((p) => p.garanteDispensa)) {
       const proposta = montarProposta({
         porte: porte.chave,
         modulos: PLANOS_ADDON.map((p) => p.chave),
@@ -179,16 +188,18 @@ describe("a tabela de preços não pode quebrar a promessa da home", () => {
     // Encostar no limite deixaria a promessa refém do primeiro aumento de
     // preço ou da mudança de faixa do município.
     const maisCara = montarProposta({
-      porte: "acima50k",
+      porte: "de50a100k",
       modulos: PLANOS_ADDON.map((p) => p.chave),
     });
     expect(maisCara.anual / LIMITE_DISPENSA.valor).toBeLessThan(0.85);
   });
 
-  it("todo porte tem a tabela completa, sem 'sob consulta'", () => {
-    // Um preço faltando faz o montador da home dizer que o total está
-    // incompleto — logo abaixo do título que critica quem esconde preço.
-    for (const porte of PORTES) {
+  it("as faixas que prometem caber na dispensa têm a tabela completa", () => {
+    // Um preço faltando faz o montador dizer que o total está incompleto —
+    // logo abaixo do título que critica quem esconde preço. Vale para as
+    // faixas que o site promete; as grandes nascem "sob consulta" até o
+    // valor ser decidido, e o simulador diz isso com essas palavras.
+    for (const porte of PORTES.filter((p) => p.garanteDispensa)) {
       expect(tabelaCompleta(porte.chave), porte.chave).toBe(true);
     }
   });
@@ -196,10 +207,16 @@ describe("a tabela de preços não pode quebrar a promessa da home", () => {
   it("cobra mais de município maior, em todos os módulos", () => {
     // Preço plano faria a prefeitura de 8 mil habitantes bancar o custo de uma
     // de 200 mil — e é justamente a faixa pequena que precisa caber no bolso.
+    // Entre faixas consecutivas COM preço, o maior município paga mais.
+    // Faixa sem preço ainda (null) não entra na comparação.
     for (const plano of PLANOS_ADDON) {
       const p = PRECO_MENSAL[plano.chave];
-      expect(p.ate10k, plano.chave).toBeLessThan(p.de10a50k!);
-      expect(p.de10a50k, plano.chave).toBeLessThan(p.acima50k!);
+      for (let i = 1; i < PORTES.length; i++) {
+        const menor = p[PORTES[i - 1].chave];
+        const maior = p[PORTES[i].chave];
+        if (menor === null || maior === null) continue;
+        expect(menor, `${plano.chave}: ${PORTES[i - 1].chave} < ${PORTES[i].chave}`).toBeLessThan(maior);
+      }
     }
   });
 });

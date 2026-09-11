@@ -104,7 +104,7 @@ export default function PrecosPage() {
                       novo. Onde o preço ainda não existe, o rótulo continua
                       "sob consulta", que é honesto — mas hoje não é o caso de
                       nenhum módulo. */}
-                  <dl className="mt-4 pt-4 border-t border-border grid grid-cols-3 gap-2 text-center">
+                  <dl className="mt-4 pt-4 border-t border-border grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-3 text-center">
                     {PORTES.map((porte) => {
                       const valor = PRECO_MENSAL[p.chave][porte.chave];
                       return (

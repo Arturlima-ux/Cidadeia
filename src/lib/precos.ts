@@ -7,7 +7,7 @@ import { caminhoSugerido, type CaminhoContratacao } from "@/lib/contratacao";
 // Uma prefeitura de 8 mil habitantes não pode pagar o mesmo que uma de 200
 // mil, então o preço varia por porte. Cada módulo continua avulso.
 
-export type PorteMunicipio = "ate10k" | "de10a50k" | "acima50k";
+export type PorteMunicipio = "ate10k" | "de10a50k" | "de50a100k" | "de100a500k" | "de500ka1m" | "acima1m";
 
 // A primeira faixa é escrita como intervalo fechado, "0 a 10 mil", e não como
 // teto ("Até 10 mil"). A diferença não é cosmética: quase metade dos 5.570
@@ -15,17 +15,34 @@ export type PorteMunicipio = "ate10k" | "de10a50k" | "acima50k";
 // prefeito desses que assume não caber em software de gestão. Um teto convida
 // a pensar "será que sou pequeno demais?"; um intervalo que começa no zero
 // responde a pergunta antes de ela ser feita.
-export const PORTES: { chave: PorteMunicipio; rotulo: string; detalhe: string }[] = [
-  { chave: "ate10k", rotulo: "0 a 10 mil", detalhe: "habitantes" },
-  { chave: "de10a50k", rotulo: "10 a 50 mil", detalhe: "habitantes" },
-  { chave: "acima50k", rotulo: "Acima de 50 mil", detalhe: "habitantes" },
+//
+// ── SEIS FAIXAS, NÃO TRÊS ──
+// "Acima de 50 mil" juntava uma cidade de 60 mil com uma capital de 900
+// mil na mesma tabela. As faixas grandes seguem o corte usual da gestão
+// pública (médio porte até 100 mil, grande até 500 mil, metrópole acima).
+//
+// `garanteDispensa`: nas três primeiras faixas, a soma dos seis módulos
+// fica abaixo do limite anual de dispensa por construção — é a promessa da
+// home, e o teste em contratacao.test.ts a trava. Nas faixas grandes o
+// caminho natural é o pregão, e o simulador diz isso; a promessa nunca foi
+// "cabe para qualquer município", foi "veja se cabe".
+export const PORTES: { chave: PorteMunicipio; rotulo: string; detalhe: string; garanteDispensa: boolean }[] = [
+  { chave: "ate10k", rotulo: "0 a 10 mil", detalhe: "habitantes", garanteDispensa: true },
+  { chave: "de10a50k", rotulo: "10 a 50 mil", detalhe: "habitantes", garanteDispensa: true },
+  { chave: "de50a100k", rotulo: "50 a 100 mil", detalhe: "habitantes", garanteDispensa: true },
+  { chave: "de100a500k", rotulo: "100 a 500 mil", detalhe: "habitantes", garanteDispensa: false },
+  { chave: "de500ka1m", rotulo: "500 mil a 1 milhão", detalhe: "habitantes", garanteDispensa: false },
+  { chave: "acima1m", rotulo: "Acima de 1 milhão", detalhe: "habitantes", garanteDispensa: false },
 ];
 
 /** Faixa de porte a partir da população cadastrada da prefeitura. */
 export function porteDaPopulacao(populacao: number | null | undefined): PorteMunicipio {
   if (!populacao || populacao <= 10_000) return "ate10k";
   if (populacao <= 50_000) return "de10a50k";
-  return "acima50k";
+  if (populacao <= 100_000) return "de50a100k";
+  if (populacao <= 500_000) return "de100a500k";
+  if (populacao <= 1_000_000) return "de500ka1m";
+  return "acima1m";
 }
 
 /**
@@ -40,7 +57,7 @@ export function porteDaPopulacao(populacao: number | null | undefined): PorteMun
  * O teto não é o mercado, é a lei. A promessa central do site é caber na
  * dispensa por valor, então NENHUMA combinação pode passar do limite anual do
  * art. 75, II — hoje R$ 65.492,11. A combinação mais cara possível (município
- * acima de 50 mil contratando os seis módulos) fecha o ano em R$ 47.880, ou
+ * de 50 a 100 mil contratando os seis módulos) fecha o ano em R$ 47.880, ou
  * 73% do limite: sobra folga para reajuste e para o município crescer de faixa
  * sem quebrar o argumento da home.
  *
@@ -53,13 +70,17 @@ export function porteDaPopulacao(populacao: number | null | undefined): PorteMun
  * preço a ponto de a soma dos seis estourar a dispensa, a suíte quebra antes de
  * a home passar a mentir.
  */
+//
+// As três faixas grandes nascem em null — "sob consulta" na página e no
+// simulador — até o valor ser decidido. É decisão comercial, não de código:
+// preencher aqui é o único passo.
 export const PRECO_MENSAL: Record<PlanoAddon, Record<PorteMunicipio, number | null>> = {
-  essencial: { ate10k: 490, de10a50k: 690, acima50k: 950 },
-  gestao: { ate10k: 360, de10a50k: 520, acima50k: 740 },
-  saude: { ate10k: 290, de10a50k: 450, acima50k: 630 },
-  educacao: { ate10k: 290, de10a50k: 450, acima50k: 630 },
-  obras: { ate10k: 240, de10a50k: 370, acima50k: 520 },
-  licitacoes: { ate10k: 240, de10a50k: 370, acima50k: 520 },
+  essencial: { ate10k: 490, de10a50k: 690, de50a100k: 950, de100a500k: null, de500ka1m: null, acima1m: null },
+  gestao: { ate10k: 360, de10a50k: 520, de50a100k: 740, de100a500k: null, de500ka1m: null, acima1m: null },
+  saude: { ate10k: 290, de10a50k: 450, de50a100k: 630, de100a500k: null, de500ka1m: null, acima1m: null },
+  educacao: { ate10k: 290, de10a50k: 450, de50a100k: 630, de100a500k: null, de500ka1m: null, acima1m: null },
+  obras: { ate10k: 240, de10a50k: 370, de50a100k: 520, de100a500k: null, de500ka1m: null, acima1m: null },
+  licitacoes: { ate10k: 240, de10a50k: 370, de50a100k: 520, de100a500k: null, de500ka1m: null, acima1m: null },
 };
 
 export function precoDefinido(modulo: PlanoAddon, porte: PorteMunicipio): boolean {
