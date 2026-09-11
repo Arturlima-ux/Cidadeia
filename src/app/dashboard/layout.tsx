@@ -20,9 +20,19 @@ const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
 
 function montarGrupos(
   sessao: { cargo: string; secretaria?: string | null },
-  planosAtivos: PlanoAddon[]
+  planosAtivos: PlanoAddon[],
+  implantacaoAberta: boolean
 ): { titulo: string; itens: NavItem[] }[] {
   const temGestao = planosAtivos.includes("gestao");
+  // Enquanto a lista de implantação está aberta, ela é o primeiro item do
+  // menu — é a tela que diz o que fazer para as outras passarem a existir.
+  // Depois de encerrada, desce para "Conta": continua acessível, sem
+  // disputar o topo com o painel.
+  const itemImplantacao: NavItem = {
+    href: "/dashboard/implantacao",
+    label: "Implantação",
+    icone: "configuracoes",
+  };
   const secretariasAtivas = Object.entries(NAV_ITEMS_SECRETARIA)
     .filter(([chave]) => planosAtivos.includes(chave as PlanoAddon))
     .map(([, item]) => item);
@@ -47,6 +57,7 @@ function montarGrupos(
     {
       titulo: "Principal",
       itens: [
+        ...(implantacaoAberta ? [itemImplantacao] : []),
         ...(temGestao
           ? [{ href: "/dashboard", label: "Visão Geral", icone: "visao-geral" as const }]
           : []),
@@ -102,6 +113,7 @@ function montarGrupos(
       // Fora de qualquer trava de plano: a exportação existe justamente para
       // a prefeitura poder sair levando os dados dela.
       { href: "/dashboard/dados", label: "Meus dados", icone: "download" },
+      ...(implantacaoAberta ? [] : [itemImplantacao]),
     ],
   });
 
@@ -147,7 +159,11 @@ export default async function DashboardLayout({
     // token em vez de cor fixa, basta envolver aqui para tudo acompanhar.
     <div className="tema-noite min-h-screen flex">
       <DashboardSidebar
-        grupos={montarGrupos(sessao, planosAtivos)}
+        grupos={montarGrupos(
+          sessao,
+          planosAtivos,
+          sessao.cargo !== "secretario" && !prefeitura.implantacaoConcluidaEm
+        )}
         prefeituraNome={prefeitura.nome}
         sairAction={sair}
       />

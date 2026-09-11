@@ -128,5 +128,7 @@ export async function cadastrarPrefeitura(
     cargo: "prefeito",
   });
 
-  redirect("/dashboard");
+  // Para a implantação, não para o painel: sem módulo contratado, a Visão
+  // Geral é um cadeado — e essa era a primeira tela que o prefeito via.
+  redirect("/dashboard/implantacao");
 }

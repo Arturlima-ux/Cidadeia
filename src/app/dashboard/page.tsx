@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { buscarHistoricoSnapshots, buscarAlertas } from "@/lib/dados-prefeitura";
 import { atualizarSnapshot } from "./actions";
@@ -28,6 +29,13 @@ function calcularDelta(atual: number | null, anterior: number | null): number | 
 
 export default async function DashboardPage() {
   const ctx = await contextoDashboard();
+  // Prefeitura que ainda não encerrou a implantação vai para a lista, não
+  // para cá. Antes, quem acabava de se cadastrar caía direto no cadeado de
+  // plano abaixo — a primeira tela do produto era um "contrate para ver".
+  // Secretário não é redirecionado: os passos não são dele.
+  if (ctx.sessao.cargo !== "secretario" && !ctx.prefeitura.implantacaoConcluidaEm) {
+    redirect("/dashboard/implantacao");
+  }
   if (!ctx.temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
 
   const { sessao, prefeitura } = ctx;

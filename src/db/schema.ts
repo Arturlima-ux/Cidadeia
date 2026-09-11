@@ -29,6 +29,10 @@ export const prefeituras = pgTable("prefeituras", {
   // Tesouro Nacional. Preenchido automaticamente na primeira importação,
   // a partir do nome do município + UF.
   codigoIbge: text("codigo_ibge"),
+  // Quando o prefeito decidiu encerrar a lista de implantação. É a ÚNICA coisa
+  // da implantação que fica gravada: os passos em si são derivados dos dados
+  // (src/lib/implantacao.ts), para nunca dizer "feito" sem estar feito.
+  implantacaoConcluidaEm: text("implantacao_concluida_em"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),
