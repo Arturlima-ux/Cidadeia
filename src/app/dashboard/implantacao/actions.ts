@@ -46,16 +46,11 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
   if (!codigoIbge) {
     const busca = await procurarMunicipio(prefeitura.municipio, prefeitura.estado);
     if (!busca.ok) {
-      // Dois "não" diferentes, e a tela precisa dizer qual: IBGE fora do ar
-      // não é município inexistente — Barro Duro/PI já foi acusado disso.
-      if (busca.motivo === "indisponivel") {
-        return { ok: false, erro: "O IBGE não respondeu agora. Tente de novo em alguns minutos — não é problema do cadastro." };
-      }
       const dica = busca.sugestoes.length ? ` Nomes parecidos em ${prefeitura.estado}: ${busca.sugestoes.join(", ")}.` : "";
       return {
         ok: false,
         erro:
-          `O IBGE respondeu, e não tem um município chamado "${prefeitura.municipio}" em ${prefeitura.estado}.${dica} ` +
+          `A tabela do IBGE não tem um município chamado "${prefeitura.municipio}" em ${prefeitura.estado}.${dica} ` +
           `Se esta é uma conta de teste com município fictício, é o esperado. Se o município é real, ` +
           `confira a grafia e o estado no cadastro.`,
       };

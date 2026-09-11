@@ -13,7 +13,8 @@
  * fato". Empenhado é só compromisso; pago pode faltar liquidação.
  */
 
-const URL_IBGE = "https://servicodados.ibge.gov.br/api/v1/localidades/estados";
+import { procurarMunicipioLocal } from "@/lib/municipios";
+
 const URL_SICONFI = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
 const COLUNA_LIQUIDADA = "DESPESAS LIQUIDADAS ATÉ O BIMESTRE (d)";
@@ -98,61 +99,28 @@ async function buscarJson(url: string): Promise<unknown> {
   }
 }
 
-function normalizar(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "") // remove acentos (marcas combinantes do NFD)
-    .trim()
-    .toLowerCase();
-}
 
 export type ResultadoBuscaMunicipio =
   | { ok: true; codigo: string; nome: string }
-  /** O IBGE respondeu e o nome não está lá. Sugestões: nomes parecidos da UF. */
-  | { ok: false; motivo: "nao_encontrado"; sugestoes: string[] }
-  /** O IBGE não respondeu. NÃO quer dizer que o município não existe. */
-  | { ok: false; motivo: "indisponivel" };
+  /** Não está na tabela do IBGE para essa UF. Sugestões: nomes parecidos. */
+  | { ok: false; motivo: "nao_encontrado"; sugestoes: string[] };
 
 /**
- * Procura o município no IBGE pelo nome + UF.
+ * Procura o município pelo nome + UF — na tabela local, sem rede.
  *
- * ── DOIS "NÃO" DIFERENTES ──
- * Antes, falha de rede e nome inexistente voltavam o mesmo null, e a tela
- * dizia "o IBGE não tem um município chamado Barro Duro" — que existe, é
- * do Piauí, código 2201408. Município pequeno pagava pela instabilidade do
- * IBGE. Agora "não respondeu" e "não encontrou" são respostas distintas.
- *
- * ── NOME PARECIDO ──
- * Sem correspondência exata, procura nomes que contenham o que foi digitado
- * ("barro" → Barro Duro, Barras...). Um único candidato é aceito; vários
- * viram sugestão. Nome de município pequeno é o que mais se erra.
+ * Consultava o IBGE a cada chamada, e quando o IBGE não respondia a tela
+ * dizia "esse município não existe" (Barro Duro/PI, que existe). A tabela
+ * completa do Brasil vive em src/dados/municipios.json (ver lib/municipios).
+ * Continua async por compatibilidade com quem já chamava.
  */
 export async function procurarMunicipio(municipio: string, uf: string): Promise<ResultadoBuscaMunicipio> {
-  let dados: { id: number; nome: string }[];
-  try {
-    dados = (await buscarJson(`${URL_IBGE}/${uf.toUpperCase()}/municipios`)) as { id: number; nome: string }[];
-  } catch (e) {
-    console.error("[IBGE] falha ao listar municípios:", e);
-    return { ok: false, motivo: "indisponivel" };
-  }
-  if (!Array.isArray(dados) || dados.length === 0) return { ok: false, motivo: "indisponivel" };
-
-  const alvo = normalizar(municipio);
-  const exato = dados.find((m) => normalizar(m.nome) === alvo);
-  if (exato) return { ok: true, codigo: String(exato.id), nome: exato.nome };
-
-  const parecidos = alvo.length >= 3 ? dados.filter((m) => normalizar(m.nome).includes(alvo)) : [];
-  if (parecidos.length === 1) {
-    return { ok: true, codigo: String(parecidos[0].id), nome: parecidos[0].nome };
-  }
-  return { ok: false, motivo: "nao_encontrado", sugestoes: parecidos.slice(0, 5).map((m) => m.nome) };
+  const r = procurarMunicipioLocal(municipio, uf);
+  if (r.ok) return { ok: true, codigo: r.municipio.codigo, nome: r.municipio.nome };
+  return { ok: false, motivo: "nao_encontrado", sugestoes: r.motivo === "nao_encontrado" ? r.sugestoes : [] };
 }
 
-/** Descobre o código IBGE a partir do nome do município + UF. Null para qualquer falha. */
-export async function buscarCodigoIbge(
-  municipio: string,
-  uf: string
-): Promise<string | null> {
+/** Código IBGE a partir do nome + UF. Null quando não encontra. */
+export async function buscarCodigoIbge(municipio: string, uf: string): Promise<string | null> {
   const r = await procurarMunicipio(municipio, uf);
   return r.ok ? r.codigo : null;
 }

@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { consultarRaioX } from "./actions";
 import { ESTADOS } from "@/lib/estados";
-import { proporcaoDaReceita, type RaioX, type NumeroComFonte } from "@/lib/raio-x";
+import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
+import type { RaioX, NumeroComFonte } from "@/lib/raio-x";
 
 const classeInput =
   "w-full border border-border rounded-xl px-4 py-3 text-base bg-transparent focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition";

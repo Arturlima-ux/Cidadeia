@@ -217,12 +217,7 @@ export async function montarRaioX(
   };
 }
 
-/**
- * Percentual aplicado numa área sobre a receita, quando os dois números
- * existem. Serve de indício, nunca de cálculo oficial: a base legal do mínimo
- * não é a receita total, e dizer o contrário seria inventar conformidade.
- */
-export function proporcaoDaReceita(despesa: number | null, receita: number | null): number | null {
-  if (despesa === null || receita === null || receita <= 0) return null;
-  return (despesa / receita) * 100;
-}
+// proporcaoDaReceita mora em lib/raio-x-calculo.ts: o formulário (cliente)
+// precisa dela, e importar daqui arrastava siconfi.ts e a tabela de
+// municípios para o navegador. Reexportada para quem já importava daqui.
+export { proporcaoDaReceita } from "@/lib/raio-x-calculo";
