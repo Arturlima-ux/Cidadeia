@@ -46,15 +46,23 @@ const PADRAO = "Contato via site CidadeIA";
  * de e-mail com o que a pessoa escolheu — para o pedido não começar com
  * "qual o porte do seu município?" quando ela acabou de responder isso.
  */
-export type PropostaMontada = { porte: PorteMunicipio; modulos: PlanoAddon[] };
+export type PropostaMontada = {
+  porte: PorteMunicipio;
+  modulos: PlanoAddon[];
+  /** Presente quando o município foi identificado no IBGE — e aí o porte veio dele. */
+  municipio?: { nome: string; uf: string; populacao: number } | null;
+};
 
 function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string } {
   const proposta = montarProposta({ porte: p.porte, modulos: p.modulos });
   const nomes = proposta.itens.map((i) => i.nome);
   const porte = PORTES.find((x) => x.chave === p.porte);
   const rotuloPorte = porte ? `${porte.rotulo} ${porte.detalhe}` : p.porte;
+  const m = p.municipio;
   const linhas = [
-    `Município: ${rotuloPorte}`,
+    m
+      ? `Município: ${m.nome}/${m.uf} — ${new Intl.NumberFormat("pt-BR").format(m.populacao)} habitantes (IBGE) → porte ${rotuloPorte}`
+      : `Porte informado: ${rotuloPorte} (município não identificado)`,
     `Módulos: ${nomes.join(", ") || "(nenhum)"}`,
   ];
   if (!proposta.incompleta && proposta.anual > 0) {
@@ -67,7 +75,7 @@ function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string }
   }
   linhas.push("", "Gostaria de receber a proposta e o termo de referência.");
   return {
-    assunto: `Proposta: ${nomes.join(" + ") || "módulos a definir"} — ${rotuloPorte}`,
+    assunto: `Proposta: ${nomes.join(" + ") || "módulos a definir"} — ${m ? `${m.nome}/${m.uf}` : rotuloPorte}`,
     corpo: linhas.join("\n"),
   };
 }

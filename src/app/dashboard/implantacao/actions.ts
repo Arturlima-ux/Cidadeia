@@ -6,10 +6,11 @@ import { eq } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { buscarCodigoIbge } from "@/lib/siconfi";
+import { buscarPopulacao } from "@/lib/populacao-ibge";
 import { revalidatePath } from "next/cache";
 
 export type ResultadoMunicipio =
-  | { ok: true; codigoIbge: string; municipio: string; estado: string }
+  | { ok: true; codigoIbge: string; municipio: string; estado: string; populacao: number | null }
   | { ok: false; erro: string };
 
 /**
@@ -31,16 +32,17 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
   const prefeitura = await buscarPrefeitura(sessao.prefeituraId);
   if (!prefeitura) return { ok: false, erro: "Prefeitura não encontrada." };
 
-  if (prefeitura.codigoIbge) {
+  if (prefeitura.codigoIbge && prefeitura.populacao) {
     return {
       ok: true,
       codigoIbge: prefeitura.codigoIbge,
       municipio: prefeitura.municipio,
       estado: prefeitura.estado,
+      populacao: prefeitura.populacao,
     };
   }
 
-  const codigoIbge = await buscarCodigoIbge(prefeitura.municipio, prefeitura.estado);
+  const codigoIbge = prefeitura.codigoIbge ?? (await buscarCodigoIbge(prefeitura.municipio, prefeitura.estado));
   if (!codigoIbge) {
     return {
       ok: false,
@@ -52,13 +54,20 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
     };
   }
 
+  // ── A POPULAÇÃO VEM DO IBGE, NUNCA DO CADASTRO ──
+  // O campo existia desde o início e nenhum código o gravava: ficava vazio
+  // em toda prefeitura, e é ele que decide regras da LRF (RGF semestral) e
+  // o porte do contrato. Declarado, seria a porta para uma capital contratar
+  // como cidade de 10 mil habitantes. Do IBGE, é fato público.
+  const populacao = await buscarPopulacao(codigoIbge);
+
   await db
     .update(prefeituras)
-    .set({ codigoIbge })
+    .set({ codigoIbge, ...(populacao !== null ? { populacao } : {}) })
     .where(eq(prefeituras.id, sessao.prefeituraId));
 
   revalidatePath("/dashboard/implantacao");
-  return { ok: true, codigoIbge, municipio: prefeitura.municipio, estado: prefeitura.estado };
+  return { ok: true, codigoIbge, municipio: prefeitura.municipio, estado: prefeitura.estado, populacao };
 }
 
 /**

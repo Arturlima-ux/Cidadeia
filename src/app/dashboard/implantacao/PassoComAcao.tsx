@@ -37,7 +37,11 @@ export default function PassoComAcao({
     iniciar(async () => {
       if (chave === "municipio") {
         const r = await confirmarMunicipio();
-        if (r.ok) setOk(`Encontrado: ${r.municipio}/${r.estado}, código IBGE ${r.codigoIbge}.`);
+        if (r.ok)
+          setOk(
+            `Encontrado: ${r.municipio}/${r.estado}, código IBGE ${r.codigoIbge}` +
+              (r.populacao ? `, ${new Intl.NumberFormat("pt-BR").format(r.populacao)} habitantes.` : ".")
+          );
         else setErro(r.erro);
         return;
       }

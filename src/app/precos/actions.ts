@@ -7,7 +7,7 @@ import { porteDaPopulacao, type PorteMunicipio } from "@/lib/precos";
 import { limitarUso } from "@/lib/rate-limit";
 
 export type ResultadoPorte =
-  | { ok: true; municipio: string; uf: string; populacao: number; porte: PorteMunicipio }
+  | { ok: true; codigoIbge: string; municipio: string; uf: string; populacao: number; porte: PorteMunicipio }
   | { ok: false; erro: string };
 
 const schema = z.object({
@@ -40,5 +40,12 @@ export async function sugerirPorte(entrada: { municipio: string; uf: string }): 
   if (populacao === null) {
     return { ok: false, erro: "O IBGE não respondeu agora. Escolha o porte à mão." };
   }
-  return { ok: true, municipio, uf: uf.toUpperCase(), populacao, porte: porteDaPopulacao(populacao) };
+  return {
+    ok: true,
+    codigoIbge: codigo,
+    municipio,
+    uf: uf.toUpperCase(),
+    populacao,
+    porte: porteDaPopulacao(populacao),
+  };
 }

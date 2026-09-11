@@ -33,12 +33,27 @@ export default function MontadorProposta() {
   const [municipio, setMunicipio] = useState("");
   const [uf, setUf] = useState("");
   const [achado, setAchado] = useState<string | null>(null);
+  // Código IBGE do município identificado. Enquanto existir, o porte é o
+  // do IBGE e os botões ficam travados: a tela marcava "acima de 50 mil" e
+  // deixava a pessoa clicar em "0 a 10 mil" logo abaixo — simulava o preço
+  // de cidade pequena para uma capital. Para simular outra faixa, limpa o
+  // município. E o pedido de proposta leva o CÓDIGO, não a faixa: o
+  // servidor pergunta ao IBGE de novo.
+  const [codigoIbge, setCodigoIbge] = useState<string | null>(null);
   const [erroPorte, setErroPorte] = useState<string | null>(null);
   const [consultando, consultar] = useTransition();
+
+  function limparMunicipio() {
+    setMunicipio("");
+    setCodigoIbge(null);
+    setAchado(null);
+    setErroPorte(null);
+  }
 
   function descobrirPorte() {
     setErroPorte(null);
     setAchado(null);
+    setCodigoIbge(null);
     consultar(async () => {
       const r = await sugerirPorte({ municipio, uf });
       if (!r.ok) {
@@ -46,6 +61,7 @@ export default function MontadorProposta() {
         return;
       }
       setPorte(r.porte);
+      setCodigoIbge(r.codigoIbge);
       setAchado(
         `${r.municipio}/${r.uf}: ${new Intl.NumberFormat("pt-BR").format(r.populacao)} habitantes (IBGE).`
       );
@@ -55,7 +71,9 @@ export default function MontadorProposta() {
   // O pedido de proposta leva porte e módulos na URL — validados do outro
   // lado contra a tabela, nunca interpolados como texto — para o formulário
   // não perguntar de novo o que a pessoa acabou de escolher.
-  const linkProposta = `/suporte?assunto=proposta&porte=${porte}&modulos=${modulos.join(",")}`;
+  const linkProposta = codigoIbge
+    ? `/suporte?assunto=proposta&ibge=${codigoIbge}&modulos=${modulos.join(",")}`
+    : `/suporte?assunto=proposta&porte=${porte}&modulos=${modulos.join(",")}`;
 
   function alternar(chave: PlanoAddon) {
     setModulos((atual) =>
@@ -112,7 +130,11 @@ export default function MontadorProposta() {
           </div>
           {achado && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
-              {achado} Porte marcado abaixo.
+              {achado} Porte definido pela população — para simular outra faixa,{" "}
+              <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
+                limpe o município
+              </button>
+              .
             </p>
           )}
           {erroPorte && (
@@ -128,12 +150,13 @@ export default function MontadorProposta() {
                   key={p.chave}
                   type="button"
                   onClick={() => setPorte(p.chave)}
+                  disabled={codigoIbge !== null && !ativo}
                   aria-pressed={ativo}
                   className={`relative text-left rounded-xl border-[1.5px] px-4 py-3.5 transition ${
                     ativo
                       ? "border-brand bg-brand-tint"
                       : "border-border hover:border-brand/40"
-                  }`}
+                  } disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border`}
                 >
                   <span className={`block text-sm font-bold ${ativo ? "text-brand-dark" : ""}`}>
                     {p.rotulo}
