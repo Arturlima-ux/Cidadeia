@@ -11,7 +11,7 @@ export type MunicipioIbge = Municipio & { populacao: number };
 
 /** Código IBGE de município: sete dígitos. Tudo que não for isso é ignorado. */
 export function ehCodigoIbge(v: unknown): v is string {
-  return typeof v === "string" && /^d{7}$/.test(v);
+  return typeof v === "string" && /^\d{7}$/.test(v);
 }
 
 export async function buscarPopulacao(codigoIbge: string): Promise<number | null> {
