@@ -10,23 +10,32 @@ export type PainelModulo = {
   alerta: AlertaExecutivo;
 };
 
-// Dados ilustrativos de uma "Prefeitura Modelo" — mesmo ritmo visual pra
-// todo produto, só troca a métrica de acordo com o módulo/plano.
+// ── DADOS ILUSTRATIVOS, MAS MÉTRICAS REAIS ──
+//
+// Os números são de uma "Prefeitura Modelo" inventada. As MÉTRICAS, não: cada
+// rótulo aqui é um rótulo que existe na tela correspondente do painel. A aba
+// Essencial prometia "Atendimentos WhatsApp" e "Tempo médio de resposta" —
+// contadores que o produto não tem. Quem assinasse pelo que viu em Preços
+// entraria e não encontraria. O teste em tests/paineis-modulos.test.ts trava
+// cada rótulo contra o código da tela real.
+//
+// O medidor circular é a única licença: as telas mostram contagens (no prazo,
+// vencendo, vencidas), e o medidor mostra a proporção entre elas.
 export const PAINEIS_MODULOS: PainelModulo[] = [
   {
     chave: "essencial",
     nomeModulo: "Essencial",
     metricas: [
-      { label: "Atendimentos WhatsApp", valor: "1.284", sentimento: "up" },
-      { label: "Manifestações Ouvidoria", valor: "96", sentimento: "neutro" },
-      { label: "Tempo médio resposta", valor: "2,4 dias", sentimento: "up" },
+      { label: "Aguardando resposta", valor: "14", sentimento: "neutro" },
+      { label: "Vence nos próximos dias", valor: "3", sentimento: "down" },
+      { label: "Respondidas", valor: "82", sentimento: "up" },
     ],
     eficienciaPct: 91,
-    eficienciaLabel: "Índice de Transparência",
+    eficienciaLabel: "No prazo da LAI",
     alerta: {
       status: "aprovado",
       secretaria: "OUVIDORIA",
-      texto: "Meta de resposta em até 3 dias mantida no último trimestre.",
+      texto: "Prazo de 20 dias da Lei de Acesso cumprido em todas as manifestações do mês.",
     },
   },
   {
@@ -49,7 +58,7 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     chave: "saude",
     nomeModulo: "Saúde",
     metricas: [
-      { label: "Tempo médio atendimento", valor: "38 min", sentimento: "up" },
+      { label: "Tempo médio de atendimento", valor: "38 min", sentimento: "up" },
       { label: "Médicos ativos", valor: "46", sentimento: "up" },
       { label: "Faltas", valor: "12%", sentimento: "down" },
     ],
@@ -66,11 +75,11 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     nomeModulo: "Educação",
     metricas: [
       { label: "Nota média", valor: "7,2", sentimento: "up" },
-      { label: "Evasão", valor: "4,1%", sentimento: "down" },
+      { label: "Alunos no transporte", valor: "312", sentimento: "neutro" },
       { label: "Professores ativos", valor: "58", sentimento: "neutro" },
     ],
     eficienciaPct: 93,
-    eficienciaLabel: "Frequência escolar",
+    eficienciaLabel: "Frequência",
     alerta: {
       status: "aguardando",
       secretaria: "SEC. EDUCAÇÃO",
@@ -81,12 +90,12 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     chave: "obras",
     nomeModulo: "Obras",
     metricas: [
-      { label: "Obras cadastradas", valor: "24", sentimento: "neutro" },
-      { label: "Obras atrasadas", valor: "5", sentimento: "down" },
-      { label: "Valor contratado", valor: "R$ 3,8 mi", sentimento: "neutro" },
+      { label: "Todas as obras", valor: "24", sentimento: "neutro" },
+      { label: "Progresso abaixo do esperado", valor: "5", sentimento: "down" },
+      { label: "Em andamento", valor: "17", sentimento: "neutro" },
     ],
-    eficienciaPct: 67,
-    eficienciaLabel: "Progresso médio",
+    eficienciaPct: 79,
+    eficienciaLabel: "No cronograma",
     alerta: {
       status: "sugere",
       secretaria: "SEC. OBRAS",
@@ -97,12 +106,12 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     chave: "licitacoes",
     nomeModulo: "Licitações",
     metricas: [
-      { label: "Processos cadastrados", valor: "31", sentimento: "neutro" },
-      { label: "Com risco observado", valor: "4", sentimento: "down" },
-      { label: "Valor estimado total", valor: "R$ 2,1 mi", sentimento: "neutro" },
+      { label: "Todos os processos", valor: "31", sentimento: "neutro" },
+      { label: "Com observação de risco", valor: "4", sentimento: "down" },
+      { label: "Homologada", valor: "19", sentimento: "up" },
     ],
-    eficienciaPct: 88,
-    eficienciaLabel: "Processos sem risco",
+    eficienciaPct: 87,
+    eficienciaLabel: "Sem observação de risco",
     alerta: {
       status: "aprovado",
       secretaria: "SEC. LICITAÇÕES",
