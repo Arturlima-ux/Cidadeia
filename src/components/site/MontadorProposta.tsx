@@ -20,10 +20,16 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
 };
 
 export default function MontadorProposta() {
-  const [porte, setPorte] = useState<PorteMunicipio>("de10a50k");
+  // ── O PORTE NÃO É ESCOLHA ──
+  // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
+  // quisesse o preço de cidade de 10 mil habitantes para uma capital
+  // clicava. Agora não existe botão: o município é obrigatório, o porte é
+  // o que a tabela do IBGE diz, e o preço só aparece depois disso.
+  const [porte, setPorte] = useState<PorteMunicipio | null>(null);
   const [modulos, setModulos] = useState<PlanoAddon[]>(["essencial", "gestao"]);
 
-  const proposta = montarProposta({ porte, modulos });
+  const identificado = porte !== null;
+  const proposta = montarProposta({ porte: porte ?? "de10a50k", modulos });
   const cabe = cabeNaDispensa(proposta.anual);
 
   // ── Porte pelo município, em vez de cabeça ──
@@ -48,6 +54,7 @@ export default function MontadorProposta() {
     setCodigoIbge(null);
     setAchado(null);
     setErroPorte(null);
+    setPorte(null);
   }
 
   function descobrirPorte() {
@@ -71,9 +78,8 @@ export default function MontadorProposta() {
   // O pedido de proposta leva porte e módulos na URL — validados do outro
   // lado contra a tabela, nunca interpolados como texto — para o formulário
   // não perguntar de novo o que a pessoa acabou de escolher.
-  const linkProposta = codigoIbge
-    ? `/suporte?assunto=proposta&ibge=${codigoIbge}&modulos=${modulos.join(",")}`
-    : `/suporte?assunto=proposta&porte=${porte}&modulos=${modulos.join(",")}`;
+  // Sem código IBGE não há pedido: o servidor só monta proposta com município.
+  const linkProposta = `/suporte?assunto=proposta&ibge=${codigoIbge ?? ""}&modulos=${modulos.join(",")}`;
 
   function alternar(chave: PlanoAddon) {
     setModulos((atual) =>
@@ -90,11 +96,11 @@ export default function MontadorProposta() {
             <span className="w-6 h-6 rounded-lg bg-brand text-white text-xs font-extrabold font-serif flex items-center justify-center">
               1
             </span>
-            <span className="font-semibold text-base">Porte do município</span>
+            <span className="font-semibold text-base">Seu município</span>
           </legend>
           <div className="flex flex-wrap items-end gap-2 mb-1">
             <label className="flex-1 min-w-[160px]">
-              <span className="block text-xs text-muted mb-1">Município (opcional)</span>
+              <span className="block text-xs text-muted mb-1">Município</span>
               <input
                 id="proposta-municipio"
                 value={municipio}
@@ -130,11 +136,10 @@ export default function MontadorProposta() {
           </div>
           {achado && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
-              {achado} Porte definido pela população — para simular outra faixa,{" "}
+              {achado}{" "}
               <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
-                limpe o município
+                Trocar município
               </button>
-              .
             </p>
           )}
           {erroPorte && (
@@ -142,35 +147,26 @@ export default function MontadorProposta() {
               {erroPorte}
             </p>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            {PORTES.map((p) => {
-              const ativo = porte === p.chave;
-              return (
-                <button
-                  key={p.chave}
-                  type="button"
-                  onClick={() => setPorte(p.chave)}
-                  disabled={codigoIbge !== null && !ativo}
-                  aria-pressed={ativo}
-                  className={`relative text-left rounded-xl border-[1.5px] px-4 py-3.5 transition ${
-                    ativo
-                      ? "border-brand bg-brand-tint"
-                      : "border-border hover:border-brand/40"
-                  } disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border`}
-                >
-                  <span className={`block text-sm font-bold ${ativo ? "text-brand-dark" : ""}`}>
-                    {p.rotulo}
-                  </span>
-                  <span className="block text-xs text-muted mt-0.5">{p.detalhe}</span>
-                  {ativo && (
-                    <span className="absolute top-3 right-3 w-4 h-4 rounded-full bg-brand flex items-center justify-center">
-                      <IconCheck className="w-2.5 h-2.5 text-white" strokeWidth={3.5} />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {/* O porte é resultado, não escolha. Aparece só depois de o
+              município ser identificado, e não tem clique. */}
+          {identificado ? (
+            <div className="rounded-xl border-[1.5px] border-brand bg-brand-tint px-4 py-3.5 flex items-center justify-between gap-3">
+              <div>
+                <span className="block text-xs text-muted">Porte pela população do IBGE</span>
+                <span className="block text-sm font-bold text-brand-dark">
+                  {PORTES.find((p) => p.chave === porte)?.rotulo} habitantes
+                </span>
+              </div>
+              <span className="w-5 h-5 rounded-full bg-brand flex items-center justify-center shrink-0">
+                <IconCheck className="w-3 h-3 text-white" strokeWidth={3.5} />
+              </span>
+            </div>
+          ) : (
+            <p className="text-xs text-muted leading-relaxed">
+              O porte (0 a 10 mil, 10 a 50 mil, acima de 50 mil) sai da população do
+              IBGE para o município informado — é ele que define a tabela.
+            </p>
+          )}
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">
@@ -222,7 +218,12 @@ export default function MontadorProposta() {
       >
         <h3 className="font-serif font-bold text-base">Sua proposta</h3>
 
-        {proposta.itens.length === 0 ? (
+        {!identificado ? (
+          <p className="text-sm text-white/70 leading-relaxed">
+            Informe o município para ver o valor — é a população dele que define a
+            tabela.
+          </p>
+        ) : proposta.itens.length === 0 ? (
           <p className="text-sm text-white/70 leading-relaxed">
             Escolha ao menos um módulo para ver o valor.
           </p>
@@ -241,7 +242,7 @@ export default function MontadorProposta() {
 
         <div className="h-px bg-white/15" />
 
-        {proposta.incompleta ? (
+        {!identificado ? null : proposta.incompleta ? (
           // Preço ainda não definido: dizer "sob consulta" é honesto. Mostrar
           // R$ 0,00 daria a entender que os módulos escolhidos são de graça.
           <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
@@ -295,12 +296,21 @@ export default function MontadorProposta() {
         )}
 
         <div className="flex flex-col gap-2.5 mt-auto pt-2">
-          <Link
-            href={linkProposta}
-            className="bg-white text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center hover:opacity-90 transition"
-          >
-            Receber esta proposta e o termo de referência
-          </Link>
+          {identificado ? (
+            <Link
+              href={linkProposta}
+              className="bg-white text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center hover:opacity-90 transition"
+            >
+              Receber esta proposta e o termo de referência
+            </Link>
+          ) : (
+            <span
+              aria-disabled
+              className="bg-white/40 text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center cursor-not-allowed"
+            >
+              Informe o município para pedir a proposta
+            </span>
+          )}
           {/* Era "Criar conta e testar grátis". A conta é criada, mas nasce
               sem módulo nenhum e o botão de ativar leva a um checkout que
               ainda não existe — ou seja, prometia um teste que não acontece.

@@ -9,6 +9,8 @@ import {
   HREF_PLANO_ADDON,
 } from "@/lib/planos";
 import AbasModulos from "../AbasModulos";
+import { PORTES, PRECO_MENSAL, porteDaPopulacao } from "@/lib/precos";
+import { formatarMoeda } from "@/lib/formatadores";
 
 export default async function MarketplacePage() {
   const sessao = await lerSessao();
@@ -27,6 +29,20 @@ export default async function MarketplacePage() {
   const prefeitura = await buscarPrefeitura(sessao.prefeituraId);
   const planosAtivos = planosContratadosDe(prefeitura?.planosContratados);
 
+  // ── O PORTE VEM DA POPULAÇÃO DO IBGE GRAVADA NA PREFEITURA ──
+  // Nunca de um campo declarado. Sem população (Implantação não fez o passo
+  // "Município reconhecido"), o painel não mostra preço nem monta pedido com
+  // porte — e diz o que falta. O pedido leva o código IBGE, e o e-mail é o
+  // servidor que escreve, com nome, UF e população.
+  const populacao = prefeitura?.populacao ?? null;
+  const porte = populacao ? porteDaPopulacao(populacao) : null;
+  const rotuloPorte = porte ? PORTES.find((x) => x.chave === porte) : null;
+  const codigoIbge = prefeitura?.codigoIbge ?? null;
+  const linkProposta = (modulo: string) =>
+    codigoIbge
+      ? `/suporte?assunto=proposta&ibge=${codigoIbge}&modulos=${modulo}`
+      : "/dashboard/implantacao";
+
   return (
     <div className="max-w-4xl space-y-6">
       <div>
@@ -38,6 +54,25 @@ export default async function MarketplacePage() {
       </div>
 
       <AbasModulos ativa="marketplace" />
+
+      {porte && rotuloPorte && populacao ? (
+        <p className="text-sm text-muted">
+          Valores para o porte da {prefeitura?.nome}:{" "}
+          <strong className="text-foreground">{rotuloPorte.rotulo} habitantes</strong> —{" "}
+          {new Intl.NumberFormat("pt-BR").format(populacao)} hab. pela estimativa do IBGE.
+        </p>
+      ) : (
+        <p
+          className="text-sm rounded-lg px-3 py-2.5 border"
+          style={{ color: "var(--medio)", background: "var(--medio-tint)", borderColor: "var(--medio-borda)" }}
+        >
+          Os valores dependem do porte do município, que vem da população do IBGE.{" "}
+          <Link href="/dashboard/implantacao" className="font-semibold underline">
+            Reconheça o município na Implantação
+          </Link>{" "}
+          para ver os valores e pedir proposta.
+        </p>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-4">
         {PLANOS_ADDON.map((p) => {
@@ -60,6 +95,13 @@ export default async function MarketplacePage() {
               </div>
               <p className="text-xs text-muted mt-2 leading-relaxed flex-1">
                 {p.descricao}
+                {porte && (
+                  <span className="block mt-2 text-sm font-semibold text-foreground">
+                    {PRECO_MENSAL[p.chave][porte] === null
+                      ? "Valor sob consulta"
+                      : `${formatarMoeda(PRECO_MENSAL[p.chave][porte] as number)}/mês`}
+                  </span>
+                )}
               </p>
 
               {ativo ? (
@@ -87,7 +129,7 @@ export default async function MarketplacePage() {
                   </a>
                 ) : (
                   <Link
-                    href={`/suporte?assunto=proposta&modulo=${encodeURIComponent(p.nome)}`}
+                    href={linkProposta(p.chave)}
                     className="mt-4 text-center bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-4 py-2 transition"
                   >
                     Pedir proposta

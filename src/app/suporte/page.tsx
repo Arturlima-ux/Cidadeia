@@ -5,7 +5,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import ContatoEmail from "@/components/site/ContatoEmail";
 import { IconIA } from "@/components/icons";
-import { PORTES, porteDaPopulacao } from "@/lib/precos";
+import { porteDaPopulacao } from "@/lib/precos";
 import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 
@@ -29,17 +29,15 @@ export default async function SuportePage({
     .split(",")
     .filter((m): m is PlanoAddon => PLANOS_ADDON.some((p) => p.chave === m));
 
-  // Com código IBGE, o porte vem do IBGE — consultado AQUI, no servidor —
-  // e o parâmetro "porte" é ignorado. Foi visto na tela: o IBGE marcava
-  // "acima de 50 mil" e a pessoa podia clicar em "0 a 10 mil". Editar a
-  // URL também não adianta: o código só serve para perguntar ao IBGE.
+  // O porte vem SÓ do código IBGE, resolvido aqui no servidor contra a
+  // tabela. Não existe parâmetro "porte": já existiu, e era a brecha —
+  // quem editasse a URL pedia proposta de cidade de 10 mil habitantes para
+  // uma capital. Sem código válido, não há proposta montada.
   const codigo = texto(params.ibge);
   const municipio = ehCodigoIbge(codigo) ? await buscarMunicipioPorCodigo(codigo) : null;
-  const porteBruto = texto(params.porte);
-  const porte = municipio
-    ? porteDaPopulacao(municipio.populacao)
-    : (PORTES.find((p) => p.chave === porteBruto)?.chave ?? null);
-  const proposta = porte ? { porte, modulos: modulosValidos, municipio } : null;
+  const proposta = municipio
+    ? { porte: porteDaPopulacao(municipio.populacao), modulos: modulosValidos, municipio }
+    : null;
 
   return (
     <div className="tema-noite min-h-screen">
