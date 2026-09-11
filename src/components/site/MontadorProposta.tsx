@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, montarProposta, type PorteMunicipio } from "@/lib/precos";
 import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
 import { formatarMoeda, formatarMoedaExata } from "@/lib/formatadores";
 import { IconCheck } from "@/components/icons";
+import { ESTADOS } from "@/lib/estados";
+import { sugerirPorte } from "@/app/precos/actions";
 
 const RESUMO_MODULO: Record<PlanoAddon, string> = {
   essencial: "Protocolo, ouvidoria e portal",
@@ -23,6 +25,37 @@ export default function MontadorProposta() {
 
   const proposta = montarProposta({ porte, modulos });
   const cabe = cabeNaDispensa(proposta.anual);
+
+  // ── Porte pelo município, em vez de cabeça ──
+  // "Até 10 mil / 10 a 50 mil / acima" exigia saber a população. O IBGE
+  // sabe: nome + UF → estimativa do ano → faixa. A escolha manual continua
+  // logo abaixo, para quem prefere ou para quando o IBGE não responde.
+  const [municipio, setMunicipio] = useState("");
+  const [uf, setUf] = useState("");
+  const [achado, setAchado] = useState<string | null>(null);
+  const [erroPorte, setErroPorte] = useState<string | null>(null);
+  const [consultando, consultar] = useTransition();
+
+  function descobrirPorte() {
+    setErroPorte(null);
+    setAchado(null);
+    consultar(async () => {
+      const r = await sugerirPorte({ municipio, uf });
+      if (!r.ok) {
+        setErroPorte(r.erro);
+        return;
+      }
+      setPorte(r.porte);
+      setAchado(
+        `${r.municipio}/${r.uf}: ${new Intl.NumberFormat("pt-BR").format(r.populacao)} habitantes (IBGE).`
+      );
+    });
+  }
+
+  // O pedido de proposta leva porte e módulos na URL — validados do outro
+  // lado contra a tabela, nunca interpolados como texto — para o formulário
+  // não perguntar de novo o que a pessoa acabou de escolher.
+  const linkProposta = `/suporte?assunto=proposta&porte=${porte}&modulos=${modulos.join(",")}`;
 
   function alternar(chave: PlanoAddon) {
     setModulos((atual) =>
@@ -41,6 +74,52 @@ export default function MontadorProposta() {
             </span>
             <span className="font-semibold text-base">Porte do município</span>
           </legend>
+          <div className="flex flex-wrap items-end gap-2 mb-1">
+            <label className="flex-1 min-w-[160px]">
+              <span className="block text-xs text-muted mb-1">Município (opcional)</span>
+              <input
+                id="proposta-municipio"
+                value={municipio}
+                onChange={(e) => setMunicipio(e.target.value)}
+                placeholder="Ex.: Teresina"
+                className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-brand"
+              />
+            </label>
+            <label className="w-24">
+              <span className="block text-xs text-muted mb-1">UF</span>
+              <select
+                id="proposta-uf"
+                value={uf}
+                onChange={(e) => setUf(e.target.value)}
+                className="w-full rounded-lg border border-border bg-transparent px-2 py-2 text-sm outline-none focus:border-brand"
+              >
+                <option value="">—</option>
+                {ESTADOS.map((e) => (
+                  <option key={e} value={e}>
+                    {e}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={descobrirPorte}
+              disabled={consultando || municipio.trim().length < 2 || !uf}
+              className="text-sm font-semibold rounded-lg border border-border px-3 py-2 hover:border-brand hover:text-brand transition disabled:opacity-50"
+            >
+              {consultando ? "Consultando o IBGE…" : "Descobrir o porte"}
+            </button>
+          </div>
+          {achado && (
+            <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
+              {achado} Porte marcado abaixo.
+            </p>
+          )}
+          {erroPorte && (
+            <p className="text-xs leading-relaxed" style={{ color: "var(--urgente)" }}>
+              {erroPorte}
+            </p>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {PORTES.map((p) => {
               const ativo = porte === p.chave;
@@ -194,10 +273,10 @@ export default function MontadorProposta() {
 
         <div className="flex flex-col gap-2.5 mt-auto pt-2">
           <Link
-            href="/suporte?assunto=proposta"
+            href={linkProposta}
             className="bg-white text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center hover:opacity-90 transition"
           >
-            Receber proposta e termo de referência
+            Receber esta proposta e o termo de referência
           </Link>
           {/* Era "Criar conta e testar grátis". A conta é criada, mas nasce
               sem módulo nenhum e o botão de ativar leva a um checkout que

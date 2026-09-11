@@ -3,6 +3,7 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
+import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { PRECO_MENSAL, PORTES } from "@/lib/precos";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -33,6 +34,23 @@ export default function PrecosPage() {
             Cada área é um módulo avulso, contratado separadamente conforme o que
             sua gestão precisa. Você paga só pelo que usa.
           </p>
+        </section>
+      </Reveal>
+
+      {/* O simulador existia só na home, na quinta seção. A página que se
+          chama "Preços" abria com uma tabela — e a pergunta que a pessoa traz
+          é "quanto fica para o MEU município, com o que EU preciso". É isto
+          que o simulador responde, então ele abre a página. */}
+      <Reveal>
+        <section className="max-w-5xl mx-auto px-4 sm:px-8 pb-16">
+          <div className="text-center mb-8">
+            <h2 className="font-serif text-2xl font-bold">Monte a sua proposta</h2>
+            <p className="text-muted mt-2 leading-relaxed max-w-lg mx-auto">
+              Porte do município e os módulos que a prefeitura vai usar. O valor
+              anual sai na hora, com o caminho de contratação que cabe.
+            </p>
+          </div>
+          <MontadorProposta />
         </section>
       </Reveal>
 

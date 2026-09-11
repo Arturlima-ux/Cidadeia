@@ -1,5 +1,9 @@
 "use client";
 
+import { montarProposta, PORTES, type PorteMunicipio } from "@/lib/precos";
+import type { PlanoAddon } from "@/lib/planos";
+import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
+import { formatarMoeda } from "@/lib/formatadores";
 
 const CONTATO_EMAIL = "arturmlo2005@gmail.com";
 
@@ -36,18 +40,58 @@ const PADRAO = "Contato via site CidadeIA";
 // pré-renderizar /suporte: o HTML saía sem o bloco de contato, que só existia
 // depois do JavaScript rodar. Ver o comentário em app/login/page.tsx — mesmo
 // defeito, mesma origem.
+/**
+ * Proposta montada no simulador: porte e módulos JÁ VALIDADOS pela página
+ * contra a tabela (PORTES e PLANOS_ADDON). Daqui sai um assunto e um corpo
+ * de e-mail com o que a pessoa escolheu — para o pedido não começar com
+ * "qual o porte do seu município?" quando ela acabou de responder isso.
+ */
+export type PropostaMontada = { porte: PorteMunicipio; modulos: PlanoAddon[] };
+
+function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string } {
+  const proposta = montarProposta({ porte: p.porte, modulos: p.modulos });
+  const nomes = proposta.itens.map((i) => i.nome);
+  const porte = PORTES.find((x) => x.chave === p.porte);
+  const rotuloPorte = porte ? `${porte.rotulo} ${porte.detalhe}` : p.porte;
+  const linhas = [
+    `Município: ${rotuloPorte}`,
+    `Módulos: ${nomes.join(", ") || "(nenhum)"}`,
+  ];
+  if (!proposta.incompleta && proposta.anual > 0) {
+    linhas.push(`Mensal: ${formatarMoeda(proposta.mensal)} — 12 meses: ${formatarMoeda(proposta.anual)}`);
+    linhas.push(
+      cabeNaDispensa(proposta.anual)
+        ? `Cabe na dispensa de licitação (${LIMITE_DISPENSA.base}).`
+        : "Acima do limite de dispensa — caminho: pregão eletrônico."
+    );
+  }
+  linhas.push("", "Gostaria de receber a proposta e o termo de referência.");
+  return {
+    assunto: `Proposta: ${nomes.join(" + ") || "módulos a definir"} — ${rotuloPorte}`,
+    corpo: linhas.join("\n"),
+  };
+}
+
 export default function ContatoEmail({
   modulo,
   chave,
+  proposta,
 }: {
   modulo?: string | null;
   chave?: string | null;
+  proposta?: PropostaMontada | null;
 }) {
-
-  // Módulo continua tendo precedência: veio de um card específico de preço.
-  const escolhido = modulo ? null : chave ? ASSUNTOS[chave] : null;
-  const assunto = modulo ? `Proposta para o módulo ${modulo}` : (escolhido?.assunto ?? PADRAO);
-  const mailto = `mailto:${CONTATO_EMAIL}?subject=${encodeURIComponent(assunto)}`;
+  // Precedência: proposta montada > módulo de um card > assunto genérico.
+  const montada = proposta ? textoDaProposta(proposta) : null;
+  const escolhido = modulo || montada ? null : chave ? ASSUNTOS[chave] : null;
+  const assunto = montada
+    ? montada.assunto
+    : modulo
+      ? `Proposta para o módulo ${modulo}`
+      : (escolhido?.assunto ?? PADRAO);
+  const mailto =
+    `mailto:${CONTATO_EMAIL}?subject=${encodeURIComponent(assunto)}` +
+    (montada ? `&body=${encodeURIComponent(montada.corpo)}` : "");
 
   return (
     <div>
@@ -55,7 +99,17 @@ export default function ContatoEmail({
       <a href={mailto} className="text-brand font-semibold hover:underline">
         {CONTATO_EMAIL}
       </a>
-      {modulo && (
+      {montada && (
+        <div className="text-xs text-muted mt-1.5 leading-relaxed">
+          <p>
+            Assunto pré-preenchido: <strong>{montada.assunto}</strong>.
+          </p>
+          <pre className="mt-2 whitespace-pre-wrap font-sans rounded-lg border border-border px-3 py-2">
+            {montada.corpo}
+          </pre>
+        </div>
+      )}
+      {modulo && !montada && (
         <p className="text-xs text-muted mt-1.5">
           Assunto pré-preenchido: proposta para o módulo <strong>{modulo}</strong>.
         </p>
