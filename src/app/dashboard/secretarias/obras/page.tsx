@@ -1,5 +1,8 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
-import { buscarObras, criarObra, atualizarProgressoObra } from "./actions";
+import { buscarObras, criarObra, atualizarProgressoObra, excluirObra } from "./actions";
+import BotaoExcluir from "@/components/BotaoExcluir";
+import { LIMITES_BRASIL } from "@/lib/coordenadas";
+
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -121,6 +124,9 @@ export default async function ObrasPage() {
               name="latitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.latitude.min}
+              max={LIMITES_BRASIL.latitude.max}
+              title="Latitude no Brasil: entre -34 e 6"
               placeholder="-3.7327"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -131,6 +137,9 @@ export default async function ObrasPage() {
               name="longitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.longitude.min}
+              max={LIMITES_BRASIL.longitude.max}
+              title="Longitude no Brasil: entre -74 e -28"
               placeholder="-38.5267"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -279,6 +288,9 @@ export default async function ObrasPage() {
                     </button>
                   </form>
                 </details>
+                <div className="mt-2 flex justify-end">
+                  <BotaoExcluir id={o.id} nome={o.nome} acao={excluirObra} />
+                </div>
               </div>
             ))}
           </div>

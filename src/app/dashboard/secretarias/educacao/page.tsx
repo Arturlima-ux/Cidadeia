@@ -4,7 +4,11 @@ import {
   buscarUltimoIndicadorEducacao,
   criarEscola,
   atualizarIndicadorEducacao,
+  excluirEscola,
 } from "./actions";
+import BotaoExcluir from "@/components/BotaoExcluir";
+import { LIMITES_BRASIL } from "@/lib/coordenadas";
+
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -133,6 +137,9 @@ export default async function EducacaoPage() {
               name="latitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.latitude.min}
+              max={LIMITES_BRASIL.latitude.max}
+              title="Latitude no Brasil: entre -34 e 6"
               placeholder="-3.7327"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -143,6 +150,9 @@ export default async function EducacaoPage() {
               name="longitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.longitude.min}
+              max={LIMITES_BRASIL.longitude.max}
+              title="Longitude no Brasil: entre -74 e -28"
               placeholder="-38.5267"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -183,13 +193,15 @@ export default async function EducacaoPage() {
                   <p className="font-medium break-words">{e.nome}</p>
                   {e.bairro && <p className="text-xs text-muted">{e.bairro}</p>}
                 </div>
-                {e.evasaoPercentual !== null && (
-                  <PilulaStatus
-                    label={`Evasão ${e.evasaoPercentual}%`}
-                    tom={e.evasaoPercentual > 10 ? "negativo" : "andamento"}
-                    className="self-start shrink-0"
-                  />
-                )}
+                <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                  {e.evasaoPercentual !== null && (
+                    <PilulaStatus
+                      label={`Evasão ${e.evasaoPercentual}%`}
+                      tom={e.evasaoPercentual > 10 ? "negativo" : "andamento"}
+                    />
+                  )}
+                  <BotaoExcluir id={e.id} nome={e.nome} acao={excluirEscola} />
+                </div>
               </div>
             ))}
           </div>

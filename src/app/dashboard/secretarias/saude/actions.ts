@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { unidadesSaude, saudeIndicadores } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { gerarId } from "@/lib/id";
+import { LIMITES_BRASIL } from "@/lib/coordenadas";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
 import { revalidatePath } from "next/cache";
 
@@ -40,8 +41,10 @@ const schemaUnidade = z.object({
   nome: z.string().min(2, "Informe o nome da unidade."),
   tipo: z.enum(["ubs", "posto", "hospital", "samu"]),
   bairro: z.string().optional(),
-  latitude: z.coerce.number().min(-90).max(90).optional(),
-  longitude: z.coerce.number().min(-180).max(180).optional(),
+  // Caixa do Brasil, não o mundo: pega latitude e longitude trocadas, que
+  // antes passavam e caíam no oceano (src/lib/coordenadas.ts).
+  latitude: z.coerce.number().min(LIMITES_BRASIL.latitude.min).max(LIMITES_BRASIL.latitude.max).optional(),
+  longitude: z.coerce.number().min(LIMITES_BRASIL.longitude.min).max(LIMITES_BRASIL.longitude.max).optional(),
 });
 
 export async function criarUnidadeSaude(formData: FormData) {
@@ -101,4 +104,24 @@ export async function atualizarIndicadorSaude(formData: FormData) {
   });
 
   revalidatePath("/dashboard/secretarias/saude");
+}
+
+// ── EXCLUSÃO ──
+// Não existia: dava para adicionar, nunca para tirar. Um cadastro duplicado
+// ficava para sempre — e a lista com oito vezes a mesma unidade deixa de
+// ser confiável na primeira olhada.
+//
+// O WHERE inclui a prefeitura da sessão de propósito. O id sozinho viria do
+// navegador, e um id de outra prefeitura apagaria dado alheio.
+export async function excluirUnidadeSaude(id: string): Promise<{ erro: string | null }> {
+  const sessao = await lerSessao();
+  if (!sessao) return { erro: "Sessão expirada." };
+  if (!temAcessoSecretaria(sessao, "saude")) return { erro: "Sem permissão." };
+
+  await db
+    .delete(unidadesSaude)
+    .where(and(eq(unidadesSaude.id, id), eq(unidadesSaude.prefeituraId, sessao.prefeituraId)));
+
+  revalidatePath("/dashboard/secretarias/saude");
+  return { erro: null };
 }

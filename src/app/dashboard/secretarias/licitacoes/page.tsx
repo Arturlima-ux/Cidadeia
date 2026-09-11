@@ -1,5 +1,7 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
-import { buscarLicitacoes, criarLicitacao } from "./actions";
+import { buscarLicitacoes, criarLicitacao, excluirLicitacao } from "./actions";
+import BotaoExcluir from "@/components/BotaoExcluir";
+
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
 import Aviso from "@/components/Aviso";
@@ -220,11 +222,10 @@ export default async function LicitacoesPage() {
                     {l.fornecedor && ` · ${l.fornecedor}`}
                   </p>
                 </div>
-                <PilulaStatus
-                  label={LABEL_STATUS[l.status]}
-                  tom={TOM_STATUS[l.status] ?? "neutro"}
-                  className="self-start shrink-0"
-                />
+                <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                  <PilulaStatus label={LABEL_STATUS[l.status]} tom={TOM_STATUS[l.status] ?? "neutro"} />
+                  <BotaoExcluir id={l.id} nome={l.numero} acao={excluirLicitacao} />
+                </div>
               </div>
             ))}
           </div>

@@ -52,8 +52,13 @@ export default function MapaSecretaria({
 
   return (
     <div className="space-y-2">
+      {/* `isolate z-0`: o Leaflet dá z-index 400 às camadas e 1000 aos
+          controles, e esses valores vazavam para a página — o mapa
+          desenhava POR CIMA do menu "Atualizar indicadores" (z-10). Com um
+          contexto de empilhamento próprio, os z-index do Leaflet só valem
+          dentro do mapa. */}
       <div
-        className="relative rounded-xl overflow-hidden border border-border"
+        className="relative isolate z-0 rounded-xl overflow-hidden border border-border"
         style={{ height: 340 }}
       >
         <MapContainer

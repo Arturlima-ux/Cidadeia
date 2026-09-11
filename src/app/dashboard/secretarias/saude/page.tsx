@@ -4,7 +4,11 @@ import {
   buscarUltimoIndicadorSaude,
   criarUnidadeSaude,
   atualizarIndicadorSaude,
+  excluirUnidadeSaude,
 } from "./actions";
+import BotaoExcluir from "@/components/BotaoExcluir";
+import { LIMITES_BRASIL } from "@/lib/coordenadas";
+
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -163,6 +167,9 @@ export default async function SaudePage() {
               name="latitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.latitude.min}
+              max={LIMITES_BRASIL.latitude.max}
+              title="Latitude no Brasil: entre -34 e 6"
               placeholder="-3.7327"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -173,6 +180,9 @@ export default async function SaudePage() {
               name="longitude"
               type="number"
               step="any"
+              min={LIMITES_BRASIL.longitude.min}
+              max={LIMITES_BRASIL.longitude.max}
+              title="Longitude no Brasil: entre -74 e -28"
               placeholder="-38.5267"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
@@ -202,11 +212,10 @@ export default async function SaudePage() {
                   <p className="font-medium break-words">{u.nome}</p>
                   {u.bairro && <p className="text-xs text-muted">{u.bairro}</p>}
                 </div>
-                <PilulaStatus
-                  label={LABEL_TIPO[u.tipo]}
-                  tom="andamento"
-                  className="self-start shrink-0"
-                />
+                <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                  <PilulaStatus label={LABEL_TIPO[u.tipo]} tom="andamento" />
+                  <BotaoExcluir id={u.id} nome={u.nome} acao={excluirUnidadeSaude} />
+                </div>
               </div>
             ))}
           </div>

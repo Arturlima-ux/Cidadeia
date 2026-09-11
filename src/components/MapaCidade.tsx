@@ -144,7 +144,7 @@ export default function MapaCidade({ pontos }: { pontos: PontoCidade[] }) {
         )}
       </div>
 
-      <div className="relative rounded-xl overflow-hidden border border-border" style={{ height: 460 }}>
+      <div className="relative isolate z-0 rounded-xl overflow-hidden border border-border" style={{ height: 460 }}>
         <MapContainer center={centro} zoom={12} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
