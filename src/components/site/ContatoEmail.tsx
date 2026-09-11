@@ -103,19 +103,39 @@ export default function ContatoEmail({
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-1">E-mail</p>
-      <a href={mailto} className="text-brand font-semibold hover:underline">
-        {CONTATO_EMAIL}
-      </a>
-      {montada && (
-        <div className="text-xs text-muted mt-1.5 leading-relaxed">
-          <p>
-            Assunto pré-preenchido: <strong>{montada.assunto}</strong>.
+      {/* ── COM PROPOSTA MONTADA, A AÇÃO É UM BOTÃO ──
+          Quem clicou em "Receber esta proposta" chega aqui esperando que
+          algo aconteça — e encontrava um endereço de e-mail azul, que
+          parecia informação, não ação. O pedido só sai quando o programa
+          de e-mail abre, e é isso que o botão faz, com o texto pronto.
+          O rascunho fica visível para a pessoa conferir antes. */}
+      {montada ? (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+            Sua proposta, pronta para enviar
           </p>
-          <pre className="mt-2 whitespace-pre-wrap font-sans rounded-lg border border-border px-3 py-2">
+          <pre className="whitespace-pre-wrap font-sans text-sm rounded-lg border border-border px-3.5 py-3 leading-relaxed">
             {montada.corpo}
           </pre>
+          <a
+            href={mailto}
+            className="mt-4 block w-full text-center bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-5 py-3.5 transition shadow-elevated"
+          >
+            Enviar este pedido por e-mail&nbsp;&nbsp;→
+          </a>
+          <p className="text-xs text-muted mt-2.5 leading-relaxed">
+            Abre o seu programa de e-mail com assunto e texto preenchidos, para{" "}
+            <span className="font-semibold text-foreground">{CONTATO_EMAIL}</span>. Se
+            preferir, copie o texto acima e mande do jeito que quiser.
+          </p>
         </div>
+      ) : (
+        <>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-1">E-mail</p>
+          <a href={mailto} className="text-brand font-semibold hover:underline">
+            {CONTATO_EMAIL}
+          </a>
+        </>
       )}
       {modulo && !montada && (
         <p className="text-xs text-muted mt-1.5">
