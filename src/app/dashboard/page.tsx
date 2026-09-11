@@ -71,7 +71,12 @@ export default async function DashboardPage() {
             {dataPorExtenso(fuso)}
           </p>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold mt-1">
-            {saudacao(fuso)}, {prefeitura?.prefeito ? `Prefeito(a) ${prefeitura.prefeito}` : sessao?.nome}.
+            {/* Cumprimenta QUEM ENTROU, pelo nome da sessão. Antes usava o
+                campo "prefeito" do cadastro da prefeitura: quem entrava como
+                secretário era chamado pelo nome do prefeito, e a conta de
+                teste dizia "Prefeito(a) Prefeito de Teste". O tratamento vai
+                junto só quando o cargo é de prefeito. */}
+            {saudacao(fuso)}, {sessao.cargo === "prefeito" ? `Prefeito(a) ${sessao.nome}` : sessao.nome}.
           </h1>
           {/* A saudação encolheu para uma linha. Ela é cortesia, não conteúdo:
               o que o prefeito precisa ver primeiro está logo abaixo. */}
