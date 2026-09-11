@@ -27,14 +27,18 @@ export async function buscarUnidadesSaude(prefeituraId: string) {
 }
 
 export async function buscarUltimoIndicadorSaude(prefeituraId: string) {
-  if (!(await exigirAcesso(prefeituraId))) return null;
-  const linhas = await db
+  return (await buscarSerieIndicadorSaude(prefeituraId, 1))[0] ?? null;
+}
+
+/** As últimas leituras, da mais recente para a mais antiga — ver Educação. */
+export async function buscarSerieIndicadorSaude(prefeituraId: string, limite = 12) {
+  if (!(await exigirAcesso(prefeituraId))) return [];
+  return db
     .select()
     .from(saudeIndicadores)
     .where(eq(saudeIndicadores.prefeituraId, prefeituraId))
     .orderBy(desc(saudeIndicadores.atualizadoEm))
-    .limit(1);
-  return linhas[0] ?? null;
+    .limit(limite);
 }
 
 const schemaUnidade = z.object({

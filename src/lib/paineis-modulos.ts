@@ -98,8 +98,8 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     titulo: "Secretaria da Saúde",
     caminho: "/dashboard/secretarias/saude",
     insight:
-      "Faltas de pacientes em 12%, acima do limite de 10%. " +
-      "Ação sugerida: peça à Secretaria de Saúde o relatório de faltas por unidade para saber onde os 12% se concentram.",
+      "Faltas em 12%, acima do limite de 10% — subiu 5 pontos desde julho (era 7%). " +
+      "Ação sugerida: Peça à Secretaria de Saúde o relatório de faltas por unidade para saber onde os 12% estão concentrados.",
     cartoes: [
       { label: "Tempo médio de atendimento", valor: "38 min" },
       { label: "Médicos ativos", valor: "46" },
@@ -113,8 +113,8 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     titulo: "Secretaria da Educação",
     caminho: "/dashboard/secretarias/educacao",
     insight:
-      "Frequência média em 71%, abaixo do limite de 75%. " +
-      "Ação sugerida: peça à Secretaria de Educação a frequência aberta por escola — a média de 71% esconde onde a queda está.",
+      "Frequência média em 71%, abaixo do limite de 75% — caiu 7 pontos desde junho (era 78%). " +
+      "Ação sugerida: Peça à Secretaria de Educação a frequência aberta por escola — a média de 71% esconde onde a queda está.",
     cartoes: [
       { label: "Frequência", valor: "71%" },
       { label: "Nota média", valor: "7,2" },

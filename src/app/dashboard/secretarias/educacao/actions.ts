@@ -27,14 +27,22 @@ export async function buscarEscolas(prefeituraId: string) {
 }
 
 export async function buscarUltimoIndicadorEducacao(prefeituraId: string) {
-  if (!(await exigirAcesso(prefeituraId))) return null;
-  const linhas = await db
+  return (await buscarSerieIndicadorEducacao(prefeituraId, 1))[0] ?? null;
+}
+
+/**
+ * As últimas leituras, da mais recente para a mais antiga. Cada "Atualizar
+ * indicadores" grava uma linha nova; a série é o que permite dizer "caiu 7
+ * pontos desde junho" em vez de só "está em 71%".
+ */
+export async function buscarSerieIndicadorEducacao(prefeituraId: string, limite = 12) {
+  if (!(await exigirAcesso(prefeituraId))) return [];
+  return db
     .select()
     .from(educacaoIndicadores)
     .where(eq(educacaoIndicadores.prefeituraId, prefeituraId))
     .orderBy(desc(educacaoIndicadores.atualizadoEm))
-    .limit(1);
-  return linhas[0] ?? null;
+    .limit(limite);
 }
 
 const schemaEscola = z.object({

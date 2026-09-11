@@ -33,6 +33,13 @@ import {
   type DeteccaoAutomatica,
 } from "@/lib/deteccao-automatica";
 import { formatarMoeda } from "@/lib/formatadores";
+import {
+  calcularTendencia,
+  descreverVariacao,
+  descreverDesvio,
+  type UnidadeTendencia,
+} from "@/lib/tendencia";
+import { FUSO_PADRAO } from "@/lib/horario";
 
 export type ModuloAnalise = "geral" | "saude" | "educacao" | "obras" | "licitacoes";
 
@@ -152,8 +159,21 @@ export type SnapshotFinanceiro = {
   atualizadoEm: string;
 };
 
-export type DadosSaude = { indicador: IndicadorSaude | null; unidades: UnidadeSaude[] };
-export type DadosEducacao = { indicador: IndicadorEducacao | null; escolas: Escola[] };
+/**
+ * `serie` são as leituras anteriores do indicador, da mais recente para a
+ * mais antiga, INCLUINDO a atual na primeira posição. Opcional: quem chama
+ * com só a última leitura continua funcionando, sem a dimensão do tempo.
+ */
+export type DadosSaude = {
+  indicador: IndicadorSaude | null;
+  unidades: UnidadeSaude[];
+  serie?: IndicadorSaude[];
+};
+export type DadosEducacao = {
+  indicador: IndicadorEducacao | null;
+  escolas: Escola[];
+  serie?: IndicadorEducacao[];
+};
 export type DadosFinanceiro = { snapshot: SnapshotFinanceiro | null };
 
 /**
@@ -168,6 +188,8 @@ export type DadosAnalise = {
   obras?: Obra[];
   licitacoes?: Licitacao[];
   financeiro?: DadosFinanceiro;
+  /** Fuso do município, para "desde junho" cair no mês certo. */
+  fuso?: string;
 };
 
 // ── Limiares ──
@@ -189,6 +211,16 @@ const NOTA_CRITICA = 4;
 const NOTA_ATENCAO = 6;
 /** Acima disso a rede não está usando a escala 0–10 — ver `analisarEducacao`. */
 const NOTA_ESCALA_MAX = 10;
+
+// ── Movimento entre leituras ──
+// A partir de quanto uma variação entre a leitura atual e a anterior vira
+// achado por si só, mesmo com o nível ainda dentro do limite. Em pontos
+// percentuais para os indicadores em %, na unidade do indicador nos demais.
+const QUEDA_FREQUENCIA_PP = 5;
+const QUEDA_NOTA = 1;
+const SUBIDA_FALTAS_PP = 5;
+const QUEDA_ESTOQUE_PP = 10;
+const SUBIDA_ESPERA_MIN = 15;
 /** 10 pontos é o mesmo corte que lib/ia.ts já usa para "obra atrasada". */
 const DESVIO_OBRA_ATENCAO = 10;
 const DESVIO_OBRA_CRITICO = 20;
@@ -232,6 +264,69 @@ function num(valor: number): string {
 
 function pct(valor: number): string {
   return `${num(valor)}%`;
+}
+
+// ── A DIMENSÃO DO TEMPO NOS ACHADOS ──
+//
+// Duas coisas, na ordem:
+//
+// 1. Se já existe achado de nível para este indicador ("frequência em 71%,
+//    abaixo de 75%"), acrescenta de onde veio: "— caiu 7 pontos desde junho
+//    (era 78%)". O número passa a ter história.
+//
+// 2. Se NÃO existe achado de nível — o número está dentro do limite — mas o
+//    movimento desde a leitura anterior é grande, ou o desvio do padrão das
+//    leituras anteriores é grande, cria um achado de movimento. É o caso que
+//    o limiar fixo nunca pegava: 81% de frequência está "bem", mas 81% depois
+//    de 88% é o começo de um problema.
+//
+// Nunca extrapola: descreve o que foi medido, entre datas.
+function aplicarTendencia(opcoes: {
+  achados: AchadoLocal[];
+  modulo: AchadoLocal["modulo"];
+  chave: string;
+  nome: string;
+  serie: Array<{ valor: number | null; em: string }>;
+  unidade: UnidadeTendencia;
+  /** "queda" quando cair é ruim (frequência, estoque); "subida" quando subir é ruim (faltas, espera). */
+  ruim: "queda" | "subida";
+  movimentoRelevante: number;
+  acaoMovimento: string;
+  fuso: string;
+}): void {
+  const { achados, serie, unidade, ruim, movimentoRelevante, fuso } = opcoes;
+  const t = calcularTendencia(serie);
+  if (!t) return;
+
+  const existente = achados.find((a) => a.chave === opcoes.chave);
+  if (existente) {
+    if (Math.abs(t.variacao) >= 0.5) {
+      existente.texto = `${existente.texto.replace(/.$/, "")} — ${descreverVariacao(t, unidade, fuso)}.`;
+    }
+    return;
+  }
+
+  const naDirecaoRuim = ruim === "queda" ? t.variacao <= -movimentoRelevante : t.variacao >= movimentoRelevante;
+  const desvio = descreverDesvio(t, unidade, movimentoRelevante);
+  const desvioRuim =
+    t.desvioDaMedia !== null &&
+    (ruim === "queda" ? t.desvioDaMedia <= -movimentoRelevante : t.desvioDaMedia >= movimentoRelevante);
+
+  if (!naDirecaoRuim && !desvioRuim) return;
+
+  const partes = [`${opcoes.nome} ${descreverVariacao(t, unidade, fuso)}`];
+  if (desvioRuim && desvio) partes.push(`${desvio}`);
+  const texto = `${partes.join(", e está ")} — ainda dentro do limite, mas o movimento é o que importa aqui.`;
+
+  achados.push({
+    modulo: opcoes.modulo,
+    eixo: "servico_essencial",
+    severidade: "medio",
+    chave: `${opcoes.chave}-movimento`,
+    texto,
+    acao: opcoes.acaoMovimento,
+    peso: Math.abs(naDirecaoRuim ? t.variacao : (t.desvioDaMedia ?? 0)),
+  });
 }
 
 // ── Priorização ──
@@ -291,7 +386,7 @@ function manterUmPorChave(achados: AchadoLocal[]): AchadoLocal[] {
 
 // ── Saúde ──
 
-function analisarSaude(dados: DadosSaude): AchadoLocal[] {
+function analisarSaude(dados: DadosSaude, fuso = FUSO_PADRAO): AchadoLocal[] {
   const achados: AchadoLocal[] = [];
   const ind = dados.indicador;
 
@@ -392,12 +487,54 @@ function analisarSaude(dados: DadosSaude): AchadoLocal[] {
     }
   }
 
+
+  // ── De onde veio o número ──
+  const serieSaude = dados.serie ?? [];
+  aplicarTendencia({
+    achados,
+    modulo: "saude",
+    chave: "saude:faltas",
+    nome: "Faltas",
+    serie: serieSaude.map((i) => ({ valor: i.faltasPercentual, em: i.atualizadoEm })),
+    unidade: "pp",
+    ruim: "subida",
+    movimentoRelevante: SUBIDA_FALTAS_PP,
+    acaoMovimento:
+      "Peça à Secretaria de Saúde o relatório de faltas por unidade das duas últimas leituras — subida assim costuma ter uma unidade ou uma especialidade por trás.",
+    fuso,
+  });
+  aplicarTendencia({
+    achados,
+    modulo: "saude",
+    chave: "saude:estoque",
+    nome: "Estoque de medicamentos",
+    serie: serieSaude.map((i) => ({ valor: i.estoqueMedicamentosPercentual, em: i.atualizadoEm })),
+    unidade: "pp",
+    ruim: "queda",
+    movimentoRelevante: QUEDA_ESTOQUE_PP,
+    acaoMovimento:
+      "Peça à Secretaria de Saúde a posição de estoque por item — uma queda de dez pontos em uma leitura é entrega atrasada ou consumo fora do padrão.",
+    fuso,
+  });
+  aplicarTendencia({
+    achados,
+    modulo: "saude",
+    chave: "saude:espera",
+    nome: "Tempo médio de atendimento",
+    serie: serieSaude.map((i) => ({ valor: i.tempoMedioAtendimentoMin, em: i.atualizadoEm })),
+    unidade: { sufixo: "min", casas: 0 },
+    ruim: "subida",
+    movimentoRelevante: SUBIDA_ESPERA_MIN,
+    acaoMovimento:
+      "Peça à Secretaria de Saúde a escala médica das duas últimas leituras — espera que sobe de repente costuma ser vaga aberta ou agenda fechada.",
+    fuso,
+  });
   return achados;
 }
 
 // ── Educação ──
 
-function analisarEducacao(dados: DadosEducacao): AchadoLocal[] {
+function analisarEducacao(dados: DadosEducacao, fuso = FUSO_PADRAO): AchadoLocal[] {
   const achados: AchadoLocal[] = [];
   const ind = dados.indicador;
 
@@ -489,6 +626,37 @@ function analisarEducacao(dados: DadosEducacao): AchadoLocal[] {
     }
   }
 
+
+  // ── De onde veio o número ──
+  const serieEdu = dados.serie ?? [];
+  aplicarTendencia({
+    achados,
+    modulo: "educacao",
+    chave: "educacao:frequencia",
+    nome: "Frequência média",
+    serie: serieEdu.map((i) => ({ valor: i.frequenciaPercentual, em: i.atualizadoEm })),
+    unidade: "pp",
+    ruim: "queda",
+    movimentoRelevante: QUEDA_FREQUENCIA_PP,
+    acaoMovimento:
+      "Peça à Secretaria de Educação a frequência aberta por escola das duas últimas leituras — queda assim costuma se concentrar em poucas unidades, e é lá que se age.",
+    fuso,
+  });
+  aplicarTendencia({
+    achados,
+    modulo: "educacao",
+    chave: "educacao:nota",
+    nome: "Nota média",
+    serie: serieEdu
+      // Mesma cautela da regra de nível: fora da escala 0–10 não se julga.
+      .map((i) => ({ valor: i.notaMedia !== null && i.notaMedia <= NOTA_ESCALA_MAX ? i.notaMedia : null, em: i.atualizadoEm })),
+    unidade: { sufixo: "", casas: 1 },
+    ruim: "queda",
+    movimentoRelevante: QUEDA_NOTA,
+    acaoMovimento:
+      "Peça à Secretaria de Educação a nota aberta por escola e por série — uma queda de ponto inteiro raramente é geral.",
+    fuso,
+  });
   return achados;
 }
 
@@ -783,8 +951,8 @@ export function listarAchados(modulo: ModuloAnalise, dados: DadosAnalise): Achad
   const brutos: AchadoLocal[] = [];
   const inclui = (m: Exclude<ModuloAnalise, "geral">) => modulo === "geral" || modulo === m;
 
-  if (inclui("saude") && dados.saude) brutos.push(...analisarSaude(dados.saude));
-  if (inclui("educacao") && dados.educacao) brutos.push(...analisarEducacao(dados.educacao));
+  if (inclui("saude") && dados.saude) brutos.push(...analisarSaude(dados.saude, dados.fuso));
+  if (inclui("educacao") && dados.educacao) brutos.push(...analisarEducacao(dados.educacao, dados.fuso));
   if (inclui("obras") && dados.obras) brutos.push(...analisarObras(dados.obras));
   if (inclui("licitacoes") && dados.licitacoes) brutos.push(...analisarLicitacoes(dados.licitacoes));
   if (modulo === "geral" && dados.financeiro) brutos.push(...analisarFinanceiro(dados.financeiro));

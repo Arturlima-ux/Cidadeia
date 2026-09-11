@@ -7,8 +7,9 @@ import {
   buscarAlertas,
   buscarSistemasConectados,
 } from "@/lib/dados-prefeitura";
-import { buscarUnidadesSaude, buscarUltimoIndicadorSaude } from "@/app/dashboard/secretarias/saude/actions";
-import { buscarEscolas, buscarUltimoIndicadorEducacao } from "@/app/dashboard/secretarias/educacao/actions";
+import { buscarUnidadesSaude, buscarUltimoIndicadorSaude, buscarSerieIndicadorSaude } from "@/app/dashboard/secretarias/saude/actions";
+import { buscarEscolas, buscarUltimoIndicadorEducacao, buscarSerieIndicadorEducacao } from "@/app/dashboard/secretarias/educacao/actions";
+import { fusoDoEstado } from "@/lib/horario";
 import { buscarObras } from "@/app/dashboard/secretarias/obras/actions";
 import { buscarLicitacoes } from "@/app/dashboard/secretarias/licitacoes/actions";
 import { planosContratadosDe, type PlanoAddon } from "@/lib/planos";
@@ -374,20 +375,23 @@ async function carregarDadosAnalise(
 ): Promise<DadosAnalise> {
   const escopo = await escopoVisivel(prefeituraId, restricaoCargo);
 
-  const [indicadorSaude, unidades, indicadorEducacao, escolas, listaObras, listaLicitacoes, snapshot] =
+  // A série inteira, não só a última leitura: é ela que permite à análise
+  // dizer "caiu 7 pontos desde junho" em vez de só "está em 71%".
+  const [serieSaude, unidades, serieEducacao, escolas, listaObras, listaLicitacoes, snapshot, prefeitura] =
     await Promise.all([
-      escopo.saude ? buscarUltimoIndicadorSaude(prefeituraId) : Promise.resolve(null),
+      escopo.saude ? buscarSerieIndicadorSaude(prefeituraId) : Promise.resolve([]),
       escopo.saude ? buscarUnidadesSaude(prefeituraId) : Promise.resolve([]),
-      escopo.educacao ? buscarUltimoIndicadorEducacao(prefeituraId) : Promise.resolve(null),
+      escopo.educacao ? buscarSerieIndicadorEducacao(prefeituraId) : Promise.resolve([]),
       escopo.educacao ? buscarEscolas(prefeituraId) : Promise.resolve([]),
       escopo.obras ? buscarObras(prefeituraId) : Promise.resolve([]),
       escopo.licitacoes ? buscarLicitacoes(prefeituraId) : Promise.resolve([]),
       escopo.financeiro ? buscarUltimoSnapshot(prefeituraId) : Promise.resolve(null),
+      buscarPrefeitura(prefeituraId),
     ]);
 
-  const dados: DadosAnalise = {};
-  if (escopo.saude) dados.saude = { indicador: indicadorSaude, unidades };
-  if (escopo.educacao) dados.educacao = { indicador: indicadorEducacao, escolas };
+  const dados: DadosAnalise = { fuso: fusoDoEstado(prefeitura?.estado) };
+  if (escopo.saude) dados.saude = { indicador: serieSaude[0] ?? null, unidades, serie: serieSaude };
+  if (escopo.educacao) dados.educacao = { indicador: serieEducacao[0] ?? null, escolas, serie: serieEducacao };
   if (escopo.obras) dados.obras = listaObras;
   if (escopo.licitacoes) dados.licitacoes = listaLicitacoes;
   if (escopo.financeiro) dados.financeiro = { snapshot };
