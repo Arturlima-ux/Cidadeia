@@ -38,6 +38,12 @@ export function ehErroDeVersao(erro: unknown): boolean {
     "error loading dynamically imported module",
     "importing a module script failed",
     "unable to preload",
+    // Aba aberta antes do deploy chama uma ação de servidor que o servidor
+    // novo não conhece mais. Mesma causa dos chunks — versão velha na aba —,
+    // mesmo remédio: recarregar uma vez. Visto na tela de Preços com seis
+    // abas abertas depois de quatro publicações numa hora.
+    "failed to find server action",
+    "server action",
   ].some((marca) => mensagem.toLowerCase().includes(marca));
 }
 

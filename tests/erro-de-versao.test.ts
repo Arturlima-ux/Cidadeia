@@ -99,3 +99,10 @@ describe("recarga", () => {
     expect(recarregarPorVersao()).toBe(false);
   });
 });
+
+// Aba antiga chamando ação de servidor que o deploy novo não tem mais.
+it("reconhece a ação de servidor que sumiu num deploy como erro de versão", () => {
+  expect(
+    ehErroDeVersao(new Error('Failed to find Server Action "a1b2c3". This request might be from an older or newer deployment.'))
+  ).toBe(true);
+});
