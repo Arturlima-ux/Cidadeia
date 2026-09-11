@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { buscarCodigoIbge } from "@/lib/siconfi";
+import { procurarMunicipio } from "@/lib/siconfi";
 import { buscarPopulacao } from "@/lib/populacao-ibge";
 import { porteDaPopulacao, type PorteMunicipio } from "@/lib/precos";
 import { limitarUso } from "@/lib/rate-limit";
@@ -32,10 +32,15 @@ export async function sugerirPorte(entrada: { municipio: string; uf: string }): 
     return { ok: false, erro: "Muitas consultas seguidas. Tente de novo em alguns minutos." };
   }
 
-  const codigo = await buscarCodigoIbge(municipio, uf);
-  if (!codigo) {
-    return { ok: false, erro: `O IBGE não tem um município "${municipio}" em ${uf.toUpperCase()}.` };
+  const busca = await procurarMunicipio(municipio, uf);
+  if (!busca.ok) {
+    if (busca.motivo === "indisponivel") {
+      return { ok: false, erro: "O IBGE não respondeu agora. Tente de novo em instantes, ou escolha o porte à mão." };
+    }
+    const dica = busca.sugestoes.length ? ` Parecidos em ${uf.toUpperCase()}: ${busca.sugestoes.join(", ")}.` : "";
+    return { ok: false, erro: `Não encontrei "${municipio}" em ${uf.toUpperCase()} na lista do IBGE.${dica}` };
   }
+  const codigo = busca.codigo;
   const populacao = await buscarPopulacao(codigo);
   if (populacao === null) {
     return { ok: false, erro: "O IBGE não respondeu agora. Escolha o porte à mão." };
@@ -43,7 +48,7 @@ export async function sugerirPorte(entrada: { municipio: string; uf: string }): 
   return {
     ok: true,
     codigoIbge: codigo,
-    municipio,
+    municipio: busca.nome,
     uf: uf.toUpperCase(),
     populacao,
     porte: porteDaPopulacao(populacao),

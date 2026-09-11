@@ -5,7 +5,7 @@ import { prefeituras } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
-import { buscarCodigoIbge } from "@/lib/siconfi";
+import { procurarMunicipio } from "@/lib/siconfi";
 import { buscarPopulacao } from "@/lib/populacao-ibge";
 import { revalidatePath } from "next/cache";
 
@@ -42,16 +42,25 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
     };
   }
 
-  const codigoIbge = prefeitura.codigoIbge ?? (await buscarCodigoIbge(prefeitura.municipio, prefeitura.estado));
+  let codigoIbge = prefeitura.codigoIbge;
   if (!codigoIbge) {
-    return {
-      ok: false,
-      erro:
-        `O IBGE não tem um município chamado "${prefeitura.municipio}" em ${prefeitura.estado}. ` +
-        `Se esta é uma conta de teste com município fictício, é o esperado — os passos que ` +
-        `dependem de dado público continuam disponíveis para município real. Se o município é ` +
-        `real, confira o estado no cadastro.`,
-    };
+    const busca = await procurarMunicipio(prefeitura.municipio, prefeitura.estado);
+    if (!busca.ok) {
+      // Dois "não" diferentes, e a tela precisa dizer qual: IBGE fora do ar
+      // não é município inexistente — Barro Duro/PI já foi acusado disso.
+      if (busca.motivo === "indisponivel") {
+        return { ok: false, erro: "O IBGE não respondeu agora. Tente de novo em alguns minutos — não é problema do cadastro." };
+      }
+      const dica = busca.sugestoes.length ? ` Nomes parecidos em ${prefeitura.estado}: ${busca.sugestoes.join(", ")}.` : "";
+      return {
+        ok: false,
+        erro:
+          `O IBGE respondeu, e não tem um município chamado "${prefeitura.municipio}" em ${prefeitura.estado}.${dica} ` +
+          `Se esta é uma conta de teste com município fictício, é o esperado. Se o município é real, ` +
+          `confira a grafia e o estado no cadastro.`,
+      };
+    }
+    codigoIbge = busca.codigo;
   }
 
   // ── A POPULAÇÃO VEM DO IBGE, NUNCA DO CADASTRO ──
