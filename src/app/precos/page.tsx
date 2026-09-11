@@ -46,8 +46,9 @@ export default function PrecosPage() {
           <div className="text-center mb-8">
             <h2 className="font-serif text-2xl font-bold">Monte a sua proposta</h2>
             <p className="text-muted mt-2 leading-relaxed max-w-lg mx-auto">
-              Porte do município e os módulos que a prefeitura vai usar. O valor
-              anual sai na hora, com o caminho de contratação que cabe.
+              Informe o município e marque os módulos. O porte sai da população
+              do IBGE — não é uma escolha — e o valor anual aparece na hora, com
+              o caminho de contratação que cabe.
             </p>
           </div>
           <MontadorProposta />
@@ -67,7 +68,16 @@ export default function PrecosPage() {
       </Reveal>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-16">
-        <h2 className="font-serif text-xl font-bold mb-5">Módulos disponíveis</h2>
+        <h2 className="font-serif text-xl font-bold">Módulos disponíveis</h2>
+        {/* A regra, escrita: o valor de cada módulo depende da faixa de
+            habitantes, e a faixa é a da população do IBGE para o município.
+            Já houve botão para escolher a faixa; não há mais, e a tabela
+            abaixo existe para a conta ser aberta — não para ser escolhida. */}
+        <p className="text-sm text-muted mt-1.5 mb-5 leading-relaxed max-w-2xl">
+          Valores mensais por faixa de habitantes. A faixa do seu município é a
+          da população estimada pelo IBGE — o sistema a define sozinho, e é ela
+          que vale na proposta e no contrato.
+        </p>
         <div className="grid sm:grid-cols-2 gap-4">
           {PLANOS_ADDON.map((p, i) => {
             const Icone = ICONE_ADDON[p.chave];
@@ -99,7 +109,9 @@ export default function PrecosPage() {
                       const valor = PRECO_MENSAL[p.chave][porte.chave];
                       return (
                         <div key={porte.chave}>
-                          <dt className="text-[11px] text-muted leading-tight">{porte.rotulo}</dt>
+                          <dt className="text-[11px] text-muted leading-tight">
+                            {porte.rotulo} {porte.detalhe}
+                          </dt>
                           <dd className="font-serif text-base font-bold tabular-nums mt-0.5">
                             {valor === null ? (
                               <span className="text-xs font-sans font-medium text-muted">
@@ -124,10 +136,10 @@ export default function PrecosPage() {
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">Some só os módulos que a prefeitura vai usar.</p>
             <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-lg mx-auto">
-              A calculadora da página inicial fecha o total anual e diz se ele
-              cabe na dispensa por valor. Contratação em prefeitura passa por
-              proposta, processo e empenho — não por cartão —, e o valor vai
-              junto do termo de referência.
+              O simulador no topo desta página fecha o total anual pelo porte do
+              seu município e diz se cabe na dispensa por valor. Contratação em
+              prefeitura passa por proposta, processo e empenho — não por
+              cartão —, e o valor vai junto do termo de referência.
             </p>
             {/* A ação cheia era "Criar conta grátis", que leva a uma conta sem
                 módulo nenhum e a um checkout ainda não configurado. Quem fecha
