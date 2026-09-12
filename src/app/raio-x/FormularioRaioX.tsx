@@ -205,7 +205,7 @@ function Resultado({ raioX }: { raioX: RaioX }) {
             Fazer o diagnóstico de conformidade&nbsp;&nbsp;→
           </Link>
           <Link
-            href="/suporte?assunto=proposta"
+            href="/proposta"
             className="text-sm font-semibold text-muted hover:text-foreground transition"
           >
             Receber proposta

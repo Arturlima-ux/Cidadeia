@@ -119,7 +119,7 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 home acusa as incumbentes de fazer, no botão que aparece em
                 TODAS as páginas. Mesmo destino do fecho, mesmas palavras. */}
             <Link
-              href="/suporte?assunto=proposta"
+              href="/proposta"
               className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
             >
               Receber proposta

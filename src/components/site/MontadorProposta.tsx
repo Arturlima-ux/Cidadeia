@@ -79,7 +79,7 @@ export default function MontadorProposta() {
   // lado contra a tabela, nunca interpolados como texto — para o formulário
   // não perguntar de novo o que a pessoa acabou de escolher.
   // Sem código IBGE não há pedido: o servidor só monta proposta com município.
-  const linkProposta = `/suporte?assunto=proposta&ibge=${codigoIbge ?? ""}&modulos=${modulos.join(",")}`;
+  const linkProposta = `/proposta?ibge=${codigoIbge ?? ""}&modulos=${modulos.join(",")}`;
 
   function alternar(chave: PlanoAddon) {
     setModulos((atual) =>

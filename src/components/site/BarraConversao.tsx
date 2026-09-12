@@ -91,7 +91,7 @@ export default function BarraConversao() {
                 mesmo lugar. Promessa diferente para o mesmo destino faz o
                 visitante achar que são caminhos distintos e hesitar entre eles. */}
             <Link
-              href="/suporte?assunto=proposta"
+              href="/proposta"
               className="text-sm font-bold text-white bg-brand hover:bg-brand-dark rounded-xl px-5 py-2.5 transition shadow-elevated"
             >
               Receber proposta
@@ -115,7 +115,7 @@ export default function BarraConversao() {
             a página diz não ser necessário. Mesmo destino, mesma palavra dos
             outros dois. */}
         <Link
-          href="/suporte?assunto=proposta"
+          href="/proposta"
           className="shrink-0 text-sm font-bold text-white bg-brand rounded-xl px-4 py-2.5"
         >
           Proposta

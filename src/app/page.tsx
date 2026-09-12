@@ -720,7 +720,7 @@ export default async function LandingPage() {
                     Por que o CidadeIA existe →
                   </Link>
                   <Link
-                    href="/suporte?assunto=proposta"
+                    href="/proposta"
                     className="text-sm font-semibold text-muted hover:text-foreground transition"
                   >
                     Falar com quem construiu
@@ -853,7 +853,7 @@ export default async function LandingPage() {
 
               <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
                 <Link
-                  href="/suporte?assunto=proposta"
+                  href="/proposta"
                   className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
                 >
                   Receber proposta e kit&nbsp;&nbsp;→

@@ -5,8 +5,8 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import ContatoEmail from "@/components/site/ContatoEmail";
 import { IconIA } from "@/components/icons";
-import { porteDaPopulacao } from "@/lib/precos";
-import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
+import { ehCodigoIbge } from "@/lib/populacao-ibge";
+import { redirect } from "next/navigation";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 
 export const metadata = {
@@ -33,11 +33,13 @@ export default async function SuportePage({
   // tabela. Não existe parâmetro "porte": já existiu, e era a brecha —
   // quem editasse a URL pedia proposta de cidade de 10 mil habitantes para
   // uma capital. Sem código válido, não há proposta montada.
+  // Pedido de proposta tem página própria. Link antigo com código IBGE
+  // (abas abertas, e-mails já enviados) vai para lá, com o que trazia.
   const codigo = texto(params.ibge);
-  const municipio = ehCodigoIbge(codigo) ? await buscarMunicipioPorCodigo(codigo) : null;
-  const proposta = municipio
-    ? { porte: porteDaPopulacao(municipio.populacao), modulos: modulosValidos, municipio }
-    : null;
+  if (ehCodigoIbge(codigo)) {
+    redirect(`/proposta?ibge=${codigo}&modulos=${modulosValidos.join(",")}`);
+  }
+  const proposta = null;
 
   return (
     <div className="tema-noite min-h-screen">

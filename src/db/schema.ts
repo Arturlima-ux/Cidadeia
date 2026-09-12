@@ -542,3 +542,29 @@ export const publicacoes = pgTable("publicacoes", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── PEDIDOS DE PROPOSTA ──
+// Vem do site, sem login: o visitante monta a proposta no simulador e pede.
+// Antes o pedido era um "mailto:" — dependia do programa de e-mail do
+// visitante, e numa máquina de prefeitura isso muitas vezes é nada. Agora o
+// sistema grava e envia. Fica gravado mesmo se o e-mail falhar: é o registro
+// do primeiro contato, e é dele que a proposta sai.
+export const pedidosProposta = pgTable("pedidos_proposta", {
+  id: text("id").primaryKey(),
+  codigoIbge: text("codigo_ibge").notNull(),
+  municipio: text("municipio").notNull(),
+  uf: text("uf").notNull(),
+  populacao: integer("populacao").notNull(),
+  porte: text("porte").notNull(),
+  modulos: text("modulos").notNull(), // JSON: array de chaves de módulo
+  mensal: doublePrecision("mensal"), // null quando alguma faixa está sob consulta
+  nome: text("nome").notNull(),
+  cargo: text("cargo"),
+  email: text("email").notNull(),
+  telefone: text("telefone"),
+  observacao: text("observacao"),
+  emailEnviado: boolean("email_enviado").notNull().default(false),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

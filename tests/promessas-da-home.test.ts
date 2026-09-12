@@ -153,7 +153,9 @@ describe("hierarquia de chamada para ação", () => {
   it("os dois são qualificar no topo e converter no fecho", () => {
     const destinos = destinosCheios(home);
     expect(destinos).toContain("/diagnostico");
-    expect(destinos.some((d) => d.startsWith("/suporte"))).toBe(true);
+    // O fecho converte pedindo a proposta — que tem página própria, não é
+    // "precisa de ajuda". /suporte fica para suporte.
+    expect(destinos.some((d) => d.startsWith("/proposta"))).toBe(true);
   });
 
   it("o portal do cidadão não disputa peso com a venda", () => {
@@ -167,7 +169,7 @@ describe("hierarquia de chamada para ação", () => {
     // outro lugar, o caminho principal do site trocaria sozinho conforme a
     // rolagem — que é a definição do problema.
     for (const destino of destinosCheios(barra)) {
-      expect(destino).toContain("/suporte");
+      expect(destino).toContain("/proposta");
     }
   });
 

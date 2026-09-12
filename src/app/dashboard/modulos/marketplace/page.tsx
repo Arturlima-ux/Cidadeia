@@ -40,7 +40,7 @@ export default async function MarketplacePage() {
   const codigoIbge = prefeitura?.codigoIbge ?? null;
   const linkProposta = (modulo: string) =>
     codigoIbge
-      ? `/suporte?assunto=proposta&ibge=${codigoIbge}&modulos=${modulo}`
+      ? `/proposta?ibge=${codigoIbge}&modulos=${modulo}`
       : "/dashboard/implantacao";
 
   return (

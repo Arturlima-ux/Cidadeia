@@ -146,7 +146,7 @@ export default function PrecosPage() {
                 a contratação é a proposta; a conta vem depois dela. */}
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/suporte?assunto=proposta"
+                href="/proposta"
                 className="bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full px-6 py-2.5 transition"
               >
                 Receber proposta
