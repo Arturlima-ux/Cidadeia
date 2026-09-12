@@ -47,7 +47,7 @@ export default function FormularioRaioX() {
               id="municipio"
               name="municipio"
               required
-              placeholder="Barro Duro"
+              placeholder="Nome do município"
               className={classeInput}
               autoComplete="off"
             />
