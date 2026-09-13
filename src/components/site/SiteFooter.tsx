@@ -7,12 +7,13 @@ const COLUNAS = [
   {
     titulo: "Soluções",
     links: [
-      { href: "/#solucoes", label: "Essencial" },
-      { href: "/#solucoes", label: "Gestão" },
-      { href: "/#solucoes", label: "Saúde" },
-      { href: "/#solucoes", label: "Educação" },
-      { href: "/#solucoes", label: "Obras" },
-      { href: "/#solucoes", label: "Licitações" },
+      // Cada módulo tem página própria; os seis apontavam para a mesma âncora.
+      { href: "/modulos/essencial", label: "Essencial" },
+      { href: "/modulos/gestao", label: "Gestão" },
+      { href: "/modulos/saude", label: "Saúde" },
+      { href: "/modulos/educacao", label: "Educação" },
+      { href: "/modulos/obras", label: "Obras" },
+      { href: "/modulos/licitacoes", label: "Licitações" },
     ],
   },
   {

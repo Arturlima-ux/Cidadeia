@@ -19,14 +19,19 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
   licitacoes: "Processos e riscos",
 };
 
-export default function MontadorProposta() {
+export default function MontadorProposta({
+  modulosIniciais = ["essencial", "gestao"],
+}: {
+  /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
+  modulosIniciais?: PlanoAddon[];
+}) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
   // quisesse o preço de cidade de 10 mil habitantes para uma capital
   // clicava. Agora não existe botão: o município é obrigatório, o porte é
   // o que a tabela do IBGE diz, e o preço só aparece depois disso.
   const [porte, setPorte] = useState<PorteMunicipio | null>(null);
-  const [modulos, setModulos] = useState<PlanoAddon[]>(["essencial", "gestao"]);
+  const [modulos, setModulos] = useState<PlanoAddon[]>(modulosIniciais);
 
   const identificado = porte !== null;
   const proposta = montarProposta({ porte: porte ?? "de10a50k", modulos });

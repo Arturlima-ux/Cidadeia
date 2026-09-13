@@ -481,11 +481,20 @@ export default async function LandingPage() {
                       )}
 
                       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4">
+                        {/* Era "Ver na proposta", seis vezes seguidas. Quem lê
+                            um módulo quer conhecê-lo antes de comprá-lo: a
+                            página própria vem primeiro, a proposta em segundo. */}
                         <Link
-                          href="#proposta"
+                          href={`/modulos/${chave}`}
                           className="text-sm font-bold text-brand hover:text-brand-claro transition"
                         >
-                          Ver na proposta →
+                          Conhecer o módulo →
+                        </Link>
+                        <Link
+                          href={`/proposta?modulos=${chave}`}
+                          className="text-sm font-semibold text-muted hover:text-foreground transition"
+                        >
+                          Adicionar à proposta
                         </Link>
                         {detalhe.noPortal && portalVitrine && (
                           <Link
