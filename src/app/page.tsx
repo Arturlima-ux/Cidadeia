@@ -4,7 +4,8 @@ import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { EXIGENCIAS } from "@/lib/diagnostico";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import { listarPortaisPublicados } from "@/lib/portais";
-import { formatarMoedaExata } from "@/lib/formatadores";
+import { formatarMoedaExata, formatarMoeda } from "@/lib/formatadores";
+import { menorPrecoMensal, PORTES } from "@/lib/precos";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -183,6 +184,11 @@ export default async function LandingPage() {
   const { portais } = await listarPortaisPublicados();
   const portalVitrine = portais[0] ?? null;
   const modulos = modulosNaOrdemDaHome();
+
+  // "A conta está aberta" precisa de um número antes de qualquer campo. É o
+  // menor valor da tabela, na menor faixa — derivado, para não desatualizar.
+  const referencia = menorPrecoMensal() ?? { valor: 0, porte: "ate10k" as const };
+  const rotuloReferencia = PORTES.find((p) => p.chave === referencia.porte)?.rotulo.toLowerCase() + " habitantes";
 
   // A leitura por IA depende da chave da Anthropic no ambiente. Sem ela as
   // funções de insight devolvem erro em vez de resposta, então a home não
@@ -564,9 +570,11 @@ export default async function LandingPage() {
                   Monte a sua e veja se cabe na dispensa.
                 </h2>
                 <p className="text-muted leading-relaxed max-w-[52ch]">
-                  Porte do município mais os módulos que vão ser usados. O total
-                  anual aparece na hora — é ele que decide o caminho da
-                  contratação, não o mensal.
+                  Módulos a partir de{" "}
+                  <strong className="text-foreground">{formatarMoeda(referencia.valor)}/mês</strong>{" "}
+                  para municípios de {rotuloReferencia}. O valor exato sai da
+                  população do IBGE, e o total anual é o que decide o caminho
+                  da contratação — não o mensal.
                 </p>
               </div>
             </Reveal>

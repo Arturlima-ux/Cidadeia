@@ -83,6 +83,24 @@ export const PRECO_MENSAL: Record<PlanoAddon, Record<PorteMunicipio, number | nu
   licitacoes: { ate10k: 240, de10a50k: 370, de50a100k: 520, de100a500k: null, de500ka1m: null, acima1m: null },
 };
 
+/**
+ * O menor valor mensal da tabela, na menor faixa — o "a partir de R$".
+ *
+ * Existe porque o site dizia "a conta está aberta" e não mostrava número
+ * nenhum antes de a pessoa digitar o município. Derivado da tabela, nunca
+ * escrito à mão: se um preço mudar, a frase acompanha.
+ */
+export function menorPrecoMensal(): { valor: number; porte: PorteMunicipio } | null {
+  let melhor: { valor: number; porte: PorteMunicipio } | null = null;
+  for (const p of PLANOS_ADDON) {
+    for (const porte of PORTES) {
+      const v = PRECO_MENSAL[p.chave][porte.chave];
+      if (v !== null && (melhor === null || v < melhor.valor)) melhor = { valor: v, porte: porte.chave };
+    }
+  }
+  return melhor;
+}
+
 export function precoDefinido(modulo: PlanoAddon, porte: PorteMunicipio): boolean {
   return PRECO_MENSAL[modulo][porte] !== null;
 }

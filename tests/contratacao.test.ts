@@ -13,6 +13,7 @@ import {
   precoDefinido,
   PORTES,
   PRECO_MENSAL,
+  menorPrecoMensal,
 } from "@/lib/precos";
 import { PLANOS_ADDON } from "@/lib/planos";
 
@@ -218,5 +219,20 @@ describe("a tabela de preços não pode quebrar a promessa da home", () => {
         expect(menor, `${plano.chave}: ${PORTES[i - 1].chave} < ${PORTES[i].chave}`).toBeLessThan(maior);
       }
     }
+  });
+});
+
+describe("menorPrecoMensal", () => {
+  it("é o menor valor da tabela, na menor faixa — o 'a partir de R$' do site", () => {
+    const ref = menorPrecoMensal();
+    expect(ref).not.toBeNull();
+    // Nenhum preço definido pode ser menor que ele.
+    for (const plano of PLANOS_ADDON) {
+      for (const porte of PORTES) {
+        const v = PRECO_MENSAL[plano.chave][porte.chave];
+        if (v !== null) expect(v).toBeGreaterThanOrEqual(ref!.valor);
+      }
+    }
+    expect(ref!.porte).toBe("ate10k");
   });
 });

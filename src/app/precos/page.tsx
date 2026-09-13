@@ -5,7 +5,7 @@ import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
-import { PRECO_MENSAL, PORTES } from "@/lib/precos";
+import { PRECO_MENSAL, PORTES, menorPrecoMensal } from "@/lib/precos";
 import { formatarMoeda } from "@/lib/formatadores";
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
@@ -23,6 +23,8 @@ export const metadata = {
 };
 
 export default function PrecosPage() {
+  const referencia = menorPrecoMensal() ?? { valor: 0, porte: "ate10k" as const };
+  const rotuloReferencia = PORTES.find((p) => p.chave === referencia.porte)?.rotulo.toLowerCase() + " habitantes";
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
@@ -46,9 +48,11 @@ export default function PrecosPage() {
           <div className="text-center mb-8">
             <h2 className="font-serif text-2xl font-bold">Monte a sua proposta</h2>
             <p className="text-muted mt-2 leading-relaxed max-w-lg mx-auto">
-              Informe o município e marque os módulos. O porte sai da população
-              do IBGE — não é uma escolha — e o valor anual aparece na hora, com
-              o caminho de contratação que cabe.
+              Módulos a partir de{" "}
+              <strong className="text-foreground">{formatarMoeda(referencia.valor)}/mês</strong>{" "}
+              para municípios de {rotuloReferencia}. Informe o município e marque
+              os módulos: o porte sai da população do IBGE — não é uma escolha — e
+              o valor anual aparece na hora, com o caminho de contratação que cabe.
             </p>
           </div>
           <MontadorProposta />
