@@ -122,3 +122,28 @@ describe("avaliação", () => {
     expect(niveis).toContain("adequado");
   });
 });
+
+// ── O RESULTADO APONTA O MÓDULO E O BLOCO ──
+// O diagnóstico terminava numa lista. Passa a dizer onde o problema se
+// concentra (por bloco) e qual módulo resolve cada pendência coberta.
+describe("resultado por bloco e por módulo", () => {
+  it("toda exigência que resolvemos aponta um módulo; as que não, não", () => {
+    for (const e of EXIGENCIAS) {
+      if (e.resolvemos) expect(e.modulo, e.id).toBeDefined();
+      else expect(e.modulo, e.id).toBeUndefined();
+    }
+  });
+
+  it("porBloco soma o total certo e separa não / não sei / sim", () => {
+    const respostas: Record<string, "sim" | "nao" | "nao_sei"> = {};
+    EXIGENCIAS.forEach((e, i) => {
+      respostas[e.id] = i % 3 === 0 ? "nao" : i % 3 === 1 ? "nao_sei" : "sim";
+    });
+    const r = avaliar(respostas);
+    const soma = r.porBloco.reduce((s, b) => s + b.total, 0);
+    expect(soma).toBe(EXIGENCIAS.length);
+    for (const b of r.porBloco) expect(b.pendentes + b.incertas + b.conformes).toBe(b.total);
+    expect(r.porBloco.reduce((s, b) => s + b.pendentes, 0)).toBe(r.pendentes.length);
+    expect(r.porBloco.reduce((s, b) => s + b.incertas, 0)).toBe(r.incertas.length);
+  });
+});

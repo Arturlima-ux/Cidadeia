@@ -1,5 +1,7 @@
 "use client";
 
+import { NOME_PLANO_ADDON } from "@/lib/planos";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -198,7 +200,56 @@ function ResultadoDiagnostico({
           aqui foi verificado no site do município — o diagnóstico vale o que
           vale a resposta.
         </p>
+
+        {/* ── O RESULTADO EM TRÊS NÚMEROS ──
+            "9/13" diz o placar; não diz onde está o problema. As três
+            contagens são as três respostas possíveis, com as cores que o
+            painel usa: "não" é pendência (urgente), "não sei" é atenção,
+            "sim" está atendido. */}
+        <div className="grid grid-cols-3 gap-2.5 mt-6 max-w-md mx-auto">
+          <Contagem n={resultado.pendentes.length} rotulo="pendências" cor="var(--urgente)" fundo="var(--urgente-tint)" />
+          <Contagem n={resultado.incertas.length} rotulo="em atenção" cor="var(--medio)" fundo="var(--medio-tint)" />
+          <Contagem n={resultado.conformes} rotulo="atendidas" cor="var(--accent)" fundo="var(--accent-tint)" />
+        </div>
       </div>
+
+      {/* ── ONDE O PROBLEMA SE CONCENTRA ──
+          Quatro blocos, cada um com a proporção de atendidas. Um bloco
+          inteiro em vermelho diz mais que qualquer lista: é por ali que se
+          começa. */}
+      {abertas && (
+        <div className="border border-border rounded-2xl p-6" style={{ background: "var(--card)" }}>
+          <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">Por bloco</p>
+          <ul className="mt-4 flex flex-col gap-3">
+            {resultado.porBloco.map((b) => {
+              const abertasDoBloco = b.pendentes + b.incertas;
+              const pct = b.total > 0 ? Math.round((b.conformes / b.total) * 100) : 0;
+              return (
+                <li key={b.bloco} className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1.5 items-center">
+                  <span className="text-sm font-semibold leading-snug">{b.nome}</span>
+                  <span className="text-xs font-mono text-muted tabular-nums">
+                    {b.conformes}/{b.total}
+                    {abertasDoBloco > 0 && (
+                      <span style={{ color: b.pendentes > 0 ? "var(--urgente)" : "var(--medio)" }}>
+                        {" "}· {abertasDoBloco} {abertasDoBloco === 1 ? "aberta" : "abertas"}
+                      </span>
+                    )}
+                  </span>
+                  <div className="col-span-2 h-2 rounded-full overflow-hidden" style={{ background: "var(--superficie)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${pct}%`,
+                        background: pct === 100 ? "var(--accent)" : b.pendentes > 0 ? "var(--urgente)" : "var(--medio)",
+                      }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       {resultado.incertas.length > 0 && (
         <div
@@ -289,6 +340,17 @@ function ResultadoDiagnostico({
   );
 }
 
+function Contagem({ n, rotulo, cor, fundo }: { n: number; rotulo: string; cor: string; fundo: string }) {
+  return (
+    <div className="rounded-xl px-3 py-3" style={{ background: fundo }}>
+      <p className="font-serif text-2xl font-extrabold tabular-nums leading-none" style={{ color: cor }}>
+        {n}
+      </p>
+      <p className="text-[11px] text-muted mt-1.5">{rotulo}</p>
+    </div>
+  );
+}
+
 function ListaExigencias({
   titulo,
   subtitulo,
@@ -329,6 +391,16 @@ function ListaExigencias({
             >
               {e.comoResolve}
             </p>
+            {/* A pendência liga ao módulo que a entrega. O diagnóstico deixa
+                de terminar numa lista e passa a apontar o que contratar. */}
+            {e.modulo && (
+              <Link
+                href={`/modulos/${e.modulo}`}
+                className="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-brand hover:text-brand-claro transition"
+              >
+                Resolvido pelo módulo {NOME_PLANO_ADDON[e.modulo]} →
+              </Link>
+            )}
           </li>
         ))}
       </ul>

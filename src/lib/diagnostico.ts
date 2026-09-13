@@ -1,3 +1,4 @@
+import type { PlanoAddon } from "@/lib/planos";
 // ── DIAGNÓSTICO DE CONFORMIDADE ──
 //
 // A única prova que funciona antes de existir o primeiro cliente.
@@ -45,6 +46,8 @@ export type Exigencia = {
   /** Se o CidadeIA entrega isso. Quando false, o texto diz o que falta. */
   resolvemos: boolean;
   comoResolve: string;
+  /** Qual módulo entrega — o resultado do diagnóstico liga a pendência à página dele. */
+  modulo?: PlanoAddon;
 };
 
 export const EXIGENCIAS: Exigencia[] = [
@@ -59,6 +62,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "É o item que o cidadão mais aciona em pedido de informação, e o primeiro que a corregedoria confere.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve:
       "O painel de publicações tem campos próprios para secretaria, endereço, telefone e horário, e eles aparecem no portal público. O conteúdo é da prefeitura, como a lista de obras também é — o que entregamos é onde publicar e a garantia de que fica no ar.",
   },
@@ -72,6 +76,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Exigir cadastro para ver despesa é, por si só, descumprimento — a lei veda condicionar o acesso à identificação.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve:
       "O portal tem endereço público próprio do município e abre sem nenhum cadastro.",
   },
@@ -84,6 +89,7 @@ export const EXIGENCIAS: Exigencia[] = [
     artigo: "art. 8º, § 1º, IV",
     risco: "É a informação mais pedida por imprensa local e por concorrente derrotado.",
     resolvemos: true,
+    modulo: "licitacoes",
     comoResolve: "O módulo de Licitações publica no portal o que é cadastrado no sistema.",
   },
   {
@@ -95,6 +101,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Obra parada sem informação pública é a origem mais comum de representação no Ministério Público.",
     resolvemos: true,
+    modulo: "obras",
     comoResolve: "O módulo de Obras publica situação e andamento de cada obra no portal.",
   },
 
@@ -109,6 +116,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Sem protocolo não há como provar que o pedido foi respondido no prazo de 20 dias do art. 11.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve: "Protocolo emitido na hora, com número e chave privada de consulta.",
   },
   {
@@ -121,6 +129,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Todo pedido sem acompanhamento vira ligação para o protocolo — o custo aparece no atendimento, não no processo.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve:
       "A chave de consulta entregue na abertura permite consultar o andamento sem login.",
   },
@@ -134,6 +143,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Protocolo sequencial permite descobrir quantas denúncias existem e adivinhar as vizinhas — anula a proteção do denunciante.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve: "Denúncia anônima aceita, com protocolo aleatório e sem coleta de identificação.",
   },
   {
@@ -146,6 +156,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "É obrigação de todo órgão público e uma das menos cumpridas por município pequeno.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve:
       "Cada serviço é publicado com os campos que o art. 7º exige: o que o cidadão precisa levar, o prazo de atendimento e onde solicitar. O conjunto deles forma a Carta no portal. O levantamento dos serviços continua sendo da prefeitura — nós damos a estrutura que impede publicar pela metade.",
   },
@@ -161,6 +172,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "É a exigência que o Tribunal de Contas mais cobra do município, e a que costuma gerar ressalva em parecer prévio.",
     resolvemos: true,
+    modulo: "essencial",
     comoResolve:
       "O portal mostra o que está lançado no sistema, sem etapa manual de publicação entre o lançamento e o cidadão.",
   },
@@ -174,6 +186,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "PDF de imagem não cumpre a lei. O texto exige formato que permita processamento automatizado.",
     resolvemos: true,
+    modulo: "gestao",
     comoResolve: "Exportação em CSV e JSON a qualquer momento, sem custo e sem pedir autorização.",
   },
   {
@@ -213,6 +226,7 @@ export const EXIGENCIAS: Exigencia[] = [
     risco:
       "Servidor de uma secretaria enxergando dado pessoal de outra é incidente de segurança comunicável à ANPD.",
     resolvemos: true,
+    modulo: "gestao",
     comoResolve:
       "Cada secretário enxerga apenas a própria área; o consolidado fica restrito ao prefeito.",
   },
@@ -244,6 +258,8 @@ export type Resultado = {
   /** As que continuam com a prefeitura mesmo contratando. */
   descobertas: Exigencia[];
   nivel: Nivel;
+  /** Pendentes, incertas e conformes por bloco — onde o problema se concentra. */
+  porBloco: { bloco: Bloco; nome: string; total: number; pendentes: number; incertas: number; conformes: number }[];
 };
 
 /**
@@ -268,7 +284,23 @@ export function avaliar(respostas: Partial<Record<string, Resposta>>): Resultado
   const abertas = [...pendentes, ...incertas];
   const proporcao = conformes / EXIGENCIAS.length;
 
+  // Por bloco: quantas pendentes, incertas e conformes em cada um. É o que
+  // permite dizer "o problema está concentrado em Atendimento" em vez de
+  // só um número total.
+  const porBloco = BLOCOS.map((bloco) => {
+    const doBloco = EXIGENCIAS.filter((e) => e.bloco === bloco);
+    return {
+      bloco,
+      nome: NOME_BLOCO[bloco],
+      total: doBloco.length,
+      pendentes: doBloco.filter((e) => respostas[e.id] === "nao").length,
+      incertas: doBloco.filter((e) => respostas[e.id] === "nao_sei").length,
+      conformes: doBloco.filter((e) => respostas[e.id] === "sim").length,
+    };
+  });
+
   return {
+    porBloco,
     total: EXIGENCIAS.length,
     conformes,
     pendentes,
