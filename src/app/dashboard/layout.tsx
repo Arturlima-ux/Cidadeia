@@ -6,6 +6,7 @@ import { sair } from "@/app/login/actions";
 import { planosContratadosDe, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
 import { type NavItem } from "@/components/SidebarNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import FaixaDemo from "@/components/FaixaDemo";
 
 const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
   saude: { href: "/dashboard/secretarias/saude", label: "Saúde", icone: "saude" },
@@ -164,11 +165,13 @@ export default async function DashboardLayout({
           planosAtivos,
           sessao.cargo !== "secretario" && !prefeitura.implantacaoConcluidaEm
         )}
-        prefeituraNome={prefeitura.nome}
+        prefeituraNome={sessao.demo ? `${prefeitura.nome} · demonstração` : prefeitura.nome}
         sairAction={sair}
+        sairPorLink={sessao.demo ? "/sessao-encerrada?demo=1" : undefined}
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
+        {sessao.demo && <FaixaDemo />}
         <header className="shadow-elevated relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
             <div

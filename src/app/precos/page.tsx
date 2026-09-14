@@ -22,7 +22,13 @@ export const metadata = {
   title: "Preços — CidadeIA",
 };
 
-export default function PrecosPage() {
+export default async function PrecosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [chave: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const demoIndisponivel = params.demo === "indisponivel";
   const referencia = menorPrecoMensal() ?? { valor: 0, porte: "ate10k" as const };
   const rotuloReferencia = PORTES.find((p) => p.chave === referencia.porte)?.rotulo.toLowerCase() + " habitantes";
   return (
@@ -32,6 +38,15 @@ export default function PrecosPage() {
       <Reveal>
         <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
           <h1 className="font-serif text-4xl font-bold">Preços</h1>
+          {demoIndisponivel && (
+            <p
+              className="text-sm rounded-lg px-3 py-2.5 border mt-4 text-left"
+              style={{ color: "var(--medio)", background: "var(--medio-tint)", borderColor: "var(--medio-borda)" }}
+            >
+              A demonstração não pôde ser preparada agora. Tente de novo em instantes — ou
+              veja o painel de cada módulo logo abaixo.
+            </p>
+          )}
           <p className="text-muted text-base mt-4 leading-relaxed">
             Cada área é um módulo avulso, contratado separadamente conforme o que
             sua gestão precisa. Você paga só pelo que usa.
@@ -68,6 +83,11 @@ export default function PrecosPage() {
             </p>
           </div>
           <SeletorPainelModulo />
+          <p className="text-sm text-center mt-6">
+            <a href="/demo" className="font-semibold text-brand-claro hover:text-foreground transition">
+              Prefere clicar? Explore a demonstração — o painel de verdade, sem cadastro →
+            </a>
+          </p>
         </section>
       </Reveal>
 

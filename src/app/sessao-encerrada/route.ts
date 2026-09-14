@@ -22,7 +22,10 @@ export async function GET(request: Request) {
   // `sessao=expirada` é o que permite ao login explicar por que a pessoa
   // voltou para lá. Sem isso ela é devolvida ao formulário sem motivo
   // aparente, o que parece defeito.
-  const destino = new URL("/login?sessao=expirada", request.url);
+  // Saindo da demonstração, o destino é a home — "sessão expirada" seria
+  // mentira para quem nunca teve conta.
+  const url = new URL(request.url);
+  const destino = new URL(url.searchParams.get("demo") ? "/" : "/login?sessao=expirada", request.url);
 
   const resposta = NextResponse.redirect(destino);
   resposta.cookies.delete(NOME_COOKIE_SESSAO);

@@ -293,6 +293,19 @@ export default async function LandingPage() {
                 <p className="text-xs text-muted mt-4">
                   Dois minutos · sem cadastro · nada é enviado
                 </p>
+                {/* A demonstração é o painel real com uma prefeitura fictícia.
+                    Em texto, não em botão: a página tem duas ações cheias que
+                    não competem, e esta é a terceira porta — para quem quer
+                    ver antes de se qualificar ou de perguntar preço. */}
+                <p className="text-sm mt-5">
+                  <a
+                    href="/demo"
+                    className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                    Explorar a demonstração — o painel de verdade, sem cadastro →
+                  </a>
+                </p>
 
                 {/* A prova sobe para o herói. Ficava na quarta seção, depois
                     do preço — quem desistia antes nunca via que dá para

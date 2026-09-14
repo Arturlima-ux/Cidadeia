@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verificarTokenSessao } from "@/lib/sessao";
 import { deveForcarHttps } from "@/lib/forcar-https";
+import { decidirNaDemo, ROTAS_DE_DOWNLOAD } from "@/lib/demo/regras";
 
 const NOME_COOKIE = "cidadeia_sessao";
 
@@ -42,11 +43,26 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // ── DEMONSTRAÇÃO: SÓ LEITURA, DECIDIDO AQUI ──
+  // Uma sessão marcada como demo não faz POST (é assim que toda ação de
+  // servidor chega) nem baixa relatório/exportação. Uma regra, antes de
+  // qualquer código de tela — nenhum botão precisa saber que é demo.
+  const ehDownload = ROTAS_DE_DOWNLOAD.some((r) => pathname.startsWith(r));
   const precisaAuth = pathname.startsWith("/dashboard");
-  if (!precisaAuth) return NextResponse.next();
+  if (!precisaAuth && !ehDownload) return NextResponse.next();
 
   const token = request.cookies.get(NOME_COOKIE)?.value;
   const sessao = await verificarTokenSessao(token);
+  if (sessao?.demo) {
+    const decisao = decidirNaDemo(request.method, pathname);
+    if (!decisao.permitido) {
+      return new NextResponse(decisao.motivo, {
+        status: 403,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      });
+    }
+  }
+  if (!precisaAuth) return NextResponse.next();
 
   if (!sessao) {
     const url = request.nextUrl.clone();

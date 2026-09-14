@@ -20,6 +20,13 @@ export type SessaoPayload = {
   nome: string;
   cargo: "prefeito" | "secretario" | "admin";
   secretaria?: string | null;
+  /**
+   * Sessão da demonstração pública: a prefeitura fictícia, só-leitura.
+   * O proxy recusa qualquer requisição que não seja GET quando isto é true —
+   * é a única proteção necessária, porque toda gravação é uma ação de
+   * servidor, e ação de servidor é POST.
+   */
+  demo?: boolean;
 };
 
 export async function criarSessao(payload: SessaoPayload) {

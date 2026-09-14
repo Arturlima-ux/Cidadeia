@@ -30,10 +30,13 @@ export default function DashboardSidebar({
   grupos,
   prefeituraNome,
   sairAction,
+  sairPorLink,
 }: {
   grupos: { titulo: string; itens: NavItem[] }[];
   prefeituraNome: string;
   sairAction: () => void;
+  /** Na demonstração, sair é um link (GET) — a sessão demo não faz POST. */
+  sairPorLink?: string;
 }) {
   const [aberto, setAberto] = useState(false);
   const pathname = usePathname();
@@ -81,15 +84,25 @@ export default function DashboardSidebar({
         </Link>
         <SidebarNav grupos={grupos} />
         <div className="px-3 py-4 border-t border-border">
-          <form action={sairAction}>
-            <button
-              type="submit"
+          {sairPorLink ? (
+            <a
+              href={sairPorLink}
               className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-sutil hover:text-foreground transition"
             >
               <IconSair className="w-4 h-4 shrink-0" />
-              Sair
-            </button>
-          </form>
+              Sair da demonstração
+            </a>
+          ) : (
+            <form action={sairAction}>
+              <button
+                type="submit"
+                className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted hover:bg-sutil hover:text-foreground transition"
+              >
+                <IconSair className="w-4 h-4 shrink-0" />
+                Sair
+              </button>
+            </form>
+          )}
         </div>
       </aside>
     </>
