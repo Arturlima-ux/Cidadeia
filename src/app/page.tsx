@@ -14,6 +14,7 @@ import BarraConversao from "@/components/site/BarraConversao";
 import PainelDemonstracao from "@/components/site/PainelDemonstracao";
 import Olho from "@/components/site/Olho";
 import { IMPLANTACAO } from "@/lib/textos-contratacao";
+import { FLUXO_ANTES, FLUXO_COM, type PassoFluxo } from "@/lib/fluxo-decisao";
 import {
   IconCheck,
   IconAlertas,
@@ -122,39 +123,6 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 
 // A comparação é o argumento mais forte da página: o visitante sente o que
 // perde ao escolher a alternativa. Cada linha é verificável.
-const VERSUS = [
-  {
-    pergunta: "Quanto custa",
-    eles: "Reunião com o comercial antes de qualquer número",
-    nos: "Nesta página, por módulo e por porte do município",
-  },
-  {
-    pergunta: "Como contratar legalmente",
-    eles: "Você descobre com o seu jurídico",
-    nos: "Três caminhos descritos, com a base legal de cada um",
-  },
-  {
-    pergunta: "Quem monta o processo",
-    eles: "O servidor, do zero",
-    nos: "Vai pronto: termo de referência, minuta, LGPD e nível de serviço",
-  },
-  {
-    // Dizia "Abra e confira — três canais no ar, sem login", e os três canais
-    // são do portal do cidadão. Sem nenhum portal publicado, era a mesma
-    // promessa vazia da seção de prova, num lugar em que ninguém procuraria.
-    //
-    // O Raio-X substitui porque cumpre o mesmo papel — o cético confere sem
-    // pedir nada a ninguém — e funciona hoje, para qualquer município.
-    pergunta: "Se funciona mesmo",
-    eles: "Slide e vídeo gravado",
-    nos: "Abra o Raio-X do seu município e confira, sem login",
-  },
-  {
-    pergunta: "E se quiser sair",
-    eles: "Exportação sob análise",
-    nos: "JSON e CSV a qualquer momento, sem custo e sem autorização",
-  },
-];
 
 
 export default async function LandingPage() {
@@ -517,55 +485,44 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ═══ VERSUS ═══ */}
+        {/* ═══ COMO A DECISÃO ACONTECE ═══
+            Aqui havia a tabela "A diferença" — nós contra as incumbentes em
+            preço, caminho legal, processo, exportação. Tudo sobre COMPRAR,
+            na página que deveria vender o produto. Ela foi para
+            /como-contratar. No lugar, o que o produto muda: o caminho entre
+            um dado e uma decisão, antes e depois. */}
         <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <Reveal>
             <div className="max-w-2xl">
-              <Olho>A diferença</Olho>
-              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
-                Todo mundo manda “solicitar demonstração”.
+              <Olho>Como a decisão acontece</Olho>
+              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
+                Do dado à decisão, sem esperar o parecer.
               </h2>
               <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
-                É assim que se esconde preço. Aqui a conta está aberta — e o
-                processo também.
+                O que muda não é o gráfico. É o caminho que um número faz até
+                virar uma decisão — e quanto tempo ele leva.
               </p>
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="mt-10 border border-border rounded-2xl overflow-hidden">
-              <div
-                className="hidden md:grid grid-cols-[1.1fr_1fr_1fr] text-xs font-mono uppercase tracking-wider text-muted border-b border-border"
-                style={{ background: "var(--card)" }}
-              >
-                <div className="px-5 py-3">Você quer saber</div>
-                <div className="px-5 py-3 border-l border-border">Nas incumbentes</div>
-                <div
-                  className="px-5 py-3 border-l border-border"
-                  style={{ color: "var(--accent-claro)" }}
-                >
-                  No CidadeIA
-                </div>
-              </div>
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <Reveal>
+              <FluxoColuna titulo="Sem o CidadeIA" passos={FLUXO_ANTES} tom="neutro" />
+            </Reveal>
+            <Reveal delay={120}>
+              <FluxoColuna titulo="Com o CidadeIA" passos={FLUXO_COM} tom="brand" />
+            </Reveal>
+          </div>
 
-              {VERSUS.map((v) => (
-                <div
-                  key={v.pergunta}
-                  className="grid md:grid-cols-[1.1fr_1fr_1fr] border-b border-border last:border-b-0"
-                >
-                  <div className="px-5 py-4 font-semibold text-sm">{v.pergunta}</div>
-                  <div className="px-5 py-4 text-sm text-muted leading-relaxed md:border-l border-border">
-                    {v.eles}
-                  </div>
-                  <div
-                    className="px-5 py-4 text-sm leading-relaxed md:border-l border-border"
-                    style={{ background: "var(--accent-tint)" }}
-                  >
-                    {v.nos}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <Reveal>
+            <p className="text-sm text-muted mt-8 max-w-[62ch] leading-relaxed">
+              Cada passo do lado direito é uma tela que existe — a Visão Geral
+              está desenhada no topo desta página, com a mesma lista. Quer ver
+              nós contra as incumbentes em preço, caminho legal e processo?{" "}
+              <Link href="/como-contratar" className="font-semibold text-brand hover:text-brand-claro transition">
+                Está em Como contratar →
+              </Link>
+            </p>
           </Reveal>
         </section>
 
@@ -910,6 +867,58 @@ export default async function LandingPage() {
  * chamada ao modelo ("IA"). Fundir as duas na mesma frase venderia um `if`
  * como inteligência artificial.
  */
+function FluxoColuna({
+  titulo,
+  passos,
+  tom,
+}: {
+  titulo: string;
+  passos: PassoFluxo[];
+  tom: "neutro" | "brand";
+}) {
+  const brand = tom === "brand";
+  return (
+    <div
+      className="h-full rounded-2xl border p-6 sm:p-7"
+      style={{
+        background: brand ? "var(--brand-tint)" : "var(--card)",
+        borderColor: brand ? "var(--brand)" : "var(--border)",
+      }}
+    >
+      <p
+        className="text-[11px] font-bold uppercase tracking-wider"
+        style={{ color: brand ? "var(--brand-claro)" : "var(--muted)" }}
+      >
+        {titulo}
+      </p>
+      <ol className="mt-5 flex flex-col">
+        {passos.map((p, i) => (
+          <li key={p.titulo} className="grid grid-cols-[28px_1fr] gap-x-3.5">
+            <div className="flex flex-col items-center">
+              <span
+                className="w-7 h-7 rounded-full grid place-items-center text-xs font-extrabold font-serif shrink-0"
+                style={{
+                  background: brand ? "var(--brand)" : "var(--superficie)",
+                  color: brand ? "#fff" : "var(--muted)",
+                }}
+              >
+                {i + 1}
+              </span>
+              {i < passos.length - 1 && (
+                <span className="w-px flex-1 my-1" style={{ background: brand ? "var(--brand)" : "var(--border)", opacity: 0.5 }} />
+              )}
+            </div>
+            <div className={i < passos.length - 1 ? "pb-5" : ""}>
+              <p className="font-semibold text-sm leading-snug">{p.titulo}</p>
+              <p className="text-sm text-muted leading-relaxed mt-1">{p.detalhe}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function SeloLinha({
   rotulo,
   tom,

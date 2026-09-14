@@ -5,7 +5,7 @@ import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import { CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
-import { IMPLANTACAO } from "@/lib/textos-contratacao";
+import { IMPLANTACAO, VERSUS } from "@/lib/textos-contratacao";
 import { IconDownload } from "@/components/icons";
 
 export const metadata = {
@@ -167,6 +167,38 @@ export default function ComoContratarPage() {
         </div>
       </div>
     </section>
+        {/* ── nós contra as incumbentes — era "A diferença", na home ── */}
+        <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-16">
+            <Reveal>
+              <div className="max-w-2xl mb-8">
+                <Olho>A diferença</Olho>
+                <h2 className="font-serif text-2xl sm:text-3xl font-extrabold tracking-[-0.03em] mt-4">
+                  O que você quer saber antes de assinar — e onde cada um responde.
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal>
+              <div className="border border-border rounded-2xl overflow-hidden" style={{ background: "var(--card)" }}>
+                <div
+                  className="hidden md:grid grid-cols-[200px_1fr_1fr] text-xs font-mono uppercase tracking-wider text-muted border-b border-border"
+                  style={{ background: "var(--superficie)" }}
+                >
+                  <div className="px-5 py-3">Você quer saber</div>
+                  <div className="px-5 py-3 border-l border-border">Nas incumbentes</div>
+                  <div className="px-5 py-3 border-l border-border" style={{ color: "var(--brand-claro)" }}>Aqui</div>
+                </div>
+                {VERSUS.map((v) => (
+                  <div key={v.pergunta} className="grid md:grid-cols-[200px_1fr_1fr] border-b border-border last:border-b-0">
+                    <div className="px-5 py-4 font-semibold text-sm">{v.pergunta}</div>
+                    <div className="px-5 py-4 text-sm text-muted md:border-l border-border">{v.eles}</div>
+                    <div className="px-5 py-4 text-sm md:border-l border-border">{v.nos}</div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>

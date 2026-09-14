@@ -91,3 +91,40 @@ export const IMPLANTACAO = [
     fim: true,
   },
 ];
+
+// Comparação com as incumbentes — era a seção "A diferença" da home; é
+// sobre comprar, então mora na página de contratação.
+export const VERSUS = [
+  {
+    pergunta: "Quanto custa",
+    eles: "Reunião com o comercial antes de qualquer número",
+    nos: "Nesta página, por módulo e por porte do município",
+  },
+  {
+    pergunta: "Como contratar legalmente",
+    eles: "Você descobre com o seu jurídico",
+    nos: "Três caminhos descritos, com a base legal de cada um",
+  },
+  {
+    pergunta: "Quem monta o processo",
+    eles: "O servidor, do zero",
+    nos: "Vai pronto: termo de referência, minuta, LGPD e nível de serviço",
+  },
+  {
+    // Dizia "Abra e confira — três canais no ar, sem login", e os três canais
+    // são do portal do cidadão. Sem nenhum portal publicado, era a mesma
+    // promessa vazia da seção de prova, num lugar em que ninguém procuraria.
+    //
+    // O Raio-X substitui porque cumpre o mesmo papel — o cético confere sem
+    // pedir nada a ninguém — e funciona hoje, para qualquer município.
+    pergunta: "Se funciona mesmo",
+    eles: "Slide e vídeo gravado",
+    nos: "Abra o Raio-X do seu município e confira, sem login",
+  },
+  {
+    pergunta: "E se quiser sair",
+    eles: "Exportação sob análise",
+    nos: "JSON e CSV a qualquer momento, sem custo e sem autorização",
+  },
+];
+
