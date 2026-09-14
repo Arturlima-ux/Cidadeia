@@ -1,4 +1,5 @@
 import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
+import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import {
   buscarEscolas,
@@ -47,7 +48,11 @@ export default async function EducacaoPage() {
         </a>
       </div>
 
-      <InsightIA acao={gerarInsightIA} modulo="educacao" />
+      <InsightIA
+        acao={gerarInsightIA}
+        modulo="educacao"
+        inicial={await insightInicial(ctx.sessao.prefeituraId, "educacao", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
+      />
 
       <div>
         <div className="flex items-center justify-between mb-3">

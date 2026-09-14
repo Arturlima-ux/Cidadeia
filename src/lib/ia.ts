@@ -480,6 +480,27 @@ export async function gerarInsightModulo(
  * momento, e mostrá-la como erro de sistema esconde do gestor exatamente o
  * que ele precisa resolver.
  */
+/**
+ * O insight pronto na renderização, quando não há provedor de modelo.
+ *
+ * A caixa "Insight da IA" buscava o texto por ação de servidor ao montar —
+ * um POST a cada abertura de tela, e um instante de caixa vazia. Sem modelo
+ * configurado a análise é local e instantânea: não há motivo para esperar o
+ * navegador pedir. Com provedor, devolve null e a tela busca como antes
+ * (chamar o modelo na renderização atrasaria a página inteira).
+ *
+ * Foi a demonstração que expôs isso: a sessão demo não faz POST, e a caixa
+ * ficava em erro.
+ */
+export async function insightInicial(
+  prefeituraId: string,
+  modulo: ModuloInsight,
+  restricaoCargo?: { cargo: string; secretaria?: string | null }
+): Promise<RespostaIA | null> {
+  if (provedorIA().nome !== "nenhum") return null;
+  return insightLocal(prefeituraId, modulo, restricaoCargo);
+}
+
 async function insightLocal(
   prefeituraId: string,
   modulo: ModuloInsight,

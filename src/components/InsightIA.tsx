@@ -13,16 +13,22 @@ import type { ModuloInsight, RespostaIA } from "@/lib/ia";
 export default function InsightIA({
   acao,
   modulo,
+  inicial = null,
 }: {
   acao: (modulo: ModuloInsight, forcar?: boolean) => Promise<RespostaIA>;
   modulo: ModuloInsight;
+  /** Calculado no servidor ao renderizar (sem provedor de modelo). Com ele, não há busca ao montar. */
+  inicial?: RespostaIA | null;
 }) {
-  const [resultado, setResultado] = useState<RespostaIA | null>(null);
+  const [resultado, setResultado] = useState<RespostaIA | null>(inicial);
   const [pending, startTransition] = useTransition();
 
   // Ao entrar na página, aproveita o cache (não gasta chamada de API se
   // um insight recente já existe).
   useEffect(() => {
+    // Com o inicial vindo do servidor, não há o que buscar — e, na
+    // demonstração, o POST seria recusado.
+    if (inicial) return;
     startTransition(async () => {
       const r = await acao(modulo);
       setResultado(r);

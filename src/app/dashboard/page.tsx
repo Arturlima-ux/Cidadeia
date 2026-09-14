@@ -1,4 +1,5 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import { insightInicial } from "@/lib/ia";
 import { buscarHistoricoSnapshots, buscarAlertas } from "@/lib/dados-prefeitura";
 import { atualizarSnapshot } from "./actions";
 import Link from "next/link";
@@ -102,7 +103,11 @@ export default async function DashboardPage() {
           o que precisava de ação ficava numa tela separada que ninguém abria. */}
       <PainelAtencao achados={achados} />
 
-      <InsightIA acao={gerarInsightIA} modulo="geral" />
+      <InsightIA
+        acao={gerarInsightIA}
+        modulo="geral"
+        inicial={await insightInicial(sessao.prefeituraId, "geral", { cargo: sessao.cargo, secretaria: sessao.secretaria })}
+      />
 
       {/* A IA Central era um cartão grande, com ícone em gradiente e três
           linhas de texto, logo abaixo da lista de decisões — competindo com

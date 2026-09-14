@@ -1,4 +1,5 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import { insightInicial } from "@/lib/ia";
 import { buscarLicitacoes, criarLicitacao, excluirLicitacao } from "./actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
 
@@ -106,7 +107,11 @@ export default async function LicitacoesPage() {
         </div>
       )}
 
-      <InsightIA acao={gerarInsightIA} modulo="licitacoes" />
+      <InsightIA
+        acao={gerarInsightIA}
+        modulo="licitacoes"
+        inicial={await insightInicial(ctx.sessao.prefeituraId, "licitacoes", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
+      />
 
       {comObservacaoRisco.length > 0 && (
         <Aviso

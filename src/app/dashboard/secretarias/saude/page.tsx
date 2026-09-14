@@ -1,4 +1,5 @@
 import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
+import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import {
   buscarUnidadesSaude,
@@ -55,7 +56,11 @@ export default async function SaudePage() {
         </a>
       </div>
 
-      <InsightIA acao={gerarInsightIA} modulo="saude" />
+      <InsightIA
+        acao={gerarInsightIA}
+        modulo="saude"
+        inicial={await insightInicial(ctx.sessao.prefeituraId, "saude", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
+      />
 
       {/* Indicadores */}
       <div>

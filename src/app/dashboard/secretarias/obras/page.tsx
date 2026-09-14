@@ -1,4 +1,5 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import { insightInicial } from "@/lib/ia";
 import { buscarObras, criarObra, atualizarProgressoObra, excluirObra } from "./actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
@@ -63,7 +64,11 @@ export default async function ObrasPage() {
         </a>
       </div>
 
-      <InsightIA acao={gerarInsightIA} modulo="obras" />
+      <InsightIA
+        acao={gerarInsightIA}
+        modulo="obras"
+        inicial={await insightInicial(ctx.sessao.prefeituraId, "obras", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
+      />
 
       {atrasadas.length > 0 && (
         <Aviso
