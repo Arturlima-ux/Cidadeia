@@ -56,6 +56,16 @@ for (const linha of DADOS.municipios) {
   porUf.set(linha[2], lista);
 }
 
+/** Todos os municípios de uma UF, na ordem do IBGE. Lista vazia para UF inválida. */
+export function municipiosDaUf(uf: string): Municipio[] {
+  return (porUf.get(uf.trim().toUpperCase()) ?? []).map(paraMunicipio);
+}
+
+/** Todos os 5.571, para o sitemap. */
+export function todosOsMunicipios(): Municipio[] {
+  return DADOS.municipios.map(paraMunicipio);
+}
+
 export function municipioPorCodigo(codigo: string): Municipio | null {
   const l = porCodigo.get(codigo);
   return l ? paraMunicipio(l) : null;
