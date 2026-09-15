@@ -568,3 +568,23 @@ export const pedidosProposta = pgTable("pedidos_proposta", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── LEADS ──
+// Quem deixou e-mail no site. Hoje, o Raio-X de um município ("receba este
+// Raio-X por e-mail, com a leitura de cada número"); amanhã, outras portas.
+// A origem diz de onde veio, e o código IBGE diz de que município a pessoa
+// estava falando — que é o dado que vale para a proposta.
+export const leads = pgTable("leads", {
+  id: text("id").primaryKey(),
+  origem: text("origem").notNull(), // "raio-x"
+  codigoIbge: text("codigo_ibge"),
+  municipio: text("municipio"),
+  uf: text("uf"),
+  nome: text("nome").notNull(),
+  cargo: text("cargo"),
+  email: text("email").notNull(),
+  emailEnviado: boolean("email_enviado").notNull().default(false),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

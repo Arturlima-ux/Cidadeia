@@ -5,6 +5,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import RaioXResultado from "@/components/site/RaioXResultado";
+import CapturaLeadRaioX from "@/components/site/CapturaLeadRaioX";
 import { municipioPorSlug, caminhoDoRaioX } from "@/lib/slug-municipio";
 import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
@@ -116,6 +117,12 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
                 </Link>
               </div>
             )}
+          </Reveal>
+        </section>
+
+        <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
+          <Reveal>
+            <CapturaLeadRaioX codigoIbge={m.codigo} municipio={m.nome} />
           </Reveal>
         </section>
 
