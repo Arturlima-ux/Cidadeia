@@ -15,10 +15,12 @@ import { POLITICA_PRIVACIDADE, TERMOS_DE_USO } from "@/lib/documentos-legais";
 //    A seção existe para dizer "não peça fé, confira" — e a conferência levava
 //    dez segundos e desmentia a promessa.
 //
-// 2. A página de preços mostrava "Sob consulta" em todos os módulos enquanto a
-//    calculadora da home exibia os valores. A única página do site sem preço
-//    era a de preços, contradizendo o argumento central de "a conta está
-//    aberta".
+// 2. A tabela de preços é INTERNA, por decisão comercial (15/09/2026): ela
+//    alimenta o e-mail da proposta e o contrato, e não aparece em página
+//    pública nenhuma. Já foi o contrário — a página de Preços exibia a tabela
+//    e a home dizia "a conta está aberta". O argumento agora é transparência
+//    de processo: proposta em um dia útil, por módulo e por faixa, sem reunião
+//    obrigatória. O que se trava aqui é que a tabela não vaze para o site.
 //
 // Teste sobre o código-fonte é feio, e aqui se justifica: o que precisa ser
 // travado é a AUSÊNCIA de uma promessa incondicional. Não há função a chamar —
@@ -51,7 +53,6 @@ function varrerFontes(dir: string): string[] {
 }
 
 const home = semComentarios(readFileSync("src/app/page.tsx", "utf8"));
-const precos = semComentarios(readFileSync("src/app/precos/page.tsx", "utf8"));
 
 describe("prova social não promete portal que não existe", () => {
   it("a afirmação de portal no ar é condicional", () => {
@@ -83,23 +84,47 @@ describe("prova social não promete portal que não existe", () => {
   });
 });
 
-describe("preço é o mesmo nas duas páginas", () => {
-  it("a página de preços lê a tabela, em vez de escrever números à mão", () => {
-    expect(precos).toContain("PRECO_MENSAL");
-    expect(precos).toContain("PORTES");
+describe("a tabela de preços é interna", () => {
+  // Páginas e componentes públicos. O e-mail da proposta (server action) e o
+  // painel logado ficam de fora: lá a tabela pode viver.
+  const PUBLICOS = [
+    "src/app/page.tsx",
+    "src/app/precos/page.tsx",
+    "src/app/proposta/page.tsx",
+    "src/app/modulos/[chave]/page.tsx",
+    "src/app/faq/page.tsx",
+    "src/app/como-contratar/page.tsx",
+    "src/app/conformidade/page.tsx",
+    "src/components/site/MontadorProposta.tsx",
+    "src/components/site/SeletorPainelModulo.tsx",
+    "src/components/site/PainelModuloFiel.tsx",
+    "src/components/site/BarraConversao.tsx",
+    "src/components/site/Diagnostico.tsx",
+  ];
+
+  it("nenhuma página pública lê a tabela de preços", () => {
+    const culpados = PUBLICOS.filter((a) =>
+      /PRECO_MENSAL|menorPrecoMensal|montarProposta\(/.test(semComentarios(readFileSync(a, "utf8")))
+    );
+    expect(culpados).toEqual([]);
   });
 
-  it("não anuncia sob consulta o que tem preço definido", () => {
-    // Nas faixas que o site promete (até 100 mil), todo módulo tem valor, e
-    // "sob consulta" não pode aparecer como rótulo fixo da página. As faixas
-    // grandes nascem sem preço, e aí o rótulo é honesto.
+  it("nenhuma página pública promete valor visível", () => {
+    const culpados = PUBLICOS.filter((a) =>
+      /a partir de R\$|conta está aberta|veja se cabe na dispensa/i.test(semComentarios(readFileSync(a, "utf8")))
+    );
+    expect(culpados).toEqual([]);
+  });
+
+  it("a tabela interna continua completa nas faixas que cabem na dispensa", () => {
+    // Ela alimenta a proposta e o contrato; um null nas faixas pequenas
+    // viraria "sob consulta" no e-mail do pedido.
     const todosTemPreco = PLANOS_ADDON.every((p) =>
       PORTES.filter((porte) => porte.garanteDispensa).every(
         (porte) => PRECO_MENSAL[p.chave][porte.chave] !== null
       )
     );
     expect(todosTemPreco).toBe(true);
-    expect(precos).not.toContain("Sob consulta — pedir proposta");
   });
 
   it("a tabela cobre todos os módulos vendidos", () => {

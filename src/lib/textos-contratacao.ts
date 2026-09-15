@@ -98,7 +98,7 @@ export const VERSUS = [
   {
     pergunta: "Quanto custa",
     eles: "Reunião com o comercial antes de qualquer número",
-    nos: "Nesta página, por módulo e por porte do município",
+    nos: "Proposta em até um dia útil, por módulo e por faixa de habitantes — sem reunião obrigatória",
   },
   {
     pergunta: "Como contratar legalmente",

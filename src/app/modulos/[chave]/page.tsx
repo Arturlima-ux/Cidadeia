@@ -5,11 +5,9 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import PainelModuloFiel from "@/components/site/PainelModuloFiel";
-import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
+import { PLANOS_ADDON } from "@/lib/planos";
 import { detalheDoModulo } from "@/lib/modulos-detalhe";
 import { PAINEIS_MODULOS } from "@/lib/paineis-modulos";
-import { PRECO_MENSAL, PORTES } from "@/lib/precos";
-import { formatarMoeda } from "@/lib/formatadores";
 import { IconCheck } from "@/components/icons";
 
 // ── UMA PÁGINA POR MÓDULO ──
@@ -49,7 +47,6 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
 
   const iaAtiva = Boolean(process.env.ANTHROPIC_API_KEY);
   const outros = PLANOS_ADDON.filter((p) => p.chave !== plano.chave);
-  const precos = PRECO_MENSAL[plano.chave as PlanoAddon];
 
   return (
     <div className="tema-noite min-h-screen">
@@ -77,7 +74,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
                     href="#valores"
                     className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-5 py-3.5 transition"
                   >
-                    Ver valores
+                    Como é o valor
                   </a>
                 </div>
               </div>
@@ -154,39 +151,14 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
             <div className="max-w-2xl">
               <Olho>Valores</Olho>
               <h2 className="font-serif text-2xl font-extrabold tracking-[-0.03em] mt-4">
-                {plano.nome}, por faixa de habitantes
+                Valor na proposta, pela faixa do seu município
               </h2>
               <p className="text-sm text-muted leading-relaxed mt-3">
-                A faixa do seu município é a da população estimada pelo IBGE — o
-                sistema a define sozinho, e é ela que vale na proposta e no contrato.
-                Módulo avulso, por mês, sem fidelidade.
+                Módulo avulso, por mês, sem fidelidade. O valor depende da faixa de
+                habitantes — a população estimada pelo IBGE, que o sistema define
+                sozinho — e chega na proposta em até um dia útil, com o termo de
+                referência pronto para o jurídico.
               </p>
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
-              {PORTES.map((porte) => {
-                const v = precos[porte.chave];
-                return (
-                  <div
-                    key={porte.chave}
-                    className="rounded-2xl border border-border p-4 text-center"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <p className="text-[11px] text-muted leading-tight">
-                      {porte.rotulo} {porte.detalhe}
-                    </p>
-                    <p className="font-serif text-lg font-bold tabular-nums mt-2">
-                      {v === null ? (
-                        <span className="text-xs font-sans font-medium text-muted">sob consulta</span>
-                      ) : (
-                        formatarMoeda(v)
-                      )}
-                    </p>
-                    {v !== null && <p className="text-[11px] text-muted">por mês</p>}
-                  </div>
-                );
-              })}
             </div>
           </Reveal>
           <Reveal delay={120}>
@@ -198,7 +170,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
                 Montar proposta com {plano.nome}&nbsp;&nbsp;→
               </Link>
               <Link href="/precos" className="text-sm font-semibold text-muted hover:text-foreground transition">
-                Ver todos os módulos e faixas
+                Ver todos os módulos
               </Link>
             </div>
           </Reveal>

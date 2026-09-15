@@ -6,10 +6,8 @@ import Olho from "@/components/site/Olho";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import FormularioProposta from "./FormularioProposta";
 import { buscarMunicipioPorCodigo, ehCodigoIbge } from "@/lib/populacao-ibge";
-import { montarProposta, porteDaPopulacao, PORTES } from "@/lib/precos";
+import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
-import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
-import { formatarMoeda, formatarMoedaExata } from "@/lib/formatadores";
 import { IconCheck } from "@/components/icons";
 
 export const metadata = {
@@ -68,8 +66,6 @@ export default async function PropostaPage({
 
   const porte = porteDaPopulacao(municipio.populacao);
   const rotuloPorte = PORTES.find((p) => p.chave === porte);
-  const proposta = montarProposta({ porte, modulos });
-  const cabe = cabeNaDispensa(proposta.anual);
 
   return (
     <div className="tema-noite min-h-screen">
@@ -109,7 +105,7 @@ export default async function PropostaPage({
                   </p>
                 </div>
 
-                {proposta.itens.length === 0 ? (
+                {modulos.length === 0 ? (
                   <p className="text-sm text-white/70 leading-relaxed">
                     Nenhum módulo marcado. A proposta vai com os seis para você escolher —
                     ou{" "}
@@ -119,13 +115,11 @@ export default async function PropostaPage({
                     .
                   </p>
                 ) : (
-                  <ul className="flex flex-col gap-2.5">
-                    {proposta.itens.map((item) => (
-                      <li key={item.modulo} className="flex justify-between gap-3 text-sm text-white/75">
-                        <span>{item.nome}</span>
-                        <span className="font-semibold text-white shrink-0">
-                          {item.mensal === null ? "sob consulta" : `${formatarMoeda(item.mensal)}/mês`}
-                        </span>
+                  <ul className="flex flex-col gap-2 text-sm text-white/80">
+                    {PLANOS_ADDON.filter((p) => modulos.includes(p.chave)).map((p) => (
+                      <li key={p.chave} className="flex items-center gap-2">
+                        <IconCheck className="w-3.5 h-3.5 shrink-0" strokeWidth={3} style={{ color: "var(--accent)" }} />
+                        {p.nome}
                       </li>
                     ))}
                   </ul>
@@ -133,45 +127,13 @@ export default async function PropostaPage({
 
                 <div className="h-px bg-white/15" />
 
-                {proposta.itens.length === 0 ? null : proposta.incompleta ? (
-                  <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
-                    <p className="text-sm font-semibold">Valor sob consulta</p>
-                    <p className="text-xs text-white/70 leading-relaxed mt-1.5">
-                      A tabela desta faixa ainda não está publicada. A proposta volta com o
-                      valor fechado.
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-sm text-white/75">Mensal</span>
-                      <span className="font-serif text-xl font-extrabold">{formatarMoeda(proposta.mensal)}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-sm text-white/75">Total em 12 meses</span>
-                      <span className="font-serif text-2xl font-extrabold">{formatarMoeda(proposta.anual)}</span>
-                    </div>
-                    {cabe ? (
-                      <div className="rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/15 p-4">
-                        <p className="text-sm font-bold flex items-center gap-2">
-                          <IconCheck className="w-4 h-4 shrink-0" strokeWidth={3} />
-                          Cabe na dispensa de licitação
-                        </p>
-                        <p className="text-xs text-white/75 leading-relaxed mt-1.5">
-                          Abaixo de {formatarMoedaExata(LIMITE_DISPENSA.valor)} ({LIMITE_DISPENSA.base}).
-                          Contratação direta, sem edital.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-white/25 bg-white/[0.06] p-4">
-                        <p className="text-sm font-bold">Acima do limite de dispensa</p>
-                        <p className="text-xs text-white/75 leading-relaxed mt-1.5">
-                          O caminho é o pregão eletrônico — o termo de referência vai pronto.
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
+                {/* Sem valor aqui: a tabela é interna. O que a pessoa recebe é
+                    a proposta, por módulo e pela faixa do município. */}
+                <p className="text-xs text-white/70 leading-relaxed">
+                  O valor vem na proposta, por módulo e pela faixa de{" "}
+                  {rotuloPorte?.rotulo} habitantes, com o termo de referência pronto para o
+                  jurídico — em até um dia útil.
+                </p>
 
                 <Link
                   href={`/precos`}

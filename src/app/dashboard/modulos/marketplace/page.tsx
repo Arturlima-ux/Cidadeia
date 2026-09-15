@@ -9,8 +9,7 @@ import {
   HREF_PLANO_ADDON,
 } from "@/lib/planos";
 import AbasModulos from "../AbasModulos";
-import { PORTES, PRECO_MENSAL, porteDaPopulacao } from "@/lib/precos";
-import { formatarMoeda } from "@/lib/formatadores";
+import { PORTES, porteDaPopulacao } from "@/lib/precos";
 
 export default async function MarketplacePage() {
   const sessao = await lerSessao();
@@ -57,20 +56,21 @@ export default async function MarketplacePage() {
 
       {porte && rotuloPorte && populacao ? (
         <p className="text-sm text-muted">
-          Valores para o porte da {prefeitura?.nome}:{" "}
+          Faixa da {prefeitura?.nome}:{" "}
           <strong className="text-foreground">{rotuloPorte.rotulo} habitantes</strong> —{" "}
-          {new Intl.NumberFormat("pt-BR").format(populacao)} hab. pela estimativa do IBGE.
+          {new Intl.NumberFormat("pt-BR").format(populacao)} hab. pela estimativa do IBGE. O valor
+          de cada módulo vem na proposta.
         </p>
       ) : (
         <p
           className="text-sm rounded-lg px-3 py-2.5 border"
           style={{ color: "var(--medio)", background: "var(--medio-tint)", borderColor: "var(--medio-borda)" }}
         >
-          Os valores dependem do porte do município, que vem da população do IBGE.{" "}
+          A proposta depende do porte do município, que vem da população do IBGE.{" "}
           <Link href="/dashboard/implantacao" className="font-semibold underline">
             Reconheça o município na Implantação
           </Link>{" "}
-          para ver os valores e pedir proposta.
+          para pedir proposta.
         </p>
       )}
 
@@ -95,13 +95,6 @@ export default async function MarketplacePage() {
               </div>
               <p className="text-xs text-muted mt-2 leading-relaxed flex-1">
                 {p.descricao}
-                {porte && (
-                  <span className="block mt-2 text-sm font-semibold text-foreground">
-                    {PRECO_MENSAL[p.chave][porte] === null
-                      ? "Valor sob consulta"
-                      : `${formatarMoeda(PRECO_MENSAL[p.chave][porte] as number)}/mês`}
-                  </span>
-                )}
               </p>
 
               {ativo ? (

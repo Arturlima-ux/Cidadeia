@@ -5,8 +5,7 @@ import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
-import { PRECO_MENSAL, PORTES, menorPrecoMensal } from "@/lib/precos";
-import { formatarMoeda } from "@/lib/formatadores";
+
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
 const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
@@ -19,7 +18,7 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
 };
 
 export const metadata = {
-  title: "Preços — CidadeIA",
+  title: "Módulos e proposta — CidadeIA",
 };
 
 export default async function PrecosPage({
@@ -29,15 +28,13 @@ export default async function PrecosPage({
 }) {
   const params = await searchParams;
   const demoIndisponivel = params.demo === "indisponivel";
-  const referencia = menorPrecoMensal() ?? { valor: 0, porte: "ate10k" as const };
-  const rotuloReferencia = PORTES.find((p) => p.chave === referencia.porte)?.rotulo.toLowerCase() + " habitantes";
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
 
       <Reveal>
         <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
-          <h1 className="font-serif text-4xl font-bold">Preços</h1>
+          <h1 className="font-serif text-4xl font-bold">Módulos e proposta</h1>
           {demoIndisponivel && (
             <p
               className="text-sm rounded-lg px-3 py-2.5 border mt-4 text-left"
@@ -63,11 +60,10 @@ export default async function PrecosPage({
           <div className="text-center mb-8">
             <h2 className="font-serif text-2xl font-bold">Monte a sua proposta</h2>
             <p className="text-muted mt-2 leading-relaxed max-w-lg mx-auto">
-              Módulos a partir de{" "}
-              <strong className="text-foreground">{formatarMoeda(referencia.valor)}/mês</strong>{" "}
-              para municípios de {rotuloReferencia}. Informe o município e marque
-              os módulos: o porte sai da população do IBGE — não é uma escolha — e
-              o valor anual aparece na hora, com o caminho de contratação que cabe.
+              Informe o município e marque os módulos. O porte sai da população
+              do IBGE — não é uma escolha — e a proposta chega em até um dia útil,
+              por módulo e pela faixa do seu município, com o termo de referência
+              pronto.
             </p>
           </div>
           <MontadorProposta />
@@ -98,9 +94,9 @@ export default async function PrecosPage({
             Já houve botão para escolher a faixa; não há mais, e a tabela
             abaixo existe para a conta ser aberta — não para ser escolhida. */}
         <p className="text-sm text-muted mt-1.5 mb-5 leading-relaxed max-w-2xl">
-          Valores mensais por faixa de habitantes. A faixa do seu município é a
-          da população estimada pelo IBGE — o sistema a define sozinho, e é ela
-          que vale na proposta e no contrato.
+          Cada área é um módulo avulso. O valor é por faixa de habitantes — a do seu
+          município é a da população estimada pelo IBGE, que o sistema define
+          sozinho — e vem na proposta, com o termo de referência.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           {PLANOS_ADDON.map((p, i) => {
@@ -128,28 +124,12 @@ export default async function PrecosPage({
                       novo. Onde o preço ainda não existe, o rótulo continua
                       "sob consulta", que é honesto — mas hoje não é o caso de
                       nenhum módulo. */}
-                  <dl className="mt-4 pt-4 border-t border-border grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-3 text-center">
-                    {PORTES.map((porte) => {
-                      const valor = PRECO_MENSAL[p.chave][porte.chave];
-                      return (
-                        <div key={porte.chave}>
-                          <dt className="text-[11px] text-muted leading-tight">
-                            {porte.rotulo} {porte.detalhe}
-                          </dt>
-                          <dd className="font-serif text-base font-bold tabular-nums mt-0.5">
-                            {valor === null ? (
-                              <span className="text-xs font-sans font-medium text-muted">
-                                sob consulta
-                              </span>
-                            ) : (
-                              formatarMoeda(valor)
-                            )}
-                          </dd>
-                        </div>
-                      );
-                    })}
-                  </dl>
-                  <p className="text-[11px] text-muted mt-2 text-center">por mês</p>
+                  {/* Sem valores: a tabela de preços é interna, por decisão
+                      comercial. O que se diz é a regra — o valor depende da
+                      faixa de habitantes, que o IBGE define — e o caminho. */}
+                  <p className="mt-4 pt-4 border-t border-border text-xs text-muted leading-relaxed">
+                    Valor por faixa de habitantes, na proposta. Módulo avulso, por mês, sem fidelidade.
+                  </p>
                 </div>
               </Reveal>
             );
@@ -160,10 +140,10 @@ export default async function PrecosPage({
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">Some só os módulos que a prefeitura vai usar.</p>
             <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-lg mx-auto">
-              O simulador no topo desta página fecha o total anual pelo porte do
-              seu município e diz se cabe na dispensa por valor. Contratação em
-              prefeitura passa por proposta, processo e empenho — não por
-              cartão —, e o valor vai junto do termo de referência.
+              Monte a proposta no topo desta página: município, módulos, e ela
+              chega em até um dia útil. Contratação em prefeitura passa por
+              proposta, processo e empenho — não por cartão —, e o valor vai
+              junto do termo de referência.
             </p>
             {/* A ação cheia era "Criar conta grátis", que leva a uma conta sem
                 módulo nenhum e a um checkout ainda não configurado. Quem fecha

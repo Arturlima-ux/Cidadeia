@@ -3,9 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
-import { PORTES, montarProposta, type PorteMunicipio } from "@/lib/precos";
-import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
-import { formatarMoeda, formatarMoedaExata } from "@/lib/formatadores";
+import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
 import { ESTADOS } from "@/lib/estados";
 import { sugerirPorte } from "@/app/precos/actions";
@@ -34,8 +32,6 @@ export default function MontadorProposta({
   const [modulos, setModulos] = useState<PlanoAddon[]>(modulosIniciais);
 
   const identificado = porte !== null;
-  const proposta = montarProposta({ porte: porte ?? "de10a50k", modulos });
-  const cabe = cabeNaDispensa(proposta.anual);
 
   // ── Porte pelo município, em vez de cabeça ──
   // "Até 10 mil / 10 a 50 mil / acima" exigia saber a população. O IBGE
@@ -216,7 +212,11 @@ export default function MontadorProposta({
         </fieldset>
       </div>
 
-      {/* ── resumo ── */}
+      {/* ── resumo ──
+          Sem valores, de propósito: a tabela de preços é interna. O que a
+          pessoa vê aqui é o que ela montou — município, porte, módulos — e
+          a promessa que substitui a tabela: proposta em um dia útil, sem
+          reunião obrigatória, com o termo de referência pronto. */}
       <div
         className="p-6 sm:p-7 flex flex-col gap-4 text-white"
         style={{ background: "var(--brand-profundo)" }}
@@ -225,78 +225,36 @@ export default function MontadorProposta({
 
         {!identificado ? (
           <p className="text-sm text-white/70 leading-relaxed">
-            Informe o município para ver o valor — é a população dele que define a
-            tabela.
+            Informe o município para montar a proposta — é a população dele que
+            define a faixa.
           </p>
-        ) : proposta.itens.length === 0 ? (
-          <p className="text-sm text-white/70 leading-relaxed">
-            Escolha ao menos um módulo para ver o valor.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-2.5">
-            {proposta.itens.map((item) => (
-              <li key={item.modulo} className="flex justify-between gap-3 text-sm text-white/75">
-                <span>{item.nome}</span>
-                <span className="font-semibold text-white shrink-0">
-                  {item.mensal === null ? "sob consulta" : formatarMoeda(item.mensal)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="h-px bg-white/15" />
-
-        {!identificado ? null : proposta.incompleta ? (
-          // Preço ainda não definido: dizer "sob consulta" é honesto. Mostrar
-          // R$ 0,00 daria a entender que os módulos escolhidos são de graça.
-          <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
-            <p className="text-sm font-semibold">Valor sob consulta</p>
-            <p className="text-xs text-white/70 leading-relaxed mt-1.5">
-              A tabela deste porte ainda não está publicada. Peça a proposta e ela
-              volta com o valor fechado e o termo de referência.
-            </p>
-          </div>
         ) : (
           <>
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm text-white/75">Mensal</span>
-              <span className="font-serif text-xl font-extrabold tracking-tight">
-                {formatarMoeda(proposta.mensal)}
-              </span>
+            <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
+              <p className="text-xs text-white/60">Município</p>
+              <p className="font-semibold mt-0.5">{achado?.split(":")[0] ?? municipio}</p>
+              <p className="text-xs text-white/70 mt-1">
+                Porte: <strong className="text-white">{PORTES.find((p) => p.chave === porte)?.rotulo} habitantes</strong> (IBGE)
+              </p>
             </div>
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm text-white/75">Total em 12 meses</span>
-              <span className="font-serif text-2xl font-extrabold tracking-tight">
-                {formatarMoeda(proposta.anual)}
-              </span>
-            </div>
-
-            {/* O selo que fecha contrato: responde "posso comprar?" antes de
-                "quanto custa?". Compara o total ANUAL — comparar o mensal
-                seria o fracionamento que o art. 75 veda. */}
-            {proposta.anual > 0 &&
-              (cabe ? (
-                <div className="rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/15 p-4">
-                  <p className="text-sm font-bold flex items-center gap-2">
-                    <IconCheck className="w-4 h-4 shrink-0" strokeWidth={3} />
-                    Cabe na dispensa de licitação
-                  </p>
-                  <p className="text-xs text-white/75 leading-relaxed mt-1.5">
-                    O total anual fica abaixo de {formatarMoedaExata(LIMITE_DISPENSA.valor)} (
-                    {LIMITE_DISPENSA.base}). A prefeitura pode contratar direto, sem edital.
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-white/25 bg-white/[0.06] p-4">
-                  <p className="text-sm font-bold">Acima do limite de dispensa</p>
-                  <p className="text-xs text-white/75 leading-relaxed mt-1.5">
-                    O caminho aqui é o pregão eletrônico — e o termo de referência
-                    vai pronto no kit. Dividir o contrato para caber no limite é
-                    vedado pelo {LIMITE_DISPENSA.base}.
-                  </p>
-                </div>
-              ))}
+            {modulos.length === 0 ? (
+              <p className="text-sm text-white/70 leading-relaxed">Marque ao menos um módulo.</p>
+            ) : (
+              <ul className="flex flex-col gap-2 text-sm text-white/80">
+                {PLANOS_ADDON.filter((p) => modulos.includes(p.chave)).map((p) => (
+                  <li key={p.chave} className="flex items-center gap-2">
+                    <IconCheck className="w-3.5 h-3.5 shrink-0" strokeWidth={3} style={{ color: "var(--accent)" }} />
+                    {p.nome}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="h-px bg-white/15" />
+            <p className="text-xs text-white/70 leading-relaxed">
+              O valor vem na proposta, por módulo e pela faixa do seu município, com o
+              termo de referência pronto para o jurídico — em até um dia útil, sem
+              reunião obrigatória.
+            </p>
           </>
         )}
 

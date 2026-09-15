@@ -4,8 +4,7 @@ import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { EXIGENCIAS } from "@/lib/diagnostico";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import { listarPortaisPublicados } from "@/lib/portais";
-import { formatarMoedaExata, formatarMoeda } from "@/lib/formatadores";
-import { menorPrecoMensal, PORTES } from "@/lib/precos";
+import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -153,10 +152,6 @@ export default async function LandingPage() {
   const portalVitrine = portais[0] ?? null;
   const modulos = modulosNaOrdemDaHome();
 
-  // "A conta está aberta" precisa de um número antes de qualquer campo. É o
-  // menor valor da tabela, na menor faixa — derivado, para não desatualizar.
-  const referencia = menorPrecoMensal() ?? { valor: 0, porte: "ate10k" as const };
-  const rotuloReferencia = PORTES.find((p) => p.chave === referencia.porte)?.rotulo.toLowerCase() + " habitantes";
 
   // A leitura por IA depende da chave da Anthropic no ambiente. Sem ela as
   // funções de insight devolvem erro em vez de resposta, então a home não
@@ -286,7 +281,7 @@ export default async function LandingPage() {
                     href="#proposta"
                     className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
                   >
-                    Ver quanto custa
+                    Montar proposta
                   </Link>
                 </div>
 
@@ -546,14 +541,12 @@ export default async function LandingPage() {
               <div className="text-center flex flex-col items-center gap-4 mb-10">
                 <Olho centrado>Proposta</Olho>
                 <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02]">
-                  Monte a sua e veja se cabe na dispensa.
+                  Monte a sua proposta em dois passos.
                 </h2>
                 <p className="text-muted leading-relaxed max-w-[52ch]">
-                  Módulos a partir de{" "}
-                  <strong className="text-foreground">{formatarMoeda(referencia.valor)}/mês</strong>{" "}
-                  para municípios de {rotuloReferencia}. O valor exato sai da
-                  população do IBGE, e o total anual é o que decide o caminho
-                  da contratação — não o mensal.
+                  Município e módulos. A proposta chega em até um dia útil, por
+                  módulo e pela faixa de habitantes do seu município, com o
+                  termo de referência pronto — sem reunião obrigatória.
                 </p>
               </div>
             </Reveal>

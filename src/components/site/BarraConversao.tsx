@@ -64,7 +64,7 @@ export default function BarraConversao() {
               href="#proposta"
               className="hidden lg:inline text-sm font-semibold text-muted hover:text-foreground transition"
             >
-              Ver quanto custa
+              Montar proposta
             </Link>
             <Link
               href="/kit"

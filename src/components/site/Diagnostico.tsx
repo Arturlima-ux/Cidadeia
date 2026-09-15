@@ -312,7 +312,7 @@ function ResultadoDiagnostico({
           href="/#proposta"
           className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated"
         >
-          Ver quanto custa resolver&nbsp;&nbsp;→
+          Montar proposta para resolver&nbsp;&nbsp;→
         </Link>
         <Link
           href="/kit"
