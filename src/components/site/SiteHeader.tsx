@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
+import MenuMobile from "@/components/site/MenuMobile";
 
 // ── CINCO ITENS, NA ORDEM EM QUE O PREFEITO PERGUNTA ──
 // Eram oito, e em tela de 1366px três deles quebravam em duas linhas — o
@@ -11,6 +12,11 @@ const LINKS = [
   { href: "/#solucoes", label: "Soluções" },
   // "Preços" prometia número; a página mostra módulos e manda pedir proposta.
   { href: "/precos", label: "Módulos" },
+  // A demonstração era o quarto botão de uma fileira de quatro, e a fileira
+  // inteira virava ruído: Cadastrar, Entrar, Ver demo, Receber proposta —
+  // com "Entrar" repetido na barra de cima. Ela é um destino, como as
+  // outras páginas; o lugar de um destino é a navegação.
+  { href: "/demo", label: "Demonstração" },
   { href: "/como-contratar", label: "Como contratar" },
   { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/faq", label: "FAQ" },
@@ -55,8 +61,11 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
               <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)] shrink-0" />
               Portal do cidadão
             </Link>
+            {/* A única porta de login do site. Antes o cabeçalho logo abaixo
+                repetia "Entrar", e duas portas para a mesma sala é o tipo de
+                repetição que faz o topo parecer desarrumado. */}
             <Link href={sessao ? "/dashboard" : "/login"} className="hover:text-white transition">
-              {sessao ? "Meu painel" : "Área do servidor"}
+              {sessao ? "Meu painel" : "Entrar"}
             </Link>
             {/* Rebaixado para cinza: em branco cheio disputava a atenção com
                 o link do cidadão, e a conversa comercial já tem o botão
@@ -87,56 +96,27 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
             ))}
           </nav>
 
-          <div className="flex items-center gap-3 shrink-0">
-            {/* "Cadastrar" só aparece sem sessão: existe pra dar rosto ao que
-                o FAQ já promete ("criar conta é grátis e sem cartão"), que
-                antes só era alcançável de dentro da tela de login — sem
-                nenhum link no cabeçalho ou na home apontando pra lá.
-
-                Em texto, não em botão: a página tem duas ações cheias que não
-                competem — diagnóstico no topo, proposta no fecho — e uma
-                terceira com peso reabriria a dispersão que a gente acabou de
-                arrumar. O que faltava não era destaque, era existir. */}
-            {!sessao && (
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Uma ação, e só uma, com peso: pedir a proposta. Entrar mora na
+                barra de cima; a demonstração, na navegação; e o cadastro
+                nasce do próprio pedido (/cadastro?proposta=…), não de um
+                botão solto — prefeitura não abre conta antes de contratar. */}
+            {sessao ? (
               <Link
-                href="/cadastro"
-                className="hidden sm:inline text-sm font-semibold text-muted hover:text-brand transition"
+                href="/dashboard"
+                className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
               >
-                Cadastrar
+                Ir para o painel
+              </Link>
+            ) : (
+              <Link
+                href="/proposta"
+                className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
+              >
+                Receber proposta
               </Link>
             )}
-            <Link
-              href={sessao ? "/dashboard" : "/login"}
-              className="hidden sm:inline text-sm font-semibold hover:text-brand transition"
-            >
-              {sessao ? "Ir para o painel" : "Entrar"}
-            </Link>
-            {/* A demo existia e ninguém achava: link discreto na home e no
-                Raio-X. Quem ainda não vai pedir proposta precisa de um passo
-                menor, e "ver funcionando" é esse passo. Contornado, não cheio:
-                a ação cheia continua sendo a proposta. */}
-            {!sessao && (
-              <Link
-                href="/demo"
-                className="text-sm font-semibold border border-border hover:border-brand hover:text-brand rounded-xl px-3.5 sm:px-4 py-2.5 transition"
-              >
-                Ver demo
-              </Link>
-            )}
-            {/* Era "Solicitar demonstração" — a mesma frase que a home usa
-                como exemplo do que as incumbentes fazem para esconder preço.
-                O botão mais visível do site não pode contradizer o argumento
-                central da página que ele encabeça. */}
-            {/* O comentário acima já dizia isto e o texto contradizia mesmo
-                assim: "Falar com especialista" é exatamente a exigência que a
-                home acusa as incumbentes de fazer, no botão que aparece em
-                TODAS as páginas. Mesmo destino do fecho, mesmas palavras. */}
-            <Link
-              href="/proposta"
-              className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
-            >
-              Receber proposta
-            </Link>
+            <MenuMobile links={LINKS} sessao={sessao} />
           </div>
         </div>
       </div>
