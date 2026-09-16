@@ -21,38 +21,45 @@ export type PlanoAddon =
   | "licitacoes"
   | "gestao";
 
+// ── UM MÓDULO, UMA FRASE, EM TODO LUGAR ──
+//
+// Estas descrições eram um texto; a home e as páginas de módulo mostravam
+// outro, vindo de lib/modulos-detalhe. Quem via as duas telas encontrava
+// duas versões do mesmo produto e ficava sem saber qual valia. Agora a
+// frase aqui é a MESMA de `modulos-detalhe.resumo`, e um teste
+// (tests/modulos-uma-fonte.test.ts) quebra se as duas se separarem de novo.
 export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string }[] = [
   {
     chave: "essencial",
     nome: "Essencial",
     descricao:
-      "Canais de relação com o cidadão: Protocolo de atendimento, Ouvidoria e Portal da Transparência público do município.",
+      "O portal do município: a prefeitura publica de um lado, o cidadão lê e se manifesta do outro.",
   },
   {
     chave: "saude",
     nome: "Saúde",
-    descricao: "Dashboard de unidades de saúde, indicadores, mapa e relatório em PDF, com IA aplicada à secretaria.",
+    descricao: "Onde estão as unidades e como andam os indicadores da secretaria.",
   },
   {
     chave: "educacao",
     nome: "Educação",
-    descricao: "Dashboard de escolas, indicadores, mapa e relatório em PDF, com IA aplicada à secretaria.",
+    descricao: "A rede municipal com frequência, notas e evasão por escola.",
   },
   {
     chave: "obras",
     nome: "Obras",
-    descricao: "Dashboard de obras, progresso, mapa e relatório em PDF, com IA aplicada à secretaria.",
+    descricao: "Progresso real contra o previsto, obra por obra.",
   },
   {
     chave: "licitacoes",
     nome: "Licitações",
-    descricao: "Dashboard de processos licitatórios e relatório em PDF, com IA aplicada à secretaria.",
+    descricao: "Os processos e os prazos que ninguém pode perder.",
   },
   {
     chave: "gestao",
     nome: "Gestão",
     descricao:
-      "Visão geral da prefeitura: financeiro, alertas gerais, histórico, relatório executivo e administração de usuários/secretários.",
+      "A visão do prefeito sobre a prefeitura inteira, numa tela só.",
   },
 ];
 

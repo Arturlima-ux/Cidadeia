@@ -5,6 +5,7 @@ import Reveal from "@/components/site/Reveal";
 import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { detalheDoModulo } from "@/lib/modulos-detalhe";
 
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
@@ -101,6 +102,7 @@ export default async function PrecosPage({
         <div className="grid sm:grid-cols-2 gap-4">
           {PLANOS_ADDON.map((p, i) => {
             const Icone = ICONE_ADDON[p.chave];
+            const detalhe = detalheDoModulo(p.chave);
             return (
               <Reveal key={p.chave} delay={(i % 2) * 100}>
                 <div className="card-interactive shadow-elevated bg-card border border-border rounded-2xl p-5 h-full">
@@ -112,6 +114,42 @@ export default async function PrecosPage({
                   </div>
                   <p className="font-semibold text-sm">{p.nome}</p>
                   <p className="text-sm text-muted mt-1.5 leading-relaxed">{p.descricao}</p>
+
+                  {/* ── O MESMO QUE A HOME PROMETE ──
+                      A home listava o que cada módulo entrega e esta página
+                      mostrava só uma frase — diferente da de lá. Quem
+                      comparava as duas telas via dois produtos. A lista vem
+                      da mesma fonte da home (lib/modulos-detalhe), item por
+                      item. */}
+                  {detalhe && (
+                    <ul className="mt-3 flex flex-col gap-1.5">
+                      {detalhe.capacidades.map((c) => (
+                        <li key={c} className="flex gap-2 text-xs leading-snug text-muted">
+                          <span aria-hidden="true" style={{ color: "var(--accent)" }}>
+                            ✓
+                          </span>
+                          <span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {detalhe?.automacao && (
+                    <p className="mt-3 text-xs leading-relaxed text-muted">
+                      <span
+                        className="font-bold uppercase tracking-wider mr-1.5"
+                        style={{ color: "var(--accent-claro)" }}
+                      >
+                        Automático
+                      </span>
+                      {detalhe.automacao}
+                    </p>
+                  )}
+                  <Link
+                    href={`/modulos/${p.chave}`}
+                    className="inline-block mt-3 text-xs font-semibold text-brand hover:underline"
+                  >
+                    Conhecer o módulo →
+                  </Link>
 
                   {/* Aqui dizia "Sob consulta — pedir proposta" em TODOS os
                       módulos, enquanto a calculadora da home mostrava os
