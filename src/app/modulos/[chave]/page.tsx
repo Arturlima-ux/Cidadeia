@@ -9,6 +9,7 @@ import { PLANOS_ADDON } from "@/lib/planos";
 import { detalheDoModulo } from "@/lib/modulos-detalhe";
 import { PAINEIS_MODULOS } from "@/lib/paineis-modulos";
 import { IconCheck } from "@/components/icons";
+import { compartilhamento } from "@/lib/seo";
 
 // ── UMA PÁGINA POR MÓDULO ──
 //
@@ -32,10 +33,11 @@ export async function generateMetadata({ params }: { params: Promise<{ chave: st
   const { chave } = await params;
   const plano = PLANOS_ADDON.find((p) => p.chave === chave);
   if (!plano) return { title: "Módulo — CidadeIA" };
-  return {
-    title: `${plano.nome} — módulo CidadeIA`,
-    description: detalheDoModulo(plano.chave)?.resumo ?? plano.descricao,
-  };
+  return compartilhamento({
+    titulo: `${plano.nome} — módulo CidadeIA`,
+    descricao: detalheDoModulo(plano.chave)?.resumo ?? plano.descricao,
+    caminho: `/modulos/${plano.chave}`,
+  });
 }
 
 export default async function ModuloPage({ params }: { params: Promise<{ chave: string }> }) {

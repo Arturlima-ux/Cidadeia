@@ -6,6 +6,7 @@ import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import { ESTADOS, NOME_DOS_ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { retratoDaUf } from "@/lib/raio-x-uf";
+import { compartilhamento } from "@/lib/seo";
 import { caminhoDoRaioX } from "@/lib/slug-municipio";
 import { ANO_ESTIMATIVA_POPULACAO } from "@/lib/municipios";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
@@ -39,11 +40,11 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   const uf = acharUf((await params).uf);
   if (!uf) return { title: "Estado não encontrado — CidadeIA" };
   const r = retratoDaUf(uf);
-  return {
-    title: `Raio-X das ${r.total} prefeituras ${doEstado(uf)} — população, faixa e o que consta no Tesouro`,
-    description: `Os ${r.total} municípios ${doEstado(uf)} (${n(r.populacao)} habitantes pela estimativa do IBGE), do maior para o menor, com a faixa de habitantes de cada um e o Raio-X do que a prefeitura publicou no Tesouro Nacional. Dado público, sem cadastro.`,
-    alternates: { canonical: `/raio-x/${uf.toLowerCase()}` },
-  };
+  return compartilhamento({
+    titulo: `Raio-X das ${r.total} prefeituras ${doEstado(uf)} — população, faixa e o que consta no Tesouro`,
+    descricao: `Os ${r.total} municípios ${doEstado(uf)} (${n(r.populacao)} habitantes pela estimativa do IBGE), do maior para o menor, com a faixa de habitantes de cada um e o Raio-X do que a prefeitura publicou no Tesouro Nacional. Dado público, sem cadastro.`,
+    caminho: `/raio-x/${uf.toLowerCase()}`,
+  });
 }
 
 export default async function RaioXUfPage({ params }: { params: Promise<{ uf: string }> }) {

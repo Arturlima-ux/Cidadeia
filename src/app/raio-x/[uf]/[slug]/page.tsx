@@ -11,6 +11,7 @@ import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
 import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
+import { compartilhamento } from "@/lib/seo";
 
 // ── UMA PÁGINA PÚBLICA POR MUNICÍPIO ──
 //
@@ -53,11 +54,11 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   const m = acharMunicipio(uf, slug);
   if (!m) return { title: "Município não encontrado — CidadeIA" };
   const pop = new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0);
-  return {
-    title: `Raio-X da Prefeitura de ${m.nome}/${m.uf} — receita, saúde, educação e RREO no Tesouro`,
-    description: `O que o Tesouro Nacional já publicou sobre ${m.nome} (${m.uf}, ${pop} habitantes): receita realizada, aplicação em saúde e educação, e quais relatórios obrigatórios constam. Dado público, sem cadastro.`,
-    alternates: { canonical: caminhoDoRaioX(m) },
-  };
+  return compartilhamento({
+    titulo: `Raio-X da Prefeitura de ${m.nome}/${m.uf} — receita, saúde, educação e RREO no Tesouro`,
+    descricao: `O que o Tesouro Nacional já publicou sobre ${m.nome} (${m.uf}, ${pop} habitantes): receita realizada, aplicação em saúde e educação, e quais relatórios obrigatórios constam. Dado público, sem cadastro.`,
+    caminho: caminhoDoRaioX(m),
+  });
 }
 
 export default async function RaioXMunicipioPage({ params }: { params: Promise<{ uf: string; slug: string }> }) {

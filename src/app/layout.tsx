@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
+import { URL_BASE, NOME_DO_SITE } from "@/lib/seo";
 
 // Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
 // contemporânea) e Public Sans na UI (desenhada para uso governamental).
@@ -17,10 +18,27 @@ const publicSans = Public_Sans({
   display: "swap",
 });
 
+// ── metadataBase ──
+// Sem ela, og:image sai como caminho relativo e nenhum aplicativo de
+// mensagem consegue buscar a imagem: o link chega sem nada. É a linha que
+// faz todo o resto funcionar. Ver lib/seo.ts.
 export const metadata: Metadata = {
-  title: "CidadeIA — Sistema Operacional Inteligente para Gestão Municipal",
+  metadataBase: new URL(URL_BASE),
+  title: {
+    default: "CidadeIA — gestão municipal com dado público",
+    template: "%s — CidadeIA",
+  },
   description:
-    "Plataforma de gestão pública com IA: dashboards por secretaria, alertas, análises e relatórios automáticos.",
+    "Protocolo, ouvidoria, transparência e os painéis de cada secretaria, com a base legal de cada número e o dado que a prefeitura já publicou no Tesouro Nacional.",
+  openGraph: {
+    type: "website",
+    siteName: NOME_DO_SITE,
+    locale: "pt_BR",
+    title: "CidadeIA — gestão municipal com dado público",
+    description:
+      "Protocolo, ouvidoria, transparência e os painéis de cada secretaria, com a base legal de cada número.",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
