@@ -17,6 +17,21 @@ import { procurarMunicipioLocal } from "@/lib/municipios";
 
 const URL_SICONFI = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
+
+// ── POR QUE A RESPOSTA DO TESOURO FICA GUARDADA UMA SEMANA ──
+//
+// A página de cada município levava 8 segundos na primeira visita: são
+// várias chamadas ao SICONFI, e o SICONFI é lento. Depois ficava rápida —
+// até o deploy seguinte, porque publicar limpa o cache de páginas, e as
+// 5.571 voltavam todas a 8 segundos. Buscador não espera 8 segundos, e
+// visitante também não.
+//
+// O cache de DADOS (este, do fetch) sobrevive ao deploy: a resposta do
+// Tesouro fica guardada por sete dias, independente de quantas vezes a
+// gente publique. O dado do SICONFI muda por bimestre; uma semana de
+// atraso não muda nenhuma leitura, e a página continua dizendo de que
+// exercício ela fala.
+const CACHE_TESOURO_SEGUNDOS = 604800; // 7 dias
 const COLUNA_LIQUIDADA = "DESPESAS LIQUIDADAS ATÉ O BIMESTRE (d)";
 
 /**
@@ -89,7 +104,10 @@ async function buscarJson(url: string): Promise<unknown> {
   const controle = new AbortController();
   const timer = setTimeout(() => controle.abort(), TIMEOUT_MS);
   try {
-    const resposta = await fetch(url, { signal: controle.signal });
+    const resposta = await fetch(url, {
+      signal: controle.signal,
+      next: { revalidate: CACHE_TESOURO_SEGUNDOS },
+    });
     if (!resposta.ok) {
       throw new Error(`resposta ${resposta.status}`);
     }
@@ -205,6 +223,7 @@ async function periodoFoiEntregue(
     const resposta = await fetch(`${url}?${query}`, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(TIMEOUT_MS),
+      next: { revalidate: CACHE_TESOURO_SEGUNDOS },
     });
     if (!resposta.ok) return null;
     const json = (await resposta.json()) as { items?: unknown[] };

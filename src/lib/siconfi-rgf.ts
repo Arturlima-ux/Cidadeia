@@ -157,7 +157,11 @@ async function buscarPeriodo(
   const controle = new AbortController();
   const timer = setTimeout(() => controle.abort(), TIMEOUT_MS);
   try {
-    const resposta = await fetch(`${URL_RGF}?${query}`, { signal: controle.signal });
+    // Mesma razão do siconfi.ts: o cache de dados sobrevive ao deploy.
+    const resposta = await fetch(`${URL_RGF}?${query}`, {
+      signal: controle.signal,
+      next: { revalidate: 604800 },
+    });
     if (!resposta.ok) return [];
     const corpo = (await resposta.json()) as { items?: LinhaRgf[] };
     return corpo.items ?? [];
