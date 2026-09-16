@@ -57,7 +57,7 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-legivel">
-                  Insight da IA
+                  Leitura automática
                 </p>
                 <span className="text-[11px] font-semibold text-brand">Atualizar</span>
               </div>

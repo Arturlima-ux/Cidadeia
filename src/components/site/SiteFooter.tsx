@@ -24,7 +24,7 @@ const COLUNAS = [
       { href: "/como-contratar", label: "Como contratar" },
       { href: "/kit", label: "Kit de contratação" },
       { href: "/conformidade", label: "Conformidade legal" },
-      { href: "/precos", label: "Preços" },
+      { href: "/precos", label: "Módulos" },
     ],
   },
   {

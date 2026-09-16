@@ -201,7 +201,7 @@ export default function PainelDemonstracao() {
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-legivel">
-                Insight da IA
+                Leitura automática
               </p>
               <p className="text-[11px] sm:text-xs leading-snug mt-1">
                 Saldo negativo de R$ 84 mil no fechamento mais recente — caiu R$ 132 mil

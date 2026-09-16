@@ -9,7 +9,8 @@ import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 // Raio-X no corpo, ao lado dos portais). Os três continuam no rodapé.
 const LINKS = [
   { href: "/#solucoes", label: "Soluções" },
-  { href: "/precos", label: "Preços" },
+  // "Preços" prometia número; a página mostra módulos e manda pedir proposta.
+  { href: "/precos", label: "Módulos" },
   { href: "/como-contratar", label: "Como contratar" },
   { href: "/diagnostico", label: "Diagnóstico" },
   { href: "/faq", label: "FAQ" },
@@ -110,6 +111,18 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
             >
               {sessao ? "Ir para o painel" : "Entrar"}
             </Link>
+            {/* A demo existia e ninguém achava: link discreto na home e no
+                Raio-X. Quem ainda não vai pedir proposta precisa de um passo
+                menor, e "ver funcionando" é esse passo. Contornado, não cheio:
+                a ação cheia continua sendo a proposta. */}
+            {!sessao && (
+              <Link
+                href="/demo"
+                className="text-sm font-semibold border border-border hover:border-brand hover:text-brand rounded-xl px-3.5 sm:px-4 py-2.5 transition"
+              >
+                Ver demo
+              </Link>
+            )}
             {/* Era "Solicitar demonstração" — a mesma frase que a home usa
                 como exemplo do que as incumbentes fazem para esconder preço.
                 O botão mais visível do site não pode contradizer o argumento

@@ -43,8 +43,11 @@ import { and, desc, eq } from "drizzle-orm";
 
 export type MensagemChat = { papel: "user" | "assistant"; texto: string };
 
+// origem: "regras" quando o texto saiu da análise local (lib/analise-local),
+// "modelo" quando veio de um provedor. O rótulo na tela depende disso —
+// chamar de "IA" o que é regra determinística é prometer o que não roda.
 export type RespostaIA =
-  | { ok: true; texto: string }
+  | { ok: true; texto: string; origem?: "modelo" | "regras" }
   | { ok: false; erro: string };
 
 function formatarMoeda(v: number | null | undefined) {
@@ -508,7 +511,7 @@ async function insightLocal(
 ): Promise<RespostaIA> {
   try {
     const dados = await carregarDadosAnalise(prefeituraId, restricaoCargo);
-    return { ok: true, texto: textoAnalise(analisarModulo(modulo, dados)) };
+    return { ok: true, texto: textoAnalise(analisarModulo(modulo, dados)), origem: "regras" };
   } catch (e) {
     console.error("[Insight local] falha ao carregar dados:", e);
     return { ok: false, erro: "Não foi possível carregar os dados para gerar o insight agora." };
