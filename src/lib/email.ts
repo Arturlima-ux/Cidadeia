@@ -14,7 +14,9 @@ export type CausaNaoEnviado = "nao-configurado" | "falha-no-envio";
 
 export type ResultadoEnvioEmail =
   | { enviado: true }
-  | { enviado: false; causa: CausaNaoEnviado; motivo: string };
+  // motivo: frase para a tela. detalhe: o que o provedor respondeu (status e
+  // mensagem), para log e para o e-mail interno — nunca para a tela pública.
+  | { enviado: false; causa: CausaNaoEnviado; motivo: string; detalhe?: string };
 
 export async function enviarEmail(params: {
   para: string;
@@ -65,6 +67,7 @@ export async function enviarEmail(params: {
       enviado: false,
       causa: "falha-no-envio",
       motivo: "Falha ao enviar o e-mail.",
+      detalhe: `sem resposta da Resend: ${motivo}`,
     };
   }
 
@@ -75,6 +78,7 @@ export async function enviarEmail(params: {
       enviado: false,
       causa: "falha-no-envio",
       motivo: "Falha ao enviar o e-mail.",
+      detalhe: `Resend respondeu ${resposta.status}: ${detalhe.slice(0, 300)}`,
     };
   }
 

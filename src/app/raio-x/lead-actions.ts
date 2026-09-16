@@ -110,7 +110,7 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
     html: [
       `<p><strong>${escapar(dados.nome)}</strong>, ${escapar(dados.cargo)} — ${escapar(dados.email)}</p>`,
       `<p>Município: ${escapar(municipio.nome)}/${municipio.uf} (${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab.) — <a href="${link}">página</a></p>`,
-      `<p>E-mail para a pessoa: ${paraVoce.enviado ? "enviado" : "<strong>NÃO enviado</strong> (" + escapar(paraVoce.motivo) + ") — encaminhar à mão."}</p>`,
+      `<p>E-mail para a pessoa: ${paraVoce.enviado ? "enviado" : "<strong>NÃO enviado</strong> — encaminhar à mão. Motivo: " + escapar(paraVoce.detalhe ?? paraVoce.motivo)}</p>`,
       `<hr/>`,
       corpo,
       gravado ? "" : `<p style="color:#b00">Não gravado no banco (tabela leads ausente?).</p>`,

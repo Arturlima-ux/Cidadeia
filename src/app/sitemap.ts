@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { todosOsMunicipios } from "@/lib/municipios";
 import { caminhoDoRaioX } from "@/lib/slug-municipio";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { ESTADOS } from "@/lib/estados";
 
 // ── O MAPA DO SITE, COM OS 5.571 MUNICÍPIOS ──
 // Sem sitemap, o Google só descobre as páginas de município seguindo
@@ -31,6 +32,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ];
 
+  const estados: MetadataRoute.Sitemap = ESTADOS.map((uf) => ({
+    url: `${BASE}/raio-x/${uf.toLowerCase()}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   const municipios: MetadataRoute.Sitemap = todosOsMunicipios().map((m) => ({
     url: `${BASE}${caminhoDoRaioX(m)}`,
     changeFrequency: "weekly",
@@ -38,5 +45,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: (m.populacao ?? 0) > 50_000 ? 0.7 : 0.5,
   }));
 
-  return [...fixas, ...municipios];
+  return [...fixas, ...estados, ...municipios];
 }

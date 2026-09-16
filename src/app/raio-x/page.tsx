@@ -2,6 +2,8 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import FormularioRaioX from "./FormularioRaioX";
+import Link from "next/link";
+import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 
 export const metadata = {
   title: "Raio-X do município — CidadeIA",
@@ -37,10 +39,29 @@ export default function RaioXPage() {
         </Reveal>
       </section>
 
-      <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
+      <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
         <Reveal delay={120}>
           <FormularioRaioX />
         </Reveal>
+      </section>
+
+      {/* ── ou navegue por estado ── */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
+        <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted mb-4">
+          Ou veja todas as prefeituras de um estado
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {ESTADOS.map((uf) => (
+            <Link
+              key={uf}
+              href={`/raio-x/${uf.toLowerCase()}`}
+              title={NOME_DOS_ESTADOS[uf]}
+              className="text-sm font-semibold rounded-full border border-border px-3.5 py-1.5 hover:border-brand hover:text-brand-claro transition"
+            >
+              {uf}
+            </Link>
+          ))}
+        </div>
       </section>
 
       <SiteFooter />

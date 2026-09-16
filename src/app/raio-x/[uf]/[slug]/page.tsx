@@ -10,7 +10,7 @@ import { municipioPorSlug, caminhoDoRaioX } from "@/lib/slug-municipio";
 import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
 import { porteDaPopulacao, PORTES } from "@/lib/precos";
-import { ESTADOS } from "@/lib/estados";
+import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
 
 // ── UMA PÁGINA PÚBLICA POR MUNICÍPIO ──
 //
@@ -175,6 +175,12 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
               </Link>
             ))}
           </div>
+          <Link
+            href={`/raio-x/${m.uf.toLowerCase()}`}
+            className="inline-block mt-5 text-sm font-semibold text-brand hover:underline"
+          >
+            Todas as prefeituras {doEstado(m.uf as Estado)} →
+          </Link>
           <p className="text-xs text-muted mt-6 leading-relaxed max-w-[62ch]">
             Fonte: API pública do SICONFI, Tesouro Nacional, e estimativa de população do IBGE.
             Os percentuais da receita são indício, não cálculo de mínimo constitucional — a base
