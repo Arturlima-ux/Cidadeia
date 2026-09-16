@@ -564,6 +564,17 @@ export const pedidosProposta = pgTable("pedidos_proposta", {
   telefone: text("telefone"),
   observacao: text("observacao"),
   emailEnviado: boolean("email_enviado").notNull().default(false),
+  // ── O PEDIDO VIRA CONTA, A CONTA VIRA ACESSO ──
+  // prefeitura_id liga o pedido à conta da prefeitura (criada a partir dele,
+  // ou já existente quando quem pediu estava logado). status é o caminho:
+  // recebido → proposta_enviada (a equipe mandou o PDF) → contratado (contrato
+  // assinado, módulos ativados na conta). Quem avança o status é a equipe,
+  // em /admin/pedidos — nunca o cliente, nunca um pagamento online.
+  prefeituraId: text("prefeitura_id"),
+  status: text("status", { enum: ["recebido", "proposta_enviada", "contratado"] })
+    .notNull()
+    .default("recebido"),
+  contratadoEm: text("contratado_em"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),

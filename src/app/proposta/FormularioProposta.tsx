@@ -23,7 +23,7 @@ export default function FormularioProposta({
 }) {
   const [pendente, iniciar] = useTransition();
   const [erro, setErro] = useState<{ texto: string; campo?: string } | null>(null);
-  const [enviado, setEnviado] = useState<{ protocolo: string; emailEnviado: boolean } | null>(null);
+  const [enviado, setEnviado] = useState<{ protocolo: string; emailEnviado: boolean; pedidoId: string; vinculadoAConta: boolean } | null>(null);
 
   function aoEnviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,7 +39,7 @@ export default function FormularioProposta({
         telefone: f.get("telefone"),
         observacao: f.get("observacao"),
       });
-      if (r.ok) setEnviado({ protocolo: r.protocolo, emailEnviado: r.emailEnviado });
+      if (r.ok) setEnviado({ protocolo: r.protocolo, emailEnviado: r.emailEnviado, pedidoId: r.pedidoId, vinculadoAConta: r.vinculadoAConta });
       else setErro({ texto: r.erro, campo: r.campo });
     });
   }
@@ -58,6 +58,32 @@ export default function FormularioProposta({
           Protocolo <strong className="text-foreground font-mono">{enviado.protocolo}</strong>. A
           proposta e o termo de referência vão para o e-mail informado em até um dia útil.
         </p>
+        {/* ── O PRÓXIMO PASSO É A CONTA ──
+            O pedido sem conta é um e-mail; com conta, é um lugar onde o
+            cliente vê o status e onde os módulos ligam no dia da assinatura.
+            O cadastro nasce preenchido e amarrado ao pedido. */}
+        {enviado.vinculadoAConta ? (
+          <p className="text-sm mt-4 leading-relaxed">
+            O pedido ficou na conta da sua prefeitura.{" "}
+            <Link href="/dashboard/modulos/marketplace" className="font-semibold text-brand hover:underline">
+              Acompanhe o status em Módulos →
+            </Link>
+          </p>
+        ) : (
+          <div className="mt-5 rounded-xl border border-border p-4" style={{ background: "var(--card)" }}>
+            <p className="font-semibold text-sm">Crie a conta da prefeitura agora</p>
+            <p className="text-sm text-muted mt-1 leading-relaxed">
+              Leva um minuto e já vem preenchida. É nela que a proposta fica registrada e que os
+              módulos são ativados no dia em que o contrato for assinado.
+            </p>
+            <Link
+              href={`/cadastro?proposta=${encodeURIComponent(enviado.pedidoId)}`}
+              className="inline-block mt-3 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-5 py-2.5 transition shadow-elevated"
+            >
+              Criar a conta&nbsp;&nbsp;→
+            </Link>
+          </div>
+        )}
         <div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 text-sm font-semibold">
           <Link href="/kit" className="text-brand hover:underline">
             Enquanto isso, baixe o kit de contratação →

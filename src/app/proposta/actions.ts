@@ -12,6 +12,7 @@ import { montarProposta, porteDaPopulacao, PORTES } from "@/lib/precos";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
 import { formatarMoeda } from "@/lib/formatadores";
+import { lerSessao } from "@/lib/sessao";
 
 // ── PARA ONDE O PEDIDO VAI ──
 // O plano gratuito da Resend só entrega para o e-mail dono da conta. Por
@@ -30,7 +31,9 @@ const schema = z.object({
 });
 
 export type ResultadoPedido =
-  | { ok: true; protocolo: string; emailEnviado: boolean }
+  // pedidoId: para o cadastro nascer amarrado ao pedido. vinculadoAConta:
+  // quem pediu já estava logado — o pedido foi para a conta dela.
+  | { ok: true; protocolo: string; emailEnviado: boolean; pedidoId: string; vinculadoAConta: boolean }
   | { ok: false; erro: string; campo?: string };
 
 function escapar(t: string): string {
@@ -67,6 +70,11 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
   const id = gerarId("prop");
   const protocolo = id.slice(-8).toUpperCase();
 
+  // Quem pede logado já tem conta: o pedido vai para ela, e o cliente
+  // acompanha o status em Módulos. A demo nunca cria pedido com dono.
+  const sessao = await lerSessao();
+  const prefeituraId = sessao && !sessao.demo ? sessao.prefeituraId : null;
+
   // 1) grava
   let gravado = false;
   try {
@@ -84,6 +92,7 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
       email: dados.email,
       telefone: dados.telefone || null,
       observacao: dados.observacao || null,
+      prefeituraId,
     });
     gravado = true;
   } catch (e) {
@@ -103,6 +112,8 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
     `<p><strong>Solicitante:</strong> ${escapar(dados.nome)}${dados.cargo ? `, ${escapar(dados.cargo)}` : ""}</p>`,
     `<p><strong>E-mail:</strong> ${escapar(dados.email)}${dados.telefone ? ` · <strong>Telefone:</strong> ${escapar(dados.telefone)}` : ""}</p>`,
     dados.observacao ? `<p><strong>Observação:</strong> ${escapar(dados.observacao)}</p>` : "",
+    prefeituraId ? `<p><strong>Conta:</strong> pedido feito de dentro do painel — já vinculado à prefeitura ${prefeituraId}.</p>` : `<p><strong>Conta:</strong> ainda não tem. O cliente recebe o link para criar; se precisar, ele é /cadastro?proposta=${id}.</p>`,
+    `<p><a href="${process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app"}/admin/pedidos">Abrir a mesa de pedidos</a></p>`,
     `<p style="color:#888">Protocolo ${protocolo}${gravado ? "" : " — ATENÇÃO: não foi gravado no banco (tabela pedidos_proposta ausente?)"}</p>`,
   ].join("\n");
 
@@ -126,5 +137,5 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
       erro: "Não conseguimos registrar o pedido agora. Tente de novo em instantes ou escreva para " + DESTINO_PADRAO + ".",
     };
   }
-  return { ok: true, protocolo, emailEnviado: envio.enviado };
+  return { ok: true, protocolo, emailEnviado: envio.enviado, pedidoId: id, vinculadoAConta: Boolean(prefeituraId) };
 }

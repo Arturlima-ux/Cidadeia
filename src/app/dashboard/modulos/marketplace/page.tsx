@@ -9,6 +9,7 @@ import {
   HREF_PLANO_ADDON,
 } from "@/lib/planos";
 import AbasModulos from "../AbasModulos";
+import PedidosDaPrefeitura from "@/components/PedidosDaPrefeitura";
 import { PORTES, porteDaPopulacao } from "@/lib/precos";
 
 export default async function MarketplacePage() {
@@ -73,6 +74,8 @@ export default async function MarketplacePage() {
           para pedir proposta.
         </p>
       )}
+
+      <PedidosDaPrefeitura prefeituraId={sessao.prefeituraId} />
 
       <div className="grid sm:grid-cols-2 gap-4">
         {PLANOS_ADDON.map((p) => {
