@@ -123,6 +123,31 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
     html: linhas,
   });
 
+  // ── CONFIRMAÇÃO PARA QUEM PEDIU ──
+  // Antes, só a equipe era avisada: quem pedia via a tela de sucesso e
+  // nunca mais recebia nada. Agora o solicitante recebe o protocolo, o que
+  // foi pedido, o link de acompanhamento e o link para criar a conta.
+  // Enquanto a Resend estiver sem domínio próprio, esta entrega falha para
+  // qualquer destinatário que não seja o dono da conta — por isso a tela
+  // não promete "enviamos um e-mail" quando não enviou.
+  const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
+  const confirmacao = await enviarEmail({
+    para: dados.email,
+    assunto: `Pedido recebido — proposta do CidadeIA para ${municipio.nome}/${municipio.uf} (protocolo ${protocolo})`,
+    html: [
+      `<p>Olá, ${escapar(dados.nome)}.</p>`,
+      `<p>Recebemos o seu pedido de proposta para a Prefeitura de ${escapar(municipio.nome)}/${municipio.uf}.</p>`,
+      `<p><strong>Protocolo:</strong> ${protocolo}<br/><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "a definir")}</p>`,
+      `<p>A proposta e o termo de referência, prontos para o jurídico, chegam neste e-mail em até um dia útil.</p>`,
+      `<p>Acompanhe o andamento quando quiser: <a href="${base}/proposta/acompanhar?protocolo=${protocolo}">${base}/proposta/acompanhar</a> (protocolo + este e-mail).</p>`,
+      `<p>Se quiser adiantar, crie a conta da prefeitura — é nela que os módulos são ativados no dia em que o contrato for assinado: <a href="${base}/cadastro?proposta=${id}">criar a conta</a>.</p>`,
+      `<p style="color:#888">CidadeIA · dado público do SICONFI e do IBGE.</p>`,
+    ].join("\n"),
+  });
+  if (!confirmacao.enviado) {
+    console.error(`[proposta] confirmação ao solicitante não saiu: ${confirmacao.detalhe ?? confirmacao.motivo}`);
+  }
+
   if (envio.enviado && gravado) {
     try {
       await db.update(pedidosProposta).set({ emailEnviado: true }).where(eq(pedidosProposta.id, id));
@@ -137,5 +162,6 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
       erro: "Não conseguimos registrar o pedido agora. Tente de novo em instantes ou escreva para " + DESTINO_PADRAO + ".",
     };
   }
-  return { ok: true, protocolo, emailEnviado: envio.enviado, pedidoId: id, vinculadoAConta: Boolean(prefeituraId) };
+  // emailEnviado é sobre QUEM PEDIU: é o que a tela promete a ele.
+  return { ok: true, protocolo, emailEnviado: confirmacao.enviado, pedidoId: id, vinculadoAConta: Boolean(prefeituraId) };
 }

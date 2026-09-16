@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/como-contratar`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/conformidade`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/kit`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/proposta/acompanhar`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/sobre`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/por-que-cidadeia`, changeFrequency: "yearly", priority: 0.4 },

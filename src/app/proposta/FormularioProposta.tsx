@@ -57,6 +57,20 @@ export default function FormularioProposta({
         <p className="text-sm text-muted mt-3 leading-relaxed">
           Protocolo <strong className="text-foreground font-mono">{enviado.protocolo}</strong>. A
           proposta e o termo de referência vão para o e-mail informado em até um dia útil.
+          {/* A frase muda conforme o servidor conseguiu ou não confirmar por
+              e-mail — prometer "confira sua caixa" sem ter enviado nada é a
+              mentira mais fácil de contar numa tela de sucesso. */}
+          {enviado.emailEnviado
+            ? " Uma confirmação com este protocolo já está na sua caixa de entrada."
+            : " Anote o protocolo: é com ele que você acompanha o pedido."}
+        </p>
+        <p className="text-sm mt-3">
+          <Link
+            href={`/proposta/acompanhar?protocolo=${enviado.protocolo}`}
+            className="font-semibold text-brand hover:underline"
+          >
+            Acompanhar este pedido →
+          </Link>
         </p>
         {/* ── O PRÓXIMO PASSO É A CONTA ──
             O pedido sem conta é um e-mail; com conta, é um lugar onde o
