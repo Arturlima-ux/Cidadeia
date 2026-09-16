@@ -209,7 +209,11 @@ export default async function LandingPage() {
       </div>
 
       <div className="relative z-10">
-        <SiteHeader sessaoAtiva={Boolean(sessao)} />
+        {/* A sessão da DEMONSTRAÇÃO não é a de um cliente: com ela aberta, o
+            topo dizia "Ir para o painel" e levava ao painel fictício de Vila
+            Nova — quem clicava achava que estava entrando no seu. Aqui ela
+            conta como visita. */}
+        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
         <BarraConversao />
 
         {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
