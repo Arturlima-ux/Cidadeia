@@ -61,12 +61,16 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
               <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)] shrink-0" />
               Portal do cidadão
             </Link>
-            {/* A única porta de login do site. Antes o cabeçalho logo abaixo
-                repetia "Entrar", e duas portas para a mesma sala é o tipo de
-                repetição que faz o topo parecer desarrumado. */}
-            <Link href={sessao ? "/dashboard" : "/login"} className="hover:text-white transition">
-              {sessao ? "Meu painel" : "Entrar"}
-            </Link>
+            {/* Sem sessão, esta é a única porta de login do site — o cabeçalho
+                abaixo repetia "Entrar", e duas portas para a mesma sala fazem
+                o topo parecer desarrumado. Com sessão, quem leva ao painel é
+                o botão do cabeçalho, e aqui não se repete: o cliente que já
+                contratou não precisa escolher entre dois caminhos iguais. */}
+            {!sessao && (
+              <Link href="/login" className="hover:text-white transition">
+                Entrar
+              </Link>
+            )}
             {/* Rebaixado para cinza: em branco cheio disputava a atenção com
                 o link do cidadão, e a conversa comercial já tem o botão
                 principal do cabeçalho logo abaixo. Esta barra é do morador e
