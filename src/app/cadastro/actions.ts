@@ -8,6 +8,7 @@ import { gerarId } from "@/lib/id";
 import { gerarHashSenha, senhaForte } from "@/lib/senha";
 import { validarCpfOuCnpj, normalizarDocumento } from "@/lib/documento";
 import { criarSessao } from "@/lib/sessao";
+import { garantirEnderecoPublico } from "@/lib/endereco-publico";
 import { redirect } from "next/navigation";
 
 // Fluxo enxuto — só o essencial para começar a usar. População, mandato,
@@ -141,6 +142,14 @@ export async function cadastrarPrefeitura(
       erro:
         "Não foi possível concluir o cadastro agora. Tente novamente em instantes.",
     };
+  }
+
+  // O endereço público (/transparencia/<slug>) nasce junto com a conta.
+  // Sem o Essencial, mostra o portal mínimo; com ele, o completo.
+  try {
+    await garantirEnderecoPublico(prefeituraId);
+  } catch (e) {
+    console.error("[cadastro] endereço público não criado agora:", e);
   }
 
   if (pedido) {

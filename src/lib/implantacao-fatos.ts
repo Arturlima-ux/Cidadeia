@@ -51,7 +51,10 @@ export async function levantarFatos(prefeituraId: string): Promise<FatosImplanta
     qtdModulos: planosContratadosDe(prefeitura?.planosContratados).length,
     qtdUsuarios,
     temDadosDeSecretaria: saude + edu + obr + lic > 0,
-    portalAtivo: portal[0]?.ativo ?? false,
+    // "Portal no ar" é o portal COMPLETO: endereço ligado E Essencial
+    // contratado. O endereço existe desde o cadastro (portal mínimo), e
+    // isso sozinho não é o passo — seria marcar feito o que ninguém fez.
+    portalAtivo: (portal[0]?.ativo ?? false) && planosContratadosDe(prefeitura?.planosContratados).includes("essencial"),
   };
 }
 

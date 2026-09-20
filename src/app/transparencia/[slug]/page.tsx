@@ -11,6 +11,8 @@ import { IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import FormularioCidadao from "../FormularioCidadao";
 import SecoesPublicadas from "../SecoesPublicadas";
+import PortalMinimo from "../PortalMinimo";
+import { modoDoPortal } from "@/lib/endereco-publico";
 
 export const metadata = { title: "Portal da Transparência" };
 
@@ -43,10 +45,10 @@ export default async function PortalTransparencia({
   const portal = await buscarPortal(slug);
   if (!portal) notFound();
 
-  // O portal faz parte do Essencial — se a prefeitura não contratou (ou
-  // deixou de contratar), o endereço público deixa de responder.
-  const planos = planosContratadosDe(portal.planosContratados);
-  if (!planos.includes("essencial")) notFound();
+  // Sem o Essencial, o endereço não some: mostra o portal mínimo —
+  // identificação, canais e o dado público do Tesouro. Protocolo, ouvidoria
+  // e publicações são do Essencial. Ver lib/endereco-publico.ts.
+  if (modoDoPortal(portal.planosContratados) === "minimo") return <PortalMinimo portal={portal} />;
 
   const [snapshot, listaObras, listaLicitacoes, listaPublicacoes] = await Promise.all([
     portal.mostrarFinanceiro

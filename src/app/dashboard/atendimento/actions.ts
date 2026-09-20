@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { atendimentos, configPublica, prefeituras } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
-import { gerarSlug } from "@/lib/atendimento";
+import { slugLivre } from "@/lib/endereco-publico";
 import { revalidatePath } from "next/cache";
 
 async function exigirAcesso() {
@@ -153,20 +153,7 @@ export async function salvarConfigPublica(formData: FormData): Promise<Resultado
 
   // O slug é gerado uma vez e nunca muda: ele já pode ter sido divulgado em
   // material impresso, site da prefeitura ou redes sociais.
-  let slug = existente?.slug;
-  if (!slug) {
-    const base = gerarSlug(prefeitura.municipio, prefeitura.estado);
-    slug = base;
-    for (let n = 2; n <= 50; n++) {
-      const [conflito] = await db
-        .select({ p: configPublica.prefeituraId })
-        .from(configPublica)
-        .where(eq(configPublica.slug, slug!))
-        .limit(1);
-      if (!conflito) break;
-      slug = `${base}-${n}`;
-    }
-  }
+  const slug = existente?.slug ?? (await slugLivre(prefeitura.municipio, prefeitura.estado));
 
   await db
     .insert(configPublica)

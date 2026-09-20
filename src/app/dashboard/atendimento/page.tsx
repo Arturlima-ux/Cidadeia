@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
+import { garantirEnderecoPublico } from "@/lib/endereco-publico";
 import EstadoVazio from "@/components/EstadoVazio";
 import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
 import { buscarAtendimentos, buscarConfigPublica, responderAtendimento, salvarConfigPublica } from "./actions";
@@ -24,7 +25,28 @@ const TOM_STATUS: Record<string, TomStatus> = {
 
 export default async function AtendimentoPage() {
   const ctx = await contextoDashboard();
-  if (!ctx.temPlano("essencial")) return <BloqueioPlano plano="essencial" />;
+  // Garante o endereço público também para contas criadas antes de ele
+  // nascer com o cadastro. Idempotente.
+  const slugPublico = ctx.sessao.demo ? null : await garantirEnderecoPublico(ctx.sessao.prefeituraId);
+  if (!ctx.temPlano("essencial")) {
+    return (
+      <BloqueioPlano
+        plano="essencial"
+        nota={
+          slugPublico ? (
+            <>
+              O endereço público da prefeitura já está no ar:{" "}
+              <a href={`/transparencia/${slugPublico}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand hover:underline">
+                /transparencia/{slugPublico}
+              </a>
+              . Hoje ele mostra identificação, canais e o dado público do Tesouro. Com o Essencial, ganha
+              protocolo, ouvidoria e publicações.
+            </>
+          ) : null
+        }
+      />
+    );
+  }
 
   const [lista, config] = await Promise.all([
     buscarAtendimentos(ctx.sessao.prefeituraId),

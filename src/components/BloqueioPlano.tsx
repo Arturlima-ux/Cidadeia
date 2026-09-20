@@ -6,7 +6,7 @@ import { NOME_PLANO_ADDON, PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
  * `PLANOS_ADDON.find(p => p.chave === "gestao")!.descricao` na mão, o que
  * repetia a busca (e o `!`) em 6 lugares.
  */
-export default function BloqueioPlano({ plano }: { plano: PlanoAddon }) {
+export default function BloqueioPlano({ plano, nota }: { plano: PlanoAddon; nota?: React.ReactNode }) {
   const descricao = PLANOS_ADDON.find((p) => p.chave === plano)?.descricao ?? "";
 
   return (
@@ -31,6 +31,7 @@ export default function BloqueioPlano({ plano }: { plano: PlanoAddon }) {
         Módulo {NOME_PLANO_ADDON[plano]} não contratado
       </h1>
       <p className="text-sm text-muted leading-relaxed">{descricao}</p>
+      {nota && <p className="text-sm text-muted leading-relaxed mt-3">{nota}</p>}
       <Link
         href="/dashboard/modulos"
         className="group inline-flex items-center gap-1.5 mt-6 bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full px-5 py-2.5 transition"

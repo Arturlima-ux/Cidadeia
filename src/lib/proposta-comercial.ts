@@ -168,7 +168,7 @@ export function montarPropostaComercial(
     ],
     condicoes: [
       "Valores mensais, por módulo, sem fidelidade: o Município pode encerrar qualquer módulo com aviso de 30 dias.",
-      "Inclui hospedagem, atualizações, suporte em dias úteis e o portal público do município (no módulo Essencial).",
+      "Inclui hospedagem, atualizações e suporte em dias úteis. O endereço público do município já existe com qualquer módulo; protocolo, ouvidoria e publicações no portal fazem parte do Essencial — os demais módulos são painéis internos das secretarias.",
       "Sem custo de implantação: a Implantação guiada faz parte do sistema.",
       "Reajuste anual pelo IPCA, na data de aniversário do contrato.",
       `Proposta válida por ${DIAS_DE_VALIDADE} dias.`,
