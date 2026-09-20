@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const sessao = await lerSessao();
-  if (!sessao || sessao.demo) return NextResponse.json({ erro: "Não autenticado." }, { status: 401 });
+  if (!sessao || sessao.demo) return NextResponse.redirect(new URL("/login", _req.url));
   const [u] = await db.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, sessao.usuarioId)).limit(1);
   if (!ehAdmin(u?.email)) return NextResponse.json({ erro: "Não encontrado." }, { status: 404 });
 

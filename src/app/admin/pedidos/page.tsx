@@ -24,9 +24,12 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPedidosPage() {
   const sessao = await lerSessao();
-  if (!sessao) redirect("/login");
+  // A demo não é uma sessão de verdade: quem chega com ela é mandado ao
+  // login, como quem chega sem cookie nenhum. Antes caía em 404, e quem
+  // tinha aberto a demo no mesmo navegador achava que a mesa tinha sumido.
+  if (!sessao || sessao.demo) redirect("/login");
   const [u] = await db.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, sessao.usuarioId)).limit(1);
-  if (sessao.demo || !ehAdmin(u?.email)) notFound();
+  if (!ehAdmin(u?.email)) notFound();
 
   const pedidos = await db
     .select({ pedido: pedidosProposta, contaNome: prefeituras.nome })
