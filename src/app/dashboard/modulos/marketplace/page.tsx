@@ -10,6 +10,7 @@ import {
 } from "@/lib/planos";
 import AbasModulos from "../AbasModulos";
 import PedidosDaPrefeitura from "@/components/PedidosDaPrefeitura";
+import BotaoPedirModulo from "./BotaoPedirModulo";
 import { PORTES, porteDaPopulacao } from "@/lib/precos";
 
 export default async function MarketplacePage() {
@@ -123,6 +124,11 @@ export default async function MarketplacePage() {
                   >
                     Contratar
                   </a>
+                ) : codigoIbge ? (
+                  // Pedido feito daqui mesmo, com os dados da conta — sem
+                  // mandar o cliente ao formulário público digitar de novo
+                  // o que já está cadastrado.
+                  <BotaoPedirModulo modulo={p.chave} nome={p.nome} />
                 ) : (
                   <Link
                     href={linkProposta(p.chave)}

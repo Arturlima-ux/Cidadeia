@@ -1,24 +1,14 @@
 "use server";
 
 import { z } from "zod";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { pedidosProposta } from "@/db/schema";
-import { gerarId } from "@/lib/id";
-import { enviarEmail } from "@/lib/email";
 import { limitarUso } from "@/lib/rate-limit";
-import { buscarMunicipioPorCodigo, ehCodigoIbge } from "@/lib/populacao-ibge";
-import { montarProposta, porteDaPopulacao, PORTES } from "@/lib/precos";
-import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
-import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
-import { formatarMoeda } from "@/lib/formatadores";
+import { ehCodigoIbge } from "@/lib/populacao-ibge";
 import { lerSessao } from "@/lib/sessao";
+import { registrarPedidoProposta } from "@/lib/pedido-proposta";
 
-// ── PARA ONDE O PEDIDO VAI ──
-// O plano gratuito da Resend só entrega para o e-mail dono da conta. Por
-// isso o destino é configurável: PROPOSTA_DESTINO_EMAIL na Vercel, com o
-// mesmo endereço da conta Resend. Sem a variável, cai no contato do site.
-const DESTINO_PADRAO = "arturmlo2005@gmail.com";
+// O que grava, avisa e confirma mora em lib/pedido-proposta.ts — o mesmo
+// caminho que o painel usa em "Pedir este módulo". Aqui: validar a entrada
+// do formulário público, limitar por e-mail e decidir de quem é o pedido.
 
 const schema = z.object({
   codigoIbge: z.string().refine(ehCodigoIbge, "Município inválido."),
@@ -36,14 +26,9 @@ export type ResultadoPedido =
   | { ok: true; protocolo: string; emailEnviado: boolean; pedidoId: string; vinculadoAConta: boolean }
   | { ok: false; erro: string; campo?: string };
 
-function escapar(t: string): string {
-  return t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-}
-
 /**
- * Grava o pedido e envia o e-mail. Gravar vem primeiro: é o registro do
- * primeiro contato, e sobrevive a uma falha de envio — o e-mail é aviso,
- * o banco é a fonte.
+ * Público e sem login. Se houver sessão de cliente (não a demo), o pedido
+ * nasce amarrado à conta dela.
  */
 export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoPedido> {
   const parsed = schema.safeParse(entrada);
@@ -58,110 +43,22 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
     return { ok: false, erro: "Já recebemos pedidos deste e-mail há pouco. Aguarde uma hora para enviar outro." };
   }
 
-  const municipio = await buscarMunicipioPorCodigo(dados.codigoIbge);
-  if (!municipio) return { ok: false, erro: "Município não encontrado na tabela do IBGE." };
-
-  const modulos = dados.modulos.filter((m): m is PlanoAddon => PLANOS_ADDON.some((p) => p.chave === m));
-  const porte = porteDaPopulacao(municipio.populacao);
-  const proposta = montarProposta({ porte, modulos });
-  const rotuloPorte = PORTES.find((p) => p.chave === porte);
-  const nomesModulos = proposta.itens.map((i) => i.nome);
-
-  const id = gerarId("prop");
-  const protocolo = id.slice(-8).toUpperCase();
-
   // Quem pede logado já tem conta: o pedido vai para ela, e o cliente
   // acompanha o status em Módulos. A demo nunca cria pedido com dono.
   const sessao = await lerSessao();
   const prefeituraId = sessao && !sessao.demo ? sessao.prefeituraId : null;
 
-  // 1) grava
-  let gravado = false;
-  try {
-    await db.insert(pedidosProposta).values({
-      id,
-      codigoIbge: municipio.codigo,
-      municipio: municipio.nome,
-      uf: municipio.uf,
-      populacao: municipio.populacao,
-      porte,
-      modulos: JSON.stringify(modulos),
-      mensal: proposta.incompleta ? null : proposta.mensal,
-      nome: dados.nome,
-      cargo: dados.cargo || null,
-      email: dados.email,
-      telefone: dados.telefone || null,
-      observacao: dados.observacao || null,
-      prefeituraId,
-    });
-    gravado = true;
-  } catch (e) {
-    console.error("[proposta] falha ao gravar pedido:", e);
-  }
-
-  // 2) avisa por e-mail
-  const linhas = [
-    `<p><strong>Município:</strong> ${escapar(municipio.nome)}/${municipio.uf} — ${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} habitantes (IBGE) → porte ${rotuloPorte?.rotulo ?? porte}</p>`,
-    `<p><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "(nenhum marcado)")}</p>`,
-    proposta.incompleta || proposta.anual === 0
-      ? `<p><strong>Valor:</strong> sob consulta (faixa sem tabela publicada)</p>`
-      : `<p><strong>Valor:</strong> ${formatarMoeda(proposta.mensal)}/mês — ${formatarMoeda(proposta.anual)} em 12 meses. ${
-          cabeNaDispensa(proposta.anual) ? `Cabe na dispensa (${LIMITE_DISPENSA.base}).` : "Acima do limite de dispensa — pregão."
-        }</p>`,
-    `<hr/>`,
-    `<p><strong>Solicitante:</strong> ${escapar(dados.nome)}${dados.cargo ? `, ${escapar(dados.cargo)}` : ""}</p>`,
-    `<p><strong>E-mail:</strong> ${escapar(dados.email)}${dados.telefone ? ` · <strong>Telefone:</strong> ${escapar(dados.telefone)}` : ""}</p>`,
-    dados.observacao ? `<p><strong>Observação:</strong> ${escapar(dados.observacao)}</p>` : "",
-    prefeituraId ? `<p><strong>Conta:</strong> pedido feito de dentro do painel — já vinculado à prefeitura ${prefeituraId}.</p>` : `<p><strong>Conta:</strong> ainda não tem. O cliente recebe o link para criar; se precisar, ele é /cadastro?proposta=${id}.</p>`,
-    `<p><a href="${process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app"}/admin/pedidos">Abrir a mesa de pedidos</a></p>`,
-    `<p style="color:#888">Protocolo ${protocolo}${gravado ? "" : " — ATENÇÃO: não foi gravado no banco (tabela pedidos_proposta ausente?)"}</p>`,
-  ].join("\n");
-
-  const envio = await enviarEmail({
-    para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_PADRAO,
-    assunto: `Pedido de proposta — ${municipio.nome}/${municipio.uf} — ${nomesModulos.join(" + ") || "sem módulos"}`,
-    html: linhas,
+  const r = await registrarPedidoProposta({
+    codigoIbge: dados.codigoIbge,
+    modulos: dados.modulos,
+    nome: dados.nome,
+    cargo: dados.cargo || undefined,
+    email: dados.email,
+    telefone: dados.telefone || undefined,
+    observacao: dados.observacao || undefined,
+    prefeituraId,
   });
-
-  // ── CONFIRMAÇÃO PARA QUEM PEDIU ──
-  // Antes, só a equipe era avisada: quem pedia via a tela de sucesso e
-  // nunca mais recebia nada. Agora o solicitante recebe o protocolo, o que
-  // foi pedido, o link de acompanhamento e o link para criar a conta.
-  // Enquanto a Resend estiver sem domínio próprio, esta entrega falha para
-  // qualquer destinatário que não seja o dono da conta — por isso a tela
-  // não promete "enviamos um e-mail" quando não enviou.
-  const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
-  const confirmacao = await enviarEmail({
-    para: dados.email,
-    assunto: `Pedido recebido — proposta do CidadeIA para ${municipio.nome}/${municipio.uf} (protocolo ${protocolo})`,
-    html: [
-      `<p>Olá, ${escapar(dados.nome)}.</p>`,
-      `<p>Recebemos o seu pedido de proposta para a Prefeitura de ${escapar(municipio.nome)}/${municipio.uf}.</p>`,
-      `<p><strong>Protocolo:</strong> ${protocolo}<br/><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "a definir")}</p>`,
-      `<p>A proposta e o termo de referência, prontos para o jurídico, chegam neste e-mail em até um dia útil.</p>`,
-      `<p>Acompanhe o andamento quando quiser: <a href="${base}/proposta/acompanhar?protocolo=${protocolo}">${base}/proposta/acompanhar</a> (protocolo + este e-mail).</p>`,
-      `<p>Se quiser adiantar, crie a conta da prefeitura — é nela que os módulos são ativados no dia em que o contrato for assinado: <a href="${base}/cadastro?proposta=${id}">criar a conta</a>.</p>`,
-      `<p style="color:#888">CidadeIA · dado público do SICONFI e do IBGE.</p>`,
-    ].join("\n"),
-  });
-  if (!confirmacao.enviado) {
-    console.error(`[proposta] confirmação ao solicitante não saiu: ${confirmacao.detalhe ?? confirmacao.motivo}`);
-  }
-
-  if (envio.enviado && gravado) {
-    try {
-      await db.update(pedidosProposta).set({ emailEnviado: true }).where(eq(pedidosProposta.id, id));
-    } catch {
-      /* o pedido já está gravado; a marca de envio é secundária */
-    }
-  }
-
-  if (!gravado && !envio.enviado) {
-    return {
-      ok: false,
-      erro: "Não conseguimos registrar o pedido agora. Tente de novo em instantes ou escreva para " + DESTINO_PADRAO + ".",
-    };
-  }
+  if (!r.ok) return r;
   // emailEnviado é sobre QUEM PEDIU: é o que a tela promete a ele.
-  return { ok: true, protocolo, emailEnviado: confirmacao.enviado, pedidoId: id, vinculadoAConta: Boolean(prefeituraId) };
+  return { ok: true, protocolo: r.protocolo, emailEnviado: r.confirmacaoEnviada, pedidoId: r.pedidoId, vinculadoAConta: r.vinculadoAConta };
 }
