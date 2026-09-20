@@ -21,6 +21,7 @@ import { periodosDoExercicio } from "@/lib/obrigacoes-fiscais";
 
 const URL_SICONFI_RREO = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
+const CACHE_TESOURO_SEGUNDOS = 604800; // 7 dias — ver siconfi.ts
 
 /** Coluna do RREO que representa dinheiro efetivamente aplicado. */
 const COLUNA_LIQUIDADA = "DESPESAS LIQUIDADAS ATÉ O BIMESTRE (d)";
@@ -73,6 +74,9 @@ async function buscarRreo(
     const resposta = await fetch(url, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(TIMEOUT_MS),
+      // Sete dias no cache de dados, que não é apagado ao publicar. O dado
+      // do RREO muda por bimestre; a página diz de qual bimestre fala.
+      next: { revalidate: CACHE_TESOURO_SEGUNDOS },
     });
     if (!resposta.ok) return null;
     const json = (await resposta.json()) as { items?: LinhaSiconfi[] };
@@ -113,7 +117,18 @@ export function bimestresEncerrados(exercicio: number, hoje: Date = new Date()):
     .map((p) => p.numero);
 }
 
-const PAUSA_MS = 700;
+// ── POR QUE AS CONSULTAS SAEM JUNTAS ──
+//
+// Eram em fila: um bimestre, pausa de 700 ms, outro bimestre, pausa… e no
+// fim a receita. Com quatro bimestres encerrados dava cinco chamadas ao
+// SICONFI (1 a 2 s cada) mais três segundos parados — 8 a 10 s na primeira
+// visita de cada município. Buscador não espera isso; visitante também não.
+//
+// Agora os bimestres saem quase ao mesmo tempo, com 150 ms entre um e
+// outro para não bater no Tesouro como rajada, e a receita do bimestre mais
+// recente sai junto (é ele o de referência na maioria dos casos; se não for,
+// uma chamada a mais). O tempo cai para o de UMA chamada, mais o escalonado.
+const ESCALONAMENTO_MS = 150;
 const aguardar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
@@ -141,20 +156,32 @@ export async function montarRaioX(
   const esperados = bimestresEncerrados(exercicio);
 
   // Do mais recente para o mais antigo: o primeiro que tiver dado é o que
-  // alimenta os valores da tela.
+  // alimenta os valores da tela. As consultas saem escalonadas e são lidas
+  // na ordem, o que preserva exatamente a mesma decisão de antes.
+  const doMaisRecente = [...esperados].reverse();
+  const maisRecente = doMaisRecente[0] ?? null;
+
+  const consultas = doMaisRecente.map(async (bimestre, i) => {
+    if (i > 0) await aguardar(ESCALONAMENTO_MS * i);
+    return { bimestre, linhas: await buscarRreo(codigoIbge, exercicio, bimestre, "RREO-Anexo 02") };
+  });
+  // Receita otimista: do bimestre mais recente, em paralelo com o resto.
+  const receitaOtimista =
+    maisRecente !== null
+      ? (async () => {
+          await aguardar(ESCALONAMENTO_MS * doMaisRecente.length);
+          return buscarRreo(codigoIbge, exercicio, maisRecente, "RREO-Anexo 01");
+        })()
+      : Promise.resolve(null);
+
+  const resultados = await Promise.all(consultas);
+
   const entregues: number[] = [];
   let linhasDespesa: LinhaSiconfi[] | null = null;
   let bimestreReferencia: number | null = null;
-  let primeira = true;
-
-  for (const bimestre of [...esperados].reverse()) {
-    if (!primeira) await aguardar(PAUSA_MS);
-    primeira = false;
-
-    const linhas = await buscarRreo(codigoIbge, exercicio, bimestre, "RREO-Anexo 02");
+  for (const { bimestre, linhas } of resultados) {
     if (linhas === null) continue;
     if (linhas.length === 0) continue;
-
     entregues.push(bimestre);
     if (linhasDespesa === null) {
       linhasDespesa = linhas;
@@ -164,14 +191,14 @@ export async function montarRaioX(
 
   let receita: number | null = null;
   if (bimestreReferencia !== null) {
-    await aguardar(PAUSA_MS);
-    const linhasReceita = await buscarRreo(
-      codigoIbge,
-      exercicio,
-      bimestreReferencia,
-      "RREO-Anexo 01"
-    );
+    const linhasReceita =
+      bimestreReferencia === maisRecente
+        ? await receitaOtimista
+        : await buscarRreo(codigoIbge, exercicio, bimestreReferencia, "RREO-Anexo 01");
     if (linhasReceita) receita = extrairReceita(linhasReceita);
+  } else {
+    // Ninguém lê o resultado, mas a promessa não pode ficar sem tratamento.
+    void receitaOtimista.catch(() => null);
   }
 
   const porSecretaria = linhasDespesa
