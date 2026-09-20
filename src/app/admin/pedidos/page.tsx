@@ -8,6 +8,7 @@ import { NOME_PLANO_ADDON } from "@/lib/planos";
 import { formatarMoeda } from "@/lib/formatadores";
 import { ehAdmin, linkCadastroDoPedido, modulosDoPedido, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import BotaoAvancar from "./BotaoAvancar";
+import { empresaDoAmbiente, pendenciasDaEmpresa } from "@/lib/proposta-comercial";
 
 // ── A MESA DA EQUIPE ──
 //
@@ -35,6 +36,7 @@ export default async function AdminPedidosPage() {
     .limit(200);
 
   const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
+  const pendencias = pendenciasDaEmpresa(empresaDoAmbiente());
 
   return (
     <div className="min-h-screen bg-background px-4 sm:px-8 py-10">
@@ -50,6 +52,17 @@ export default async function AdminPedidosPage() {
             Ir para o painel →
           </Link>
         </div>
+
+        {pendencias.length > 0 && (
+          <p
+            className="text-sm rounded-xl px-4 py-3 border leading-relaxed"
+            style={{ color: "var(--medio)", background: "var(--medio-tint)", borderColor: "var(--medio-borda)" }}
+          >
+            A proposta em PDF sai com campos entre colchetes até você preencher na Vercel:{" "}
+            <code className="text-xs">{pendencias.join(", ")}</code>. Razão social, CNPJ, endereço,
+            representante, e-mail e telefone de suporte.
+          </p>
+        )}
 
         {pedidos.length === 0 && (
           <p className="text-sm text-muted border border-dashed border-border rounded-2xl p-8 text-center">
@@ -108,8 +121,16 @@ export default async function AdminPedidosPage() {
                   )}
                 </p>
               </div>
-              <div className="md:text-right">
+              <div className="md:text-right flex flex-col items-start md:items-end gap-3">
                 <BotaoAvancar pedidoId={p.id} status={status} temConta={Boolean(p.prefeituraId)} />
+                {/* O PDF nasce do pedido: município, faixa, módulos e valores
+                    da tabela. É o que vai por e-mail com o kit. */}
+                <a
+                  href={`/admin/pedidos/${p.id}/proposta`}
+                  className="text-sm font-semibold border border-border rounded-xl px-4 py-2 hover:border-brand hover:text-brand transition whitespace-nowrap"
+                >
+                  Baixar proposta (PDF)
+                </a>
               </div>
             </div>
           );
