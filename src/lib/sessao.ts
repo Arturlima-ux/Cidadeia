@@ -3,6 +3,13 @@ import { cookies } from "next/headers";
 
 const NOME_COOKIE = "cidadeia_sessao";
 const DURACAO_SESSAO = "7d";
+// ── A DEMO NÃO É UMA SESSÃO DE SETE DIAS ──
+// Era: quem abria a demonstração uma vez ficava uma semana com todo
+// "painel" do site apontando para a Prefeitura de Vila Nova — inclusive
+// depois de fechar o navegador, sem nenhuma faixa amarela avisando no site
+// público. Uma hora basta para conhecer o painel; depois ela morre sozinha.
+const DURACAO_DEMO = "1h";
+const SEGUNDOS_DEMO = 60 * 60;
 
 function chaveSecreta() {
   const segredo = process.env.AUTH_SECRET;
@@ -33,7 +40,7 @@ export async function criarSessao(payload: SessaoPayload) {
   const token = await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(DURACAO_SESSAO)
+    .setExpirationTime(payload.demo ? DURACAO_DEMO : DURACAO_SESSAO)
     .sign(chaveSecreta());
 
   const store = await cookies();
@@ -42,7 +49,7 @@ export async function criarSessao(payload: SessaoPayload) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: payload.demo ? SEGUNDOS_DEMO : 60 * 60 * 24 * 7,
   });
 }
 

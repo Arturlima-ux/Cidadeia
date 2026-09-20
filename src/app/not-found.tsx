@@ -50,11 +50,15 @@ export default function NaoEncontrada() {
                 →
               </span>
             </Link>
+            {/* Era /dashboard: com a sessão da demonstração aberta, "Ir para
+                o painel" caía na Prefeitura de Vila Nova e parecia a conta da
+                pessoa. /login manda quem tem sessão real ao painel e mostra o
+                formulário para o resto — inclusive para a demo. */}
             <Link
-              href="/dashboard"
+              href="/login"
               className="text-sm font-semibold text-foreground hover:text-brand transition"
             >
-              Ir para o painel
+              Entrar no painel
             </Link>
           </div>
 
