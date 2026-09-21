@@ -134,7 +134,8 @@ export default function FormularioCadastro({ inicial }: { inicial: InicialDoPedi
               IA
             </span>
           </Link>
-          <p className="text-sm text-muted mt-3 max-w-md mx-auto leading-relaxed">
+          <h1 className="font-serif text-xl font-bold mt-4">Criar a conta da prefeitura</h1>
+          <p className="text-sm text-muted mt-2 max-w-md mx-auto leading-relaxed">
             {inicial
               ? `Conta para a proposta de ${inicial.municipio}/${inicial.uf}. Já preenchemos o que você informou; falta o CNPJ e a senha. Os módulos ligam aqui no dia em que o contrato for assinado.`
               : "Leva menos de um minuto. Você ativa os módulos que quiser depois, direto no painel."}

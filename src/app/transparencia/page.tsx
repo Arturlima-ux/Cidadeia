@@ -17,7 +17,7 @@ import { DIREITOS_CIDADAO } from "@/lib/direitos-cidadao";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Portais da transparência — CidadeIA",
+  title: "Portais da transparência",
   description:
     "Os portais de transparência publicados no CidadeIA. Abrem sem cadastro e sem login.",
 };

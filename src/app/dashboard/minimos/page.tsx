@@ -23,7 +23,7 @@ import FormularioBase from "./FormularioBase";
 import PainelObrigacoes from "./PainelObrigacoes";
 import { podeOptarPorSemestral } from "@/lib/obrigacoes-fiscais";
 
-export const metadata = { title: "Mínimos constitucionais — CidadeIA" };
+export const metadata = { title: "Mínimos constitucionais" };
 
 const TOM: Record<Situacao, { cor: string; fundo: string; borda: string }> = {
   cumprido: { cor: "var(--info)", fundo: "var(--info-tint)", borda: "var(--info-borda)" },

@@ -6,7 +6,7 @@ import Diagnostico from "@/components/site/Diagnostico";
 import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
 
 export const metadata = {
-  title: "Diagnóstico de conformidade — CidadeIA",
+  title: "Diagnóstico de conformidade",
   description:
     "Treze exigências da LAI, da Lei 13.460, da LRF e da LGPD. Responda e veja onde o município está exposto, com o artigo de cada uma.",
 };

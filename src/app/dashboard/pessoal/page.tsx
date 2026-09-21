@@ -28,7 +28,7 @@ import { buscarPeriodos } from "./actions";
 import FormularioPessoal from "./FormularioPessoal";
 import BotaoImportar from "./BotaoImportar";
 
-export const metadata = { title: "Despesa com pessoal — CidadeIA" };
+export const metadata = { title: "Despesa com pessoal" };
 
 const TOM: Record<SituacaoPessoal, { cor: string; fundo: string; borda: string }> = {
   confortavel: { cor: "var(--info)", fundo: "var(--info-tint)", borda: "var(--info-borda)" },

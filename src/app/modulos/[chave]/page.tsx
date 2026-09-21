@@ -9,7 +9,7 @@ import { PLANOS_ADDON } from "@/lib/planos";
 import { detalheDoModulo } from "@/lib/modulos-detalhe";
 import { PAINEIS_MODULOS } from "@/lib/paineis-modulos";
 import { IconCheck } from "@/components/icons";
-import { compartilhamento } from "@/lib/seo";
+import { compartilhamento, JsonLdScript, ldBreadcrumb } from "@/lib/seo";
 
 // ── UMA PÁGINA POR MÓDULO ──
 //
@@ -32,9 +32,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ chave: string }> }) {
   const { chave } = await params;
   const plano = PLANOS_ADDON.find((p) => p.chave === chave);
-  if (!plano) return { title: "Módulo — CidadeIA" };
+  if (!plano) return { title: "Módulo" };
   return compartilhamento({
-    titulo: `${plano.nome} — módulo CidadeIA`,
+    titulo: `Módulo ${plano.nome}`,
     descricao: detalheDoModulo(plano.chave)?.resumo ?? plano.descricao,
     caminho: `/modulos/${plano.chave}`,
   });
@@ -52,6 +52,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
 
   return (
     <div className="tema-noite min-h-screen">
+      <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }, { nome: plano.nome, caminho: `/modulos/${plano.chave}` }])} />
       <SiteHeader />
       <main>
         {/* ── capa: o que é, e a tela ── */}

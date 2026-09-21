@@ -6,7 +6,7 @@ import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import { ESTADOS, NOME_DOS_ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { retratoDaUf } from "@/lib/raio-x-uf";
-import { compartilhamento } from "@/lib/seo";
+import { compartilhamento, JsonLdScript, ldBreadcrumb } from "@/lib/seo";
 import { caminhoDoRaioX } from "@/lib/slug-municipio";
 import { ANO_ESTIMATIVA_POPULACAO } from "@/lib/municipios";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
@@ -38,7 +38,7 @@ const n = (v: number) => new Intl.NumberFormat("pt-BR").format(v);
 
 export async function generateMetadata({ params }: { params: Promise<{ uf: string }> }) {
   const uf = acharUf((await params).uf);
-  if (!uf) return { title: "Estado não encontrado — CidadeIA" };
+  if (!uf) return { title: "Estado não encontrado" };
   const r = retratoDaUf(uf);
   return compartilhamento({
     titulo: `Raio-X das ${r.total} prefeituras ${doEstado(uf)} — população, faixa e o que consta no Tesouro`,
@@ -57,6 +57,7 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
 
   return (
     <div className="tema-noite min-h-screen">
+      <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Raio-X", caminho: "/raio-x" }, { nome: nome, caminho: `/raio-x/${uf.toLowerCase()}` }])} />
       <SiteHeader />
       <main>
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">

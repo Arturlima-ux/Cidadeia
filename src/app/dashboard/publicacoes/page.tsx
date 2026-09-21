@@ -7,7 +7,7 @@ import { coberturaLegal } from "@/lib/publicacoes";
 import { listarPublicacoes } from "./actions";
 import GerenciadorPublicacoes from "./GerenciadorPublicacoes";
 
-export const metadata = { title: "Publicações do portal — CidadeIA" };
+export const metadata = { title: "Publicações do portal" };
 
 export default async function PublicacoesPage() {
   const { sessao, temPlano } = await contextoDashboard();

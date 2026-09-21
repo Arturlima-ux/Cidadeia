@@ -17,6 +17,8 @@ import FormularioCadastro, { type InicialDoPedido } from "./FormularioCadastro";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = { title: "Criar a conta da prefeitura" };
+
 async function inicialDoPedido(propostaId: string | undefined): Promise<InicialDoPedido | null> {
   if (!propostaId || !/^prop_[A-Za-z0-9_-]{4,64}$/.test(propostaId)) return null;
   try {

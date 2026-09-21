@@ -9,7 +9,7 @@ import { IMPLANTACAO, VERSUS } from "@/lib/textos-contratacao";
 import { IconDownload } from "@/components/icons";
 
 export const metadata = {
-  title: "Como contratar — CidadeIA",
+  title: "Como contratar",
   description:
     "Os três caminhos legais para a prefeitura contratar o CidadeIA, o processo pronto para o jurídico conferir e o que acontece da assinatura ao portal no ar.",
 };

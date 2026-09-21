@@ -4,7 +4,7 @@ import { TABELAS_IMPORTAVEIS } from "@/lib/importacao";
 import FormularioImportacao from "./FormularioImportacao";
 
 export const metadata = {
-  title: "Importar dados — CidadeIA",
+  title: "Importar dados",
 };
 
 export default async function ImportarPage() {

@@ -18,7 +18,7 @@ import FormularioLogin from "./FormularioLogin";
 // estado; o que ele não precisa é decidir sozinho se a sessão expirou.
 
 export const metadata = {
-  title: "Entrar — CidadeIA",
+  title: "Entrar",
 };
 
 export default async function LoginPage({

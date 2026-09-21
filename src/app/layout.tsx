@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
-import { URL_BASE, NOME_DO_SITE } from "@/lib/seo";
+import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
 // Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
 // contemporânea) e Public Sans na UI (desenhada para uso governamental).
@@ -72,6 +72,7 @@ export default function RootLayout({
             __html: `document.documentElement.classList.add("com-js")`,
           }}
         />
+        <JsonLdScript dados={ldOrganizacao()} />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

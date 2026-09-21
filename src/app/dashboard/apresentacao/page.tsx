@@ -7,7 +7,7 @@ import { montarPaineisTelao } from "@/lib/paineis-telao";
 import { fusoDoEstado } from "@/lib/horario";
 import Telao from "./Telao";
 
-export const metadata = { title: "Modo apresentação — CidadeIA" };
+export const metadata = { title: "Modo apresentação" };
 
 export default async function ApresentacaoPage() {
   const { sessao, prefeitura, temPlano } = await contextoDashboard();

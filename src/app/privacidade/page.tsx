@@ -2,7 +2,7 @@ import PaginaLegal from "@/components/site/PaginaLegal";
 import { POLITICA_PRIVACIDADE } from "@/lib/documentos-legais";
 
 export const metadata = {
-  title: "Política de privacidade — CidadeIA",
+  title: "Política de privacidade",
   description:
     "O que o CidadeIA coleta, com que base legal, com quem compartilha e por quanto tempo guarda.",
 };

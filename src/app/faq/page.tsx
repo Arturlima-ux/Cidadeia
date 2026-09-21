@@ -4,7 +4,7 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 
 export const metadata = {
-  title: "Perguntas frequentes — CidadeIA",
+  title: "Perguntas frequentes",
 };
 
 const PERGUNTAS = [

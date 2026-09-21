@@ -5,7 +5,7 @@ import Reveal from "@/components/site/Reveal";
 import { IconX, IconCheck } from "@/components/icons";
 
 export const metadata = {
-  title: "Por que CidadeIA — CidadeIA",
+  title: "Por que CidadeIA",
 };
 
 const PROBLEMAS = [

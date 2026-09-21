@@ -6,7 +6,7 @@ import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { detalheDoModulo } from "@/lib/modulos-detalhe";
-import { compartilhamento } from "@/lib/seo";
+import { compartilhamento, JsonLdScript, ldSoftware, ldBreadcrumb } from "@/lib/seo";
 
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
@@ -35,6 +35,7 @@ export default async function SolucoesPage({
   const demoIndisponivel = params.demo === "indisponivel";
   return (
     <div className="tema-noite min-h-screen">
+      <JsonLdScript dados={[ldSoftware(), ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }])]} />
       <SiteHeader />
 
       <Reveal>

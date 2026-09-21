@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 
 export const metadata = {
-  title: "Suporte — CidadeIA",
+  title: "Suporte",
 };
 
 export default async function SuportePage({

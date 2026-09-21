@@ -13,7 +13,7 @@ import FormularioRedefinir from "./FormularioRedefinir";
 // longo em app/login/page.tsx.
 
 export const metadata = {
-  title: "Redefinir senha — CidadeIA",
+  title: "Redefinir senha",
 };
 
 export default async function RedefinirSenhaPage({

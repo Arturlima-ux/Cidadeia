@@ -11,7 +11,8 @@ import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
 import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
-import { compartilhamento } from "@/lib/seo";
+import { compartilhamento, JsonLdScript, ldBreadcrumb, ldPrefeitura } from "@/lib/seo";
+import { NOME_DOS_ESTADOS } from "@/lib/estados";
 
 // ── UMA PÁGINA PÚBLICA POR MUNICÍPIO ──
 //
@@ -52,7 +53,7 @@ function acharMunicipio(uf: string, slug: string) {
 export async function generateMetadata({ params }: { params: Promise<{ uf: string; slug: string }> }) {
   const { uf, slug } = await params;
   const m = acharMunicipio(uf, slug);
-  if (!m) return { title: "Município não encontrado — CidadeIA" };
+  if (!m) return { title: "Município não encontrado" };
   const pop = new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0);
   return compartilhamento({
     titulo: `Raio-X da Prefeitura de ${m.nome}/${m.uf} — receita, saúde, educação e RREO no Tesouro`,
@@ -81,6 +82,17 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
 
   return (
     <div className="tema-noite min-h-screen">
+      <JsonLdScript
+        dados={[
+          ldBreadcrumb([
+            { nome: "Início", caminho: "/" },
+            { nome: "Raio-X", caminho: "/raio-x" },
+            { nome: NOME_DOS_ESTADOS[m.uf as Estado], caminho: `/raio-x/${m.uf.toLowerCase()}` },
+            { nome: m.nome, caminho: caminhoDoRaioX(m) },
+          ]),
+          ldPrefeitura({ nome: m.nome, uf: m.uf, populacao: m.populacao, caminho: caminhoDoRaioX(m) }),
+        ]}
+      />
       <SiteHeader />
       <main>
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-8">

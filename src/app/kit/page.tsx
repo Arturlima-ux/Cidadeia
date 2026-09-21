@@ -11,7 +11,7 @@ import {
 import { IconDownload, IconCheck, IconAlertas } from "@/components/icons";
 
 export const metadata = {
-  title: "Kit de contratação — CidadeIA",
+  title: "Kit de contratação",
   description:
     "Termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço, prontos para instruir o processo.",
 };

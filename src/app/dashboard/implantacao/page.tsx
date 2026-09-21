@@ -10,7 +10,7 @@ import { IconCheck } from "@/components/icons";
 import PassoComAcao from "./PassoComAcao";
 import BotaoConcluir from "./BotaoConcluir";
 
-export const metadata = { title: "Implantação — CidadeIA" };
+export const metadata = { title: "Implantação" };
 
 // ── A PRIMEIRA TELA DE UMA PREFEITURA NOVA ──
 //

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 
 export const metadata = {
-  title: "Raio-X do município — CidadeIA",
+  title: "Raio-X do município",
   description:
     "Digite o nome da cidade e veja os números reais dela, puxados na hora do Tesouro Nacional. Sem cadastro.",
 };

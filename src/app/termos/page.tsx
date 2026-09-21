@@ -2,7 +2,7 @@ import PaginaLegal from "@/components/site/PaginaLegal";
 import { TERMOS_DE_USO } from "@/lib/documentos-legais";
 
 export const metadata = {
-  title: "Termos de uso — CidadeIA",
+  title: "Termos de uso",
   description:
     "O que o CidadeIA é, o que ele não é, e as regras de uso do sistema e do site.",
 };

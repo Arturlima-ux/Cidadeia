@@ -4,7 +4,7 @@ import Reveal from "@/components/site/Reveal";
 import { IconCheck } from "@/components/icons";
 
 export const metadata = {
-  title: "Segurança & LGPD — CidadeIA",
+  title: "Segurança & LGPD",
 };
 
 const SEGURANCA = [

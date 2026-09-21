@@ -6,7 +6,7 @@ import { buscarUnidadesSaude } from "@/app/dashboard/secretarias/saude/actions";
 import { buscarEscolas } from "@/app/dashboard/secretarias/educacao/actions";
 import { buscarObras } from "@/app/dashboard/secretarias/obras/actions";
 
-export const metadata = { title: "Mapa da cidade — CidadeIA" };
+export const metadata = { title: "Mapa da cidade" };
 
 export default async function MapaPage() {
   const { sessao, prefeitura, temPlano, planosAtivos } = await contextoDashboard();
