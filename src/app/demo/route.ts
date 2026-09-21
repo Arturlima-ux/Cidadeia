@@ -17,7 +17,7 @@ export async function GET() {
     await garantirPrefeituraDemo();
   } catch (e) {
     console.error("[demo] falha ao preparar a prefeitura de demonstração:", e);
-    redirect("/precos?demo=indisponivel");
+    redirect("/solucoes?demo=indisponivel");
   }
   await criarSessao({
     usuarioId: ID_USUARIO_DEMO,

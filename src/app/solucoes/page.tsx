@@ -6,6 +6,7 @@ import SeletorPainelModulo from "@/components/site/SeletorPainelModulo";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import { PLANOS_ADDON } from "@/lib/planos";
 import { detalheDoModulo } from "@/lib/modulos-detalhe";
+import { compartilhamento } from "@/lib/seo";
 
 import { IconAlertas, IconSaude, IconEducacao, IconObras, IconLicitacoes, IconVisaoGeral } from "@/components/icons";
 
@@ -18,11 +19,14 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
   gestao: IconVisaoGeral,
 };
 
-export const metadata = {
-  title: "Módulos e proposta — CidadeIA",
-};
+export const metadata = compartilhamento({
+  titulo: "Soluções",
+  descricao:
+    "Os seis módulos do CidadeIA — Essencial, Gestão, Saúde, Educação, Obras e Licitações — com o que cada um entrega, o painel de cada um e o montador de proposta.",
+  caminho: "/solucoes",
+});
 
-export default async function PrecosPage({
+export default async function SolucoesPage({
   searchParams,
 }: {
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>;
@@ -35,7 +39,7 @@ export default async function PrecosPage({
 
       <Reveal>
         <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
-          <h1 className="font-serif text-4xl font-bold">Módulos e proposta</h1>
+          <h1 className="font-serif text-4xl font-bold">Soluções</h1>
           {demoIndisponivel && (
             <p
               className="text-sm rounded-lg px-3 py-2.5 border mt-4 text-left"
@@ -89,7 +93,7 @@ export default async function PrecosPage({
       </Reveal>
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-16">
-        <h2 className="font-serif text-xl font-bold">Módulos disponíveis</h2>
+        <h2 id="modulos" className="font-serif text-xl font-bold scroll-mt-24">Os seis módulos</h2>
         {/* A regra, escrita: o valor de cada módulo depende da faixa de
             habitantes, e a faixa é a da população do IBGE para o município.
             Já houve botão para escolher a faixa; não há mais, e a tabela

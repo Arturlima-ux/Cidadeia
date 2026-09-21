@@ -6,7 +6,7 @@ import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
 import { ESTADOS } from "@/lib/estados";
-import { sugerirPorte } from "@/app/precos/actions";
+import { sugerirPorte } from "@/app/solucoes/actions";
 
 const RESUMO_MODULO: Record<PlanoAddon, string> = {
   essencial: "Protocolo, ouvidoria e portal",

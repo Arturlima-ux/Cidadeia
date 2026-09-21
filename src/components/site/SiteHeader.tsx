@@ -9,9 +9,11 @@ import MenuMobile from "@/components/site/MenuMobile";
 // seção que já está na tela), "Quem somos" e "Raio-X" (a home oferece o
 // Raio-X no corpo, ao lado dos portais). Os três continuam no rodapé.
 const LINKS = [
-  { href: "/#solucoes", label: "Soluções" },
-  // "Preços" prometia número; a página mostra módulos e manda pedir proposta.
-  { href: "/precos", label: "Módulos" },
+  // "Soluções" e "Módulos" eram dois itens para o mesmo conteúdo: a seção
+  // da home e a página /precos mostravam os mesmos seis módulos. Agora é uma
+  // página, /solucoes, e a home só resume — como o "Premium" do Spotify: o
+  // botão abre a página, em vez de a home carregar tudo.
+  { href: "/solucoes", label: "Soluções" },
   // A demonstração era o quarto botão de uma fileira de quatro, e a fileira
   // inteira virava ruído: Cadastrar, Entrar, Ver demo, Receber proposta —
   // com "Entrar" repetido na barra de cima. Ela é um destino, como as

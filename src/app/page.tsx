@@ -153,11 +153,6 @@ export default async function LandingPage() {
   const modulos = modulosNaOrdemDaHome();
 
 
-  // A leitura por IA depende da chave da Anthropic no ambiente. Sem ela as
-  // funções de insight devolvem erro em vez de resposta, então a home não
-  // anuncia o recurso — prometer na página o que o servidor não executa é o
-  // tipo de furo que o primeiro cliente descobre sozinho, no pior momento.
-  const iaAtiva = Boolean(process.env.ANTHROPIC_API_KEY);
 
   return (
     <div className="tema-noite min-h-screen overflow-x-hidden relative">
@@ -380,120 +375,74 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        {/* ═══ SOLUÇÕES ═══ */}
-        <section id="solucoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+        {/* ═══ SOLUÇÕES — o resumo; a página inteira é /solucoes ═══
+            Esta seção tinha os seis módulos com a lista completa de
+            capacidades, automação e três links cada — a mesma coisa que a
+            página de Soluções mostra. A home ficava comprida e repetida.
+            Agora ela apresenta os seis em uma grade curta e manda para a
+            página, como o "Premium" do Spotify: o botão abre, a home não
+            carrega tudo. A âncora #solucoes fica, porque há links antigos. */}
+        <section id="solucoes" className="border-y border-border scroll-mt-24" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
             <Reveal>
               <div className="flex flex-wrap items-end justify-between gap-6">
                 <div>
-                  <Olho>Módulos</Olho>
+                  <Olho>Soluções</Olho>
                   <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[16ch]">
                     Contrate por área, não por pacote.
                   </h2>
                 </div>
                 <p className="text-sm text-muted leading-relaxed max-w-sm">
-                  Um município de 8 mil habitantes não paga pelo que uma capital
-                  usa. Sem limite de relatórios e sem cobrança por usuário.
+                  Seis módulos independentes. Um município de 8 mil habitantes não paga
+                  pelo que uma capital usa; sem limite de relatórios, sem cobrança por usuário.
                 </p>
               </div>
             </Reveal>
 
-            {/* Cada módulo era uma frase de uma linha. Um comprador público
-                conservador não consegue defender uma contratação internamente
-                com uma frase — ele precisa de superfície suficiente para
-                montar a justificativa. Cada item abaixo corresponde a um
-                campo que existe no banco ou a uma regra que roda no código
-                (ver lib/modulos-detalhe.ts).
-
-                O selo "Mais contratado" saiu do Essencial: afirmava um dado
-                de venda comparativo que não temos. */}
-            <div className="grid md:grid-cols-2 gap-4 mt-10">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
               {modulos.map(({ chave, nome, detalhe }, i) => {
                 const Icone = ICONE_ADDON[chave];
                 return (
-                  <Reveal key={chave} delay={i * 60}>
-                    <div
-                      className="h-full flex flex-col gap-4 rounded-2xl border border-border p-6 sm:p-7 card-interactive"
+                  <Reveal key={chave} delay={i * 50}>
+                    <Link
+                      href={`/modulos/${chave}`}
+                      className="group h-full flex flex-col gap-3 rounded-2xl border border-border p-5 card-interactive hover:border-brand transition"
                       style={{ background: "var(--card)" }}
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-center gap-3">
                         <span
-                          className="w-11 h-11 arco-card-sm flex items-center justify-center shrink-0"
+                          className="w-10 h-10 arco-card-sm flex items-center justify-center shrink-0"
                           style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
                         >
                           <Icone className="w-5 h-5" />
                         </span>
-                        <div className="min-w-0">
-                          <h3 className="font-serif text-xl font-bold leading-tight">{nome}</h3>
-                          <p className="text-sm text-muted leading-relaxed mt-1">
-                            {detalhe.resumo}
-                          </p>
-                        </div>
+                        <h3 className="font-serif text-lg font-bold leading-tight">{nome}</h3>
                       </div>
-
-                      <ul className="flex flex-col gap-2 flex-1">
-                        {detalhe.capacidades.map((c) => (
-                          <li key={c} className="flex gap-2.5 text-sm leading-snug">
-                            <IconCheck
-                              className="w-4 h-4 shrink-0 mt-0.5"
-                              style={{ color: "var(--accent)" }}
-                            />
-                            <span className="text-muted">{c}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {detalhe.automacao && (
-                        <SeloLinha rotulo="Automático" tom="accent">
-                          {detalhe.automacao}
-                        </SeloLinha>
-                      )}
-                      {/* A linha de IA só aparece quando o ambiente tem a
-                          chave da Anthropic. Sem ela as funções devolvem erro
-                          explicando isso, e anunciar na home um recurso que o
-                          servidor não consegue executar seria vender o que
-                          não é entregue. Configurada a chave, o texto volta
-                          sozinho — aqui e no resto da página. */}
-                      {iaAtiva && detalhe.ia && (
-                        <SeloLinha rotulo="IA" tom="brand">
-                          {detalhe.ia}
-                        </SeloLinha>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4">
-                        {/* Era "Ver na proposta", seis vezes seguidas. Quem lê
-                            um módulo quer conhecê-lo antes de comprá-lo: a
-                            página própria vem primeiro, a proposta em segundo. */}
-                        <Link
-                          href={`/modulos/${chave}`}
-                          className="text-sm font-bold text-brand hover:text-brand-claro transition"
-                        >
-                          Conhecer o módulo →
-                        </Link>
-                        <Link
-                          href={`/proposta?modulos=${chave}`}
-                          className="text-sm font-semibold text-muted hover:text-foreground transition"
-                        >
-                          Adicionar à proposta
-                        </Link>
-                        {detalhe.noPortal && portalVitrine && (
-                          <Link
-                            href={`/transparencia/${portalVitrine.slug}`}
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground transition"
-                          >
-                            <span
-                              className="w-1.5 h-1.5 rounded-full shrink-0"
-                              style={{ background: "var(--accent)" }}
-                            />
-                            Conferir no portal
-                          </Link>
-                        )}
-                      </div>
-                    </div>
+                      <p className="text-sm text-muted leading-relaxed flex-1">{detalhe.resumo}</p>
+                      <span className="text-sm font-bold text-brand group-hover:text-brand-claro transition">
+                        Conhecer →
+                      </span>
+                    </Link>
                   </Reveal>
                 );
               })}
             </div>
+
+            <Reveal delay={200}>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                {/* Contornado, não cheio: a home tem dois botões cheios — diagnóstico
+                    no topo, proposta no fecho — e o teste de hierarquia trava isso. */}
+                <Link
+                  href="/solucoes"
+                  className="border border-border hover:border-brand font-bold text-sm rounded-xl px-6 py-3.5 transition hover:text-brand"
+                >
+                  Ver todas as soluções&nbsp;&nbsp;→
+                </Link>
+                <p className="text-sm text-muted">
+                  O que cada módulo entrega, o painel de cada um e o montador de proposta.
+                </p>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -925,30 +874,6 @@ function FluxoColuna({
           </li>
         ))}
       </ol>
-    </div>
-  );
-}
-
-function SeloLinha({
-  rotulo,
-  tom,
-  children,
-}: {
-  rotulo: string;
-  tom: "accent" | "brand";
-  children: React.ReactNode;
-}) {
-  const cor = tom === "accent" ? "var(--accent-claro)" : "var(--brand-claro)";
-  const fundo = tom === "accent" ? "var(--accent-tint)" : "var(--brand-tint)";
-  return (
-    <div className="flex gap-3 items-start">
-      <span
-        className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0"
-        style={{ background: fundo, color: cor }}
-      >
-        {rotulo}
-      </span>
-      <p className="text-sm text-muted leading-relaxed">{children}</p>
     </div>
   );
 }

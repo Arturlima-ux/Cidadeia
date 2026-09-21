@@ -109,7 +109,7 @@ export default async function PropostaPage({
                   <p className="text-sm text-white/70 leading-relaxed">
                     Nenhum módulo marcado. A proposta vai com os seis para você escolher —
                     ou{" "}
-                    <Link href="/precos" className="underline hover:no-underline">
+                    <Link href="/solucoes" className="underline hover:no-underline">
                       volte e marque os que interessam
                     </Link>
                     .

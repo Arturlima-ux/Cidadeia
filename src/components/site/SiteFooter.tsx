@@ -25,7 +25,7 @@ const COLUNAS = [
       { href: "/kit", label: "Kit de contratação" },
       { href: "/proposta/acompanhar", label: "Acompanhar pedido" },
       { href: "/conformidade", label: "Conformidade legal" },
-      { href: "/precos", label: "Módulos" },
+      { href: "/solucoes", label: "Soluções" },
     ],
   },
   {

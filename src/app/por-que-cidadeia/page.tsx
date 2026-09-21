@@ -137,7 +137,7 @@ export default function PorQueCidadeIAPage() {
                 <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
               </Link>
               <Link
-                href="/precos"
+                href="/solucoes"
                 className="text-sm font-semibold text-white/90 hover:text-white transition underline underline-offset-4"
               >
                 Ver módulos e preços

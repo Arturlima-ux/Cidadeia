@@ -32,7 +32,7 @@ describe("cada módulo é descrito por uma fonte só", () => {
   });
 
   it("a página de módulos lista as capacidades, em vez de resumir por conta própria", () => {
-    const precos = readFileSync("src/app/precos/page.tsx", "utf8");
+    const precos = readFileSync("src/app/solucoes/page.tsx", "utf8");
     expect(precos).toContain("detalheDoModulo");
     expect(precos).toContain("capacidades.map");
   });

@@ -89,7 +89,7 @@ describe("a tabela de preços é interna", () => {
   // painel logado ficam de fora: lá a tabela pode viver.
   const PUBLICOS = [
     "src/app/page.tsx",
-    "src/app/precos/page.tsx",
+    "src/app/solucoes/page.tsx",
     "src/app/proposta/page.tsx",
     "src/app/modulos/[chave]/page.tsx",
     "src/app/faq/page.tsx",

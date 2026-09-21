@@ -171,7 +171,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
               >
                 Montar proposta com {plano.nome}&nbsp;&nbsp;→
               </Link>
-              <Link href="/precos" className="text-sm font-semibold text-muted hover:text-foreground transition">
+              <Link href="/solucoes" className="text-sm font-semibold text-muted hover:text-foreground transition">
                 Ver todos os módulos
               </Link>
             </div>

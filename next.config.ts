@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+  // /precos virou /solucoes: a página sempre foi o catálogo de soluções, e
+  // "Preços" prometia número que ela não mostra. O endereço antigo pode
+  // estar em e-mail, favorito ou resultado de busca — redireciona para
+  // sempre, com o mesmo parâmetro (?demo=indisponivel).
+  redirects: async () => [{ source: "/precos", destination: "/solucoes", permanent: true }],
   // Headers de segurança
   headers: async () => {
     // CSP com 'unsafe-inline' em script/style: o app usa muito style inline
