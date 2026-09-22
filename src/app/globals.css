@@ -289,43 +289,87 @@ button:active {
 }
 
 /* Foco visível e consistente — acessibilidade (navegação por teclado). */
-/* ── BARRA DE ROLAGEM DISCRETA ──
-   A barra cinza padrão do sistema envelhece a tela. Aqui ela some até o
-   ponteiro chegar perto: fica um filete de 6px, arredondado, na cor da
-   borda do tema. Em quem não tem ponteiro (celular) a barra nativa já é
-   invisível, então nada muda.
+/* ── BARRA DE ROLAGEM: APARECE QUANDO PRECISA, SOME DEPOIS ──
+   A barra cinza do sistema envelhece a tela. Esta é fina, arredondada e
+   sobreposta: não ocupa largura, some quando ninguém está rolando e
+   reaparece ao rolar ou ao aproximar o ponteiro — como nos aplicativos de
+   mensagem. A classe `rolando` é posta e tirada por
+   components/BarraDeRolagem.tsx enquanto a rolagem acontece.
 
-   `overscroll-behavior: contain` é o que impede a rolagem de "vazar":
-   com o cursor sobre o menu, chegar ao fim dele não passa a rolar a
-   página atrás. Cada lado rola o seu. */
+   O truque do `background-clip` com borda transparente é o que dá o
+   filete estreito com folga dos dois lados, sem depender de largura
+   fracionada.
+
+   `overscroll-behavior: contain` impede a rolagem de vazar: com o
+   cursor sobre o menu, chegar ao fim dele não passa a arrastar a página
+   atrás. Cada lado rola o seu.
+
+   Em tela de toque a barra nativa já é invisível, então nada disso pesa. */
+:root {
+  --rolagem: rgba(128, 142, 165, 0.38);
+  --rolagem-forte: rgba(128, 142, 165, 0.7);
+}
+.tema-noite {
+  --rolagem: rgba(190, 205, 230, 0.26);
+  --rolagem-forte: rgba(190, 205, 230, 0.55);
+}
+
+/* barra da página inteira */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rolagem) transparent;
+}
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  background: var(--rolagem);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--rolagem-forte);
+  background-clip: padding-box;
+}
+
+/* áreas que rolam por dentro (menu, conversa, tabelas largas) */
 .rolagem-discreta {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   overscroll-behavior: contain;
-  transition: scrollbar-color 0.2s ease;
+  transition: scrollbar-color 0.25s ease;
 }
 .rolagem-discreta:hover,
-.rolagem-discreta:focus-within {
-  scrollbar-color: var(--linha-rolagem, rgba(128, 140, 160, 0.45)) transparent;
+.rolagem-discreta:focus-within,
+.rolagem-discreta.rolando {
+  scrollbar-color: var(--rolagem) transparent;
 }
 .rolagem-discreta::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 .rolagem-discreta::-webkit-scrollbar-track {
   background: transparent;
 }
 .rolagem-discreta::-webkit-scrollbar-thumb {
   background: transparent;
+  background-clip: padding-box;
+  border: 3px solid transparent;
   border-radius: 999px;
-  transition: background 0.2s ease;
+  transition: background-color 0.25s ease;
 }
 .rolagem-discreta:hover::-webkit-scrollbar-thumb,
-.rolagem-discreta:focus-within::-webkit-scrollbar-thumb {
-  background: var(--linha-rolagem, rgba(128, 140, 160, 0.45));
+.rolagem-discreta:focus-within::-webkit-scrollbar-thumb,
+.rolagem-discreta.rolando::-webkit-scrollbar-thumb {
+  background-color: var(--rolagem);
 }
 .rolagem-discreta::-webkit-scrollbar-thumb:hover {
-  background: var(--linha-rolagem-forte, rgba(128, 140, 160, 0.75));
+  background-color: var(--rolagem-forte);
 }
 
 /* ── ALVO DE TOQUE NO CELULAR ──

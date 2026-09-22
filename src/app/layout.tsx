@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import BarraDeRolagem from "@/components/BarraDeRolagem";
 import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
 // Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
@@ -82,6 +83,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         {children}
+        <BarraDeRolagem />
         {/* Medição de visitas sem cookie e sem identificar pessoa (Vercel
             Web Analytics). Só liga em produção; precisa estar ativado no
             painel da Vercel (aba Analytics) para começar a contar. */}
