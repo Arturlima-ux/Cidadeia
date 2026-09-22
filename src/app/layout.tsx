@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
 // Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
@@ -39,6 +40,11 @@ export const metadata: Metadata = {
       "Protocolo, ouvidoria, transparência e os painéis de cada secretaria, com a base legal de cada número.",
   },
   twitter: { card: "summary_large_image" },
+  // Search Console: a tag de verificação vem da Vercel (GOOGLE_SITE_VERIFICATION).
+  // Sem a variável, nada é emitido.
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export default function RootLayout({
@@ -74,7 +80,13 @@ export default function RootLayout({
         />
         <JsonLdScript dados={ldOrganizacao()} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        {/* Medição de visitas sem cookie e sem identificar pessoa (Vercel
+            Web Analytics). Só liga em produção; precisa estar ativado no
+            painel da Vercel (aba Analytics) para começar a contar. */}
+        <Analytics />
+      </body>
     </html>
   );
 }
