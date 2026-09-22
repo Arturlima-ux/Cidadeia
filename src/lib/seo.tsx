@@ -32,10 +32,14 @@ export function compartilhamento({
   titulo,
   descricao,
   caminho,
+  imagemPropria = false,
 }: {
   titulo: string;
   descricao: string;
   caminho: string;
+  /** true quando o segmento tem opengraph-image.tsx: aí a imagem padrão
+   *  NÃO é declarada, senão ela sobrescreve a do segmento. */
+  imagemPropria?: boolean;
 }): Metadata {
   return {
     title: titulo,
@@ -48,13 +52,13 @@ export function compartilhamento({
       url: caminho,
       title: titulo,
       description: descricao,
-      images: [IMAGEM_PADRAO],
+      ...(imagemPropria ? {} : { images: [IMAGEM_PADRAO] }),
     },
     twitter: {
       card: "summary_large_image",
       title: titulo,
       description: descricao,
-      images: [IMAGEM_PADRAO.url],
+      ...(imagemPropria ? {} : { images: [IMAGEM_PADRAO.url] }),
     },
   };
 }

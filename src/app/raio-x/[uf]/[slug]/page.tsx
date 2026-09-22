@@ -59,6 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
     titulo: `Raio-X da Prefeitura de ${m.nome}/${m.uf} — receita, saúde, educação e RREO no Tesouro`,
     descricao: `O que o Tesouro Nacional já publicou sobre ${m.nome} (${m.uf}, ${pop} habitantes): receita realizada, aplicação em saúde e educação, e quais relatórios obrigatórios constam. Dado público, sem cadastro.`,
     caminho: caminhoDoRaioX(m),
+    imagemPropria: true,
   });
 }
 

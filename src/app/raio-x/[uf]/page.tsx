@@ -44,6 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
     titulo: `Raio-X das ${r.total} prefeituras ${doEstado(uf)} — população, faixa e o que consta no Tesouro`,
     descricao: `Os ${r.total} municípios ${doEstado(uf)} (${n(r.populacao)} habitantes pela estimativa do IBGE), do maior para o menor, com a faixa de habitantes de cada um e o Raio-X do que a prefeitura publicou no Tesouro Nacional. Dado público, sem cadastro.`,
     caminho: `/raio-x/${uf.toLowerCase()}`,
+    imagemPropria: true,
   });
 }
 
