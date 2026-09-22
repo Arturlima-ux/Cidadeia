@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import VoltarAoTopo from "@/components/VoltarAoTopo";
 import Link from "next/link";
 import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura, buscarUsuarioPorId } from "@/lib/dados-prefeitura";
@@ -198,6 +199,7 @@ export default async function DashboardLayout({
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
+        <VoltarAoTopo />
         {sessao.demo && <FaixaDemo />}
         <header className="shadow-elevated md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
