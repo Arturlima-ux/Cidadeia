@@ -197,7 +197,9 @@ export default async function DashboardLayout({
               </p>
             </div>
           </Link>
-          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {/* Os selos de módulo somem no celular: tomavam três linhas e
+              esmagavam o nome da pessoa até "A. / V..". No desktop cabem. */}
+          <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-end">
             {planosAtivos.length === 0 && (
               <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
                 Nenhum módulo contratado

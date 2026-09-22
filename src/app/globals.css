@@ -289,6 +289,20 @@ button:active {
 }
 
 /* Foco visível e consistente — acessibilidade (navegação por teclado). */
+/* ── ALVO DE TOQUE NO CELULAR ──
+   Links e botões "de texto" (Sair, Resolver, Atualizar, Excluir…) tinham 16
+   a 20px de altura: difícil de acertar com o dedo, abaixo dos 24px que a
+   WCAG 2.5.8 pede. Em tela de toque, elementos sem padding vertical
+   próprio ganham 6px acima e abaixo. Em elemento inline isso NÃO muda o
+   fluxo do texto — só a área que recebe o toque. */
+@media (pointer: coarse) {
+  a:not([class*="py-"]):not(.pular-para-conteudo),
+  button:not([class*="py-"]) {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}
+
 /* ── PULAR PARA O CONTEÚDO ──
    Fora da tela até receber foco por teclado; aí aparece por cima de tudo. */
 .pular-para-conteudo {

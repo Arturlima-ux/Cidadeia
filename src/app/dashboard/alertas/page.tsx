@@ -54,7 +54,8 @@ export default async function AlertasPage() {
           rows={2}
           className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand resize-none"
         />
-        <div className="flex gap-3">
+        {/* Em 390px a linha estourava a tela (rolagem horizontal). */}
+        <div className="flex flex-wrap gap-3">
           <select
             name="prioridade"
             defaultValue="info"
@@ -67,7 +68,7 @@ export default async function AlertasPage() {
           <input
             name="secretaria"
             placeholder="Secretaria (opcional)"
-            className="flex-1 rounded-lg border border-border px-3.5 py-2 text-sm outline-none focus:border-brand"
+            className="flex-1 min-w-[200px] rounded-lg border border-border px-3.5 py-2 text-sm outline-none focus:border-brand"
           />
         </div>
         <button
