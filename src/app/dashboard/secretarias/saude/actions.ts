@@ -44,7 +44,7 @@ export async function buscarSerieIndicadorSaude(prefeituraId: string, limite = 1
 
 const schemaUnidade = z.object({
   nome: z.string().min(2, "Informe o nome da unidade."),
-  tipo: z.enum(["ubs", "posto", "hospital", "samu"]),
+  tipo: z.enum(["ubs", "posto", "hospital", "samu", "upa", "caps", "clinica", "laboratorio", "farmacia", "vigilancia", "outro"]),
   bairro: z.string().optional(),
   // Caixa do Brasil, não o mundo: pega latitude e longitude trocadas, que
   // antes passavam e caíam no oceano (src/lib/coordenadas.ts).

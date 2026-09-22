@@ -18,6 +18,7 @@ import {
   prefeituras,
   usuarios,
   unidadesSaude,
+  ocorrenciasSaude,
   saudeIndicadores,
   escolas,
   educacaoIndicadores,
@@ -91,10 +92,23 @@ export async function garantirPrefeituraDemo(): Promise<void> {
   });
 
   // ── Saúde: faltas subindo (7 → 12), estoque caindo ──
+  // Como se tivessem vindo do CNES: código, turno, SUS, data de atualização.
+  // A UBS Alto da Serra está "parada" no CNES há mais de um ano de propósito.
+  const hojeIso = new Date().toISOString();
+  const dataAtras = (n: number) => diasAtras(n).slice(0, 10);
   await db.insert(unidadesSaude).values([
-    { id: "demo_ubs_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "UBS Central", tipo: "ubs", bairro: "Centro", latitude: -6.7712, longitude: -43.0221 },
-    { id: "demo_ubs_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "UBS Alto da Serra", tipo: "ubs", bairro: "Alto da Serra", latitude: -6.7655, longitude: -43.0312 },
-    { id: "demo_hosp", prefeituraId: ID_PREFEITURA_DEMO, nome: "Hospital Municipal", tipo: "hospital", bairro: "Centro", latitude: -6.7748, longitude: -43.0189 },
+    { id: "demo_ubs_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "UBS Central", tipo: "ubs", bairro: "Centro", latitude: -6.7712, longitude: -43.0221, codigoCnes: "9000001", origem: "cnes", codigoTipoUnidade: 2, esfera: "MUNICIPAL", endereco: "Rua da Matriz, 120", turno: "Atendimentos nos turnos da manhã e à tarde", atendeSus: true, hospitalar: false, cnesAtualizadoEm: dataAtras(40), sincronizadoEm: hojeIso },
+    { id: "demo_ubs_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "UBS Alto da Serra", tipo: "ubs", bairro: "Alto da Serra", latitude: -6.7655, longitude: -43.0312, codigoCnes: "9000002", origem: "cnes", codigoTipoUnidade: 2, esfera: "MUNICIPAL", endereco: "Av. das Palmeiras, s/n", turno: "Atendimento somente pela manhã", atendeSus: true, hospitalar: false, cnesAtualizadoEm: dataAtras(410), sincronizadoEm: hojeIso },
+    { id: "demo_hosp", prefeituraId: ID_PREFEITURA_DEMO, nome: "Hospital Municipal", tipo: "hospital", bairro: "Centro", latitude: -6.7748, longitude: -43.0189, codigoCnes: "9000003", origem: "cnes", codigoTipoUnidade: 15, esfera: "MUNICIPAL", endereco: "Rua do Hospital, 1", turno: "Atendimento contínuo", atendeSus: true, hospitalar: true, centroCirurgico: true, centroObstetrico: false, cnesAtualizadoEm: dataAtras(25), sincronizadoEm: hojeIso },
+    { id: "demo_ps_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "Posto de Saúde Boa Vista", tipo: "posto", bairro: "Zona Rural", latitude: -6.7301, longitude: -43.0602, codigoCnes: "9000004", origem: "cnes", codigoTipoUnidade: 1, esfera: "MUNICIPAL", endereco: "Povoado Boa Vista", turno: "Atendimento somente pela manhã", atendeSus: true, hospitalar: false, cnesAtualizadoEm: dataAtras(60), sincronizadoEm: hojeIso },
+  ]);
+  // O que está acontecendo dentro delas — a linha do tempo que o indicador
+  // do mês não conta.
+  await db.insert(ocorrenciasSaude).values([
+    { id: "demo_oc_1", prefeituraId: ID_PREFEITURA_DEMO, unidadeId: "demo_ubs_2", tipo: "sem_medico", gravidade: "urgente", descricao: "Médico de licença desde segunda; sem substituto. Atendimento só com enfermagem.", registradoPor: "Enf. Carla Mendes", createdAt: new Date(Date.now() - 3 * 86_400_000).toISOString() },
+    { id: "demo_oc_2", prefeituraId: ID_PREFEITURA_DEMO, unidadeId: "demo_ubs_2", tipo: "falta_medicamento", gravidade: "atencao", descricao: "Insulina NPH acabou; pacientes orientados a buscar na UBS Central.", registradoPor: "Enf. Carla Mendes", createdAt: new Date(Date.now() - 1 * 86_400_000).toISOString() },
+    { id: "demo_oc_3", prefeituraId: ID_PREFEITURA_DEMO, unidadeId: "demo_ubs_1", tipo: "equipamento_quebrado", gravidade: "atencao", descricao: "Geladeira de vacina com temperatura oscilando; vacinas transferidas para o hospital.", registradoPor: "Téc. João Lima", createdAt: new Date(Date.now() - 2 * 86_400_000).toISOString() },
+    { id: "demo_oc_4", prefeituraId: ID_PREFEITURA_DEMO, unidadeId: "demo_hosp", tipo: "fila", gravidade: "atencao", descricao: "Espera acima de 3h no pronto atendimento no fim de semana.", registradoPor: "Dr. Paulo Freitas", status: "resolvida", resolvidaEm: new Date(Date.now() - 4 * 86_400_000).toISOString(), createdAt: new Date(Date.now() - 9 * 86_400_000).toISOString() },
   ]);
   await db.insert(saudeIndicadores).values(
     [

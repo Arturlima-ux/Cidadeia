@@ -117,16 +117,64 @@ export const saudeIndicadores = pgTable("saude_indicadores", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── UNIDADES DE SAÚDE ──
+// A rede nasce do CNES (lib/cnes.ts): código, tipo, endereço, turno, se
+// atende SUS, se é hospitalar, e a data em que a prefeitura atualizou o
+// registro lá. Unidade que some do CNES fica `ativo = false` — não é
+// apagada, porque tem ocorrências e histórico pendurados nela.
 export const unidadesSaude = pgTable("unidades_saude", {
   id: text("id").primaryKey(),
   prefeituraId: text("prefeitura_id")
     .notNull()
     .references(() => prefeituras.id, { onDelete: "cascade" }),
   nome: text("nome").notNull(),
-  tipo: text("tipo", { enum: ["ubs", "posto", "hospital", "samu"] }).notNull(),
+  tipo: text("tipo", {
+    enum: ["ubs", "posto", "hospital", "samu", "upa", "caps", "clinica", "laboratorio", "farmacia", "vigilancia", "outro"],
+  }).notNull(),
   bairro: text("bairro"),
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
+  // ── do CNES ──
+  codigoCnes: text("codigo_cnes"),
+  origem: text("origem", { enum: ["manual", "cnes"] }).notNull().default("manual"),
+  codigoTipoUnidade: integer("codigo_tipo_unidade"),
+  esfera: text("esfera"),
+  endereco: text("endereco"),
+  telefone: text("telefone"),
+  turno: text("turno"),
+  atendeSus: boolean("atende_sus"),
+  hospitalar: boolean("hospitalar"),
+  centroCirurgico: boolean("centro_cirurgico"),
+  centroObstetrico: boolean("centro_obstetrico"),
+  cnesAtualizadoEm: text("cnes_atualizado_em"),
+  sincronizadoEm: text("sincronizado_em"),
+  ativo: boolean("ativo").notNull().default(true),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── OCORRÊNCIAS POR UNIDADE ──
+// O que está acontecendo dentro da UBS ou do hospital, registrado pela
+// própria equipe em segundos, pelo celular: sem médico, faltou insulina,
+// geladeira de vacina quebrou, fila. É a linha do tempo da unidade — o que
+// "indicador do mês" nunca conta.
+export const ocorrenciasSaude = pgTable("ocorrencias_saude", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  unidadeId: text("unidade_id")
+    .notNull()
+    .references(() => unidadesSaude.id, { onDelete: "cascade" }),
+  tipo: text("tipo", {
+    enum: ["sem_medico", "sem_profissional", "falta_medicamento", "falta_insumo", "equipamento_quebrado", "fila", "estrutura", "outro"],
+  }).notNull(),
+  gravidade: text("gravidade", { enum: ["atencao", "urgente"] }).notNull().default("atencao"),
+  descricao: text("descricao").notNull(),
+  registradoPor: text("registrado_por").notNull(),
+  status: text("status", { enum: ["aberta", "resolvida"] }).notNull().default("aberta"),
+  resolvidaEm: text("resolvida_em"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),

@@ -36,7 +36,7 @@ export const TABELAS_IMPORTAVEIS: TabelaImportavel[] = [
     descricao: "UBS, postos, hospitais e SAMU.",
     campos: [
       { chave: "nome", rotulo: "Nome", tipo: "texto", obrigatorio: true, sinonimos: ["unidade", "nome da unidade", "estabelecimento"] },
-      { chave: "tipo", rotulo: "Tipo", tipo: "enum", obrigatorio: true, opcoes: ["ubs", "posto", "hospital", "samu"], sinonimos: ["categoria", "tipo de unidade"] },
+      { chave: "tipo", rotulo: "Tipo", tipo: "enum", obrigatorio: true, opcoes: ["ubs", "posto", "hospital", "samu", "upa", "caps", "clinica", "laboratorio", "farmacia", "vigilancia", "outro"], sinonimos: ["categoria", "tipo de unidade"] },
       { chave: "bairro", rotulo: "Bairro", tipo: "texto", obrigatorio: false, sinonimos: ["localidade", "distrito", "endereco"] },
       { chave: "latitude", rotulo: "Latitude", tipo: "numero", obrigatorio: false, sinonimos: ["lat"] },
       { chave: "longitude", rotulo: "Longitude", tipo: "numero", obrigatorio: false, sinonimos: ["lon", "lng", "long"] },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { lerSessao } from "@/lib/sessao";
 import {
@@ -20,12 +21,7 @@ import { temPlano, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
 const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"] as const;
 type SecretariaValida = (typeof SECRETARIAS_VALIDAS)[number];
 
-const LABEL_TIPO_UNIDADE: Record<string, string> = {
-  ubs: "UBS",
-  posto: "Posto de Saúde",
-  hospital: "Hospital",
-  samu: "SAMU",
-};
+const LABEL_TIPO_UNIDADE: Record<string, string> = NOME_TIPO_UNIDADE;
 
 const LABEL_STATUS_OBRA: Record<string, string> = {
   planejada: "Planejada",

@@ -75,14 +75,17 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "saude",
-    resumo: "Onde estão as unidades e como andam os indicadores da secretaria.",
+    resumo: "A rede inteira vinda do CNES, e o que está acontecendo dentro de cada unidade.",
     capacidades: [
-      "Unidades por tipo — UBS, posto, hospital e SAMU — com bairro e mapa",
-      "Tempo médio de atendimento e número de médicos ativos",
-      "Percentual de faltas e nível de estoque de medicamentos",
+      "Toda a rede importada do CNES — UBS, postos, hospitais, UPA, CAPS — com endereço, turno, SUS e mapa, sem digitar",
+      "Ficha por unidade: cadastro, data da última atualização no CNES e linha do tempo do que acontece lá",
+      "Ocorrências pelo celular em segundos: sem médico, faltou insulina, geladeira de vacina quebrou, fila",
+      "Situação de cada unidade — normal, atenção, urgente — pelo que está aberto nela",
+      "Tempo médio de atendimento, médicos ativos, faltas e estoque de medicamentos da rede",
       "Relatório da secretaria em PDF",
     ],
-    automacao: "Avisa quando o indicador passa de 30 dias sem atualização.",
+    automacao:
+      "Mantém a rede igual ao CNES e avisa unidade com cadastro parado há mais de 180 dias (trava repasse) ou que sumiu de lá. Marca urgente a unidade com ocorrência urgente aberta há dois dias. Avisa indicador sem atualização há 30 dias.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: false,
   },

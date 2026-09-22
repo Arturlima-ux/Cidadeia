@@ -38,7 +38,7 @@ export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string 
   {
     chave: "saude",
     nome: "Saúde",
-    descricao: "Onde estão as unidades e como andam os indicadores da secretaria.",
+    descricao: "A rede inteira vinda do CNES, e o que está acontecendo dentro de cada unidade.",
   },
   {
     chave: "educacao",
