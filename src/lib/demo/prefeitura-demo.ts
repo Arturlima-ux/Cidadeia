@@ -20,6 +20,7 @@ import {
   unidadesSaude,
   ocorrenciasSaude,
   estoqueSaude,
+  apsResultados,
   saudeIndicadores,
   escolas,
   educacaoIndicadores,
@@ -32,6 +33,7 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { serializarPlanos, PLANOS_ADDON } from "@/lib/planos";
+import { quadrimestreDe } from "@/lib/aps";
 
 export const ID_PREFEITURA_DEMO = "demo_prefeitura";
 export const ID_USUARIO_DEMO = "demo_usuario";
@@ -40,7 +42,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-saude-leitura";
+const VERSAO_DEMO = "2026-09-22-saude-aps";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -127,6 +129,36 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     est("demo_est_7", "demo_ubs_1", "Vacina influenza", "vacina", "dose", 80, 120, "Téc. João Lima", 40),
     est("demo_est_8", "demo_hosp", "Soro fisiológico 0,9% 500 mL", "insumo", "frasco", 420, 600, "Farm. Rita Sousa", 2),
     est("demo_est_9", "demo_hosp", "Amoxicilina 500 mg", "medicamento", "cápsula", 60, 900, "Farm. Rita Sousa", 2),
+  ]);
+  // Qualidade da APS: dois quadrimestres, para a tela mostrar série e
+  // tendência. Hipertensão e diabetes caindo — é o que costuma puxar o
+  // componente de qualidade para baixo.
+  const qAtual = quadrimestreDe(new Date());
+  const qAnterior = qAtual.numero === 1 ? { ano: qAtual.ano - 1, numero: 3 } : { ano: qAtual.ano, numero: qAtual.numero - 1 };
+  const aps = (indicador: string, resultado: number, meta: number | null, q: { ano: number; numero: number }, equipe: string | null = null) => ({
+    id: `demo_aps_${indicador}_${q.ano}_${q.numero}${equipe ? "_" + equipe.replace(/W/g, "") : ""}`,
+    prefeituraId: ID_PREFEITURA_DEMO,
+    indicador,
+    equipe,
+    ano: q.ano,
+    quadrimestre: q.numero,
+    resultado,
+    meta,
+    registradoPor: "Ana Ribeiro",
+    atualizadoEm: diasAtras(5),
+  });
+  await db.insert(apsResultados).values([
+    aps("acesso", 78, 70, qAtual),
+    aps("hipertensao", 31, 50, qAtual),
+    aps("diabetes", 38, 50, qAtual),
+    aps("gestante", 64, 60, qAtual),
+    aps("infantil", 71, 60, qAtual),
+    aps("cancer_mulher", 46, 40, qAtual),
+    aps("idosa", 52, 50, qAtual),
+    aps("hipertensao", 45, 50, qAnterior),
+    aps("diabetes", 44, 50, qAnterior),
+    aps("acesso", 74, 70, qAnterior),
+    aps("gestante", 58, 60, qAnterior),
   ]);
   // O que está acontecendo dentro delas — a linha do tempo que o indicador
   // do mês não conta.
