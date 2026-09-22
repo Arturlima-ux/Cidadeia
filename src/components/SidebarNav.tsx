@@ -61,6 +61,10 @@ export default function SidebarNav({
                 <Link
                   key={item.href}
                   href={item.href}
+                  // Sobe ANTES de navegar: assim a nova tela abre no topo.
+                  // Fazer isso depois não bastava — o Next ajusta a rolagem
+                  // por conta e desfazia o reset de forma intermitente.
+                  onClick={() => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior })}
                   className={`relative flex items-center gap-2.5 pl-3 pr-3 py-2 text-sm transition ${
                     ativo
                       ? "arco-card-sm bg-brand-tint text-brand-legivel font-semibold"
