@@ -289,28 +289,18 @@ button:active {
 }
 
 /* Foco visível e consistente — acessibilidade (navegação por teclado). */
-/* ── BARRA DE ROLAGEM DESENHADA POR NÓS ──
-   A barra nativa é outra em cada navegador: o Chrome aceita desenho fino
-   (::-webkit-scrollbar), o Firefox só aceita "fina" e pinta um filete
-   claro do jeito dele — o mesmo menu ficava bonito num e grosso no outro.
-   Então a nativa é escondida e desenhamos a nossa em
-   components/BarraDeRolagem.tsx: mesmo filete em qualquer navegador,
-   aparecendo ao rolar e sumindo sozinho.
+/* ── ROLAGEM SEM BARRA ──
+   A barra visível saiu de propósito: com o menu fixo e a página curta,
+   ela só somava peso visual. Fica o movimento — roda do mouse, gesto do
+   trackpad, teclado, arrastar no toque —, que é o que a pessoa usa.
 
-   Só escondemos com `.com-js`: sem JavaScript não haveria barra
-   nenhuma, e aí a nativa é melhor que nada.
+   Só escondemos quando há JavaScript (.com-js): sem ele, um leitor ou um
+   navegador antigo ficaria sem nenhuma forma de rolar com o ponteiro, e
+   aí a barra nativa é melhor que nada.
 
-   `overscroll-behavior: contain` fica: é o que impede a rolagem de
-   vazar do menu para a página atrás. */
-:root {
-  --rolagem: rgba(120, 134, 158, 0.45);
-  --rolagem-forte: rgba(120, 134, 158, 0.8);
-}
-.tema-noite {
-  --rolagem: rgba(200, 214, 236, 0.3);
-  --rolagem-forte: rgba(200, 214, 236, 0.62);
-}
-
+   `overscroll-behavior: contain` continua: com o cursor sobre o
+   menu, chegar ao fim dele não passa a arrastar a página atrás. Cada
+   lado rola o seu. */
 .com-js .rolagem-discreta,
 .com-js body,
 .com-js html {
@@ -327,33 +317,6 @@ button:active {
 
 .rolagem-discreta {
   overscroll-behavior: contain;
-}
-
-.barra-rolagem-desenhada {
-  position: fixed;
-  z-index: 60;
-  border-radius: 999px;
-  background: var(--rolagem);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease, background-color 0.2s ease;
-}
-.barra-rolagem-desenhada.visivel {
-  opacity: 1;
-  pointer-events: auto;
-  cursor: grab;
-}
-.barra-rolagem-desenhada.visivel:hover,
-.barra-rolagem-desenhada.arrastando {
-  background: var(--rolagem-forte);
-}
-.barra-rolagem-desenhada.arrastando {
-  cursor: grabbing;
-}
-@media (prefers-reduced-motion: reduce) {
-  .barra-rolagem-desenhada {
-    transition: none;
-  }
 }
 
 /* ── ALVO DE TOQUE NO CELULAR ──
