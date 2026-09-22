@@ -36,6 +36,11 @@ export const ID_PREFEITURA_DEMO = "demo_prefeitura";
 export const ID_USUARIO_DEMO = "demo_usuario";
 export const NOME_DEMO = "Prefeitura de Vila Nova";
 const VALIDADE_MS = 24 * 60 * 60 * 1000;
+// Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
+// na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
+// a rede antiga por um dia depois de publicar a nova.
+const VERSAO_DEMO = "2026-09-22-saude-cnes";
+const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
   const x = new Date();
@@ -49,14 +54,15 @@ function diasAFrente(d: number): string {
 
 export async function garantirPrefeituraDemo(): Promise<void> {
   const [existente] = await db
-    .select({ createdAt: prefeituras.createdAt })
+    .select({ createdAt: prefeituras.createdAt, maiorProblema: prefeituras.maiorProblema })
     .from(prefeituras)
     .where(eq(prefeituras.id, ID_PREFEITURA_DEMO))
     .limit(1);
 
   if (existente) {
     const idade = Date.now() - new Date(existente.createdAt).getTime();
-    if (Number.isFinite(idade) && idade < VALIDADE_MS) return;
+    const mesmaVersao = existente.maiorProblema === MARCA_VERSAO;
+    if (mesmaVersao && Number.isFinite(idade) && idade < VALIDADE_MS) return;
     // Cascata: tudo que aponta para a prefeitura vai junto.
     await db.delete(prefeituras).where(eq(prefeituras.id, ID_PREFEITURA_DEMO));
   }
@@ -71,6 +77,9 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     prefeito: "Ana Ribeiro",
     planosContratados: serializarPlanos(PLANOS_ADDON.map((p) => p.chave)),
     implantacaoConcluidaEm: diasAtras(30),
+    // A versão da demo viaja num campo livre da prefeitura (não aparece na
+    // tela): é como a próxima visita sabe que o conteúdo mudou.
+    maiorProblema: MARCA_VERSAO,
     createdAt: new Date().toISOString(),
   });
 
