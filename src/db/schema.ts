@@ -694,3 +694,26 @@ export const estoqueSaude = pgTable("estoque_saude", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── COMPONENTE DE QUALIDADE DA APS ──
+// Resultado de cada indicador por quadrimestre (e por equipe, quando o
+// município acompanha por equipe). Ver lib/aps.ts: não há API pública
+// desses números; o gestor informa o que o SIAPS mostra.
+export const apsResultados = pgTable("aps_resultados", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  indicador: text("indicador").notNull(),
+  /** INE ou nome da equipe; null = resultado do município. */
+  equipe: text("equipe"),
+  ano: integer("ano").notNull(),
+  quadrimestre: integer("quadrimestre").notNull(),
+  resultado: doublePrecision("resultado").notNull(),
+  meta: doublePrecision("meta"),
+  observacao: text("observacao"),
+  registradoPor: text("registrado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

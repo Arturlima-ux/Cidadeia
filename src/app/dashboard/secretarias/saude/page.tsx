@@ -180,6 +180,18 @@ export default async function SaudePage() {
         </Link>
       )}
 
+      {/* ── qualidade da APS: o repasse que depende do desempenho ── */}
+      <Link
+        href="/dashboard/secretarias/saude/aps"
+        className="block rounded-2xl border border-border bg-card p-4 hover:border-brand transition"
+      >
+        <p className="font-semibold text-sm">Qualidade da APS — o repasse federal que depende do desempenho</p>
+        <p className="text-sm text-muted mt-1 leading-relaxed">
+          Os 15 indicadores do componente de qualidade, por quadrimestre: resultado, meta pactuada,
+          tendência e o que caiu. Com aviso do prazo de envio ao SIAPS. →
+        </p>
+      </Link>
+
       {/* ── estoque: o que vai faltar, antes de faltar ── */}
       {estoque.length > 0 && (
         <div
