@@ -3,7 +3,7 @@
 import { auditar } from "@/lib/auditoria";
 import { db } from "@/db";
 import { unidadesSaude, escolas, obras, licitacoes, investimentos } from "@/db/schema";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { gerarId } from "@/lib/id";
 import { revalidatePath } from "next/cache";
 import {
@@ -40,7 +40,7 @@ export type Previa =
 export async function previaImportacao(formData: FormData): Promise<Previa> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Não autenticado." };
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou um administrador pode importar dados." };
   }
 
@@ -88,7 +88,7 @@ export async function confirmarImportacao(entrada: {
 }): Promise<ResultadoGravacao> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Não autenticado." };
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou um administrador pode importar dados." };
   }
 

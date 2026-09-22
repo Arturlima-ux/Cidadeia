@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ehGestor } from "@/lib/sessao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { TABELAS_IMPORTAVEIS } from "@/lib/importacao";
 import FormularioImportacao from "./FormularioImportacao";
@@ -10,7 +11,7 @@ export const metadata = {
 export default async function ImportarPage() {
   const ctx = await contextoDashboard();
 
-  if (ctx.sessao.cargo === "secretario") {
+  if (!ehGestor(ctx.sessao)) {
     return (
       <div className="max-w-lg mt-12 text-center border border-dashed border-border rounded-2xl p-8 mx-auto">
         <p className="text-sm text-muted">

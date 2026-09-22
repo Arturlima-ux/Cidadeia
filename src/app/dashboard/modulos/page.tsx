@@ -1,11 +1,12 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import { ehGestor } from "@/lib/sessao";
 import Link from "next/link";
 import { PLANOS_ADDON, HREF_PLANO_ADDON } from "@/lib/planos";
 import AbasModulos from "./AbasModulos";
 
 export default async function MeusModulosPage() {
   const ctx = await contextoDashboard();
-  if (ctx.sessao.cargo === "secretario") {
+  if (!ehGestor(ctx.sessao)) {
     return (
       <div className="max-w-lg mt-12 text-center border border-dashed border-border rounded-2xl p-8 mx-auto">
         <p className="text-sm text-muted">

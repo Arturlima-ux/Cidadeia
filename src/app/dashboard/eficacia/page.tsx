@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ehGestor } from "@/lib/sessao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -51,7 +52,7 @@ const SITUACAO: Record<SituacaoEficacia, { label: string; cor: string; fundo: st
 
 export default async function EficaciaPage() {
   const ctx = await contextoDashboard();
-  if (ctx.sessao.cargo === "secretario") {
+  if (!ehGestor(ctx.sessao)) {
     return (
       <div className="max-w-lg">
         <p className="text-sm text-muted">

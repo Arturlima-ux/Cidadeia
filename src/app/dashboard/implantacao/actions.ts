@@ -4,7 +4,7 @@ import { auditar } from "@/lib/auditoria";
 import { db } from "@/db";
 import { prefeituras } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { procurarMunicipio } from "@/lib/siconfi";
 import { buscarPopulacao } from "@/lib/populacao-ibge";
@@ -26,7 +26,7 @@ export type ResultadoMunicipio =
 export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre novamente." };
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou um administrador pode fazer isto." };
   }
 
@@ -82,7 +82,7 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
  */
 export async function concluirImplantacao(): Promise<{ ok: boolean }> {
   const sessao = await lerSessao();
-  if (!sessao || sessao.cargo === "secretario") return { ok: false };
+  if (!sessao || !ehGestor(sessao)) return { ok: false };
 
   await db
     .update(prefeituras)

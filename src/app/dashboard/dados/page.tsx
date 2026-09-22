@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ehGestor } from "@/lib/sessao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { contarLinhas } from "@/lib/dados-exportacao";
 import { TABELAS_EXPORTAVEIS, TABELAS_NAO_EXPORTADAS } from "@/lib/exportacao";
@@ -7,7 +8,7 @@ import { IconDownload } from "@/components/icons";
 export default async function MeusDadosPage() {
   const ctx = await contextoDashboard();
 
-  if (ctx.sessao.cargo === "secretario") {
+  if (!ehGestor(ctx.sessao)) {
     return (
       <div className="max-w-lg mt-12 text-center border border-dashed border-border rounded-2xl p-8 mx-auto">
         <p className="text-sm text-muted">

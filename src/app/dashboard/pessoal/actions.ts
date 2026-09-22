@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { despesaPessoal, prefeituras } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { gerarId } from "@/lib/id";
 import { revalidatePath } from "next/cache";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
@@ -66,7 +66,7 @@ export async function salvarPeriodo(formData: FormData): Promise<ResultadoSalvar
 
   // Mesma regra da base dos mínimos: o número é do município inteiro, não de
   // uma secretaria, e alimenta a prestação de contas do prefeito.
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return {
       ok: false,
       erro: "Apenas o prefeito ou um administrador pode informar a despesa com pessoal.",
@@ -149,7 +149,7 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre novamente." };
 
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return {
       ok: false,
       erro: "Apenas o prefeito ou um administrador pode importar a despesa com pessoal.",

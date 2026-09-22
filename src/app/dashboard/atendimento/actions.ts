@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { atendimentos, configPublica, prefeituras } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { slugLivre } from "@/lib/endereco-publico";
 import { revalidatePath } from "next/cache";
 
@@ -122,7 +122,7 @@ export async function salvarConfigPublica(formData: FormData): Promise<Resultado
   } catch (e) {
     return { ok: false, erro: (e as Error).message };
   }
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou administrador configura o portal." };
   }
 

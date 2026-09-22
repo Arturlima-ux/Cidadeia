@@ -50,12 +50,16 @@ export const usuarios = pgTable("usuarios", {
   celular: text("celular"),
   fotoUrl: text("foto_url"),
   nome: text("nome").notNull(),
+  // "unidade": a gerência de um hospital ou UBS. Só enxerga a ficha da
+  // própria unidade e registra o que acontece lá — o dado nasce onde
+  // acontece, não na mesa do secretário.
   cargo: text("cargo", {
-    enum: ["prefeito", "secretario", "admin"],
+    enum: ["prefeito", "secretario", "admin", "unidade"],
   })
     .notNull()
     .default("admin"),
   secretaria: text("secretaria"), // preenchido quando cargo = secretario
+  unidadeId: text("unidade_id"), // preenchido quando cargo = unidade
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),

@@ -21,7 +21,8 @@ describe("pedido de proposta tem um caminho só", () => {
 
   it("o painel recusa demo, secretário e módulo já ativo", () => {
     expect(painel).toContain("sessao.demo");
-    expect(painel).toContain('sessao.cargo === "secretario"');
+    // quem pede módulo é gestor (prefeito/admin): a regra positiva, não "não é secretário"
+    expect(painel).toContain('!ehGestor(sessao)');
     expect(painel).toContain("já está ativo");
   });
 });

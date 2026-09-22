@@ -1,4 +1,4 @@
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -16,7 +16,7 @@ import { PORTES, porteDaPopulacao } from "@/lib/precos";
 export default async function MarketplacePage() {
   const sessao = await lerSessao();
   if (!sessao) redirect("/login");
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return (
       <div className="max-w-lg mt-12 text-center border border-dashed border-border rounded-2xl p-8 mx-auto">
         <p className="text-sm text-muted">

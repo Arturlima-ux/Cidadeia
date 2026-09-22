@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { carregarPacote, carregarTabela } from "@/lib/dados-exportacao";
 import { paraCsv, tabelaPorChave, nomeArquivo } from "@/lib/exportacao";
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   // Secretário enxerga só a própria secretaria dentro do sistema; a
   // exportação é do município inteiro (inclui financeiro geral e usuários),
   // então segue a mesma regra do relatório executivo.
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return erro(
       "Apenas o prefeito ou um administrador pode exportar os dados do município.",
       403

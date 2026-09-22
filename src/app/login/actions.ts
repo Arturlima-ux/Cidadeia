@@ -41,6 +41,7 @@ export async function fazerLogin(
       prefeituraId: usuarios.prefeituraId,
       nome: usuarios.nome,
       cargo: usuarios.cargo,
+      unidadeId: usuarios.unidadeId,
       secretaria: usuarios.secretaria,
       senhaHash: usuarios.senhaHash,
       prefeituraNome: prefeituras.nome,
@@ -73,9 +74,15 @@ export async function fazerLogin(
     usuarioId: usuario.usuarioId,
     prefeituraId: usuario.prefeituraId,
     nome: usuario.nome,
-    cargo: usuario.cargo as "prefeito" | "secretario" | "admin",
+    cargo: usuario.cargo as "prefeito" | "secretario" | "admin" | "unidade",
     secretaria: usuario.secretaria,
+    unidadeId: usuario.unidadeId,
   });
+
+  // A gerência de unidade não tem Visão Geral: vai direto para a ficha dela.
+  if (usuario.cargo === "unidade" && usuario.unidadeId) {
+    redirect(`/dashboard/secretarias/saude/unidades/${usuario.unidadeId}`);
+  }
 
   // Quem entra cai na Visão Geral — é ela que recebe, com a saudação e o
   // nome. A Implantação fica no menu, primeiro item enquanto estiver aberta;

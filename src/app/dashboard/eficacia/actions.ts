@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { investimentos, prefeituras } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { gerarId } from "@/lib/id";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { revalidatePath } from "next/cache";
 import { limitarUso } from "@/lib/rate-limit";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
@@ -22,7 +22,7 @@ const SECRETARIAS = ["saude", "educacao", "obras", "licitacoes"] as const;
 async function exigirGestao() {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     throw new Error("Apenas o prefeito ou um administrador acessa o consolidado de investimentos.");
   }
   return sessao;
@@ -30,7 +30,7 @@ async function exigirGestao() {
 
 export async function buscarInvestimentos(prefeituraId: string) {
   const sessao = await lerSessao();
-  if (!sessao || sessao.prefeituraId !== prefeituraId || sessao.cargo === "secretario") {
+  if (!sessao || sessao.prefeituraId !== prefeituraId || !ehGestor(sessao)) {
     return [];
   }
   return db

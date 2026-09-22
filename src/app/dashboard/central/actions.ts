@@ -1,6 +1,6 @@
 "use server";
 
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { temPlano } from "@/lib/planos";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { obterCentralInteligente, type RespostaCentral } from "@/lib/central-inteligente";
@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 export async function carregarCentralInteligente(forcar = false): Promise<RespostaCentral> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Não autenticado." };
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Disponível só para o prefeito e administradores." };
   }
 

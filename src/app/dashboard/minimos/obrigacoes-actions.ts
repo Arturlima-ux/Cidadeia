@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { prefeituras } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { limitarUso } from "@/lib/rate-limit";
 import { buscarCodigoIbge, conferirEntregasSiconfi } from "@/lib/siconfi";
 import {
@@ -39,7 +39,7 @@ export async function conferirObrigacoes(
 ): Promise<ResultadoObrigacoes> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre novamente." };
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou um administrador acompanha as obrigações fiscais." };
   }
 

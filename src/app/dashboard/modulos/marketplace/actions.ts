@@ -4,7 +4,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { pedidosProposta, prefeituras, usuarios } from "@/db/schema";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { PLANOS_ADDON, NOME_PLANO_ADDON, planosContratadosDe, type PlanoAddon } from "@/lib/planos";
 import { modulosDoPedido } from "@/lib/pedidos";
 import { registrarPedidoProposta } from "@/lib/pedido-proposta";
@@ -26,7 +26,7 @@ export async function pedirModuloDoPainel(modulo: string): Promise<ResultadoPedi
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre de novo." };
   if (sessao.demo) return { ok: false, erro: "Na demonstração não é possível pedir proposta." };
-  if (sessao.cargo === "secretario") return { ok: false, erro: "Apenas o prefeito ou um administrador pode pedir módulos." };
+  if (!ehGestor(sessao)) return { ok: false, erro: "Apenas o prefeito ou um administrador pode pedir módulos." };
 
   const chave = PLANOS_ADDON.find((p) => p.chave === modulo)?.chave as PlanoAddon | undefined;
   if (!chave) return { ok: false, erro: "Módulo desconhecido." };

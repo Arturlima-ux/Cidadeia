@@ -25,7 +25,9 @@ export default async function ContaPage() {
       ? "Prefeito(a) — acesso total"
       : usuario.cargo === "secretario"
         ? `Secretário(a) — ${LABEL_SECRETARIA[usuario.secretaria ?? ""] ?? usuario.secretaria}`
-        : "Administrador(a)";
+        : usuario.cargo === "unidade"
+          ? "Gerência de unidade de saúde"
+          : "Administrador(a)";
 
   return (
     <div className="max-w-2xl space-y-8">

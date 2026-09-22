@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import {
   buscarPrefeitura,
   buscarUltimoSnapshot,
@@ -20,7 +20,7 @@ export async function GET() {
   if (!sessao) {
     return NextResponse.json({ erro: "Não autenticado." }, { status: 401 });
   }
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return NextResponse.json(
       { erro: "Sem permissão para gerar o relatório executivo." },
       { status: 403 }

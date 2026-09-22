@@ -10,6 +10,9 @@ import { rotuloOcorrencia, diasAberta, situacaoDaUnidade } from "@/lib/ocorrenci
 import { fusoDoEstado, dataHoraNumerica, dataNumerica } from "@/lib/horario";
 import FormularioOcorrencia from "../../FormularioOcorrencia";
 import BotaoResolverOcorrencia from "../../BotaoResolverOcorrencia";
+import AcessosUnidade from "../../AcessosUnidade";
+import { listarAcessosUnidade } from "../../rede-actions";
+import { podeVerUnidade, ehGestor } from "@/lib/sessao";
 
 // ── A FICHA DA UNIDADE ──
 //
@@ -31,6 +34,11 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("saude")) return <BloqueioPlano plano="saude" />;
   const { id } = await params;
+  // A gerência de unidade só abre a própria ficha; o proxy já redireciona,
+  // e aqui fecha de vez.
+  if (!podeVerUnidade(ctx.sessao, id)) notFound();
+  const gerenciaDeUnidade = ctx.sessao.cargo === "unidade";
+  const podeGerirAcessos = ehGestor(ctx.sessao) || (ctx.sessao.cargo === "secretario" && ctx.sessao.secretaria === "saude");
 
   const [u] = await db
     .select()
@@ -55,6 +63,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
   const situacao = situacaoDaUnidade(abertas);
   const cor = COR_SITUACAO[situacao];
   const fuso = fusoDoEstado(ctx.prefeitura.estado);
+  const acessos = podeGerirAcessos && !ctx.sessao.demo ? await listarAcessosUnidade(u.id) : [];
   const diasCnes = diasSemAtualizarNoCnes(u.cnesAtualizadoEm);
 
   const fatos: { rotulo: string; valor: string }[] = [
@@ -71,9 +80,11 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <Link href="/dashboard/secretarias/saude" className="text-xs font-semibold text-muted hover:text-brand transition">
-          ← Secretaria da Saúde
-        </Link>
+        {!gerenciaDeUnidade && (
+          <Link href="/dashboard/secretarias/saude" className="text-xs font-semibold text-muted hover:text-brand transition">
+            ← Secretaria da Saúde
+          </Link>
+        )}
         <div className="flex flex-wrap items-start justify-between gap-3 mt-2">
           <div className="min-w-0">
             <h1 className="font-serif text-2xl font-bold">{u.nome}</h1>
@@ -145,6 +156,10 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
           )}
         </dl>
       </section>
+
+      {podeGerirAcessos && !ctx.sessao.demo && (
+        <AcessosUnidade unidadeId={u.id} nomeUnidade={u.nome} acessos={acessos} />
+      )}
 
       {/* ── ocorrências ── */}
       <section className="space-y-4">

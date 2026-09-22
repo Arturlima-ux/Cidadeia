@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ehGestor } from "@/lib/sessao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import BadgePrioridade from "@/components/BadgePrioridade";
@@ -15,7 +16,7 @@ function formatarQuando(iso: string): string {
 
 export default async function CentralInteligentePage() {
   const ctx = await contextoDashboard();
-  if (ctx.sessao.cargo === "secretario") {
+  if (!ehGestor(ctx.sessao)) {
     return (
       <div className="max-w-lg">
         <p className="text-sm text-muted">Disponível só para o prefeito e administradores.</p>

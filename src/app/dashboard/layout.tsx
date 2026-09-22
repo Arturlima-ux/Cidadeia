@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura, buscarUsuarioPorId } from "@/lib/dados-prefeitura";
 import { sair } from "@/app/login/actions";
 import { planosContratadosDe, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
@@ -20,7 +20,7 @@ const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
 };
 
 function montarGrupos(
-  sessao: { cargo: string; secretaria?: string | null },
+  sessao: { cargo: string; secretaria?: string | null; unidadeId?: string | null },
   planosAtivos: PlanoAddon[],
   implantacaoAberta: boolean
 ): { titulo: string; itens: NavItem[] }[] {
@@ -38,7 +38,20 @@ function montarGrupos(
     .filter(([chave]) => planosAtivos.includes(chave as PlanoAddon))
     .map(([, item]) => item);
 
-  if (sessao.cargo === "secretario") {
+  // A gerência de unidade tem um lugar só: a ficha da unidade dela.
+  if (sessao.cargo === "unidade") {
+    return [
+      {
+        titulo: "Minha unidade",
+        itens: [
+          { href: `/dashboard/secretarias/saude/unidades/${sessao.unidadeId ?? ""}`, label: "Ficha da unidade", icone: "saude" },
+          { href: "/dashboard/conta", label: "Minha conta", icone: "configuracoes" },
+        ],
+      },
+    ];
+  }
+
+  if (!ehGestor(sessao)) {
     const minha =
       sessao.secretaria && planosAtivos.includes(sessao.secretaria as PlanoAddon)
         ? NAV_ITEMS_SECRETARIA[sessao.secretaria]
@@ -117,7 +130,7 @@ function montarGrupos(
       // Auditoria fora de trava de módulo: a trilha existe para dar
       // confiança, e confiança não se vende à parte. Só quem vê a
       // prefeitura inteira (prefeito/admin); o proxy barra secretário.
-      ...(sessao.cargo === "secretario" ? [] : [{ href: "/dashboard/auditoria", label: "Auditoria", icone: "historico" } as NavItem]),
+      ...(!ehGestor(sessao) ? [] : [{ href: "/dashboard/auditoria", label: "Auditoria", icone: "historico" } as NavItem]),
       ...(implantacaoAberta ? [] : [itemImplantacao]),
     ],
   });
@@ -167,7 +180,7 @@ export default async function DashboardLayout({
         grupos={montarGrupos(
           sessao,
           planosAtivos,
-          sessao.cargo !== "secretario" && !prefeitura.implantacaoConcluidaEm
+          ehGestor(sessao) && !prefeitura.implantacaoConcluidaEm
         )}
         prefeituraNome={sessao.demo ? `${prefeitura.nome} · demonstração` : prefeitura.nome}
         sairAction={sair}

@@ -8,7 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { gerarId } from "@/lib/id";
 import { gerarHashSenha, senhaForte } from "@/lib/senha";
 import { validarCpfOuCnpj, normalizarDocumento } from "@/lib/documento";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { revalidatePath } from "next/cache";
 
 const schemaUsuario = z.object({
@@ -30,7 +30,7 @@ export async function criarUsuarioSecretario(
   if (!sessao) return { ok: false, erro: "Não autenticado." };
 
   // Só prefeito/admin pode criar contas de secretário.
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Você não tem permissão para criar usuários." };
   }
 
@@ -82,7 +82,7 @@ export async function criarUsuarioSecretario(
 export async function removerUsuario(usuarioId: string) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
-  if (sessao.cargo === "secretario") throw new Error("Sem permissão.");
+  if (!ehGestor(sessao)) throw new Error("Sem permissão.");
   if (usuarioId === sessao.usuarioId) {
     throw new Error("Você não pode remover sua própria conta por aqui.");
   }

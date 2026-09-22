@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ehGestor } from "@/lib/sessao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { levantarFatos } from "@/lib/implantacao-fatos";
 import {
@@ -27,7 +28,7 @@ export default async function ImplantacaoPage() {
   const fatos = await levantarFatos(sessao.prefeituraId);
   const passos = avaliarImplantacao(fatos);
   const resumo = resumirImplantacao(passos);
-  const podeAgir = sessao.cargo !== "secretario";
+  const podeAgir = ehGestor(sessao);
 
   // O passo do Tesouro depende do município reconhecido: sem código IBGE a
   // busca no SICONFI não tem como começar. O botão fica visível, mas

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { basesMinimos, investimentos } from "@/db/schema";
 import { and, eq, like } from "drizzle-orm";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao , ehGestor } from "@/lib/sessao";
 import { gerarId } from "@/lib/id";
 import type { AreaMinimo } from "@/lib/minimos-constitucionais";
 import { revalidatePath } from "next/cache";
@@ -104,7 +104,7 @@ export async function salvarBase(formData: FormData): Promise<ResultadoSalvar> {
 
   // Só o gabinete mexe nisto: o número alimenta a prestação de contas do
   // município inteiro, não de uma secretaria.
-  if (sessao.cargo === "secretario") {
+  if (!ehGestor(sessao)) {
     return { ok: false, erro: "Apenas o prefeito ou um administrador pode informar a base de cálculo." };
   }
 

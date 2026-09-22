@@ -72,6 +72,19 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // A gerência de unidade só tem dois lugares: a ficha da unidade e a
+  // própria conta. Qualquer outro caminho volta para a ficha.
+  if (sessao.cargo === "unidade") {
+    const minhaFicha = sessao.unidadeId ? `/dashboard/secretarias/saude/unidades/${sessao.unidadeId}` : null;
+    const permitido =
+      (minhaFicha && pathname.startsWith(minhaFicha)) || pathname.startsWith("/dashboard/conta");
+    if (!permitido) {
+      const url = request.nextUrl.clone();
+      url.pathname = minhaFicha ?? "/login";
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (sessao.cargo === "secretario") {
     const minhaSecretaria =
       sessao.secretaria && SECRETARIAS_VALIDAS.includes(sessao.secretaria)

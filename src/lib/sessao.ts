@@ -25,8 +25,10 @@ export type SessaoPayload = {
   usuarioId: string;
   prefeituraId: string;
   nome: string;
-  cargo: "prefeito" | "secretario" | "admin";
+  cargo: "prefeito" | "secretario" | "admin" | "unidade";
   secretaria?: string | null;
+  /** Cargo "unidade": a unidade de saúde que esta pessoa gerencia. */
+  unidadeId?: string | null;
   /**
    * Sessão da demonstração pública: a prefeitura fictícia, só-leitura.
    * O proxy recusa qualquer requisição que não seja GET quando isto é true —
@@ -75,7 +77,30 @@ export function temAcessoSecretaria(
   secretaria: string
 ): boolean {
   if (sessao.cargo === "secretario") return sessao.secretaria === secretaria;
+  // A gerência de unidade tem acesso à saúde, mas só à própria unidade —
+  // quem lê dado de unidade confere com podeVerUnidade().
+  if (sessao.cargo === "unidade") return secretaria === "saude";
   return true;
+}
+
+/**
+ * Quem enxerga e decide pela prefeitura inteira: prefeito e admin. Antes
+ * a checagem espalhada era "não é secretário" — e o cargo "unidade" passaria
+ * por ela. A regra positiva fecha isso de vez.
+ */
+export function ehGestor(sessao: { cargo: string }): boolean {
+  return sessao.cargo === "prefeito" || sessao.cargo === "admin";
+}
+
+/** Cargo "unidade" só vê a própria unidade; os demais, qualquer uma da prefeitura. */
+export function podeVerUnidade(sessao: SessaoPayload, unidadeId: string): boolean {
+  if (sessao.cargo === "unidade") return sessao.unidadeId === unidadeId;
+  return temAcessoSecretaria(sessao, "saude");
+}
+
+/** Para onde o cargo "unidade" vai ao entrar e sempre que sai do seu canto. */
+export function caminhoDaUnidade(sessao: SessaoPayload): string | null {
+  return sessao.cargo === "unidade" && sessao.unidadeId ? `/dashboard/secretarias/saude/unidades/${sessao.unidadeId}` : null;
 }
 
 export async function encerrarSessao() {
