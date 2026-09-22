@@ -26,6 +26,9 @@ export default function PortalMinimo({
 
   return (
     <div className="tema-noite min-h-screen bg-background">
+      <a href="#conteudo" className="pular-para-conteudo">
+        Pular para o conteúdo
+      </a>
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-dark">Portal do município</p>
@@ -38,7 +41,7 @@ export default function PortalMinimo({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-10">
+      <main id="conteudo" className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-10">
         <section>
           <h2 className="font-serif text-2xl font-bold mb-1">Fale com a prefeitura</h2>
           <p className="text-sm text-muted mb-5 max-w-2xl leading-relaxed">

@@ -209,6 +209,7 @@ export default async function LandingPage() {
             Nova — quem clicava achava que estava entrando no seu. Aqui ela
             conta como visita. */}
         <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
+      <main id="conteudo">
         <BarraConversao />
 
         {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
@@ -812,6 +813,8 @@ export default async function LandingPage() {
             </div>
           </Reveal>
         </section>
+
+        </main>
 
         <SiteFooter />
       </div>

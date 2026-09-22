@@ -15,6 +15,7 @@ export default function DiagnosticoPage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
+      <main id="conteudo">
 
       <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
         <Reveal>
@@ -106,6 +107,8 @@ export default function DiagnosticoPage() {
           </div>
         </Reveal>
       </section>
+
+      </main>
 
       <SiteFooter />
     </div>

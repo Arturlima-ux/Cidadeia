@@ -15,6 +15,7 @@ export default function RaioXPage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
+      <main id="conteudo">
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-8">
         <Reveal>
@@ -63,6 +64,8 @@ export default function RaioXPage() {
           ))}
         </div>
       </section>
+
+      </main>
 
       <SiteFooter />
     </div>

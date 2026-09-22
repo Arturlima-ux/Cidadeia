@@ -289,6 +289,38 @@ button:active {
 }
 
 /* Foco visível e consistente — acessibilidade (navegação por teclado). */
+/* ── PULAR PARA O CONTEÚDO ──
+   Fora da tela até receber foco por teclado; aí aparece por cima de tudo. */
+.pular-para-conteudo {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 100;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+.pular-para-conteudo:focus {
+  left: 8px;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ── CONTRASTE DO BOTÃO NO TEMA ESCURO ──
+   O azul --brand (#3d86f0) serve bem como texto sobre o fundo escuro, mas
+   branco sobre ele dá 3,6:1 — abaixo do 4,5:1 que a WCAG AA pede para
+   texto de botão. Aqui o botão usa o tom mais fundo (4,8:1) sem mudar a
+   cor dos links. */
+.tema-noite .bg-brand {
+  background-color: var(--brand-dark);
+}
+.tema-noite .hover\:bg-brand-dark:hover {
+  background-color: #1d5bc4;
+}
+
 :where(a, button, input, select, textarea, summary):focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;

@@ -44,7 +44,7 @@ export default async function PropostaPage({
     return (
       <div className="tema-noite min-h-screen">
         <SiteHeader />
-        <main>
+        <main id="conteudo">
           <Reveal>
             <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-16">
               <div className="text-center mb-8">
@@ -70,7 +70,7 @@ export default async function PropostaPage({
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
-      <main>
+      <main id="conteudo">
         <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-16">
           <Reveal>
             <div className="max-w-2xl mb-10">

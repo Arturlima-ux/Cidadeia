@@ -60,7 +60,7 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
     <div className="tema-noite min-h-screen">
       <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Raio-X", caminho: "/raio-x" }, { nome: nome, caminho: `/raio-x/${uf.toLowerCase()}` }])} />
       <SiteHeader />
-      <main>
+      <main id="conteudo">
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
           <Reveal>
             <Olho>Raio-X · {nome}</Olho>

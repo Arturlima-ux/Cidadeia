@@ -44,6 +44,7 @@ export default async function SuportePage({
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
+      <main id="conteudo">
 
       <Reveal>
         <section className="max-w-xl mx-auto px-4 sm:px-8 pt-16 pb-20 text-center">
@@ -83,6 +84,8 @@ export default async function SuportePage({
           </p>
         </section>
       </Reveal>
+
+      </main>
 
       <SiteFooter />
     </div>

@@ -71,6 +71,7 @@ export default function KitPage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
+      <main id="conteudo">
 
       {/* ── capa ── */}
       <section className="text-white" style={{ background: "var(--gradient-hero)" }}>
@@ -281,6 +282,8 @@ export default function KitPage() {
           </Reveal>
         </div>
       </section>
+
+      </main>
 
       <SiteFooter />
     </div>

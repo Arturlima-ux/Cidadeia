@@ -41,6 +41,7 @@ const COLUNAS = [
     links: [
       { href: "/por-que-cidadeia", label: "Quem somos" },
       { href: "/sobre", label: "Segurança e LGPD" },
+      { href: "/acessibilidade", label: "Acessibilidade" },
       { href: "/faq", label: "Dúvidas frequentes" },
       { href: "/suporte", label: "Suporte" },
     ],

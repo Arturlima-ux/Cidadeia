@@ -95,7 +95,7 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
         ]}
       />
       <SiteHeader />
-      <main>
+      <main id="conteudo">
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-8">
           <Reveal>
             <Olho>Raio-X · dado público do Tesouro Nacional</Olho>

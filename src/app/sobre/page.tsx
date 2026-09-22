@@ -38,6 +38,7 @@ export default function SobrePage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
+      <main id="conteudo">
 
       <Reveal>
         <section className="max-w-2xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
@@ -87,6 +88,8 @@ export default function SobrePage() {
           </div>
         </section>
       </Reveal>
+
+      </main>
 
       <SiteFooter />
     </div>

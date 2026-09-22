@@ -21,7 +21,7 @@ export default function NaoEncontrada() {
     <div className="tema-noite min-h-screen bg-background flex flex-col">
       <SiteHeader />
 
-      <main className="flex-1 flex items-center">
+      <main id="conteudo" className="flex-1 flex items-center">
         <section className="max-w-xl mx-auto px-4 sm:px-8 py-20 text-center">
           <div
             aria-hidden

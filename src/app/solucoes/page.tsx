@@ -37,6 +37,7 @@ export default async function SolucoesPage({
     <div className="tema-noite min-h-screen">
       <JsonLdScript dados={[ldSoftware(), ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }])]} />
       <SiteHeader />
+      <main id="conteudo">
 
       <Reveal>
         <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
@@ -208,6 +209,8 @@ export default async function SolucoesPage({
           </div>
         </Reveal>
       </section>
+
+      </main>
 
       <SiteFooter />
     </div>

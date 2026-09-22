@@ -134,9 +134,9 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
       />
 
       <div>
-        <label className="block text-sm font-medium mb-1.5">Tipo de manifestação</label>
+        <label htmlFor="cid-tipo" className="block text-sm font-medium mb-1.5">Tipo de manifestação</label>
         <select
-          name="tipo"
+          id="cid-tipo" name="tipo"
           value={tipo}
           onChange={(e) => {
             const novo = e.target.value as TipoAtendimento;
@@ -157,14 +157,14 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1.5">Assunto</label>
-        <input name="assunto" required maxLength={200} placeholder="ex: Poda de árvore na Rua X" className={classeInput} />
+        <label htmlFor="cid-assunto" className="block text-sm font-medium mb-1.5">Assunto</label>
+        <input id="cid-assunto" name="assunto" required maxLength={200} placeholder="ex: Poda de árvore na Rua X" className={classeInput} />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1.5">Mensagem</label>
+        <label htmlFor="cid-mensagem" className="block text-sm font-medium mb-1.5">Mensagem</label>
         <textarea
-          name="mensagem"
+          id="cid-mensagem" name="mensagem"
           required
           rows={5}
           maxLength={5000}
@@ -195,22 +195,22 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
       {!anonimo && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Nome</label>
-            <input name="nome" maxLength={120} className={classeInput} />
+            <label htmlFor="cid-nome" className="block text-sm font-medium mb-1.5">Nome</label>
+            <input id="cid-nome" name="nome" maxLength={120} className={classeInput} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">E-mail</label>
-            <input name="email" type="email" maxLength={160} className={classeInput} />
+            <label htmlFor="cid-email" className="block text-sm font-medium mb-1.5">E-mail</label>
+            <input id="cid-email" name="email" type="email" maxLength={160} className={classeInput} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Telefone</label>
-            <input name="telefone" maxLength={30} className={classeInput} />
+            <label htmlFor="cid-telefone" className="block text-sm font-medium mb-1.5">Telefone</label>
+            <input id="cid-telefone" name="telefone" maxLength={30} className={classeInput} />
           </div>
         </div>
       )}
 
       {erro && (
-        <p
+        <p role="alert" aria-live="assertive"
           className="text-sm rounded-lg px-3 py-2 border"
           style={{
             color: "var(--urgente)",
@@ -246,12 +246,12 @@ function Consultar() {
       <form action={enviar} className="arco-card bg-card border border-border p-5 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Número do protocolo</label>
-            <input name="protocolo" required placeholder="202603-ABC123" className={classeInput} />
+            <label htmlFor="cid-protocolo" className="block text-sm font-medium mb-1.5">Número do protocolo</label>
+            <input id="cid-protocolo" name="protocolo" required placeholder="202603-ABC123" className={classeInput} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Chave de consulta</label>
-            <input name="chave" required placeholder="ABCD2345" className={classeInput} />
+            <label htmlFor="cid-chave" className="block text-sm font-medium mb-1.5">Chave de consulta</label>
+            <input id="cid-chave" name="chave" required placeholder="ABCD2345" className={classeInput} />
           </div>
         </div>
         <button

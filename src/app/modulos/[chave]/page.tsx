@@ -54,7 +54,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
     <div className="tema-noite min-h-screen">
       <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }, { nome: plano.nome, caminho: `/modulos/${plano.chave}` }])} />
       <SiteHeader />
-      <main>
+      <main id="conteudo">
         {/* ── capa: o que é, e a tela ── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-12">
           <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-14 items-center">

@@ -24,7 +24,7 @@ export default async function AcompanharPage({ searchParams }: { searchParams: P
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
-      <main className="max-w-2xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-20">
+      <main id="conteudo" className="max-w-2xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-20">
         <Reveal>
           <Olho>Pedido de proposta</Olho>
           <h1 className="font-serif text-[2rem] sm:text-[2.6rem] leading-[1.05] font-extrabold tracking-[-0.035em] mt-5">

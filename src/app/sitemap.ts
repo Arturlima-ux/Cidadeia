@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/proposta/acompanhar`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/sobre`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/acessibilidade`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/por-que-cidadeia`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/transparencia`, changeFrequency: "weekly", priority: 0.5 },
     ...PLANOS_ADDON.map((p) => ({

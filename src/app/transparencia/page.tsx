@@ -28,6 +28,7 @@ export default async function IndicePortais() {
   return (
     <div className="tema-noite min-h-screen bg-background">
       <SiteHeader />
+      <main id="conteudo">
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 pb-10">
         <h1 className="font-serif text-4xl sm:text-[3rem] leading-[1.02] font-extrabold tracking-[-0.04em]">
@@ -163,6 +164,8 @@ export default async function IndicePortais() {
           .
         </p>
       </section>
+
+      </main>
 
       <SiteFooter />
     </div>

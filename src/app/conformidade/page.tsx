@@ -26,7 +26,7 @@ export default function ConformidadePage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
-      <main>
+      <main id="conteudo">
         <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
             <Reveal>

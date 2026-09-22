@@ -28,7 +28,7 @@ export default function ComoContratarPage() {
   return (
     <div className="tema-noite min-h-screen">
       <SiteHeader />
-      <main>
+      <main id="conteudo">
     <section id="como-contratar" className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-20">
       <Reveal>
         <div className="max-w-2xl">

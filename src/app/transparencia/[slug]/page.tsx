@@ -84,6 +84,9 @@ export default async function PortalTransparencia({
   return (
     <div className="tema-noite min-h-screen bg-background">
       {/* CABEÇALHO */}
+      <a href="#conteudo" className="pular-para-conteudo">
+        Pular para o conteúdo
+      </a>
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-dark">
@@ -97,7 +100,7 @@ export default async function PortalTransparencia({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-12">
+      <main id="conteudo" className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-12">
         {/* FINANCEIRO */}
         {portal.mostrarFinanceiro && (
           <section>

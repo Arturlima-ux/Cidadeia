@@ -41,6 +41,13 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
 
   return (
     <header className="sticky top-0 z-30">
+      {/* ── PULAR PARA O CONTEÚDO ──
+          Quem navega por teclado ou leitor de tela passava por barra
+          utilitária, marca, seis links e botões antes de chegar ao texto —
+          em toda página. O link fica invisível até receber foco (Tab). */}
+      <a href="#conteudo" className="pular-para-conteudo">
+        Pular para o conteúdo
+      </a>
       {/* Barra utilitária — é a assinatura do formato institucional: o
           cidadão e o servidor têm porta de entrada própria, separada da
           conversa comercial. */}
