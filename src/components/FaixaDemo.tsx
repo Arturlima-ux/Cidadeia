@@ -47,7 +47,9 @@ export default function FaixaDemo() {
   return (
     <>
       <div
-        className="sticky top-0 z-40 flex flex-wrap items-center gap-x-4 gap-y-2 pl-16 pr-4 md:pl-6 md:pr-6 py-2.5 text-sm border-b"
+        // Não gruda no topo: quem gruda é o cabeçalho do painel, e dois
+        // elementos disputando o mesmo lugar se cobrem.
+        className="relative z-40 flex flex-wrap items-center gap-x-4 gap-y-2 pl-16 pr-4 md:pl-6 md:pr-6 py-2.5 text-sm border-b"
         style={{ background: "rgba(255,184,77,.14)", borderColor: "rgba(255,184,77,.45)" }}
       >
         <span

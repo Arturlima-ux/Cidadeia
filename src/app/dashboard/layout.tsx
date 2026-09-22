@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import RolagemDoPainel, { ID_CONTEUDO_PAINEL } from "@/components/RolagemDoPainel";
 import Link from "next/link";
 import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura, buscarUsuarioPorId } from "@/lib/dados-prefeitura";
@@ -176,13 +175,17 @@ export default async function DashboardLayout({
     // o site escuro: quem via a página de vendas e depois entrava encontrava
     // outro produto. O `.tema-noite` só troca tokens, e como as telas leem
     // token em vez de cor fixa, basta envolver aqui para tudo acompanhar.
-    // ── O MENU FICA, O CONTEÚDO ROLA ──
+    // ── O MENU E O CABEÇALHO FICAM; O CONTEÚDO PASSA ──
     // Antes a página inteira rolava: descer a lista de obras levava o menu
-    // lateral e o cabeçalho junto, e para trocar de secretaria era preciso
-    // subir tudo de novo. Em telas de computador a moldura tem a altura da
-    // janela (h-screen) e só a coluna do meio rola. No celular não muda
-    // nada: lá o menu é uma gaveta, e a página rola inteira como sempre.
-    <div className="tema-noite min-h-screen md:h-screen md:overflow-hidden flex">
+    // lateral junto, e trocar de secretaria exigia subir tudo de novo.
+    //
+    // Quem rola continua sendo a janela — é o que o navegador e o Next
+    // esperam (voltar uma tela devolve a pessoa ao ponto onde estava). O
+    // que muda é que o menu e o cabeçalho GRUDAM no topo (sticky). Uma
+    // tentativa anterior fez a coluna do meio rolar por dentro; parecia
+    // igual, mas o Next reposicionava depois e a tela seguinte abria no
+    // meio. No celular nada disso vale: lá o menu é uma gaveta.
+    <div className="tema-noite min-h-screen flex">
       <DashboardSidebar
         grupos={montarGrupos(
           sessao,
@@ -194,8 +197,7 @@ export default async function DashboardLayout({
         sairPorLink={sessao.demo ? "/sessao-encerrada?demo=1" : undefined}
       />
 
-      <div id={ID_CONTEUDO_PAINEL} className="flex-1 min-w-0 flex flex-col md:h-screen md:overflow-y-auto">
-        <RolagemDoPainel />
+      <div className="flex-1 min-w-0 flex flex-col">
         {sessao.demo && <FaixaDemo />}
         <header className="shadow-elevated md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">

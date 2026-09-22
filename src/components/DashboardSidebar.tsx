@@ -66,7 +66,7 @@ export default function DashboardSidebar({
       )}
 
       <aside
-        className={`w-64 shrink-0 border-r border-border bg-card flex flex-col fixed inset-y-0 left-0 z-40 transition-transform duration-300 md:static md:h-screen md:translate-x-0 ${
+        className={`w-64 shrink-0 border-r border-border bg-card flex flex-col fixed inset-y-0 left-0 z-40 transition-transform duration-300 md:sticky md:top-0 md:h-screen md:self-start md:translate-x-0 ${
           aberto ? "translate-x-0" : "-translate-x-full"
         }`}
       >
