@@ -40,7 +40,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-saude-estoque";
+const VERSAO_DEMO = "2026-09-22-saude-leitura";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -200,6 +200,7 @@ export async function garantirPrefeituraDemo(): Promise<void> {
 
   // ── Atendimento: uma no prazo, uma vencendo, uma respondida ──
   await db.insert(atendimentos).values([
+    { id: "demo_at_ubs", prefeituraId: ID_PREFEITURA_DEMO, tipo: "reclamacao", assunto: "Sem médico na UBS Alto da Serra", mensagem: "Fui três vezes esta semana na UBS Alto da Serra e não tinha médico. Só a enfermeira.", anonimo: false, status: "aberto", protocolo: "202609-DEMO09", chaveConsulta: "DEMO0009", nome: "Maria do Socorro", origem: "site", createdAt: diasAtras(2) },
     { id: "demo_at_1", prefeituraId: ID_PREFEITURA_DEMO, protocolo: "202609-DEMO01", tipo: "reclamacao", nome: "Morador do Centro", anonimo: false, assunto: "Iluminação pública na Rua das Flores", mensagem: "Três postes apagados há duas semanas.", status: "em_analise", chaveConsulta: "DEMO0001", origem: "site", createdAt: diasAtras(8) },
     { id: "demo_at_2", prefeituraId: ID_PREFEITURA_DEMO, protocolo: "202609-DEMO02", tipo: "informacao", nome: "Cidadã", anonimo: false, assunto: "Contratos do transporte escolar", mensagem: "Solicito cópia dos contratos vigentes.", status: "aberto", chaveConsulta: "DEMO0002", origem: "site", createdAt: diasAtras(17) },
     { id: "demo_at_3", prefeituraId: ID_PREFEITURA_DEMO, protocolo: "202608-DEMO03", tipo: "denuncia", nome: null, anonimo: true, assunto: "Coleta de lixo irregular", mensagem: "Bairro Alto da Serra sem coleta.", status: "respondido", resposta: "Rota restabelecida.", respondidoEm: diasAtras(30), chaveConsulta: "DEMO0003", origem: "site", createdAt: diasAtras(40) },

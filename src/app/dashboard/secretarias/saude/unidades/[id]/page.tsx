@@ -5,14 +5,15 @@ import { db } from "@/db";
 import { unidadesSaude, ocorrenciasSaude, estoqueSaude } from "@/db/schema";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
-import { NOME_TIPO_UNIDADE, diasSemAtualizarNoCnes, DIAS_CNES_DESATUALIZADO } from "@/lib/cnes";
-import { rotuloOcorrencia, diasAberta, situacaoDaUnidade } from "@/lib/ocorrencias-saude";
+import { NOME_TIPO_UNIDADE, diasSemAtualizarNoCnes } from "@/lib/cnes";
+import { rotuloOcorrencia, diasAberta } from "@/lib/ocorrencias-saude";
 import { fusoDoEstado, dataHoraNumerica, dataNumerica } from "@/lib/horario";
 import FormularioOcorrencia from "../../FormularioOcorrencia";
 import BotaoResolverOcorrencia from "../../BotaoResolverOcorrencia";
 import AcessosUnidade from "../../AcessosUnidade";
 import EstoqueUnidade from "../../EstoqueUnidade";
-import { situacaoDoItem } from "@/lib/estoque-saude";
+import { lerUnidade, mencionaUnidade } from "@/lib/leitura-unidade";
+import { buscarManifestacoesRecentes } from "../../rede-actions";
 import { listarAcessosUnidade } from "../../rede-actions";
 import { podeVerUnidade, ehGestor } from "@/lib/sessao";
 
@@ -66,10 +67,17 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
   } catch (e) {
     console.error("[ficha-unidade] estoque:", e);
   }
-  const emFalta = estoque.filter((l) => { const s = situacaoDoItem(l.saldo, l.consumoMensal); return s === "falta" || s === "critico"; });
+  const manifestacoes = gerenciaDeUnidade ? [] : await buscarManifestacoesRecentes(ctx.sessao.prefeituraId);
+  const mencoes = manifestacoes.filter((m) => mencionaUnidade(`${m.assunto} ${m.mensagem}`, u.nome));
   const abertas = ocorrencias.filter((o) => o.status === "aberta");
   const resolvidas = ocorrencias.filter((o) => o.status !== "aberta");
-  const situacao = situacaoDaUnidade(abertas);
+  const leitura = lerUnidade({
+    unidade: { nome: u.nome, ativo: u.ativo, cnesAtualizadoEm: u.cnesAtualizadoEm, origem: u.origem, turno: u.turno, atendeSus: u.atendeSus },
+    ocorrenciasAbertas: abertas,
+    estoque,
+    mencoesOuvidoria: mencoes,
+  });
+  const situacao = leitura.situacao;
   const cor = COR_SITUACAO[situacao];
   const fuso = fusoDoEstado(ctx.prefeitura.estado);
   const acessos = podeGerirAcessos && !ctx.sessao.demo ? await listarAcessosUnidade(u.id) : [];
@@ -110,38 +118,31 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      {/* ── o que merece atenção agora ── */}
-      {(!u.ativo || (diasCnes !== null && diasCnes >= DIAS_CNES_DESATUALIZADO) || situacao !== "normal" || emFalta.length > 0) && (
-        <div className="rounded-2xl border p-4 space-y-2" style={{ borderColor: situacao === "normal" && emFalta.length > 0 ? "var(--medio)" : cor.cor, background: situacao === "normal" && emFalta.length > 0 ? "var(--medio-tint)" : cor.fundo }}>
-          {!u.ativo && (
-            <p className="text-sm">
-              <strong>Esta unidade não consta mais no CNES.</strong> Se ela ainda funciona, o cadastro precisa ser
-              reativado no CNES — sem isso não há produção reconhecida nem repasse.
-            </p>
-          )}
-          {diasCnes !== null && diasCnes >= DIAS_CNES_DESATUALIZADO && (
-            <p className="text-sm">
-              <strong>Cadastro no CNES sem atualização há {diasCnes} dias</strong> (desde {dataNumerica(u.cnesAtualizadoEm, fuso)}).
-              A Portaria GM/MS 1.883/2018 exige atualização mensal; cadastro parado trava habilitações e repasses.
-            </p>
-          )}
-          {emFalta.length > 0 && (
-            <p className="text-sm">
-              <strong>Estoque em falta ou acabando em dias:</strong> {emFalta.map((l) => l.item).join(", ")}.
-            </p>
-          )}
-          {abertas.filter((o) => o.gravidade === "urgente").map((o) => (
-            <p key={o.id} className="text-sm">
-              <strong>Urgente há {diasAberta(o.createdAt)} dia(s):</strong> {rotuloOcorrencia(o.tipo)} — {o.descricao}
-            </p>
-          ))}
-          {situacao === "atencao" && abertas.length >= 3 && (
-            <p className="text-sm">
-              <strong>{abertas.length} ocorrências abertas</strong> ao mesmo tempo nesta unidade.
-            </p>
-          )}
-        </div>
-      )}
+      {/* ── leitura automática: o que importa agora, e o que fazer ── */}
+      <section className="rounded-2xl border p-5" style={{ borderColor: cor.cor, background: leitura.achados.length ? cor.fundo : "var(--card)" }}>
+        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: cor.cor }}>Leitura automática</p>
+        {leitura.achados.length === 0 ? (
+          <p className="text-sm mt-2">{leitura.resumo}</p>
+        ) : (
+          <ol className="mt-3 flex flex-col gap-3">
+            {leitura.achados.map((a, i) => (
+              <li key={i} className="text-sm">
+                <p>
+                  <span className="font-semibold">{a.titulo}.</span> <span className="text-muted">{a.detalhe}</span>
+                </p>
+                <p className="mt-0.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider mr-1.5" style={{ color: cor.cor }}>Ação</span>
+                  {a.acao}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+        <p className="text-[11px] text-muted mt-3">
+          Por regra, sobre o cadastro no CNES, as ocorrências, o estoque e a ouvidoria — cada linha diz de onde veio.
+          {mencoes.length === 0 && !gerenciaDeUnidade ? " Nenhuma manifestação do cidadão cita esta unidade nos últimos 30 dias." : ""}
+        </p>
+      </section>
 
       {/* ── o que o CNES diz ── */}
       <section className="rounded-2xl border border-border bg-card p-5">

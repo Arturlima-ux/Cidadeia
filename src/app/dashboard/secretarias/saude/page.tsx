@@ -19,9 +19,9 @@ import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import Link from "next/link";
 import BotaoSincronizarCnes from "./BotaoSincronizarCnes";
-import { buscarOcorrenciasAbertas, buscarEstoqueDaRede } from "./rede-actions";
+import { buscarOcorrenciasAbertas, buscarEstoqueDaRede, buscarManifestacoesRecentes } from "./rede-actions";
+import { lerUnidade, mencionaUnidade } from "@/lib/leitura-unidade";
 import { montarPedidoReposicao } from "@/lib/estoque-saude";
-import { situacaoDaUnidade, rotuloOcorrencia } from "@/lib/ocorrencias-saude";
 import { diasSemAtualizarNoCnes, DIAS_CNES_DESATUALIZADO } from "@/lib/cnes";
 import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
 
@@ -32,11 +32,12 @@ export default async function SaudePage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("saude")) return <BloqueioPlano plano="saude" />;
 
-  const [unidades, indicador, abertas, estoque] = await Promise.all([
+  const [unidades, indicador, abertas, estoque, manifestacoes] = await Promise.all([
     buscarUnidadesSaude(ctx.sessao.prefeituraId),
     buscarUltimoIndicadorSaude(ctx.sessao.prefeituraId),
     buscarOcorrenciasAbertas(ctx.sessao.prefeituraId),
     buscarEstoqueDaRede(ctx.sessao.prefeituraId),
+    buscarManifestacoesRecentes(ctx.sessao.prefeituraId),
   ]);
   const nomeUnidade = new Map(unidades.map((u) => [u.id, u.nome]));
   const pedido = montarPedidoReposicao(estoque.map((l) => ({ ...l, unidadeNome: nomeUnidade.get(l.unidadeId) ?? "Unidade" })));
@@ -51,9 +52,20 @@ export default async function SaudePage() {
     const d = diasSemAtualizarNoCnes(u.cnesAtualizadoEm);
     return d !== null && d >= DIAS_CNES_DESATUALIZADO;
   });
-  const situacoes = ativas.map((u) => ({ u, situacao: situacaoDaUnidade(abertasPorUnidade.get(u.id) ?? []) }));
-  const ordem = { urgente: 0, atencao: 1, normal: 2 } as const;
-  situacoes.sort((a, b) => ordem[a.situacao] - ordem[b.situacao] || a.u.nome.localeCompare(b.u.nome, "pt-BR"));
+  // A leitura de cada unidade ordena a lista: quem precisa de você primeiro.
+  const estoquePorUnidade = new Map<string, typeof estoque>();
+  for (const l of estoque) estoquePorUnidade.set(l.unidadeId, [...(estoquePorUnidade.get(l.unidadeId) ?? []), l]);
+  const situacoes = ativas.map((u) => {
+    const leitura = lerUnidade({
+      unidade: { nome: u.nome, ativo: u.ativo, cnesAtualizadoEm: u.cnesAtualizadoEm, origem: u.origem, turno: u.turno, atendeSus: u.atendeSus },
+      ocorrenciasAbertas: abertasPorUnidade.get(u.id) ?? [],
+      estoque: estoquePorUnidade.get(u.id) ?? [],
+      mencoesOuvidoria: manifestacoes.filter((m) => mencionaUnidade(`${m.assunto} ${m.mensagem}`, u.nome)),
+    });
+    return { u, situacao: leitura.situacao, leitura };
+  });
+  situacoes.sort((a, b) => b.leitura.peso - a.leitura.peso || a.u.nome.localeCompare(b.u.nome, "pt-BR"));
+  const primeira = situacoes.find((s) => s.leitura.achados.length > 0);
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -147,6 +159,27 @@ export default async function SaudePage() {
         />
       </div>
 
+      {/* ── a unidade que mais precisa de você hoje ── */}
+      {primeira && (
+        <Link
+          href={`/dashboard/secretarias/saude/unidades/${primeira.u.id}`}
+          className="block rounded-2xl border p-5 hover:border-brand transition"
+          style={{
+            borderColor: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)",
+            background: primeira.situacao === "urgente" ? "var(--urgente-tint)" : "var(--medio-tint)",
+          }}
+        >
+          <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}>
+            A unidade que mais precisa de você agora
+          </p>
+          <p className="font-serif text-lg font-bold mt-1">{primeira.u.nome}</p>
+          <p className="text-sm mt-1 leading-relaxed">{primeira.leitura.resumo}</p>
+          {primeira.leitura.achados.length > 1 && (
+            <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} outro(s) ponto(s) na ficha →</p>
+          )}
+        </Link>
+      )}
+
       {/* ── estoque: o que vai faltar, antes de faltar ── */}
       {estoque.length > 0 && (
         <div
@@ -211,9 +244,7 @@ export default async function SaudePage() {
           <EstadoVazio icone="saude" titulo="Nenhuma unidade ativa." descricao="O CNES não devolveu unidades municipais ou que atendam SUS para este município." />
         ) : ativas.length === 0 ? null : (
           <div className="grid sm:grid-cols-2 gap-2">
-            {situacoes.map(({ u, situacao }) => {
-              const oc = abertasPorUnidade.get(u.id) ?? [];
-              const dCnes = diasSemAtualizarNoCnes(u.cnesAtualizadoEm);
+            {situacoes.map(({ u, situacao, leitura }) => {
               const corSit = situacao === "urgente" ? "var(--urgente)" : situacao === "atencao" ? "var(--medio)" : "var(--accent)";
               return (
                 <Link
@@ -229,13 +260,10 @@ export default async function SaudePage() {
                       {u.bairro ? ` · ${u.bairro}` : ""}
                       {u.turno ? ` · ${u.turno.toLowerCase().replace("atendimentos nos turnos da ", "").replace("atendimento ", "")}` : ""}
                     </p>
-                    {oc.length > 0 && (
+                    {leitura.achados.length > 0 && (
                       <p className="text-xs mt-1" style={{ color: corSit }}>
-                        {oc.length} aberta(s): {oc.slice(0, 2).map((o) => rotuloOcorrencia(o.tipo)).join(", ")}{oc.length > 2 ? "…" : ""}
+                        {leitura.achados[0]!.titulo}{leitura.achados.length > 1 ? ` · +${leitura.achados.length - 1}` : ""}
                       </p>
-                    )}
-                    {dCnes !== null && dCnes >= DIAS_CNES_DESATUALIZADO && (
-                      <p className="text-xs mt-1" style={{ color: "var(--medio)" }}>CNES sem atualização há {dCnes} dias</p>
                     )}
                   </div>
                   <span className="text-xs text-muted shrink-0">ficha →</span>

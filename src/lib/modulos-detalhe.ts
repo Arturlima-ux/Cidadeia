@@ -83,6 +83,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
       "Situação de cada unidade — normal, atenção, urgente — pelo que está aberto nela",
       "Estoque por unidade em dias de cobertura: a gerência lança saldo e consumo, e o pedido de reposição sai sozinho antes de faltar",
       "Acesso próprio para a gerência do hospital e da UBS — o dado nasce onde acontece",
+      "Leitura automática por unidade: cruza CNES, ocorrências, estoque e ouvidoria e diz o que fazer primeiro — e qual unidade precisa de você hoje",
       "Tempo médio de atendimento, médicos ativos, faltas e estoque de medicamentos da rede",
       "Relatório da secretaria em PDF",
     ],

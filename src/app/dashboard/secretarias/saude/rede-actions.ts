@@ -1,10 +1,10 @@
 "use server";
 
 import { z } from "zod";
-import { and, eq, desc, inArray, isNotNull } from "drizzle-orm";
+import { and, eq, desc, inArray, isNotNull, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { unidadesSaude, ocorrenciasSaude, prefeituras, usuarios, estoqueSaude } from "@/db/schema";
+import { unidadesSaude, ocorrenciasSaude, prefeituras, usuarios, estoqueSaude, atendimentos } from "@/db/schema";
 import { CATALOGO_ESTOQUE } from "@/lib/estoque-saude";
 import { gerarHashSenha, senhaForte } from "@/lib/senha";
 import { validarCpfOuCnpj, normalizarDocumento } from "@/lib/documento";
@@ -352,4 +352,22 @@ export async function buscarEstoqueDaRede(prefeituraId: string) {
   const sessao = await exigirAcesso();
   if (!sessao || sessao.prefeituraId !== prefeituraId || sessao.cargo === "unidade") return [];
   return db.select().from(estoqueSaude).where(eq(estoqueSaude.prefeituraId, prefeituraId));
+}
+
+// ── O QUE O CIDADÃO DISSE SOBRE A UNIDADE ──
+// Manifestações da ouvidoria (Essencial) dos últimos 30 dias, para cruzar
+// com as fichas. Sem o Essencial, a lista é vazia — e a leitura diz isso.
+
+export async function buscarManifestacoesRecentes(prefeituraId: string) {
+  const sessao = await exigirAcesso();
+  if (!sessao || sessao.prefeituraId !== prefeituraId) return [];
+  const desde = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  try {
+    return await db
+      .select({ tipo: atendimentos.tipo, assunto: atendimentos.assunto, mensagem: atendimentos.mensagem, createdAt: atendimentos.createdAt })
+      .from(atendimentos)
+      .where(and(eq(atendimentos.prefeituraId, prefeituraId), gte(atendimentos.createdAt, desde)));
+  } catch {
+    return [];
+  }
 }
