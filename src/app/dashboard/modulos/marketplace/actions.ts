@@ -5,9 +5,10 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { pedidosProposta, prefeituras, usuarios } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
-import { PLANOS_ADDON, planosContratadosDe, type PlanoAddon } from "@/lib/planos";
+import { PLANOS_ADDON, NOME_PLANO_ADDON, planosContratadosDe, type PlanoAddon } from "@/lib/planos";
 import { modulosDoPedido } from "@/lib/pedidos";
 import { registrarPedidoProposta } from "@/lib/pedido-proposta";
+import { auditar } from "@/lib/auditoria";
 
 // ── PEDIR UM MÓDULO SEM SAIR DO PAINEL ──
 //
@@ -77,6 +78,7 @@ export async function pedirModuloDoPainel(modulo: string): Promise<ResultadoPedi
   });
   if (!r.ok) return r;
 
+  await auditar(sessao, { acao: "pedir", entidade: "modulo", resumo: `proposta do módulo ${NOME_PLANO_ADDON[chave]} (protocolo ${r.protocolo})` });
   revalidatePath("/dashboard/modulos/marketplace");
   return { ok: true, protocolo: r.protocolo, confirmacaoEnviada: r.confirmacaoEnviada };
 }

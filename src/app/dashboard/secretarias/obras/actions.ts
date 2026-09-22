@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { obras } from "@/db/schema";
@@ -68,6 +69,7 @@ export async function criarObra(formData: FormData) {
     status: dados.status,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "obra", resumo: `"${dados.nome}" — ${dados.progressoAtual}% executado, ${dados.status}` });
   revalidatePath("/dashboard/secretarias/obras");
 }
 
@@ -97,6 +99,7 @@ export async function atualizarProgressoObra(formData: FormData) {
     })
     .where(and(eq(obras.id, dados.id), eq(obras.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "alterar", entidade: "obra", entidadeId: dados.id, resumo: `progresso ${dados.progressoAtual}%, status ${dados.status}` });
   revalidatePath("/dashboard/secretarias/obras");
 }
 
@@ -112,10 +115,16 @@ export async function excluirObra(id: string): Promise<{ erro: string | null }> 
   if (!sessao) return { erro: "Sessão expirada." };
   if (!temAcessoSecretaria(sessao, "obras")) return { erro: "Sem permissão." };
 
+  const [antes] = await db
+    .select({ nome: obras.nome })
+    .from(obras)
+    .where(and(eq(obras.id, id), eq(obras.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
   await db
     .delete(obras)
     .where(and(eq(obras.id, id), eq(obras.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "excluir", entidade: "obra", entidadeId: id, resumo: antes?.nome ? `"${antes.nome}"` : `id ${id}` });
   revalidatePath("/dashboard/secretarias/obras");
   return { erro: null };
 }

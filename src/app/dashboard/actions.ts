@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { dashboardSnapshots, alertas, alertasSugeridos } from "@/db/schema";
@@ -41,6 +42,7 @@ export async function atualizarSnapshot(formData: FormData) {
     origem: "manual",
   });
 
+  await auditar(sessao, { acao: "alterar", entidade: "financeiro", resumo: `receita ${dados.receita ?? "-"}, despesas ${dados.despesas ?? "-"}` });
   revalidatePath("/dashboard");
 }
 
@@ -79,6 +81,7 @@ export async function criarAlerta(formData: FormData) {
     });
   }
 
+  await auditar(sessao, { acao: "criar", entidade: "alerta", resumo: `"${dados.titulo}" (${dados.prioridade})` });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/alertas");
 }
@@ -92,6 +95,7 @@ export async function resolverAlerta(id: string) {
     .set({ resolvido: true })
     .where(and(eq(alertas.id, id), eq(alertas.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "resolver", entidade: "alerta", entidadeId: id, resumo: `id ${id}` });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/alertas");
 }
@@ -165,6 +169,7 @@ export async function aprovarSugestao(id: string) {
 
   await db.delete(alertasSugeridos).where(eq(alertasSugeridos.id, id));
 
+  await auditar(sessao, { acao: "criar", entidade: "alerta", resumo: `"${sugestao.titulo}" (a partir de sugestão)` });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/alertas");
 }

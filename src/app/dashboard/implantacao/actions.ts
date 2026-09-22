@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { db } from "@/db";
 import { prefeituras } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -88,6 +89,7 @@ export async function concluirImplantacao(): Promise<{ ok: boolean }> {
     .set({ implantacaoConcluidaEm: new Date().toISOString() })
     .where(eq(prefeituras.id, sessao.prefeituraId));
 
+  await auditar(sessao, { acao: "concluir", entidade: "implantacao", resumo: "lista de implantação encerrada" });
   revalidatePath("/dashboard");
   return { ok: true };
 }

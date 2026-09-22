@@ -16,6 +16,7 @@ import {
   alertasSugeridos,
   atendimentos,
   configPublica,
+  auditoria,
 } from "@/db/schema";
 import {
   TABELAS_EXPORTAVEIS,
@@ -55,6 +56,7 @@ const FONTES: Record<
   alertas_sugeridos: { tabela: alertasSugeridos, coluna: alertasSugeridos.prefeituraId },
   atendimentos: { tabela: atendimentos, coluna: atendimentos.prefeituraId },
   config_publica: { tabela: configPublica, coluna: configPublica.prefeituraId },
+  auditoria: { tabela: auditoria, coluna: auditoria.prefeituraId },
 };
 
 /** Uma tabela, só as linhas desta prefeitura, já sem os campos sigilosos. */

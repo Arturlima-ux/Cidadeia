@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { publicacoes } from "@/db/schema";
@@ -121,6 +122,7 @@ export async function salvarPublicacao(formData: FormData): Promise<ResultadoPub
       .values({ id: gerarId("pub"), prefeituraId: sessao.prefeituraId, ...valores });
   }
 
+  await auditar(sessao, { acao: "publicar", entidade: "publicacao", resumo: `${d.tipo}: "${d.titulo}"` });
   revalidatePath("/dashboard/publicacoes");
   revalidatePath("/transparencia", "layout");
   return { ok: true };
@@ -140,6 +142,7 @@ export async function alternarPublicado(id: string, publicado: boolean): Promise
     .set({ publicado, atualizadoEm: new Date().toISOString() })
     .where(and(eq(publicacoes.id, id), eq(publicacoes.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: publicado ? "publicar" : "despublicar", entidade: "publicacao", entidadeId: id, resumo: `id ${id}` });
   revalidatePath("/dashboard/publicacoes");
   revalidatePath("/transparencia", "layout");
   return { ok: true };
@@ -157,6 +160,7 @@ export async function removerPublicacao(id: string): Promise<ResultadoPublicacao
     .delete(publicacoes)
     .where(and(eq(publicacoes.id, id), eq(publicacoes.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "excluir", entidade: "publicacao", entidadeId: id, resumo: `id ${id}` });
   revalidatePath("/dashboard/publicacoes");
   revalidatePath("/transparencia", "layout");
   return { ok: true };

@@ -12,6 +12,7 @@ const ROTAS_RESTRITAS_A_PREFEITO_ADMIN = [
   "/dashboard/configuracoes",
   "/dashboard/alertas",
   "/dashboard/historico",
+  "/dashboard/auditoria",
   "/dashboard/planos",
   "/dashboard/modulos",
   "/dashboard/central",

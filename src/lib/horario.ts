@@ -93,3 +93,8 @@ export function dataCurta(iso: string | null | undefined, fuso: string): string 
 export function dataNumerica(iso: string | null | undefined, fuso: string): string {
   return comFuso(iso, fuso, { day: "2-digit", month: "2-digit", year: "numeric" });
 }
+
+/** "30/08/2026 14:05" — para trilha de auditoria, onde a hora importa. */
+export function dataHoraNumerica(iso: string | null | undefined, fuso: string): string {
+  return comFuso(iso, fuso, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}

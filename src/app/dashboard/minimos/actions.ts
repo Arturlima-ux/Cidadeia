@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { basesMinimos, investimentos } from "@/db/schema";
@@ -153,6 +154,7 @@ export async function salvarBase(formData: FormData): Promise<ResultadoSalvar> {
     });
   }
 
+  await auditar(sessao, { acao: "alterar", entidade: "financeiro", resumo: "bases dos mínimos constitucionais atualizadas" });
   revalidatePath("/dashboard/minimos");
   return { ok: true };
 }

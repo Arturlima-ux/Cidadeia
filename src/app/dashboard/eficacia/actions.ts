@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { investimentos, prefeituras } from "@/db/schema";
@@ -79,6 +80,7 @@ export async function registrarInvestimento(
     competencia: parsed.data.competencia,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "financeiro", resumo: `investimento em ${parsed.data.secretaria}: ${parsed.data.valor}` });
   revalidatePath("/dashboard/eficacia");
   return { ok: true };
 }
@@ -88,6 +90,7 @@ export async function removerInvestimento(id: string) {
   await db
     .delete(investimentos)
     .where(and(eq(investimentos.id, id), eq(investimentos.prefeituraId, sessao.prefeituraId)));
+  await auditar(sessao, { acao: "excluir", entidade: "financeiro", entidadeId: id, resumo: `investimento id ${id}` });
   revalidatePath("/dashboard/eficacia");
 }
 
@@ -178,6 +181,7 @@ export async function importarDoSiconfi(formData: FormData): Promise<ResultadoIm
     }))
   );
 
+  await auditar(sessao, { acao: "importar", entidade: "financeiro", resumo: `RREO ${ano}/${bimestre}º bimestre importado do SICONFI` });
   revalidatePath("/dashboard/eficacia");
   return {
     ok: true,

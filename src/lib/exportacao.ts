@@ -26,7 +26,8 @@ export type ChaveTabela =
   | "alertas"
   | "alertas_sugeridos"
   | "atendimentos"
-  | "config_publica";
+  | "config_publica"
+  | "auditoria";
 
 export type TabelaExportavel = {
   chave: ChaveTabela;
@@ -127,6 +128,12 @@ export const TABELAS_EXPORTAVEIS: TabelaExportavel[] = [
     chave: "config_publica",
     rotulo: "Configuração do portal público",
     descricao: "Endereço público do município, WhatsApp e o que fica visível no portal.",
+    camposRemovidos: [],
+  },
+  {
+    chave: "auditoria",
+    rotulo: "Trilha de auditoria",
+    descricao: "Quem alterou o quê e quando, em toda a conta. Sai inteira: é a prova que o controle interno pede.",
     camposRemovidos: [],
   },
 ];

@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { unidadesSaude, saudeIndicadores } from "@/db/schema";
@@ -74,6 +75,7 @@ export async function criarUnidadeSaude(formData: FormData) {
     longitude: dados.longitude ?? null,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "unidade_saude", resumo: `"${dados.nome}"` });
   revalidatePath("/dashboard/secretarias/saude");
 }
 
@@ -107,6 +109,7 @@ export async function atualizarIndicadorSaude(formData: FormData) {
     origem: "manual",
   });
 
+  await auditar(sessao, { acao: "alterar", entidade: "indicador", resumo: "indicadores de saúde do período registrados" });
   revalidatePath("/dashboard/secretarias/saude");
 }
 
@@ -122,10 +125,16 @@ export async function excluirUnidadeSaude(id: string): Promise<{ erro: string | 
   if (!sessao) return { erro: "Sessão expirada." };
   if (!temAcessoSecretaria(sessao, "saude")) return { erro: "Sem permissão." };
 
+  const [antes] = await db
+    .select({ nome: unidadesSaude.nome })
+    .from(unidadesSaude)
+    .where(and(eq(unidadesSaude.id, id), eq(unidadesSaude.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
   await db
     .delete(unidadesSaude)
     .where(and(eq(unidadesSaude.id, id), eq(unidadesSaude.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "excluir", entidade: "unidade_saude", entidadeId: id, resumo: antes?.nome ? `"${antes.nome}"` : `id ${id}` });
   revalidatePath("/dashboard/secretarias/saude");
   return { erro: null };
 }

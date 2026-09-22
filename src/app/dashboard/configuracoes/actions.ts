@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { usuarios } from "@/db/schema";
@@ -73,6 +74,7 @@ export async function criarUsuarioSecretario(
     secretaria: dados.secretaria,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "usuario", resumo: `"${dados.nome}" (secretário)` });
   revalidatePath("/dashboard/configuracoes");
   return { ok: true };
 }
@@ -88,5 +90,6 @@ export async function removerUsuario(usuarioId: string) {
   await db
     .delete(usuarios)
     .where(and(eq(usuarios.id, usuarioId), eq(usuarios.prefeituraId, sessao.prefeituraId)));
+  await auditar(sessao, { acao: "excluir", entidade: "usuario", entidadeId: usuarioId, resumo: `id ${usuarioId}` });
   revalidatePath("/dashboard/configuracoes");
 }

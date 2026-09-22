@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { db } from "@/db";
 import { unidadesSaude, escolas, obras, licitacoes, investimentos } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
@@ -130,6 +131,7 @@ export async function confirmarImportacao(entrada: {
     };
   }
 
+  await auditar(sessao, { acao: "importar", entidade: "importacao", resumo: `${entrada.linhas.length} linha(s) em ${entrada.tabela}` });
   revalidatePath("/dashboard/dados");
   revalidatePath("/dashboard");
 

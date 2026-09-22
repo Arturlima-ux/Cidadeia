@@ -599,3 +599,25 @@ export const leads = pgTable("leads", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── TRILHA DE AUDITORIA ──
+// Quem mudou o quê, quando. Uma linha por alteração que importa. Ver
+// lib/auditoria.ts para o que entra e o que fica de fora.
+export const auditoria = pgTable("auditoria", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  usuarioId: text("usuario_id").notNull(),
+  // Nome e cargo copiados na hora: o usuário pode ser removido depois, e a
+  // trilha precisa continuar dizendo quem foi.
+  usuarioNome: text("usuario_nome").notNull(),
+  usuarioCargo: text("usuario_cargo").notNull(),
+  acao: text("acao").notNull(),
+  entidade: text("entidade").notNull(),
+  entidadeId: text("entidade_id"),
+  resumo: text("resumo").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

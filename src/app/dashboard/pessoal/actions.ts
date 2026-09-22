@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { despesaPessoal, prefeituras } from "@/db/schema";
@@ -126,6 +127,7 @@ export async function salvarPeriodo(formData: FormData): Promise<ResultadoSalvar
     });
   }
 
+  await auditar(sessao, { acao: "alterar", entidade: "financeiro", resumo: "período de despesa com pessoal registrado" });
   revalidatePath("/dashboard/pessoal");
   revalidatePath("/dashboard");
   return { ok: true };
@@ -244,6 +246,7 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
     });
   }
 
+  await auditar(sessao, { acao: "importar", entidade: "financeiro", resumo: "RGF importado do SICONFI" });
   revalidatePath("/dashboard/pessoal");
   revalidatePath("/dashboard");
 

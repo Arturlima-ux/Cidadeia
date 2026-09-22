@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { licitacoes } from "@/db/schema";
@@ -65,6 +66,7 @@ export async function criarLicitacao(formData: FormData) {
     prazoFinal: dados.prazoFinal ?? null,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "licitacao", resumo: `${dados.numero} — ${dados.objeto}` });
   revalidatePath("/dashboard/secretarias/licitacoes");
 }
 
@@ -80,10 +82,16 @@ export async function excluirLicitacao(id: string): Promise<{ erro: string | nul
   if (!sessao) return { erro: "Sessão expirada." };
   if (!temAcessoSecretaria(sessao, "licitacoes")) return { erro: "Sem permissão." };
 
+  const [antes] = await db
+    .select({ nome: licitacoes.numero })
+    .from(licitacoes)
+    .where(and(eq(licitacoes.id, id), eq(licitacoes.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
   await db
     .delete(licitacoes)
     .where(and(eq(licitacoes.id, id), eq(licitacoes.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "excluir", entidade: "licitacao", entidadeId: id, resumo: antes?.nome ? `${antes.nome}` : `id ${id}` });
   revalidatePath("/dashboard/secretarias/licitacoes");
   return { erro: null };
 }

@@ -3,7 +3,8 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { pedidosProposta, prefeituras, usuarios } from "@/db/schema";
+import { pedidosProposta, prefeituras, usuarios, auditoria } from "@/db/schema";
+import { gerarId } from "@/lib/id";
 import { lerSessao } from "@/lib/sessao";
 import { enviarEmail } from "@/lib/email";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
@@ -60,14 +61,31 @@ export async function avancarPedido(pedidoId: string): Promise<ResultadoAdmin> {
   if (modulos.length === 0) return { ok: false, erro: "O pedido não tem módulo nenhum para ativar." };
 
   const agora = new Date().toISOString();
+  const nomes = modulos.map((m) => NOME_PLANO_ADDON[m]);
   await db
     .update(prefeituras)
     .set({ planosContratados: ativarModulos(pref.planosContratados, modulos) })
     .where(eq(prefeituras.id, pref.id));
   await db.update(pedidosProposta).set({ status: "contratado", contratadoEm: agora }).where(eq(pedidosProposta.id, pedidoId));
+  // Na trilha da PREFEITURA (não da conta admin): o controle interno dela
+  // precisa ver quando e quais módulos foram ligados, e por quem.
+  try {
+    await db.insert(auditoria).values({
+      id: gerarId("aud"),
+      prefeituraId: pref.id,
+      usuarioId: "equipe",
+      usuarioNome: "Equipe CidadeIA",
+      usuarioCargo: "admin",
+      acao: "ativar",
+      entidade: "modulo",
+      entidadeId: pedidoId,
+      resumo: `módulos ativados após contrato: ${nomes.join(", ")}`,
+    });
+  } catch (e) {
+    console.error("[auditoria] ativação não registrada:", e);
+  }
 
   const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
-  const nomes = modulos.map((m) => NOME_PLANO_ADDON[m]);
   const envio = await enviarEmail({
     para: pedido.email,
     assunto: `CidadeIA — módulos ativados para ${pedido.municipio}/${pedido.uf}`,

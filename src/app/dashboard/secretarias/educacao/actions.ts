@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { escolas, educacaoIndicadores } from "@/db/schema";
@@ -78,6 +79,7 @@ export async function criarEscola(formData: FormData) {
     longitude: dados.longitude ?? null,
   });
 
+  await auditar(sessao, { acao: "criar", entidade: "escola", resumo: `"${dados.nome}"` });
   revalidatePath("/dashboard/secretarias/educacao");
 }
 
@@ -110,6 +112,7 @@ export async function atualizarIndicadorEducacao(formData: FormData) {
     origem: "manual",
   });
 
+  await auditar(sessao, { acao: "alterar", entidade: "indicador", resumo: "indicadores de educação do período registrados" });
   revalidatePath("/dashboard/secretarias/educacao");
 }
 
@@ -125,10 +128,16 @@ export async function excluirEscola(id: string): Promise<{ erro: string | null }
   if (!sessao) return { erro: "Sessão expirada." };
   if (!temAcessoSecretaria(sessao, "educacao")) return { erro: "Sem permissão." };
 
+  const [antes] = await db
+    .select({ nome: escolas.nome })
+    .from(escolas)
+    .where(and(eq(escolas.id, id), eq(escolas.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
   await db
     .delete(escolas)
     .where(and(eq(escolas.id, id), eq(escolas.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "excluir", entidade: "escola", entidadeId: id, resumo: antes?.nome ? `"${antes.nome}"` : `id ${id}` });
   revalidatePath("/dashboard/secretarias/educacao");
   return { erro: null };
 }

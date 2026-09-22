@@ -114,6 +114,10 @@ function montarGrupos(
       // Fora de qualquer trava de plano: a exportação existe justamente para
       // a prefeitura poder sair levando os dados dela.
       { href: "/dashboard/dados", label: "Meus dados", icone: "download" },
+      // Auditoria fora de trava de módulo: a trilha existe para dar
+      // confiança, e confiança não se vende à parte. Só quem vê a
+      // prefeitura inteira (prefeito/admin); o proxy barra secretário.
+      ...(sessao.cargo === "secretario" ? [] : [{ href: "/dashboard/auditoria", label: "Auditoria", icone: "historico" } as NavItem]),
       ...(implantacaoAberta ? [] : [itemImplantacao]),
     ],
   });

@@ -1,5 +1,6 @@
 "use server";
 
+import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
 import { atendimentos, configPublica, prefeituras } from "@/db/schema";
@@ -75,6 +76,7 @@ export async function responderAtendimento(formData: FormData): Promise<Resultad
       )
     );
 
+  await auditar(sessao, { acao: "responder", entidade: "atendimento", entidadeId: parsed.data.id, resumo: `status ${parsed.data.status}` });
   revalidatePath("/dashboard/atendimento");
   return { ok: true };
 }
@@ -100,6 +102,7 @@ export async function prorrogarPrazo(id: string): Promise<ResultadoAcao> {
     .set({ prazoProrrogado: true })
     .where(and(eq(atendimentos.id, id), eq(atendimentos.prefeituraId, sessao.prefeituraId)));
 
+  await auditar(sessao, { acao: "alterar", entidade: "atendimento", entidadeId: id, resumo: "prazo prorrogado" });
   revalidatePath("/dashboard/atendimento");
   return { ok: true };
 }
@@ -179,6 +182,7 @@ export async function salvarConfigPublica(formData: FormData): Promise<Resultado
       },
     });
 
+  await auditar(sessao, { acao: "alterar", entidade: "portal", resumo: `portal ${parsed.data.portalAtivo ? "ligado" : "desligado"}; financeiro ${parsed.data.mostrarFinanceiro ? "visível" : "oculto"}, obras ${parsed.data.mostrarObras ? "visíveis" : "ocultas"}, licitações ${parsed.data.mostrarLicitacoes ? "visíveis" : "ocultas"}` });
   revalidatePath("/dashboard/atendimento");
   if (slug) revalidatePath(`/transparencia/${slug}`);
   return { ok: true };
