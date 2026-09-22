@@ -15,7 +15,13 @@ export const ID_CONTEUDO_PAINEL = "conteudo-painel";
 export default function RolagemDoPainel() {
   const pathname = usePathname();
   useEffect(() => {
-    document.getElementById(ID_CONTEUDO_PAINEL)?.scrollTo({ top: 0 });
+    // Duas vezes de propósito: agora e depois da primeira pintura. O Next
+    // restaura a posição de rolagem DEPOIS do efeito, e um único ajuste
+    // era desfeito por ele — a tela seguinte abria no meio.
+    const aoTopo = () => document.getElementById(ID_CONTEUDO_PAINEL)?.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    aoTopo();
+    const id = requestAnimationFrame(() => requestAnimationFrame(aoTopo));
+    return () => cancelAnimationFrame(id);
   }, [pathname]);
   return null;
 }
