@@ -4,6 +4,7 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
+import ListaMunicipiosUf from "@/components/site/ListaMunicipiosUf";
 import { ESTADOS, NOME_DOS_ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { retratoDaUf } from "@/lib/raio-x-uf";
 import { compartilhamento, JsonLdScript, ldBreadcrumb } from "@/lib/seo";
@@ -117,34 +118,19 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
               Clique no município para ver o Raio-X dele: os números do Tesouro são consultados na
               hora e ficam guardados por uma semana.
             </p>
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-border" style={{ background: "var(--card)" }}>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
-                    <th className="px-4 py-3 font-medium w-10">#</th>
-                    <th className="px-4 py-3 font-medium">Município</th>
-                    <th className="px-4 py-3 font-medium text-right">Habitantes</th>
-                    <th className="px-4 py-3 font-medium hidden sm:table-cell">Faixa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {r.municipios.map((m, i) => (
-                    <tr key={m.codigo} className="border-b border-border last:border-0 hover:bg-white/[0.03] transition">
-                      <td className="px-4 py-2.5 text-muted tabular-nums">{i + 1}</td>
-                      <td className="px-4 py-2.5">
-                        <Link href={caminhoDoRaioX({ uf, nome: m.nome })} className="font-semibold hover:text-brand-claro transition">
-                          {m.nome}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{n(m.populacao)}</td>
-                      <td className="px-4 py-2.5 text-muted hidden sm:table-cell">
-                        {r.porFaixa.find((f) => f.chave === m.porte)?.rotulo}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Os 120 maiores vão no HTML (Google e celular); o resto vem
+                da API quando a pessoa pede ou busca. Ver ListaMunicipiosUf. */}
+            <ListaMunicipiosUf
+              uf={uf}
+              total={r.total}
+              iniciais={r.municipios.slice(0, 120).map((m) => ({
+                codigo: m.codigo,
+                nome: m.nome,
+                populacao: m.populacao,
+                faixa: r.porFaixa.find((f) => f.chave === m.porte)?.rotulo ?? m.porte,
+                caminho: caminhoDoRaioX({ uf, nome: m.nome }),
+              }))}
+            />
           </Reveal>
         </section>
 

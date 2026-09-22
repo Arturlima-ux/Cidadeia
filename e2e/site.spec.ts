@@ -27,6 +27,10 @@ test.describe("site público", () => {
   test("Raio-X: estado lista municípios e a página do município abre com captura de lead", async ({ page }) => {
     await page.goto("/raio-x/pi");
     await expect(page.locator("h1")).toContainText("prefeituras do Piauí");
+    // a lista completa vem sob demanda: buscar um município pequeno carrega a API
+    await page.locator("#busca-municipio").fill("barro duro");
+    await expect(page.getByRole("link", { name: "Barro Duro" })).toBeVisible();
+    await page.locator("#busca-municipio").fill("");
     await page.getByRole("link", { name: "Teresina" }).first().click();
     await expect(page).toHaveURL(/\/raio-x\/pi\/teresina$/);
     await expect(page.locator("h1")).toContainText("Teresina");
