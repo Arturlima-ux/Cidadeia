@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import RolagemDoPainel, { ID_CONTEUDO_PAINEL } from "@/components/RolagemDoPainel";
 import Link from "next/link";
 import { lerSessao , ehGestor } from "@/lib/sessao";
 import { buscarPrefeitura, buscarUsuarioPorId } from "@/lib/dados-prefeitura";
@@ -175,7 +176,13 @@ export default async function DashboardLayout({
     // o site escuro: quem via a página de vendas e depois entrava encontrava
     // outro produto. O `.tema-noite` só troca tokens, e como as telas leem
     // token em vez de cor fixa, basta envolver aqui para tudo acompanhar.
-    <div className="tema-noite min-h-screen flex">
+    // ── O MENU FICA, O CONTEÚDO ROLA ──
+    // Antes a página inteira rolava: descer a lista de obras levava o menu
+    // lateral e o cabeçalho junto, e para trocar de secretaria era preciso
+    // subir tudo de novo. Em telas de computador a moldura tem a altura da
+    // janela (h-screen) e só a coluna do meio rola. No celular não muda
+    // nada: lá o menu é uma gaveta, e a página rola inteira como sempre.
+    <div className="tema-noite min-h-screen md:h-screen md:overflow-hidden flex">
       <DashboardSidebar
         grupos={montarGrupos(
           sessao,
@@ -187,9 +194,10 @@ export default async function DashboardLayout({
         sairPorLink={sessao.demo ? "/sessao-encerrada?demo=1" : undefined}
       />
 
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div id={ID_CONTEUDO_PAINEL} className="flex-1 min-w-0 flex flex-col md:h-screen md:overflow-y-auto">
+        <RolagemDoPainel />
         {sessao.demo && <FaixaDemo />}
-        <header className="shadow-elevated relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
+        <header className="shadow-elevated md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
             <div
               className="w-9 h-9 rounded-full text-white flex items-center justify-center text-xs font-bold shrink-0 bg-cover bg-center"
