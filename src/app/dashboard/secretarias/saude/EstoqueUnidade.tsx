@@ -114,7 +114,7 @@ export default function EstoqueUnidade({ unidadeId, linhas, fuso }: { unidadeId:
       )}
 
       {ordenadas.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <div className="overflow-x-auto rolagem-discreta rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">

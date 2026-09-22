@@ -68,7 +68,7 @@ export default function ListaMunicipiosUf({ uf, iniciais, total }: { uf: string;
       />
       {busca && carregando && <p className="text-xs text-muted mt-2">Carregando a lista completa…</p>}
 
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-border" style={{ background: "var(--card)" }}>
+      <div className="mt-4 overflow-x-auto rolagem-discreta rounded-2xl border border-border" style={{ background: "var(--card)" }}>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">

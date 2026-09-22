@@ -327,7 +327,7 @@ export default async function PessoalPage() {
       {periodos.length > 1 && (
         <section className="space-y-3">
           <h2 className="font-serif text-lg font-bold">Períodos informados</h2>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rolagem-discreta">
             <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
               <thead className="bg-sutil text-left">
                 <tr>

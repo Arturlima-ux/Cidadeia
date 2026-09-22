@@ -48,7 +48,7 @@ export default function ChatIA() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-160px)] bg-card border border-border rounded-2xl overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+      <div className="flex-1 overflow-y-auto rolagem-discreta p-5 space-y-4">
         {mensagens.length === 0 && (
           <div>
             <p className="text-sm text-muted mb-3">

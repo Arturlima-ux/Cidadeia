@@ -289,6 +289,45 @@ button:active {
 }
 
 /* Foco visível e consistente — acessibilidade (navegação por teclado). */
+/* ── BARRA DE ROLAGEM DISCRETA ──
+   A barra cinza padrão do sistema envelhece a tela. Aqui ela some até o
+   ponteiro chegar perto: fica um filete de 6px, arredondado, na cor da
+   borda do tema. Em quem não tem ponteiro (celular) a barra nativa já é
+   invisível, então nada muda.
+
+   `overscroll-behavior: contain` é o que impede a rolagem de "vazar":
+   com o cursor sobre o menu, chegar ao fim dele não passa a rolar a
+   página atrás. Cada lado rola o seu. */
+.rolagem-discreta {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  overscroll-behavior: contain;
+  transition: scrollbar-color 0.2s ease;
+}
+.rolagem-discreta:hover,
+.rolagem-discreta:focus-within {
+  scrollbar-color: var(--linha-rolagem, rgba(128, 140, 160, 0.45)) transparent;
+}
+.rolagem-discreta::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.rolagem-discreta::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rolagem-discreta::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.rolagem-discreta:hover::-webkit-scrollbar-thumb,
+.rolagem-discreta:focus-within::-webkit-scrollbar-thumb {
+  background: var(--linha-rolagem, rgba(128, 140, 160, 0.45));
+}
+.rolagem-discreta::-webkit-scrollbar-thumb:hover {
+  background: var(--linha-rolagem-forte, rgba(128, 140, 160, 0.75));
+}
+
 /* ── ALVO DE TOQUE NO CELULAR ──
    Links e botões "de texto" (Sair, Resolver, Atualizar, Excluir…) tinham 16
    a 20px de altura: difícil de acertar com o dedo, abaixo dos 24px que a

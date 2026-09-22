@@ -156,7 +156,7 @@ export default function FormularioImportacao() {
             <h3 className="font-semibold text-sm mb-3">
               Primeiras linhas, já convertidas
             </h3>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rolagem-discreta">
               <table className="text-sm min-w-full">
                 <thead>
                   <tr className="border-b border-border">
@@ -201,7 +201,7 @@ export default function FormularioImportacao() {
               O número da linha é o mesmo que aparece no Excel. As demais linhas
               podem ser importadas normalmente.
             </p>
-            <ul className="space-y-1.5 max-h-56 overflow-y-auto">
+            <ul className="space-y-1.5 max-h-56 overflow-y-auto rolagem-discreta">
               {r.erros.slice(0, 50).map((e, i) => (
                 <li key={i} className="text-xs leading-relaxed" style={{ color: "var(--medio)" }}>
                   <strong>Linha {e.linha}</strong> · {e.campo}

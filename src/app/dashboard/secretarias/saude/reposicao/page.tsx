@@ -66,7 +66,7 @@ export default async function ReposicaoPage() {
                 ficha →
               </Link>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rolagem-discreta">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
