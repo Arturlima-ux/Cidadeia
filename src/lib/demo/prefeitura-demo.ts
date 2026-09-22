@@ -19,6 +19,7 @@ import {
   usuarios,
   unidadesSaude,
   ocorrenciasSaude,
+  estoqueSaude,
   saudeIndicadores,
   escolas,
   educacaoIndicadores,
@@ -39,7 +40,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-saude-cnes";
+const VERSAO_DEMO = "2026-09-22-saude-estoque";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -110,6 +111,22 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     { id: "demo_ubs_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "UBS Alto da Serra", tipo: "ubs", bairro: "Alto da Serra", latitude: -6.7655, longitude: -43.0312, codigoCnes: "9000002", origem: "cnes", codigoTipoUnidade: 2, esfera: "MUNICIPAL", endereco: "Av. das Palmeiras, s/n", turno: "Atendimento somente pela manhã", atendeSus: true, hospitalar: false, cnesAtualizadoEm: dataAtras(410), sincronizadoEm: hojeIso },
     { id: "demo_hosp", prefeituraId: ID_PREFEITURA_DEMO, nome: "Hospital Municipal", tipo: "hospital", bairro: "Centro", latitude: -6.7748, longitude: -43.0189, codigoCnes: "9000003", origem: "cnes", codigoTipoUnidade: 15, esfera: "MUNICIPAL", endereco: "Rua do Hospital, 1", turno: "Atendimento contínuo", atendeSus: true, hospitalar: true, centroCirurgico: true, centroObstetrico: false, cnesAtualizadoEm: dataAtras(25), sincronizadoEm: hojeIso },
     { id: "demo_ps_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "Posto de Saúde Boa Vista", tipo: "posto", bairro: "Zona Rural", latitude: -6.7301, longitude: -43.0602, codigoCnes: "9000004", origem: "cnes", codigoTipoUnidade: 1, esfera: "MUNICIPAL", endereco: "Povoado Boa Vista", turno: "Atendimento somente pela manhã", atendeSus: true, hospitalar: false, cnesAtualizadoEm: dataAtras(60), sincronizadoEm: hojeIso },
+  ]);
+  // Estoque por unidade, em dias de cobertura: a insulina da Alto da Serra
+  // zerou; a da Central dura 9 dias; o resto está ok.
+  const est = (id: string, unidadeId: string, item: string, categoria: "medicamento" | "insumo" | "vacina", unidadeMedida: string, saldo: number, consumoMensal: number, por: string, diasAtrasContagem = 2) => ({
+    id, prefeituraId: ID_PREFEITURA_DEMO, unidadeId, item, categoria, unidadeMedida, saldo, consumoMensal, atualizadoPor: por, atualizadoEm: diasAtras(diasAtrasContagem),
+  });
+  await db.insert(estoqueSaude).values([
+    est("demo_est_1", "demo_ubs_2", "Insulina NPH 100 UI/mL", "medicamento", "frasco", 0, 24, "Enf. Carla Mendes", 1),
+    est("demo_est_2", "demo_ubs_2", "Losartana 50 mg", "medicamento", "comprimido", 900, 1500, "Enf. Carla Mendes", 1),
+    est("demo_est_3", "demo_ubs_2", "Metformina 850 mg", "medicamento", "comprimido", 2400, 1800, "Enf. Carla Mendes", 1),
+    est("demo_est_4", "demo_ubs_1", "Insulina NPH 100 UI/mL", "medicamento", "frasco", 12, 40, "Téc. João Lima", 3),
+    est("demo_est_5", "demo_ubs_1", "Dipirona 500 mg", "medicamento", "comprimido", 3000, 2000, "Téc. João Lima", 3),
+    est("demo_est_6", "demo_ubs_1", "Fita de glicemia", "insumo", "unidade", 150, 600, "Téc. João Lima", 3),
+    est("demo_est_7", "demo_ubs_1", "Vacina influenza", "vacina", "dose", 80, 120, "Téc. João Lima", 40),
+    est("demo_est_8", "demo_hosp", "Soro fisiológico 0,9% 500 mL", "insumo", "frasco", 420, 600, "Farm. Rita Sousa", 2),
+    est("demo_est_9", "demo_hosp", "Amoxicilina 500 mg", "medicamento", "cápsula", 60, 900, "Farm. Rita Sousa", 2),
   ]);
   // O que está acontecendo dentro delas — a linha do tempo que o indicador
   // do mês não conta.

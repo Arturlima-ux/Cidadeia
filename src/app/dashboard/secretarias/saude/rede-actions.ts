@@ -4,7 +4,8 @@ import { z } from "zod";
 import { and, eq, desc, inArray, isNotNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { unidadesSaude, ocorrenciasSaude, prefeituras, usuarios } from "@/db/schema";
+import { unidadesSaude, ocorrenciasSaude, prefeituras, usuarios, estoqueSaude } from "@/db/schema";
+import { CATALOGO_ESTOQUE } from "@/lib/estoque-saude";
 import { gerarHashSenha, senhaForte } from "@/lib/senha";
 import { validarCpfOuCnpj, normalizarDocumento } from "@/lib/documento";
 import { gerarId } from "@/lib/id";
@@ -263,4 +264,92 @@ export async function listarAcessosUnidade(unidadeId: string) {
     .select({ id: usuarios.id, nome: usuarios.nome, email: usuarios.email, createdAt: usuarios.createdAt })
     .from(usuarios)
     .where(and(eq(usuarios.prefeituraId, sessao.prefeituraId), eq(usuarios.cargo, "unidade"), eq(usuarios.unidadeId, unidadeId)));
+}
+
+// ── ESTOQUE ──
+// Quem conta, lança: a gerência da unidade (ou a secretaria). Uma linha por
+// item por unidade — a última contagem substitui a anterior.
+
+
+const schemaContagem = z.object({
+  unidadeId: z.string().min(1),
+  item: z.string().trim().min(2, "Informe o item.").max(120),
+  categoria: z.enum(["medicamento", "insumo", "vacina"]).default("medicamento"),
+  unidadeMedida: z.string().trim().max(30).default("unidade"),
+  saldo: z.coerce.number().min(0, "Saldo não pode ser negativo."),
+  consumoMensal: z.coerce.number().min(0, "Consumo não pode ser negativo."),
+});
+
+export async function registrarContagem(formData: FormData): Promise<ResultadoOcorrencia> {
+  const sessao = await exigirAcesso();
+  if (!sessao) return { ok: false, erro: "Sem permissão." };
+  const itemBruto = String(formData.get("item") ?? "").trim();
+  const doCatalogo = CATALOGO_ESTOQUE.find((c) => c.nome === itemBruto);
+  const parsed = schemaContagem.safeParse({
+    unidadeId: formData.get("unidadeId"),
+    item: itemBruto,
+    categoria: doCatalogo?.categoria ?? formData.get("categoria") ?? "medicamento",
+    unidadeMedida: doCatalogo?.unidade ?? formData.get("unidadeMedida") ?? "unidade",
+    saldo: formData.get("saldo"),
+    consumoMensal: formData.get("consumoMensal"),
+  });
+  if (!parsed.success) return { ok: false, erro: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  const d = parsed.data;
+  if (!podeVerUnidade(sessao, d.unidadeId)) return { ok: false, erro: "Sem permissão para esta unidade." };
+
+  const [unidade] = await db
+    .select({ id: unidadesSaude.id, nome: unidadesSaude.nome })
+    .from(unidadesSaude)
+    .where(and(eq(unidadesSaude.id, d.unidadeId), eq(unidadesSaude.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
+  if (!unidade) return { ok: false, erro: "Unidade não encontrada." };
+
+  const agora = new Date().toISOString();
+  await db
+    .insert(estoqueSaude)
+    .values({
+      id: gerarId("est"),
+      prefeituraId: sessao.prefeituraId,
+      unidadeId: unidade.id,
+      item: d.item,
+      categoria: d.categoria,
+      unidadeMedida: d.unidadeMedida,
+      saldo: d.saldo,
+      consumoMensal: d.consumoMensal,
+      atualizadoPor: sessao.nome,
+      atualizadoEm: agora,
+    })
+    .onConflictDoUpdate({
+      target: [estoqueSaude.unidadeId, estoqueSaude.item],
+      set: { saldo: d.saldo, consumoMensal: d.consumoMensal, categoria: d.categoria, unidadeMedida: d.unidadeMedida, atualizadoPor: sessao.nome, atualizadoEm: agora },
+    });
+  await auditar(sessao, { acao: "alterar", entidade: "unidade_saude", entidadeId: unidade.id, resumo: `estoque em "${unidade.nome}": ${d.item} — saldo ${d.saldo}, consumo ${d.consumoMensal}/mês` });
+  revalidatePath(`/dashboard/secretarias/saude/unidades/${unidade.id}`);
+  revalidatePath("/dashboard/secretarias/saude");
+  revalidatePath("/dashboard/secretarias/saude/reposicao");
+  return { ok: true };
+}
+
+export async function removerItemEstoque(id: string): Promise<ResultadoOcorrencia> {
+  const sessao = await exigirAcesso();
+  if (!sessao) return { ok: false, erro: "Sem permissão." };
+  const [l] = await db
+    .select({ id: estoqueSaude.id, unidadeId: estoqueSaude.unidadeId, item: estoqueSaude.item })
+    .from(estoqueSaude)
+    .where(and(eq(estoqueSaude.id, id), eq(estoqueSaude.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
+  if (!l) return { ok: false, erro: "Item não encontrado." };
+  if (!podeVerUnidade(sessao, l.unidadeId)) return { ok: false, erro: "Sem permissão para esta unidade." };
+  await db.delete(estoqueSaude).where(eq(estoqueSaude.id, l.id));
+  await auditar(sessao, { acao: "excluir", entidade: "unidade_saude", entidadeId: l.unidadeId, resumo: `item de estoque removido: ${l.item}` });
+  revalidatePath(`/dashboard/secretarias/saude/unidades/${l.unidadeId}`);
+  revalidatePath("/dashboard/secretarias/saude");
+  return { ok: true };
+}
+
+/** Estoque de toda a rede — para o resumo e o pedido de reposição. */
+export async function buscarEstoqueDaRede(prefeituraId: string) {
+  const sessao = await exigirAcesso();
+  if (!sessao || sessao.prefeituraId !== prefeituraId || sessao.cargo === "unidade") return [];
+  return db.select().from(estoqueSaude).where(eq(estoqueSaude.prefeituraId, prefeituraId));
 }

@@ -673,3 +673,24 @@ export const auditoria = pgTable("auditoria", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── ESTOQUE POR UNIDADE DE SAÚDE ──
+// Uma linha por item por unidade: a última contagem. Ver lib/estoque-saude.ts.
+export const estoqueSaude = pgTable("estoque_saude", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  unidadeId: text("unidade_id")
+    .notNull()
+    .references(() => unidadesSaude.id, { onDelete: "cascade" }),
+  item: text("item").notNull(),
+  categoria: text("categoria", { enum: ["medicamento", "insumo", "vacina"] }).notNull().default("medicamento"),
+  unidadeMedida: text("unidade_medida").notNull().default("unidade"),
+  saldo: doublePrecision("saldo").notNull().default(0),
+  consumoMensal: doublePrecision("consumo_mensal").notNull().default(0),
+  atualizadoPor: text("atualizado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

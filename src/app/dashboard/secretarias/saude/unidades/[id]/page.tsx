@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { unidadesSaude, ocorrenciasSaude } from "@/db/schema";
+import { unidadesSaude, ocorrenciasSaude, estoqueSaude } from "@/db/schema";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { NOME_TIPO_UNIDADE, diasSemAtualizarNoCnes, DIAS_CNES_DESATUALIZADO } from "@/lib/cnes";
@@ -11,6 +11,8 @@ import { fusoDoEstado, dataHoraNumerica, dataNumerica } from "@/lib/horario";
 import FormularioOcorrencia from "../../FormularioOcorrencia";
 import BotaoResolverOcorrencia from "../../BotaoResolverOcorrencia";
 import AcessosUnidade from "../../AcessosUnidade";
+import EstoqueUnidade from "../../EstoqueUnidade";
+import { situacaoDoItem } from "@/lib/estoque-saude";
 import { listarAcessosUnidade } from "../../rede-actions";
 import { podeVerUnidade, ehGestor } from "@/lib/sessao";
 
@@ -58,6 +60,13 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
   } catch (e) {
     console.error("[ficha-unidade] ocorrências:", e);
   }
+  let estoque: (typeof estoqueSaude.$inferSelect)[] = [];
+  try {
+    estoque = await db.select().from(estoqueSaude).where(eq(estoqueSaude.unidadeId, u.id));
+  } catch (e) {
+    console.error("[ficha-unidade] estoque:", e);
+  }
+  const emFalta = estoque.filter((l) => { const s = situacaoDoItem(l.saldo, l.consumoMensal); return s === "falta" || s === "critico"; });
   const abertas = ocorrencias.filter((o) => o.status === "aberta");
   const resolvidas = ocorrencias.filter((o) => o.status !== "aberta");
   const situacao = situacaoDaUnidade(abertas);
@@ -102,8 +111,8 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
       </div>
 
       {/* ── o que merece atenção agora ── */}
-      {(!u.ativo || (diasCnes !== null && diasCnes >= DIAS_CNES_DESATUALIZADO) || situacao !== "normal") && (
-        <div className="rounded-2xl border p-4 space-y-2" style={{ borderColor: cor.cor, background: cor.fundo }}>
+      {(!u.ativo || (diasCnes !== null && diasCnes >= DIAS_CNES_DESATUALIZADO) || situacao !== "normal" || emFalta.length > 0) && (
+        <div className="rounded-2xl border p-4 space-y-2" style={{ borderColor: situacao === "normal" && emFalta.length > 0 ? "var(--medio)" : cor.cor, background: situacao === "normal" && emFalta.length > 0 ? "var(--medio-tint)" : cor.fundo }}>
           {!u.ativo && (
             <p className="text-sm">
               <strong>Esta unidade não consta mais no CNES.</strong> Se ela ainda funciona, o cadastro precisa ser
@@ -114,6 +123,11 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
             <p className="text-sm">
               <strong>Cadastro no CNES sem atualização há {diasCnes} dias</strong> (desde {dataNumerica(u.cnesAtualizadoEm, fuso)}).
               A Portaria GM/MS 1.883/2018 exige atualização mensal; cadastro parado trava habilitações e repasses.
+            </p>
+          )}
+          {emFalta.length > 0 && (
+            <p className="text-sm">
+              <strong>Estoque em falta ou acabando em dias:</strong> {emFalta.map((l) => l.item).join(", ")}.
             </p>
           )}
           {abertas.filter((o) => o.gravidade === "urgente").map((o) => (
@@ -160,6 +174,8 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
       {podeGerirAcessos && !ctx.sessao.demo && (
         <AcessosUnidade unidadeId={u.id} nomeUnidade={u.nome} acessos={acessos} />
       )}
+
+      <EstoqueUnidade unidadeId={u.id} fuso={fuso} linhas={estoque} />
 
       {/* ── ocorrências ── */}
       <section className="space-y-4">

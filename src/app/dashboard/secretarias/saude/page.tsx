@@ -19,7 +19,8 @@ import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import Link from "next/link";
 import BotaoSincronizarCnes from "./BotaoSincronizarCnes";
-import { buscarOcorrenciasAbertas } from "./rede-actions";
+import { buscarOcorrenciasAbertas, buscarEstoqueDaRede } from "./rede-actions";
+import { montarPedidoReposicao } from "@/lib/estoque-saude";
 import { situacaoDaUnidade, rotuloOcorrencia } from "@/lib/ocorrencias-saude";
 import { diasSemAtualizarNoCnes, DIAS_CNES_DESATUALIZADO } from "@/lib/cnes";
 import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
@@ -31,11 +32,16 @@ export default async function SaudePage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("saude")) return <BloqueioPlano plano="saude" />;
 
-  const [unidades, indicador, abertas] = await Promise.all([
+  const [unidades, indicador, abertas, estoque] = await Promise.all([
     buscarUnidadesSaude(ctx.sessao.prefeituraId),
     buscarUltimoIndicadorSaude(ctx.sessao.prefeituraId),
     buscarOcorrenciasAbertas(ctx.sessao.prefeituraId),
+    buscarEstoqueDaRede(ctx.sessao.prefeituraId),
   ]);
+  const nomeUnidade = new Map(unidades.map((u) => [u.id, u.nome]));
+  const pedido = montarPedidoReposicao(estoque.map((l) => ({ ...l, unidadeNome: nomeUnidade.get(l.unidadeId) ?? "Unidade" })));
+  const emFalta = pedido.filter((i) => i.situacao === "falta" || i.situacao === "critico");
+  const unidadesComReposicao = new Set(pedido.map((i) => i.unidadeId));
   const abertasPorUnidade = new Map<string, typeof abertas>();
   for (const o of abertas) abertasPorUnidade.set(o.unidadeId, [...(abertasPorUnidade.get(o.unidadeId) ?? []), o]);
   const ativas = unidades.filter((u) => u.ativo);
@@ -140,6 +146,33 @@ export default async function SaudePage() {
             }))}
         />
       </div>
+
+      {/* ── estoque: o que vai faltar, antes de faltar ── */}
+      {estoque.length > 0 && (
+        <div
+          className="rounded-2xl border p-4 flex flex-wrap items-center justify-between gap-3"
+          style={{
+            borderColor: emFalta.length > 0 ? "var(--urgente)" : pedido.length > 0 ? "var(--medio)" : "var(--border)",
+            background: emFalta.length > 0 ? "var(--urgente-tint)" : pedido.length > 0 ? "var(--medio-tint)" : "var(--card)",
+          }}
+        >
+          <div>
+            <p className="font-semibold text-sm">
+              {pedido.length === 0
+                ? "Estoque: nenhum item abaixo de 15 dias de cobertura."
+                : `Estoque: ${pedido.length} item(ns) para repor em ${unidadesComReposicao.size} unidade(s)${emFalta.length > 0 ? ` — ${emFalta.length} em falta ou acabando em dias` : ""}.`}
+            </p>
+            {emFalta.length > 0 && (
+              <p className="text-xs text-muted mt-1">
+                {emFalta.slice(0, 4).map((i) => `${i.item} (${i.unidadeNome})`).join(" · ")}{emFalta.length > 4 ? " · …" : ""}
+              </p>
+            )}
+          </div>
+          <Link href="/dashboard/secretarias/saude/reposicao" className="text-sm font-semibold border border-border rounded-full px-4 py-2 hover:border-brand hover:text-brand transition whitespace-nowrap">
+            Pedido de reposição →
+          </Link>
+        </div>
+      )}
 
       {/* ── a rede ── */}
       <div>
