@@ -14,7 +14,17 @@ import { usePathname } from "next/navigation";
 export default function VoltarAoTopo() {
   const pathname = usePathname();
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    // Três vezes, de propósito: agora, depois da pintura e no fim da fila
+    // de tarefas. O Next ajusta a rolagem DEPOIS do efeito — um único
+    // reset era desfeito por ele, e a tela seguinte continuava no meio.
+    const aoTopo = () => window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    aoTopo();
+    const quadro = requestAnimationFrame(() => requestAnimationFrame(aoTopo));
+    const tarefa = setTimeout(aoTopo, 60);
+    return () => {
+      cancelAnimationFrame(quadro);
+      clearTimeout(tarefa);
+    };
   }, [pathname]);
   return null;
 }
