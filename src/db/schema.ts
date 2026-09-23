@@ -54,12 +54,13 @@ export const usuarios = pgTable("usuarios", {
   // própria unidade e registra o que acontece lá — o dado nasce onde
   // acontece, não na mesa do secretário.
   cargo: text("cargo", {
-    enum: ["prefeito", "secretario", "admin", "unidade"],
+    enum: ["prefeito", "secretario", "admin", "unidade", "escola"],
   })
     .notNull()
     .default("admin"),
   secretaria: text("secretaria"), // preenchido quando cargo = secretario
   unidadeId: text("unidade_id"), // preenchido quando cargo = unidade
+  escolaId: text("escola_id"), // preenchido quando cargo = escola
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),
@@ -212,6 +213,53 @@ export const escolas = pgTable("escolas", {
   evasaoPercentual: doublePrecision("evasao_percentual"),
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
+  // ── do Censo Escolar / Catálogo de Escolas do INEP ──
+  // Não há API pública de educação como o CNES tem na saúde: a rede entra
+  // pelo arquivo oficial do INEP. Ver src/lib/censo-escolar.ts.
+  codigoInep: text("codigo_inep"),
+  origem: text("origem", { enum: ["manual", "censo"] }).notNull().default("manual"),
+  dependencia: text("dependencia", { enum: ["municipal", "estadual", "federal", "privada"] }),
+  localizacao: text("localizacao", { enum: ["urbana", "rural"] }),
+  situacao: text("situacao", { enum: ["ativa", "paralisada", "extinta"] }),
+  endereco: text("endereco"),
+  telefone: text("telefone"),
+  etapas: text("etapas"),
+  porte: text("porte"),
+  /** Matrícula declarada ao Censo — é por ela que o FUNDEB paga. */
+  matriculasCenso: integer("matriculas_censo"),
+  /** Alunos que a escola diz ter hoje; a diferença para a declarada é dinheiro. */
+  matriculasAtuais: integer("matriculas_atuais"),
+  censoAno: integer("censo_ano"),
+  /** Dias letivos do calendário aprovado; o mínimo legal é 200 (LDB art. 24). */
+  diasPrevistos: integer("dias_previstos"),
+  sincronizadoEm: text("sincronizado_em"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// O que acontece na escola no dia a dia, registrado por quem está lá.
+// Igual à saúde, com uma diferença que muda tudo: aqui a ocorrência pode
+// custar AULA, e dia de aula perdido é obrigação legal de repor.
+export const ocorrenciasEscola = pgTable("ocorrencias_escola", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  escolaId: text("escola_id")
+    .notNull()
+    .references(() => escolas.id, { onDelete: "cascade" }),
+  tipo: text("tipo", {
+    enum: ["sem_professor", "turma_dispensada", "falta_merenda", "transporte", "estrutura", "seguranca", "material", "infrequencia", "profissional", "outro"],
+  }).notNull(),
+  gravidade: text("gravidade", { enum: ["atencao", "urgente"] }).notNull().default("atencao"),
+  descricao: text("descricao").notNull(),
+  /** Dias de aula que a turma perdeu por causa disso. */
+  aulasPerdidas: integer("aulas_perdidas"),
+  alunosAfetados: integer("alunos_afetados"),
+  registradoPor: text("registrado_por").notNull(),
+  status: text("status", { enum: ["aberta", "resolvida"] }).notNull().default("aberta"),
+  resolvidaEm: text("resolvida_em"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),

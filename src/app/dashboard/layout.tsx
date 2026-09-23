@@ -21,7 +21,7 @@ const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
 };
 
 function montarGrupos(
-  sessao: { cargo: string; secretaria?: string | null; unidadeId?: string | null },
+  sessao: { cargo: string; secretaria?: string | null; unidadeId?: string | null; escolaId?: string | null },
   planosAtivos: PlanoAddon[],
   implantacaoAberta: boolean
 ): { titulo: string; itens: NavItem[] }[] {
@@ -46,6 +46,19 @@ function montarGrupos(
         titulo: "Minha unidade",
         itens: [
           { href: `/dashboard/secretarias/saude/unidades/${sessao.unidadeId ?? ""}`, label: "Ficha da unidade", icone: "saude" },
+          { href: "/dashboard/conta", label: "Minha conta", icone: "configuracoes" },
+        ],
+      },
+    ];
+  }
+
+  // A direção da escola, idem: a ficha da escola dela.
+  if (sessao.cargo === "escola") {
+    return [
+      {
+        titulo: "Minha escola",
+        itens: [
+          { href: `/dashboard/secretarias/educacao/escolas/${sessao.escolaId ?? ""}`, label: "Ficha da escola", icone: "educacao" },
           { href: "/dashboard/conta", label: "Minha conta", icone: "configuracoes" },
         ],
       },

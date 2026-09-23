@@ -25,10 +25,12 @@ export type SessaoPayload = {
   usuarioId: string;
   prefeituraId: string;
   nome: string;
-  cargo: "prefeito" | "secretario" | "admin" | "unidade";
+  cargo: "prefeito" | "secretario" | "admin" | "unidade" | "escola";
   secretaria?: string | null;
   /** Cargo "unidade": a unidade de saúde que esta pessoa gerencia. */
   unidadeId?: string | null;
+  /** Cargo "escola": a escola que esta pessoa dirige. */
+  escolaId?: string | null;
   /**
    * Sessão da demonstração pública: a prefeitura fictícia, só-leitura.
    * O proxy recusa qualquer requisição que não seja GET quando isto é true —
@@ -80,6 +82,9 @@ export function temAcessoSecretaria(
   // A gerência de unidade tem acesso à saúde, mas só à própria unidade —
   // quem lê dado de unidade confere com podeVerUnidade().
   if (sessao.cargo === "unidade") return secretaria === "saude";
+  // Mesma ideia na educação: a direção registra o que acontece na própria
+  // escola, e só nela — quem lê dado de escola confere com podeVerEscola().
+  if (sessao.cargo === "escola") return secretaria === "educacao";
   return true;
 }
 
@@ -98,9 +103,20 @@ export function podeVerUnidade(sessao: SessaoPayload, unidadeId: string): boolea
   return temAcessoSecretaria(sessao, "saude");
 }
 
+/** Cargo "escola" só vê a própria escola; os demais, qualquer uma da prefeitura. */
+export function podeVerEscola(sessao: SessaoPayload, escolaId: string): boolean {
+  if (sessao.cargo === "escola") return sessao.escolaId === escolaId;
+  return temAcessoSecretaria(sessao, "educacao");
+}
+
 /** Para onde o cargo "unidade" vai ao entrar e sempre que sai do seu canto. */
 export function caminhoDaUnidade(sessao: SessaoPayload): string | null {
   return sessao.cargo === "unidade" && sessao.unidadeId ? `/dashboard/secretarias/saude/unidades/${sessao.unidadeId}` : null;
+}
+
+/** Para onde o cargo "escola" vai ao entrar e sempre que sai do seu canto. */
+export function caminhoDaEscola(sessao: SessaoPayload): string | null {
+  return sessao.cargo === "escola" && sessao.escolaId ? `/dashboard/secretarias/educacao/escolas/${sessao.escolaId}` : null;
 }
 
 export async function encerrarSessao() {

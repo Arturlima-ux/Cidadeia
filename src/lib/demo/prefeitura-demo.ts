@@ -19,6 +19,7 @@ import {
   usuarios,
   unidadesSaude,
   ocorrenciasSaude,
+  ocorrenciasEscola,
   estoqueSaude,
   apsResultados,
   saudeIndicadores,
@@ -42,7 +43,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-saude-aps";
+const VERSAO_DEMO = "2026-09-22-educacao-rede";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -188,11 +189,24 @@ export async function garantirPrefeituraDemo(): Promise<void> {
   );
 
   // ── Educação: frequência caindo (86 → 71), uma escola com evasão alta ──
+  // A rede vem como se tivesse sido importada do Censo Escolar: código
+  // INEP, etapas, matrícula declarada. A Padre Cícero declarou 412 e tem
+  // 431 hoje — 19 alunos atendidos fora da conta do FUNDEB.
+  const censo = { origem: "censo" as const, dependencia: "municipal" as const, situacao: "ativa" as const, censoAno: 2025, sincronizadoEm: diasAtras(9) };
   await db.insert(escolas).values([
-    { id: "demo_esc_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Padre Cícero", bairro: "Centro", evasaoPercentual: 12.4, latitude: -6.7701, longitude: -43.0235 },
-    { id: "demo_esc_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Maria das Dores", bairro: "Alto da Serra", evasaoPercentual: 9.8, latitude: -6.7648, longitude: -43.0298 },
-    { id: "demo_esc_3", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. José Alencar", bairro: "Jardim", evasaoPercentual: 3.1, latitude: -6.7789, longitude: -43.0157 },
-    { id: "demo_esc_4", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Santa Luzia", bairro: "Vila Operária", evasaoPercentual: 2.6, latitude: -6.7733, longitude: -43.0276 },
+    { id: "demo_esc_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Padre Cícero", bairro: "Centro", evasaoPercentual: 12.4, latitude: -6.7701, longitude: -43.0235, codigoInep: "22099001", localizacao: "urbana", etapas: "Ensino Fundamental", porte: "Entre 201 e 500 matrículas", matriculasCenso: 412, matriculasAtuais: 431, diasPrevistos: 200, ...censo },
+    { id: "demo_esc_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Maria das Dores", bairro: "Alto da Serra", evasaoPercentual: 9.8, latitude: -6.7648, longitude: -43.0298, codigoInep: "22099002", localizacao: "rural", etapas: "Educação Infantil, Ensino Fundamental", porte: "Entre 51 e 200 matrículas", matriculasCenso: 188, matriculasAtuais: 171, diasPrevistos: 200, ...censo },
+    { id: "demo_esc_3", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. José Alencar", bairro: "Jardim", evasaoPercentual: 3.1, latitude: -6.7789, longitude: -43.0157, codigoInep: "22099003", localizacao: "urbana", etapas: "Ensino Fundamental", porte: "Entre 201 e 500 matrículas", matriculasCenso: 356, matriculasAtuais: 354, diasPrevistos: 205, ...censo },
+    { id: "demo_esc_4", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Santa Luzia", bairro: "Vila Operária", evasaoPercentual: 2.6, latitude: -6.7733, longitude: -43.0276, codigoInep: "22099004", localizacao: "urbana", etapas: "Educação Infantil", porte: "Até 50 matrículas", matriculasCenso: 74, matriculasAtuais: 74, diasPrevistos: 205, ...censo },
+  ]);
+
+  // O que a direção registrou: é daqui que sai a conta dos 200 dias letivos.
+  await db.insert(ocorrenciasEscola).values([
+    { id: "demo_ocesc_1", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_2", tipo: "transporte", gravidade: "urgente", descricao: "Ônibus da rota do Assentamento quebrou; 34 alunos sem aula há três dias.", aulasPerdidas: 3, alunosAfetados: 34, registradoPor: "Diretora Ana Ribeiro", createdAt: diasAtras(3) },
+    { id: "demo_ocesc_2", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_2", tipo: "falta_merenda", gravidade: "atencao", descricao: "Acabou o leite; lanche reduzido a pão e suco desde ontem.", registradoPor: "Diretora Ana Ribeiro", createdAt: diasAtras(1) },
+    { id: "demo_ocesc_3", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", tipo: "sem_professor", gravidade: "urgente", descricao: "3º ano sem professora desde segunda; turma dispensada.", aulasPerdidas: 2, alunosAfetados: 28, registradoPor: "Diretor Marcos Sales", createdAt: diasAtras(2) },
+    { id: "demo_ocesc_4", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", tipo: "estrutura", gravidade: "atencao", descricao: "Caixa d'água furada; escola dispensou os alunos numa sexta.", aulasPerdidas: 1, alunosAfetados: 431, registradoPor: "Diretor Marcos Sales", status: "resolvida", resolvidaEm: diasAtras(20), createdAt: diasAtras(26) },
+    { id: "demo_ocesc_5", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_3", tipo: "infrequencia", gravidade: "atencao", descricao: "Dois alunos do 5º ano com mais de 10 faltas seguidas.", alunosAfetados: 2, registradoPor: "Diretora Lúcia Barros", createdAt: diasAtras(6) },
   ]);
   await db.insert(educacaoIndicadores).values(
     [

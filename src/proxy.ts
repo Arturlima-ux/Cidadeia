@@ -85,6 +85,18 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  // A direção da escola, idem.
+  if (sessao.cargo === "escola") {
+    const minhaFicha = sessao.escolaId ? `/dashboard/secretarias/educacao/escolas/${sessao.escolaId}` : null;
+    const permitido =
+      (minhaFicha && pathname.startsWith(minhaFicha)) || pathname.startsWith("/dashboard/conta");
+    if (!permitido) {
+      const url = request.nextUrl.clone();
+      url.pathname = minhaFicha ?? "/login";
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (sessao.cargo === "secretario") {
     const minhaSecretaria =
       sessao.secretaria && SECRETARIAS_VALIDAS.includes(sessao.secretaria)

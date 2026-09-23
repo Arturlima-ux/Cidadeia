@@ -42,6 +42,7 @@ export async function fazerLogin(
       nome: usuarios.nome,
       cargo: usuarios.cargo,
       unidadeId: usuarios.unidadeId,
+      escolaId: usuarios.escolaId,
       secretaria: usuarios.secretaria,
       senhaHash: usuarios.senhaHash,
       prefeituraNome: prefeituras.nome,
@@ -74,14 +75,20 @@ export async function fazerLogin(
     usuarioId: usuario.usuarioId,
     prefeituraId: usuario.prefeituraId,
     nome: usuario.nome,
-    cargo: usuario.cargo as "prefeito" | "secretario" | "admin" | "unidade",
+    cargo: usuario.cargo as "prefeito" | "secretario" | "admin" | "unidade" | "escola",
     secretaria: usuario.secretaria,
     unidadeId: usuario.unidadeId,
+    escolaId: usuario.escolaId,
   });
 
   // A gerência de unidade não tem Visão Geral: vai direto para a ficha dela.
   if (usuario.cargo === "unidade" && usuario.unidadeId) {
     redirect(`/dashboard/secretarias/saude/unidades/${usuario.unidadeId}`);
+  }
+
+  // A direção da escola, idem: vai direto para a ficha da escola.
+  if (usuario.cargo === "escola" && usuario.escolaId) {
+    redirect(`/dashboard/secretarias/educacao/escolas/${usuario.escolaId}`);
   }
 
   // Quem entra cai na Visão Geral — é ela que recebe, com a saudação e o
