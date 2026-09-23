@@ -95,14 +95,21 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "educacao",
-    resumo: "A rede municipal com frequência, notas e evasão por escola.",
+    resumo:
+      "A rede vinda do Censo Escolar, e o que cada escola vive por dentro — da merenda ao aluno que sumiu.",
     capacidades: [
-      "Escolas com bairro, percentual de evasão e mapa",
-      "Frequência média e nota média da rede",
-      "Alunos no transporte escolar e professores ativos",
-      "Relatório da secretaria em PDF",
+      "Rede inteira importada do Catálogo de Escolas do INEP, com código INEP, etapas ofertadas e matrícula declarada",
+      "Ficha por escola com leitura automática, e acesso próprio para a direção registrar o que acontece",
+      "Matrícula declarada ao Censo contra a de hoje, convertida em reais de FUNDEB",
+      "Contador dos 200 dias letivos da LDB, somado do que custou aula",
+      "Estoque da merenda em dias de aula, com pedido de reposição em CSV",
+      "Os 30% de compra da agricultura familiar no PNAE, acompanhados durante o ano",
+      "Busca ativa com as etapas datadas e o ofício ao Conselho Tutelar saindo pronto",
+      "IDEB, distorção idade-série, aprovação e abandono por escola, com meta e série",
+      "Escolas, mapa da rede e relatório da secretaria em PDF",
     ],
-    automacao: "Avisa quando o indicador passa de 30 dias sem atualização.",
+    automacao:
+      "Soma sozinho os dias de aula perdidos contra os 200 da LDB (art. 24) e avisa quanta folga sobra. Converte a diferença de matrícula em reais pelo valor aluno/ano informado. Acompanha os 30% da agricultura familiar (Lei 11.947/2009, art. 14) com projeção de onde o ano fecha. Marca quem está há mais de 15 dias fora da sala sem comunicação ao Conselho Tutelar (ECA, art. 56, II) e monta o ofício com o que a escola já tentou.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: false,
   },

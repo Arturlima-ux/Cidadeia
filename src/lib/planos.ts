@@ -43,7 +43,8 @@ export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string 
   {
     chave: "educacao",
     nome: "Educação",
-    descricao: "A rede municipal com frequência, notas e evasão por escola.",
+    descricao:
+      "A rede vinda do Censo Escolar, e o que cada escola vive por dentro — da merenda ao aluno que sumiu.",
   },
   {
     chave: "obras",

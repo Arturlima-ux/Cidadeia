@@ -6,6 +6,7 @@ import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import RaioXResultado from "@/components/site/RaioXResultado";
 import CapturaLeadRaioX from "@/components/site/CapturaLeadRaioX";
+import SolucoesDoRaioX from "@/components/site/SolucoesDoRaioX";
 import { municipioPorSlug, caminhoDoRaioX } from "@/lib/slug-municipio";
 import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
@@ -139,6 +140,27 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             <CapturaLeadRaioX codigoIbge={m.codigo} municipio={m.nome} />
           </Reveal>
         </section>
+
+        {/* ── do diagnóstico para a solução: cada achado puxa o módulo que o trata ── */}
+        {resultado?.ok && (
+          <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-14">
+            <Reveal>
+              <SolucoesDoRaioX
+                entrada={{
+                  municipio: resultado.raioX.municipio,
+                  codigoIbge: resultado.raioX.codigoIbge,
+                  receita: resultado.raioX.receita.valor,
+                  despesaSaude: resultado.raioX.despesaSaude.valor,
+                  despesaEducacao: resultado.raioX.despesaEducacao.valor,
+                  despesaObras: resultado.raioX.despesaObras.valor,
+                  rreoFaltando: resultado.raioX.rreoFaltando,
+                  rreoEsperados: resultado.raioX.rreoEsperados,
+                  bimestreReferencia: resultado.raioX.bimestreReferencia,
+                }}
+              />
+            </Reveal>
+          </section>
+        )}
 
         {/* ── o que o dado público não mostra ── */}
         <section className="border-y border-border" style={{ background: "var(--superficie)" }}>

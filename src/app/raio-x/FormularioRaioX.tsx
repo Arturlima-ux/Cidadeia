@@ -6,6 +6,7 @@ import { ESTADOS } from "@/lib/estados";
 import type { RaioX } from "@/lib/raio-x";
 import RaioXResultado from "@/components/site/RaioXResultado";
 import CapturaLeadRaioX from "@/components/site/CapturaLeadRaioX";
+import SolucoesDoRaioX from "@/components/site/SolucoesDoRaioX";
 
 const classeInput =
   "w-full border border-border rounded-xl px-4 py-3 text-base bg-transparent focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition";
@@ -92,6 +93,19 @@ export default function FormularioRaioX() {
         <>
           <RaioXResultado raioX={raioX} />
           <CapturaLeadRaioX codigoIbge={raioX.codigoIbge} municipio={raioX.municipio} />
+          <SolucoesDoRaioX
+            entrada={{
+              municipio: raioX.municipio,
+              codigoIbge: raioX.codigoIbge,
+              receita: raioX.receita.valor,
+              despesaSaude: raioX.despesaSaude.valor,
+              despesaEducacao: raioX.despesaEducacao.valor,
+              despesaObras: raioX.despesaObras.valor,
+              rreoFaltando: raioX.rreoFaltando,
+              rreoEsperados: raioX.rreoEsperados,
+              bimestreReferencia: raioX.bimestreReferencia,
+            }}
+          />
         </>
       )}
     </div>
