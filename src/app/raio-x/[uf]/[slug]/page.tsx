@@ -35,7 +35,18 @@ import { NOME_DOS_ESTADOS } from "@/lib/estados";
 // não cálculo de mínimo constitucional, e o texto continua avisando isso.
 // Dado público, tom público: sem "descumpre", sem veredito.
 
-export const revalidate = 604800; // 7 dias
+// ── DOIS CACHES, E SÓ UM PROTEGE O TESOURO ──
+//
+// Este é o cache da PÁGINA. O que protege o SICONFI de ser martelado é
+// outro: CACHE_TESOURO_SEGUNDOS, em lib/raio-x.ts, que segura a resposta
+// do Tesouro por sete dias e sobrevive a deploy. Eram os dois em sete
+// dias, e por isso uma mudança de texto ou de seção só aparecia numa
+// página já visitada uma semana depois — foi o que confundiu o teste em
+// 23/09/2026.
+//
+// Um dia aqui traz a mudança para o dia seguinte sem nenhuma consulta a
+// mais ao Tesouro: a remontagem reaproveita o dado que já está em cache.
+export const revalidate = 86400; // 1 dia
 export const dynamicParams = true;
 export const maxDuration = 60;
 

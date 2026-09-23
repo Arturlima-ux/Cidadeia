@@ -17,6 +17,7 @@ import {
   type LinhaLista,
 } from "@/lib/relatorios/RelatorioSecretaria";
 import { temPlano, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
+import { dadosOperacionaisSaude, dadosOperacionaisEducacao } from "@/lib/relatorio-operacional";
 
 const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"] as const;
 type SecretariaValida = (typeof SECRETARIAS_VALIDAS)[number];
@@ -82,46 +83,27 @@ export async function GET(
 
   if (secretaria === "saude") {
     tituloSecretaria = "Secretaria da Saúde";
-    const [indicador, unidades] = await Promise.all([
-      buscarUltimoIndicadorSaude(sessao.prefeituraId),
-      buscarUnidadesSaude(sessao.prefeituraId),
-    ]);
-    indicadores = indicador
-      ? [
-          { valor: `${indicador.tempoMedioAtendimentoMin ?? "—"} min`, label: "Tempo médio de atendimento" },
-          { valor: `${indicador.medicosAtivos ?? "—"}`, label: "Médicos ativos" },
-          { valor: `${indicador.faltasPercentual ?? "—"}%`, label: "Faltas" },
-          { valor: `${indicador.estoqueMedicamentosPercentual ?? "—"}%`, label: "Estoque de medicamentos" },
-        ]
-      : [];
-    colunasLista = ["Unidade", "Tipo", "Bairro"];
-    linhas = unidades.map((u) => ({
-      colunas: [u.nome, LABEL_TIPO_UNIDADE[u.tipo] ?? u.tipo, u.bairro ?? "—"],
-    }));
+    // ── O PDF CONTA A MESMA HISTÓRIA DA TELA ──
+    // Ele imprimia tempo médio, médicos ativos e percentual de estoque —
+    // os indicadores de antes das três fases da Saúde. Quem baixava
+    // recebia um documento que dizia menos do que o painel mostra, e é
+    // esse arquivo que circula por e-mail e chega à câmara.
+    const op = await dadosOperacionaisSaude(sessao.prefeituraId);
+    indicadores = op.cartoes;
+    colunasLista = ["Unidade", "Tipo", "Situação", "O que precisa"];
+    linhas = op.linhas;
+    observacao = op.observacao;
   }
 
   if (secretaria === "educacao") {
     tituloSecretaria = "Secretaria da Educação";
-    const [indicador, listaEscolas] = await Promise.all([
-      buscarUltimoIndicadorEducacao(sessao.prefeituraId),
-      buscarEscolas(sessao.prefeituraId),
-    ]);
-    indicadores = indicador
-      ? [
-          { valor: `${indicador.frequenciaPercentual ?? "—"}%`, label: "Frequência" },
-          { valor: `${indicador.notaMedia ?? "—"}`, label: "Nota média" },
-          { valor: `${indicador.alunosTransporte ?? "—"}`, label: "Alunos no transporte" },
-          { valor: `${indicador.professoresAtivos ?? "—"}`, label: "Professores ativos" },
-        ]
-      : [];
-    colunasLista = ["Escola", "Bairro", "Evasão"];
-    linhas = listaEscolas.map((e) => ({
-      colunas: [
-        e.nome,
-        e.bairro ?? "—",
-        e.evasaoPercentual !== null ? `${e.evasaoPercentual}%` : "—",
-      ],
-    }));
+    // Mesma correção da Saúde: imprimia frequência, nota e evasão, de
+    // antes das quatro fases da Educação.
+    const op = await dadosOperacionaisEducacao(sessao.prefeituraId);
+    indicadores = op.cartoes;
+    colunasLista = ["Escola", "Matrícula (hoje / Censo)", "Dias perdidos", "Situação"];
+    linhas = op.linhas;
+    observacao = op.observacao;
   }
 
   if (secretaria === "obras") {

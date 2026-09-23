@@ -38,6 +38,7 @@ import {
 } from "@/lib/defasagem";
 import { montarPainelPrazos } from "@/lib/prazo-atendimento";
 import { db } from "@/db";
+import { resumoOperacionalSaude, resumoOperacionalEducacao } from "@/lib/contexto-operacional";
 import { basesMinimos, atendimentos, despesaPessoal } from "@/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 
@@ -77,6 +78,8 @@ export async function montarContexto(
     indicadorEducacao,
     listaObras,
     listaLicitacoes,
+    operacionalSaude,
+    operacionalEducacao,
   ] = await Promise.all([
     buscarPrefeitura(prefeituraId),
     buscarUltimoSnapshot(prefeituraId),
@@ -89,6 +92,11 @@ export async function montarContexto(
     buscarUltimoIndicadorEducacao(prefeituraId),
     buscarObras(prefeituraId),
     buscarLicitacoes(prefeituraId),
+    // O que acontece DENTRO da rede — ocorrências, estoque, merenda, busca
+    // ativa, APS, FUNDEB. Sem isto a IA responde sobre o município olhando
+    // só para o cadastro, e contradiz a tela na frente do cliente.
+    resumoOperacionalSaude(prefeituraId),
+    resumoOperacionalEducacao(prefeituraId),
   ]);
 
   const abertos = listaAlertas.filter((a) => !a.resolvido);
@@ -169,7 +177,7 @@ Unidades de saúde cadastradas (${unidadesSaude.length}): ${
         unidadesSaude.length > 0
           ? unidadesSaude.map((u) => `${u.nome} (${u.tipo}${u.bairro ? ", " + u.bairro : ""})`).join("; ")
           : "nenhuma"
-      }`
+      }${operacionalSaude}`
     : !ehSecretario && !planosAtivos.includes("saude")
     ? "\nSAÚDE: plano não contratado por esta prefeitura."
     : "";
@@ -191,7 +199,7 @@ Escolas cadastradas (${escolas.length}): ${
               .map((e) => `${e.nome}${e.evasaoPercentual !== null ? ` (evasão ${e.evasaoPercentual}%)` : ""}`)
               .join("; ")
           : "nenhuma"
-      }`
+      }${operacionalEducacao}`
     : !ehSecretario && !planosAtivos.includes("educacao")
     ? "\nEDUCAÇÃO: plano não contratado por esta prefeitura."
     : "";
