@@ -31,13 +31,16 @@ import { montarPedidoMerenda, cabeNaAgriculturaFamiliar, DIAS_AULA_ATENCAO } fro
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 import { buscarCasosDaRede } from "./busca-ativa-actions";
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
+import { buscarValorAlunoAno } from "./resultado-actions";
+import { apurarFundebPorAluno } from "@/lib/resultado-educacao";
+import { formatarMoeda } from "@/lib/formatadores";
 
 export default async function EducacaoPage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("educacao")) return <BloqueioPlano plano="educacao" />;
 
   const anoCorrente = new Date().getUTCFullYear();
-  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse, casosBusca] = await Promise.all([
+  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse, casosBusca, fundeb] = await Promise.all([
     buscarRedeDeEscolas(ctx.sessao.prefeituraId),
     buscarUltimoIndicadorEducacao(ctx.sessao.prefeituraId),
     buscarOcorrenciasAbertasEscolas(ctx.sessao.prefeituraId),
@@ -47,6 +50,7 @@ export default async function EducacaoPage() {
     buscarComprasPnae(ctx.sessao.prefeituraId, anoCorrente),
     buscarRepassePnae(ctx.sessao.prefeituraId, anoCorrente),
     buscarCasosDaRede(ctx.sessao.prefeituraId),
+    buscarValorAlunoAno(ctx.sessao.prefeituraId, anoCorrente),
   ]);
   const casosPorEscola = new Map<string, typeof casosBusca>();
   for (const c of casosBusca) casosPorEscola.set(c.escolaId, [...(casosPorEscola.get(c.escolaId) ?? []), c]);
@@ -117,6 +121,9 @@ export default async function EducacaoPage() {
     return c.conselhoTutelarEm === null && l.diasFora !== null && l.diasFora >= DIAS_PARA_CONSELHO;
   }).length;
   const buscasReprovando = buscasCorrendo.filter((c) => lerCaso(c).situacaoFrequencia === "reprovacao").length;
+
+  // ── a matrícula, em reais ──
+  const fundebApurado = apurarFundebPorAluno(ativas, fundeb?.valorAlunoAno ?? null);
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -198,23 +205,33 @@ export default async function EducacaoPage() {
         </div>
       )}
 
-      {/* ── matrícula declarada x matrícula real ── */}
+      {/* ── matrícula declarada x matrícula real, em reais quando dá ── */}
       {matriculaCenso > 0 && (
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <Link
+          href="/dashboard/secretarias/educacao/resultado"
+          className="block rounded-2xl border p-4 hover:border-brand transition"
+          style={{
+            borderColor: fundebApurado.alunosForaDaConta > 0 || fundebApurado.alunosDeclaradosAMais > 0 ? "var(--medio)" : "var(--border)",
+            background: fundebApurado.alunosForaDaConta > 0 || fundebApurado.alunosDeclaradosAMais > 0 ? "var(--medio-tint)" : "var(--card)",
+          }}
+        >
           <p className="font-semibold text-sm">
             Matrícula declarada ao Censo: {formatarNumero(matriculaCenso)} aluno(s)
             {matriculaHoje > 0 && ` · informada hoje pelas escolas: ${formatarNumero(matriculaHoje)}`}
+            {fundebApurado.reaisForaDaConta !== null && fundebApurado.alunosForaDaConta > 0 && (
+              <span> — {formatarMoeda(fundebApurado.reaisForaDaConta)} por ano fora da conta do FUNDEB</span>
+            )}
           </p>
           <p className="text-xs text-muted mt-1 leading-relaxed">
             {comMatriculaInformada.length === 0
-              ? "Nenhuma escola informou a matrícula de hoje ainda. É essa comparação que mostra aluno atendido sem entrar na conta do FUNDEB."
+              ? "Nenhuma escola informou a matrícula de hoje ainda. É essa comparação que mostra aluno atendido sem entrar na conta do FUNDEB. →"
               : diferenca === 0
-                ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram, o número de hoje bate com o declarado.`
+                ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram, o número de hoje bate com o declarado. →`
                 : diferenca > 0
-                  ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(diferenca)} aluno(s) a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB.`
-                  : `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(-diferenca)} aluno(s) a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real.`}
+                  ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(diferenca)} aluno(s) a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB. →`
+                  : `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(-diferenca)} aluno(s) a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real. →`}
           </p>
-        </div>
+        </Link>
       )}
 
       {/* ── busca ativa: criança fora da escola ── */}

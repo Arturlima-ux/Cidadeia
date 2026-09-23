@@ -293,6 +293,50 @@ export const estoqueMerenda = pgTable("estoque_merenda", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── RESULTADO POR ESCOLA ──
+// IDEB, distorção idade-série, aprovação, abandono. O INEP não tem API
+// pública desses números por escola — o gestor informa o que o painel do
+// INEP mostra, e o sistema guarda a série, compara com a meta e cruza com
+// o dia a dia. Ver src/lib/resultado-educacao.ts.
+export const educacaoResultados = pgTable("educacao_resultados", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  /** null = resultado da rede inteira; o IDEB da rede não é a média das escolas. */
+  escolaId: text("escola_id").references(() => escolas.id, { onDelete: "cascade" }),
+  ano: integer("ano").notNull(),
+  etapa: text("etapa", { enum: ["creche", "pre_escola", "anos_iniciais", "anos_finais"] }).notNull(),
+  indicador: text("indicador", { enum: ["ideb", "distorcao", "aprovacao", "abandono"] }).notNull(),
+  valor: doublePrecision("valor").notNull(),
+  meta: doublePrecision("meta"),
+  observacao: text("observacao"),
+  registradoPor: text("registrado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── O VALOR ALUNO/ANO DO FUNDEB ──
+// O denominador que transforma a diferença de matrícula em reais. Muda
+// todo ano e por município, então é informado — nunca estimado.
+//
+// Os 70% do FUNDEB para remuneração dos profissionais (Lei 14.113/2020,
+// art. 26) NÃO ficam aqui: vivem em bases_minimos, com o contador.
+export const fundebEducacao = pgTable("fundeb_educacao", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  ano: integer("ano").notNull(),
+  valorAlunoAno: doublePrecision("valor_aluno_ano").notNull(),
+  observacao: text("observacao"),
+  registradoPor: text("registrado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 // ── BUSCA ATIVA ESCOLAR ──
 // Um caso por aluno que sumiu, com as tentativas datadas. É esse registro
 // que a lei chama de "esgotados os recursos escolares" (ECA, art. 56, II)

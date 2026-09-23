@@ -21,6 +21,8 @@ import {
   ocorrenciasSaude,
   ocorrenciasEscola,
   buscaAtiva,
+  educacaoResultados,
+  fundebEducacao,
   estoqueMerenda,
   pnaeCompras,
   pnaeRepasses,
@@ -47,7 +49,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-23-educacao-busca-ativa";
+const VERSAO_DEMO = "2026-09-23-educacao-resultado";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -212,6 +214,28 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     { id: "demo_ocesc_4", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", tipo: "estrutura", gravidade: "atencao", descricao: "Caixa d'água furada; escola dispensou os alunos numa sexta.", aulasPerdidas: 1, alunosAfetados: 431, registradoPor: "Diretor Marcos Sales", status: "resolvida", resolvidaEm: diasAtras(20), createdAt: diasAtras(26) },
     { id: "demo_ocesc_5", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_3", tipo: "infrequencia", gravidade: "atencao", descricao: "Dois alunos do 5º ano com mais de 10 faltas seguidas.", alunosAfetados: 2, registradoPor: "Diretora Lúcia Barros", createdAt: diasAtras(6) },
   ]);
+  // Dinheiro e resultado: o valor aluno/ano que transforma a diferença de
+  // matrícula em reais, e o IDEB de duas escolas. A José Alencar está
+  // abaixo da meta numa escola com busca ativa — o cruzamento aparece.
+  const anoResultado = new Date().getUTCFullYear();
+  await db.insert(fundebEducacao).values({
+    id: "demo_fundeb", prefeituraId: ID_PREFEITURA_DEMO, ano: anoResultado, valorAlunoAno: 7_240, observacao: "VAAF publicado pelo FNDE", registradoPor: "Ana Ribeiro", atualizadoEm: diasAtras(45),
+  });
+  const res = (id: string, escolaId: string | null, ano: number, etapa: "creche" | "pre_escola" | "anos_iniciais" | "anos_finais", indicador: "ideb" | "distorcao" | "aprovacao" | "abandono", valor: number, meta: number | null) => ({
+    id, prefeituraId: ID_PREFEITURA_DEMO, escolaId, ano, etapa, indicador, valor, meta, registradoPor: "Ana Ribeiro", atualizadoEm: diasAtras(60),
+  });
+  await db.insert(educacaoResultados).values([
+    res("demo_res_1", null, anoResultado, "anos_iniciais", "ideb", 4.4, 5.1),
+    res("demo_res_2", null, anoResultado - 2, "anos_iniciais", "ideb", 4.6, 4.8),
+    res("demo_res_3", "demo_esc_3", anoResultado, "anos_iniciais", "ideb", 3.6, 5.0),
+    res("demo_res_4", "demo_esc_3", anoResultado - 2, "anos_iniciais", "ideb", 4.2, 4.7),
+    res("demo_res_5", "demo_esc_1", anoResultado, "anos_iniciais", "ideb", 5.3, 5.2),
+    res("demo_res_6", "demo_esc_1", anoResultado - 2, "anos_iniciais", "ideb", 5.0, 4.9),
+    res("demo_res_7", null, anoResultado, "anos_iniciais", "distorcao", 18.4, 12),
+    res("demo_res_8", null, anoResultado - 2, "anos_iniciais", "distorcao", 15.1, 12),
+    res("demo_res_9", null, anoResultado, "anos_finais", "abandono", 6.2, 3),
+  ]);
+
   // Busca ativa: três casos, cada um numa etapa diferente. O do Pedro está
   // há 28 dias fora com os recursos escolares esgotados e sem comunicação
   // ao Conselho Tutelar — é a omissão que o Ministério Público cobra.
