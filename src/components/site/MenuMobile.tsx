@@ -7,8 +7,10 @@ import Link from "next/link";
 //
 // Abaixo de 1024px a barra de links simplesmente sumia: quem abria o site
 // no celular — e é assim que secretário e vereador abrem — via só a marca e
-// dois botões. Soluções, Módulos, Como contratar, Diagnóstico e FAQ não
-// existiam para essa pessoa. Aqui elas voltam, atrás de um botão.
+// dois botões. Os itens do menu — hoje Raio-X, Demonstração, Como
+// contratar, Diagnóstico e FAQ — não existiam para essa pessoa. Aqui eles
+// voltam, atrás de um botão, na mesma ordem do desktop (a lista chega por
+// propriedade, de SiteHeader: uma fonte só para os dois).
 
 export type LinkMenu = { href: string; label: string };
 

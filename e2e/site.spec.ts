@@ -1,7 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("site público", () => {
-  test("home: topo com uma ação, navegação para Soluções", async ({ page, isMobile }) => {
+  // ── O FUNIL, NA ORDEM EM QUE ELE FOI DESENHADO ──
+  //
+  // Este teste exigia "Soluções" no menu e ia direto para lá. Em 23/09/2026
+  // o caminho mudou de propósito: o menu abre pelo Raio-X do município, e
+  // Soluções passou a ser destino do FIM do Raio-X, com o diagnóstico
+  // daquela cidade já lido. O teste segue o caminho novo inteiro — se
+  // qualquer elo quebrar, ele acusa.
+  test("home: topo com uma ação, e o menu abre pelo Raio-X", async ({ page, isMobile }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/CidadeIA/);
     await expect(page.locator("h1").first()).toBeVisible();
@@ -11,12 +18,22 @@ test.describe("site público", () => {
     await expect(cabecalho.getByRole("link", { name: /Ir para o painel/ })).toHaveCount(0);
     if (isMobile) {
       await page.getByRole("button", { name: /Abrir menu/ }).click();
-      await page.getByRole("link", { name: "Soluções" }).first().click();
+      await page.getByRole("link", { name: /Ver Raio-X do meu município/ }).first().click();
     } else {
-      await cabecalho.getByRole("link", { name: "Soluções" }).click();
+      await cabecalho.getByRole("link", { name: /Ver Raio-X do meu município/ }).click();
     }
+    await expect(page).toHaveURL(/\/raio-x$/);
+  });
+
+  test("Soluções continua alcançável: pelo fim do Raio-X e pelo rodapé", async ({ page }) => {
+    // Saiu do menu, mas não pode ter ficado órfã.
+    await page.goto("/raio-x/pi/jerumenha");
+    await page.getByRole("link", { name: /Ver as soluções por dentro/ }).click();
     await expect(page).toHaveURL(/\/solucoes$/);
     await expect(page.locator("h1")).toHaveText(/Soluções/);
+
+    await page.goto("/");
+    await expect(page.locator("footer").getByRole("link", { name: "Soluções" }).first()).toBeVisible();
   });
 
   test("/precos redireciona para /solucoes", async ({ page }) => {
