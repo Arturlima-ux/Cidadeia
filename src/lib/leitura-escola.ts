@@ -1,6 +1,7 @@
 import { diasAbertaEscola, rotuloOcorrenciaEscola, aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
 import { censoVelho, censoMaisRecenteDisponivel, ROTULO_DEPENDENCIA } from "@/lib/censo-escolar";
 import { diasDeAula, situacaoDoItemMerenda, contagemVelhaMerenda } from "@/lib/merenda";
+import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB, type CasoBuscaAtiva } from "@/lib/busca-ativa";
 
 // ── A LEITURA AUTOMÁTICA DE UMA ESCOLA ──
 //
@@ -21,7 +22,7 @@ export type AchadoEscola = {
   detalhe: string;
   acao: string;
   peso: number;
-  fonte: "censo" | "ocorrencia" | "calendario" | "matricula" | "merenda" | "ouvidoria" | "cadastro";
+  fonte: "censo" | "ocorrencia" | "calendario" | "matricula" | "merenda" | "busca_ativa" | "ouvidoria" | "cadastro";
 };
 
 export type LeituraEscola = {
@@ -50,6 +51,8 @@ export type EntradaLeituraEscola = {
   ocorrenciasDoAno: { tipo: string; aulasPerdidas: number | null }[];
   /** O que tem na cozinha: saldo e consumo por dia de aula. */
   merenda?: { item: string; saldo: number; consumoDiario: number; atualizadoEm: string }[];
+  /** Casos de busca ativa desta escola. */
+  buscaAtiva?: CasoBuscaAtiva[];
   /** Manifestações da ouvidoria dos últimos 30 dias que citam a escola. */
   mencoesOuvidoria: { tipo: string; assunto: string; createdAt: string }[];
 };
@@ -197,6 +200,46 @@ export function lerEscola(e: EntradaLeituraEscola, hoje: Date = new Date()): Lei
       acao: "Pedir à escola uma contagem nova — leva dez minutos e evita criança sem almoço.",
       peso: 5,
       fonte: "merenda",
+    });
+  }
+
+  // ── busca ativa ──
+  // Criança fora da escola é o problema mais caro da educação municipal, e
+  // o único em que a omissão do município tem nome no ECA.
+  const casos = (e.buscaAtiva ?? []).filter((c) => emAndamento(c.situacao));
+  const semConselho = casos.filter((c) => {
+    const l = lerCaso(c, hoje);
+    return c.conselhoTutelarEm === null && l.diasFora !== null && l.diasFora >= DIAS_PARA_CONSELHO;
+  });
+  const reprovando = casos.filter((c) => lerCaso(c, hoje).situacaoFrequencia === "reprovacao");
+  if (semConselho.length > 0) {
+    achados.push({
+      gravidade: "urgente",
+      titulo: `${semConselho.length} aluno(s) fora há mais de ${DIAS_PARA_CONSELHO} dias sem comunicação ao Conselho Tutelar`,
+      detalhe:
+        "O ECA (art. 56, II) obriga a escola a comunicar a reiteração de faltas e a evasão, esgotados os recursos escolares. A omissão é do município, não da família.",
+      acao: "Abrir a ficha, registrar o que já foi tentado e gerar o ofício ao Conselho Tutelar — ele sai pronto do que está lançado.",
+      peso: 34,
+      fonte: "busca_ativa",
+    });
+  }
+  if (reprovando.length > 0) {
+    achados.push({
+      gravidade: "atencao",
+      titulo: `${reprovando.length} aluno(s) já abaixo dos ${FREQUENCIA_MINIMA_LDB}% de frequência`,
+      detalhe: "Abaixo do mínimo da LDB (art. 24, VI) o aluno reprova por falta, mesmo aprendendo.",
+      acao: "Priorizar esses casos na busca ativa: quanto mais tempo fora, menor a chance de voltar.",
+      peso: 18,
+      fonte: "busca_ativa",
+    });
+  } else if (casos.length > 0) {
+    achados.push({
+      gravidade: "info",
+      titulo: `${casos.length} caso(s) de busca ativa em andamento`,
+      detalhe: "Alunos faltando, ainda dentro do mínimo de frequência.",
+      acao: "Seguir as etapas da ficha enquanto dá para trazer de volta sem perder o ano.",
+      peso: 6,
+      fonte: "busca_ativa",
     });
   }
 

@@ -20,6 +20,7 @@ import {
   unidadesSaude,
   ocorrenciasSaude,
   ocorrenciasEscola,
+  buscaAtiva,
   estoqueMerenda,
   pnaeCompras,
   pnaeRepasses,
@@ -46,7 +47,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-educacao-merenda";
+const VERSAO_DEMO = "2026-09-23-educacao-busca-ativa";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -211,6 +212,16 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     { id: "demo_ocesc_4", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", tipo: "estrutura", gravidade: "atencao", descricao: "Caixa d'água furada; escola dispensou os alunos numa sexta.", aulasPerdidas: 1, alunosAfetados: 431, registradoPor: "Diretor Marcos Sales", status: "resolvida", resolvidaEm: diasAtras(20), createdAt: diasAtras(26) },
     { id: "demo_ocesc_5", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_3", tipo: "infrequencia", gravidade: "atencao", descricao: "Dois alunos do 5º ano com mais de 10 faltas seguidas.", alunosAfetados: 2, registradoPor: "Diretora Lúcia Barros", createdAt: diasAtras(6) },
   ]);
+  // Busca ativa: três casos, cada um numa etapa diferente. O do Pedro está
+  // há 28 dias fora com os recursos escolares esgotados e sem comunicação
+  // ao Conselho Tutelar — é a omissão que o Ministério Público cobra.
+  const dataAtrasBa = (n: number) => diasAtras(n).slice(0, 10);
+  await db.insert(buscaAtiva).values([
+    { id: "demo_ba_1", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_3", alunoNome: "Pedro Henrique Alves", alunoTurma: "5º ano B", idade: 11, faltas: 28, aulasPeriodo: 100, periodo: "3º bimestre de 2026", ultimaPresenca: dataAtrasBa(28), bolsaFamilia: true, situacao: "aberta", contatoFamiliaEm: dataAtrasBa(21), visitaEm: dataAtrasBa(12), registradoPor: "Diretora Lúcia Barros", createdAt: diasAtras(22), atualizadoEm: diasAtras(12) },
+    { id: "demo_ba_2", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_2", alunoNome: "Sara Lima da Costa", alunoTurma: "3º ano A", idade: 9, faltas: 12, aulasPeriodo: 100, periodo: "3º bimestre de 2026", ultimaPresenca: dataAtrasBa(6), bolsaFamilia: false, situacao: "aberta", registradoPor: "Diretora Ana Ribeiro", createdAt: diasAtras(5), atualizadoEm: diasAtras(5) },
+    { id: "demo_ba_3", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", alunoNome: "João Vitor Nunes", alunoTurma: "2º ano C", idade: 8, faltas: 18, aulasPeriodo: 100, periodo: "2º bimestre de 2026", ultimaPresenca: dataAtrasBa(55), bolsaFamilia: true, situacao: "retornou", contatoFamiliaEm: dataAtrasBa(50), visitaEm: dataAtrasBa(44), observacao: "Família mudou de bairro; transporte resolvido, voltou em agosto.", registradoPor: "Diretor Marcos Sales", createdAt: diasAtras(52), atualizadoEm: diasAtras(40) },
+  ]);
+
   // A cozinha: o leite da Maria das Dores zerou (é a ocorrência de merenda
   // acima, vista do outro lado), o feijão da Padre Cícero acaba esta semana.
   const mer = (id: string, escolaId: string, item: string, categoria: "hortifruti" | "proteina" | "graos" | "laticinio" | "panificacao" | "mercearia" | "outro", unidadeMedida: string, saldo: number, consumoDiario: number, por: string, diasContagem = 2) => ({

@@ -293,6 +293,47 @@ export const estoqueMerenda = pgTable("estoque_merenda", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── BUSCA ATIVA ESCOLAR ──
+// Um caso por aluno que sumiu, com as tentativas datadas. É esse registro
+// que a lei chama de "esgotados os recursos escolares" (ECA, art. 56, II)
+// e que vira o ofício ao Conselho Tutelar. Ver src/lib/busca-ativa.ts.
+//
+// Dado de criança: nome e turma, nada além. Sem CPF, sem NIS, sem endereço.
+export const buscaAtiva = pgTable("busca_ativa", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  escolaId: text("escola_id")
+    .notNull()
+    .references(() => escolas.id, { onDelete: "cascade" }),
+  alunoNome: text("aluno_nome").notNull(),
+  alunoTurma: text("aluno_turma"),
+  /** Só a idade, para saber a exigência de frequência do Bolsa Família. */
+  idade: integer("idade"),
+  faltas: integer("faltas").notNull().default(0),
+  aulasPeriodo: integer("aulas_periodo").notNull().default(0),
+  periodo: text("periodo").notNull(),
+  ultimaPresenca: text("ultima_presenca"),
+  bolsaFamilia: boolean("bolsa_familia").notNull().default(false),
+  situacao: text("situacao", { enum: ["aberta", "retornou", "transferido", "conselho_tutelar", "encerrada"] })
+    .notNull()
+    .default("aberta"),
+  // As etapas, com data: é a prova de que a escola tentou antes.
+  contatoFamiliaEm: text("contato_familia_em"),
+  visitaEm: text("visita_em"),
+  conselhoTutelarEm: text("conselho_tutelar_em"),
+  ministerioPublicoEm: text("ministerio_publico_em"),
+  observacao: text("observacao"),
+  registradoPor: text("registrado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 // ── PNAE: AS COMPRAS E O REPASSE ──
 // A Lei 11.947/2009, art. 14, manda aplicar no mínimo 30% do repasse do
 // PNAE em compra direta da agricultura familiar. O percentual é sobre o

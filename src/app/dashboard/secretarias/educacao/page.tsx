@@ -29,13 +29,15 @@ import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel } from "@/lib/censo-esco
 import { buscarMerendaDaRede, buscarComprasPnae, buscarRepassePnae } from "./merenda-actions";
 import { montarPedidoMerenda, cabeNaAgriculturaFamiliar, DIAS_AULA_ATENCAO } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
+import { buscarCasosDaRede } from "./busca-ativa-actions";
+import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
 
 export default async function EducacaoPage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("educacao")) return <BloqueioPlano plano="educacao" />;
 
   const anoCorrente = new Date().getUTCFullYear();
-  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse] = await Promise.all([
+  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse, casosBusca] = await Promise.all([
     buscarRedeDeEscolas(ctx.sessao.prefeituraId),
     buscarUltimoIndicadorEducacao(ctx.sessao.prefeituraId),
     buscarOcorrenciasAbertasEscolas(ctx.sessao.prefeituraId),
@@ -44,7 +46,10 @@ export default async function EducacaoPage() {
     buscarMerendaDaRede(ctx.sessao.prefeituraId),
     buscarComprasPnae(ctx.sessao.prefeituraId, anoCorrente),
     buscarRepassePnae(ctx.sessao.prefeituraId, anoCorrente),
+    buscarCasosDaRede(ctx.sessao.prefeituraId),
   ]);
+  const casosPorEscola = new Map<string, typeof casosBusca>();
+  for (const c of casosBusca) casosPorEscola.set(c.escolaId, [...(casosPorEscola.get(c.escolaId) ?? []), c]);
   const merendaPorEscola = new Map<string, typeof merenda>();
   for (const l of merenda) merendaPorEscola.set(l.escolaId, [...(merendaPorEscola.get(l.escolaId) ?? []), l]);
 
@@ -73,6 +78,7 @@ export default async function EducacaoPage() {
       ocorrenciasAbertas: abertasPorEscola.get(e.id) ?? [],
       ocorrenciasDoAno: doAnoPorEscola.get(e.id) ?? [],
       merenda: merendaPorEscola.get(e.id) ?? [],
+      buscaAtiva: casosPorEscola.get(e.id) ?? [],
       mencoesOuvidoria: manifestacoes.filter((m) => mencionaEscola(`${m.assunto} ${m.mensagem}`, e.nome)),
     });
     return { e, situacao: leitura.situacao, leitura };
@@ -103,6 +109,14 @@ export default async function EducacaoPage() {
   const escolasComPedido = new Set(pedidoMerenda.map((i) => i.escolaId));
   const cabemNaAf = pedidoMerenda.filter((i) => cabeNaAgriculturaFamiliar(i.item)).length;
   const pnae = apurarPnae(compras, repasse?.valor ?? 0);
+
+  // ── busca ativa da rede ──
+  const buscasCorrendo = casosBusca.filter((c) => emAndamento(c.situacao));
+  const buscasConselhoAtrasado = buscasCorrendo.filter((c) => {
+    const l = lerCaso(c);
+    return c.conselhoTutelarEm === null && l.diasFora !== null && l.diasFora >= DIAS_PARA_CONSELHO;
+  }).length;
+  const buscasReprovando = buscasCorrendo.filter((c) => lerCaso(c).situacaoFrequencia === "reprovacao").length;
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -202,6 +216,30 @@ export default async function EducacaoPage() {
           </p>
         </div>
       )}
+
+      {/* ── busca ativa: criança fora da escola ── */}
+      <Link
+        href="/dashboard/secretarias/educacao/busca-ativa"
+        className="block rounded-2xl border p-4 hover:border-brand transition"
+        style={{
+          borderColor: buscasConselhoAtrasado > 0 ? "var(--urgente)" : buscasReprovando > 0 ? "var(--medio)" : "var(--border)",
+          background: buscasConselhoAtrasado > 0 ? "var(--urgente-tint)" : buscasReprovando > 0 ? "var(--medio-tint)" : "var(--card)",
+        }}
+      >
+        <p className="font-semibold text-sm">
+          {buscasCorrendo.length === 0
+            ? "Busca ativa escolar: nenhum caso em andamento."
+            : `Busca ativa escolar: ${buscasCorrendo.length} aluno(s) fora da sala`}
+          {buscasConselhoAtrasado > 0 && ` — ${buscasConselhoAtrasado} sem comunicação ao Conselho Tutelar`}
+        </p>
+        <p className="text-sm text-muted mt-1 leading-relaxed">
+          {buscasConselhoAtrasado > 0
+            ? `Aluno há mais de ${DIAS_PARA_CONSELHO} dias fora sem comunicação é omissão do município (ECA, art. 56, II). O ofício sai pronto da ficha. →`
+            : buscasReprovando > 0
+              ? `${buscasReprovando} aluno(s) já abaixo dos ${FREQUENCIA_MINIMA_LDB}% de frequência que a LDB exige para aprovação. →`
+              : "Cada caso com as tentativas datadas — é o que a lei chama de recursos escolares esgotados. →"}
+        </p>
+      </Link>
 
       {/* ── os 30% da agricultura familiar ── */}
       <Link
