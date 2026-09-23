@@ -177,7 +177,19 @@ describe("hierarquia de chamada para ação", () => {
 
   it("os dois são qualificar no topo e converter no fecho", () => {
     const destinos = destinosCheios(home);
-    expect(destinos).toContain("/diagnostico");
+    // ── O QUE ESTÁ TRAVADO AQUI É A REGRA, NÃO A URL ──
+    //
+    // A primeira versão exigia "/diagnostico" literal. Em 23/09/2026 o topo
+    // passou a abrir pelo Raio-X, que qualifica melhor: não pede nada além
+    // do nome do município e já devolve o dado do Tesouro sobre ele, contra
+    // dois minutos de respostas do diagnóstico. O teste quebrou por causa
+    // do nome, não do que ele defende — e teste que quebra em melhoria é
+    // teste que alguém apaga.
+    //
+    // Qualificar continua obrigatório no topo. Qual das duas portas faz
+    // isso é decisão de produto.
+    const QUALIFICADORES = ["/raio-x", "/diagnostico"];
+    expect(destinos.some((d) => QUALIFICADORES.some((q) => d.startsWith(q)))).toBe(true);
     // O fecho converte pedindo a proposta — que tem página própria, não é
     // "precisa de ajuda". /suporte fica para suporte.
     expect(destinos.some((d) => d.startsWith("/proposta"))).toBe(true);

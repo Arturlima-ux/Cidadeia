@@ -46,18 +46,22 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
         ))}
       </ol>
 
+      {/* ── a ordem em que a pessoa decide ──
+          Quem acabou de ler o Raio-X ainda não quer preço: quer saber o que
+          existe para o caso dele. Soluções vem primeiro por isso, e a
+          proposta logo atrás, já com o município preenchido. */}
       <div className="flex flex-wrap gap-3 mt-8">
         <Link
-          href={`/proposta?ibge=${entrada.codigoIbge}`}
+          href="/solucoes"
           className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated"
         >
-          Montar proposta para {entrada.municipio}&nbsp;&nbsp;→
+          Ver as soluções por dentro&nbsp;&nbsp;→
         </Link>
         <Link
-          href="/solucoes"
+          href={`/proposta?ibge=${entrada.codigoIbge}`}
           className="border border-border font-semibold text-sm rounded-xl px-5 py-3.5 transition hover:border-brand"
         >
-          Ver todos os módulos e o que cada um entrega
+          Montar proposta para {entrada.municipio}
         </Link>
         <Link
           href="/demo"
@@ -66,6 +70,10 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
           Abrir o painel de demonstração
         </Link>
       </div>
+      <p className="text-sm text-muted mt-4 leading-relaxed max-w-[62ch]">
+        Em Soluções, cada módulo abre com o que ele entrega, a automação que roda sozinha e o que o
+        cidadão consegue conferir no portal — módulo por módulo, sem promessa que a tela não cumpra.
+      </p>
 
       <p className="text-xs text-muted mt-6 leading-relaxed max-w-[62ch]">
         Os percentuais citados acima são indício sobre a receita total, não cálculo de mínimo

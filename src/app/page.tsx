@@ -263,30 +263,36 @@ export default async function LandingPage() {
                   base só — e a IA dizendo o que mudou e o que fazer.
                 </p>
 
+                {/* Duas portas de entrada, e a ordem importa. O Raio-X não
+                    pede nada: basta o nome do município e ele mostra o que o
+                    Tesouro já publicou. O diagnóstico pede dois minutos de
+                    respostas. Quem chega frio começa pelo que não cobra nada
+                    dele. */}
                 <p className="text-muted text-base leading-relaxed mt-4 max-w-[50ch]">
-                  Comece pelo diagnóstico gratuito: {EXIGENCIAS.length}{" "}
-                  exigências da LAI, da Lei 13.460, da LRF e da LGPD conferidas
-                  contra o seu município, cada pendência com o artigo que a
-                  cria.
+                  Comece vendo o Raio-X do seu município: receita, aplicação em
+                  saúde e educação e quais relatórios obrigatórios constam, direto
+                  do Tesouro Nacional. Depois, o diagnóstico gratuito confere{" "}
+                  {EXIGENCIAS.length} exigências da LAI, da Lei 13.460, da LRF e
+                  da LGPD, cada pendência com o artigo que a cria.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 mt-8">
                   <Link
-                    href="/diagnostico"
+                    href="/raio-x"
                     className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
                   >
-                    Fazer o diagnóstico&nbsp;&nbsp;→
+                    Ver o Raio-X do meu município&nbsp;&nbsp;→
                   </Link>
                   <Link
-                    href="#proposta"
+                    href="/diagnostico"
                     className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
                   >
-                    Montar proposta
+                    Fazer o diagnóstico
                   </Link>
                 </div>
 
                 <p className="text-xs text-muted mt-4">
-                  Dois minutos · sem cadastro · nada é enviado
+                  Sem cadastro · sem formulário · dado que já é público
                 </p>
                 {/* A demonstração é o painel real com uma prefeitura fictícia.
                     Em texto, não em botão: a página tem duas ações cheias que
@@ -300,6 +306,15 @@ export default async function LandingPage() {
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
                     Explorar a demonstração — o painel de verdade, sem cadastro →
                   </a>
+                </p>
+                <p className="text-sm mt-2.5">
+                  <Link
+                    href="#proposta"
+                    className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--brand)" }} />
+                    Montar a proposta do município — módulos, prazo e valor →
+                  </Link>
                 </p>
 
                 {/* A prova sobe para o herói. Ficava na quarta seção, depois
