@@ -20,6 +20,9 @@ import {
   unidadesSaude,
   ocorrenciasSaude,
   ocorrenciasEscola,
+  estoqueMerenda,
+  pnaeCompras,
+  pnaeRepasses,
   estoqueSaude,
   apsResultados,
   saudeIndicadores,
@@ -43,7 +46,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-22-educacao-rede";
+const VERSAO_DEMO = "2026-09-22-educacao-merenda";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -208,6 +211,40 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     { id: "demo_ocesc_4", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_1", tipo: "estrutura", gravidade: "atencao", descricao: "Caixa d'água furada; escola dispensou os alunos numa sexta.", aulasPerdidas: 1, alunosAfetados: 431, registradoPor: "Diretor Marcos Sales", status: "resolvida", resolvidaEm: diasAtras(20), createdAt: diasAtras(26) },
     { id: "demo_ocesc_5", prefeituraId: ID_PREFEITURA_DEMO, escolaId: "demo_esc_3", tipo: "infrequencia", gravidade: "atencao", descricao: "Dois alunos do 5º ano com mais de 10 faltas seguidas.", alunosAfetados: 2, registradoPor: "Diretora Lúcia Barros", createdAt: diasAtras(6) },
   ]);
+  // A cozinha: o leite da Maria das Dores zerou (é a ocorrência de merenda
+  // acima, vista do outro lado), o feijão da Padre Cícero acaba esta semana.
+  const mer = (id: string, escolaId: string, item: string, categoria: "hortifruti" | "proteina" | "graos" | "laticinio" | "panificacao" | "mercearia" | "outro", unidadeMedida: string, saldo: number, consumoDiario: number, por: string, diasContagem = 2) => ({
+    id, prefeituraId: ID_PREFEITURA_DEMO, escolaId, item, categoria, unidadeMedida, saldo, consumoDiario, atualizadoPor: por, atualizadoEm: diasAtras(diasContagem),
+  });
+  await db.insert(estoqueMerenda).values([
+    mer("demo_mer_1", "demo_esc_2", "Leite", "laticinio", "litro", 0, 12, "Diretora Ana Ribeiro", 1),
+    mer("demo_mer_2", "demo_esc_2", "Arroz", "graos", "kg", 90, 9, "Diretora Ana Ribeiro", 1),
+    mer("demo_mer_3", "demo_esc_2", "Feijão", "graos", "kg", 40, 5, "Diretora Ana Ribeiro", 1),
+    mer("demo_mer_4", "demo_esc_1", "Feijão", "graos", "kg", 22, 11, "Diretor Marcos Sales", 2),
+    mer("demo_mer_5", "demo_esc_1", "Arroz", "graos", "kg", 300, 20, "Diretor Marcos Sales", 2),
+    mer("demo_mer_6", "demo_esc_1", "Frango", "proteina", "kg", 60, 14, "Diretor Marcos Sales", 2),
+    mer("demo_mer_7", "demo_esc_1", "Banana", "hortifruti", "kg", 25, 18, "Diretor Marcos Sales", 2),
+    mer("demo_mer_8", "demo_esc_3", "Arroz", "graos", "kg", 260, 17, "Diretora Lúcia Barros", 4),
+    mer("demo_mer_9", "demo_esc_3", "Óleo de soja", "mercearia", "litro", 48, 3, "Diretora Lúcia Barros", 4),
+  ]);
+  // O PNAE do ano: repasse informado e as compras lançadas. De propósito,
+  // a agricultura familiar está em torno de 22% — abaixo dos 30% da lei,
+  // com tempo de corrigir. É o aviso que o município nunca recebe em setembro.
+  const anoPnae = new Date().getUTCFullYear();
+  await db.insert(pnaeRepasses).values({
+    id: "demo_pnaer", prefeituraId: ID_PREFEITURA_DEMO, ano: anoPnae, valor: 320_000, registradoPor: "Ana Ribeiro", atualizadoEm: diasAtras(30),
+  });
+  const cmp = (id: string, descricao: string, fornecedor: string, valor: number, af: boolean, modalidade: "chamada_publica" | "pregao" | "dispensa" | "outra", dias: number) => ({
+    id, prefeituraId: ID_PREFEITURA_DEMO, ano: anoPnae, descricao, fornecedor, valor, agriculturaFamiliar: af, modalidade, dataCompra: diasAtras(dias).slice(0, 10), registradoPor: "Ana Ribeiro", createdAt: diasAtras(dias),
+  });
+  await db.insert(pnaeCompras).values([
+    cmp("demo_pnaec_1", "Hortifrúti do 1º bimestre", "Cooperativa dos Agricultores de Vila Nova", 38_000, true, "chamada_publica", 200),
+    cmp("demo_pnaec_2", "Gêneros secos — arroz, feijão, óleo", "Distribuidora Boa Mesa Ltda", 94_000, false, "pregao", 180),
+    cmp("demo_pnaec_3", "Proteína — frango e carne", "Frigorífico Serra Azul", 72_000, false, "pregao", 120),
+    cmp("demo_pnaec_4", "Polpa de fruta e ovos", "Associação de Produtores do Assentamento", 32_000, true, "chamada_publica", 70),
+    cmp("demo_pnaec_5", "Pão e leite", "Padaria Central", 21_000, false, "dispensa", 25),
+  ]);
+
   await db.insert(educacaoIndicadores).values(
     [
       [150, 86, 7.4],

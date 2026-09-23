@@ -265,6 +265,75 @@ export const ocorrenciasEscola = pgTable("ocorrencias_escola", {
     .default(sql`now()::text`),
 }).enableRLS();
 
+// ── MERENDA ──
+// O estoque da cozinha, contado pela própria escola. Diferente da farmácia,
+// o consumo aqui é por DIA DE AULA: escola não serve almoço no sábado.
+// Ver src/lib/merenda.ts.
+export const estoqueMerenda = pgTable("estoque_merenda", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  escolaId: text("escola_id")
+    .notNull()
+    .references(() => escolas.id, { onDelete: "cascade" }),
+  item: text("item").notNull(),
+  categoria: text("categoria", {
+    enum: ["hortifruti", "proteina", "graos", "laticinio", "panificacao", "mercearia", "outro"],
+  })
+    .notNull()
+    .default("outro"),
+  unidadeMedida: text("unidade_medida").notNull().default("kg"),
+  saldo: doublePrecision("saldo").notNull().default(0),
+  /** Quanto sai por dia de aula. */
+  consumoDiario: doublePrecision("consumo_diario").notNull().default(0),
+  atualizadoPor: text("atualizado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── PNAE: AS COMPRAS E O REPASSE ──
+// A Lei 11.947/2009, art. 14, manda aplicar no mínimo 30% do repasse do
+// PNAE em compra direta da agricultura familiar. O percentual é sobre o
+// REPASSE, por isso ele é guardado. Ver src/lib/pnae.ts.
+export const pnaeCompras = pgTable("pnae_compras", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  ano: integer("ano").notNull(),
+  descricao: text("descricao").notNull(),
+  fornecedor: text("fornecedor"),
+  valor: doublePrecision("valor").notNull(),
+  agriculturaFamiliar: boolean("agricultura_familiar").notNull().default(false),
+  modalidade: text("modalidade", { enum: ["chamada_publica", "pregao", "dispensa", "outra"] })
+    .notNull()
+    .default("outra"),
+  documento: text("documento"),
+  dataCompra: text("data_compra").notNull(),
+  registradoPor: text("registrado_por").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+export const pnaeRepasses = pgTable("pnae_repasses", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  ano: integer("ano").notNull(),
+  valor: doublePrecision("valor").notNull(),
+  /** Motivo do art. 14, §2º, quando o município não alcança os 30%. */
+  motivoDispensa: text("motivo_dispensa", { enum: ["sem_nota", "sem_regularidade", "sanitario"] }),
+  observacao: text("observacao"),
+  registradoPor: text("registrado_por").notNull(),
+  atualizadoEm: text("atualizado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 // ── OBRAS ──
 export const obras = pgTable("obras", {
   id: text("id").primaryKey(),

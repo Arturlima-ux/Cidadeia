@@ -26,18 +26,27 @@ import ImportarRedeCenso from "./ImportarRedeCenso";
 import { lerEscola, mencionaEscola } from "@/lib/leitura-escola";
 import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
 import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel } from "@/lib/censo-escolar";
+import { buscarMerendaDaRede, buscarComprasPnae, buscarRepassePnae } from "./merenda-actions";
+import { montarPedidoMerenda, cabeNaAgriculturaFamiliar, DIAS_AULA_ATENCAO } from "@/lib/merenda";
+import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 
 export default async function EducacaoPage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("educacao")) return <BloqueioPlano plano="educacao" />;
 
-  const [listaEscolas, indicador, abertas, doAno, manifestacoes] = await Promise.all([
+  const anoCorrente = new Date().getUTCFullYear();
+  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse] = await Promise.all([
     buscarRedeDeEscolas(ctx.sessao.prefeituraId),
     buscarUltimoIndicadorEducacao(ctx.sessao.prefeituraId),
     buscarOcorrenciasAbertasEscolas(ctx.sessao.prefeituraId),
     buscarOcorrenciasDoAno(ctx.sessao.prefeituraId),
     buscarManifestacoesRecentesEducacao(ctx.sessao.prefeituraId),
+    buscarMerendaDaRede(ctx.sessao.prefeituraId),
+    buscarComprasPnae(ctx.sessao.prefeituraId, anoCorrente),
+    buscarRepassePnae(ctx.sessao.prefeituraId, anoCorrente),
   ]);
+  const merendaPorEscola = new Map<string, typeof merenda>();
+  for (const l of merenda) merendaPorEscola.set(l.escolaId, [...(merendaPorEscola.get(l.escolaId) ?? []), l]);
 
   const abertasPorEscola = new Map<string, typeof abertas>();
   for (const o of abertas) abertasPorEscola.set(o.escolaId, [...(abertasPorEscola.get(o.escolaId) ?? []), o]);
@@ -63,6 +72,7 @@ export default async function EducacaoPage() {
       },
       ocorrenciasAbertas: abertasPorEscola.get(e.id) ?? [],
       ocorrenciasDoAno: doAnoPorEscola.get(e.id) ?? [],
+      merenda: merendaPorEscola.get(e.id) ?? [],
       mencoesOuvidoria: manifestacoes.filter((m) => mencionaEscola(`${m.assunto} ${m.mensagem}`, e.nome)),
     });
     return { e, situacao: leitura.situacao, leitura };
@@ -85,6 +95,14 @@ export default async function EducacaoPage() {
   const estouradas = calendarios.filter((x) => x.c.situacao === "estourado");
   const semFolga = calendarios.filter((x) => x.c.situacao === "atencao");
   const totalPerdidos = calendarios.reduce((s, x) => s + x.c.perdidos, 0);
+
+  // ── merenda: o que falta na cozinha e os 30% da agricultura familiar ──
+  const nomeEscola = new Map(listaEscolas.map((e) => [e.id, e.nome]));
+  const pedidoMerenda = montarPedidoMerenda(merenda.map((l) => ({ ...l, escolaNome: nomeEscola.get(l.escolaId) ?? "Escola" })));
+  const acabou = pedidoMerenda.filter((i) => i.situacao === "falta" || i.situacao === "critico");
+  const escolasComPedido = new Set(pedidoMerenda.map((i) => i.escolaId));
+  const cabemNaAf = pedidoMerenda.filter((i) => cabeNaAgriculturaFamiliar(i.item)).length;
+  const pnae = apurarPnae(compras, repasse?.valor ?? 0);
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -182,6 +200,58 @@ export default async function EducacaoPage() {
                   ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(diferenca)} aluno(s) a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB.`
                   : `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(-diferenca)} aluno(s) a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real.`}
           </p>
+        </div>
+      )}
+
+      {/* ── os 30% da agricultura familiar ── */}
+      <Link
+        href="/dashboard/secretarias/educacao/merenda"
+        className="block rounded-2xl border p-4 hover:border-brand transition"
+        style={{
+          borderColor: pnae.situacao === "abaixo" ? "var(--urgente)" : pnae.situacao === "perto" ? "var(--medio)" : "var(--border)",
+          background: pnae.situacao === "abaixo" ? "var(--urgente-tint)" : pnae.situacao === "perto" ? "var(--medio-tint)" : "var(--card)",
+        }}
+      >
+        <p className="font-semibold text-sm">
+          Merenda: os {PERCENTUAL_MINIMO_AF}% da agricultura familiar em {anoCorrente}
+          {pnae.percentual !== null && ` — ${pnae.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`}
+        </p>
+        <p className="text-sm text-muted mt-1 leading-relaxed">{pnae.frase} →</p>
+      </Link>
+
+      {/* ── o que está faltando na cozinha ── */}
+      {merenda.length > 0 && (
+        <div
+          className="rounded-2xl border p-4 flex flex-wrap items-center justify-between gap-3"
+          style={{
+            borderColor: acabou.length > 0 ? "var(--urgente)" : pedidoMerenda.length > 0 ? "var(--medio)" : "var(--border)",
+            background: acabou.length > 0 ? "var(--urgente-tint)" : pedidoMerenda.length > 0 ? "var(--medio-tint)" : "var(--card)",
+          }}
+        >
+          <div>
+            <p className="font-semibold text-sm">
+              {pedidoMerenda.length === 0
+                ? `Merenda: nenhum item abaixo de ${DIAS_AULA_ATENCAO} dias de aula de cobertura.`
+                : `Merenda: ${pedidoMerenda.length} item(ns) para repor em ${escolasComPedido.size} escola(s)${acabou.length > 0 ? ` — ${acabou.length} acabou ou acaba esta semana` : ""}.`}
+            </p>
+            {acabou.length > 0 && (
+              <p className="text-xs text-muted mt-1">
+                {acabou.slice(0, 4).map((i) => `${i.item} (${i.escolaNome})`).join(" · ")}
+                {acabou.length > 4 ? " · …" : ""}
+              </p>
+            )}
+            {cabemNaAf > 0 && (
+              <p className="text-xs text-muted mt-1">
+                {cabemNaAf} desses itens cabem na agricultura familiar e contam para os {PERCENTUAL_MINIMO_AF}%.
+              </p>
+            )}
+          </div>
+          <Link
+            href="/dashboard/secretarias/educacao/reposicao"
+            className="text-sm font-semibold border border-border rounded-full px-4 py-2 hover:border-brand hover:text-brand transition whitespace-nowrap"
+          >
+            Pedido da merenda →
+          </Link>
         </div>
       )}
 

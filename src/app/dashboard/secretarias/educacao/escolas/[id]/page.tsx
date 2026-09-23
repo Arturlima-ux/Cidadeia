@@ -11,8 +11,10 @@ import { fusoDoEstado, dataHoraNumerica, dataNumerica } from "@/lib/horario";
 import FormularioOcorrenciaEscola, { BotaoResolverOcorrenciaEscola } from "../FormularioOcorrenciaEscola";
 import AcessosEscola from "../AcessosEscola";
 import DadosDaEscola from "../DadosDaEscola";
+import EstoqueMerenda from "../EstoqueMerenda";
 import { lerEscola, mencionaEscola } from "@/lib/leitura-escola";
 import { buscarManifestacoesRecentesEducacao, listarAcessosEscola } from "../../rede-actions";
+import { buscarMerendaDaEscola } from "../../merenda-actions";
 import { podeVerEscola, ehGestor } from "@/lib/sessao";
 
 // ── A FICHA DA ESCOLA ──
@@ -62,6 +64,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
     console.error("[ficha-escola] ocorrências:", err);
   }
 
+  const merenda = await buscarMerendaDaEscola(e.id);
   const manifestacoes = direcaoDeEscola ? [] : await buscarManifestacoesRecentesEducacao(ctx.sessao.prefeituraId);
   const mencoes = manifestacoes.filter((m) => mencionaEscola(`${m.assunto} ${m.mensagem}`, e.nome));
   const abertas = ocorrencias.filter((o) => o.status === "aberta");
@@ -82,6 +85,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
     },
     ocorrenciasAbertas: abertas,
     ocorrenciasDoAno: doAno,
+    merenda,
     mencoesOuvidoria: mencoes,
   });
   const situacao = leitura.situacao;
@@ -151,7 +155,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
         )}
         <p className="text-[11px] text-muted mt-3">
           Por regra, sobre o cadastro no Censo Escolar, a matrícula declarada, as ocorrências, o calendário
-          letivo e a ouvidoria — cada linha diz de onde veio.
+          letivo, a merenda e a ouvidoria — cada linha diz de onde veio.
           {mencoes.length === 0 && !direcaoDeEscola ? " Nenhuma manifestação do cidadão cita esta escola nos últimos 30 dias." : ""}
         </p>
       </section>
@@ -207,6 +211,8 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
         <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-2">O que só a escola sabe</h2>
         <DadosDaEscola escolaId={e.id} matriculasAtuais={e.matriculasAtuais} diasPrevistos={e.diasPrevistos} bairro={e.bairro} />
       </section>
+
+      <EstoqueMerenda escolaId={e.id} fuso={fuso} linhas={merenda} />
 
       {podeGerirAcessos && !ctx.sessao.demo && <AcessosEscola escolaId={e.id} nomeEscola={e.nome} acessos={acessos} />}
 

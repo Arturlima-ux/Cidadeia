@@ -1,5 +1,6 @@
 import { diasAbertaEscola, rotuloOcorrenciaEscola, aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
 import { censoVelho, censoMaisRecenteDisponivel, ROTULO_DEPENDENCIA } from "@/lib/censo-escolar";
+import { diasDeAula, situacaoDoItemMerenda, contagemVelhaMerenda } from "@/lib/merenda";
 
 // ── A LEITURA AUTOMÁTICA DE UMA ESCOLA ──
 //
@@ -20,7 +21,7 @@ export type AchadoEscola = {
   detalhe: string;
   acao: string;
   peso: number;
-  fonte: "censo" | "ocorrencia" | "calendario" | "matricula" | "ouvidoria" | "cadastro";
+  fonte: "censo" | "ocorrencia" | "calendario" | "matricula" | "merenda" | "ouvidoria" | "cadastro";
 };
 
 export type LeituraEscola = {
@@ -47,6 +48,8 @@ export type EntradaLeituraEscola = {
   ocorrenciasAbertas: { tipo: string; gravidade: string; descricao: string; aulasPerdidas: number | null; createdAt: string }[];
   /** Todas as do ano letivo, abertas ou resolvidas — dia perdido não volta quando a ocorrência fecha. */
   ocorrenciasDoAno: { tipo: string; aulasPerdidas: number | null }[];
+  /** O que tem na cozinha: saldo e consumo por dia de aula. */
+  merenda?: { item: string; saldo: number; consumoDiario: number; atualizadoEm: string }[];
   /** Manifestações da ouvidoria dos últimos 30 dias que citam a escola. */
   mencoesOuvidoria: { tipo: string; assunto: string; createdAt: string }[];
 };
@@ -156,6 +159,44 @@ export function lerEscola(e: EntradaLeituraEscola, hoje: Date = new Date()): Lei
       acao: "Qualquer dia parado a partir daqui já obriga reposição. Vale antecipar o plano.",
       peso: 14,
       fonte: "calendario",
+    });
+  }
+
+  // ── merenda ──
+  // Refeição na escola é direito do aluno (Lei 11.947/2009): item zerado
+  // com consumo registrado não é aviso de almoxarifado, é criança sem comer.
+  const merenda = e.merenda ?? [];
+  const acabou = merenda.filter((l) => situacaoDoItemMerenda(l.saldo, l.consumoDiario) === "falta");
+  const acabando = merenda.filter((l) => situacaoDoItemMerenda(l.saldo, l.consumoDiario) === "critico");
+  if (acabou.length > 0) {
+    achados.push({
+      gravidade: "urgente",
+      titulo: `Acabou na cozinha: ${acabou.map((l) => l.item).join(", ")}`,
+      detalhe: "Saldo zero em item com consumo registrado. A refeição do aluno é obrigação do município, não cortesia.",
+      acao: "Remanejar de outra escola hoje e incluir no pedido da merenda.",
+      peso: 30,
+      fonte: "merenda",
+    });
+  }
+  if (acabando.length > 0) {
+    achados.push({
+      gravidade: "atencao",
+      titulo: `Acaba esta semana: ${acabando.map((l) => `${l.item} (${diasDeAula(l.saldo, l.consumoDiario)} dia(s) de aula)`).join(", ")}`,
+      detalhe: "Menos de uma semana letiva de cobertura pelo consumo informado.",
+      acao: "Gerar o pedido da merenda agora; a entrega leva mais que isso.",
+      peso: 15,
+      fonte: "merenda",
+    });
+  }
+  const contagensVelhas = merenda.filter((l) => contagemVelhaMerenda(l.atualizadoEm, hoje));
+  if (merenda.length > 0 && contagensVelhas.length === merenda.length) {
+    achados.push({
+      gravidade: "info",
+      titulo: "Cozinha sem contagem há mais de duas semanas",
+      detalhe: "Os dias de cobertura acima partem de uma contagem velha, e alimento gira rápido.",
+      acao: "Pedir à escola uma contagem nova — leva dez minutos e evita criança sem almoço.",
+      peso: 5,
+      fonte: "merenda",
     });
   }
 
