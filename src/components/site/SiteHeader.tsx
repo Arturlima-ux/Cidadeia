@@ -6,14 +6,19 @@ import MenuMobile from "@/components/site/MenuMobile";
 // Eram oito, e em tela de 1366px três deles quebravam em duas linhas — o
 // menu ficava serrilhado, e o cabeçalho inteiro somava 13 coisas clicáveis.
 // Saíram: "Conformidade" (é o assunto do herói logo abaixo — link para a
-// seção que já está na tela), "Quem somos" e "Raio-X" (a home oferece o
-// Raio-X no corpo, ao lado dos portais). Os três continuam no rodapé.
+// seção que já está na tela) e "Quem somos". Os dois continuam no rodapé.
 const LINKS = [
-  // "Soluções" e "Módulos" eram dois itens para o mesmo conteúdo: a seção
-  // da home e a página /precos mostravam os mesmos seis módulos. Agora é uma
-  // página, /solucoes, e a home só resume — como o "Premium" do Spotify: o
-  // botão abre a página, em vez de a home carregar tudo.
-  { href: "/solucoes", label: "Soluções" },
+  // ── POR QUE O RAIO-X OCUPA O PRIMEIRO LUGAR, E NÃO "SOLUÇÕES" ──
+  //
+  // Menu é ordem de conversa, não índice. Quem chega ao site não quer ver
+  // catálogo de módulo: quer saber o que está acontecendo na prefeitura
+  // dele. O Raio-X responde isso sem pedir nada além do nome do município.
+  //
+  // "Soluções" saiu do menu de propósito. A página continua existindo e
+  // continua sendo a melhor do site — mas agora se chega nela pelo fim do
+  // Raio-X, com o diagnóstico daquela cidade já lido, em vez de frio pelo
+  // topo. Quem já conhece o produto acha em "Como contratar" e no rodapé.
+  { href: "/raio-x", label: "Ver Raio-X do meu município" },
   // A demonstração era o quarto botão de uma fileira de quatro, e a fileira
   // inteira virava ruído: Cadastrar, Entrar, Ver demo, Receber proposta —
   // com "Entrar" repetido na barra de cima. Ela é um destino, como as
