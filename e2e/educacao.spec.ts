@@ -58,7 +58,9 @@ test.describe("módulo Educação", () => {
 
   test("os 30% da agricultura familiar aparecem com percentual e projeção", async ({ page }) => {
     await page.goto("/dashboard/secretarias/educacao/merenda");
-    await expect(page.getByText(/% do repasse do PNAE/)).toBeVisible();
+    // O intro da página também cita "30% do repasse do PNAE": o número
+    // grande é o último, e é ele que a tela existe para mostrar.
+    await expect(page.getByText(/% do repasse do PNAE/).last()).toBeVisible();
     await expect(page.getByText(/No ritmo de compra deste ano/)).toBeVisible();
   });
 

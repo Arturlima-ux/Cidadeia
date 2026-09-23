@@ -25,8 +25,9 @@ import { NOME_DOS_ESTADOS } from "@/lib/estados";
 //
 // ── COMO NÃO DERRUBAR O TESOURO ──
 // Nada é pré-construído: seriam 5.571 × várias chamadas ao SICONFI no
-// build. Cada página é montada no primeiro acesso e guardada por sete
-// dias (ISR). O Google rastreia aos poucos; o cache segura o resto. Se o
+// build. Cada página é montada no primeiro acesso; a resposta do Tesouro
+// fica guardada por sete dias, a página por um (ver abaixo o porquê da
+// diferença). O Google rastreia aos poucos; o cache segura o resto. Se o
 // Tesouro não responder, a página ainda existe — nome, UF, população, o
 // que a consulta faria — e diz que os números virão na próxima visita.
 //
@@ -173,38 +174,14 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
           </section>
         )}
 
-        {/* ── o que o dado público não mostra ── */}
-        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12">
-            <Reveal>
-              <div className="grid md:grid-cols-[1fr_auto] gap-6 items-center">
-                <div>
-                  <h2 className="font-serif text-xl font-bold">O que não aparece em base pública</h2>
-                  <p className="text-sm text-muted mt-2 leading-relaxed max-w-[60ch]">
-                    Obra parada, prazo de ouvidoria vencendo, dispensa que está virando
-                    fracionamento, indicador de saúde sem atualização — é o que o CidadeIA
-                    acompanha por dentro, com a mesma disciplina: número, artigo da lei e a
-                    tela onde se resolve.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2.5 shrink-0">
-                  <Link
-                    href="/demo"
-                    className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated text-center"
-                  >
-                    Ver o painel funcionando&nbsp;&nbsp;→
-                  </Link>
-                  <Link
-                    href={`/proposta?ibge=${m.codigo}`}
-                    className="border border-border font-semibold text-sm rounded-xl px-5 py-3 transition hover:border-brand text-center"
-                  >
-                    Montar proposta para {m.nome}
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+        {/* ── A SEÇÃO QUE MORAVA AQUI ──
+            "O que não aparece em base pública": o mesmo argumento da seção
+            acima, com os mesmos dois botões. Depois que o Raio-X passou a
+            puxar os módulos a partir dos achados DAQUELE município, este
+            bloco virou a versão genérica do que já estava dito — e deixava
+            "Montar proposta para X" duas vezes na mesma rolagem, que foi
+            como o teste de tela o encontrou. Argumento repetido enfraquece
+            os dois. */}
 
         {/* ── vizinhos de porte: navegação interna que o Google segue ── */}
         <section className="max-w-4xl mx-auto px-4 sm:px-8 py-12">
