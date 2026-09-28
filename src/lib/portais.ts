@@ -45,10 +45,19 @@ export async function listarPortaisPublicados(): Promise<ListaPortais> {
         .map(({ slug, municipio, estado, nome }) => ({ slug, municipio, estado, nome })),
       falhou: false,
     };
-  } catch {
+  } catch (e) {
     // Nem o índice nem a home podem virar tela de erro por causa disto: um
     // é porta de entrada do cidadão, o outro é a primeira impressão. Quem
     // chama decide o que mostrar quando a lista não veio.
+    //
+    // ── POR QUE O ERRO PASSOU A SER REGISTRADO ──
+    // Este catch era vazio. Em 28/09/2026 o banco do Supabase pausou por
+    // inatividade e a página de transparência passou a dizer "não foi
+    // possível carregar a lista agora" — sem que nada aparecesse no log,
+    // porque o erro morria aqui. O sintoma ficou visível por dias; a causa,
+    // invisível. Engolir erro para proteger a tela é certo; engolir sem
+    // deixar rastro é como uma queda de banco vira "o site está estranho".
+    console.error("[portais] lista indisponível:", e);
     return { portais: [], falhou: true };
   }
 }
