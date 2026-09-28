@@ -12,6 +12,10 @@ import MontadorProposta from "@/components/site/MontadorProposta";
 import BarraConversao from "@/components/site/BarraConversao";
 import PainelDemonstracao from "@/components/site/PainelDemonstracao";
 import Olho from "@/components/site/Olho";
+import BarraLeitura from "@/components/site/BarraLeitura";
+import NumerosVerificaveis from "@/components/site/NumerosVerificaveis";
+import PorDentro from "@/components/site/PorDentro";
+import { Inclinavel, Magnetico } from "@/components/site/Ponteiro";
 import { IMPLANTACAO } from "@/lib/textos-contratacao";
 import { FLUXO_ANTES, FLUXO_COM, type PassoFluxo } from "@/lib/fluxo-decisao";
 import {
@@ -156,6 +160,10 @@ export default async function LandingPage() {
 
   return (
     <div className="tema-noite min-h-screen overflow-x-hidden relative">
+      {/* Um filete que avança com a rolagem. Numa página longa, responde sem
+          palavras a pergunta que faz a pessoa desistir: "isso vai longe?".
+          Zero JavaScript — ver BarraLeitura.tsx. */}
+      <BarraLeitura />
       {/* ── atmosfera ──
           Eram dois círculos de 736px e 608px com `filter: blur(90px)`, numa
           camada fixa. O comentário antigo os chamava de "profundidade barata";
@@ -167,14 +175,16 @@ export default async function LandingPage() {
           interpolação de cor — e custa uma pintura só, sem filtro nenhum. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div
-          className="absolute -top-64 -left-40 w-[46rem] h-[46rem]"
+          className="halo absolute -top-64 -left-40 w-[46rem] h-[46rem]"
           style={{
             background:
               "radial-gradient(circle at center, rgba(61,134,240,0.20) 0%, rgba(61,134,240,0.10) 40%, transparent 70%)",
           }}
         />
         <div
-          className="absolute -bottom-56 -right-32 w-[38rem] h-[38rem]"
+          className="halo absolute -bottom-56 -right-32 w-[38rem] h-[38rem]"
+          /* Meio ciclo fora de fase da primeira: as duas manchas nunca
+             pulsam juntas, o que faria a tela inteira "piscar". */
           style={{
             background:
               "radial-gradient(circle at center, rgba(47,191,135,0.14) 0%, rgba(47,191,135,0.07) 40%, transparent 70%)",
@@ -277,18 +287,22 @@ export default async function LandingPage() {
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 mt-8">
-                  <Link
-                    href="/raio-x"
-                    className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
-                  >
-                    Ver o Raio-X do meu município&nbsp;&nbsp;→
-                  </Link>
-                  <Link
-                    href="/diagnostico"
-                    className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
-                  >
-                    Fazer o diagnóstico
-                  </Link>
+                  <Magnetico>
+                    <Link
+                      href="/raio-x"
+                      className="inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                    >
+                      Ver o Raio-X do meu município&nbsp;&nbsp;→
+                    </Link>
+                  </Magnetico>
+                  <Magnetico forca={3}>
+                    <Link
+                      href="/diagnostico"
+                      className="inline-block border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
+                    >
+                      Fazer o diagnóstico
+                    </Link>
+                  </Magnetico>
                 </div>
 
                 <p className="text-xs text-muted mt-4">
@@ -359,8 +373,12 @@ export default async function LandingPage() {
                 resumo da tabela. No herói entra o produto: a Visão Geral
                 desenhada em HTML, com os mesmos tokens do painel. Quem chega
                 vê a tela que está comprando antes de ler qualquer argumento. */}
+            {/* O painel sobe um pouco mais devagar que o texto ao lado. É o
+                que dá sensação de camada sem desenhar nada a mais. */}
             <Reveal delay={140}>
-              <PainelDemonstracao />
+              <div className="parallax parallax-sutil">
+                <PainelDemonstracao />
+              </div>
             </Reveal>
           </div>
         </section>
@@ -391,6 +409,12 @@ export default async function LandingPage() {
           </div>
         </div>
 
+        {/* ═══ NÚMEROS QUE SE CONFEREM ═══
+            Toda landing tem uma faixa de números, e quase todas mentem.
+            Nenhum destes é escrito à mão: saem das constantes que o sistema
+            usa para funcionar, e cada um é um link para conferir. */}
+        <NumerosVerificaveis />
+
         {/* ═══ SOLUÇÕES — o resumo; a página inteira é /solucoes ═══
             Esta seção tinha os seis módulos com a lista completa de
             capacidades, automação e três links cada — a mesma coisa que a
@@ -420,9 +444,10 @@ export default async function LandingPage() {
                 const Icone = ICONE_ADDON[chave];
                 return (
                   <Reveal key={chave} delay={i * 50}>
+                    <Inclinavel className="h-full">
                     <Link
                       href={`/modulos/${chave}`}
-                      className="group h-full flex flex-col gap-3 rounded-2xl border border-border p-5 card-interactive hover:border-brand transition"
+                      className="group h-full flex flex-col gap-3 rounded-2xl border border-border p-5 borda-viva hover:border-brand transition"
                       style={{ background: "var(--card)" }}
                     >
                       <div className="flex items-center gap-3">
@@ -439,6 +464,7 @@ export default async function LandingPage() {
                         Conhecer →
                       </span>
                     </Link>
+                    </Inclinavel>
                   </Reveal>
                 );
               })}
@@ -461,6 +487,12 @@ export default async function LandingPage() {
             </Reveal>
           </div>
         </section>
+
+        {/* ═══ UM MÓDULO, POR DENTRO ═══
+            A seção de Soluções diz "seis módulos" e manda embora. Quem nunca
+            abriu o produto lê isso como seis telas de cadastro. Esta abre uma
+            delas inteira — do arquivo que entra ao ofício que sai. */}
+        <PorDentro />
 
         {/* ═══ COMO A DECISÃO ACONTECE ═══
             Aqui havia a tabela "A diferença" — nós contra as incumbentes em
@@ -743,7 +775,7 @@ export default async function LandingPage() {
               </p>
             </div>
           </Reveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="cascata grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {IMPLANTACAO.map((p, i) => (
               <Reveal key={p.n} delay={i * 90}>
                 <div
@@ -801,12 +833,14 @@ export default async function LandingPage() {
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-                <Link
-                  href="/proposta"
-                  className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
-                >
-                  Receber proposta e kit&nbsp;&nbsp;→
-                </Link>
+                <Magnetico>
+                  <Link
+                    href="/proposta"
+                    className="inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                  >
+                    Receber proposta e kit&nbsp;&nbsp;→
+                  </Link>
+                </Magnetico>
                 {/* Aqui havia "Criar conta grátis". A conta é criada mesmo,
                     mas nasce sem nenhum módulo, e o botão de ativar aponta
                     para um checkout que ainda não existe

@@ -442,3 +442,262 @@ button:active {
     margin: 2.5cm 2cm;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOTOR DE MOVIMENTO
+   ═══════════════════════════════════════════════════════════════════
+
+   ── POR QUE NÃO UMA BIBLIOTECA ──
+
+   Framer Motion, GSAP e companhia custam de 40 a 60 KB comprimidos e
+   animam recalculando estilo em JavaScript a cada quadro, na thread
+   principal. Este produto roda em computador de balcão de prefeitura — o
+   próprio código já registra isso em três lugares, e o Reveal foi
+   reescrito para usar UM observador em vez de 29 por causa disso.
+
+   Animação ligada à rolagem (`animation-timeline`) roda no compositor,
+   fora da thread principal, e custa zero byte de JavaScript. Onde o
+   navegador não suporta, a regra simplesmente não se aplica e o elemento
+   fica no estado final — visível e legível. É degradação de verdade, não
+   tela em branco.
+
+   ── A REGRA QUE ATRAVESSA TUDO ──
+   Só se anima `transform`, `opacity` e `filter`. Qualquer outra
+   propriedade força recálculo de layout a cada quadro, e é aí que a
+   animação "trava" na máquina fraca.
+
+   Tudo aqui desliga inteiro em `prefers-reduced-motion`, no fim do bloco. */
+
+/* `@property` torna o número interpolável: sem isto o navegador trata a
+   variável como texto e o gradiente pula de um valor para o outro. */
+@property --angulo-borda {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --avanco {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: false;
+}
+
+@keyframes girar-borda {
+  to {
+    --angulo-borda: 360deg;
+  }
+}
+
+/* Entrada ligada à POSIÇÃO do elemento na janela, não a um gatilho que
+   dispara uma vez. O elemento acompanha a rolagem enquanto entra. */
+@keyframes entrar-cena {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes subir-suave {
+  from {
+    transform: translateY(var(--parallax, 3rem));
+  }
+  to {
+    transform: translateY(calc(var(--parallax, 3rem) * -1));
+  }
+}
+
+@keyframes preencher-barra {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes desenhar-traco {
+  from {
+    stroke-dashoffset: var(--traco, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes respirar {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.85;
+  }
+}
+
+@layer utilities {
+  /* ── ENTRADA LIGADA À ROLAGEM ──
+     `view()` cria uma linha do tempo a partir da travessia do elemento
+     pela janela. `animation-range` diz em que trecho dessa travessia a
+     animação acontece: começa quando o topo do elemento está a 12% de
+     entrar e termina quando avançou 38% da janela. */
+  .entra-cena {
+    animation: entrar-cena linear both;
+    animation-timeline: view();
+    animation-range: entry 12% cover 38%;
+  }
+
+  /* Filhos em cascata. O atraso vem de `--i`, posto no próprio elemento:
+     cada item entra depois do anterior, sem JavaScript para orquestrar. */
+  .cascata > * {
+    animation: entrar-cena linear both;
+    animation-timeline: view();
+    animation-range: entry calc(6% + var(--i, 0) * 4%) cover calc(34% + var(--i, 0) * 4%);
+  }
+
+  /* Camadas que se movem em velocidades diferentes durante a rolagem. É o
+     que dá sensação de profundidade sem desenhar nada a mais. */
+  .parallax {
+    animation: subir-suave linear both;
+    animation-timeline: view();
+    animation-range: cover;
+    will-change: transform;
+  }
+  .parallax-sutil {
+    --parallax: 1.4rem;
+  }
+  .parallax-medio {
+    --parallax: 3.5rem;
+  }
+  .parallax-forte {
+    --parallax: 6rem;
+  }
+
+  /* Barra de leitura no topo: acompanha a rolagem do documento inteiro.
+     `scroll()` é a linha do tempo da página, não a do elemento. */
+  .barra-leitura {
+    transform-origin: 0 50%;
+    animation: preencher-barra linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  /* Borda que gira. O truque é pintar um cônico no fundo e recortar o
+     miolo com `padding-box`, então nenhuma sombra é calculada. */
+  .borda-viva {
+    position: relative;
+    isolation: isolate;
+  }
+  .borda-viva::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--angulo-borda),
+      transparent 0deg,
+      var(--brand) 60deg,
+      var(--accent) 110deg,
+      transparent 190deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: girar-borda 6s linear infinite;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: -1;
+  }
+  .borda-viva:hover::before,
+  .borda-viva:focus-within::before {
+    opacity: 1;
+  }
+
+  /* Cartão que inclina na direção do ponteiro. As duas variáveis são
+     escritas por JavaScript (Inclinavel.tsx); sem ele, ficam em zero e o
+     cartão só levanta, como os outros. */
+  .inclinavel {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+    transform-style: preserve-3d;
+  }
+  .inclinavel:hover {
+    box-shadow: var(--shadow-md);
+  }
+  /* Enquanto o ponteiro está sobre o cartão o movimento acompanha o
+     ponteiro, sem transição — transição aqui faria o cartão "nadar"
+     atrás do cursor. Ela volta na saída, que é quando suaviza. */
+  .inclinavel[data-seguindo] {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* Botão que se inclina levemente para o ponteiro. O deslocamento é
+     pequeno de propósito: acima de 4px vira brinquedo e atrapalha o
+     clique. */
+  .magnetico {
+    transform: translate3d(var(--mx, 0), var(--my, 0), 0);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .magnetico[data-seguindo] {
+    transition: none;
+  }
+
+  /* Mancha de luz que respira atrás de um bloco. Substitui o `blur`, que
+     é caro: é um gradiente radial, ou seja, uma interpolação de cor. */
+  .halo {
+    animation: respirar 7s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  /* Traço que se desenha conforme a seção entra — usado nas linhas que
+     ligam os passos. */
+  .traco-anima {
+    stroke-dasharray: var(--traco, 1000);
+    animation: desenhar-traco linear both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 55%;
+  }
+
+  /* Texto que revela palavra a palavra conforme a linha sobe. */
+  .texto-cascata > span {
+    display: inline-block;
+    animation: entrar-cena linear both;
+    animation-timeline: view();
+    animation-range: entry calc(8% + var(--i, 0) * 2.2%) cover calc(30% + var(--i, 0) * 2.2%);
+  }
+}
+
+/* ── O INTERRUPTOR GERAL ──
+   Quem pediu menos movimento ao sistema recebe a página inteira parada, no
+   estado final. Nada de "versão reduzida": a preferência é binária e
+   costuma vir de enxaqueca, vertigem ou epilepsia fotossensível. */
+@media (prefers-reduced-motion: reduce) {
+  .entra-cena,
+  .cascata > *,
+  .parallax,
+  .barra-leitura,
+  .traco-anima,
+  .texto-cascata > span,
+  .halo,
+  .borda-viva::before {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .inclinavel,
+  .magnetico {
+    transform: none !important;
+    transition: none !important;
+  }
+}
