@@ -57,8 +57,8 @@ export function porteDaPopulacao(populacao: number | null | undefined): PorteMun
  * O teto não é o mercado, é a lei. A promessa central do site é caber na
  * dispensa por valor, então NENHUMA combinação pode passar do limite anual do
  * art. 75, II — hoje R$ 65.492,11. A combinação mais cara possível (município
- * de 50 a 100 mil contratando os seis módulos) fecha o ano em R$ 47.880, ou
- * 73% do limite: sobra folga para reajuste e para o município crescer de faixa
+ * de 50 a 100 mil contratando os seis módulos) fecha o ano em R$ 52.800, ou
+ * 81% do limite: sobra folga para reajuste e para o município crescer de faixa
  * sem quebrar o argumento da home.
  *
  * A faixa pequena carrega margem maior de propósito. Com poucos clientes, é o
@@ -69,18 +69,49 @@ export function porteDaPopulacao(populacao: number | null | undefined): PorteMun
  * O teste de contratacao.test.ts trava a regra que importa: se alguém subir um
  * preço a ponto de a soma dos seis estourar a dispensa, a suíte quebra antes de
  * a home passar a mentir.
+ *
+ * ── A REVISÃO DE 28/09/2026 ──
+ *
+ * A tabela anterior foi escrita quando Saúde e Educação eram quatro telas de
+ * cadastro cada uma. Depois das quatro fases de cada módulo, os dois passaram
+ * a ser os mais fundos do produto — e continuavam os mais baratos, enquanto o
+ * Essencial, o mais raso dos grandes, era o mais caro. O preço tinha parado de
+ * descrever o produto.
+ *
+ * A ordem agora sai do que cada módulo PROTEGE, não da contagem de telas:
+ *
+ *   Saúde e Educação — dinheiro que entra ou deixa de entrar: o componente de
+ *     qualidade da APS, o FUNDEB por matrícula declarada, os 30% do PNAE. São
+ *     os únicos módulos que se pagam com repasse que o município perderia.
+ *   Gestão e Essencial — obrigação que, descumprida, custa o mandato: mínimos
+ *     de 25% e 15%, LRF, RREO de um lado; LAI e Lei 13.460 do outro. Mesmo
+ *     preço, porque são as duas bases e nenhuma é acessório da outra.
+ *   Licitações e Obras — controle do que já está contratado.
+ *
+ * O Essencial CAI na faixa de 50 a 100 mil (de 950 para 790). Ele é a porta de
+ * entrada: preço de porta alto é o que faz a primeira conversa morrer, e ele
+ * não é o módulo que carrega a diferença do produto.
+ *
+ * ── O QUE A PROMESSA DA DISPENSA CUSTA ──
+ * Na faixa de 50 a 100 mil o teto legal já é quem manda: o pacote completo só
+ * pôde subir 10%, contra ~50% nas duas faixas menores. Não é conservadorismo,
+ * é o limite do art. 75, II. Subir mais ali obrigaria a desistir da frase
+ * "cabe na dispensa" para esse porte — e essa frase vale mais que a diferença.
  */
 //
 // As três faixas grandes nascem em null — "sob consulta" na página e no
 // simulador — até o valor ser decidido. É decisão comercial, não de código:
 // preencher aqui é o único passo.
 export const PRECO_MENSAL: Record<PlanoAddon, Record<PorteMunicipio, number | null>> = {
-  essencial: { ate10k: 490, de10a50k: 690, de50a100k: 950, de100a500k: null, de500ka1m: null, acima1m: null },
-  gestao: { ate10k: 360, de10a50k: 520, de50a100k: 740, de100a500k: null, de500ka1m: null, acima1m: null },
-  saude: { ate10k: 290, de10a50k: 450, de50a100k: 630, de100a500k: null, de500ka1m: null, acima1m: null },
-  educacao: { ate10k: 290, de10a50k: 450, de50a100k: 630, de100a500k: null, de500ka1m: null, acima1m: null },
-  obras: { ate10k: 240, de10a50k: 370, de50a100k: 520, de100a500k: null, de500ka1m: null, acima1m: null },
-  licitacoes: { ate10k: 240, de10a50k: 370, de50a100k: 520, de100a500k: null, de500ka1m: null, acima1m: null },
+  // ── dinheiro que entra ou deixa de entrar ──
+  saude: { ate10k: 590, de10a50k: 850, de50a100k: 900, de100a500k: null, de500ka1m: null, acima1m: null },
+  educacao: { ate10k: 590, de10a50k: 850, de50a100k: 900, de100a500k: null, de500ka1m: null, acima1m: null },
+  // ── as duas bases: obrigação que, descumprida, custa o mandato ──
+  gestao: { ate10k: 520, de10a50k: 750, de50a100k: 790, de100a500k: null, de500ka1m: null, acima1m: null },
+  essencial: { ate10k: 520, de10a50k: 750, de50a100k: 790, de100a500k: null, de500ka1m: null, acima1m: null },
+  // ── controle do que já está contratado ──
+  licitacoes: { ate10k: 350, de10a50k: 500, de50a100k: 530, de100a500k: null, de500ka1m: null, acima1m: null },
+  obras: { ate10k: 320, de10a50k: 460, de50a100k: 490, de100a500k: null, de500ka1m: null, acima1m: null },
 };
 
 /**
