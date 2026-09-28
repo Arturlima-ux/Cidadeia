@@ -530,11 +530,9 @@ button:active {
 @keyframes respirar {
   0%,
   100% {
-    transform: scale(1);
-    opacity: 0.55;
+    opacity: 0.5;
   }
   50% {
-    transform: scale(1.12);
     opacity: 0.85;
   }
 }
@@ -565,7 +563,6 @@ button:active {
     animation: subir-suave linear both;
     animation-timeline: view();
     animation-range: cover;
-    will-change: transform;
   }
   .parallax-sutil {
     --parallax: 1.4rem;
@@ -610,14 +607,25 @@ button:active {
       linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: girar-borda 6s linear infinite;
     opacity: 0;
     transition: opacity 0.35s ease;
     z-index: -1;
+    /* ── A ANIMAÇÃO NÃO MORA AQUI, E O MOTIVO CUSTOU 30 FPS ──
+       Antes a regra era `animation: girar-borda 6s linear infinite` neste
+       bloco, com `opacity: 0`. A borda ficava invisível — e girava assim
+       mesmo, nos 14 elementos da página, o tempo todo.
+
+       Opacidade zero esconde, não pausa. A cada quadro o navegador
+       reinterpolava --angulo-borda e REGENERAVA um gradiente cônico, 14
+       vezes, para algo que ninguém estava vendo. A rolagem caía para 30 FPS.
+
+       Agora a animação é declarada só no hover: zero custo em repouso, que
+       é o estado da página em 99% do tempo. */
   }
   .borda-viva:hover::before,
   .borda-viva:focus-within::before {
     opacity: 1;
+    animation: girar-borda 6s linear infinite;
   }
 
   /* Cartão que inclina na direção do ponteiro. As duas variáveis são
@@ -654,9 +662,17 @@ button:active {
 
   /* Mancha de luz que respira atrás de um bloco. Substitui o `blur`, que
      é caro: é um gradiente radial, ou seja, uma interpolação de cor. */
+  /* ── SEM will-change AQUI ──
+     São dois elementos de 46rem e 38rem. `will-change` promove cada um a
+     camada de composição PERMANENTE — duas texturas enormes na memória da
+     placa, pela vida inteira da página, para uma animação de sete segundos
+     que quase não se percebe. O navegador promove sozinho enquanto anima e
+     descarta depois; deixar a decisão com ele é mais barato.
+
+     A escala saiu junto: transformar uma camada desse tamanho é caro em
+     máquina fraca, e o efeito de respiração se sustenta só na opacidade. */
   .halo {
-    animation: respirar 7s ease-in-out infinite;
-    will-change: transform, opacity;
+    animation: respirar 9s ease-in-out infinite;
   }
 
   /* Traço que se desenha conforme a seção entra — usado nas linhas que
