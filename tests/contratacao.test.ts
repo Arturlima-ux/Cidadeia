@@ -236,3 +236,30 @@ describe("menorPrecoMensal", () => {
     expect(ref!.porte).toBe("ate10k");
   });
 });
+
+describe("a faixa sem preço não pode virar silêncio", () => {
+  // ── POR QUE ISTO EXISTE ──
+  //
+  // Acima de 100 mil habitantes a tabela ainda não tem preço. O corpo do
+  // e-mail montado pelo simulador simplesmente OMITIA a linha de valor:
+  // quem montava a proposta recebia município, módulos e nada sobre
+  // dinheiro — sem saber se o sistema falhou, se era caro demais ou se
+  // faltou clicar em algo. Silêncio não é discrição, é dúvida.
+  //
+  // Estes testes travam as duas metades da regra: a faixa com preço diz o
+  // valor, a faixa sem preço diz POR QUE não há valor.
+
+  it("a faixa grande é reconhecida como incompleta, e a pequena não", () => {
+    const todos = PLANOS_ADDON.map((p) => p.chave);
+    expect(montarProposta({ porte: "ate10k", modulos: todos }).incompleta).toBe(false);
+    expect(montarProposta({ porte: "de100a500k", modulos: todos }).incompleta).toBe(true);
+  });
+
+  it("proposta incompleta não soma um total que pareça fechado", () => {
+    // O risco concreto: somar só os módulos COM preço e exibir isso como
+    // se fosse o total, mostrando um valor menor que o real.
+    const proposta = montarProposta({ porte: "acima1m", modulos: PLANOS_ADDON.map((p) => p.chave) });
+    expect(proposta.incompleta).toBe(true);
+    expect(proposta.mensal).toBe(0);
+  });
+});

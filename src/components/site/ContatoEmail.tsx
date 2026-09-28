@@ -72,6 +72,19 @@ function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string }
         ? `Cabe na dispensa de licitação (${LIMITE_DISPENSA.base}).`
         : "Acima do limite de dispensa — caminho: pregão eletrônico."
     );
+  } else if (proposta.incompleta) {
+    // ── O SILÊNCIO QUE NINGUÉM EXPLICAVA ──
+    // Acima de 100 mil habitantes a tabela ainda não tem preço, e este
+    // bloco simplesmente não existia: o e-mail saía com município e
+    // módulos e NADA sobre valor. Quem montou a proposta ficava sem saber
+    // se o sistema tinha falhado, se era caro demais ou se tinha esquecido
+    // de clicar em algo. Silêncio não é discrição, é dúvida.
+    linhas.push(
+      "Valor: a definir para este porte. Acima de 100 mil habitantes a contratação costuma passar do",
+      `limite da dispensa (${LIMITE_DISPENSA.base}) e seguir por pregão eletrônico, em que o valor é`,
+      "definido no próprio processo. A proposta sai com o termo de referência, dimensionada para a rede",
+      "do município."
+    );
   }
   linhas.push("", "Gostaria de receber a proposta e o termo de referência.");
   return {
