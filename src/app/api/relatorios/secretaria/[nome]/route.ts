@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
 import {
   buscarPrefeitura,
   buscarUltimoIndicadorSaude,
@@ -55,9 +55,33 @@ export async function GET(
   if (!sessao) {
     return NextResponse.json({ erro: "Não autenticado." }, { status: 401 });
   }
-  if (sessao.cargo === "secretario" && sessao.secretaria !== secretaria) {
+  // ── POR QUE A CHECAGEM MUDOU DE FORMA ──
+  //
+  // Era `if (cargo === "secretario" && secretaria !== alvo)`. Uma pergunta
+  // negativa: barrava o secretário da pasta errada e deixava passar todo o
+  // resto. Enquanto só existiam prefeito, admin e secretário, dava certo.
+  //
+  // Os cargos de uma instalação só — "unidade" (gerência de UBS) e "escola"
+  // (direção) — não são secretários, então passavam direto e baixavam o PDF
+  // de QUALQUER secretaria. E o proxy não ajuda aqui: ele só guarda
+  // /dashboard, e esta é uma rota /api.
+  //
+  // Uma diretora de escola, que é a conta de menor confiança do produto e é
+  // criada para terceiros, baixava o relatório da rede de saúde inteira.
+  //
+  // Agora são duas perguntas positivas. A primeira usa o mesmo helper das
+  // telas. A segunda existe porque estes relatórios são da REDE INTEIRA:
+  // quem só pode ver a própria unidade ou a própria escola não pode baixá-lo
+  // nem da própria secretaria. É a mesma regra dos CSVs de reposição.
+  if (!temAcessoSecretaria(sessao, secretaria)) {
     return NextResponse.json(
       { erro: "Sem permissão para gerar o relatório de outra secretaria." },
+      { status: 403 }
+    );
+  }
+  if (sessao.cargo === "unidade" || sessao.cargo === "escola") {
+    return NextResponse.json(
+      { erro: "Este relatório é da rede inteira; seu acesso é da própria unidade." },
       { status: 403 }
     );
   }

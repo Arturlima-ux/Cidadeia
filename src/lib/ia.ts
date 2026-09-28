@@ -13,6 +13,9 @@ import { fusoDoEstado } from "@/lib/horario";
 import { buscarObras } from "@/app/dashboard/secretarias/obras/actions";
 import { buscarLicitacoes } from "@/app/dashboard/secretarias/licitacoes/actions";
 import { planosContratadosDe, type PlanoAddon } from "@/lib/planos";
+// As MESMAS funções que guardam as telas. O contexto da IA tinha a própria
+// cópia da regra de acesso, e foi por isso que os cargos novos passaram.
+import { ehGestor, temAcessoSecretaria } from "@/lib/sessao";
 import { projetarProximoPeriodo } from "@/lib/projecao";
 import { montarEficacia } from "@/lib/montar-eficacia";
 import {
@@ -109,17 +112,29 @@ export async function montarContexto(
   );
   const licitacoesComRisco = listaLicitacoes.filter((l) => l.observacaoRisco);
 
-  // Um usuário com cargo "secretario" só pode ver os dados da própria
-  // secretaria — nunca o financeiro geral nem as outras secretarias. Isso
-  // é reforçado aqui no contexto, não só na navegação, porque a IA não deve
-  // ter acesso a mais dados do que a pessoa que está perguntando.
-  const ehSecretario = restricaoCargo?.cargo === "secretario";
-  const minhaSecretaria = restricaoCargo?.secretaria;
+  // ── A REGRA É POSITIVA, E O MOTIVO CUSTOU UMA ESCALADA DE PRIVILÉGIO ──
+  //
+  // Isto perguntava "é secretário?" e, se não fosse, liberava TUDO: o
+  // financeiro geral, os alertas e as quatro secretarias. Funcionava
+  // enquanto só existiam prefeito, admin e secretário.
+  //
+  // Quando entraram os cargos de uma instalação só — "unidade" (gerência de
+  // UBS) e "escola" (direção) — eles não eram secretários, então caíam no
+  // ramo permissivo. Uma diretora de escola perguntando à IA receberia
+  // receita, despesas, saldo, alertas e a situação da rede de saúde:
+  // estritamente mais do que o secretário de Educação dela pode ver.
+  //
+  // É o mesmo erro que ehGestor() já tinha corrigido na navegação, pelo
+  // mesmo motivo: pergunta negativa não sobrevive a um cargo novo. Agora a
+  // visibilidade vem das MESMAS funções que guardam as telas.
+  const cargoParaAcesso = { cargo: restricaoCargo?.cargo ?? "prefeito", secretaria: restricaoCargo?.secretaria };
+  const veTudo = ehGestor(cargoParaAcesso);
   const planosAtivos = planosContratadosDe(prefeitura?.planosContratados);
   const temGestao = planosAtivos.includes("gestao");
+  const podeVer = (area: string) => veTudo || temAcessoSecretaria(cargoParaAcesso, area);
 
-  const secaoFinanceira = ehSecretario
-    ? "Indicadores financeiros: acesso restrito — este usuário é secretário(a) e só vê dados da própria secretaria, não o financeiro geral da prefeitura."
+  const secaoFinanceira = !veTudo
+    ? "Indicadores financeiros: acesso restrito — este usuário não tem visão geral da prefeitura, só da própria área."
     : !temGestao
     ? "Indicadores financeiros: indisponíveis — a prefeitura não contratou o plano Gestão, que é quem libera a visão financeira geral."
     : `Indicadores financeiros (${snapshot ? "última atualização: " + snapshot.atualizadoEm : "NENHUM indicador registrado ainda"}):
@@ -140,8 +155,8 @@ ${(() => {
   return `Projeção de saldo (~30 dias à frente, ${proj.confianca === "baixa" ? "confiança BAIXA" : "confiança " + proj.confianca}): ${formatarMoeda(proj.valorProjetado)}. IMPORTANTE: isto é uma regressão linear simples sobre o histórico real (${proj.baseadoEmRegistros} registros) — não é um modelo de IA nem um "gêmeo digital", não considera sazonalidade nem eventos externos. Sempre que mencionar isso ao usuário, deixe claro que é uma estimativa estatística simples, não uma previsão validada.`;
 })()}`;
 
-  const secaoAlertas = ehSecretario
-    ? "Alertas: acesso restrito — este usuário só vê alertas da própria secretaria (funcionalidade de filtro por secretaria ainda não implementada nos alertas gerais)."
+  const secaoAlertas = !veTudo
+    ? "Alertas: acesso restrito — este usuário não tem visão geral da prefeitura. O filtro de alertas por secretaria ainda não existe, então nenhum alerta é mostrado, em vez de mostrar os de todas."
     : !temGestao
     ? "Alertas: indisponíveis — a prefeitura não contratou o plano Gestão."
     : `Alertas em aberto (${abertos.length}):
@@ -157,10 +172,10 @@ ${
 }
 Alertas já resolvidos: ${resolvidos.length}`;
 
-  const mostrarSaude = planosAtivos.includes("saude") && (!ehSecretario || minhaSecretaria === "saude");
-  const mostrarEducacao = planosAtivos.includes("educacao") && (!ehSecretario || minhaSecretaria === "educacao");
-  const mostrarObras = planosAtivos.includes("obras") && (!ehSecretario || minhaSecretaria === "obras");
-  const mostrarLicitacoes = planosAtivos.includes("licitacoes") && (!ehSecretario || minhaSecretaria === "licitacoes");
+  const mostrarSaude = planosAtivos.includes("saude") && podeVer("saude");
+  const mostrarEducacao = planosAtivos.includes("educacao") && podeVer("educacao");
+  const mostrarObras = planosAtivos.includes("obras") && podeVer("obras");
+  const mostrarLicitacoes = planosAtivos.includes("licitacoes") && podeVer("licitacoes");
 
   const secaoSaude = mostrarSaude
     ? `
@@ -178,7 +193,7 @@ Unidades de saúde cadastradas (${unidadesSaude.length}): ${
           ? unidadesSaude.map((u) => `${u.nome} (${u.tipo}${u.bairro ? ", " + u.bairro : ""})`).join("; ")
           : "nenhuma"
       }${operacionalSaude}`
-    : !ehSecretario && !planosAtivos.includes("saude")
+    : veTudo && !planosAtivos.includes("saude")
     ? "\nSAÚDE: plano não contratado por esta prefeitura."
     : "";
 
@@ -200,7 +215,7 @@ Escolas cadastradas (${escolas.length}): ${
               .join("; ")
           : "nenhuma"
       }${operacionalEducacao}`
-    : !ehSecretario && !planosAtivos.includes("educacao")
+    : veTudo && !planosAtivos.includes("educacao")
     ? "\nEDUCAÇÃO: plano não contratado por esta prefeitura."
     : "";
 
@@ -215,7 +230,7 @@ ${
     : "Nenhuma obra cadastrada ainda."
 }
 Obras com progresso abaixo do esperado: ${obrasAtrasadas.length > 0 ? obrasAtrasadas.map((o) => o.nome).join(", ") : "nenhuma"}`
-    : !ehSecretario && !planosAtivos.includes("obras")
+    : veTudo && !planosAtivos.includes("obras")
     ? "\nOBRAS: plano não contratado por esta prefeitura."
     : "";
 
@@ -230,19 +245,25 @@ ${
     : "Nenhuma licitação cadastrada ainda."
 }
 Processos com observação de risco: ${licitacoesComRisco.length > 0 ? licitacoesComRisco.map((l) => l.numero).join(", ") : "nenhum"}`
-    : !ehSecretario && !planosAtivos.includes("licitacoes")
+    : veTudo && !planosAtivos.includes("licitacoes")
     ? "\nLICITAÇÕES: plano não contratado por esta prefeitura."
     : "";
 
-  const avisoEscopo = ehSecretario
-    ? `\nATENÇÃO: quem está perguntando é secretário(a) de ${minhaSecretaria ?? "uma secretaria"}. Responda apenas sobre a área dele(a). Se perguntarem sobre outra secretaria, financeiro geral ou dados de outra área, diga que isso não está disponível para o perfil dele(a).`
+  // O aviso de escopo vale para QUALQUER cargo sem visão geral, não só o
+  // secretário. Um cargo novo que caísse fora deste texto receberia um
+  // prompt sem instrução nenhuma de limite — e o modelo responderia o que
+  // achasse, a partir do que estivesse no contexto.
+  const avisoEscopo = !veTudo
+    ? `\nATENÇÃO: quem está perguntando NÃO tem visão geral da prefeitura${
+        restricaoCargo?.secretaria ? ` — responde pela área de ${restricaoCargo.secretaria}` : ""
+      }. Responda apenas sobre a área dele(a). Se perguntarem sobre outra secretaria, financeiro geral ou dados de outra área, diga que isso não está disponível para o perfil dele(a).`
     : "";
 
   // Investimento × resultado por secretaria — só pra quem tem visão geral
   // (prefeito/admin com plano Gestão). Já vem calculado e ordenado do pior
   // pro melhor, então a IA não precisa refazer a conta (e não pode errar).
   let secaoEficacia = "";
-  if (!ehSecretario && temGestao) {
+  if (veTudo && temGestao) {
     try {
       const analise = await montarEficacia(prefeituraId, prefeitura?.planosContratados);
       if (analise.length > 0) {
@@ -285,7 +306,7 @@ nenhum número que não esteja aqui):
 
 Prefeitura: ${prefeitura?.nome ?? "não informado"}
 Município/UF: ${prefeitura?.municipio ?? "?"} / ${prefeitura?.estado ?? "?"}
-${!ehSecretario ? `Prefeito(a): ${prefeitura?.prefeito ?? "não informado"}\nPopulação: ${prefeitura?.populacao ?? "não informado"}\nPlanos contratados: ${planosAtivos.length > 0 ? planosAtivos.join(", ") : "NENHUM módulo contratado ainda"}\nMaior problema declarado no cadastro: ${prefeitura?.maiorProblema ?? "não informado"}` : ""}
+${veTudo ? `Prefeito(a): ${prefeitura?.prefeito ?? "não informado"}\nPopulação: ${prefeitura?.populacao ?? "não informado"}\nPlanos contratados: ${planosAtivos.length > 0 ? planosAtivos.join(", ") : "NENHUM módulo contratado ainda"}\nMaior problema declarado no cadastro: ${prefeitura?.maiorProblema ?? "não informado"}` : ""}
 
 ${secaoFinanceira}
 
@@ -578,8 +599,12 @@ async function escopoVisivel(
   prefeituraId: string,
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ) {
-  const ehSecretario = restricaoCargo?.cargo === "secretario";
-  const minha = restricaoCargo?.secretaria;
+  // Mesma correção de montarContexto, pelo mesmo motivo: "não é secretário"
+  // liberava tudo para os cargos de uma instalação só (unidade, escola).
+  // O comentário acima já avisava que divergir aqui vira vazamento
+  // silencioso entre secretarias — e era exatamente o que acontecia.
+  const cargoParaAcesso = { cargo: restricaoCargo?.cargo ?? "prefeito", secretaria: restricaoCargo?.secretaria };
+  const veTudo = ehGestor(cargoParaAcesso);
 
   const prefeitura = await buscarPrefeitura(prefeituraId);
   const planos = planosContratadosDe(prefeitura?.planosContratados);
@@ -588,7 +613,7 @@ async function escopoVisivel(
   // checagem que garante que o nome da área existe entre os módulos reais.
   // Um erro de digitação aqui abriria ou fecharia acesso em silêncio.
   const daSecretaria = (area: PlanoAddon) =>
-    planos.includes(area) && (!ehSecretario || minha === area);
+    planos.includes(area) && (veTudo || temAcessoSecretaria(cargoParaAcesso, area));
 
   return {
     saude: daSecretaria("saude"),
@@ -597,11 +622,11 @@ async function escopoVisivel(
     licitacoes: daSecretaria("licitacoes"),
     // O consolidado é do gabinete: nenhum secretário o enxerga, tenha ele o
     // módulo de Gestão ou não.
-    financeiro: !ehSecretario && planos.includes("gestao"),
+    financeiro: veTudo && planos.includes("gestao"),
     // Atendimento ao cidadão vem do Essencial. Também é visão de gabinete: um
     // secretário de Obras não precisa saber quantos protocolos da prefeitura
     // inteira estão vencendo.
-    essencial: !ehSecretario && planos.includes("essencial"),
+    essencial: veTudo && planos.includes("essencial"),
   };
 }
 

@@ -75,7 +75,11 @@ export async function lerSessao(): Promise<SessaoPayload | null> {
  * secretário só acessa a secretaria à qual está vinculado.
  */
 export function temAcessoSecretaria(
-  sessao: SessaoPayload,
+  // A forma mínima que esta função de fato lê. Era SessaoPayload inteiro, e
+  // isso a tornava inutilizável em lugares que só têm cargo e secretaria —
+  // como o contexto da IA, que por isso reinventou a regra com um booleano
+  // "é secretário?" e deixou os cargos novos passarem.
+  sessao: { cargo: string; secretaria?: string | null },
   secretaria: string
 ): boolean {
   if (sessao.cargo === "secretario") return sessao.secretaria === secretaria;
