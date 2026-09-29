@@ -11,7 +11,11 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import PainelPncp from "./PainelPncp";
+import PainelContratos, { type ContratoNaTela } from "./PainelContratos";
 import PainelFracionamento from "./PainelFracionamento";
+import { buscarContratos } from "./contratos-actions";
+import { lerVigencia, pedeAcao } from "@/lib/vigencia";
+import { lerAditivo } from "@/lib/aditivos";
 import type { ProcessoDispensa } from "@/lib/fracionamento";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
 
@@ -45,7 +49,11 @@ export default async function LicitacoesPage() {
   // Só dispensas entram na verificação de fracionamento: o limite do art. 75
   // é da dispensa por valor, e somar um pregão junto inflaria o grupo com
   // dinheiro que já passou por licitação.
-  const exercicio = new Date().getFullYear();
+  // Uma só leitura do relógio para a página inteira: com duas chamadas a
+  // new Date(), uma virada de meia-noite entre elas faria a lista de contratos
+  // e a de dispensas falarem de exercícios diferentes.
+  const agora = new Date();
+  const exercicio = agora.getFullYear();
   const dispensasDoExercicio: ProcessoDispensa[] = lista
     .filter(
       (l) =>
@@ -62,6 +70,42 @@ export default async function LicitacoesPage() {
       data: l.createdAt ?? "",
     }));
   const comObservacaoRisco = lista.filter((l) => l.observacaoRisco);
+
+  // ── CONTRATOS ──
+  //
+  // A leitura de cada contrato acontece aqui, no servidor, e vai pronta para a
+  // tela: o cliente não recalcula prazo nem limite. É a mesma regra do resto do
+  // produto — duas cópias da mesma conta acabam discordando, e discordar sobre
+  // prazo legal na tela que o gestor mostra à câmara é caro.
+  //
+  // Só os que pedem decisão descem. Os que estão em dia contam no total e não
+  // ocupam espaço: numa prefeitura real são a maioria (68 de 134 no município
+  // medido), e listá-los afogaria os dez que importam.
+  const listaContratos = await buscarContratos(ctx.sessao.prefeituraId);
+  const contratosQuePedemDecisao: ContratoNaTela[] = listaContratos
+    .map((c) => ({
+      id: c.id,
+      objeto: c.objeto,
+      numeroContrato: c.numeroContrato,
+      fornecedorNome: c.fornecedorNome,
+      fornecedorDocumento: c.fornecedorDocumento,
+      fornecedorTipoPessoa: c.fornecedorTipoPessoa,
+      vigenciaFim: c.vigenciaFim,
+      valorGlobal: c.valorGlobal,
+      frutoAdesao: c.frutoAdesao,
+      vigencia: lerVigencia(
+        { objeto: c.objeto, vigenciaFim: c.vigenciaFim, fornecedorNome: c.fornecedorNome },
+        agora
+      ),
+      aditivo: lerAditivo({
+        objeto: c.objeto,
+        valorInicial: c.valorInicial,
+        valorGlobal: c.valorGlobal,
+        numeroRetificacao: c.numeroRetificacao,
+      }),
+    }))
+    .filter((c) => pedeAcao(c.vigencia.situacao) || c.aditivo.situacao === "acima_se_for_acrescimo")
+    .sort((a, b) => a.vigencia.peso - b.vigencia.peso);
 
   // Padrões que só aparecem olhando os processos juntos: o mesmo fornecedor
   // vencendo em série e dispensa colada no limite. O fracionamento, que é o
@@ -91,7 +135,9 @@ export default async function LicitacoesPage() {
         </a>
       </div>
 
-      <PainelPncp ano={new Date().getFullYear()} />
+      <PainelPncp ano={exercicio} />
+
+      <PainelContratos contratos={contratosQuePedemDecisao} ano={exercicio} total={listaContratos.length} />
 
       <PainelFracionamento processos={dispensasDoExercicio} exercicio={exercicio} />
 

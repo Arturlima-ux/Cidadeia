@@ -483,6 +483,54 @@ export const licitacoes = pgTable("licitacoes", {
 }).enableRLS();
 // Também inserido manualmente por enquanto (Fase 1). Cada alerta pertence
 // a uma prefeitura e tem uma prioridade visual (urgente/médio/informativo).
+// ── CONTRATOS ──
+//
+// A tabela licitacoes guarda a CONTRATAÇÃO (o edital, o processo). Esta guarda
+// o que vem depois: quem venceu, por quanto e até quando. São três coisas que
+// a consulta de contratações do PNCP não informa e que carregam o risco real —
+// concentração de fornecedor, vencimento despercebido e crescimento de valor.
+//
+// Migração: drizzle/0024_contratos.sql.
+export const contratos = pgTable("contratos", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  /** Identificador do contrato no PNCP; null quando cadastrado à mão. */
+  numeroControlePncp: text("numero_controle_pncp"),
+  /** Identificador da contratação de origem — junta com licitacoes. */
+  numeroControlePncpCompra: text("numero_controle_pncp_compra"),
+  numeroContrato: text("numero_contrato"),
+  processo: text("processo"),
+  objeto: text("objeto").notNull(),
+  /**
+   * CNPJ ou CPF do contratado. É a única identidade confiável para agrupar
+   * contratos do mesmo fornecedor — nome casado por semelhança erra.
+   *
+   * Quando tipoPessoa é "PF" isto é um CPF, e a tela mascara antes de exibir
+   * (documentoExibivel em lib/contratos-pncp.ts): estar publicado no PNCP por
+   * obrigação legal não autoriza reproduzir CPF inteiro em tela nossa.
+   */
+  fornecedorDocumento: text("fornecedor_documento"),
+  fornecedorNome: text("fornecedor_nome"),
+  fornecedorTipoPessoa: text("fornecedor_tipo_pessoa"),
+  valorInicial: doublePrecision("valor_inicial"),
+  valorGlobal: doublePrecision("valor_global"),
+  dataAssinatura: text("data_assinatura"),
+  vigenciaInicio: text("vigencia_inicio"),
+  vigenciaFim: text("vigencia_fim"),
+  tipoContrato: text("tipo_contrato"),
+  categoria: text("categoria"),
+  frutoAdesao: boolean("fruto_adesao").notNull().default(false),
+  numeroRetificacao: integer("numero_retificacao"),
+  origem: text("origem", { enum: ["pncp", "manual"] })
+    .notNull()
+    .default("manual"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
 export const alertas = pgTable("alertas", {
   id: text("id").primaryKey(),
   prefeituraId: text("prefeitura_id")
