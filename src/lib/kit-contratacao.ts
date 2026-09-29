@@ -45,6 +45,30 @@ export const CAMPOS_A_PREENCHER = [
   { marcador: "[E-MAIL DE SUPORTE]", descricao: "Canal oficial de abertura de chamado" },
   { marcador: "[DISPONIBILIDADE]", descricao: "Percentual de disponibilidade mensal que a empresa se compromete a manter" },
   { marcador: "[HOSPEDAGEM]", descricao: "Provedor e país onde os dados ficam hospedados" },
+  // ── OS COMPROMISSOS DE SERVIÇO ──
+  //
+  // Estes estavam classificados como "preenchidos pela prefeitura", e o teste
+  // de cobertura de marcadores passava por causa disso. Mas nenhuma prefeitura
+  // decide em quanto tempo a CONTRATADA responde a um chamado, em quantos dias
+  // ela devolve a base, em quanto tempo comunica um incidente ou qual desconto
+  // se aplica quando ela mesma não cumpre a disponibilidade.
+  //
+  // Classificados no balde errado, saíam em branco na minuta que vai ao
+  // jurídico da prefeitura — que lê um fornecedor sem SLA definido. Era
+  // exatamente o descuido que este catálogo existe para impedir.
+  //
+  // [DISPONIBILIDADE] já estava aqui; [DESCONTO], que é a penalidade dela,
+  // não estava. Os dois não fazem sentido separados.
+  { marcador: "[RESPOSTA CRÍTICA]", descricao: "Horas úteis para primeira resposta em chamado crítico" },
+  { marcador: "[SOLUÇÃO CRÍTICA]", descricao: "Horas úteis para solução de chamado crítico" },
+  { marcador: "[RESPOSTA ALTA]", descricao: "Horas úteis para primeira resposta em severidade alta" },
+  { marcador: "[SOLUÇÃO ALTA]", descricao: "Horas úteis para solução em severidade alta" },
+  { marcador: "[RESPOSTA MÉDIA]", descricao: "Horas úteis para primeira resposta em severidade média" },
+  { marcador: "[SOLUÇÃO MÉDIA]", descricao: "Dias úteis para solução em severidade média" },
+  { marcador: "[RESPOSTA BAIXA]", descricao: "Dias úteis para primeira resposta em severidade baixa" },
+  { marcador: "[DESCONTO]", descricao: "Desconto na fatura quando a disponibilidade mínima não é atingida" },
+  { marcador: "[PRAZO DE DEVOLUÇÃO]", descricao: "Dias para devolver a base completa após o fim do contrato" },
+  { marcador: "[PRAZO DE INCIDENTE]", descricao: "Prazo para comunicar incidente de segurança ao município (LGPD, art. 48)" },
 ] as const;
 
 const AVISO_JURIDICO =
@@ -340,7 +364,7 @@ const MINUTA_CONTRATO: Documento = {
           itens: [
             "A contratante pode extrair a integralidade dos dados, em formato aberto e legível por máquina, a qualquer tempo, por iniciativa própria e sem custo adicional;",
             "A extração independe de anuência, de aviso prévio ou de estar o contrato adimplido;",
-            "Extinto o contrato por qualquer motivo, a contratada entregará a base completa em até [PRAZO] dias e procederá à eliminação definitiva dos dados em seus ambientes, mediante declaração formal.",
+            "Extinto o contrato por qualquer motivo, a contratada entregará a base completa em até [PRAZO DE DEVOLUÇÃO] dias e procederá à eliminação definitiva dos dados em seus ambientes, mediante declaração formal.",
           ],
         },
       ],
@@ -560,25 +584,25 @@ const ACORDO_NIVEL_SERVICO: Documento = {
             [
               "Crítica",
               "Serviço inacessível para todos os usuários, ou canal público do cidadão fora do ar",
-              "[PRAZO] horas úteis",
-              "[PRAZO] horas úteis",
+              "[RESPOSTA CRÍTICA] horas úteis",
+              "[SOLUÇÃO CRÍTICA] horas úteis",
             ],
             [
               "Alta",
               "Módulo contratado indisponível ou erro que impede tarefa essencial, sem alternativa",
-              "[PRAZO] horas úteis",
-              "[PRAZO] horas úteis",
+              "[RESPOSTA ALTA] horas úteis",
+              "[SOLUÇÃO ALTA] horas úteis",
             ],
             [
               "Média",
               "Erro que compromete parte de uma funcionalidade, com alternativa disponível",
-              "[PRAZO] horas úteis",
-              "[PRAZO] dias úteis",
+              "[RESPOSTA MÉDIA] horas úteis",
+              "[SOLUÇÃO MÉDIA] dias úteis",
             ],
             [
               "Baixa",
               "Dúvida de uso, ajuste cosmético ou sugestão de melhoria",
-              "[PRAZO] dias úteis",
+              "[RESPOSTA BAIXA] dias úteis",
               "Conforme planejamento",
             ],
           ],

@@ -92,10 +92,7 @@ describe("campos a preencher", () => {
       "[AUTORIDADE]",
       "[DIA]",
       "[ÍNDICE]",
-      "[PRAZO]",
       "[PRAZO DE AVISO]",
-      "[PRAZO DE INCIDENTE]",
-      "[DESCONTO]",
       "[COLCHETES]",
     ]);
 
@@ -159,9 +156,69 @@ describe("conteúdo que sustenta as promessas da home", () => {
 
   it("o nível de serviço deixa disponibilidade e prazos em branco", () => {
     // São compromissos operacionais: prometer no papel o que a operação não
-    // sustenta cria inadimplemento, não credibilidade.
+    // sustenta cria inadimplemento, não credibilidade. O branco é deliberado.
     const sla = textoCorrido(documentoPorChave("acordo-de-nivel-de-servico")!);
     expect(sla).toContain("[DISPONIBILIDADE]");
-    expect(sla).toContain("[PRAZO]");
+    expect(sla).toContain("[RESPOSTA CRÍTICA]");
+  });
+
+  it("cada prazo do SLA tem nome próprio, e não um [PRAZO] genérico", () => {
+    // ── O DEFEITO QUE ISTO IMPEDE ──
+    //
+    // A tabela de severidade usava "[PRAZO]" em sete células com significados e
+    // unidades diferentes — horas úteis para resposta crítica, dias úteis para
+    // solução média. Listado uma vez na tela de pendências, "[PRAZO]" não diz
+    // que há sete decisões distintas a tomar, e quem preenche acaba usando o
+    // mesmo número para tudo ou esquecendo a maioria.
+    const sla = textoCorrido(documentoPorChave("acordo-de-nivel-de-servico")!);
+    expect(sla).not.toContain("[PRAZO]");
+    for (const m of [
+      "[RESPOSTA CRÍTICA]",
+      "[SOLUÇÃO CRÍTICA]",
+      "[RESPOSTA ALTA]",
+      "[SOLUÇÃO ALTA]",
+      "[RESPOSTA MÉDIA]",
+      "[SOLUÇÃO MÉDIA]",
+      "[RESPOSTA BAIXA]",
+    ]) {
+      expect(sla).toContain(m);
+    }
+  });
+
+  it("os compromissos da CONTRATADA estão na lista de pendências da empresa", () => {
+    // ── POR QUE ESTE TESTE EXISTE ──
+    //
+    // Estes marcadores estavam catalogados como "preenchidos pela prefeitura",
+    // e por isso o teste de cobertura passava enquanto eles nunca apareciam na
+    // tela de pendências. Mas nenhuma prefeitura decide em quanto tempo a
+    // CONTRATADA responde a um chamado, em quantos dias devolve a base, em
+    // quanto tempo comunica um incidente, ou qual desconto se aplica quando ela
+    // mesma não cumpre a disponibilidade que prometeu.
+    //
+    // O branco continua deliberado. O que estava errado era o branco ser
+    // invisível para quem precisa decidir o número.
+    const catalogados = new Set(CAMPOS_A_PREENCHER.map((c) => c.marcador));
+    for (const m of [
+      "[RESPOSTA CRÍTICA]",
+      "[SOLUÇÃO CRÍTICA]",
+      "[RESPOSTA ALTA]",
+      "[SOLUÇÃO ALTA]",
+      "[RESPOSTA MÉDIA]",
+      "[SOLUÇÃO MÉDIA]",
+      "[RESPOSTA BAIXA]",
+      "[DESCONTO]",
+      "[PRAZO DE DEVOLUÇÃO]",
+      "[PRAZO DE INCIDENTE]",
+    ]) {
+      expect(catalogados).toContain(m);
+    }
+  });
+
+  it("o desconto e a disponibilidade andam juntos", () => {
+    // [DISPONIBILIDADE] estava catalogado e [DESCONTO], que é a penalidade dela,
+    // não estava. Separados, saía uma cláusula que promete um percentual e
+    // outra que não diz o que acontece se ele não for cumprido.
+    const catalogados = new Set(CAMPOS_A_PREENCHER.map((c) => c.marcador));
+    expect(catalogados.has("[DISPONIBILIDADE]")).toBe(catalogados.has("[DESCONTO]"));
   });
 });
