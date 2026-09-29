@@ -29,7 +29,7 @@ export type DadosTelao = {
    */
   hoje: { exercicio: number; mes: number };
   minimos: { area: AreaMinimo; base: number; aplicado: number; mesReferencia: number }[];
-  obras: { status: string; progressoAtual: number; progressoEsperado: number }[];
+  obras: { status: string; progressoAtual: number | null; progressoEsperado: number }[];
   atendimentos: { status: string }[];
   saldo: number | null;
 };
@@ -120,6 +120,7 @@ export function montarPaineisTelao(dados: DadosTelao): PainelTelao[] {
       (o) =>
         o.status !== "concluida" &&
         o.status !== "cancelada" &&
+        o.progressoAtual !== null &&
         o.progressoAtual < o.progressoEsperado - 10
     ).length;
 

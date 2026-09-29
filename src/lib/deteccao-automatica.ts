@@ -66,7 +66,14 @@ export function detectarLicitacoesVencendo(
 }
 
 export function detectarObrasParadas(
-  obras: { nome: string; status: string; atualizadoEm: string; progressoAtual: number; progressoEsperado: number }[]
+  obras: {
+    nome: string;
+    status: string;
+    atualizadoEm: string;
+    /** Null quando ninguém mediu ainda. */
+    progressoAtual: number | null;
+    progressoEsperado: number;
+  }[]
 ): DeteccaoAutomatica[] {
   const achados: DeteccaoAutomatica[] = [];
   for (const o of obras) {
@@ -78,7 +85,9 @@ export function detectarObrasParadas(
         prioridade: "urgente",
         secretaria: "obras",
         titulo: `Obra "${o.nome}" sem atualização há ${dias} dias`,
-        descricao: `Progresso parado em ${o.progressoAtual}% (esperado ${o.progressoEsperado}%) — mais de um mês sem registro novo.`,
+        descricao: o.progressoAtual === null
+            ? `Sem nenhuma medição registrada e mais de um mês sem registro novo.`
+            : `Progresso parado em ${o.progressoAtual}% (esperado ${o.progressoEsperado}%) — mais de um mês sem registro novo.`,
       });
     } else if (dias >= LIMITE_OBRA_PARADA_ATENCAO_DIAS) {
       achados.push({
@@ -86,7 +95,9 @@ export function detectarObrasParadas(
         prioridade: "medio",
         secretaria: "obras",
         titulo: `Obra "${o.nome}" sem atualização há ${dias} dias`,
-        descricao: `Progresso em ${o.progressoAtual}% — considere atualizar ou verificar o andamento.`,
+        descricao: o.progressoAtual === null
+            ? `Sem medição registrada — peça um boletim à fiscalização.`
+            : `Progresso em ${o.progressoAtual}% — considere atualizar ou verificar o andamento.`,
       });
     }
   }

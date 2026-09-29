@@ -116,7 +116,10 @@ export async function montarContexto(
   const sistemasConectadosDeFato = sistemas.filter((s) => s.status === "conectado");
 
   const obrasAtrasadas = listaObras.filter(
-    (o) => o.status !== "concluida" && o.progressoAtual < o.progressoEsperado - 10
+    (o) =>
+      o.status !== "concluida" &&
+      o.progressoAtual !== null &&
+      o.progressoAtual < o.progressoEsperado - 10
   );
   const licitacoesComRisco = listaLicitacoes.filter((l) => l.observacaoRisco);
 
@@ -233,7 +236,11 @@ OBRAS (${listaObras.length} cadastradas):
 ${
   listaObras.length > 0
     ? listaObras
-        .map((o) => `- ${o.nome}: ${o.progressoAtual}% concluído (esperado ${o.progressoEsperado}%), status: ${o.status}`)
+        .map(
+          (o) =>
+            `- ${o.nome}: ${o.progressoAtual === null ? "progresso não informado" : `${o.progressoAtual}% concluído`}` +
+            ` (esperado ${o.progressoEsperado}%), status: ${o.status}`
+        )
         .join("\n")
     : "Nenhuma obra cadastrada ainda."
 }

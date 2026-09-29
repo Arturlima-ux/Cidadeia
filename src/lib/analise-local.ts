@@ -134,7 +134,8 @@ export type Escola = { nome: string; bairro: string | null; evasaoPercentual: nu
 export type Obra = {
   nome: string;
   bairro: string | null;
-  progressoAtual: number;
+  /** Null quando ninguém mediu ainda — diferente de estar em 0%. */
+  progressoAtual: number | null;
   progressoEsperado: number;
   valorContrato: number | null;
   status: string;
@@ -680,7 +681,10 @@ function analisarObras(obras: Obra[]): AchadoLocal[] {
         eixo: "execucao_financeira",
         severidade: "urgente",
         chave,
-        texto: `Obra "${obra.nome}" com status "paralisada" em ${num(obra.progressoAtual)}% de execução${dinheiro}.`,
+        texto:
+          obra.progressoAtual === null
+            ? `Obra "${obra.nome}" com status "paralisada", sem medição registrada${dinheiro}.`
+            : `Obra "${obra.nome}" com status "paralisada" em ${num(obra.progressoAtual)}% de execução${dinheiro}.`,
         acao: `Cobre da Secretaria de Obras o motivo formal da paralisação de "${obra.nome}" e uma data de retomada.`,
         peso,
       });
@@ -698,22 +702,29 @@ function analisarObras(obras: Obra[]): AchadoLocal[] {
         eixo: "execucao_financeira",
         severidade: d.prioridade,
         chave,
-        texto: `Obra "${obra.nome}" sem registro de progresso há ${dias} dias, parada em ${num(
-          obra.progressoAtual
-        )}%${dinheiro}.`,
+        texto:
+          obra.progressoAtual === null
+            ? `Obra "${obra.nome}" sem registro de progresso há ${dias} dias e sem nenhuma medição${dinheiro}.`
+            : `Obra "${obra.nome}" sem registro de progresso há ${dias} dias, parada em ${num(
+                obra.progressoAtual
+              )}%${dinheiro}.`,
         acao: `Peça à fiscalização de "${obra.nome}" um boletim de medição atualizado; sem registro há ${dias} dias não dá para afirmar se a obra anda.`,
         peso,
       });
     }
 
-    const desvio = obra.progressoEsperado - obra.progressoAtual;
-    if (obra.status !== "concluida" && desvio > DESVIO_OBRA_ATENCAO) {
+    // Sem medição não há desvio a calcular: o achado seria sobre um número que
+    // ninguém apurou, contra a própria prefeitura. A falta de medição já é
+    // apontada pela regra de obra parada, logo acima.
+    const medido = obra.progressoAtual;
+    const desvio = medido === null ? null : obra.progressoEsperado - medido;
+    if (obra.status !== "concluida" && medido !== null && desvio !== null && desvio > DESVIO_OBRA_ATENCAO) {
       achados.push({
         modulo: "obras",
         eixo: "execucao_financeira",
         severidade: desvio >= DESVIO_OBRA_CRITICO ? "urgente" : "medio",
         chave,
-        texto: `Obra "${obra.nome}" em ${num(obra.progressoAtual)}% quando o cronograma previa ${num(
+        texto: `Obra "${obra.nome}" em ${num(medido)}% quando o cronograma previa ${num(
           obra.progressoEsperado
         )}% — ${num(desvio)} pontos de atraso${dinheiro}.`,
         acao: `Cobre da Secretaria de Obras um cronograma repactuado para "${obra.nome}" antes que o atraso vire aditivo de prazo.`,

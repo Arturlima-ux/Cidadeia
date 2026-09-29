@@ -1,6 +1,9 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { insightInicial } from "@/lib/ia";
 import { buscarObras, criarObra, atualizarProgressoObra, excluirObra } from "./actions";
+import PainelObras, { type ObraNaTela } from "./PainelObras";
+import { lerObra, pedeAtencao, ehObraOuEngenharia } from "@/lib/obra-prazo";
+import { buscarContratos } from "@/app/dashboard/secretarias/licitacoes/contratos-actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 
@@ -40,8 +43,52 @@ export default async function ObrasPage() {
 
   const listaObras = await buscarObras(ctx.sessao.prefeituraId);
 
+  // ── A LEITURA DE PRAZO, FEITA NO SERVIDOR ──
+  //
+  // Vai pronta para a tela: o cliente não recalcula prazo. Duas cópias da mesma
+  // conta acabam discordando, e discordar sobre prazo de obra na tela que o
+  // prefeito mostra à câmara é caro.
+  const agora = new Date();
+  const contratosDeObra = (await buscarContratos(ctx.sessao.prefeituraId)).filter((c) =>
+    ehObraOuEngenharia(c.categoria)
+  );
+  const jaImportadas = new Set(
+    listaObras.map((o) => o.numeroControlePncpContrato).filter((x): x is string => !!x)
+  );
+  const aImportar = contratosDeObra.filter(
+    (c) => c.numeroControlePncp && !jaImportadas.has(c.numeroControlePncp)
+  ).length;
+
+  const obrasQuePedemDecisao: ObraNaTela[] = listaObras
+    .map((o) => ({
+      id: o.id,
+      nome: o.nome,
+      fornecedorNome: o.fornecedorNome,
+      valorContrato: o.valorContrato,
+      origem: o.origem,
+      leitura: lerObra(
+        {
+          id: o.id,
+          objeto: o.nome,
+          fornecedorNome: o.fornecedorNome,
+          valorInicial: o.valorContrato,
+          valorGlobal: o.valorContrato,
+          vigenciaInicio: o.vigenciaInicio,
+          vigenciaFim: o.vigenciaFim,
+          progressoInformado: o.progressoAtual,
+          progressoAtualizadoEm: o.atualizadoEm,
+        },
+        agora
+      ),
+    }))
+    .filter((o) => pedeAtencao(o.leitura.situacao))
+    .sort((a, b) => a.leitura.peso - b.leitura.peso);
+
   const atrasadas = listaObras.filter(
-    (o) => o.status !== "concluida" && o.progressoAtual < o.progressoEsperado - 10
+    (o) =>
+      o.status !== "concluida" &&
+      o.progressoAtual !== null &&
+      o.progressoAtual < o.progressoEsperado - 10
   );
 
   return (
@@ -64,6 +111,13 @@ export default async function ObrasPage() {
         </a>
       </div>
 
+      <PainelObras
+        obras={obrasQuePedemDecisao}
+        total={listaObras.length}
+        temContratosDeObra={aImportar}
+        prefeituraId={ctx.sessao.prefeituraId}
+      />
+
       <InsightIA
         acao={gerarInsightIA}
         modulo="obras"
@@ -75,7 +129,8 @@ export default async function ObrasPage() {
           nivel="urgente"
           titulo={`${atrasadas.length} obra${atrasadas.length > 1 ? "s" : ""} com progresso abaixo do esperado`}
           itens={atrasadas.map(
-            (o) => `${o.nome}: ${o.progressoAtual}% concluído (esperado: ${o.progressoEsperado}%)`
+            (o) =>
+              `${o.nome}: ${o.progressoAtual}% concluído (esperado: ${o.progressoEsperado}%)`
           )}
         />
       )}
@@ -93,7 +148,10 @@ export default async function ObrasPage() {
               nome: o.nome,
               latitude: o.latitude as number,
               longitude: o.longitude as number,
-              descricao: `${LABEL_STATUS[o.status]} · ${o.progressoAtual}% concluído`,
+              descricao:
+                o.progressoAtual === null
+                  ? `${LABEL_STATUS[o.status]} · sem medição`
+                  : `${LABEL_STATUS[o.status]} · ${o.progressoAtual}% concluído`,
             }))}
         />
       </div>
@@ -239,12 +297,14 @@ export default async function ObrasPage() {
                 <div className="w-full h-2 bg-sutil rounded-full overflow-hidden">
                   <div
                     className="h-full bg-brand rounded-full"
-                    style={{ width: `${o.progressoAtual}%` }}
+                    style={{ width: `${o.progressoAtual ?? 0}%` }}
                   />
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-1.5 text-xs text-muted">
                   <span>
-                    {o.progressoAtual}% concluído (esperado: {o.progressoEsperado}%)
+                    {o.progressoAtual === null
+                      ? "sem medição registrada"
+                      : `${o.progressoAtual}% concluído (esperado: ${o.progressoEsperado}%)`}
                   </span>
                   {o.valorContrato !== null && <span>{formatarMoeda(o.valorContrato)}</span>}
                 </div>
@@ -267,7 +327,7 @@ export default async function ObrasPage() {
                         type="number"
                         min={0}
                         max={100}
-                        defaultValue={o.progressoAtual}
+                        defaultValue={o.progressoAtual ?? ""}
                         className="w-24 rounded-lg border border-border px-2 py-1.5 text-sm outline-none focus:border-brand"
                       />
                     </div>

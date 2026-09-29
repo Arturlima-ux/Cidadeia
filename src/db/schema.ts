@@ -427,9 +427,33 @@ export const obras = pgTable("obras", {
     .references(() => prefeituras.id, { onDelete: "cascade" }),
   nome: text("nome").notNull(),
   bairro: text("bairro"),
-  progressoAtual: doublePrecision("progresso_atual").notNull().default(0),
+  /**
+   * Percentual medido, informado pela prefeitura.
+   *
+   * Aceita NULL de propósito (drizzle/0025): era NOT NULL DEFAULT 0, e com isso
+   * "ninguém mediu" e "a obra está em 0%" viravam a mesma linha. São coisas
+   * diferentes — a primeira pede medição à fiscalização, a segunda é obra que
+   * não saiu do papel — e uma obra importada do contrato entraria como 0%,
+   * afirmando um fato contra a prefeitura que ninguém apurou.
+   */
+  progressoAtual: doublePrecision("progresso_atual").default(0),
+  /**
+   * @deprecated Era comparado com progressoAtual para detectar atraso, mas é um
+   * número digitado à mão: não há fonte para "a esta altura deveria estar em
+   * 60%". Quem responde isso é o prazo do contrato (vigenciaInicio/Fim), em
+   * lib/obra-prazo.ts. Mantido para não perder o que já foi cadastrado.
+   */
   progressoEsperado: doublePrecision("progresso_esperado").notNull().default(0),
   valorContrato: doublePrecision("valor_contrato"),
+  /** Contrato do PNCP que originou a obra. Null quando cadastrada à mão. */
+  numeroControlePncpContrato: text("numero_controle_pncp_contrato"),
+  /** Prazo real da obra, vindo do contrato. */
+  vigenciaInicio: text("vigencia_inicio"),
+  vigenciaFim: text("vigencia_fim"),
+  fornecedorNome: text("fornecedor_nome"),
+  origem: text("origem", { enum: ["pncp", "manual"] })
+    .notNull()
+    .default("manual"),
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
   status: text("status", {

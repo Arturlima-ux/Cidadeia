@@ -52,12 +52,12 @@ function variacao(atual: number | null, anterior: number | null): number | null 
 
 // ── OBRAS ──
 export function eficaciaObras(
-  obras: { nome: string; status: string; progressoAtual: number; progressoEsperado: number; valorContrato: number | null }[],
+  obras: { nome: string; status: string; progressoAtual: number | null; progressoEsperado: number; valorContrato: number | null }[],
   investimentoManual: number
 ): EficaciaSecretaria {
   const emAndamento = obras.filter((o) => o.status !== "concluida");
   const atrasadas = emAndamento.filter(
-    (o) => o.progressoAtual < o.progressoEsperado - TOLERANCIA_ATRASO_PP
+    (o) => o.progressoAtual !== null && o.progressoAtual < o.progressoEsperado - TOLERANCIA_ATRASO_PP
   );
 
   const investimentoContratos = somar(obras.map((o) => o.valorContrato));

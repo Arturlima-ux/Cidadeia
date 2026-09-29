@@ -18,6 +18,7 @@ import {
 } from "@/lib/relatorios/RelatorioSecretaria";
 import { temPlano, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
 import { dadosOperacionaisSaude, dadosOperacionaisEducacao } from "@/lib/relatorio-operacional";
+import { lerObra } from "@/lib/obra-prazo";
 
 const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"] as const;
 type SecretariaValida = (typeof SECRETARIAS_VALIDAS)[number];
@@ -136,22 +137,52 @@ export async function GET(
   if (secretaria === "obras") {
     tituloSecretaria = "Obras";
     const listaObras = await buscarObras(sessao.prefeituraId);
+    // Obra sem medição não entra como atrasada: é obra que ninguém mediu, e
+    // este PDF circula por e-mail e chega à câmara. Afirmar atraso a partir de
+    // um número que o sistema não tem seria acusar a própria prefeitura.
     const atrasadas = listaObras.filter(
-      (o) => o.status !== "concluida" && o.progressoAtual < o.progressoEsperado - 10
+      (o) =>
+        o.status !== "concluida" &&
+        o.progressoAtual !== null &&
+        o.progressoAtual < o.progressoEsperado - 10
     );
     indicadores = [
       { valor: `${listaObras.length}`, label: "Obras cadastradas" },
       { valor: `${atrasadas.length}`, label: "Com progresso abaixo do esperado" },
     ];
-    colunasLista = ["Obra", "Bairro", "Progresso", "Status"];
-    linhas = listaObras.map((o) => ({
-      colunas: [
-        o.nome,
-        o.bairro ?? "—",
-        `${o.progressoAtual}% (esperado ${o.progressoEsperado}%)`,
-        LABEL_STATUS_OBRA[o.status] ?? o.status,
-      ],
-    }));
+    // ── O PDF CONTA A MESMA HISTÓRIA DA TELA ──
+    //
+    // Imprimia "X% (esperado Y%)", e o esperado é um número digitado à mão —
+    // não há fonte para "a esta altura deveria estar em Y". A coluna passa a
+    // trazer o prazo do contrato, que é fato, ao lado do progresso medido, que
+    // é o que a prefeitura informou. Sem medição, diz isso em vez de "null%".
+    colunasLista = ["Obra", "Progresso medido", "Prazo do contrato", "Situação"];
+    linhas = listaObras.map((o) => {
+      const leitura = lerObra(
+        {
+          id: o.id,
+          objeto: o.nome,
+          fornecedorNome: o.fornecedorNome,
+          valorInicial: o.valorContrato,
+          valorGlobal: o.valorContrato,
+          vigenciaInicio: o.vigenciaInicio,
+          vigenciaFim: o.vigenciaFim,
+          progressoInformado: o.progressoAtual,
+          progressoAtualizadoEm: o.atualizadoEm,
+        },
+        new Date()
+      );
+      return {
+        colunas: [
+          o.nome,
+          o.progressoAtual === null ? "sem medição" : `${o.progressoAtual}%`,
+          leitura.prazoConsumido === null
+            ? "sem datas no contrato"
+            : `${Math.round(leitura.prazoConsumido)}% decorrido`,
+          LABEL_STATUS_OBRA[o.status] ?? o.status,
+        ],
+      };
+    });
     if (atrasadas.length > 0) {
       observacao = `Obras com progresso abaixo do esperado: ${atrasadas.map((o) => o.nome).join(", ")}.`;
     }

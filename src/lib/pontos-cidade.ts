@@ -15,7 +15,8 @@ export type EntradaObra = {
   id: string;
   nome: string;
   status: string;
-  progressoAtual: number;
+  /** Null quando ninguém mediu ainda — diferente de estar em 0%. */
+  progressoAtual: number | null;
   progressoEsperado: number;
   latitude: number | null;
   longitude: number | null;
@@ -42,8 +43,15 @@ function temCoordenada<T extends { latitude: number | null; longitude: number | 
  * variação normal de um cronograma. Obra concluída nunca conta, mesmo que o
  * esperado tenha ficado registrado acima.
  */
-export function obraAtrasada(o: { status: string; progressoAtual: number; progressoEsperado: number }): boolean {
+export function obraAtrasada(o: {
+  status: string;
+  progressoAtual: number | null;
+  progressoEsperado: number;
+}): boolean {
   if (o.status === "concluida" || o.status === "cancelada") return false;
+  // Obra sem medição não é obra atrasada — é obra que ninguém mediu. Tratar
+  // null como 0 pintaria de vermelho no mapa toda obra recém-importada.
+  if (o.progressoAtual === null) return false;
   return o.progressoAtual < o.progressoEsperado - TOLERANCIA_ATRASO_PP;
 }
 

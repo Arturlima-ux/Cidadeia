@@ -61,7 +61,10 @@ export async function GET() {
   ]);
 
   const obrasAtrasadas = listaObras.filter(
-    (o) => o.status !== "concluida" && o.progressoAtual < o.progressoEsperado - 10
+    (o) =>
+      o.status !== "concluida" &&
+      o.progressoAtual !== null &&
+      o.progressoAtual < o.progressoEsperado - 10
   );
   const licitacoesComRisco = listaLicitacoes.filter((l) => l.observacaoRisco);
 
