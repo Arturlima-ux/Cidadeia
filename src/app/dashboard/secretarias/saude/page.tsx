@@ -18,6 +18,7 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import Link from "next/link";
+import MarcadorSituacao from "@/components/MarcadorSituacao";
 import BotaoSincronizarCnes from "./BotaoSincronizarCnes";
 import { buscarOcorrenciasAbertas, buscarEstoqueDaRede, buscarManifestacoesRecentes } from "./rede-actions";
 import { lerUnidade, mencionaUnidade } from "@/lib/leitura-unidade";
@@ -264,7 +265,7 @@ export default async function SaudePage() {
                   href={`/dashboard/secretarias/saude/unidades/${u.id}`}
                   className="card-interactive bg-card arco-card-sm border border-border px-4 py-3 text-sm flex gap-3 items-start hover:border-brand transition"
                 >
-                  <span className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0" style={{ background: corSit }} aria-hidden="true" />
+                  <MarcadorSituacao situacao={situacao} className="mt-1" />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium break-words">{u.nome}</p>
                     <p className="text-xs text-muted">

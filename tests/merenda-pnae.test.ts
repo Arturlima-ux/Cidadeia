@@ -11,7 +11,14 @@ import {
   DIAS_AULA_DE_REPOSICAO,
   DIAS_AULA_ATENCAO,
 } from "@/lib/merenda";
-import { apurarPnae, projetarFechamento, cobertura, PERCENTUAL_MINIMO_AF, anosPnae } from "@/lib/pnae";
+import {
+  apurarPnae,
+  projetarFechamento,
+  cobertura,
+  serieAcumuladaPnae,
+  PERCENTUAL_MINIMO_AF,
+  anosPnae,
+} from "@/lib/pnae";
 
 const HOJE = new Date("2026-09-22T12:00:00Z");
 const diasAtras = (n: number) => new Date(HOJE.getTime() - n * 86_400_000).toISOString();
@@ -142,5 +149,74 @@ describe("os 30% da agricultura familiar", () => {
 
   it("oferece o ano corrente e os dois anteriores", () => {
     expect(anosPnae(HOJE)).toEqual([2026, 2025, 2024]);
+  });
+});
+
+describe("a série acumulada do ano", () => {
+  const c = (valor: number, af: boolean, data: string) => ({
+    valor,
+    agriculturaFamiliar: af,
+    dataCompra: data,
+  });
+  const EM_JULHO = new Date("2026-07-15T12:00:00Z");
+
+  it("acumula mês a mês e ignora o que não é agricultura familiar", () => {
+    const s = serieAcumuladaPnae(
+      [c(10_000, true, "2026-02-10"), c(50_000, false, "2026-03-05"), c(20_000, true, "2026-05-20")],
+      100_000,
+      EM_JULHO
+    );
+    const por = Object.fromEntries(s.map((p) => [p.mes, p.percentual]));
+    expect(por.jan).toBe(0);
+    expect(por.fev).toBe(10);
+    // a compra de 50 mil de março não era da agricultura familiar
+    expect(por.mar).toBe(10);
+    expect(por.mai).toBe(30);
+    expect(por.jul).toBe(30);
+  });
+
+  it("o mês sai do texto, não de new Date — senão o dia 1 cai no mês anterior", () => {
+    // new Date("2026-03-01") é meia-noite UTC; em qualquer fuso a oeste de
+    // Greenwich, .getMonth() devolveria fevereiro. O Brasil inteiro é a
+    // oeste, então isto erraria em TODA compra lançada no dia 1.
+    const s = serieAcumuladaPnae([c(30_000, true, "2026-03-01")], 100_000, EM_JULHO);
+    const por = Object.fromEntries(s.map((p) => [p.mes, p.percentual]));
+    expect(por.fev).toBe(0);
+    expect(por.mar).toBe(30);
+  });
+
+  it("o ano inteiro aparece, mas os meses futuros ficam marcados", () => {
+    const s = serieAcumuladaPnae([c(10_000, true, "2026-02-10")], 100_000, EM_JULHO);
+    expect(s).toHaveLength(12);
+    expect(s.filter((p) => p.futuro).map((p) => p.mes)).toEqual(["ago", "set", "out", "nov", "dez"]);
+    // O futuro não inventa compra: repete o último acumulado.
+    expect(s.find((p) => p.mes === "dez")!.percentual).toBe(10);
+  });
+
+  it("ano já fechado mostra os doze meses como passado", () => {
+    const s = serieAcumuladaPnae([c(40_000, true, "2025-11-10")], 100_000, EM_JULHO);
+    expect(s.some((p) => p.futuro)).toBe(false);
+    expect(s.find((p) => p.mes === "dez")!.percentual).toBe(40);
+  });
+
+  it("sem repasse informado não há série — e não um ano de zeros", () => {
+    // Zeros pareceriam um ano perdido; o que falta é o denominador.
+    expect(serieAcumuladaPnae([c(10_000, true, "2026-02-10")], 0, EM_JULHO)).toEqual([]);
+  });
+
+  it("guarda o acumulado em reais para o tooltip", () => {
+    const s = serieAcumuladaPnae([c(12_345, true, "2026-02-10")], 100_000, EM_JULHO);
+    expect(s.find((p) => p.mes === "fev")!.acumulado).toBe(12_345);
+  });
+
+  it("a curva nunca desce: o acumulado é monotônico", () => {
+    const s = serieAcumuladaPnae(
+      [c(5_000, true, "2026-01-10"), c(5_000, true, "2026-04-10"), c(5_000, true, "2026-06-10")],
+      100_000,
+      EM_JULHO
+    );
+    for (let i = 1; i < s.length; i++) {
+      expect(s[i]!.percentual).toBeGreaterThanOrEqual(s[i - 1]!.percentual);
+    }
   });
 });

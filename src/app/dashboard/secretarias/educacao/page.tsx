@@ -1,4 +1,5 @@
 import Link from "next/link";
+import MarcadorSituacao from "@/components/MarcadorSituacao";
 import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
@@ -401,7 +402,7 @@ export default async function EducacaoPage() {
                   href={`/dashboard/secretarias/educacao/escolas/${e.id}`}
                   className="card-interactive bg-card arco-card-sm border border-border px-4 py-3 text-sm flex gap-3 items-start hover:border-brand transition"
                 >
-                  <span className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0" style={{ background: corSit }} aria-hidden="true" />
+                  <MarcadorSituacao situacao={situacao} className="mt-1" />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium break-words">{e.nome}</p>
                     <p className="text-xs text-muted">

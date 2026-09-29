@@ -150,3 +150,73 @@ export function anosPnae(hoje: Date = new Date()): number[] {
   const ano = hoje.getUTCFullYear();
   return [ano, ano - 1, ano - 2];
 }
+
+// ── A CORRIDA DOS 30% CONTRA DEZEMBRO ──
+//
+// O número acumulado responde "onde estamos". Ele não responde a pergunta
+// que decide alguma coisa: "no ritmo de hoje, eu chego?".
+//
+// Essa segunda pergunta tem FORMA — é uma curva subindo contra uma linha
+// horizontal — e por isso vira gráfico. As outras telas do módulo são
+// tabelas de consulta e continuam tabelas: item, saldo, situação e
+// quantidade a pedir não têm forma, têm colunas.
+
+export type PontoPnae = {
+  /** "jan", "fev"… — o eixo. */
+  mes: string;
+  /** Percentual do repasse acumulado em agricultura familiar até o fim do mês. */
+  percentual: number;
+  /** Reais acumulados, para o tooltip. */
+  acumulado: number;
+  /** Mês ainda não encerrado: a linha para aqui. */
+  futuro: boolean;
+};
+
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+/**
+ * A série mensal acumulada, de janeiro ao mês corrente.
+ *
+ * Meses futuros entram com `futuro: true` e o mesmo acumulado do último mês
+ * fechado — assim o eixo mostra o ano inteiro (é contra dezembro que a
+ * corrida acontece) sem inventar compra que não houve.
+ *
+ * Sem repasse informado não há percentual possível: devolve lista vazia, e
+ * a tela mostra o pedido de informar o repasse em vez de um gráfico de
+ * zeros que pareceria um ano perdido.
+ */
+export function serieAcumuladaPnae(
+  compras: CompraPnae[],
+  repasse: number,
+  hoje: Date = new Date()
+): PontoPnae[] {
+  if (repasse <= 0) return [];
+
+  const porMes = new Array(12).fill(0);
+  for (const c of compras) {
+    if (!c.agriculturaFamiliar) continue;
+    // dataCompra é "AAAA-MM-DD": o mês sai do texto, não de new Date(),
+    // que interpretaria a string como UTC e jogaria o dia 1 para o mês
+    // anterior em qualquer fuso a oeste de Greenwich.
+    const mes = Number(c.dataCompra.slice(5, 7)) - 1;
+    if (mes >= 0 && mes < 12) porMes[mes] += c.valor;
+  }
+
+  const mesAtual = hoje.getUTCFullYear() === anoDaSerie(compras, hoje) ? hoje.getUTCMonth() : 11;
+  let acumulado = 0;
+  return MESES.map((mes, i) => {
+    if (i <= mesAtual) acumulado += porMes[i];
+    return {
+      mes,
+      percentual: Number(((acumulado / repasse) * 100).toFixed(2)),
+      acumulado,
+      futuro: i > mesAtual,
+    };
+  });
+}
+
+/** O ano de que a série fala — o das compras, ou o corrente se não houver. */
+function anoDaSerie(compras: CompraPnae[], hoje: Date): number {
+  const primeira = compras[0]?.dataCompra;
+  return primeira ? Number(primeira.slice(0, 4)) : hoje.getUTCFullYear();
+}

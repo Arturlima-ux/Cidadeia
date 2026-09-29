@@ -3,6 +3,7 @@ import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { buscarComprasPnae, buscarRepassePnae } from "../merenda-actions";
 import { FormularioCompra, FormularioRepasse, BotaoRemoverCompra } from "./FormulariosPnae";
+import GraficoPnae from "./GraficoPnae";
 import {
   apurarPnae,
   projetarFechamento,
@@ -10,6 +11,7 @@ import {
   rotuloModalidade,
   rotuloDispensaAf,
   anosPnae,
+  serieAcumuladaPnae,
   PERCENTUAL_MINIMO_AF,
 } from "@/lib/pnae";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -59,6 +61,10 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
   const cor = COR[apuracao.situacao];
   const fundo = FUNDO[apuracao.situacao];
   const daAf = compras.filter((c) => c.agriculturaFamiliar);
+  // A curva do ano contra a linha dos 30%. Vazia sem repasse informado —
+  // a seção acima já pede o número, e um gráfico de zeros pareceria um
+  // ano perdido em vez de um dado que falta.
+  const serie = serieAcumuladaPnae(compras, repasse?.valor ?? 0);
 
   // A barra mostra o quanto dos 30% já foi alcançado, não o percentual
   // absoluto: 15% de repasse é metade da meta, e é assim que se lê.
@@ -130,6 +136,14 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
           detalhe={`${daAf.length} compra(s)`}
         />
       </div>
+
+      {serie.length > 0 && (
+        <GraficoPnae
+          serie={serie}
+          atingiu={apuracao.situacao === "cumprido"}
+          percentualAtual={apuracao.percentual}
+        />
+      )}
 
       {coberturaDoRepasse !== null && coberturaDoRepasse < 60 && (
         <p className="text-sm leading-relaxed rounded-xl px-4 py-3 border" style={{ color: "var(--medio)", background: "var(--medio-tint)", borderColor: "var(--medio-borda)" }}>
