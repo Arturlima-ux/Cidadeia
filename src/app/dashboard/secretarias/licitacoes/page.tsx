@@ -13,6 +13,8 @@ import { IconDownload } from "@/components/icons";
 import PainelPncp from "./PainelPncp";
 import PainelContratos, { type ContratoNaTela } from "./PainelContratos";
 import PainelFracionamento from "./PainelFracionamento";
+import PainelPca from "./PainelPca";
+import { lerPlanoContratacoes } from "@/lib/plano-contratacoes";
 import { buscarContratos } from "./contratos-actions";
 import { lerVigencia, pedeAcao } from "@/lib/vigencia";
 import { lerAditivo } from "@/lib/aditivos";
@@ -110,7 +112,20 @@ export default async function LicitacoesPage() {
   // Padrões que só aparecem olhando os processos juntos: o mesmo fornecedor
   // vencendo em série e dispensa colada no limite. O fracionamento, que é o
   // terceiro padrão clássico, tem o painel próprio logo acima.
-  const padroes = detectarPadroes(lista);
+  // Os contratos entram aqui para o detector agrupar por CNPJ em vez de por
+  // semelhança de nome. Sem eles, duas grafias da mesma empresa contam como
+  // duas e o padrão se divide em grupos pequenos demais para disparar — some
+  // exatamente no caso que ele existe para achar.
+  const padroes = detectarPadroes(lista, agora, listaContratos);
+
+  // O plano é do ano SEGUINTE — é o que "plano anual" quer dizer. A leitura
+  // devolve null sem acesso à pasta, então a guarda não depende desta página
+  // lembrar de checar.
+  const leituraPlano = await lerPlanoContratacoes(
+    ctx.sessao.prefeituraId,
+    { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria },
+    exercicio + 1
+  );
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -140,6 +155,17 @@ export default async function LicitacoesPage() {
       <PainelContratos contratos={contratosQuePedemDecisao} ano={exercicio} total={listaContratos.length} />
 
       <PainelFracionamento processos={dispensasDoExercicio} exercicio={exercicio} />
+
+      {/* O plano vem DEPOIS do fracionamento de propósito: primeiro o gestor vê
+          o que já aconteceu, depois a lista que impede que aconteça de novo. */}
+      {leituraPlano && (
+        <PainelPca
+          plano={leituraPlano.plano}
+          exercicioDeReferencia={leituraPlano.exercicioDeReferencia}
+          baseDeContratos={leituraPlano.baseDeContratos}
+          baseDeProcessos={leituraPlano.baseDeProcessos}
+        />
+      )}
 
       {padroes.length > 0 && (
         <div className="space-y-2">

@@ -23,6 +23,7 @@
 // número velho é pior que não acusar.
 
 import { LIMITE_DISPENSA, limiteEstaVigente } from "@/lib/contratacao";
+import { juntarContratados, comoFoiAgrupado, type ContratoParaContratado } from "@/lib/contratados";
 import { formatarMoeda } from "@/lib/formatadores";
 
 export type ProcessoParaPadrao = {
@@ -32,6 +33,16 @@ export type ProcessoParaPadrao = {
   valorEstimado: number | null;
   fornecedor: string | null;
   status: string;
+  /**
+   * Chave do PNCP, quando o processo veio da importação.
+   *
+   * Declarada aqui de propósito, embora este arquivo não a leia: é por ela que
+   * juntarContratados sabe que um processo já está representado por um
+   * contrato e não o conta duas vezes. O campo chegava por acaso, porque o
+   * select do banco traz a coluna — e dedupe que funciona por acaso some no
+   * primeiro refactor que estreitar o objeto.
+   */
+  numeroControlePncp?: string | null;
 };
 
 export type PadraoLicitacao = {
@@ -96,44 +107,60 @@ function pct(v: number): string {
 
 // ── 1. Concentração de fornecedor ──
 
-export function detectarConcentracaoDeFornecedor(processos: ProcessoParaPadrao[]): PadraoLicitacao[] {
-  const homologadas = processos.filter((p) => p.status === "homologada" && p.fornecedor);
-  if (homologadas.length < 2) return [];
+export function detectarConcentracaoDeFornecedor(
+  processos: ProcessoParaPadrao[],
+  // ── POR QUE OS CONTRATOS ENTRAM AQUI ──
+  //
+  // Sem eles, este detector agrupa empresas por SEMELHANÇA DE NOME, porque o
+  // campo `fornecedor` da licitação é texto livre digitado à mão. Nos dados
+  // reais de um município, isso conta 115 fornecedores onde existem 114: uma
+  // empresa com duas grafias vira duas, e o padrão "o mesmo fornecedor vencendo
+  // processo atrás de processo" se divide em dois grupos pequenos demais para
+  // disparar — justamente o caso que o detector existe para achar.
+  //
+  // O contrato traz CNPJ/CPF. Quando há contratos, a identidade é o documento.
+  // O parâmetro é opcional para não quebrar quem só tem editais cadastrados.
+  contratos: ContratoParaContratado[] = []
+): PadraoLicitacao[] {
+  const contratados = juntarContratados(processos, contratos);
 
-  const porFornecedor = new Map<string, { nome: string; processos: ProcessoParaPadrao[]; valor: number }>();
-  let valorTotal = 0;
-  for (const p of homologadas) {
-    const chave = normalizarFornecedor(p.fornecedor!);
-    if (!chave) continue;
-    const atual = porFornecedor.get(chave) ?? { nome: p.fornecedor!, processos: [], valor: 0 };
-    atual.processos.push(p);
-    atual.valor += p.valorEstimado ?? 0;
-    porFornecedor.set(chave, atual);
-    valorTotal += p.valorEstimado ?? 0;
-  }
+  // O total é o do universo comparável, não o da lista inteira: a fatia só faz
+  // sentido contra o que foi de fato contratado ou homologado.
+  const valorTotal = contratados.reduce((s, c) => s + c.valor, 0);
+  const totalDeNegocios = contratados.reduce((s, c) => s + c.quantidade, 0);
+  if (totalDeNegocios < 2) return [];
 
   const padroes: PadraoLicitacao[] = [];
-  for (const [chave, f] of porFornecedor) {
-    const n = f.processos.length;
-    const fatia = valorTotal > 0 ? f.valor / valorTotal : 0;
+  for (const c of contratados) {
+    const n = c.quantidade;
+    const fatia = valorTotal > 0 ? c.valor / valorTotal : 0;
     const porQuantidade = n >= FORNECEDOR_MINIMO_PROCESSOS;
     const porValor = n >= 2 && fatia >= FORNECEDOR_FATIA_MINIMA;
     if (!porQuantidade && !porValor) continue;
 
     const dinheiro =
-      valorTotal > 0
-        ? ` (${formatarMoeda(f.valor)}, ${pct(fatia * 100)} do valor homologado)`
-        : "";
+      valorTotal > 0 ? ` (${formatarMoeda(c.valor)}, ${pct(fatia * 100)} do valor homologado)` : "";
+
+    // As referências: número do processo quando há, número de contrato quando
+    // o negócio só existe como contrato.
+    const referencias = [
+      ...c.processosSemContrato.map((p) => p.numero),
+      ...c.contratos.map((k) => k.numeroControlePncpCompra ?? k.numeroControlePncp ?? k.id),
+    ];
+
     padroes.push({
       tipo: "fornecedor",
-      chave: `licitacoes:fornecedor:${chave}`,
-      texto: `${f.nome} venceu ${n} dos ${homologadas.length} processos homologados${dinheiro}: ${f.processos
-        .map((p) => p.numero)
-        .join(", ")}.`,
+      // A chave muda de forma conforme a identidade, e isso é de propósito: um
+      // aviso dispensado por nome não deve reaparecer silenciosamente como
+      // dispensado por documento, nem o contrário.
+      chave: `licitacoes:fornecedor:${c.porDocumento ? c.documento : normalizarFornecedor(c.nome)}`,
+      texto:
+        `${c.nome} venceu ${n} dos ${totalDeNegocios} processos homologados${dinheiro}: ` +
+        `${referencias.join(", ")}. Esse agrupamento foi ${comoFoiAgrupado(c)}.`,
       acao:
         `Peça à Comissão de Licitação a relação de licitantes habilitados em cada um desses ${n} processos — ` +
         `concorrência real costuma ter mais de um habilitado, e é isso que o Tribunal de Contas pergunta primeiro.`,
-      peso: f.valor,
+      peso: c.valor,
     });
   }
   return padroes;
@@ -170,8 +197,13 @@ export function detectarDispensaNoTeto(processos: ProcessoParaPadrao[], hoje = n
 }
 
 /** Os dois detectores, em ordem de dinheiro envolvido. */
-export function detectarPadroes(processos: ProcessoParaPadrao[], hoje = new Date()): PadraoLicitacao[] {
-  return [...detectarConcentracaoDeFornecedor(processos), ...detectarDispensaNoTeto(processos, hoje)].sort(
-    (a, b) => b.peso - a.peso
-  );
+export function detectarPadroes(
+  processos: ProcessoParaPadrao[],
+  hoje = new Date(),
+  contratos: ContratoParaContratado[] = []
+): PadraoLicitacao[] {
+  return [
+    ...detectarConcentracaoDeFornecedor(processos, contratos),
+    ...detectarDispensaNoTeto(processos, hoje),
+  ].sort((a, b) => b.peso - a.peso);
 }

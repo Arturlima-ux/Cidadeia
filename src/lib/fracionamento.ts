@@ -182,6 +182,31 @@ export function agruparPorObjeto(processos: ProcessoDispensa[]): GrupoFracioname
       .map((i) => termos[i])
       .reduce((acc, t) => new Set([...acc].filter((x) => t.has(x))));
 
+    // ── O GRUPO QUE NÃO SE SUSTENTA ──
+    //
+    // A ligação simples acima é deliberada: o que a lei olha é a natureza
+    // comum, e uma cadeia de compras parecidas é o padrão do fracionamento.
+    // Mas ligação simples ENCADEIA: se A parece com B e B com C, os três ficam
+    // juntos mesmo que A e C não tenham nada a ver.
+    //
+    // Com quatro processos de teste isso é inofensivo. Com os 337 de um
+    // município real, colapsa: 133 dispensas entraram num grupo só, e a tela
+    // diria "133 dispensas do mesmo ramo somaram R$ 713 mil, acima do limite",
+    // rotulando tudo como "manutenção da camionete S10". Nenhum gestor acredita
+    // nisso duas vezes, e o módulo inteiro perde a credibilidade junto.
+    //
+    // O grupo afirma que são objetos de MESMA NATUREZA (art. 75, § 1º). A
+    // evidência dessa afirmação são os termos que todos compartilham. Quando a
+    // interseção é vazia, não há afirmação a fazer — reproduzido em teste: uma
+    // cadeia de quatro cujas pontas têm semelhança 0,00 sai com termos comuns
+    // vazios.
+    //
+    // Descartar é o lado seguro, e é o mesmo critério que este módulo já
+    // declara no limiar de semelhança: preferimos deixar passar um caso a
+    // acusar um inocente. O custo é sub-reportar quando o grupo encadeado
+    // esconde um fracionamento verdadeiro dentro dele.
+    if (comuns.size === 0) continue;
+
     grupos.push({
       termos: [...comuns].sort(),
       processos: doGrupo.sort((a, b) => a.data.localeCompare(b.data)),

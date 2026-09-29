@@ -214,3 +214,62 @@ describe("análise", () => {
     expect(BASE_LEGAL_FRACIONAMENTO).toContain("14.133");
   });
 });
+
+describe("a ligação simples não pode encadear o município inteiro", () => {
+  // ── O DEFEITO QUE ESTE BLOCO IMPEDE ──
+  //
+  // Agrupar por ligação simples é correto para o que a lei olha: uma cadeia de
+  // compras da mesma natureza é o padrão do fracionamento. Mas ligação simples
+  // ENCADEIA — se A parece com B e B com C, os três entram juntos mesmo que A e
+  // C não tenham nada a ver.
+  //
+  // Com quatro processos de teste isso é inofensivo. Rodando sobre as 337
+  // dispensas reais de um município, 133 caíram num grupo só, e a tela diria
+  // "133 dispensas do mesmo ramo somaram R$ 713 mil" rotulando tudo como
+  // manutenção de uma camionete. Nenhum gestor acredita nisso duas vezes.
+  const p = (id: string, objeto: string, valor = 20_000) => ({
+    id,
+    numero: id,
+    objeto,
+    valor,
+    data: "2026-03-01",
+  });
+
+  it("uma cadeia cujas pontas não têm nada em comum não vira grupo", () => {
+    // A~B = 0,67; B~C = 0,50; C~D = 0,50; mas A~D = 0,00.
+    const grupos = agruparPorObjeto([
+      p("A", "papel caneta"),
+      p("B", "papel caneta toner"),
+      p("C", "papel toner pneu"),
+      p("D", "toner pneu filtro"),
+    ]);
+    expect(grupos).toHaveLength(0);
+  });
+
+  it("nenhum grupo sai sem termo que descreva o que o uniu", () => {
+    // O rótulo vazio era o sintoma visível na tela: "mesmo ramo: []".
+    const grupos = agruparPorObjeto([
+      p("A", "papel caneta"),
+      p("B", "papel caneta toner"),
+      p("C", "papel toner pneu"),
+      p("D", "toner pneu filtro"),
+      p("E", "combustivel diesel"),
+      p("F", "combustivel diesel comum"),
+    ]);
+    for (const g of grupos) expect(g.termos.length).toBeGreaterThan(0);
+  });
+
+  it("o grupo legítimo continua sendo apontado", () => {
+    // O conserto não pode calar o detector: três dispensas do mesmo objeto,
+    // somando acima do limite, seguem aparecendo.
+    const grupos = agruparPorObjeto([
+      p("A", "aquisicao de combustivel diesel", 30_000),
+      p("B", "aquisicao de combustivel diesel", 30_000),
+      p("C", "aquisicao de combustivel diesel", 30_000),
+    ]);
+    expect(grupos).toHaveLength(1);
+    expect(grupos[0]!.processos).toHaveLength(3);
+    expect(grupos[0]!.excedeLimite).toBe(true);
+    expect(grupos[0]!.termos).toContain("combustivel");
+  });
+});
