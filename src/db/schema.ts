@@ -467,6 +467,16 @@ export const licitacoes = pgTable("licitacoes", {
   // Data-limite (ex: prazo de entrega de proposta, fim da vigência do
   // contrato) — opcional, usado pra detectar prazo vencendo automaticamente.
   prazoFinal: text("prazo_final"),
+  // Identificador do processo no PNCP ("<cnpj>-1-<sequencial>/<ano>"), único no
+  // país. Preenchido quando o processo entrou pela importação do portal; null
+  // quando foi cadastrado à mão.
+  //
+  // Existe porque número+ano NÃO identifica processo: a numeração do PNCP
+  // reinicia por modalidade, então "Dispensa 5/2026" e "Pregão 5/2026"
+  // coexistem, e casar por número dizia "publicado" para o processo errado.
+  // Índice único parcial (prefeitura_id, numero_controle_pncp) em
+  // drizzle/0023 — é ele que torna a reimportação idempotente.
+  numeroControlePncp: text("numero_controle_pncp"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),

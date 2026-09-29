@@ -73,11 +73,13 @@ export default async function LicitacoesPage() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-serif text-2xl font-bold">Licitações</h1>
-          <p className="text-muted text-sm mt-1.5">
-            Processos registrados manualmente por enquanto. A detecção automática
-            de sobrepreço e fornecedores duplicados (mencionada na visão do
-            produto) depende de um histórico real de processos e não foi
-            implementada — não faz sentido simular isso sem dados de verdade.
+          <p className="text-muted text-sm mt-1.5 leading-relaxed">
+            Os processos podem entrar pelo próprio PNCP, onde o município é obrigado a
+            publicar desde abril de 2024 — é de lá que vêm número, objeto, modalidade,
+            valor estimado e data de publicação. Com o histórico completo, a verificação
+            de fracionamento e a de concentração de fornecedor param de olhar só o que
+            alguém teve paciência de digitar. Quem venceu cada processo é dado de
+            contrato, num outro endereço do portal, e ainda não entra aqui.
           </p>
         </div>
         <a
