@@ -5,6 +5,7 @@ import { contratos, prefeituras } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
 import { limitarUso } from "@/lib/rate-limit";
+import { exigirPlano, anoValido } from "@/lib/exigir-plano";
 import { buscarContratosPncp, type ContratoPncp } from "@/lib/contratos-pncp";
 import { randomUUID } from "node:crypto";
 
@@ -21,6 +22,7 @@ export async function buscarContratos(prefeituraId: string) {
   if (!sessao || sessao.prefeituraId !== prefeituraId) return [];
   if (!temAcessoSecretaria(sessao, "licitacoes")) return [];
   if (sessao.cargo === "unidade" || sessao.cargo === "escola") return [];
+  if (!(await exigirPlano(prefeituraId, "licitacoes")).ok) return [];
 
   try {
     return await db.select().from(contratos).where(eq(contratos.prefeituraId, prefeituraId));
@@ -48,7 +50,9 @@ export type ResultadoImportacaoContratos =
  * interessam ao radar de vencimento. Varrer só o ano corrente perderia
  * contratos que vencem neste mês.
  */
-export async function importarContratosDoPncp(ano: number): Promise<ResultadoImportacaoContratos> {
+export async function importarContratosDoPncp(
+  anoBruto: number
+): Promise<ResultadoImportacaoContratos> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre novamente." };
   if (!temAcessoSecretaria(sessao, "licitacoes")) {
@@ -58,26 +62,26 @@ export async function importarContratosDoPncp(ano: number): Promise<ResultadoImp
     return { ok: false, erro: "Seu acesso não inclui alterar o cadastro." };
   }
 
+  const ano = anoValido(anoBruto);
+  if (ano === null) return { ok: false, erro: "Ano inválido para importação." };
+
   const podeUsar = await limitarUso(`contratos-pncp:${sessao.prefeituraId}`, 6, 10);
   if (!podeUsar) {
     return { ok: false, erro: "Muitas importações seguidas. Aguarde alguns minutos." };
   }
 
-  const [prefeitura] = await db
-    .select({ cnpj: prefeituras.cnpj })
-    .from(prefeituras)
-    .where(eq(prefeituras.id, sessao.prefeituraId))
-    .limit(1);
-  if (!prefeitura?.cnpj) {
-    return { ok: false, erro: "O CNPJ do município não está cadastrado." };
-  }
+  // Cargo e plano são perguntas diferentes: temAcessoSecretaria devolve true
+  // para todo prefeito, inclusive o de município que não contratou Licitações.
+  const plano = await exigirPlano(sessao.prefeituraId, "licitacoes");
+  if (!plano.ok) return { ok: false, erro: plano.erro };
+  if (!plano.cnpj) return { ok: false, erro: "O CNPJ do município não está cadastrado." };
 
   const anos = [ano, ano - 1];
   const doPortal = new Map<string, ContratoPncp>();
   let completa = true;
 
   for (const a of anos) {
-    const r = await buscarContratosPncp(prefeitura.cnpj, a);
+    const r = await buscarContratosPncp(plano.cnpj, a);
     if (!r.ok) return { ok: false, erro: r.erro };
     if (!r.completa) completa = false;
     // O mesmo contrato pode vir nas duas varreduras; a chave do portal desempata.

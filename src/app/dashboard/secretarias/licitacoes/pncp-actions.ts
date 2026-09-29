@@ -5,6 +5,7 @@ import { licitacoes, prefeituras } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
 import { limitarUso } from "@/lib/rate-limit";
+import { exigirPlano, anoValido } from "@/lib/exigir-plano";
 import {
   buscarContratacoesPncp,
   conferirPublicacao,
@@ -43,7 +44,7 @@ export type ResultadoConferencia =
  * usuário atualizando a página levaria a consulta ao 429 e a tela passaria a
  * dizer "não publicado" para processos que estão lá.
  */
-export async function conferirNoPncp(ano: number): Promise<ResultadoConferencia> {
+export async function conferirNoPncp(anoBruto: number): Promise<ResultadoConferencia> {
   const sessao = await lerSessao();
   if (!sessao) {
     return { ok: false, erro: "Sessão expirada. Entre novamente.", limiteExcedido: false };
@@ -58,6 +59,13 @@ export async function conferirNoPncp(ano: number): Promise<ResultadoConferencia>
     return { ok: false, erro: "Sem acesso à pasta de Licitações.", limiteExcedido: false };
   }
 
+  // `ano` é tipo de TypeScript, que some em runtime: a server action recebe o
+  // que o cliente mandar, e o valor ia direto para dentro da URL do PNCP.
+  const ano = anoValido(anoBruto);
+  if (ano === null) {
+    return { ok: false, erro: "Ano inválido para consulta.", limiteExcedido: false };
+  }
+
   const podeUsar = await limitarUso(`pncp:${sessao.prefeituraId}`, 12, 10);
   if (!podeUsar) {
     return {
@@ -67,13 +75,13 @@ export async function conferirNoPncp(ano: number): Promise<ResultadoConferencia>
     };
   }
 
-  const [prefeitura] = await db
-    .select({ cnpj: prefeituras.cnpj })
-    .from(prefeituras)
-    .where(eq(prefeituras.id, sessao.prefeituraId))
-    .limit(1);
-
-  if (!prefeitura?.cnpj) {
+  // O plano é pergunta diferente do cargo: temAcessoSecretaria devolve true
+  // para todo prefeito, inclusive o de um município que não contratou
+  // Licitações. A tela bloqueia; esta ação, chamada por id no cabeçalho
+  // Next-Action, não passava pela tela.
+  const plano = await exigirPlano(sessao.prefeituraId, "licitacoes");
+  if (!plano.ok) return { ok: false, erro: plano.erro, limiteExcedido: false };
+  if (!plano.cnpj) {
     return {
       ok: false,
       erro: "O CNPJ do município não está cadastrado — sem ele não dá para consultar o PNCP.",
@@ -81,7 +89,7 @@ export async function conferirNoPncp(ano: number): Promise<ResultadoConferencia>
     };
   }
 
-  const consulta = await buscarContratacoesPncp(prefeitura.cnpj, ano);
+  const consulta = await buscarContratacoesPncp(plano.cnpj, ano);
   if (!consulta.ok) {
     return { ok: false, erro: consulta.erro, limiteExcedido: consulta.limiteExcedido };
   }
@@ -143,7 +151,7 @@ export type ResultadoImportacao =
  * A consulta é refeita aqui em vez de receber a lista da tela: lista que vem do
  * cliente é lista que o cliente pode trocar, e isto escreve no banco.
  */
-export async function importarDoPncp(ano: number): Promise<ResultadoImportacao> {
+export async function importarDoPncp(anoBruto: number): Promise<ResultadoImportacao> {
   const sessao = await lerSessao();
   if (!sessao) return { ok: false, erro: "Sessão expirada. Entre novamente." };
   if (!temAcessoSecretaria(sessao, "licitacoes")) {
@@ -155,21 +163,19 @@ export async function importarDoPncp(ano: number): Promise<ResultadoImportacao> 
     return { ok: false, erro: "Seu acesso não inclui alterar o cadastro de processos." };
   }
 
+  const ano = anoValido(anoBruto);
+  if (ano === null) return { ok: false, erro: "Ano inválido para importação." };
+
   const podeUsar = await limitarUso(`pncp-importar:${sessao.prefeituraId}`, 6, 10);
   if (!podeUsar) {
     return { ok: false, erro: "Muitas importações seguidas. Aguarde alguns minutos." };
   }
 
-  const [prefeitura] = await db
-    .select({ cnpj: prefeituras.cnpj })
-    .from(prefeituras)
-    .where(eq(prefeituras.id, sessao.prefeituraId))
-    .limit(1);
-  if (!prefeitura?.cnpj) {
-    return { ok: false, erro: "O CNPJ do município não está cadastrado." };
-  }
+  const plano = await exigirPlano(sessao.prefeituraId, "licitacoes");
+  if (!plano.ok) return { ok: false, erro: plano.erro };
+  if (!plano.cnpj) return { ok: false, erro: "O CNPJ do município não está cadastrado." };
 
-  const consulta = await buscarContratacoesPncp(prefeitura.cnpj, ano);
+  const consulta = await buscarContratacoesPncp(plano.cnpj, ano);
   if (!consulta.ok) return { ok: false, erro: consulta.erro };
 
   const locais = await db

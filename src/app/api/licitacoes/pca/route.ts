@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { prefeituras } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
+import { exigirPlano } from "@/lib/exigir-plano";
 import { lerPlanoContratacoes, nomeDoArquivoPlano } from "@/lib/plano-contratacoes";
 import { planoParaCsv } from "@/lib/pca";
 import { hojeNoFuso, fusoDoEstado } from "@/lib/horario";
@@ -16,14 +14,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ erro: "Não autenticado." }, { status: 401 });
   }
 
-  const [prefeitura] = await db
-    .select({ municipio: prefeituras.municipio, estado: prefeituras.estado })
-    .from(prefeituras)
-    .where(eq(prefeituras.id, sessao.prefeituraId))
-    .limit(1);
-  if (!prefeitura) {
-    return NextResponse.json({ erro: "Prefeitura não encontrada." }, { status: 404 });
+  // ── CARGO E PLANO SÃO PERGUNTAS DIFERENTES ──
+  //
+  // A leitura abaixo confere o CARGO (temAcessoSecretaria), que devolve true
+  // para todo prefeito. Ela não sabe se a PREFEITURA contratou Licitações — a
+  // tela é que bloqueava isso, e esta é uma rota de API, que não passa pelo
+  // proxy de /dashboard nem pela tela.
+  const plano = await exigirPlano(sessao.prefeituraId, "licitacoes");
+  if (!plano.ok) {
+    return NextResponse.json({ erro: plano.erro }, { status: 403 });
   }
+  const prefeitura = { municipio: plano.municipio, estado: plano.estado };
 
   // O ano do plano é o SEGUINTE ao corrente — é isso que "plano anual"
   // significa —, e o corrente vem do fuso do município, não do relógio do

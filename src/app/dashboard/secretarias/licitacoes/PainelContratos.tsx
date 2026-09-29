@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { importarContratosDoPncp, type ResultadoImportacaoContratos } from "./contratos-actions";
 import MarcadorSituacao, { type SituacaoMarcador } from "@/components/MarcadorSituacao";
-import { documentoExibivel } from "@/lib/contratos-pncp";
 import type { LeituraVigencia, SituacaoVigencia } from "@/lib/vigencia";
 import type { LeituraAditivo } from "@/lib/aditivos";
 
@@ -31,8 +30,8 @@ export type ContratoNaTela = {
   objeto: string;
   numeroContrato: string | null;
   fornecedorNome: string | null;
+  /** Já mascarado no servidor: o CPF cru nunca chega ao navegador. */
   fornecedorDocumento: string | null;
-  fornecedorTipoPessoa: string | null;
   vigenciaFim: string | null;
   valorGlobal: number | null;
   frutoAdesao: boolean;
@@ -187,7 +186,7 @@ export default function PainelContratos({
                       <p className="text-xs text-muted mt-2 flex flex-wrap gap-x-3 gap-y-1">
                         {c.fornecedorDocumento && (
                           <span className="tabular-nums">
-                            {documentoExibivel(c.fornecedorDocumento, c.fornecedorTipoPessoa)}
+                            {c.fornecedorDocumento}
                           </span>
                         )}
                         {moeda(c.valorGlobal) && <span>{moeda(c.valorGlobal)}</span>}

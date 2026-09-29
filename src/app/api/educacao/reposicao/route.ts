@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { estoqueMerenda, escolas } from "@/db/schema";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
+import { exigirPlano } from "@/lib/exigir-plano";
 import { montarPedidoMerenda, pedidoMerendaParaCsv } from "@/lib/merenda";
 
 // O pedido da merenda em CSV, para o almoxarifado ou o fornecedor.
@@ -13,6 +14,12 @@ export async function GET() {
   if (!sessao || !temAcessoSecretaria(sessao, "educacao") || sessao.cargo === "escola") {
     return NextResponse.json({ erro: "Sem permissão." }, { status: 403 });
   }
+  // Cargo e plano são perguntas diferentes: temAcessoSecretaria devolve true
+  // para todo prefeito, inclusive o de município que não contratou o módulo.
+  // A tela bloqueia com BloqueioPlano; esta rota não passa pela tela.
+  const plano = await exigirPlano(sessao.prefeituraId, "educacao");
+  if (!plano.ok) return NextResponse.json({ erro: plano.erro }, { status: 403 });
+
   const [estoque, rede] = await Promise.all([
     db.select().from(estoqueMerenda).where(eq(estoqueMerenda.prefeituraId, sessao.prefeituraId)),
     db.select({ id: escolas.id, nome: escolas.nome }).from(escolas).where(eq(escolas.prefeituraId, sessao.prefeituraId)),

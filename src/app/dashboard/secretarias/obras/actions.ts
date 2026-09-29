@@ -9,6 +9,7 @@ import { gerarId } from "@/lib/id";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
 import { ehObraOuEngenharia } from "@/lib/obra-prazo";
+import { exigirPlano } from "@/lib/exigir-plano";
 import { revalidatePath } from "next/cache";
 
 async function exigirAcesso(prefeituraId: string) {
@@ -157,6 +158,9 @@ export async function importarObrasDeContratos(
   if (sessao.cargo === "unidade" || sessao.cargo === "escola") {
     return { ok: false, erro: "Seu acesso não inclui alterar o cadastro." };
   }
+  // O cargo alcança a pasta; falta saber se a prefeitura contratou o módulo.
+  const plano = await exigirPlano(prefeituraId, "obras");
+  if (!plano.ok) return { ok: false, erro: plano.erro };
 
   const todosContratos = await db
     .select()

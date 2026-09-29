@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { estoqueSaude, unidadesSaude } from "@/db/schema";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
+import { exigirPlano } from "@/lib/exigir-plano";
 import { montarPedidoReposicao, pedidoParaCsv } from "@/lib/estoque-saude";
 
 // O pedido de reposição em CSV, para a farmácia central ou o fornecedor.
@@ -13,6 +14,12 @@ export async function GET() {
   if (!sessao || !temAcessoSecretaria(sessao, "saude") || sessao.cargo === "unidade") {
     return NextResponse.json({ erro: "Sem permissão." }, { status: 403 });
   }
+  // Cargo e plano são perguntas diferentes: temAcessoSecretaria devolve true
+  // para todo prefeito, inclusive o de município que não contratou o módulo.
+  // A tela bloqueia com BloqueioPlano; esta rota não passa pela tela.
+  const plano = await exigirPlano(sessao.prefeituraId, "saude");
+  if (!plano.ok) return NextResponse.json({ erro: plano.erro }, { status: 403 });
+
   const [estoque, unidades] = await Promise.all([
     db.select().from(estoqueSaude).where(eq(estoqueSaude.prefeituraId, sessao.prefeituraId)),
     db.select({ id: unidadesSaude.id, nome: unidadesSaude.nome }).from(unidadesSaude).where(eq(unidadesSaude.prefeituraId, sessao.prefeituraId)),

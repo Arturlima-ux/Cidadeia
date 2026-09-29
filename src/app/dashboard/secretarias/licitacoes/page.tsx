@@ -18,6 +18,7 @@ import { lerPlanoContratacoes } from "@/lib/plano-contratacoes";
 import { buscarContratos } from "./contratos-actions";
 import { lerVigencia, pedeAcao } from "@/lib/vigencia";
 import { lerAditivo } from "@/lib/aditivos";
+import { documentoExibivel } from "@/lib/contratos-pncp";
 import type { ProcessoDispensa } from "@/lib/fracionamento";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
 
@@ -90,8 +91,17 @@ export default async function LicitacoesPage() {
       objeto: c.objeto,
       numeroContrato: c.numeroContrato,
       fornecedorNome: c.fornecedorNome,
-      fornecedorDocumento: c.fornecedorDocumento,
-      fornecedorTipoPessoa: c.fornecedorTipoPessoa,
+      // ── O MASCARAMENTO ACONTECE AQUI, NO SERVIDOR ──
+      //
+      // Passava o documento CRU e mascarava no componente cliente. Props de
+      // servidor para cliente viajam serializadas no payload da página, então
+      // o CPF inteiro chegava ao navegador e aparecia no código-fonte — a
+      // máscara era só cosmética.
+      //
+      // Dos 134 contratos de um município medido, 16 são com pessoa física.
+      // Estar publicado no PNCP por obrigação legal não é licença para
+      // reproduzir CPF inteiro no que a nossa aplicação entrega.
+      fornecedorDocumento: documentoExibivel(c.fornecedorDocumento, c.fornecedorTipoPessoa),
       vigenciaFim: c.vigenciaFim,
       valorGlobal: c.valorGlobal,
       frutoAdesao: c.frutoAdesao,

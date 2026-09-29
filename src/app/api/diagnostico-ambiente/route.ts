@@ -1,4 +1,4 @@
-import { lerSessao } from "@/lib/sessao";
+import { lerSessao, ehGestor } from "@/lib/sessao";
 
 // ── O QUE O SERVIDOR ENXERGA DO AMBIENTE ──
 //
@@ -18,8 +18,13 @@ import { lerSessao } from "@/lib/sessao";
 // "existe com espaço sobrando", que são causas diferentes com a mesma
 // aparência no painel.
 //
-// Exige sessão. Nome de variável de ambiente não é segredo, mas é mapa de
-// arquitetura: diz quais serviços o sistema usa. Não precisa ficar aberto.
+// Exige sessão DE GESTOR. Nome de variável de ambiente não é segredo, mas é
+// mapa de arquitetura: diz quais serviços o sistema usa.
+//
+// Exigia só "estar logado", e essa decisão é anterior aos cargos de instalação.
+// Hoje existem "unidade" (gerência de UBS) e "escola" (direção), que são contas
+// criadas para terceiros e são as de menor confiança do produto — não há motivo
+// para elas verem a arquitetura do sistema. É a mesma regra da exportação.
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +42,9 @@ export async function GET() {
   const sessao = await lerSessao();
   if (!sessao) {
     return Response.json({ erro: "Entre no sistema para ver isto." }, { status: 401 });
+  }
+  if (!ehGestor(sessao)) {
+    return Response.json({ erro: "Apenas o prefeito ou um administrador." }, { status: 403 });
   }
 
   const estado = OBSERVADAS.map((nome) => {
