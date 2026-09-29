@@ -8,7 +8,7 @@ import { estoqueMerenda, pnaeCompras, pnaeRepasses, escolas } from "@/db/schema"
 import { gerarId } from "@/lib/id";
 import { lerSessao, temAcessoSecretaria, podeVerEscola, ehGestor } from "@/lib/sessao";
 import { auditar } from "@/lib/auditoria";
-import { itemDoCatalogoMerenda } from "@/lib/merenda";
+import { itemDoCatalogoMerenda, nomeCanonicoDoItem } from "@/lib/merenda";
 import { MODALIDADES_COMPRA, MOTIVOS_DISPENSA_AF } from "@/lib/pnae";
 
 // ── A MERENDA: O QUE TEM NA COZINHA E O QUE FOI COMPRADO ──
@@ -72,11 +72,17 @@ export async function registrarContagemMerenda(formData: FormData): Promise<Resu
   if (!escola) return { ok: false, erro: "Escola não encontrada." };
 
   const agora = new Date().toISOString();
-  const [existente] = await db
-    .select({ id: estoqueMerenda.id })
+
+  // ── O ITEM É CASADO PELO NOME CANÔNICO, NÃO PELO TEXTO DIGITADO ──
+  // O índice único do banco é sobre (escola_id, item) cru: "ARROZ" e
+  // "Arroz" passam como itens diferentes e viram duas linhas. Ver
+  // nomeCanonicoDoItem() em lib/merenda.ts para o que isso causava.
+  const jaLancados = await db
+    .select({ id: estoqueMerenda.id, item: estoqueMerenda.item })
     .from(estoqueMerenda)
-    .where(and(eq(estoqueMerenda.escolaId, escola.id), eq(estoqueMerenda.item, d.item)))
-    .limit(1);
+    .where(eq(estoqueMerenda.escolaId, escola.id));
+  const nomeFinal = nomeCanonicoDoItem(d.item, jaLancados.map((l) => l.item));
+  const existente = jaLancados.find((l) => l.item === nomeFinal);
 
   if (existente) {
     await db
@@ -95,7 +101,7 @@ export async function registrarContagemMerenda(formData: FormData): Promise<Resu
       id: gerarId("merenda"),
       prefeituraId: sessao.prefeituraId,
       escolaId: escola.id,
-      item: d.item,
+      item: nomeFinal,
       categoria: d.categoria,
       unidadeMedida: d.unidadeMedida,
       saldo: d.saldo,

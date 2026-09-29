@@ -134,10 +134,20 @@ describe("a matrícula vira reais", () => {
     expect(a.frase).toMatch(/glosar/);
   });
 
-  it("diferença pequena não conta — é rotatividade normal", () => {
-    const a = apurarFundebPorAluno([esc("e1", "EM A", 100, 100 + DIFERENCA_RELEVANTE - 1)], 7_000);
+  it("diferença pequena não NOMEIA a escola, mas continua contando no total", () => {
+    // ── ESTE TESTE ESTAVA ERRADO, E ESCONDIA UM DEFEITO ──
+    // Ele exigia `alunosForaDaConta === 0` para uma diferença abaixo do
+    // limiar, o que transformava o limiar de exibição em limiar de
+    // CONTAGEM. Dez escolas com +4 alunos somavam 40 — R$ 200 mil a
+    // R$ 5.000 por aluno — e o sistema dizia "nada em risco".
+    //
+    // O limiar existe para a lista: não se nomeia uma escola por causa de
+    // 4 alunos. O dinheiro, esse conta sempre.
+    const diferenca = DIFERENCA_RELEVANTE - 1;
+    const a = apurarFundebPorAluno([esc("e1", "EM A", 100, 100 + diferenca)], 7_000);
     expect(a.porEscola).toHaveLength(0);
-    expect(a.alunosForaDaConta).toBe(0);
+    expect(a.alunosForaDaConta).toBe(diferenca);
+    expect(a.reaisForaDaConta).toBe(diferenca * 7_000);
   });
 
   it("escola sem matrícula informada fica fora da comparação", () => {
@@ -189,5 +199,64 @@ describe("o cruzamento com o dia a dia", () => {
   it("sem meta informada também fica quieta — não há do que estar abaixo", () => {
     const semMeta = montarResultados([{ escolaId: "e1", etapa: "anos_iniciais", indicador: "ideb", valor: 3.2, meta: null }], [])[0]!;
     expect(explicarResultado(semMeta, { diasPerdidos: 12, casosBuscaAtiva: 0, alunosAbaixoDaFrequencia: 0, itensDeMerendaEmFalta: 0 })).toBeNull();
+  });
+});
+
+describe("o total em risco não pode sair da lista filtrada", () => {
+  // ── O DEFEITO QUE ESTE BLOCO TRAVA ──
+  // Os totais somavam sobre `porEscola`, que já vinha filtrado pelo limiar
+  // de DIFERENCA_RELEVANTE. O limiar existe para a LISTA — não se nomeia
+  // uma escola por 2 alunos — mas aplicá-lo ao TOTAL apagava dinheiro.
+  const esc = (id: string, censo: number, atual: number) => ({
+    id,
+    nome: "EM " + id,
+    matriculasCenso: censo,
+    matriculasAtuais: atual,
+  });
+
+  it("dez escolas com +4 alunos somam 40, não zero", () => {
+    const rede = Array.from({ length: 10 }, (_, i) => esc(`e${i}`, 100, 104));
+    const a = apurarFundebPorAluno(rede, 5_000);
+    expect(a.alunosForaDaConta).toBe(40);
+    expect(a.reaisForaDaConta).toBe(200_000);
+    // E a frase não pode dizer que está tudo certo.
+    expect(a.frase).not.toMatch(/Nada em risco/);
+    expect(a.frase).toMatch(/sem entrar na conta do FUNDEB/);
+  });
+
+  it("mas a lista por escola continua escondendo diferença pequena", () => {
+    const rede = Array.from({ length: 10 }, (_, i) => esc(`e${i}`, 100, 104));
+    expect(apurarFundebPorAluno(rede, 5_000).porEscola).toHaveLength(0);
+  });
+
+  it("diferenças em sentidos opostos não se anulam no total", () => {
+    const a = apurarFundebPorAluno([esc("e1", 100, 103), esc("e2", 100, 97)], 5_000);
+    expect(a.alunosForaDaConta).toBe(3);
+    expect(a.alunosDeclaradosAMais).toBe(3);
+  });
+
+  it("rede que bate de verdade continua dizendo que nada está em risco", () => {
+    const a = apurarFundebPorAluno([esc("e1", 100, 100), esc("e2", 50, 50)], 5_000);
+    expect(a.alunosForaDaConta).toBe(0);
+    expect(a.frase).toMatch(/Nada em risco/);
+  });
+});
+
+describe("a explicação diz o estado certo", () => {
+  it('"perto da meta" não é anunciado como "abaixo da meta"', () => {
+    // A frase era fixa em "abaixo da meta" e aparecia na mesma célula em
+    // que a etiqueta ao lado dizia "Perto da meta".
+    const perto = montarResultados(
+      [{ escolaId: "e1", etapa: "anos_iniciais", indicador: "ideb", valor: 4.9, meta: 5.0 }],
+      []
+    )[0]!;
+    expect(perto.situacao).toBe("perto");
+    const f = explicarResultado(perto, {
+      diasPerdidos: 12,
+      casosBuscaAtiva: 0,
+      alunosAbaixoDaFrequencia: 0,
+      itensDeMerendaEmFalta: 0,
+    });
+    expect(f).toMatch(/ainda abaixo da meta/);
   });
 });

@@ -327,3 +327,26 @@ export function censoMaisRecenteDisponivel(hoje: Date = new Date()): number {
   // Os dados do Censo de um ano saem por volta de novembro/dezembro.
   return hoje.getUTCMonth() >= 10 ? ano : ano - 1;
 }
+
+/**
+ * A escola entra nas contas do município?
+ *
+ * ── POR QUE ISTO PRECISOU EXISTIR ──
+ * A importação aceita trazer as outras redes "como contexto" (a caixa
+ * "trazer também escolas estaduais e privadas"), e nenhum consumidor
+ * filtrava depois. As três agregações — tela, PDF e contexto da IA — usavam
+ * só `situacao !== "extinta"`.
+ *
+ * O estrago não era cosmético. Uma escola estadual sem `diasPrevistos`
+ * assume o mínimo de 200 dias, fica com folga zero e vira um achado
+ * "calendário sem folga" que o prefeito lê como problema dele. Pior: se
+ * alguém preenchesse a matrícula atual dela, aqueles alunos entravam na
+ * conta do FUNDEB por matrícula — repasse ao qual o município não tem
+ * direito, num número que o sistema apresenta como dinheiro em jogo.
+ *
+ * Escola sem dependência declarada conta como municipal: é o caso do
+ * cadastro feito à mão, que só existe porque a prefeitura a administra.
+ */
+export function contaParaOMunicipio(escola: { dependencia: string | null }): boolean {
+  return escola.dependencia === null || escola.dependencia === DEPENDENCIA_DO_MUNICIPIO;
+}

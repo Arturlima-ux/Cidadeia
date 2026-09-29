@@ -1,3 +1,4 @@
+import { fusoDoEstado } from "@/lib/horario";
 // ── BUSCA ATIVA ESCOLAR ──
 //
 // O aluno que some é o problema mais caro da educação municipal, e o mais
@@ -243,7 +244,16 @@ export type DadosOficio = {
 export function textoOficioConselhoTutelar(d: DadosOficio, hoje: Date = new Date()): string {
   const { caso } = d;
   const f = frequencia(caso.faltas, caso.aulasPeriodo);
-  const data = hoje.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  // O servidor da Vercel roda em UTC. Sem o fuso, um ofício emitido às
+  // 21h30 de Brasília saía datado do dia seguinte — num documento cuja
+  // função é provar cronologia. O fuso sai da UF do próprio município: o
+  // Brasil tem quatro, e o Acre não é São Paulo.
+  const data = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: fusoDoEstado(d.estado),
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(hoje);
   const feitas = etapas(caso).filter((e) => e.feitaEm !== null);
 
   const tentativas = feitas
@@ -264,7 +274,27 @@ export function textoOficioConselhoTutelar(d: DadosOficio, hoje: Date = new Date
     "",
     `Comunicamos, na forma do art. 56, inciso II, da Lei nº 8.069/1990 (Estatuto da Criança e do Adolescente), e do art. 12, inciso VIII, da Lei nº 9.394/1996 (LDB), a situação de infrequência escolar do(a) aluno(a) ${caso.alunoNome}${caso.alunoTurma ? `, matriculado(a) na turma ${caso.alunoTurma}` : ""}, da ${d.escola}.`,
     "",
-    `No período de referência (${caso.periodo}), o(a) aluno(a) registra ${caso.faltas} falta(s) em ${caso.aulasPeriodo} aula(s) previstas${f !== null ? `, o que corresponde a ${arredondar(f)}% de frequência — abaixo do mínimo de ${FREQUENCIA_MINIMA_LDB}% exigido pelo art. 24, inciso VI, da LDB` : ""}.${caso.ultimaPresenca ? ` A última presença registrada foi em ${formatarData(caso.ultimaPresenca)}.` : ""}`,
+    // ── A FRASE SE CONTRADIZIA ──
+    // A cláusula "abaixo do mínimo de 75%" estava presa a `f !== null`, e
+    // não a `f < 75`. Um aluno com 80% de frequência — que a ficha mostra
+    // em amarelo, como atenção — recebia um ofício dizendo "80% de
+    // frequência, abaixo do mínimo de 75%".
+    //
+    // Num documento assinado e protocolado no Conselho Tutelar, isso é o
+    // pior defeito possível: a peça existe para não ser contestada, e se
+    // contradizia na mesma linha.
+    //
+    // O art. 56, II, do ECA trata de "reiteração de faltas injustificadas"
+    // e de evasão — não exige que a frequência esteja abaixo do mínimo da
+    // LDB. Então acima dos 75% o ofício informa o percentual e se apoia na
+    // reiteração, que é a hipótese legal correta ali.
+    `No período de referência (${caso.periodo}), o(a) aluno(a) registra ${caso.faltas} falta(s) em ${caso.aulasPeriodo} aula(s) previstas${
+      f === null
+        ? ""
+        : f < FREQUENCIA_MINIMA_LDB
+          ? `, o que corresponde a ${arredondar(f)}% de frequência — abaixo do mínimo de ${FREQUENCIA_MINIMA_LDB}% exigido pelo art. 24, inciso VI, da LDB`
+          : `, o que corresponde a ${arredondar(f)}% de frequência, situação que ainda observa o mínimo do art. 24, inciso VI, da LDB, mas que se caracteriza pela reiteração de faltas`
+    }.${caso.ultimaPresenca ? ` A última presença registrada foi em ${formatarData(caso.ultimaPresenca)}.` : ""}`,
     "",
     "Informamos que foram esgotados os recursos escolares disponíveis, conforme registro:",
     tentativas || "— (nenhuma tentativa registrada)",
@@ -287,6 +317,22 @@ function formatarData(iso: string): string {
 
 /** Número do ofício a partir do id e do ano — previsível e sem colidir. */
 export function numeroDoOficio(id: string, hoje: Date = new Date()): string {
-  const sufixo = id.replace(/\D/g, "").slice(-4).padStart(4, "0");
-  return `${sufixo}/${hoje.getUTCFullYear()}`;
+  // ── POR QUE NÃO SÃO OS QUATRO ÚLTIMOS DÍGITOS ──
+  //
+  // Era `id.replace(/\D/g,"").slice(-4)`: quatro dígitos, dez mil valores
+  // possíveis. Pelo paradoxo do aniversário, uma escola com 50 ofícios no
+  // ano tem mais de 10% de chance de emitir dois com o MESMO número — e
+  // número de protocolo repetido é problema no Conselho Tutelar, não
+  // curiosidade estatística. Pior: o id é um UUID, cujos dígitos finais
+  // são justamente os mais arbitrários.
+  //
+  // Agora sai de um hash FNV-1a do id inteiro, com seis dígitos: usa toda
+  // a entropia em vez de descartá-la, e continua determinístico — a mesma
+  // ficha gera sempre o mesmo número, porque ofício se reimprime.
+  let h = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return `${String(h % 1_000_000).padStart(6, "0")}/${hoje.getUTCFullYear()}`;
 }

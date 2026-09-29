@@ -4,10 +4,11 @@ import { z } from "zod";
 import { and, eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { buscaAtiva, escolas } from "@/db/schema";
+import { buscaAtiva, escolas, prefeituras } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { lerSessao, temAcessoSecretaria, podeVerEscola } from "@/lib/sessao";
 import { auditar } from "@/lib/auditoria";
+import { fusoDoEstado, hojeNoFuso } from "@/lib/horario";
 import { SITUACOES_BUSCA } from "@/lib/busca-ativa";
 
 // ── BUSCA ATIVA ESCOLAR ──
@@ -131,7 +132,21 @@ export async function registrarEtapaBuscaAtiva(id: string, etapa: string): Promi
   if (!caso) return { ok: false, erro: "Caso não encontrado." };
   if (!podeVerEscola(sessao, caso.escolaId)) return { ok: false, erro: "Sem permissão para esta escola." };
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  // ── A DATA ERA GRAVADA EM UTC ──
+  // Era `new Date().toISOString().slice(0, 10)`. O servidor da Vercel roda
+  // em UTC, então a diretora que liga para a família às 21h30 de Brasília
+  // via a etapa gravada com a data de AMANHÃ — e o ofício impresso na
+  // manhã seguinte listava uma tentativa datada no futuro, justamente no
+  // documento que existe para provar cronologia.
+  //
+  // O fuso sai da UF da prefeitura, não de uma constante: o Brasil tem
+  // quatro, e no Acre o corte é às 20h.
+  const [pref] = await db
+    .select({ estado: prefeituras.estado })
+    .from(prefeituras)
+    .where(eq(prefeituras.id, sessao.prefeituraId))
+    .limit(1);
+  const hoje = hojeNoFuso(fusoDoEstado(pref?.estado));
   await db
     .update(buscaAtiva)
     .set({

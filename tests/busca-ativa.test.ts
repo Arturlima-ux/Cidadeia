@@ -169,8 +169,16 @@ describe("o ofício ao Conselho Tutelar", () => {
   });
 
   it("o número do ofício é estável e traz o ano", () => {
-    expect(numeroDoOficio("busca_20260922_1234", HOJE)).toBe("1234/2026");
-    expect(numeroDoOficio("busca_xy", HOJE)).toBe("0000/2026");
+    // Eram os quatro últimos DÍGITOS do id — dez mil valores, e o id é um
+    // UUID, cujos dígitos finais são os mais arbitrários. Com 50 ofícios
+    // no ano, dois saíam com o mesmo número em mais de 10% das vezes.
+    // Agora são seis dígitos de um hash do id inteiro; o que este teste
+    // garante é o formato e a estabilidade, não o valor.
+    const n = numeroDoOficio("busca_20260922_1234", HOJE);
+    expect(n).toMatch(/^\d{6}\/2026$/);
+    expect(numeroDoOficio("busca_20260922_1234", HOJE)).toBe(n);
+    // Id sem dígito nenhum também produz número válido.
+    expect(numeroDoOficio("busca_xy", HOJE)).toMatch(/^\d{6}\/2026$/);
   });
 
   it("as quatro etapas existem e na ordem que a lei pede", () => {
@@ -180,5 +188,57 @@ describe("o ofício ao Conselho Tutelar", () => {
       "conselho_tutelar",
       "ministerio_publico",
     ]);
+  });
+});
+
+describe("o ofício não pode se contradizer", () => {
+  // ── O DEFEITO QUE ESTES TESTES TRAVAM ──
+  // A cláusula "abaixo do mínimo de 75%" estava presa a "há frequência
+  // calculada", não a "a frequência está abaixo de 75%". Um aluno com 80%
+  // recebia um ofício dizendo que 80% é abaixo de 75% — num documento
+  // assinado e protocolado no Conselho Tutelar.
+  const dados = (faltas: number) => ({
+    caso: { ...base, faltas, aulasPeriodo: 100, contatoFamiliaEm: "2026-08-10" },
+    escola: "Escola Municipal José Alves",
+    municipio: "Bertolínia",
+    estado: "PI",
+    numero: "000123/2026",
+  });
+
+  it("abaixo de 75% o ofício invoca o mínimo da LDB", () => {
+    const t = textoOficioConselhoTutelar(dados(40), HOJE);
+    expect(t).toContain("60% de frequência — abaixo do mínimo de 75%");
+  });
+
+  it("acima de 75% ele NÃO afirma que está abaixo do mínimo", () => {
+    const t = textoOficioConselhoTutelar(dados(20), HOJE);
+    expect(t).toContain("80% de frequência");
+    expect(t).not.toContain("abaixo do mínimo");
+    // O art. 56, II, trata de reiteração de faltas — não exige frequência
+    // abaixo do mínimo. É essa a hipótese legal quando ela está acima.
+    expect(t).toContain("reiteração de faltas");
+  });
+
+  it("exatamente 75% ainda observa o mínimo", () => {
+    const t = textoOficioConselhoTutelar(dados(25), HOJE);
+    expect(t).not.toContain("abaixo do mínimo");
+  });
+
+  it("o número do ofício usa a entropia inteira do id, não os quatro últimos dígitos", () => {
+    // Dois ids que terminam igual precisam gerar números diferentes: era
+    // exatamente aí que os protocolos colidiam.
+    const a = numeroDoOficio("busca_aaaaaaaa1234", HOJE);
+    const b = numeroDoOficio("busca_bbbbbbbb1234", HOJE);
+    expect(a).not.toBe(b);
+    expect(a).toMatch(/^\d{6}\/2026$/);
+    // E o mesmo id sempre dá o mesmo número: ofício se reimprime.
+    expect(numeroDoOficio("busca_aaaaaaaa1234", HOJE)).toBe(a);
+  });
+
+  it("mil ids distintos não colidem", () => {
+    const vistos = new Set<string>();
+    for (let i = 0; i < 1000; i++) vistos.add(numeroDoOficio(`busca_${i}_${i * 7919}`, HOJE));
+    // Com seis dígitos, mil itens colidem com probabilidade ~0,05%.
+    expect(vistos.size).toBeGreaterThanOrEqual(999);
   });
 });

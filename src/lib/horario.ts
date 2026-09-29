@@ -98,3 +98,28 @@ export function dataNumerica(iso: string | null | undefined, fuso: string): stri
 export function dataHoraNumerica(iso: string | null | undefined, fuso: string): string {
   return comFuso(iso, fuso, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
+
+/**
+ * O dia de hoje naquele fuso, em "AAAA-MM-DD".
+ *
+ * ── POR QUE ISTO EXISTE ──
+ * O código gravava data com `new Date().toISOString().slice(0, 10)`, que é
+ * sempre UTC. Na Vercel o servidor roda em UTC, então às 21h30 de Brasília
+ * o registro nascia com a data de AMANHÃ.
+ *
+ * Num campo de auditoria isso é chato; no ofício ao Conselho Tutelar é
+ * grave: a peça existe para provar a cronologia do que a escola tentou, e
+ * saía com uma etapa datada no futuro. Toda ligação feita depois das 21h
+ * (20h no Acre) ficava com o dia errado.
+ *
+ * "en-CA" não é capricho: é o único locale comum cujo formato numérico já é
+ * AAAA-MM-DD, o mesmo que o banco espera.
+ */
+export function hojeNoFuso(fuso: string, agora: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: fuso,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(agora);
+}

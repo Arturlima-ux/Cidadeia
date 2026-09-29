@@ -38,7 +38,23 @@ const COR = {
   sem_meta: "var(--muted)",
 } as const;
 
-const SETA = { subiu: "↑", caiu: "↓", estavel: "→", sem_serie: "" } as const;
+// ── A SETA MOSTRA DIREÇÃO, NÃO LEITURA ──
+//
+// Isto era `SETA[l.tendencia]`, e `Tendencia` NÃO codifica direção: ela
+// codifica melhorou/piorou. Em distorção e abandono, onde menor é melhor,
+// `tendencia(5, 10, "menor")` devolve "subiu" — porque melhorou.
+//
+// O resultado na tela: abandono caindo de 10% para 5% renderizava "↑ 10"
+// com o rótulo "melhorou (caiu)" logo abaixo. Seta para cima ao lado de um
+// valor anterior MAIOR, contradizendo o próprio rótulo na mesma célula.
+//
+// Agora a seta vem da comparação crua dos números; a cor e o rótulo
+// continuam vindo da leitura, que é onde o sentido do indicador importa.
+function setaDaDirecao(valor: number, anterior: number | null): string {
+  if (anterior === null) return "";
+  if (Math.abs(valor - anterior) < 0.05) return "→";
+  return valor > anterior ? "↑" : "↓";
+}
 
 export default async function ResultadoPage({ searchParams }: { searchParams: Promise<{ ano?: string }> }) {
   const ctx = await contextoDashboard();
@@ -232,7 +248,7 @@ export default async function ResultadoPage({ searchParams }: { searchParams: Pr
                                     : "var(--accent)",
                             }}
                           >
-                            {SETA[l.tendencia]} {l.anterior !== null ? l.anterior.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : ""}
+                            {setaDaDirecao(l.valor, l.anterior)} {l.anterior !== null ? l.anterior.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : ""}
                             <span className="block">{rotuloTendencia(l.tendencia, l.indicador.sentido)}</span>
                           </span>
                         )}

@@ -199,3 +199,26 @@ export function itemDoCatalogoMerenda(nome: string): ItemMerenda | undefined {
   const n = normalizar(nome);
   return CATALOGO_MERENDA.find((c) => normalizar(c.nome) === n);
 }
+
+/**
+ * O nome sob o qual o item deve ser gravado.
+ *
+ * ── POR QUE ISTO EXISTE ──
+ * O banco tem índice único em (escola_id, item), mas sobre o TEXTO CRU.
+ * A merendeira que lança "ARROZ" na segunda e "Arroz" na sexta cria duas
+ * linhas, e as duas entram no pedido de reposição: a nova como "repor" e a
+ * velha — se tiver saldo zero — como "acabou", para sempre. A escola fica
+ * marcada como urgente por um item fantasma, e isso vaza para o PDF e para
+ * o contexto da IA.
+ *
+ * Quando o item está no catálogo, grava-se o nome canônico dele. Fora do
+ * catálogo, quem decide é a linha que já existe naquela escola — daí o
+ * `existentes`. Só um item realmente novo entra com o texto digitado.
+ */
+export function nomeCanonicoDoItem(digitado: string, existentes: string[] = []): string {
+  const limpo = digitado.trim();
+  const doCatalogo = itemDoCatalogoMerenda(limpo);
+  if (doCatalogo) return doCatalogo.nome;
+  const n = normalizar(limpo);
+  return existentes.find((e) => normalizar(e) === n) ?? limpo;
+}

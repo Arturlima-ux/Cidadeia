@@ -25,7 +25,7 @@ import { IconDownload } from "@/components/icons";
 import ImportarRedeCenso from "./ImportarRedeCenso";
 import { lerEscola, mencionaEscola } from "@/lib/leitura-escola";
 import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
-import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel } from "@/lib/censo-escolar";
+import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel, contaParaOMunicipio } from "@/lib/censo-escolar";
 import { buscarMerendaDaRede, buscarComprasPnae, buscarRepassePnae } from "./merenda-actions";
 import { montarPedidoMerenda, cabeNaAgriculturaFamiliar, DIAS_AULA_ATENCAO } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
@@ -62,7 +62,11 @@ export default async function EducacaoPage() {
   const doAnoPorEscola = new Map<string, typeof doAno>();
   for (const o of doAno) doAnoPorEscola.set(o.escolaId, [...(doAnoPorEscola.get(o.escolaId) ?? []), o]);
 
-  const ativas = listaEscolas.filter((e) => e.situacao !== "extinta");
+  // Só a rede que o município administra entra nas contas. As outras
+  // vieram como contexto na importação e continuam na lista e no mapa;
+  // o que elas não podem é virar "escola sem folga no calendário" ou
+  // aluno na conta do FUNDEB. Ver contaParaOMunicipio().
+  const ativas = listaEscolas.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
   const doCenso = listaEscolas.filter((e) => e.origem === "censo").length;
   const manuais = listaEscolas.filter((e) => e.origem === "manual");
 

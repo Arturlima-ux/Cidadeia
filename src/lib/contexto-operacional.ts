@@ -1,3 +1,4 @@
+import { contaParaOMunicipio } from "@/lib/censo-escolar";
 import { and, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
 import {
@@ -22,7 +23,7 @@ import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencia
 import { montarPedidoMerenda } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
-import { apurarFundebPorAluno, indicadorPorChave, rotuloEtapa } from "@/lib/resultado-educacao";
+import { apurarFundebPorAluno, indicadorPorChave, rotuloEtapa, situacaoDoResultado } from "@/lib/resultado-educacao";
 
 // ── O QUE A IA PRECISA SABER, E NÃO SABIA ──
 //
@@ -201,7 +202,9 @@ export async function resumoOperacionalEducacao(prefeituraId: string): Promise<s
 
   if (rede.length === 0) return "";
 
-  const ativas = rede.filter((e) => e.situacao !== "extinta");
+  // Mesma regra da tela: as outras redes não entram nas contas do
+  // município — nem no que a IA afirma sobre elas.
+  const ativas = rede.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
   const abertas = ocorrencias.filter((o) => o.status === "aberta");
   const abertasPor = new Map<string, typeof abertas>();
   for (const o of abertas) abertasPor.set(o.escolaId, [...(abertasPor.get(o.escolaId) ?? []), o]);
@@ -309,10 +312,18 @@ export async function resumoOperacionalEducacao(prefeituraId: string): Promise<s
 
   // ── resultado ──
   if (resultados.length > 0) {
+    // ── ISTO RECALCULAVA A REGRA, E DIVERGIA DA TELA ──
+    // Era `ind.sentido === "maior" ? r.valor < r.meta : r.valor > r.meta`,
+    // que é "não atingiu" — engloba "perto" e "abaixo". A tela conta só
+    // "abaixo", com a margem de 5% de situacaoDoResultado.
+    //
+    // IDEB 4,9 com meta 5,0: a tela mostra a etiqueta "Perto da meta" e a
+    // IA, ao lado, afirmava "abaixo da meta". O comentário no topo deste
+    // arquivo diz que nada aqui recalcula nada — este bloco recalculava.
     const abaixo = resultados.filter((r) => {
       const ind = indicadorPorChave(r.indicador);
-      if (!ind || r.meta === null) return false;
-      return ind.sentido === "maior" ? r.valor < r.meta : r.valor > r.meta;
+      if (!ind) return false;
+      return situacaoDoResultado(r.valor, r.meta, ind.sentido) === "abaixo";
     });
     if (abaixo.length > 0) {
       linhas.push(

@@ -1,3 +1,4 @@
+import { contaParaOMunicipio } from "@/lib/censo-escolar";
 import { and, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
 import {
@@ -46,10 +47,6 @@ export type DadosOperacionais = {
 
 const ROTULO_SITUACAO = { urgente: "Urgente", atencao: "Atenção", normal: "Em ordem" } as const;
 const TRACO = "—";
-
-function moeda(n: number): string {
-  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-}
 
 const inicioDoAno = () => `${new Date().getUTCFullYear()}-01-01`;
 
@@ -160,7 +157,8 @@ export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<D
     console.error("[relatorio-operacional] educação:", e);
   }
 
-  const ativas = rede.filter((e) => e.situacao !== "extinta");
+  // Mesma regra da tela e do contexto da IA.
+  const ativas = rede.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
   const abertas = ocorrencias.filter((o) => o.status === "aberta");
   const abertasPor = new Map<string, typeof abertas>();
   for (const o of abertas) abertasPor.set(o.escolaId, [...(abertasPor.get(o.escolaId) ?? []), o]);
@@ -254,7 +252,11 @@ export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<D
   }
 
   if (pnae.situacao === "abaixo" || pnae.situacao === "perto") {
-    partes.push(`${pnae.frase} Faltam ${moeda(pnae.faltaEmReais)} em compra da agricultura familiar.`);
+    // A frase de apurarPnae JÁ traz o valor que falta nestes dois estados.
+    // Acrescentar de novo imprimia "Faltam R$ 26.000,00 para os 30% (...).
+    // Faltam R$ 26.000,00 em compra da agricultura familiar." no PDF que
+    // circula por e-mail e chega à câmara.
+    partes.push(pnae.frase);
   }
 
   const observacao = partes.length > 0 ? partes.join(" ") : ativas.length > 0 ? "Nenhuma escola da rede tem pendência registrada no momento desta geração." : undefined;

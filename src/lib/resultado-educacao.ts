@@ -236,8 +236,24 @@ export function apurarFundebPorAluno(escolas: EscolaComMatricula[], valorAlunoAn
     .filter((g) => Math.abs(g.diferenca) >= DIFERENCA_RELEVANTE)
     .sort((a, b) => Math.abs(b.diferenca) - Math.abs(a.diferenca));
 
-  const alunosForaDaConta = porEscola.filter((g) => g.diferenca > 0).reduce((s, g) => s + g.diferenca, 0);
-  const alunosDeclaradosAMais = porEscola.filter((g) => g.diferenca < 0).reduce((s, g) => s - g.diferenca, 0);
+  // ── O TOTAL NÃO PODE SAIR DA LISTA FILTRADA ──
+  //
+  // Estes dois somavam sobre `porEscola`, que já vinha filtrado por
+  // `Math.abs(diferenca) >= DIFERENCA_RELEVANTE`. O limiar existe para a
+  // LISTA — não faz sentido nomear uma escola por causa de 2 alunos —, mas
+  // aplicá-lo ao TOTAL apagava dinheiro real.
+  //
+  // Dez escolas com +4 alunos cada somam 40 alunos atendidos fora da conta
+  // do FUNDEB. Nenhuma cruzava o limiar, então o total dava zero e a frase
+  // devolvida era "a matrícula de hoje bate com a declarada. Nada em
+  // risco." A R$ 5.000 por aluno/ano, são R$ 200 mil que o município
+  // deixava de receber — e a mesma frase ia para o PDF e para a IA.
+  //
+  // Agora o total percorre TODAS as escolas comparáveis; o limiar segue
+  // valendo só para `porEscola`, que é o detalhamento da tela.
+  const diferencas = comparaveis.map((e) => (e.matriculasAtuais ?? 0) - (e.matriculasCenso ?? 0));
+  const alunosForaDaConta = diferencas.filter((d) => d > 0).reduce((s, d) => s + d, 0);
+  const alunosDeclaradosAMais = diferencas.filter((d) => d < 0).reduce((s, d) => s - d, 0);
   const reaisForaDaConta = valorAlunoAno === null ? null : alunosForaDaConta * valorAlunoAno;
   const reaisEmRiscoDeGlosa = valorAlunoAno === null ? null : alunosDeclaradosAMais * valorAlunoAno;
 
@@ -301,7 +317,11 @@ export function explicarResultado(linha: LinhaResultado, ctx: ContextoDaEscola):
   if (ctx.itensDeMerendaEmFalta > 0) pistas.push(`${ctx.itensDeMerendaEmFalta} item(ns) de merenda em falta`);
 
   if (pistas.length === 0) return null;
-  return `${linha.indicador.nome} abaixo da meta numa escola com ${juntar(pistas)}. O resultado não se explica sozinho — e nada disso é pedagógico.`;
+  // A frase era fixa em "abaixo da meta", mas esta função também roda para
+  // "perto" — e aí aparecia "IDEB abaixo da meta" na mesma célula em que a
+  // etiqueta ao lado dizia "Perto da meta". Cada estado diz o seu nome.
+  const posicao = linha.situacao === "perto" ? "ainda abaixo da meta" : "abaixo da meta";
+  return `${linha.indicador.nome} ${posicao} numa escola com ${juntar(pistas)}. O resultado não se explica sozinho — e nada disso é pedagógico.`;
 }
 
 function juntar(itens: string[]): string {
