@@ -1,27 +1,17 @@
-import { contaParaOMunicipio } from "@/lib/censo-escolar";
-import { and, eq, gte } from "drizzle-orm";
+
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  unidadesSaude,
-  ocorrenciasSaude,
-  estoqueSaude,
-  escolas,
-  ocorrenciasEscola,
-  estoqueMerenda,
-  pnaeCompras,
-  pnaeRepasses,
-  buscaAtiva,
-  fundebEducacao,
-} from "@/db/schema";
+import { unidadesSaude, ocorrenciasSaude, estoqueSaude } from "@/db/schema";
 import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
 import { lerUnidade } from "@/lib/leitura-unidade";
 import { montarPedidoReposicao } from "@/lib/estoque-saude";
 import { lerEscola } from "@/lib/leitura-escola";
-import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
+import { DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
 import { montarPedidoMerenda } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
 import { apurarFundebPorAluno } from "@/lib/resultado-educacao";
+import { lerRedeEducacao, aQueMaisPrecisa } from "@/lib/rede-educacao";
 import type { CardIndicador, LinhaLista } from "@/lib/relatorios/RelatorioSecretaria";
 
 // ── O RELATÓRIO EM PDF CONTA A MESMA HISTÓRIA DA TELA ──
@@ -124,74 +114,20 @@ export async function dadosOperacionaisSaude(prefeituraId: string): Promise<Dado
   return { cartoes, linhas, observacao };
 }
 
-export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<DadosOperacionais> {
-  const ano = new Date().getUTCFullYear();
-  let rede: (typeof escolas.$inferSelect)[] = [];
-  let ocorrencias: (typeof ocorrenciasEscola.$inferSelect)[] = [];
-  let merenda: (typeof estoqueMerenda.$inferSelect)[] = [];
-  let compras: (typeof pnaeCompras.$inferSelect)[] = [];
-  let repasse: (typeof pnaeRepasses.$inferSelect) | undefined;
-  let casos: (typeof buscaAtiva.$inferSelect)[] = [];
-  let fundeb: (typeof fundebEducacao.$inferSelect) | undefined;
-  try {
-    const [r, o, m, c, rp, b, fd] = await Promise.all([
-      db.select().from(escolas).where(eq(escolas.prefeituraId, prefeituraId)),
-      db
-        .select()
-        .from(ocorrenciasEscola)
-        .where(and(eq(ocorrenciasEscola.prefeituraId, prefeituraId), gte(ocorrenciasEscola.createdAt, inicioDoAno()))),
-      db.select().from(estoqueMerenda).where(eq(estoqueMerenda.prefeituraId, prefeituraId)),
-      db.select().from(pnaeCompras).where(and(eq(pnaeCompras.prefeituraId, prefeituraId), eq(pnaeCompras.ano, ano))),
-      db.select().from(pnaeRepasses).where(and(eq(pnaeRepasses.prefeituraId, prefeituraId), eq(pnaeRepasses.ano, ano))).limit(1),
-      db.select().from(buscaAtiva).where(eq(buscaAtiva.prefeituraId, prefeituraId)),
-      db.select().from(fundebEducacao).where(and(eq(fundebEducacao.prefeituraId, prefeituraId), eq(fundebEducacao.ano, ano))).limit(1),
-    ]);
-    rede = r;
-    ocorrencias = o;
-    merenda = m;
-    compras = c;
-    repasse = rp[0];
-    casos = b;
-    fundeb = fd[0];
-  } catch (e) {
-    console.error("[relatorio-operacional] educação:", e);
-  }
+export async function dadosOperacionaisEducacao(
+  prefeituraId: string,
+  quem: { cargo: string; secretaria?: string | null }
+): Promise<DadosOperacionais> {
+  // ── A LEITURA DA REDE MORA EM UM LUGAR SÓ ──
+  // Esta função repetia, palavra por palavra, a busca das sete tabelas, os
+  // quatro mapas por escola e a chamada de lerEscola() que a tela e o
+  // contexto da IA também faziam. Três cópias da mesma leitura foi o que
+  // permitiu, duas vezes no mesmo módulo, corrigir uma e esquecer as
+  // outras. Ver lib/rede-educacao.ts.
+  const rede = await lerRedeEducacao(prefeituraId, quem);
+  if (!rede) return { cartoes: [], linhas: [], observacao: undefined };
 
-  // Mesma regra da tela e do contexto da IA.
-  const ativas = rede.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
-  const abertas = ocorrencias.filter((o) => o.status === "aberta");
-  const abertasPor = new Map<string, typeof abertas>();
-  for (const o of abertas) abertasPor.set(o.escolaId, [...(abertasPor.get(o.escolaId) ?? []), o]);
-  const doAnoPor = new Map<string, typeof ocorrencias>();
-  for (const o of ocorrencias) doAnoPor.set(o.escolaId, [...(doAnoPor.get(o.escolaId) ?? []), o]);
-  const merendaPor = new Map<string, typeof merenda>();
-  for (const l of merenda) merendaPor.set(l.escolaId, [...(merendaPor.get(l.escolaId) ?? []), l]);
-  const casosPor = new Map<string, typeof casos>();
-  for (const c of casos) casosPor.set(c.escolaId, [...(casosPor.get(c.escolaId) ?? []), c]);
-
-  const leituras = ativas
-    .map((e) => ({
-      e,
-      calendario: lerCalendario(aulasPerdidas(doAnoPor.get(e.id) ?? []), e.diasPrevistos ?? DIAS_LETIVOS_LDB),
-      leitura: lerEscola({
-        escola: {
-          nome: e.nome,
-          situacao: e.situacao,
-          dependencia: e.dependencia,
-          origem: e.origem,
-          censoAno: e.censoAno,
-          matriculasCenso: e.matriculasCenso,
-          matriculasAtuais: e.matriculasAtuais,
-          diasPrevistos: e.diasPrevistos,
-        },
-        ocorrenciasAbertas: abertasPor.get(e.id) ?? [],
-        ocorrenciasDoAno: doAnoPor.get(e.id) ?? [],
-        merenda: merendaPor.get(e.id) ?? [],
-        buscaAtiva: casosPor.get(e.id) ?? [],
-        mencoesOuvidoria: [],
-      }),
-    }))
-    .sort((a, b) => b.leitura.peso - a.leitura.peso || a.e.nome.localeCompare(b.e.nome, "pt-BR"));
+  const { ativas, lidas: leituras, merenda, compras, repasse, casos, fundeb } = rede;
 
   const comPendencia = leituras.filter((x) => x.leitura.situacao !== "normal").length;
   const perdidos = leituras.reduce((s, x) => s + x.calendario.perdidos, 0);
@@ -208,10 +144,10 @@ export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<D
     },
   ];
 
-  const linhas: LinhaLista[] = leituras.map(({ e, leitura, calendario }) => ({
+  const linhas: LinhaLista[] = leituras.map(({ escola, leitura, calendario }) => ({
     colunas: [
-      e.nome,
-      `${e.matriculasAtuais ?? TRACO} / ${e.matriculasCenso ?? TRACO}`,
+      escola.nome,
+      `${escola.matriculasAtuais ?? TRACO} / ${escola.matriculasCenso ?? TRACO}`,
       calendario.perdidos > 0 ? `${calendario.perdidos}` : TRACO,
       leitura.achados.length > 0 ? curto(`${ROTULO_SITUACAO[leitura.situacao]} — ${leitura.achados[0]!.titulo}`, 64) : ROTULO_SITUACAO[leitura.situacao],
     ],
@@ -219,8 +155,8 @@ export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<D
 
   // ── a observação junta o que o prefeito precisa ler em voz alta ──
   const partes: string[] = [];
-  const primeira = leituras.find((x) => x.leitura.achados.length > 0);
-  if (primeira) partes.push(`A escola que mais precisa de decisão agora é ${primeira.e.nome}. ${primeira.leitura.resumo}`);
+  const primeira = aQueMaisPrecisa(rede);
+  if (primeira) partes.push(`A escola que mais precisa de decisão agora é ${primeira.escola.nome}. ${primeira.leitura.resumo}`);
 
   const apuracao = apurarFundebPorAluno(ativas, fundeb?.valorAlunoAno ?? null);
   if (apuracao.comparaveis > 0 && (apuracao.alunosForaDaConta > 0 || apuracao.alunosDeclaradosAMais > 0)) {
@@ -243,7 +179,7 @@ export async function dadosOperacionaisEducacao(prefeituraId: string): Promise<D
   }
 
   if (merenda.length > 0) {
-    const nomeDe = new Map(rede.map((e) => [e.id, e.nome]));
+    const nomeDe = new Map(rede.todas.map((e) => [e.id, e.nome]));
     const pedido = montarPedidoMerenda(merenda.map((l) => ({ ...l, escolaNome: nomeDe.get(l.escolaId) ?? "Escola" })));
     const acabou = pedido.filter((i) => i.situacao === "falta");
     if (acabou.length > 0) {

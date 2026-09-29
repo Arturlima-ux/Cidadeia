@@ -3,18 +3,8 @@ import MarcadorSituacao from "@/components/MarcadorSituacao";
 import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
-import {
-  buscarUltimoIndicadorEducacao,
-  criarEscola,
-  atualizarIndicadorEducacao,
-  excluirEscola,
-} from "./actions";
-import {
-  buscarRedeDeEscolas,
-  buscarOcorrenciasAbertasEscolas,
-  buscarOcorrenciasDoAno,
-  buscarManifestacoesRecentesEducacao,
-} from "./rede-actions";
+import { buscarUltimoIndicadorEducacao, criarEscola, atualizarIndicadorEducacao, excluirEscola } from "./actions";
+import { buscarManifestacoesRecentesEducacao } from "./rede-actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
@@ -24,15 +14,16 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import ImportarRedeCenso from "./ImportarRedeCenso";
-import { lerEscola, mencionaEscola } from "@/lib/leitura-escola";
-import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
-import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel, contaParaOMunicipio } from "@/lib/censo-escolar";
-import { buscarMerendaDaRede, buscarComprasPnae, buscarRepassePnae } from "./merenda-actions";
+import { mencionaEscola } from "@/lib/leitura-escola";
+import { lerRedeEducacao, aQueMaisPrecisa } from "@/lib/rede-educacao";
+import { DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
+import { ROTULO_DEPENDENCIA, censoMaisRecenteDisponivel } from "@/lib/censo-escolar";
+
 import { montarPedidoMerenda, cabeNaAgriculturaFamiliar, DIAS_AULA_ATENCAO } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
-import { buscarCasosDaRede } from "./busca-ativa-actions";
+
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
-import { buscarValorAlunoAno } from "./resultado-actions";
+
 import { apurarFundebPorAluno } from "@/lib/resultado-educacao";
 import { formatarMoeda } from "@/lib/formatadores";
 
@@ -40,60 +31,43 @@ export default async function EducacaoPage() {
   const ctx = await contextoDashboard();
   if (!ctx.temPlano("educacao")) return <BloqueioPlano plano="educacao" />;
 
+  // ── A REDE É LIDA UMA VEZ, NO MESMO LUGAR QUE O PDF E A IA LEEM ──
+  //
+  // Aqui havia nove chamadas, quatro mapas por escola e a montagem de
+  // lerEscola() — a mesma coisa que lib/relatorio-operacional.ts e
+  // lib/contexto-operacional.ts faziam. Três cópias da mesma leitura foi
+  // o que permitiu, duas vezes neste módulo, corrigir uma e esquecer as
+  // outras (a filtragem por dependência e a contagem de "abaixo da meta").
+  //
+  // A guarda de acesso vem junto: lerRedeEducacao recusa quem não pode ver
+  // a rede. Antes isso dependia de cada server action lembrar de checar.
   const anoCorrente = new Date().getUTCFullYear();
-  const [listaEscolas, indicador, abertas, doAno, manifestacoes, merenda, compras, repasse, casosBusca, fundeb] = await Promise.all([
-    buscarRedeDeEscolas(ctx.sessao.prefeituraId),
+  const [indicador, manifestacoes] = await Promise.all([
     buscarUltimoIndicadorEducacao(ctx.sessao.prefeituraId),
-    buscarOcorrenciasAbertasEscolas(ctx.sessao.prefeituraId),
-    buscarOcorrenciasDoAno(ctx.sessao.prefeituraId),
     buscarManifestacoesRecentesEducacao(ctx.sessao.prefeituraId),
-    buscarMerendaDaRede(ctx.sessao.prefeituraId),
-    buscarComprasPnae(ctx.sessao.prefeituraId, anoCorrente),
-    buscarRepassePnae(ctx.sessao.prefeituraId, anoCorrente),
-    buscarCasosDaRede(ctx.sessao.prefeituraId),
-    buscarValorAlunoAno(ctx.sessao.prefeituraId, anoCorrente),
   ]);
-  const casosPorEscola = new Map<string, typeof casosBusca>();
-  for (const c of casosBusca) casosPorEscola.set(c.escolaId, [...(casosPorEscola.get(c.escolaId) ?? []), c]);
-  const merendaPorEscola = new Map<string, typeof merenda>();
-  for (const l of merenda) merendaPorEscola.set(l.escolaId, [...(merendaPorEscola.get(l.escolaId) ?? []), l]);
+  const rede = await lerRedeEducacao(ctx.sessao.prefeituraId, ctx.sessao, (nome) =>
+    manifestacoes.filter((m) => mencionaEscola(`${m.assunto} ${m.mensagem}`, nome))
+  );
+  if (!rede) return <BloqueioPlano plano="educacao" />;
 
-  const abertasPorEscola = new Map<string, typeof abertas>();
-  for (const o of abertas) abertasPorEscola.set(o.escolaId, [...(abertasPorEscola.get(o.escolaId) ?? []), o]);
-  const doAnoPorEscola = new Map<string, typeof doAno>();
-  for (const o of doAno) doAnoPorEscola.set(o.escolaId, [...(doAnoPorEscola.get(o.escolaId) ?? []), o]);
+  const {
+    todas: listaEscolas,
+    ativas,
+    lidas,
+    merenda,
+    compras,
+    repasse,
+    casos: casosBusca,
+    fundeb,
+  } = rede;
 
-  // Só a rede que o município administra entra nas contas. As outras
-  // vieram como contexto na importação e continuam na lista e no mapa;
-  // o que elas não podem é virar "escola sem folga no calendário" ou
-  // aluno na conta do FUNDEB. Ver contaParaOMunicipio().
-  const ativas = listaEscolas.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
   const doCenso = listaEscolas.filter((e) => e.origem === "censo").length;
   const manuais = listaEscolas.filter((e) => e.origem === "manual");
 
-  // A leitura de cada escola ordena a lista: quem precisa de você primeiro.
-  const situacoes = ativas.map((e) => {
-    const leitura = lerEscola({
-      escola: {
-        nome: e.nome,
-        situacao: e.situacao,
-        dependencia: e.dependencia,
-        origem: e.origem,
-        censoAno: e.censoAno,
-        matriculasCenso: e.matriculasCenso,
-        matriculasAtuais: e.matriculasAtuais,
-        diasPrevistos: e.diasPrevistos,
-      },
-      ocorrenciasAbertas: abertasPorEscola.get(e.id) ?? [],
-      ocorrenciasDoAno: doAnoPorEscola.get(e.id) ?? [],
-      merenda: merendaPorEscola.get(e.id) ?? [],
-      buscaAtiva: casosPorEscola.get(e.id) ?? [],
-      mencoesOuvidoria: manifestacoes.filter((m) => mencionaEscola(`${m.assunto} ${m.mensagem}`, e.nome)),
-    });
-    return { e, situacao: leitura.situacao, leitura };
-  });
-  situacoes.sort((a, b) => b.leitura.peso - a.leitura.peso || a.e.nome.localeCompare(b.e.nome, "pt-BR"));
-  const primeira = situacoes.find((s) => s.leitura.achados.length > 0);
+  // A lista já vem ordenada: quem precisa de decisão primeiro.
+  const situacoes = lidas.map(({ escola, leitura }) => ({ e: escola, situacao: leitura.situacao, leitura }));
+  const primeira = aQueMaisPrecisa(rede);
 
   // ── os números da rede inteira ──
   const matriculaCenso = ativas.reduce((s, e) => s + (e.matriculasCenso ?? 0), 0);
@@ -103,13 +77,10 @@ export default async function EducacaoPage() {
   const hojeDasInformadas = comMatriculaInformada.reduce((s, e) => s + (e.matriculasAtuais ?? 0), 0);
   const diferenca = hojeDasInformadas - censoDasInformadas;
 
-  const calendarios = ativas.map((e) => ({
-    e,
-    c: lerCalendario(aulasPerdidas(doAnoPorEscola.get(e.id) ?? []), e.diasPrevistos ?? DIAS_LETIVOS_LDB),
-  }));
-  const estouradas = calendarios.filter((x) => x.c.situacao === "estourado");
-  const semFolga = calendarios.filter((x) => x.c.situacao === "atencao");
-  const totalPerdidos = calendarios.reduce((s, x) => s + x.c.perdidos, 0);
+  // O calendário já vem calculado por escola na leitura da rede.
+  const estouradas = lidas.filter((x) => x.calendario.situacao === "estourado");
+  const semFolga = lidas.filter((x) => x.calendario.situacao === "atencao");
+  const totalPerdidos = lidas.reduce((s, x) => s + x.calendario.perdidos, 0);
 
   // ── merenda: o que falta na cozinha e os 30% da agricultura familiar ──
   const nomeEscola = new Map(listaEscolas.map((e) => [e.id, e.nome]));
@@ -160,20 +131,20 @@ export default async function EducacaoPage() {
       {/* ── a escola que mais precisa de você hoje ── */}
       {primeira && (
         <Link
-          href={`/dashboard/secretarias/educacao/escolas/${primeira.e.id}`}
+          href={`/dashboard/secretarias/educacao/escolas/${primeira.escola.id}`}
           className="block rounded-2xl border p-5 hover:border-brand transition"
           style={{
-            borderColor: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)",
-            background: primeira.situacao === "urgente" ? "var(--urgente-tint)" : "var(--medio-tint)",
+            borderColor: primeira.leitura.situacao === "urgente" ? "var(--urgente)" : "var(--medio)",
+            background: primeira.leitura.situacao === "urgente" ? "var(--urgente-tint)" : "var(--medio-tint)",
           }}
         >
           <p
             className="text-[11px] font-bold uppercase tracking-wider"
-            style={{ color: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}
+            style={{ color: primeira.leitura.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}
           >
             A escola que mais precisa de você agora
           </p>
-          <p className="font-serif text-lg font-bold mt-1">{primeira.e.nome}</p>
+          <p className="font-serif text-lg font-bold mt-1">{primeira.escola.nome}</p>
           <p className="text-sm mt-1 leading-relaxed">{primeira.leitura.resumo}</p>
           {primeira.leitura.achados.length > 1 && (
             <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} outro(s) ponto(s) na ficha →</p>
@@ -202,7 +173,7 @@ export default async function EducacaoPage() {
             entra nesta conta automaticamente — quem descobre em dezembro não tem mais como repor.
             {estouradas.length > 0 && (
               <span className="block mt-1">
-                {estouradas.slice(0, 4).map((x) => `${x.e.nome} (${-x.c.folga} dia(s) a repor)`).join(" · ")}
+                {estouradas.slice(0, 4).map((x) => `${x.escola.nome} (${-x.calendario.folga} dia(s) a repor)`).join(" · ")}
                 {estouradas.length > 4 ? " · …" : ""}
               </span>
             )}

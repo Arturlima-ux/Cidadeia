@@ -69,6 +69,14 @@ export async function montarContexto(
   prefeituraId: string,
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ): Promise<string> {
+  // Quem está perguntando, na forma mínima que as funções de acesso leem.
+  // Fica aqui em cima porque a leitura da rede de Educação já a exige:
+  // ela recusa quem não tem acesso, em vez de confiar no chamador.
+  const cargoDaPergunta = {
+    cargo: restricaoCargo?.cargo ?? "prefeito",
+    secretaria: restricaoCargo?.secretaria,
+  };
+
   const [
     prefeitura,
     snapshot,
@@ -99,7 +107,7 @@ export async function montarContexto(
     // ativa, APS, FUNDEB. Sem isto a IA responde sobre o município olhando
     // só para o cadastro, e contradiz a tela na frente do cliente.
     resumoOperacionalSaude(prefeituraId),
-    resumoOperacionalEducacao(prefeituraId),
+    resumoOperacionalEducacao(prefeituraId, cargoDaPergunta),
   ]);
 
   const abertos = listaAlertas.filter((a) => !a.resolvido);
@@ -127,7 +135,7 @@ export async function montarContexto(
   // É o mesmo erro que ehGestor() já tinha corrigido na navegação, pelo
   // mesmo motivo: pergunta negativa não sobrevive a um cargo novo. Agora a
   // visibilidade vem das MESMAS funções que guardam as telas.
-  const cargoParaAcesso = { cargo: restricaoCargo?.cargo ?? "prefeito", secretaria: restricaoCargo?.secretaria };
+  const cargoParaAcesso = cargoDaPergunta;
   const veTudo = ehGestor(cargoParaAcesso);
   const planosAtivos = planosContratadosDe(prefeitura?.planosContratados);
   const temGestao = planosAtivos.includes("gestao");

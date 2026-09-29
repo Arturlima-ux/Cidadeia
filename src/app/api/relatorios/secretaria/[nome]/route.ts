@@ -123,7 +123,10 @@ export async function GET(
     tituloSecretaria = "Secretaria da Educação";
     // Mesma correção da Saúde: imprimia frequência, nota e evasão, de
     // antes das quatro fases da Educação.
-    const op = await dadosOperacionaisEducacao(sessao.prefeituraId);
+    // O cargo vai junto: a leitura da rede recusa quem não tem acesso à
+    // Educação, em vez de confiar que a rota já checou. A rota checa —
+    // mas guarda que depende de outro lugar lembrar é guarda que some.
+    const op = await dadosOperacionaisEducacao(sessao.prefeituraId, sessao);
     indicadores = op.cartoes;
     colunasLista = ["Escola", "Matrícula (hoje / Censo)", "Dias perdidos", "Situação"];
     linhas = op.linhas;

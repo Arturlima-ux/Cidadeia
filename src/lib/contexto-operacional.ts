@@ -1,29 +1,17 @@
-import { contaParaOMunicipio } from "@/lib/censo-escolar";
-import { and, eq, gte } from "drizzle-orm";
+
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  unidadesSaude,
-  ocorrenciasSaude,
-  estoqueSaude,
-  apsResultados,
-  escolas,
-  ocorrenciasEscola,
-  estoqueMerenda,
-  pnaeCompras,
-  pnaeRepasses,
-  buscaAtiva,
-  educacaoResultados,
-  fundebEducacao,
-} from "@/db/schema";
+import { unidadesSaude, ocorrenciasSaude, estoqueSaude, apsResultados, escolas } from "@/db/schema";
 import { lerUnidade } from "@/lib/leitura-unidade";
 import { montarPedidoReposicao } from "@/lib/estoque-saude";
 import { montarDesempenho, resumoDesempenho, quadrimestreDe } from "@/lib/aps";
 import { lerEscola } from "@/lib/leitura-escola";
-import { aulasPerdidas, lerCalendario, DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
+import { DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
 import { montarPedidoMerenda } from "@/lib/merenda";
 import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
 import { apurarFundebPorAluno, indicadorPorChave, rotuloEtapa, situacaoDoResultado } from "@/lib/resultado-educacao";
+import { lerRedeEducacao, aQueMaisPrecisa } from "@/lib/rede-educacao";
 
 // ── O QUE A IA PRECISA SABER, E NÃO SABIA ──
 //
@@ -166,113 +154,51 @@ export async function resumoOperacionalSaude(prefeituraId: string): Promise<stri
  * a matrícula declarada contra a real — em reais quando o município
  * informou o valor aluno/ano.
  */
-export async function resumoOperacionalEducacao(prefeituraId: string): Promise<string> {
-  const ano = new Date().getUTCFullYear();
-  let rede: (typeof escolas.$inferSelect)[] = [];
-  let ocorrencias: (typeof ocorrenciasEscola.$inferSelect)[] = [];
-  let merenda: (typeof estoqueMerenda.$inferSelect)[] = [];
-  let compras: (typeof pnaeCompras.$inferSelect)[] = [];
-  let repasse: (typeof pnaeRepasses.$inferSelect) | undefined;
-  let casos: (typeof buscaAtiva.$inferSelect)[] = [];
-  let resultados: (typeof educacaoResultados.$inferSelect)[] = [];
-  let fundeb: (typeof fundebEducacao.$inferSelect) | undefined;
-  try {
-    const [r, o, m, c, rp, b, res, fd] = await Promise.all([
-      db.select().from(escolas).where(eq(escolas.prefeituraId, prefeituraId)),
-      db.select().from(ocorrenciasEscola).where(and(eq(ocorrenciasEscola.prefeituraId, prefeituraId), gte(ocorrenciasEscola.createdAt, inicioDoAno()))),
-      db.select().from(estoqueMerenda).where(eq(estoqueMerenda.prefeituraId, prefeituraId)),
-      db.select().from(pnaeCompras).where(and(eq(pnaeCompras.prefeituraId, prefeituraId), eq(pnaeCompras.ano, ano))),
-      db.select().from(pnaeRepasses).where(and(eq(pnaeRepasses.prefeituraId, prefeituraId), eq(pnaeRepasses.ano, ano))).limit(1),
-      db.select().from(buscaAtiva).where(eq(buscaAtiva.prefeituraId, prefeituraId)),
-      db.select().from(educacaoResultados).where(and(eq(educacaoResultados.prefeituraId, prefeituraId), eq(educacaoResultados.ano, ano))),
-      db.select().from(fundebEducacao).where(and(eq(fundebEducacao.prefeituraId, prefeituraId), eq(fundebEducacao.ano, ano))).limit(1),
-    ]);
-    rede = r;
-    ocorrencias = o;
-    merenda = m;
-    compras = c;
-    repasse = rp[0];
-    casos = b;
-    resultados = res;
-    fundeb = fd[0];
-  } catch (e) {
-    console.error("[contexto-operacional] educação:", e);
-    return "";
-  }
+export async function resumoOperacionalEducacao(
+  prefeituraId: string,
+  quem: { cargo: string; secretaria?: string | null }
+): Promise<string> {
+  // A mesma leitura da tela e do PDF. Este arquivo abre dizendo que nada
+  // aqui recalcula nada — e, ainda assim, tinha a própria cópia da busca
+  // das sete tabelas e da montagem de lerEscola(). Ver lib/rede-educacao.ts.
+  const rede = await lerRedeEducacao(prefeituraId, quem);
+  if (!rede || rede.todas.length === 0) return "";
 
-  if (rede.length === 0) return "";
-
-  // Mesma regra da tela: as outras redes não entram nas contas do
-  // município — nem no que a IA afirma sobre elas.
-  const ativas = rede.filter((e) => e.situacao !== "extinta" && contaParaOMunicipio(e));
-  const abertas = ocorrencias.filter((o) => o.status === "aberta");
-  const abertasPor = new Map<string, typeof abertas>();
-  for (const o of abertas) abertasPor.set(o.escolaId, [...(abertasPor.get(o.escolaId) ?? []), o]);
-  const doAnoPor = new Map<string, typeof ocorrencias>();
-  for (const o of ocorrencias) doAnoPor.set(o.escolaId, [...(doAnoPor.get(o.escolaId) ?? []), o]);
-  const merendaPor = new Map<string, typeof merenda>();
-  for (const l of merenda) merendaPor.set(l.escolaId, [...(merendaPor.get(l.escolaId) ?? []), l]);
-  const casosPor = new Map<string, typeof casos>();
-  for (const c of casos) casosPor.set(c.escolaId, [...(casosPor.get(c.escolaId) ?? []), c]);
-
-  const leituras = ativas
-    .map((e) => ({
-      e,
-      leitura: lerEscola({
-        escola: {
-          nome: e.nome,
-          situacao: e.situacao,
-          dependencia: e.dependencia,
-          origem: e.origem,
-          censoAno: e.censoAno,
-          matriculasCenso: e.matriculasCenso,
-          matriculasAtuais: e.matriculasAtuais,
-          diasPrevistos: e.diasPrevistos,
-        },
-        ocorrenciasAbertas: abertasPor.get(e.id) ?? [],
-        ocorrenciasDoAno: doAnoPor.get(e.id) ?? [],
-        merenda: merendaPor.get(e.id) ?? [],
-        buscaAtiva: casosPor.get(e.id) ?? [],
-        mencoesOuvidoria: [],
-      }),
-    }))
-    .sort((a, b) => b.leitura.peso - a.leitura.peso);
+  const { ativas, lidas: leituras, merenda, compras, repasse, casos, fundeb, resultados, ano } = rede;
 
   const urgentes = leituras.filter((x) => x.leitura.situacao === "urgente");
   const atencao = leituras.filter((x) => x.leitura.situacao === "atencao");
 
   const linhas: string[] = [];
-  linhas.push(`Rede: ${ativas.length} escola(s), ${rede.filter((e) => e.origem === "censo").length} vinda(s) do Censo Escolar.`);
+  linhas.push(`Rede: ${ativas.length} escola(s), ${rede.todas.filter((e) => e.origem === "censo").length} vinda(s) do Censo Escolar.`);
 
   if (urgentes.length === 0 && atencao.length === 0) {
     linhas.push("Nenhuma escola com pendência registrada.");
   } else {
     if (urgentes.length > 0) {
       linhas.push(
-        `Escolas em situação URGENTE (${urgentes.length}): ${lista(urgentes.map((x) => `${x.e.nome} — ${x.leitura.achados[0]?.titulo ?? "pendência"}`))}.`
+        `Escolas em situação URGENTE (${urgentes.length}): ${lista(urgentes.map((x) => `${x.escola.nome} — ${x.leitura.achados[0]?.titulo ?? "pendência"}`))}.`
       );
     }
-    if (atencao.length > 0) linhas.push(`Escolas em atenção (${atencao.length}): ${lista(atencao.map((x) => x.e.nome))}.`);
-    const primeira = leituras.find((x) => x.leitura.achados.length > 0);
-    if (primeira) linhas.push(`A que mais precisa de decisão agora: ${primeira.e.nome} — ${primeira.leitura.resumo}`);
+    if (atencao.length > 0) linhas.push(`Escolas em atenção (${atencao.length}): ${lista(atencao.map((x) => x.escola.nome))}.`);
+    const primeira = aQueMaisPrecisa(rede);
+    if (primeira) linhas.push(`A que mais precisa de decisão agora: ${primeira.escola.nome} — ${primeira.leitura.resumo}`);
   }
 
   // ── calendário letivo: obrigação da LDB ──
-  const calendarios = ativas.map((e) => ({
-    e,
-    c: lerCalendario(aulasPerdidas(doAnoPor.get(e.id) ?? []), e.diasPrevistos ?? DIAS_LETIVOS_LDB),
-  }));
-  const estouradas = calendarios.filter((x) => x.c.situacao === "estourado");
-  const perdidos = calendarios.reduce((s, x) => s + x.c.perdidos, 0);
+  // O calendário já vem calculado por escola em rede-educacao: recalcular
+  // aqui era a terceira cópia da mesma conta dos 200 dias.
+  const estouradas = leituras.filter((x) => x.calendario.situacao === "estourado");
+  const perdidos = leituras.reduce((s, x) => s + x.calendario.perdidos, 0);
   linhas.push(
     estouradas.length > 0
-      ? `Calendário letivo: ${estouradas.length} escola(s) já abaixo dos ${DIAS_LETIVOS_LDB} dias letivos que a LDB (art. 24) exige — ${lista(estouradas.map((x) => `${x.e.nome} (repor ${-x.c.folga} dia(s))`), 4)}. Reposição não cabe em dezembro.`
+      ? `Calendário letivo: ${estouradas.length} escola(s) já abaixo dos ${DIAS_LETIVOS_LDB} dias letivos que a LDB (art. 24) exige — ${lista(estouradas.map((x) => `${x.escola.nome} (repor ${-x.calendario.folga} dia(s))`), 4)}. Reposição não cabe em dezembro.`
       : `Calendário letivo: ${perdidos} dia(s) de aula perdidos no ano em toda a rede, todos dentro da folga dos ${DIAS_LETIVOS_LDB} dias.`
   );
 
   // ── merenda e os 30% ──
   if (merenda.length > 0) {
-    const nomeDe = new Map(rede.map((e) => [e.id, e.nome]));
+    const nomeDe = new Map(rede.todas.map((e) => [e.id, e.nome]));
     const pedido = montarPedidoMerenda(merenda.map((l) => ({ ...l, escolaNome: nomeDe.get(l.escolaId) ?? "Escola" })));
     const acabou = pedido.filter((i) => i.situacao === "falta");
     linhas.push(
