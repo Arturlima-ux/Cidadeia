@@ -78,19 +78,38 @@ describe("obra com contrato vencido", () => {
     expect(vencida.peso).toBeLessThan(atrasada.peso);
   });
 
-  it("oferece as três explicações possíveis em vez de acusar", () => {
-    // Concluída e não registrada, aditivo fora do cadastro, ou inacabada. As
-    // três pedem documento diferente, e o software não sabe qual é.
+  it("não diz que a execução ficou sem cobertura contratual", () => {
+    // ── A CORREÇÃO QUE ESTE TESTE TRAVA ──
+    //
+    // O texto anterior sugeria que a obra executada depois do prazo estava
+    // sem contrato. Para obra, está errado: o art. 111 da Lei 14.133/2021
+    // prorroga AUTOMATICAMENTE a vigência de contratação de escopo
+    // predefinido quando o objeto não é concluído no prazo — sem aditivo,
+    // sem assinatura.
+    //
+    // Assustar o gestor com um problema que a lei resolveu é tão ruim quanto
+    // esconder um que ela não resolve.
     const r = lerObra(obra({ vigenciaFim: "2026-06-30", progressoInformado: 40 }), HOJE);
-    expect(r.acao).toMatch(/concluída e falta registrar/);
-    expect(r.acao).toMatch(/aditivo/);
-    expect(r.acao).toMatch(/inacabada/);
+    expect(r.acao).not.toMatch(/sem cobertura contratual/);
+    expect(r.acao).toMatch(/automaticamente prorrogada/);
+    expect(r.acao).toMatch(/art\. 111/);
+  });
+
+  it("aponta o que a lei NÃO resolve sozinha: a responsabilidade", () => {
+    // Parágrafo único: culpa do contratado o constitui em mora, com sanções,
+    // e a Administração pode optar pela extinção. É a decisão que precisa ser
+    // tomada e registrada.
+    const r = lerObra(obra({ vigenciaFim: "2026-06-30", progressoInformado: 40 }), HOJE);
+    expect(r.acao).toMatch(/mora/);
+    expect(r.acao).toMatch(/extinção/);
+    expect(r.acao).toMatch(/Registre a decisão/);
   });
 
   it("sem progresso informado, diz que não há — não assume zero", () => {
     const r = lerObra(obra({ vigenciaFim: "2026-06-30", progressoInformado: null }), HOJE);
     expect(r.situacao).toBe("contrato_encerrado_sem_conclusao");
-    expect(r.texto).toMatch(/não há progresso informado/);
+    expect(r.texto).toMatch(/sem progresso informado/);
+    expect(r.texto).not.toMatch(/\b0%/);
   });
 
   it("obra a 100% com prazo vencido não é apontada", () => {

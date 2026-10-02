@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { importarObrasDeContratos, type ResultadoImportacaoObras } from "./actions";
 import MarcadorSituacao, { type SituacaoMarcador } from "@/components/MarcadorSituacao";
 import type { LeituraObra, SituacaoObra } from "@/lib/obra-prazo";
+import FormDecisao from "./FormDecisao";
+import { resumoDaDecisao, type DecisaoObra } from "@/lib/decisao-obra";
 
 /**
  * ── O PRAZO DA OBRA, VINDO DO CONTRATO ──
@@ -32,6 +34,10 @@ export type ObraNaTela = {
   valorContrato: number | null;
   origem: string;
   leitura: LeituraObra;
+  /** Decisão mais recente registrada, quando houver. */
+  decisao: DecisaoObra | null;
+  /** Resumo já montado no servidor — o cliente não recalcula data. */
+  resumoDecisao: string | null;
 };
 
 const MARCADOR: Record<SituacaoObra, SituacaoMarcador> = {
@@ -48,12 +54,21 @@ const moeda = (v: number | null) =>
 
 export default function PainelObras({
   obras,
+  decididas,
   total,
   temContratosDeObra,
   prefeituraId,
 }: {
   /** Só as que pedem decisão, já ordenadas. */
   obras: ObraNaTela[];
+  /**
+   * As que já têm decisão registrada e ainda válida.
+   *
+   * Lista separada, e não filtro: sumir com elas faria o gestor não conseguir
+   * distinguir a obra que alguém tratou da obra que ninguém olhou — e a
+   * decisão registrada ficaria invisível justo para quem precisa conferir.
+   */
+  decididas: ObraNaTela[];
   total: number;
   /** Quantos contratos de obra existem no cadastro de Licitações. */
   temContratosDeObra: number;
@@ -212,6 +227,35 @@ export default function PainelObras({
                         {moeda(o.valorContrato) && <span>{moeda(o.valorContrato)}</span>}
                         {o.origem === "pncp" && <span>veio do contrato no PNCP</span>}
                       </p>
+
+                      {/* ── O QUE JÁ FOI DECIDIDO ──
+                          Vem antes do formulário: quem abre a tela precisa ver
+                          que alguém já tratou disto antes de decidir de novo. */}
+                      {o.resumoDecisao && (
+                        <div
+                          className="mt-3 rounded-lg px-3 py-2.5"
+                          style={{ background: "var(--info-tint)" }}
+                        >
+                          <p className="text-sm" style={{ color: "var(--info)" }}>
+                            {o.resumoDecisao}
+                          </p>
+                          {o.decisao && (
+                            <p className="text-sm text-muted mt-1.5 leading-relaxed">
+                              {o.decisao.justificativa}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* O formulário só aparece onde há decisão a tomar. Obra
+                          em dia não precisa de justificativa de nada. */}
+                      {o.leitura.situacao === "contrato_encerrado_sem_conclusao" && (
+                        <FormDecisao
+                          obraId={o.id}
+                          prefeituraId={prefeituraId}
+                          nomeDaObra={o.nome}
+                        />
+                      )}
                     </div>
                   </div>
                 </li>
@@ -219,6 +263,36 @@ export default function PainelObras({
             </ul>
           )}
         </>
+      )}
+
+      {decididas.length > 0 && (
+        <details className="mt-5">
+          <summary className="text-sm font-semibold cursor-pointer text-muted hover:text-foreground transition">
+            {decididas.length}{" "}
+            {decididas.length === 1 ? "obra já decidida" : "obras já decididas"}
+          </summary>
+          <p className="text-xs text-muted mt-1.5 mb-3 leading-relaxed">
+            Passaram do prazo e alguém registrou o que foi decidido. Saem da lista acima enquanto a
+            previsão da decisão não vencer — quando vencer, voltam.
+          </p>
+          <ul className="flex flex-col gap-3">
+            {decididas.map((o) => (
+              <li key={o.id} className="border border-border rounded-lg px-4 py-3">
+                <p className="font-semibold text-sm">{o.nome}</p>
+                {o.resumoDecisao && (
+                  <p className="text-sm mt-1.5 leading-relaxed" style={{ color: "var(--info)" }}>
+                    {o.resumoDecisao}
+                  </p>
+                )}
+                {o.decisao && (
+                  <p className="text-sm text-muted mt-1.5 leading-relaxed">
+                    {o.decisao.justificativa}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <p className="text-xs text-muted mt-5 pt-4 border-t border-border leading-relaxed">

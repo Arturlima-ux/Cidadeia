@@ -3,8 +3,9 @@
 import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
-import { obras, contratos } from "@/db/schema";
+import { obras, contratos, decisoesObra } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
+import { validarDecisao, type TipoDecisaoObra, type DecisaoObra } from "@/lib/decisao-obra";
 import { gerarId } from "@/lib/id";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
@@ -240,4 +241,122 @@ export async function importarObrasDeContratos(
     resumo: `importação do PNCP: ${importados} obras novas, ${atualizados} com prazo atualizado`,
   });
   return { ok: true, importados, atualizados };
+}
+
+// ── REGISTRAR A DECISÃO SOBRE A OBRA ──
+//
+// Fecha o ciclo que o radar de prazo abria. O módulo apontava a obra cujo
+// prazo acabou sem conclusão e parava ali; o gestor via o problema e não tinha
+// onde registrar o que decidiu, nem a justificativa que o Tribunal de Contas
+// pede depois.
+
+export type ResultadoDecisao =
+  | { ok: true }
+  | { ok: false; erro: string; problemas?: { campo: string; mensagem: string }[] };
+
+export async function registrarDecisaoObra(
+  prefeituraId: string,
+  entrada: {
+    obraId: string;
+    tipo: string;
+    justificativa: string;
+    novaPrevisao: string | null;
+    documento: string | null;
+  }
+): Promise<ResultadoDecisao> {
+  const sessao = await exigirAcesso(prefeituraId);
+  if (!sessao) return { ok: false, erro: "Sem acesso à pasta de Obras." };
+  if (sessao.cargo === "unidade" || sessao.cargo === "escola") {
+    return { ok: false, erro: "Seu acesso não inclui decidir sobre obras do município." };
+  }
+  const plano = await exigirPlano(prefeituraId, "obras");
+  if (!plano.ok) return { ok: false, erro: plano.erro };
+
+  // A obra tem de ser desta prefeitura. Sem este filtro, um id adivinhado
+  // registraria decisão em obra de outro município — e decisão com nome e
+  // justificativa é documento, não dado solto.
+  const [obra] = await db
+    .select({ id: obras.id })
+    .from(obras)
+    .where(and(eq(obras.id, entrada.obraId), eq(obras.prefeituraId, prefeituraId)))
+    .limit(1);
+  if (!obra) return { ok: false, erro: "Obra não encontrada." };
+
+  const tipo = entrada.tipo as TipoDecisaoObra;
+  const problemas = validarDecisao({
+    tipo,
+    justificativa: entrada.justificativa,
+    novaPrevisao: entrada.novaPrevisao,
+  });
+  if (problemas.length > 0) {
+    return { ok: false, erro: "Confira os campos abaixo.", problemas };
+  }
+
+  await db.insert(decisoesObra).values({
+    id: gerarId("dec"),
+    prefeituraId,
+    obraId: entrada.obraId,
+    tipo,
+    justificativa: entrada.justificativa.trim(),
+    novaPrevisao: entrada.novaPrevisao,
+    documento: entrada.documento?.trim() || null,
+    decididoPor: sessao.nome,
+    decididoEm: new Date().toISOString(),
+  });
+
+  // ── A DECISÃO QUE MEXE NA OBRA ──
+  //
+  // "Concluída" e "a data estava errada" não são só registro: mudam o dado.
+  // Sem isso, o gestor registraria a conclusão e a obra continuaria gritando
+  // na tela — e ele aprenderia que registrar não adianta.
+  if (tipo === "concluida") {
+    await db
+      .update(obras)
+      .set({ status: "concluida", progressoAtual: 100, atualizadoEm: new Date().toISOString() })
+      .where(and(eq(obras.id, entrada.obraId), eq(obras.prefeituraId, prefeituraId)));
+  } else if (tipo === "correcao_de_cadastro" && entrada.novaPrevisao) {
+    await db
+      .update(obras)
+      .set({ vigenciaFim: entrada.novaPrevisao })
+      .where(and(eq(obras.id, entrada.obraId), eq(obras.prefeituraId, prefeituraId)));
+  }
+
+  await auditar(sessao, {
+    acao: "alterar",
+    entidade: "obra",
+    entidadeId: entrada.obraId,
+    resumo: `decisão: ${tipo}${entrada.novaPrevisao ? ` — previsão ${entrada.novaPrevisao}` : ""}`,
+  });
+  revalidatePath("/dashboard/secretarias/obras");
+  return { ok: true };
+}
+
+/** A decisão mais recente de cada obra da prefeitura. */
+export async function buscarDecisoes(prefeituraId: string) {
+  if (!(await exigirAcesso(prefeituraId))) return new Map<string, DecisaoObra>();
+  try {
+    const linhas = await db
+      .select()
+      .from(decisoesObra)
+      .where(eq(decisoesObra.prefeituraId, prefeituraId))
+      .orderBy(desc(decisoesObra.decididoEm));
+    // A primeira de cada obra é a mais recente, porque a consulta já veio
+    // ordenada do mais novo para o mais velho.
+    const mapa = new Map<string, DecisaoObra>();
+    for (const l of linhas) {
+      if (mapa.has(l.obraId)) continue;
+      mapa.set(l.obraId, {
+        tipo: l.tipo,
+        justificativa: l.justificativa,
+        novaPrevisao: l.novaPrevisao,
+        documento: l.documento,
+        decididoPor: l.decididoPor,
+        decididoEm: l.decididoEm,
+      });
+    }
+    return mapa;
+  } catch (e) {
+    console.error("[obras] leitura de decisões:", e);
+    return new Map<string, DecisaoObra>();
+  }
 }

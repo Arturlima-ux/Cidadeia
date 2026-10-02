@@ -3,6 +3,8 @@ import { insightInicial } from "@/lib/ia";
 import { buscarObras, criarObra, atualizarProgressoObra, excluirObra } from "./actions";
 import PainelObras, { type ObraNaTela } from "./PainelObras";
 import { lerObra, pedeAtencao, ehObraOuEngenharia } from "@/lib/obra-prazo";
+import { buscarDecisoes } from "./actions";
+import { resumoDaDecisao, decisaoAindaVale } from "@/lib/decisao-obra";
 import { buscarContratos } from "@/app/dashboard/secretarias/licitacoes/contratos-actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
@@ -59,13 +61,20 @@ export default async function ObrasPage() {
     (c) => c.numeroControlePncp && !jaImportadas.has(c.numeroControlePncp)
   ).length;
 
-  const obrasQuePedemDecisao: ObraNaTela[] = listaObras
+  // A decisão mais recente de cada obra. Decisão com previsão vencida não
+  // conta: o alerta precisa voltar, senão bastaria registrar qualquer coisa
+  // para a obra sumir da tela para sempre.
+  const decisoes = await buscarDecisoes(ctx.sessao.prefeituraId);
+
+  const todasLidas: ObraNaTela[] = listaObras
     .map((o) => ({
       id: o.id,
       nome: o.nome,
       fornecedorNome: o.fornecedorNome,
       valorContrato: o.valorContrato,
       origem: o.origem,
+      decisao: decisoes.get(o.id) ?? null,
+      resumoDecisao: decisoes.has(o.id) ? resumoDaDecisao(decisoes.get(o.id)!, agora) : null,
       leitura: lerObra(
         {
           id: o.id,
@@ -83,6 +92,21 @@ export default async function ObrasPage() {
     }))
     .filter((o) => pedeAtencao(o.leitura.situacao))
     .sort((a, b) => a.leitura.peso - b.leitura.peso);
+
+  // ── DUAS LISTAS, E NÃO UM FILTRO ──
+  //
+  // Obra com decisão registrada e ainda válida não pede decisão nova. Mas
+  // sumir com ela seria pior: o gestor não teria como distinguir a obra que
+  // alguém tratou da obra que ninguém olhou, e a decisão registrada ficaria
+  // invisível justo para quem precisa conferir se já foi tratada.
+  //
+  // A decisão VENCIDA volta para a primeira lista. É o que impede o registro
+  // de virar um jeito de calar o sistema para sempre.
+  const temDecisaoValida = (o: ObraNaTela) =>
+    o.decisao !== null && decisaoAindaVale(o.decisao, agora);
+
+  const obrasQuePedemDecisao = todasLidas.filter((o) => !temDecisaoValida(o));
+  const obrasDecididas = todasLidas.filter(temDecisaoValida);
 
   const atrasadas = listaObras.filter(
     (o) =>
@@ -113,6 +137,7 @@ export default async function ObrasPage() {
 
       <PainelObras
         obras={obrasQuePedemDecisao}
+        decididas={obrasDecididas}
         total={listaObras.length}
         temContratosDeObra={aImportar}
         prefeituraId={ctx.sessao.prefeituraId}

@@ -1026,3 +1026,42 @@ export const medicoesBanco = pgTable("medicoes_banco", {
     .notNull()
     .default("cron"),
 }).enableRLS();
+
+// ── DECISÕES SOBRE OBRA QUE PASSOU DO PRAZO ──
+//
+// As opções saem do art. 111 da Lei 14.133/2021: obra é contratação de escopo
+// predefinido, a vigência prorroga automaticamente, e o que não prorroga é a
+// responsabilidade — mora do contratado (§ único, I) ou extinção (§ único, II).
+//
+// É histórico e não campo na obra: uma obra pode ser prorrogada, prorrogada de
+// novo e depois extinta. Um campo guardaria só a última e apagaria o caminho —
+// e o caminho é o que se pede quando a obra vira processo.
+//
+// Migração: drizzle/0027_decisoes_obra.sql.
+export const decisoesObra = pgTable("decisoes_obra", {
+  id: text("id").primaryKey(),
+  prefeituraId: text("prefeitura_id")
+    .notNull()
+    .references(() => prefeituras.id, { onDelete: "cascade" }),
+  obraId: text("obra_id")
+    .notNull()
+    .references(() => obras.id, { onDelete: "cascade" }),
+  tipo: text("tipo", {
+    enum: [
+      "concluida",
+      "prorrogacao_automatica",
+      "mora_do_contratado",
+      "extincao",
+      "correcao_de_cadastro",
+    ],
+  }).notNull(),
+  /** O texto que responde ao Tribunal depois. Mínimo validado na aplicação. */
+  justificativa: text("justificativa").notNull(),
+  /** Faz a decisão vencer: previsão passada traz o alerta de volta. */
+  novaPrevisao: text("nova_previsao"),
+  documento: text("documento"),
+  decididoPor: text("decidido_por").notNull(),
+  decididoEm: text("decidido_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

@@ -177,26 +177,42 @@ export function lerObra(c: ContratoDeObra, hoje: Date = new Date()): LeituraObra
   const folga = progresso === null ? null : progresso - prazoConsumido;
   const comum = { ...base, prazoConsumido, diasAteOFim, folga };
 
-  // ── 1. O PIOR CASO: PRAZO ACABOU, OBRA NÃO ──
+  // ── 1. PRAZO ACABOU, OBRA NÃO ──
   //
-  // É o que vira manchete e processo: obra inacabada com contrato vencido.
-  // Enquanto o contrato valia, atraso é assunto de administração; depois que
-  // ele vence, a obra que continua é execução sem cobertura contratual, e a
-  // que para vira patrimônio parado.
+  // ── CORREÇÃO DE UMA LEITURA ERRADA DA LEI ──
+  //
+  // Este texto dizia que a obra que continua depois do prazo é "execução sem
+  // cobertura contratual". Para obra, isso está errado.
+  //
+  // O art. 111 da Lei 14.133/2021 diz que na contratação que prevê conclusão
+  // de escopo predefinido — e obra é exatamente isso — o prazo de vigência é
+  // AUTOMATICAMENTE PRORROGADO quando o objeto não é concluído no período
+  // firmado. Sem aditivo, sem assinatura. Dizer ao gestor que ele está
+  // executando sem contrato é assustá-lo com um problema que a lei resolveu.
+  //
+  // O que não prorroga sozinho é a RESPONSABILIDADE. Pelo parágrafo único, se
+  // a não conclusão decorrer de culpa do contratado, ele é constituído em mora
+  // com sanções cabíveis, e a Administração pode optar pela extinção.
+  //
+  // Então a pergunta certa não é "o contrato ainda vale?" — vale. É "de quem
+  // foi a culpa, e o que a Administração decidiu?". É isso que o Tribunal de
+  // Contas pergunta, e é isso que o registro de decisão guarda.
   if (diasAteOFim < 0 && (progresso === null || progresso < 100)) {
     return {
       ...comum,
       situacao: "contrato_encerrado_sem_conclusao",
       texto:
-        `A vigência do contrato encerrou em ${c.vigenciaFim.slice(0, 10)}, há ` +
-        `${plural(Math.abs(diasAteOFim), "dia", "dias")}` +
+        `O prazo do contrato terminou em ${c.vigenciaFim.slice(0, 10)}, há ` +
+        `${plural(Math.abs(diasAteOFim), "dia", "dias")}, sem conclusão registrada` +
         (progresso === null
-          ? ", e não há progresso informado."
-          : `, com ${pct(progresso)} de progresso informado.`),
+          ? " e sem progresso informado."
+          : ` (${pct(progresso)} de progresso informado).`),
       acao:
-        "Confirme qual dos três casos é: a obra foi concluída e falta registrar, houve termo " +
-        "aditivo de prazo que não está no cadastro, ou a obra está inacabada. Os três pedem " +
-        "documento diferente, e é a primeira pergunta de quem fiscaliza.",
+        "Por ser contrato de escopo, a vigência está automaticamente prorrogada (art. 111 da Lei " +
+        "14.133/2021) — a execução não ficou descoberta. O que a lei não resolve sozinha é de quem " +
+        "foi o atraso: se for culpa do contratado, ele fica em mora e cabem sanções, e a " +
+        "Administração pode optar pela extinção. Registre a decisão e a justificativa; é ela que " +
+        "responde ao Tribunal de Contas depois.",
       peso: ORDEM.contrato_encerrado_sem_conclusao * 1_000_000 + Math.abs(diasAteOFim),
     };
   }
