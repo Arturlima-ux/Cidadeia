@@ -9,6 +9,7 @@ import { formatarMoeda } from "@/lib/formatadores";
 import { ehAdmin, linkCadastroDoPedido, modulosDoPedido, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import BotaoAvancar from "./BotaoAvancar";
 import { empresaDoAmbiente, pendenciasDaEmpresa } from "@/lib/proposta-comercial";
+import { DOCUMENTOS } from "@/lib/kit-contratacao";
 
 // ── A MESA DA EQUIPE ──
 //
@@ -134,6 +135,29 @@ export default async function AdminPedidosPage() {
                 >
                   Baixar proposta (PDF)
                 </a>
+
+                {/* ── O KIT JÁ NO NOME DESTE MUNICÍPIO ──
+                    /kit publica os modelos em branco, que é o certo para uma
+                    página pública. Aqui existe um pedido, com município e valor
+                    calculado: mandar a minuta em branco quando se sabe o valor é
+                    dar trabalho ao jurídico da prefeitura à toa, e cada ida e
+                    volta no jurídico é uma semana no processo. */}
+                <div className="flex flex-col items-start md:items-end gap-1">
+                  <span className="text-xs text-muted">
+                    Kit preenchido para {p.municipio}/{p.uf}
+                  </span>
+                  <div className="flex flex-wrap gap-2 md:justify-end">
+                    {DOCUMENTOS.filter((d) => d.geramos).map((d) => (
+                      <a
+                        key={d.chave}
+                        href={`/admin/pedidos/${p.id}/kit/${d.chave}`}
+                        className="text-xs border border-border rounded-lg px-2.5 py-1.5 hover:border-brand hover:text-brand transition"
+                      >
+                        {d.nome}
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           );
