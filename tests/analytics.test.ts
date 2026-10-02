@@ -7,6 +7,7 @@ import {
   montarFunil,
   maiorPerda,
   municipiosMaisConsultados,
+  municipiosQueConverteram,
   ORDEM_DO_FUNIL,
   MINIMO_PARA_DIAGNOSTICO,
   type ContagemPorTipo,
@@ -199,5 +200,64 @@ describe("municípios mais consultados", () => {
     // Há muitos no Brasil, e somá-los daria um número que não existe.
     const r = municipiosMaisConsultados([ev("Bom Jesus", "PI", "a"), ev("Bom Jesus", "RS", "b")]);
     expect(r).toHaveLength(2);
+  });
+});
+
+describe("o cruzamento que justifica medir no próprio banco", () => {
+  // O evento de Raio-X e o de proposta enviada carregam o MESMO código IBGE.
+  // Cruzá-los responde a pergunta que decide onde investir: dos municípios
+  // consultados, quais viraram pedido.
+
+  const e = (
+    tipo: "raio_x" | "proposta_enviada" | "visita",
+    codigoIbge: string | null,
+    visitante: string,
+    municipio: string | null = null,
+    uf: string | null = null
+  ) => ({ tipo, codigoIbge, municipio, uf, visitante });
+
+  it("junta consulta e pedido pelo código, não pelo nome", () => {
+    // O pedido manda só o código; o nome é resolvido depois. Cruzar por nome
+    // perderia a conversão inteira.
+    const r = municipiosQueConverteram([
+      e("raio_x", "2211001", "a", "Teresina", "PI"),
+      e("raio_x", "2211001", "b", "Teresina", "PI"),
+      e("proposta_enviada", "2211001", "b"),
+    ]);
+    expect(r).toHaveLength(1);
+    expect(r[0]).toMatchObject({ municipio: "Teresina", uf: "PI", consultaram: 2, pediram: 1 });
+  });
+
+  it("quem pediu vem primeiro, mesmo com menos consultas", () => {
+    // Ordenar só por consulta esconderia a conversão no meio dos curiosos.
+    const r = municipiosQueConverteram([
+      ...["a", "b", "c", "d"].map((v) => e("raio_x", "3550308", v, "São Paulo", "SP")),
+      e("raio_x", "2211001", "x", "Teresina", "PI"),
+      e("proposta_enviada", "2211001", "x"),
+    ]);
+    expect(r[0]!.municipio).toBe("Teresina");
+    expect(r[1]!.consultaram).toBe(4);
+  });
+
+  it("município que só aparece no pedido não some", () => {
+    // Someria justamente a conversão — o caso mais valioso da lista.
+    const r = municipiosQueConverteram([e("proposta_enviada", "2211001", "a")]);
+    expect(r).toHaveLength(1);
+    expect(r[0]!.pediram).toBe(1);
+    expect(r[0]!.municipio).toBe("2211001");
+  });
+
+  it("conta visitantes, não eventos", () => {
+    const r = municipiosQueConverteram([
+      e("raio_x", "2211001", "a", "Teresina", "PI"),
+      e("raio_x", "2211001", "a", "Teresina", "PI"),
+      e("raio_x", "2211001", "a", "Teresina", "PI"),
+    ]);
+    expect(r[0]!.consultaram).toBe(1);
+  });
+
+  it("evento sem código não entra, e visita não conta", () => {
+    expect(municipiosQueConverteram([e("raio_x", null, "a", "Teresina", "PI")])).toEqual([]);
+    expect(municipiosQueConverteram([e("visita", "2211001", "a")])).toEqual([]);
   });
 });

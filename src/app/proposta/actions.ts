@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { limitarUso } from "@/lib/rate-limit";
 import { ehCodigoIbge } from "@/lib/populacao-ibge";
 import { lerSessao } from "@/lib/sessao";
@@ -59,6 +60,25 @@ export async function enviarPedidoProposta(entrada: unknown): Promise<ResultadoP
     prefeituraId,
   });
   if (!r.ok) return r;
+
+  // ── O ÚLTIMO PASSO DO FUNIL ──
+  // Registrado SÓ no caminho de sucesso: contar tentativa como pedido faria
+  // a conversão parecer melhor do que é, e seria o tipo de número que engana
+  // justamente quem o produziu.
+  //
+  // O município vai junto para fechar o círculo com o evento de Raio-X: é
+  // isso que responde "dos municípios consultados, quais viraram proposta".
+  //
+  // O formulário manda só o código IBGE; o nome e a UF são resolvidos dentro
+  // de registrarPedidoProposta. Em vez de resolver de novo aqui, o evento
+  // leva o código — que é o que de fato fecha o círculo com o Raio-X, porque
+  // é por ele que os dois eventos se encontram.
+  await registrarEvento({
+    tipo: "proposta_enviada",
+    caminho: "/proposta",
+    codigoIbge: dados.codigoIbge,
+  });
+
   // emailEnviado é sobre QUEM PEDIU: é o que a tela promete a ele.
   return { ok: true, protocolo: r.protocolo, emailEnviado: r.confirmacaoEnviada, pedidoId: r.pedidoId, vinculadoAConta: r.vinculadoAConta };
 }

@@ -236,3 +236,66 @@ export function municipiosMaisConsultados(
     .sort((a, b) => b.visitantes - a.visitantes)
     .slice(0, limite);
 }
+
+/**
+ * O cruzamento que justifica medir no próprio banco.
+ *
+ * O evento de Raio-X e o de proposta enviada carregam o MESMO código IBGE.
+ * Cruzá-los responde a pergunta que decide onde investir: dos municípios que
+ * alguém consultou, quais viraram pedido.
+ *
+ * Nenhuma ferramenta de terceiro responde isso sem que se mande o código do
+ * município para fora — e mandar identificador de ente público para rede de
+ * anúncio é exatamente o que o acordo de tratamento de dados promete não
+ * fazer.
+ */
+export type MunicipioNoFunil = {
+  codigoIbge: string;
+  municipio: string;
+  uf: string;
+  consultaram: number;
+  pediram: number;
+};
+
+export function municipiosQueConverteram(
+  eventos: {
+    tipo: TipoEvento;
+    codigoIbge: string | null;
+    municipio: string | null;
+    uf: string | null;
+    visitante: string;
+  }[]
+): MunicipioNoFunil[] {
+  const por = new Map<
+    string,
+    { municipio: string; uf: string; consultaram: Set<string>; pediram: Set<string> }
+  >();
+
+  for (const e of eventos) {
+    if (!e.codigoIbge) continue;
+    if (e.tipo !== "raio_x" && e.tipo !== "proposta_enviada") continue;
+    const atual =
+      por.get(e.codigoIbge) ??
+      // O nome vem do evento de Raio-X, que o carrega; o de proposta traz só
+      // o código. Município que só aparece no pedido fica com o código como
+      // rótulo em vez de sumir — some seria perder justamente a conversão.
+      { municipio: e.municipio ?? e.codigoIbge, uf: e.uf ?? "", consultaram: new Set<string>(), pediram: new Set<string>() };
+    if (e.municipio && atual.municipio === e.codigoIbge) atual.municipio = e.municipio;
+    if (e.uf && !atual.uf) atual.uf = e.uf;
+    if (e.tipo === "raio_x") atual.consultaram.add(e.visitante);
+    else atual.pediram.add(e.visitante);
+    por.set(e.codigoIbge, atual);
+  }
+
+  return [...por.entries()]
+    .map(([codigoIbge, x]) => ({
+      codigoIbge,
+      municipio: x.municipio,
+      uf: x.uf,
+      consultaram: x.consultaram.size,
+      pediram: x.pediram.size,
+    }))
+    // Quem pediu vem primeiro: é a informação mais valiosa da lista, e
+    // ordenar só por consultas a esconderia no meio dos curiosos.
+    .sort((a, b) => b.pediram - a.pediram || b.consultaram - a.consultaram);
+}

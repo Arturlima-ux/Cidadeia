@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { registrarEvento } from "@/lib/registrar-evento";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -32,6 +33,11 @@ export default async function PropostaPage({
 }: {
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>;
 }) {
+  // Penúltimo passo do funil: chegou ao montador e começou a escolher
+  // módulos. A distância entre este evento e o próximo é o que diz se a
+  // página de proposta converte ou trava.
+  await registrarEvento({ tipo: "proposta_aberta", caminho: "/proposta" });
+
   const params = await searchParams;
   const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : null);
   const codigo = texto(params.ibge);

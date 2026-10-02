@@ -9,6 +9,7 @@ import {
   montarFunil,
   maiorPerda,
   municipiosMaisConsultados,
+  municipiosQueConverteram,
   MINIMO_PARA_DIAGNOSTICO,
   type ContagemPorTipo,
   type TipoEvento,
@@ -68,7 +69,13 @@ export default async function MedicaoPage({
   const corte = desde(dias);
 
   let contagens: ContagemPorTipo[] = [];
-  let brutos: { tipo: TipoEvento; municipio: string | null; uf: string | null; visitante: string }[] = [];
+  let brutos: {
+    tipo: TipoEvento;
+    municipio: string | null;
+    uf: string | null;
+    codigoIbge: string | null;
+    visitante: string;
+  }[] = [];
   let origens: { origem: string | null; visitantes: number }[] = [];
 
   try {
@@ -88,6 +95,7 @@ export default async function MedicaoPage({
         tipo: eventos.tipo,
         municipio: eventos.municipio,
         uf: eventos.uf,
+        codigoIbge: eventos.codigoIbge,
         visitante: eventos.visitante,
       })
       .from(eventos)
@@ -110,6 +118,9 @@ export default async function MedicaoPage({
   const funil = montarFunil(contagens);
   const perda = maiorPerda(funil);
   const municipios = municipiosMaisConsultados(brutos, 12);
+  // O cruzamento: quem consultou e quem pediu, pelo mesmo código IBGE.
+  const noFunil = municipiosQueConverteram(brutos).slice(0, 15);
+  const converteram = noFunil.filter((m) => m.pediram > 0);
   const base = funil[0]?.visitantes ?? 0;
 
   return (
@@ -219,6 +230,35 @@ export default async function MedicaoPage({
               </p>
             )}
           </section>
+
+          {/* ── O CRUZAMENTO ──
+              A informação que decide onde investir, e que ferramenta de
+              terceiro não daria sem mandar o código do município para fora. */}
+          {converteram.length > 0 && (
+            <section className="bg-card border border-border rounded-2xl p-6">
+              <h2 className="font-semibold text-sm mb-1">Municípios que pediram proposta</h2>
+              <p className="text-xs text-muted mb-4">
+                Cruzamento entre quem consultou o Raio-X e quem enviou o pedido, pelo mesmo código
+                IBGE. É a lista mais curta e a mais valiosa.
+              </p>
+              <ul className="flex flex-col divide-y divide-border">
+                {converteram.map((m) => (
+                  <li key={m.codigoIbge} className="flex items-center justify-between py-2.5 gap-4">
+                    <span className="text-sm">
+                      {m.municipio}
+                      {m.uf && <span className="text-muted"> · {m.uf}</span>}
+                    </span>
+                    <span className="text-sm tabular-nums shrink-0">
+                      <span style={{ color: "var(--accent)" }}>{m.pediram} pediu</span>
+                      {m.consultaram > 0 && (
+                        <span className="text-muted"> · {m.consultaram} consultou</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* ── OS MUNICÍPIOS ── */}
           {municipios.length > 0 && (
