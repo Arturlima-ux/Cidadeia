@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { documentoPorChave, type Documento, type Bloco } from "@/lib/kit-contratacao";
+import { documentoPorChave, documentoPreenchido, type Documento, type Bloco } from "@/lib/kit-contratacao";
 
 // Baixa um documento do kit de contratação.
 //
@@ -84,7 +84,10 @@ export async function GET(
   { params }: { params: Promise<{ documento: string }> }
 ) {
   const { documento: chave } = await params;
-  const documento = documentoPorChave(chave);
+  const cru = documentoPorChave(chave);
+  // O arquivo que a prefeitura baixa leva os compromissos já decididos; o que
+  // ninguém decidiu continua entre colchetes, para o jurídico ver que falta.
+  const documento = cru ? documentoPreenchido(cru) : null;
 
   if (!documento) {
     return NextResponse.json({ erro: "Documento não encontrado." }, { status: 404 });

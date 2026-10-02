@@ -1,3 +1,5 @@
+import { preencherCompromissos } from "@/lib/compromissos";
+
 // ── KIT DE CONTRATAÇÃO ──
 //
 // O que trava a assinatura numa prefeitura quase nunca é a decisão: é o
@@ -726,6 +728,43 @@ export const DOCUMENTOS: Documento[] = [
 
 export function documentoPorChave(chave: string): Documento | null {
   return DOCUMENTOS.find((d) => d.chave === chave) ?? null;
+}
+
+// ── OS COMPROMISSOS JÁ DECIDIDOS ENTRAM NO TEXTO ──
+//
+// DOCUMENTOS fica CRU de propósito: é a fonte, e é sobre ela que o teste de
+// cobertura confere se todo marcador está catalogado. Se o preenchimento
+// acontecesse aqui, um marcador preenchido sumiria da fonte e deixaria de ser
+// verificado.
+//
+// O preenchimento acontece na SAÍDA — tela, .doc e texto puro — e só dos que
+// têm valor. O que ninguém decidiu continua aparecendo entre colchetes e
+// continua na lista de pendências, que é o que impede o documento de sair com
+// um número inventado no lugar de uma decisão que não foi tomada.
+
+function preencherBloco(b: Bloco): Bloco {
+  if (b.tipo === "paragrafo") return { ...b, texto: preencherCompromissos(b.texto) };
+  if (b.tipo === "lista") return { ...b, itens: b.itens.map(preencherCompromissos) };
+  return {
+    ...b,
+    cabecalho: b.cabecalho.map(preencherCompromissos),
+    linhas: b.linhas.map((l) => l.map(preencherCompromissos)),
+  };
+}
+
+/** O documento com os compromissos já decididos no lugar dos marcadores. */
+export function documentoPreenchido(d: Documento): Documento {
+  return {
+    ...d,
+    clausulas: d.clausulas.map((c) => ({
+      titulo: preencherCompromissos(c.titulo),
+      blocos: c.blocos.map(preencherBloco),
+    })),
+  };
+}
+
+export function documentosPreenchidos(): Documento[] {
+  return DOCUMENTOS.map(documentoPreenchido);
 }
 
 /** Todo texto do documento, para busca de marcadores e para exportação. */

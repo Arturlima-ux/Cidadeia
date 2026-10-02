@@ -3,11 +3,12 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import {
-  DOCUMENTOS,
+  documentosPreenchidos,
   CAMPOS_A_PREENCHER,
   marcadoresDe,
   type Bloco,
 } from "@/lib/kit-contratacao";
+import { COMPROMISSOS } from "@/lib/compromissos";
 import { IconDownload, IconCheck, IconAlertas } from "@/components/icons";
 
 export const metadata = {
@@ -61,8 +62,14 @@ function RenderBloco({ bloco }: { bloco: Bloco }) {
 }
 
 export default function KitPage() {
-  const geramos = DOCUMENTOS.filter((d) => d.geramos);
-  const naoGeramos = DOCUMENTOS.filter((d) => !d.geramos);
+  // Preenchidos: o que já foi decidido aparece como texto, e só o que falta
+  // decidir continua entre colchetes — e só esse entra na lista de pendências.
+  const todos = documentosPreenchidos();
+  const geramos = todos.filter((d) => d.geramos);
+  const naoGeramos = todos.filter((d) => !d.geramos);
+
+  // Só os que têm valor: os apurados e os deduzidos da lei.
+  const decididos = COMPROMISSOS.filter((c) => c.valor);
 
   const pendentes = CAMPOS_A_PREENCHER.filter((campo) =>
     geramos.some((d) => marcadoresDe(d).includes(campo.marcador))
@@ -181,6 +188,48 @@ export default function KitPage() {
           </div>
         </Reveal>
 
+        {/* ── O QUE JÁ ESTÁ DECIDIDO, E DE ONDE VEIO ──
+            Fornecedor de software público costuma apresentar o SLA como número
+            pronto, sem dizer de onde saiu. Para quem vai assinar, o número sem
+            origem é o mesmo que nenhum número: não dá para conferir nem para
+            discutir.
+            Aqui cada compromisso já fechado mostra o fundamento. Os dois que
+            aparecem não são escolha comercial — um é fato da infraestrutura,
+            conferível no cabeçalho de qualquer resposta do site; o outro é
+            consequência do prazo que a própria prefeitura tem perante a ANPD. */}
+        {decididos.length > 0 && (
+          <Reveal>
+            <div className="mt-6 bg-card border border-border rounded-2xl p-5">
+              <h2 className="font-semibold text-sm mb-1">
+                Compromissos já fechados, com a origem de cada um
+              </h2>
+              <p className="text-xs text-muted leading-relaxed mb-4">
+                Entram prontos nos modelos. Nenhum deles é número redondo
+                escolhido por soar bem.
+              </p>
+              <ul className="flex flex-col gap-3">
+                {decididos.map((c) => (
+                  <li key={c.marcador} className="text-xs leading-relaxed">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <code className="font-mono" style={{ color: "var(--accent)" }}>
+                        {c.marcador}
+                      </code>
+                      <span
+                        className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded"
+                        style={{ background: "var(--info-tint)", color: "var(--info)" }}
+                      >
+                        {c.origem === "apurado" ? "apurado" : "deduzido da lei"}
+                      </span>
+                    </div>
+                    <p className="mt-1">{c.valor}</p>
+                    <p className="text-muted mt-1">{c.fundamento}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        )}
+
         {/* pendências de preenchimento */}
         {pendentes.length > 0 && (
           <Reveal>
@@ -209,7 +258,7 @@ export default function KitPage() {
 
       {/* ── documentos na íntegra ── */}
       <section className="max-w-4xl mx-auto px-4 sm:px-8 py-16 space-y-16">
-        {DOCUMENTOS.map((d) => (
+        {todos.map((d) => (
           <article key={d.chave} id={d.chave} className="scroll-mt-28">
             <Reveal>
               <div className="border-t-2 border-brand pt-6">
