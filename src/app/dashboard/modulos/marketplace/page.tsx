@@ -11,7 +11,9 @@ import {
 import AbasModulos from "../AbasModulos";
 import PedidosDaPrefeitura from "@/components/PedidosDaPrefeitura";
 import BotaoPedirModulo from "./BotaoPedirModulo";
-import { PORTES, porteDaPopulacao } from "@/lib/precos";
+import { PORTES, porteDaPopulacao, type PorteMunicipio } from "@/lib/precos";
+import { resumoDoCaminho, type ResumoCaminho as ResumoCaminhoTipo } from "@/lib/expansao";
+import type { PlanoAddon } from "@/lib/planos";
 
 export default async function MarketplacePage() {
   const sessao = await lerSessao();
@@ -75,6 +77,13 @@ export default async function MarketplacePage() {
           para pedir proposta.
         </p>
       )}
+
+      {/* ── O QUE TRAVA EXPANSÃO NÃO É A DECISÃO, É O PROCESSO ──
+          Um secretário convencido do módulo ainda não sabe se acrescentá-lo
+          significa uma dispensa de dias ou um pregão de meses — e, sem saber,
+          não leva o assunto ao prefeito. A resposta cabe inteira aqui sem
+          revelar um real da tabela, que é interna. Ver lib/expansao.ts. */}
+      {porte && <ResumoCaminho porte={porte} planosAtivos={planosAtivos} />}
 
       <PedidosDaPrefeitura prefeituraId={sessao.prefeituraId} />
 
@@ -150,5 +159,49 @@ export default async function MarketplacePage() {
         contrato estiver assinado.
       </p>
     </div>
+  );
+}
+
+const TOM_CAMINHO: Record<ResumoCaminhoTipo["tom"], { cor: string; fundo: string; borda: string }> = {
+  dispensa: { cor: "var(--info)", fundo: "var(--info-tint)", borda: "var(--info-borda)" },
+  completo: { cor: "var(--info)", fundo: "var(--info-tint)", borda: "var(--info-borda)" },
+  misto: { cor: "var(--medio)", fundo: "var(--medio-tint)", borda: "var(--medio-borda)" },
+  pregao: { cor: "var(--medio)", fundo: "var(--medio-tint)", borda: "var(--medio-borda)" },
+  sob_consulta: { cor: "var(--muted)", fundo: "var(--card)", borda: "var(--border)" },
+};
+
+function ResumoCaminho({
+  porte,
+  planosAtivos,
+}: {
+  porte: PorteMunicipio;
+  planosAtivos: PlanoAddon[];
+}) {
+  const r = resumoDoCaminho(porte, planosAtivos);
+
+  // Com tudo contratado, a grade logo abaixo já mostra seis cartões "Ativo".
+  // Um aviso dizendo a mesma coisa acima dela é tinta repetindo o óbvio no
+  // lugar mais visível da tela.
+  if (r.tom === "completo") return null;
+
+  const tom = TOM_CAMINHO[r.tom];
+
+  return (
+    <section
+      className="rounded-xl border p-5"
+      style={{ background: tom.fundo, borderColor: tom.borda }}
+    >
+      <h2 className="font-semibold text-sm" style={{ color: tom.cor }}>
+        {r.titulo}
+      </h2>
+      <p className="text-sm text-muted mt-2 leading-relaxed max-w-[64ch]">{r.texto}</p>
+      {/* A norma fica à vista: é ela que o procurador vai querer ver, e quem
+          leva a informação para dentro da prefeitura precisa poder citá-la. */}
+      {r.fundamento && (
+        <p className="text-[11px] font-mono text-muted mt-3 pt-3 border-t leading-relaxed" style={{ borderColor: tom.borda }}>
+          {r.fundamento}
+        </p>
+      )}
+    </section>
   );
 }
