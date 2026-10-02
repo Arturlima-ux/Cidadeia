@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { criarSessao } from "@/lib/sessao";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { garantirPrefeituraDemo, ID_PREFEITURA_DEMO, ID_USUARIO_DEMO } from "@/lib/demo/prefeitura-demo";
 
 // ── ENTRAR NA DEMONSTRAÇÃO ──
@@ -19,6 +20,7 @@ export async function GET() {
     console.error("[demo] falha ao preparar a prefeitura de demonstração:", e);
     redirect("/solucoes?demo=indisponivel");
   }
+  await registrarEvento({ tipo: "demo", caminho: "/demo" });
   await criarSessao({
     usuarioId: ID_USUARIO_DEMO,
     prefeituraId: ID_PREFEITURA_DEMO,

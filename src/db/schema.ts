@@ -1065,3 +1065,38 @@ export const decisoesObra = pgTable("decisoes_obra", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── EVENTOS (medição de primeira parte) ──
+//
+// Sem cookie, sem script de terceiro, sem IP guardado. `visitante` é
+// HMAC(segredo, dia) sobre o IP truncado e o navegador: muda à meia-noite,
+// então ninguém é seguido de um dia para o outro, e sem o segredo não volta
+// ao IP.
+//
+// A alternativa pedida — Google Analytics e Meta Pixel — contradiz o acordo
+// de tratamento de dados que o próprio produto entrega ao jurídico da
+// prefeitura.
+//
+// Sem prefeitura_id: a maior parte destes eventos acontece antes de existir
+// prefeitura. É a segunda tabela global, junto com medicoesBanco.
+//
+// Migração: drizzle/0028_eventos.sql.
+export const eventos = pgTable("eventos", {
+  id: text("id").primaryKey(),
+  tipo: text("tipo", {
+    enum: ["visita", "raio_x", "demo", "proposta_aberta", "proposta_enviada", "kit_baixado", "modulo"],
+  }).notNull(),
+  caminho: text("caminho").notNull(),
+  uf: text("uf"),
+  codigoIbge: text("codigo_ibge"),
+  municipio: text("municipio"),
+  /** Rótulo livre: chave do módulo, documento do kit. Nunca dado de pessoa. */
+  detalhe: text("detalhe"),
+  visitante: text("visitante").notNull(),
+  /** Só o host de origem. */
+  origem: text("origem"),
+  dispositivo: text("dispositivo", { enum: ["movel", "computador"] }).notNull(),
+  criadoEm: text("criado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();

@@ -52,9 +52,17 @@ export default async function AdminPedidosPage() {
               {pedidos.length} pedido{pedidos.length === 1 ? "" : "s"} · mesa da equipe · {u?.email}
             </p>
           </div>
-          <Link href="/dashboard" className="text-sm font-semibold text-brand hover:underline">
-            Ir para o painel →
-          </Link>
+          <div className="flex items-center gap-5 shrink-0">
+            {/* A medição mora ao lado da mesa de pedidos de propósito: é a
+                mesma pergunta vista de dois ângulos — quem pediu proposta, e
+                quantos chegaram perto de pedir. */}
+            <Link href="/admin/medicao" className="link-traco text-sm font-semibold text-brand">
+              Medição
+            </Link>
+            <Link href="/dashboard" className="text-sm font-semibold text-brand hover:underline">
+              Ir para o painel →
+            </Link>
+          </div>
         </div>
 
         {pendencias.length > 0 && (

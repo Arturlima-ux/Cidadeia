@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { registrarEvento } from "@/lib/registrar-evento";
 import Link from "next/link";
 import DadosDoTesouro from "./DadosDoTesouro";
 import EsqueletoRaioX from "@/components/site/EsqueletoRaioX";
@@ -94,6 +95,18 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
   const { uf, slug } = await params;
   const m = acharMunicipio(uf, slug);
   if (!m) notFound();
+
+  // ── A MEDIÇÃO QUE DIZ QUAIS MUNICÍPIOS VIRAM PROPOSTA ──
+  // Dois eventos: "visita" alimenta a base do funil, "raio_x" marca a
+  // intenção sobre um município específico. Roda depois da resposta sair.
+  await registrarEvento({ tipo: "visita", caminho: `/raio-x/${uf}/${slug}` });
+  await registrarEvento({
+    tipo: "raio_x",
+    caminho: `/raio-x/${uf}/${slug}`,
+    uf: m.uf,
+    codigoIbge: m.codigo,
+    municipio: m.nome,
+  });
 
   const porte = PORTES.find((p) => p.chave === porteDaPopulacao(m.populacao));
   const vizinhos = municipiosDaUf(m.uf)

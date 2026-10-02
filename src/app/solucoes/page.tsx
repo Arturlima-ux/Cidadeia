@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { registrarEvento } from "@/lib/registrar-evento";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -31,6 +32,8 @@ export default async function SolucoesPage({
 }: {
   searchParams: Promise<{ [chave: string]: string | string[] | undefined }>;
 }) {
+  await registrarEvento({ tipo: "visita", caminho: "/solucoes" });
+
   const params = await searchParams;
   const demoIndisponivel = params.demo === "indisponivel";
   return (

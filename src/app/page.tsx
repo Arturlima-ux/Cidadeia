@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { lerSessao } from "@/lib/sessao";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { EXIGENCIAS } from "@/lib/diagnostico";
@@ -129,6 +130,8 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 
 
 export default async function LandingPage() {
+  await registrarEvento({ tipo: "visita", caminho: "/" });
+
   // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
   // já era cliente NÃO CONSEGUIA MAIS VER O SITE. Nem para conferir a própria
   // página de transparência, nem para mostrar a um secretário, nem para
