@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import Link from "next/link";
 import { montarRaioX } from "@/lib/raio-x";
 import RaioXResultado from "@/components/site/RaioXResultado";
@@ -36,6 +37,10 @@ export default async function DadosDoTesouro({
   uf: string;
   codigoIbge: string;
 }) {
+  // Corta a geração estática exatamente aqui: o que está acima deste
+  // componente — cabeçalho, população, porte, vizinhos — deixa de esperar.
+  await connection();
+
   let resultado: Awaited<ReturnType<typeof montarRaioX>> | null = null;
   try {
     resultado = await montarRaioX(nome, uf);
