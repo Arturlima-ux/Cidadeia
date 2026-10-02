@@ -24,9 +24,34 @@ const TELA_REAL: Record<string, string[]> = {
   gestao: ["src/app/dashboard/page.tsx"],
   saude: ["src/app/dashboard/secretarias/saude/page.tsx"],
   educacao: ["src/app/dashboard/secretarias/educacao/page.tsx"],
-  obras: ["src/app/dashboard/secretarias/obras/page.tsx"],
-  licitacoes: ["src/app/dashboard/secretarias/licitacoes/page.tsx"],
+  obras: [
+    "src/app/dashboard/secretarias/obras/page.tsx",
+    "src/app/dashboard/secretarias/obras/PainelObras.tsx",
+  ],
+  licitacoes: [
+    "src/app/dashboard/secretarias/licitacoes/page.tsx",
+    "src/app/dashboard/secretarias/licitacoes/PainelContratos.tsx",
+    "src/app/dashboard/secretarias/licitacoes/PainelPca.tsx",
+    "src/app/dashboard/secretarias/licitacoes/PainelPncp.tsx",
+  ],
 };
+
+// ── A LISTA ACIMA NÃO PODE VIRAR ESCAPATÓRIA ──
+//
+// Acrescentar um arquivo aqui faz o teste de fidelidade passar. Se bastasse
+// isso, o jeito mais fácil de aprovar um mockup mentiroso seria apontar para
+// um arquivo qualquer que contivesse a palavra — que é o mesmo truque de
+// mudar um marcador de balde para o teste parar de reclamar.
+//
+// Então cada arquivo listado precisa ser REALMENTE parte da tela: ou é a
+// própria página do módulo, ou é importado por ela.
+function ehParteDaTela(modulo: string, arquivo: string): boolean {
+  const pagina = TELA_REAL[modulo]![0]!;
+  if (arquivo === pagina) return true;
+  const fonteDaPagina = readFileSync(pagina, "utf8");
+  const nome = arquivo.split("/").pop()!.replace(/.tsx?$/, "");
+  return new RegExp(`import[^;]*["'][^"']*${nome}["']`).test(fonteDaPagina);
+}
 
 function normalizar(t: string) {
   return t
@@ -44,6 +69,16 @@ describe("mockup de Preços × telas reais", () => {
   it("todo módulo do mockup tem tela real mapeada", () => {
     for (const p of PAINEIS_MODULOS) {
       expect(TELA_REAL[p.chave], `módulo ${p.chave}`).toBeDefined();
+    }
+  });
+
+  it("todo arquivo citado como tela real é mesmo parte da tela", () => {
+    // Impede que a lista vire escapatória: ou é a página do módulo, ou é
+    // importado por ela.
+    for (const [modulo, arquivos] of Object.entries(TELA_REAL)) {
+      for (const a of arquivos) {
+        expect(ehParteDaTela(modulo, a), `${a} não é usado pela tela de ${modulo}`).toBe(true);
+      }
     }
   });
 

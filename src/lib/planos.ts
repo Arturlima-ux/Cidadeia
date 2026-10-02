@@ -49,12 +49,13 @@ export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string 
   {
     chave: "obras",
     nome: "Obras",
-    descricao: "Progresso real contra o previsto, obra por obra.",
+    descricao: "O prazo do contrato como régua, e a obra que passou dele sem acabar.",
   },
   {
     chave: "licitacoes",
     nome: "Licitações",
-    descricao: "Os processos e os prazos que ninguém pode perder.",
+    descricao:
+      "Os processos e os contratos vindos do portal nacional, e os prazos que ninguém pode perder.",
   },
   {
     chave: "gestao",

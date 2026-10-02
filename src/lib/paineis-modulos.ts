@@ -1,4 +1,5 @@
 import { formatarMoeda } from "@/lib/formatadores";
+import type { TomStatus } from "@/components/PilulaStatus";
 
 // ── O MOCKUP DE PREÇOS REPRODUZ A TELA REAL, BLOCO POR BLOCO ──
 //
@@ -22,8 +23,23 @@ export type ContadorPrazo = { n: number; rotulo: string; tom: "urgente" | "medio
 export type ItemLista = {
   nome: string;
   sub?: string;
-  pilula?: { label: string; tom: "positivo" | "negativo" | "andamento" | "neutro" };
-  progresso?: { atual: number; esperado: number };
+  // Repete os tons de PilulaStatus, que é o componente que a tela real usa.
+  // Faltava "atencao" aqui, e por isso a demonstração não conseguia mostrar o
+  // estado de obra sem medição — justamente o que distingue "ninguém mediu" de
+  // "está em zero".
+  pilula?: { label: string; tom: TomStatus };
+  /**
+   * Espelha a tela real: o progresso MEDIDO pela prefeitura e a fração do
+   * prazo do CONTRATO já consumida.
+   *
+   * Tinha `esperado`, que era o progresso que a obra "deveria" ter — um número
+   * digitado à mão, sem fonte, que o módulo deixou de usar. A demonstração
+   * continuou mostrando a tela antiga, e o componente que a renderiza chama-se
+   * PainelModuloFiel justamente por existir para ser fiel.
+   *
+   * `atual: null` é obra sem medição registrada, que é diferente de obra em 0%.
+   */
+  progresso?: { atual: number | null; prazo: number };
 };
 
 export type PainelModulo = {
@@ -128,33 +144,36 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     titulo: "Obras",
     caminho: "/dashboard/secretarias/obras",
     insight:
-      "Uma obra com progresso 15 pontos abaixo do esperado para a data. " +
-      "Ação sugerida: peça à Secretaria de Obras o cronograma atualizado da Reforma da UBS Norte antes da próxima medição.",
+      "Uma obra com 45% medidos e 88% do prazo do contrato já consumido. " +
+      "Ação sugerida: peça à fiscalização o boletim de medição da Reforma da UBS Norte e decida entre acelerar e instruir aditivo de prazo — depois do vencimento não há contrato para aditar.",
     aviso: {
       nivel: "urgente",
-      titulo: "1 obra com progresso abaixo do esperado",
-      itens: ["Reforma da UBS Norte: 45% concluído (esperado: 60%)"],
+      titulo: "1 obra com contrato encerrado sem conclusão",
+      itens: [
+        "Pavimentação da Av. Beira-Rio: vigência encerrou em 12/08, com 72% medidos",
+      ],
     },
     lista: {
       cabecalho: "Todas as obras (24)",
       itens: [
         {
           nome: "Reforma da UBS Norte",
-          sub: "Bairro Norte",
+          sub: "Construtora Horizonte Ltda",
           pilula: { label: "Atrasada", tom: "negativo" },
-          progresso: { atual: 45, esperado: 60 },
+          progresso: { atual: 45, prazo: 88 },
         },
         {
           nome: "Pavimentação da Av. Beira-Rio",
-          sub: "Centro",
-          pilula: { label: "Em andamento", tom: "andamento" },
-          progresso: { atual: 72, esperado: 70 },
+          sub: "Pavimenta Sul Engenharia Ltda",
+          pilula: { label: "Contrato encerrado", tom: "negativo" },
+          progresso: { atual: 72, prazo: 100 },
         },
         {
           nome: "Creche Municipal Jardim",
-          sub: "Jardim das Oliveiras",
-          pilula: { label: "Concluída", tom: "positivo" },
-          progresso: { atual: 100, esperado: 100 },
+          sub: "Edificar Construções Ltda",
+          // Sem medição registrada: a tela diz isso em vez de mostrar 0%.
+          pilula: { label: "Sem medição", tom: "atencao" },
+          progresso: { atual: null, prazo: 34 },
         },
       ],
     },
@@ -165,14 +184,14 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
     titulo: "Licitações",
     caminho: "/dashboard/secretarias/licitacoes",
     insight:
-      "Quatro processos com observação de risco registrada, dois deles do mesmo fornecedor. " +
-      "Ação sugerida: peça à Comissão de Licitação o histórico de contratos desse fornecedor antes da homologação.",
+      "Três contratos vencem nos próximos cinco dias e nenhum deles cabe mais numa nova licitação: só a publicação do edital exige oito dias úteis. " +
+      "Ação sugerida: verifique hoje quais admitem prorrogação e instrua os aditivos — depois do vencimento não há contrato para aditar.",
     aviso: {
-      nivel: "medio",
-      titulo: "4 processos com observação de risco registrada",
+      nivel: "urgente",
+      titulo: "3 contratos sem tempo para nova licitação",
       itens: [
-        "PE 014/2026: único licitante habilitado",
-        "PE 011/2026: preço 38% acima da estimativa",
+        "Transporte escolar: vence em 5 dias (3 dias úteis), e o edital exige 8",
+        "Coleta de resíduos: 4 dispensas do mesmo objeto somaram acima do limite do exercício",
       ],
     },
     lista: {
@@ -180,12 +199,12 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
       itens: [
         {
           nome: "PE 014/2026 — Merenda escolar",
-          sub: "Pregão eletrônico · R$ 1,2 mi · Alimentos Boa Mesa Ltda.",
+          sub: "Pregão eletrônico · R$ 1,2 mi · importado do PNCP",
           pilula: { label: "Em disputa", tom: "andamento" },
         },
         {
           nome: "PE 012/2026 — Medicamentos básicos",
-          sub: "Pregão eletrônico · R$ 640 mil · Distribuidora Vida",
+          sub: "Pregão eletrônico · R$ 640 mil · importado do PNCP",
           pilula: { label: "Homologada", tom: "positivo" },
         },
         {

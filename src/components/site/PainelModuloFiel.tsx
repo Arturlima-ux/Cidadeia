@@ -129,18 +129,47 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
                     </div>
                     {item.pilula && <PilulaStatus label={item.pilula.label} tom={item.pilula.tom} />}
                   </div>
+                  {/* ── AS DUAS BARRAS DA TELA REAL ──
+                      Mostrava "X% concluído (esperado: Y%)". O esperado era um
+                      número digitado à mão, sem fonte, e o módulo deixou de
+                      usá-lo: a régua passou a ser o prazo do contrato, que
+                      existe independentemente de quem cadastrou.
+
+                      Prazo consumido NÃO é progresso esperado — uma obra pode
+                      gastar 80% do prazo e estar em 95% ou em 10%. Por isso são
+                      duas barras, e não uma com uma marca. */}
                   {item.progresso && (
-                    <>
-                      <div className="w-full h-2 bg-sutil rounded-full overflow-hidden mt-2.5">
-                        <div
-                          className="h-full bg-brand rounded-full"
-                          style={{ width: `${item.progresso.atual}%` }}
-                        />
+                    <div className="mt-2.5 flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted w-16 shrink-0">progresso</span>
+                        <div className="flex-1 h-1.5 bg-sutil rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-brand rounded-full"
+                            style={{ width: `${item.progresso.atual ?? 0}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] tabular-nums w-20 text-right shrink-0 text-muted">
+                          {item.progresso.atual === null
+                            ? "sem medição"
+                            : `${item.progresso.atual}%`}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted mt-1.5">
-                        {item.progresso.atual}% concluído (esperado: {item.progresso.esperado}%)
-                      </p>
-                    </>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted w-16 shrink-0">prazo</span>
+                        <div className="flex-1 h-1.5 bg-sutil rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${item.progresso.prazo}%`,
+                              background: "var(--muted)",
+                            }}
+                          />
+                        </div>
+                        <span className="text-[11px] tabular-nums w-20 text-right shrink-0 text-muted">
+                          {item.progresso.prazo}%
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}

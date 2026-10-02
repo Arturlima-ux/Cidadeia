@@ -119,7 +119,7 @@ export function solucoesParaORaioX(e: EntradaSolucoes): SolucaoSugerida[] {
       achado: "Investimento publicado, sem dizer o que está parado",
       porque: `O Tesouro registra o valor investido no exercício, e nada além. Obra parada há meses aparece no mesmo número de obra andando no prazo.`,
       resolve:
-        "Cada obra com progresso previsto contra o realizado, e a que está atrasada em destaque no mapa da cidade — com a data da última atualização à vista.",
+        "Cada obra medida contra o prazo do próprio contrato, e não contra um cronograma digitado à mão: a que passou do prazo sem conclusão aparece primeiro, e a que ninguém mede há semanas aparece como sem medição, não como zero.",
       peso: 14,
     });
   }
