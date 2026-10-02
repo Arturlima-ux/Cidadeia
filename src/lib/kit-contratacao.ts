@@ -557,7 +557,7 @@ const ACORDO_NIVEL_SERVICO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "A contratada compromete-se a manter disponibilidade mensal mínima de [DISPONIBILIDADE] do serviço, apurada sobre o total de minutos do mês.",
+            "A contratada verifica diariamente, por rotina automática, se o banco de dados responde, e registra o resultado e o tempo de resposta. O histórico completo dessas verificações é publicado em página de acesso público, sem cadastro, incluindo os dias em que houve falha.",
         },
         {
           tipo: "paragrafo",
@@ -612,22 +612,47 @@ const ACORDO_NIVEL_SERVICO: Documento = {
       ],
     },
     {
-      titulo: "4. Da medição e do relatório",
+      titulo: "4. Do que conta como solução",
       blocos: [
         {
           tipo: "paragrafo",
           texto:
-            "A contratada disponibilizará ao fiscal do contrato, mediante solicitação, relatório mensal contendo a disponibilidade apurada, a relação de chamados abertos e os prazos observados.",
+            "Considera-se cumprido o prazo de solução quando a operação é restabelecida, ainda que por contorno — caminho alternativo, correção provisória ou restauração de versão anterior —, desde que a contratante consiga realizar a tarefa afetada. A correção definitiva da causa segue em tratamento e é informada à contratante, sem reabertura do prazo.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "A distinção existe porque nem toda causa raiz se resolve dentro do prazo de atendimento, e porque o que interessa à contratante é voltar a trabalhar. Prazo de solução que só admita correção definitiva seria descumprido em casos em que o serviço já voltou a funcionar.",
         },
       ],
     },
     {
-      titulo: "5. Do descumprimento",
+      titulo: "5. Da medição e do relatório",
       blocos: [
         {
           tipo: "paragrafo",
           texto:
-            "Não atingida a disponibilidade mínima no mês, a contratante fará jus a desconto de [DESCONTO] sobre a fatura do período, sem prejuízo das demais sanções contratuais.",
+            "A contratada disponibilizará ao fiscal do contrato, mediante solicitação, relatório mensal contendo a disponibilidade apurada, a relação de chamados abertos e os prazos observados. A apuração da disponibilidade é a mesma publicada na página pública, e o fiscal pode conferi-la a qualquer momento, sem depender da contratada.",
+        },
+      ],
+    },
+    {
+      titulo: "6. Da saída sem ônus por indisponibilidade",
+      blocos: [
+        {
+          tipo: "paragrafo",
+          texto:
+            "Registradas falhas na verificação diária em 3 (três) ou mais dias dentro de um mesmo mês, ou em 2 (dois) meses consecutivos, a contratante poderá extinguir o contrato por simples comunicação escrita, sem multa, sem aviso prévio e sem qualquer ônus, com devolução proporcional de valores pagos e referentes a período não usufruído.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "A contratada comunicará a contratante sempre que a verificação diária registrar falha, independentemente de provocação, informando a causa apurada e a previsão de normalização.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "Quando o edital, o termo de referência ou a própria contratante exigir percentual contratual de disponibilidade, as partes consignarão neste item o índice de [DISPONIBILIDADE] e o desconto de [DESCONTO] sobre a fatura do mês em que não for atingido. Na ausência dessa exigência, vale o regime de verificação publicada e de saída sem ônus previsto acima.",
         },
       ],
     },
@@ -638,7 +663,12 @@ const ACORDO_NIVEL_SERVICO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "Os prazos e o percentual de disponibilidade estão em branco de propósito: são compromissos que a empresa precisa conseguir cumprir de fato. Prometer no papel o que a operação não sustenta cria inadimplemento contratual, não credibilidade.",
+            "Os prazos de atendimento estão em branco de propósito: são compromissos que a empresa precisa conseguir cumprir de fato. Prometer no papel o que a operação não sustenta cria inadimplemento contratual, não credibilidade.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "O percentual de disponibilidade não é afirmado por escolha, e não por esquecimento. O provedor de banco de dados utilizado não oferece acordo de nível de serviço de disponibilidade em seus planos correntes — só no plano corporativo. Prometer um índice que o fornecedor da infraestrutura não garante transferiria à contratante um risco disfarçado de garantia. No lugar disso, a contratada oferece o que de fato controla: medir todos os dias, publicar o resultado com o histórico aberto, avisar quando falhar, e deixar a contratante sair sem ônus se falhar demais.",
         },
       ],
     },

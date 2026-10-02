@@ -104,19 +104,101 @@ export const COMPROMISSOS: Compromisso[] = [
     origem: "deduzido",
     fundamento: FUNDAMENTO_INCIDENTE,
   },
-  // ── DAQUI PARA BAIXO, DECISÃO DE NEGÓCIO ──
+  // ── OS PRAZOS DE ATENDIMENTO ──
   //
-  // Ficam NULL de propósito. Preencher por conta própria seria inventar
-  // compromisso em nome de quem vai responder por ele — exatamente o que este
-  // produto não faz com número nenhum.
+  // Vêm preenchidos com valores DIMENSIONADOS PARA UM OPERADOR SÓ, em horário
+  // comercial, que é o que o contrato declara ("dias úteis, das 8h às 18h").
+  // Cada um lê variável de ambiente e pode ser trocado sem deploy.
+  //
+  // A régua foi: prometer o que se cumpre num dia ruim, não num dia bom. Um
+  // prazo que só se cumpre quando tudo corre bem vira inadimplemento na
+  // primeira semana difícil, e inadimplemento em contrato administrativo é
+  // sanção, não desculpa.
+  //
+  // Também ficou explícito no documento o que conta como solução: operação
+  // restabelecida, ainda que por contorno. Sem essa cláusula, "solução em 8
+  // horas úteis" obrigaria a achar a causa raiz dentro do prazo, o que nem
+  // sempre acontece mesmo com o serviço já funcionando.
+  {
+    marcador: "[RESPOSTA CRÍTICA]",
+    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_CRITICA") ?? "4",
+    origem: "decidido",
+    fundamento:
+      "4 horas úteis até a primeira resposta com o serviço inacessível — metade de um dia de " +
+      "trabalho. Prometer uma hora exigiria plantão, que uma operação de uma pessoa não sustenta.",
+  },
+  {
+    marcador: "[SOLUÇÃO CRÍTICA]",
+    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_CRITICA") ?? "8",
+    origem: "decidido",
+    fundamento:
+      "8 horas úteis, um dia de trabalho. Em chamado crítico a causa costuma ser de " +
+      "infraestrutura, e a solução conta com contorno que restabeleça a operação.",
+  },
+  {
+    marcador: "[RESPOSTA ALTA]",
+    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_ALTA") ?? "8",
+    origem: "decidido",
+    fundamento: "8 horas úteis: há alternativa de trabalho, mas a tarefa essencial está parada.",
+  },
+  {
+    marcador: "[SOLUÇÃO ALTA]",
+    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_ALTA") ?? "24",
+    origem: "decidido",
+    fundamento: "24 horas úteis, cerca de três dias de trabalho — prazo de uma correção de código.",
+  },
+  {
+    marcador: "[RESPOSTA MÉDIA]",
+    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_MEDIA") ?? "24",
+    origem: "decidido",
+    fundamento: "24 horas úteis: há alternativa disponível, então a urgência é de registro.",
+  },
+  {
+    marcador: "[SOLUÇÃO MÉDIA]",
+    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_MEDIA") ?? "5",
+    origem: "decidido",
+    fundamento: "5 dias úteis: cabe numa semana de trabalho sem atropelar o que é crítico.",
+  },
+  {
+    marcador: "[RESPOSTA BAIXA]",
+    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_BAIXA") ?? "3",
+    origem: "decidido",
+    fundamento:
+      "3 dias úteis para dúvida de uso ou sugestão. A solução fica 'conforme planejamento' no " +
+      "documento, de propósito: comprometer prazo de melhoria é comprometer o roteiro do produto.",
+  },
+  {
+    marcador: "[PRAZO DE DEVOLUÇÃO]",
+    valor: doAmbiente("NEXT_PUBLIC_PRAZO_DEVOLUCAO") ?? "10",
+    origem: "decidido",
+    fundamento:
+      "10 dias para a entrega formal da base após o fim do contrato. Não há prazo legal fixo, e " +
+      "o número é curto porque a exportação completa já funciona a qualquer momento no próprio " +
+      "painel, sem pedir nada a ninguém — o prazo aqui é o do empacotamento, não o da " +
+      "disponibilidade do dado.",
+  },
+  // ── O PERCENTUAL DE DISPONIBILIDADE É CONDICIONAL, NÃO PENDENTE ──
+  //
+  // Ficam NULL, e isso deixou de ser uma pendência: a cláusula foi reescrita.
+  //
+  // O regime padrão não promete percentual. Promete o que a operação de fato
+  // controla: verificar todo dia, publicar o histórico aberto, avisar quando
+  // falhar e deixar o município sair sem ônus se falhar demais.
+  //
+  // Os dois marcadores continuam no documento porque edital de pregão às vezes
+  // EXIGE percentual contratual de disponibilidade. Quando exigir, basta
+  // definir as duas variáveis e a cláusula condicional passa a valer. Fora
+  // disso, preenchê-las seria transferir ao município um risco disfarçado de
+  // garantia — o provedor de banco não oferece SLA de disponibilidade em
+  // nenhum plano abaixo do corporativo.
   {
     marcador: "[DISPONIBILIDADE]",
     valor: doAmbiente("NEXT_PUBLIC_DISPONIBILIDADE"),
     origem: "decidido",
     fundamento:
-      "Atenção antes de preencher: o Supabase não oferece SLA de disponibilidade nos planos " +
-      "Free, Pro ou Team — só no Enterprise. Prometer um percentual aqui é assumir sozinho um " +
-      "risco que o fornecedor não garante, com multa atrelada no [DESCONTO].",
+      "Condicional, não pendente: só se preenche quando um edital exigir percentual. O Supabase " +
+      "não oferece SLA de disponibilidade nos planos Free, Pro ou Team — só no Enterprise —, " +
+      "então o regime padrão é a verificação diária publicada e a saída sem ônus.",
   },
   {
     marcador: "[DESCONTO]",
@@ -124,58 +206,16 @@ export const COMPROMISSOS: Compromisso[] = [
     origem: "decidido",
     fundamento: "É a penalidade da [DISPONIBILIDADE]. Os dois se decidem juntos ou nenhum dos dois.",
   },
-  {
-    marcador: "[RESPOSTA CRÍTICA]",
-    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_CRITICA"),
-    origem: "decidido",
-    fundamento: "Horas úteis até a primeira resposta quando o serviço está inacessível.",
-  },
-  {
-    marcador: "[SOLUÇÃO CRÍTICA]",
-    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_CRITICA"),
-    origem: "decidido",
-    fundamento: "Horas úteis até a solução de um chamado crítico.",
-  },
-  {
-    marcador: "[RESPOSTA ALTA]",
-    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_ALTA"),
-    origem: "decidido",
-    fundamento: "Horas úteis até a primeira resposta em severidade alta.",
-  },
-  {
-    marcador: "[SOLUÇÃO ALTA]",
-    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_ALTA"),
-    origem: "decidido",
-    fundamento: "Horas úteis até a solução em severidade alta.",
-  },
-  {
-    marcador: "[RESPOSTA MÉDIA]",
-    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_MEDIA"),
-    origem: "decidido",
-    fundamento: "Horas úteis até a primeira resposta em severidade média.",
-  },
-  {
-    marcador: "[SOLUÇÃO MÉDIA]",
-    valor: doAmbiente("NEXT_PUBLIC_SOLUCAO_MEDIA"),
-    origem: "decidido",
-    fundamento: "Dias úteis até a solução em severidade média.",
-  },
-  {
-    marcador: "[RESPOSTA BAIXA]",
-    valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_BAIXA"),
-    origem: "decidido",
-    fundamento: "Dias úteis até a primeira resposta em severidade baixa.",
-  },
-  {
-    marcador: "[PRAZO DE DEVOLUÇÃO]",
-    valor: doAmbiente("NEXT_PUBLIC_PRAZO_DEVOLUCAO"),
-    origem: "decidido",
-    fundamento:
-      "Dias para devolver a base completa ao município depois do fim do contrato. Não há prazo " +
-      "legal fixo, mas a exportação já funciona a qualquer momento pelo próprio painel — o prazo " +
-      "aqui é o da entrega formal, não o da disponibilidade do dado.",
-  },
 ];
+
+/**
+ * Os que ficam em branco por decisão de desenho, e não por falta de decisão.
+ *
+ * A tela de pendências separa os dois: cobrar uma decisão que já foi tomada —
+ * a de não prometer percentual — faria a lista nunca zerar e ensinaria a
+ * ignorá-la.
+ */
+export const CONDICIONAIS = new Set(["[DISPONIBILIDADE]", "[DESCONTO]"]);
 
 /** Mapa marcador → valor, só dos que têm valor. */
 export function valoresDefinidos(): Map<string, string> {
@@ -203,7 +243,13 @@ export function compromissoDe(marcador: string): Compromisso | undefined {
   return COMPROMISSOS.find((c) => c.marcador === marcador);
 }
 
-/** Os que ainda dependem de uma decisão. */
+/**
+ * Os que ainda dependem de uma decisão.
+ *
+ * Exclui os condicionais: não prometer percentual de disponibilidade JÁ é a
+ * decisão. Mantê-los na lista faria ela nunca zerar, e lista que nunca zera é
+ * lista que se aprende a ignorar.
+ */
 export function pendentesDeDecisao(): Compromisso[] {
-  return COMPROMISSOS.filter((c) => !c.valor);
+  return COMPROMISSOS.filter((c) => !c.valor && !CONDICIONAIS.has(c.marcador));
 }

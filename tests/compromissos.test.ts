@@ -75,7 +75,10 @@ describe("o que é decisão de negócio fica em branco", () => {
     expect(c.fundamento).toMatch(/não oferece SLA|sem SLA/i);
   });
 
-  it("nenhum prazo de atendimento vem inventado", () => {
+  it("todo prazo de atendimento tem valor E o porquê dele", () => {
+    // Os prazos foram decididos e vêm preenchidos. O que não pode acontecer é
+    // um número aparecer sem o raciocínio que o sustenta: quem for revisar
+    // precisa poder discordar com base em alguma coisa.
     for (const m of [
       "[RESPOSTA CRÍTICA]",
       "[SOLUÇÃO CRÍTICA]",
@@ -86,9 +89,37 @@ describe("o que é decisão de negócio fica em branco", () => {
       "[RESPOSTA BAIXA]",
       "[PRAZO DE DEVOLUÇÃO]",
     ]) {
-      expect(compromissoDe(m), `${m} não está no catálogo`).toBeDefined();
-      expect(compromissoDe(m)!.valor, `${m} veio preenchido sozinho`).toBeNull();
+      const c = compromissoDe(m);
+      expect(c, `${m} não está no catálogo`).toBeDefined();
+      expect(c!.valor, `${m} sem valor`).not.toBeNull();
+      // O fundamento precisa citar o próprio número, senão não explica ele.
+      expect(c!.fundamento, `${m}: o fundamento não cita o valor`).toContain(c!.valor!);
     }
+  });
+
+  it("nenhum prazo promete o que uma pessoa só não cumpre", () => {
+    // A régua foi prometer o que se cumpre num dia ruim. Primeira resposta em
+    // menos de 4 horas úteis exigiria plantão, e plantão prometido e não
+    // cumprido é sanção em contrato administrativo, não desculpa.
+    expect(Number(compromissoDe("[RESPOSTA CRÍTICA]")!.valor)).toBeGreaterThanOrEqual(4);
+    // E a solução nunca é mais rápida que a primeira resposta.
+    const pares: [string, string][] = [
+      ["[RESPOSTA CRÍTICA]", "[SOLUÇÃO CRÍTICA]"],
+      ["[RESPOSTA ALTA]", "[SOLUÇÃO ALTA]"],
+    ];
+    for (const [resposta, solucao] of pares) {
+      expect(Number(compromissoDe(solucao)!.valor)).toBeGreaterThanOrEqual(
+        Number(compromissoDe(resposta)!.valor)
+      );
+    }
+  });
+
+  it("o documento diz o que conta como solução", () => {
+    // Sem isso, "solução em 8 horas úteis" obrigaria a achar a causa raiz
+    // dentro do prazo — descumprimento mesmo com o serviço já funcionando.
+    const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
+    expect(sla).toMatch(/contorno/);
+    expect(sla).toMatch(/operação é restabelecida/);
   });
 
   it("todo compromisso tem fundamento escrito", () => {
@@ -154,11 +185,44 @@ describe("o kit e o catálogo não divergem", () => {
     for (const m of sumiram) expect(valoresDefinidos().has(m)).toBe(true);
   });
 
-  it("as pendências de decisão são as que não têm valor", () => {
+  it("o percentual de disponibilidade não é pendência: é decisão de não prometer", () => {
+    // Ele fica NULL porque a cláusula foi reescrita, e não porque alguém
+    // esqueceu. Cobrá-lo numa lista de pendências faria a lista nunca zerar —
+    // e lista que nunca zera é lista que se aprende a ignorar.
     const pendentes = pendentesDeDecisao().map((c) => c.marcador);
-    expect(pendentes).toContain("[DISPONIBILIDADE]");
+    expect(pendentes).not.toContain("[DISPONIBILIDADE]");
+    expect(pendentes).not.toContain("[DESCONTO]");
     expect(pendentes).not.toContain("[HOSPEDAGEM]");
     expect(pendentes).not.toContain("[PRAZO DE INCIDENTE]");
+    // Com todos os prazos decididos, não sobra nenhuma pendência de serviço.
+    expect(pendentes).toEqual([]);
+  });
+
+  it("os condicionais continuam no documento, para o dia em que um edital exigir", () => {
+    // Edital de pregão às vezes exige percentual contratual de
+    // disponibilidade. Remover os marcadores tiraria a opção; mantê-los numa
+    // cláusula condicional preserva as duas saídas.
+    const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
+    expect(sla).toContain("[DISPONIBILIDADE]");
+    expect(sla).toContain("[DESCONTO]");
+    expect(sla).toMatch(/Quando o edital.*exigir/);
+  });
+
+  it("o regime padrão promete o que a operação controla", () => {
+    const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
+    // Medir, publicar, avisar e deixar sair.
+    expect(sla).toMatch(/verifica diariamente/);
+    expect(sla).toMatch(/acesso público, sem cadastro/);
+    expect(sla).toMatch(/comunicará a contratante sempre que/);
+    expect(sla).toMatch(/sem multa, sem aviso prévio e sem qualquer ônus/);
+  });
+
+  it("o documento explica por que não há percentual, em vez de omitir", () => {
+    // O silêncio pareceria esquecimento. A explicação transforma a ausência
+    // em argumento.
+    const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
+    expect(sla).toMatch(/não é afirmado por escolha, e não por esquecimento/);
+    expect(sla).toMatch(/risco disfarçado de garantia/);
   });
 });
 

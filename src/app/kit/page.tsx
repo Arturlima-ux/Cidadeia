@@ -8,7 +8,7 @@ import {
   marcadoresDe,
   type Bloco,
 } from "@/lib/kit-contratacao";
-import { COMPROMISSOS } from "@/lib/compromissos";
+import { COMPROMISSOS, CONDICIONAIS } from "@/lib/compromissos";
 import { IconDownload, IconCheck, IconAlertas } from "@/components/icons";
 
 export const metadata = {
@@ -71,9 +71,16 @@ export default function KitPage() {
   // Só os que têm valor: os apurados e os deduzidos da lei.
   const decididos = COMPROMISSOS.filter((c) => c.valor);
 
-  const pendentes = CAMPOS_A_PREENCHER.filter((campo) =>
-    geramos.some((d) => marcadoresDe(d).includes(campo.marcador))
+  // Os condicionais ficam fora: não prometer percentual de disponibilidade JÁ
+  // é a decisão, e a cláusula só se aplica quando um edital exigir. Cobrá-los
+  // aqui faria a lista nunca zerar — e lista que nunca zera se aprende a
+  // ignorar.
+  const pendentes = CAMPOS_A_PREENCHER.filter(
+    (campo) =>
+      !CONDICIONAIS.has(campo.marcador) &&
+      geramos.some((d) => marcadoresDe(d).includes(campo.marcador))
   );
+  const condicionais = CAMPOS_A_PREENCHER.filter((campo) => CONDICIONAIS.has(campo.marcador));
 
   return (
     <div className="tema-noite min-h-screen">
@@ -241,6 +248,14 @@ export default function KitPage() {
                 Aparecem entre colchetes nos modelos. Enquanto estiverem em
                 branco, o processo volta da prefeitura.
               </p>
+              {condicionais.length > 0 && (
+                <p className="text-xs text-muted leading-relaxed mb-4">
+                  Fora desta lista, de propósito:{" "}
+                  {condicionais.map((c) => c.marcador).join(" e ")}. Não são esquecimento — o
+                  acordo de nível de serviço não promete percentual de disponibilidade, e explica
+                  por quê. Esses dois só se preenchem quando um edital exigir índice contratual.
+                </p>
+              )}
               <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
                 {pendentes.map((c) => (
                   <li key={c.marcador} className="text-xs leading-relaxed">

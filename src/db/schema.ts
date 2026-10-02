@@ -1001,3 +1001,28 @@ export const apsResultados = pgTable("aps_resultados", {
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();
+
+// ── MEDIÇÕES DO BANCO ──
+//
+// Uma linha por verificação feita pela rota /api/manter-vivo, que o cron
+// executa todo dia. Serve para publicar disponibilidade APURADA em vez de
+// prometida: o acordo de nível de serviço deixou de afirmar um percentual —
+// que o Supabase não garante em plano nenhum abaixo do Enterprise — e passou a
+// dizer onde a medição é publicada.
+//
+// É a única tabela do sistema sem prefeitura_id, porque a medição é da
+// plataforma inteira e não de um município.
+//
+// Migração: drizzle/0026_medicoes_banco.sql.
+export const medicoesBanco = pgTable("medicoes_banco", {
+  id: text("id").primaryKey(),
+  verificadoEm: text("verificado_em").notNull(),
+  ok: boolean("ok").notNull(),
+  /** Latência em ms. Degradação aparece aqui antes de virar queda. */
+  ms: integer("ms").notNull(),
+  /** Nome do erro quando falhou — nunca a mensagem crua, que traz a conexão. */
+  detalhe: text("detalhe"),
+  origem: text("origem", { enum: ["cron", "manual"] })
+    .notNull()
+    .default("cron"),
+}).enableRLS();
