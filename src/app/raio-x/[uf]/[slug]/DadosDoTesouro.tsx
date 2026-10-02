@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import Link from "next/link";
 import { montarRaioX } from "@/lib/raio-x";
 import RaioXResultado from "@/components/site/RaioXResultado";
@@ -36,6 +37,23 @@ export default async function DadosDoTesouro({
   uf: string;
   codigoIbge: string;
 }) {
+  // ── O PONTO EXATO ONDE O PRERENDER PARA ──
+  //
+  // Sem isto, a rota é gerada como página estática — e página estática é
+  // bufferizada inteira antes de sair. Medido: Content-Length fixo,
+  // X-Vercel-Cache MISS e 2,7s até o primeiro byte, mesmo com o Suspense já
+  // no lugar. O limite existia e não tinha o que segurar.
+  //
+  // connection() diz ao Next que daqui para baixo só roda com a requisição em
+  // mãos. O que está ACIMA deste componente — cabeçalho, população, porte,
+  // vizinhos — deixa de esperar, e este bloco passa a chegar depois.
+  //
+  // O cache do Tesouro é preservado por fetchCache = "default-cache" na
+  // página: sem ele, fetch depois de API de requisição deixaria de ser
+  // cacheado e TODA visita pagaria a consulta — bem pior que o problema
+  // original.
+  await connection();
+
   let resultado: Awaited<ReturnType<typeof montarRaioX>> | null = null;
   try {
     resultado = await montarRaioX(nome, uf);

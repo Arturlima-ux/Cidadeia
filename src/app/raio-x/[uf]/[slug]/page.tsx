@@ -50,7 +50,17 @@ import { NOME_DOS_ESTADOS } from "@/lib/estados";
 //
 // Um dia aqui traz a mudança para o dia seguinte sem nenhuma consulta a
 // mais ao Tesouro: a remontagem reaproveita o dado que já está em cache.
-export const revalidate = 86400; // 1 dia
+// ── O CACHE SAIU DA PÁGINA E FOI PARA O DADO ──
+//
+// Era revalidate = 86400 na página: o HTML inteiro virava artefato estático,
+// e artefato estático não transmite em pedaços. O visitante esperava a
+// consulta ao Tesouro terminar para ver QUALQUER coisa.
+//
+// Agora o que se cacheia é a consulta, que já declara o próprio prazo em
+// lib/siconfi.ts. "default-cache" garante que ela continue cacheada mesmo
+// depois do connection() em DadosDoTesouro — sem isto, toda visita pagaria o
+// Tesouro, que seria pior que o problema que estamos resolvendo.
+export const fetchCache = "default-cache";
 export const dynamicParams = true;
 export const maxDuration = 60;
 
