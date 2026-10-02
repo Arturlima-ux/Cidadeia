@@ -106,6 +106,13 @@ export default function SiteFooter() {
             <Link href="/termos" className="hover:text-white transition">
               Termos de uso
             </Link>
+            {/* O acordo de nível de serviço aponta para esta página em vez de
+                prometer um percentual de disponibilidade. Promessa de
+                publicação que o fiscal do contrato não acha de onde está
+                navegando é promessa pela metade. */}
+            <Link href="/disponibilidade" className="hover:text-white transition">
+              Disponibilidade
+            </Link>
           </div>
         </div>
 

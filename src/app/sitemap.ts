@@ -27,6 +27,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/acessibilidade`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/por-que-cidadeia`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/transparencia`, changeFrequency: "weekly", priority: 0.5 },
+    // Muda todo dia porque uma verificação é registrada todo dia, e o acordo
+    // de nível de serviço aponta para cá em vez de prometer um percentual.
+    { url: `${BASE}/disponibilidade`, changeFrequency: "daily", priority: 0.5 },
     ...PLANOS_ADDON.map((p) => ({
       url: `${BASE}/modulos/${p.chave}`,
       changeFrequency: "monthly" as const,

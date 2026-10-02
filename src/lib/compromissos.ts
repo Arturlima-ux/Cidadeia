@@ -17,6 +17,8 @@
 // A regra é a mesma de lib/empresa.ts: enquanto o dado não existir, ele não
 // aparece. Nada é inventado e nada é fingido.
 
+import { linkApp } from "@/lib/url-app";
+
 export type OrigemCompromisso = "apurado" | "deduzido" | "decidido";
 
 export type Compromisso = {
@@ -84,6 +86,20 @@ export const FUNDAMENTO_INCIDENTE =
 const doAmbiente = (nome: string) => process.env[nome]?.trim() || null;
 
 /**
+ * O endereço da página de disponibilidade, só quando é público de verdade.
+ *
+ * urlApp() devolve http://localhost:3000 quando APP_URL não está configurada,
+ * e uma minuta de contrato que manda o jurídico da prefeitura abrir
+ * "localhost" é pior que uma com o campo visivelmente em branco. Sem endereço
+ * público, o marcador fica e vira pendência — que é o comportamento certo,
+ * porque a cláusula realmente não pode ser cumprida sem ele.
+ */
+function enderecoPublicoDaDisponibilidade(): string | null {
+  const url = linkApp("/disponibilidade");
+  return /^https:\/\//.test(url) && !/localhost|127\.0\.0\.1/.test(url) ? url : null;
+}
+
+/**
  * O catálogo completo, com origem e fundamento de cada um.
  *
  * Os `decidido` leem variável de ambiente para poderem ser preenchidos em
@@ -103,6 +119,19 @@ export const COMPROMISSOS: Compromisso[] = [
     valor: doAmbiente("NEXT_PUBLIC_PRAZO_INCIDENTE") ?? PRAZO_INCIDENTE,
     origem: "deduzido",
     fundamento: FUNDAMENTO_INCIDENTE,
+  },
+  {
+    // ── A CLÁUSULA PRECISA DIZER ONDE ──
+    //
+    // "Publicado em página de acesso público" sem endereço é promessa que o
+    // fiscal do contrato não consegue exercer. O endereço sai do ambiente,
+    // pelo mesmo APP_URL que os e-mails usam.
+    marcador: "[PÁGINA DE DISPONIBILIDADE]",
+    valor: enderecoPublicoDaDisponibilidade(),
+    origem: "apurado",
+    fundamento:
+      "Endereço da página onde o histórico de verificações é publicado. Sai de APP_URL, a mesma " +
+      "variável que monta os links dos e-mails.",
   },
   // ── OS PRAZOS DE ATENDIMENTO ──
   //

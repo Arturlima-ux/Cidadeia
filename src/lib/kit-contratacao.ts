@@ -71,6 +71,7 @@ export const CAMPOS_A_PREENCHER = [
   { marcador: "[DESCONTO]", descricao: "Desconto na fatura quando a disponibilidade mínima não é atingida" },
   { marcador: "[PRAZO DE DEVOLUÇÃO]", descricao: "Dias para devolver a base completa após o fim do contrato" },
   { marcador: "[PRAZO DE INCIDENTE]", descricao: "Prazo para comunicar incidente de segurança ao município (LGPD, art. 48)" },
+  { marcador: "[PÁGINA DE DISPONIBILIDADE]", descricao: "Endereço público onde o histórico de verificações é publicado" },
 ] as const;
 
 const AVISO_JURIDICO =
@@ -557,7 +558,7 @@ const ACORDO_NIVEL_SERVICO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "A contratada verifica diariamente, por rotina automática, se o banco de dados responde, e registra o resultado e o tempo de resposta. O histórico completo dessas verificações é publicado em página de acesso público, sem cadastro, incluindo os dias em que houve falha.",
+            "A contratada verifica diariamente, por rotina automática, se o banco de dados responde, e registra o resultado e o tempo de resposta. O histórico completo dessas verificações é publicado em [PÁGINA DE DISPONIBILIDADE], página de acesso público e sem cadastro, incluindo os dias em que houve falha.",
         },
         {
           tipo: "paragrafo",

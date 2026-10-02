@@ -194,8 +194,22 @@ describe("o kit e o catálogo não divergem", () => {
     expect(pendentes).not.toContain("[DESCONTO]");
     expect(pendentes).not.toContain("[HOSPEDAGEM]");
     expect(pendentes).not.toContain("[PRAZO DE INCIDENTE]");
-    // Com todos os prazos decididos, não sobra nenhuma pendência de serviço.
-    expect(pendentes).toEqual([]);
+
+    // Com todos os prazos decididos, a ÚNICA pendência que pode sobrar é o
+    // endereço da página de disponibilidade — e só quando APP_URL não está
+    // configurada, como acontece no ambiente de teste. É de propósito: uma
+    // minuta que manda o jurídico da prefeitura abrir "localhost" é pior que
+    // uma com o campo visivelmente em branco.
+    expect(pendentes.filter((m) => m !== "[PÁGINA DE DISPONIBILIDADE]")).toEqual([]);
+  });
+
+  it("o endereço da disponibilidade não cai em localhost", () => {
+    const c = compromissoDe("[PÁGINA DE DISPONIBILIDADE]")!;
+    if (c.valor !== null) {
+      expect(c.valor).toMatch(/^https:\/\//);
+      expect(c.valor).not.toMatch(/localhost|127\.0\.0\.1/);
+      expect(c.valor).toContain("/disponibilidade");
+    }
   });
 
   it("os condicionais continuam no documento, para o dia em que um edital exigir", () => {
@@ -212,7 +226,10 @@ describe("o kit e o catálogo não divergem", () => {
     const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
     // Medir, publicar, avisar e deixar sair.
     expect(sla).toMatch(/verifica diariamente/);
-    expect(sla).toMatch(/acesso público, sem cadastro/);
+    expect(sla).toMatch(/acesso público e sem cadastro/);
+    // E a cláusula diz ONDE: promessa de publicação sem endereço é promessa
+    // que o fiscal do contrato não consegue exercer.
+    expect(sla).toMatch(/\[PÁGINA DE DISPONIBILIDADE\]|https:\/\//);
     expect(sla).toMatch(/comunicará a contratante sempre que/);
     expect(sla).toMatch(/sem multa, sem aviso prévio e sem qualquer ônus/);
   });
