@@ -17,6 +17,9 @@ const ROTAS_RESTRITAS_A_PREFEITO_ADMIN = [
   "/dashboard/modulos",
   "/dashboard/central",
   "/dashboard/eficacia",
+  // A prestação de contas cruza educação, saúde, FUNDEB, folha e portal: é a
+  // prefeitura inteira numa tela, não a secretaria de quem entrou.
+  "/dashboard/prestacao",
 ];
 
 const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"];

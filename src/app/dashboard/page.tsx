@@ -103,6 +103,20 @@ export default async function DashboardPage() {
           o que precisava de ação ficava numa tela separada que ninguém abria. */}
       <PainelAtencao achados={achados} />
 
+      {/* A lista acima é o que se decide HOJE. O que o Tribunal de Contas
+          julga no fim do exercício é outra pergunta, e ela tem tela própria —
+          esta linha é a ponte, porque um prefeito não adivinha que existe uma
+          sétima entrada no menu que responde se o mandato está em risco. */}
+      <Link
+        href="/dashboard/prestacao"
+        className="group inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark transition"
+      >
+        Ver a prestação de contas do exercício
+        <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
+          →
+        </span>
+      </Link>
+
       <InsightIA
         acao={gerarInsightIA}
         modulo="geral"

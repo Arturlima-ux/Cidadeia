@@ -121,6 +121,10 @@ function montarGrupos(
     grupos.push({
       titulo: "Gestão",
       itens: [
+        // Primeiro item do grupo de propósito: é a tela que responde se o
+        // mandato está em risco, e as outras do grupo são as frentes dela
+        // vistas de perto.
+        { href: "/dashboard/prestacao", label: "Prestação de contas", icone: "visao-geral" },
         { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },
         { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
         { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },

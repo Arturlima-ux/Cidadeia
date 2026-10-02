@@ -37,6 +37,9 @@ import {
   dashboardSnapshots,
   alertas,
   configPublica,
+  basesMinimos,
+  despesaPessoal,
+  publicacoes,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { serializarPlanos, PLANOS_ADDON } from "@/lib/planos";
@@ -49,7 +52,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-09-23-educacao-resultado";
+const VERSAO_DEMO = "2026-10-02-prestacao-de-contas";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -328,6 +331,54 @@ export async function garantirPrefeituraDemo(): Promise<void> {
   await db.insert(dashboardSnapshots).values([
     { id: "demo_snap_0", prefeituraId: ID_PREFEITURA_DEMO, receita: 510_000, despesas: 462_000, saldo: 48_000, indiceTransparencia: 78, atualizadoEm: diasAtras(60) },
     { id: "demo_snap_1", prefeituraId: ID_PREFEITURA_DEMO, receita: 482_000, despesas: 566_000, saldo: -84_000, indiceTransparencia: 78, atualizadoEm: diasAtras(3) },
+  ]);
+
+  // ── PRESTAÇÃO DE CONTAS: O CASO QUE ENSINA ──
+  //
+  // A tela de prestação de contas junta as seis frentes que o Tribunal julga,
+  // e estes números existem para mostrar o caso que ninguém vê sozinho: a
+  // educação FECHA os 25% do art. 212 com folga — número grande, verde — e ao
+  // mesmo tempo o piso do FUNDEB está descumprido, porque ali não se pergunta
+  // quanto foi para o ensino, e sim quanto do fundo virou remuneração de
+  // profissional da educação básica. É o erro que passa justamente porque o
+  // indicador principal está tranquilo.
+  //
+  // O mês de referência é sempre o anterior ao de hoje, nunca um mês fixo: com
+  // mês fixo a demonstração envelheceria sozinha e, passada a tolerância de
+  // defasagem, os cartões virariam "sem dado lançado" no meio de uma reunião
+  // de venda — dizendo a verdade sobre um dado que só estava velho porque a
+  // demo não foi atualizada.
+  const exercicioDemo = new Date().getUTCFullYear();
+  const mesAtualDemo = new Date().getUTCMonth() + 1;
+  const mesDemo = Math.max(1, mesAtualDemo - 1);
+  const baseImpostos = 18_000_000;
+  await db.insert(basesMinimos).values([
+    // 26,0% — acima dos 25% exigidos.
+    { id: "demo_min_edu", prefeituraId: ID_PREFEITURA_DEMO, exercicio: exercicioDemo, area: "educacao", baseCalculo: baseImpostos, aplicado: 4_680_000, mesReferencia: mesDemo, origemAplicado: "manual", atualizadoEm: diasAtras(12) },
+    // 14,5% — meio ponto abaixo dos 15%, e ainda dá para empenhar.
+    { id: "demo_min_sau", prefeituraId: ID_PREFEITURA_DEMO, exercicio: exercicioDemo, area: "saude", baseCalculo: baseImpostos, aplicado: 2_610_000, mesReferencia: mesDemo, origemAplicado: "manual", atualizadoEm: diasAtras(12) },
+    // 65,0% dos recursos do fundo — o piso é 70% desde a EC 108/2020.
+    { id: "demo_min_fun", prefeituraId: ID_PREFEITURA_DEMO, exercicio: exercicioDemo, area: "fundeb", baseCalculo: 6_400_000, aplicado: 4_160_000, mesReferencia: mesDemo, origemAplicado: "manual", atualizadoEm: diasAtras(12) },
+  ]);
+
+  // 52,0% da RCL: dentro do teto de 54%, mas acima do patamar prudencial de
+  // 51,3%. É a faixa em que o prefeito ainda está legal e já não nomeia — a
+  // distinção que a tela de prestação de contas escreve por extenso.
+  await db.insert(despesaPessoal).values({
+    id: "demo_pessoal", prefeituraId: ID_PREFEITURA_DEMO, exercicio: exercicioDemo, mesReferencia: mesDemo, rcl: 24_000_000, despesa: 12_480_000, origem: "manual", atualizadoEm: diasAtras(20),
+  });
+
+  // As quatro exigências de conteúdo da LAI, publicadas: é a frente verde da
+  // lista. Uma tela de conformidade em que tudo está vermelho não ensina a ler
+  // a diferença entre o que foi cumprido e o que falta.
+  const pub = (id: string, tipo: "servico" | "estrutura" | "faq" | "repasse", titulo: string, conteudo: string, extra: Record<string, string> = {}) => ({
+    id, prefeituraId: ID_PREFEITURA_DEMO, tipo, titulo, conteudo, publicado: true, atualizadoEm: diasAtras(25), ...extra,
+  });
+  await db.insert(publicacoes).values([
+    pub("demo_pub_serv", "servico", "Segunda via do IPTU", "Emissão na Secretaria de Finanças ou pelo portal.", { requisitos: "CPF e número da inscrição imobiliária.", prazo: "No mesmo dia.", contato: "financas@vilanova.demo" }),
+    pub("demo_pub_estr", "estrutura", "Secretaria de Saúde", "Rua das Flores, 120 · segunda a sexta, 7h às 13h.", { contato: "saude@vilanova.demo" }),
+    pub("demo_pub_faq", "faq", "Como marcar consulta na UBS?", "Pela própria unidade, de segunda a sexta, a partir das 7h."),
+    pub("demo_pub_rep", "repasse", "Repasses recebidos no exercício", "FUNDEB, PNAE, PAB e Piso de Vigilância, detalhados por competência."),
   ]);
 
   await db.insert(alertas).values([
