@@ -22,8 +22,14 @@ export type Projecao = {
 
 const MINIMO_REGISTROS_PARA_PROJETAR = 3;
 
-/** Regressão linear (mínimos quadrados) em pontos (x,y). */
-function regressaoLinear(pontos: { x: number; y: number }[]) {
+/**
+ * Regressão linear (mínimos quadrados) em pontos (x,y).
+ *
+ * Exportada porque lib/antecipacao.ts precisa da MESMA reta para medir ritmo:
+ * duas implementações do mesmo ajuste seriam duas verdades sobre o mesmo
+ * histórico, e a que ninguém olha é a que sai de sincronia.
+ */
+export function regressaoLinear(pontos: { x: number; y: number }[]) {
   const n = pontos.length;
   const somaX = pontos.reduce((s, p) => s + p.x, 0);
   const somaY = pontos.reduce((s, p) => s + p.y, 0);

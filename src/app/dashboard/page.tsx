@@ -14,6 +14,8 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "./insight-actions";
 import { fusoDoEstado, saudacao, dataPorExtenso } from "@/lib/horario";
 import PainelAtencao from "@/components/PainelAtencao";
+import PainelAntecipacao from "@/components/PainelAntecipacao";
+import { antecipacoesDaPrefeitura } from "@/lib/antecipacoes-da-prefeitura";
 import { gerarDeteccoesAutomaticas } from "@/lib/ia";
 
 // A saudação e a data saem de lib/horario.ts, no fuso do estado da
@@ -37,7 +39,7 @@ export default async function DashboardPage() {
   //
   // As detecções entram junto: elas passaram a ABRIR o painel, e carregá-las
   // depois faria a lista mais importante da tela ser a última a aparecer.
-  const [historico, todosAlertas, achados] = await Promise.all([
+  const [historico, todosAlertas, achados, antecipacoes] = await Promise.all([
     buscarHistoricoSnapshots(sessao.prefeituraId),
     buscarAlertas(sessao.prefeituraId),
     gerarDeteccoesAutomaticas(sessao.prefeituraId, {
@@ -47,6 +49,14 @@ export default async function DashboardPage() {
       // Falha na detecção não pode derrubar o painel inteiro: o resto da tela
       // continua útil, e a seção mostra o estado vazio em vez de erro.
       console.error("[Painel] falha nas detecções:", e);
+      return [];
+    }),
+    // Antecipações entram no mesmo Promise.all: são duas consultas curtas, e
+    // em sequência atrasariam a lista de decisões, que é a primeira coisa da
+    // tela. Falha não derruba o painel — a seção some, como quando não há
+    // histórico suficiente.
+    antecipacoesDaPrefeitura(sessao.prefeituraId).catch((e) => {
+      console.error("[Painel] falha nas antecipações:", e);
       return [];
     }),
   ]);
@@ -102,6 +112,11 @@ export default async function DashboardPage() {
           receita e despesas — números que dizem como ESTÁ, não o que fazer —, e
           o que precisava de ação ficava numa tela separada que ninguém abria. */}
       <PainelAtencao achados={achados} />
+
+      {/* Logo depois do que exige decisão hoje, e antes do financeiro: o que
+          ainda não aconteceu vale mais que o retrato de como está, e menos que
+          o que já está pedindo decisão. */}
+      <PainelAntecipacao antecipacoes={antecipacoes} />
 
       {/* A lista acima é o que se decide HOJE. O que o Tribunal de Contas
           julga no fim do exercício é outra pergunta, e ela tem tela própria —

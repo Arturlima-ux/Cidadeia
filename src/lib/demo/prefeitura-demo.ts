@@ -52,7 +52,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-10-02-prestacao-de-contas";
+const VERSAO_DEMO = "2026-10-02-antecipacao";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -364,9 +364,41 @@ export async function garantirPrefeituraDemo(): Promise<void> {
   // 52,0% da RCL: dentro do teto de 54%, mas acima do patamar prudencial de
   // 51,3%. É a faixa em que o prefeito ainda está legal e já não nomeia — a
   // distinção que a tela de prestação de contas escreve por extenso.
-  await db.insert(despesaPessoal).values({
-    id: "demo_pessoal", prefeituraId: ID_PREFEITURA_DEMO, exercicio: exercicioDemo, mesReferencia: mesDemo, rcl: 24_000_000, despesa: 12_480_000, origem: "manual", atualizadoEm: diasAtras(20),
-  });
+  // Seis apurações quadrimestrais, do mais antigo ao mais novo, subindo de
+  // 46,9% para 52,0% da receita. Não é enfeite de histórico: é o que faz a
+  // antecipação existir.
+  //
+  // Uma apuração só diz "você está no patamar prudencial" — e o produto já
+  // dizia isso. Seis dizem que a trajetória sobe cerca de um quarto de ponto
+  // por mês e que o TETO legal está a uns oito meses, enquanto ainda dá para
+  // rever folha. É a diferença entre o aviso que chega e o aviso que chega a
+  // tempo, e ela só aparece com série.
+  //
+  // Os períodos recuam de quatro em quatro meses a partir do mês de
+  // referência de hoje, nunca de meses fixos: com meses fixos, a cada virada
+  // de ano dois deles cairiam no mesmo (exercício, mês) e o índice único da
+  // tabela rejeitaria a demo inteira.
+  const PCT_PESSOAL = [46.9, 48.0, 49.3, 50.4, 51.1, 52.0];
+  const RCL_PESSOAL = [22_200_000, 22_600_000, 23_000_000, 23_400_000, 23_700_000, 24_000_000];
+  const indiceDoMesDemo = exercicioDemo * 12 + (mesDemo - 1);
+  await db.insert(despesaPessoal).values(
+    PCT_PESSOAL.map((pct, k) => {
+      // k = 0 é o mais antigo; o último da lista é o mês de referência de hoje.
+      const passosAtras = PCT_PESSOAL.length - 1 - k;
+      const i = indiceDoMesDemo - 4 * passosAtras;
+      const rcl = RCL_PESSOAL[k]!;
+      return {
+        id: `demo_pessoal_${k}`,
+        prefeituraId: ID_PREFEITURA_DEMO,
+        exercicio: Math.floor(i / 12),
+        mesReferencia: (i % 12) + 1,
+        rcl,
+        despesa: Math.round((rcl * pct) / 100),
+        origem: "manual" as const,
+        atualizadoEm: diasAtras(20 + passosAtras * 120),
+      };
+    })
+  );
 
   // As quatro exigências de conteúdo da LAI, publicadas: é a frente verde da
   // lista. Uma tela de conformidade em que tudo está vermelho não ensina a ler
