@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verificarTokenSessao } from "@/lib/sessao";
 import { deveForcarHttps } from "@/lib/forcar-https";
+import { deveCorrigirCaminho } from "@/lib/url-colada";
 import { decidirNaDemo, ROTAS_DE_DOWNLOAD } from "@/lib/demo/regras";
 
 const NOME_COOKIE = "cidadeia_sessao";
@@ -44,6 +45,19 @@ export default async function proxy(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.protocol = "https:";
+    return NextResponse.redirect(url, 308);
+  }
+
+  // ── LINK COLADO COM PONTUAÇÃO GRUDADA ──
+  //
+  // Antes de qualquer lógica de sessão: um endereço que chegou com o ponto
+  // final da frase junto não é um pedido inválido, é um pedido válido mal
+  // copiado. Ver lib/url-colada.ts — num produto que se vende mandando link
+  // por mensagem, esse 404 é o lead que não chegou na tela.
+  const corrigido = deveCorrigirCaminho(request.method, pathname);
+  if (corrigido !== null) {
+    const url = request.nextUrl.clone();
+    url.pathname = corrigido;
     return NextResponse.redirect(url, 308);
   }
 
