@@ -8,7 +8,7 @@ import {
   marcadoresDe,
   type Bloco,
 } from "@/lib/kit-contratacao";
-import { COMPROMISSOS, CONDICIONAIS } from "@/lib/compromissos";
+import { COMPROMISSOS, CONDICIONAIS, POR_CONTRATO } from "@/lib/compromissos";
 import { IconDownload, IconCheck, IconAlertas } from "@/components/icons";
 
 export const metadata = {
@@ -78,9 +78,11 @@ export default function KitPage() {
   const pendentes = CAMPOS_A_PREENCHER.filter(
     (campo) =>
       !CONDICIONAIS.has(campo.marcador) &&
+      !POR_CONTRATO.has(campo.marcador) &&
       geramos.some((d) => marcadoresDe(d).includes(campo.marcador))
   );
   const condicionais = CAMPOS_A_PREENCHER.filter((campo) => CONDICIONAIS.has(campo.marcador));
+  const porContrato = CAMPOS_A_PREENCHER.filter((campo) => POR_CONTRATO.has(campo.marcador));
 
   return (
     <div className="tema-noite min-h-screen">
@@ -249,11 +251,18 @@ export default function KitPage() {
                 branco, o processo volta da prefeitura.
               </p>
               {condicionais.length > 0 && (
-                <p className="text-xs text-muted leading-relaxed mb-4">
+                <p className="text-xs text-muted leading-relaxed mb-3">
                   Fora desta lista, de propósito:{" "}
                   {condicionais.map((c) => c.marcador).join(" e ")}. Não são esquecimento — o
                   acordo de nível de serviço não promete percentual de disponibilidade, e explica
                   por quê. Esses dois só se preenchem quando um edital exigir índice contratual.
+                </p>
+              )}
+              {porContrato.length > 0 && (
+                <p className="text-xs text-muted leading-relaxed mb-4">
+                  Também fora: {porContrato.map((c) => c.marcador).join(" e ")}. Esta página é
+                  genérica — sem município não há valor. Eles são calculados pela tabela de preços
+                  assim que há um pedido, e o modelo já sai com eles preenchidos.
                 </p>
               )}
               <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2">

@@ -7,6 +7,8 @@ import {
   valoresDefinidos,
   pendentesDeDecisao,
   compromissoDe,
+  CONDICIONAIS,
+  POR_CONTRATO,
 } from "@/lib/compromissos";
 import {
   CAMPOS_A_PREENCHER,
@@ -299,6 +301,62 @@ describe("a unidade não pode sair dobrada", () => {
       for (const [m, v] of Object.entries(exemplos)) texto = texto.split(m).join(v);
       const repetida = texto.match(/\b([a-zà-ú]{3,})[ \t]+\1\b/i);
       expect(repetida, `${d.chave}: "${repetida?.[0]}"`).toBeNull();
+    }
+  });
+});
+
+describe("a classificação final das pendências", () => {
+  // Três baldes, e cada um por uma razão diferente:
+  //
+  //   pendente     falta alguém prover (empresa constituída, domínio).
+  //   condicional  a decisão JÁ foi tomada — não prometer percentual.
+  //   por contrato o sistema calcula sozinho quando há um pedido.
+  //
+  // Misturá-los faria a lista nunca zerar, e lista que nunca zera se aprende
+  // a ignorar. Foi assim que o SLA ficou com dez campos invisíveis.
+
+  const geramos = DOCUMENTOS.filter((d) => d.geramos).map(documentoPreenchido);
+  const pendentes = CAMPOS_A_PREENCHER.filter(
+    (c) =>
+      !CONDICIONAIS.has(c.marcador) &&
+      !POR_CONTRATO.has(c.marcador) &&
+      geramos.some((d) => marcadoresDe(d).includes(c.marcador))
+  ).map((c) => c.marcador);
+
+  it("o que sobra depende de empresa constituída ou de domínio próprio", () => {
+    const daEmpresa = [
+      "[RAZÃO SOCIAL]",
+      "[CNPJ]",
+      "[ENDEREÇO]",
+      "[REPRESENTANTE LEGAL]",
+      "[TELEFONE]",
+      "[E-MAIL DE SUPORTE]",
+    ];
+    // O endereço da página de disponibilidade entra só quando APP_URL não
+    // está configurada, o que é o caso no ambiente de teste.
+    const permitidos = new Set([...daEmpresa, "[PÁGINA DE DISPONIBILIDADE]"]);
+    for (const m of pendentes) {
+      expect(permitidos, `${m} virou pendência e não deveria`).toContain(m);
+    }
+  });
+
+  it("nenhum prazo de atendimento sobrou na lista", () => {
+    for (const m of pendentes) {
+      expect(m).not.toMatch(/RESPOSTA|SOLUÇÃO|PRAZO DE DEVOLUÇÃO|HOSPEDAGEM|INCIDENTE/);
+    }
+  });
+
+  it("os três baldes não se sobrepõem", () => {
+    for (const m of CONDICIONAIS) expect(POR_CONTRATO.has(m)).toBe(false);
+    for (const m of POR_CONTRATO) expect(CONDICIONAIS.has(m)).toBe(false);
+    for (const m of [...CONDICIONAIS, ...POR_CONTRATO]) expect(pendentes).not.toContain(m);
+  });
+
+  it("todo campo de outro balde existe no catálogo do kit", () => {
+    // Balde com marcador que nenhum documento usa seria exceção aberta à toa.
+    const catalogados = new Set(CAMPOS_A_PREENCHER.map((c) => c.marcador));
+    for (const m of [...CONDICIONAIS, ...POR_CONTRATO]) {
+      expect(catalogados, `${m} não está em CAMPOS_A_PREENCHER`).toContain(m);
     }
   });
 });

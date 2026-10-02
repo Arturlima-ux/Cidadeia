@@ -246,6 +246,18 @@ export const COMPROMISSOS: Compromisso[] = [
  */
 export const CONDICIONAIS = new Set(["[DISPONIBILIDADE]", "[DESCONTO]"]);
 
+/**
+ * Campos que não dependem de decisão nenhuma: saem do pedido.
+ *
+ * A página /kit é pública e genérica — não há município, então não há valor. O
+ * valor existe na tabela de preços e é calculado assim que alguém pede
+ * proposta, e o kit baixado em /admin/pedidos já sai com ele.
+ *
+ * Cobrá-los como pendência na página pública seria pedir a alguém que
+ * preencha à mão o que o sistema calcula sozinho.
+ */
+export const POR_CONTRATO = new Set(["[VALOR MENSAL]", "[VALOR ANUAL]"]);
+
 /** Mapa marcador → valor, só dos que têm valor. */
 export function valoresDefinidos(): Map<string, string> {
   const m = new Map<string, string>();
