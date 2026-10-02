@@ -1,4 +1,7 @@
+import { Suspense } from "react";
 import Link from "next/link";
+import DadosDoTesouro from "./DadosDoTesouro";
+import EsqueletoRaioX from "@/components/site/EsqueletoRaioX";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -87,13 +90,6 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
     .sort((a, b) => Math.abs((a.populacao ?? 0) - (m.populacao ?? 0)) - Math.abs((b.populacao ?? 0) - (m.populacao ?? 0)))
     .slice(0, 6);
 
-  let resultado: Awaited<ReturnType<typeof montarRaioX>> | null = null;
-  try {
-    resultado = await montarRaioX(m.nome, m.uf);
-  } catch (e) {
-    console.error(`[raio-x/${m.uf}/${slug}] Tesouro não respondeu:`, e);
-  }
-
   return (
     <div className="tema-noite min-h-screen">
       <JsonLdScript
@@ -125,26 +121,17 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
           </Reveal>
         </section>
 
+        {/* ── O QUE ESPERA O TESOURO FICA SOZINHO ESPERANDO ──
+            A página inteira aguardava a consulta antes de pintar qualquer
+            coisa: 2 a 5 segundos de tela branca na primeira visita de cada
+            município, que é quase todo visitante vindo de busca.
+
+            Acima deste ponto nada depende da rede — nome, população e porte
+            saem de dado local. O limite de Suspense entra aqui, e só aqui. */}
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
-          <Reveal delay={100}>
-            {resultado?.ok ? (
-              <RaioXResultado raioX={resultado.raioX} />
-            ) : (
-              <div className="border border-border rounded-2xl p-6" style={{ background: "var(--card)" }}>
-                <h2 className="font-serif text-lg font-bold">O Tesouro não respondeu agora</h2>
-                <p className="text-sm text-muted mt-2 leading-relaxed max-w-[62ch]">
-                  {resultado && !resultado.ok
-                    ? resultado.erro
-                    : "A consulta ao SICONFI falhou nesta visita. Os números de " +
-                      m.nome +
-                      " aparecem aqui assim que o serviço responder — a página é refeita automaticamente."}
-                </p>
-                <Link href="/raio-x" className="inline-block mt-4 text-sm font-semibold text-brand hover:underline">
-                  Consultar de novo agora →
-                </Link>
-              </div>
-            )}
-          </Reveal>
+          <Suspense fallback={<EsqueletoRaioX nome={m.nome} />}>
+            <DadosDoTesouro nome={m.nome} uf={m.uf} codigoIbge={m.codigo} />
+          </Suspense>
         </section>
 
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
@@ -152,27 +139,6 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             <CapturaLeadRaioX codigoIbge={m.codigo} municipio={m.nome} />
           </Reveal>
         </section>
-
-        {/* ── do diagnóstico para a solução: cada achado puxa o módulo que o trata ── */}
-        {resultado?.ok && (
-          <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-14">
-            <Reveal>
-              <SolucoesDoRaioX
-                entrada={{
-                  municipio: resultado.raioX.municipio,
-                  codigoIbge: resultado.raioX.codigoIbge,
-                  receita: resultado.raioX.receita.valor,
-                  despesaSaude: resultado.raioX.despesaSaude.valor,
-                  despesaEducacao: resultado.raioX.despesaEducacao.valor,
-                  despesaObras: resultado.raioX.despesaObras.valor,
-                  rreoFaltando: resultado.raioX.rreoFaltando,
-                  rreoEsperados: resultado.raioX.rreoEsperados,
-                  bimestreReferencia: resultado.raioX.bimestreReferencia,
-                }}
-              />
-            </Reveal>
-          </section>
-        )}
 
         {/* ── A SEÇÃO QUE MORAVA AQUI ──
             "O que não aparece em base pública": o mesmo argumento da seção
