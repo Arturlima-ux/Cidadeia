@@ -41,7 +41,8 @@ describe("o que a lei determina vem deduzido", () => {
     // o município perderia o prazo dele no mesmo instante — o relógio dele só
     // começa quando ele sabe.
     expect(PRAZO_INCIDENTE).toMatch(/24/);
-    expect(PRAZO_INCIDENTE).toMatch(/horas/);
+    // A unidade NÃO vem no valor: a cláusula já diz "em até [...] horas".
+    expect(PRAZO_INCIDENTE).not.toMatch(/horas/);
   });
 
   it("o fundamento cita a norma, para o jurídico conferir", () => {
@@ -158,5 +159,65 @@ describe("o kit e o catálogo não divergem", () => {
     expect(pendentes).toContain("[DISPONIBILIDADE]");
     expect(pendentes).not.toContain("[HOSPEDAGEM]");
     expect(pendentes).not.toContain("[PRAZO DE INCIDENTE]");
+  });
+});
+
+describe("a unidade não pode sair dobrada", () => {
+  // ── O DEFEITO QUE ISTO IMPEDE, E QUE CHEGOU A PRODUÇÃO ──
+  //
+  // O primeiro valor do prazo de incidente foi "24 (vinte e quatro) horas", e a
+  // cláusula já dizia "em até [PRAZO DE INCIDENTE] horas da ciência". O
+  // documento saiu com "em até 24 (vinte e quatro) horas horas da ciência" — e
+  // é esse texto que vai ao jurídico da prefeitura.
+  //
+  // A convenção é: a unidade mora no DOCUMENTO e o valor é nu. A tabela de
+  // severidade diz "[RESPOSTA CRÍTICA] horas úteis", o prazo de devolução diz
+  // "em até [PRAZO DE DEVOLUÇÃO] dias". Se o valor trouxesse a unidade, todos
+  // dobrariam do mesmo jeito.
+
+  it("nenhum valor definido termina com a unidade que a cláusula já tem", () => {
+    for (const c of COMPROMISSOS) {
+      if (!c.valor) continue;
+      expect(c.valor, `${c.marcador} repete a unidade`).not.toMatch(
+        /\b(horas?|dias?|dias úteis|horas úteis)\s*$/i
+      );
+    }
+  });
+
+  it("nenhum documento preenchido tem palavra repetida em sequência", () => {
+    // Pega a classe inteira, e não só o caso conhecido: qualquer valor que
+    // duplique a palavra seguinte aparece aqui.
+    for (const d of DOCUMENTOS) {
+      const texto = textoCorrido(documentoPreenchido(d));
+      // Só dentro da MESMA linha: textoCorrido junta blocos distintos com
+      // quebra, e um cabeçalho "Severidade" logo abaixo de um título que
+      // termina em "severidade" não é dobra nenhuma.
+      const repetida = texto.match(/\b([a-zà-ú]{3,})[ \t]+\1\b/i);
+      expect(repetida, `${d.chave}: "${repetida?.[0]}"`).toBeNull();
+    }
+  });
+
+  it("vale também com os compromissos que ainda não foram decididos", () => {
+    // Simula o dia em que todos estiverem preenchidos: a mesma dobra
+    // aconteceria na tabela de severidade se alguém escrevesse "4 horas úteis"
+    // na variável de ambiente em vez de "4".
+    const exemplos: Record<string, string> = {
+      "[DISPONIBILIDADE]": "99,5%",
+      "[DESCONTO]": "5%",
+      "[RESPOSTA CRÍTICA]": "4",
+      "[SOLUÇÃO CRÍTICA]": "8",
+      "[RESPOSTA ALTA]": "8",
+      "[SOLUÇÃO ALTA]": "24",
+      "[RESPOSTA MÉDIA]": "24",
+      "[SOLUÇÃO MÉDIA]": "5",
+      "[RESPOSTA BAIXA]": "3",
+      "[PRAZO DE DEVOLUÇÃO]": "30",
+    };
+    for (const d of DOCUMENTOS) {
+      let texto = textoCorrido(documentoPreenchido(d));
+      for (const [m, v] of Object.entries(exemplos)) texto = texto.split(m).join(v);
+      const repetida = texto.match(/\b([a-zà-ú]{3,})[ \t]+\1\b/i);
+      expect(repetida, `${d.chave}: "${repetida?.[0]}"`).toBeNull();
+    }
   });
 });

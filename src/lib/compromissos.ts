@@ -65,7 +65,16 @@ export const HOSPEDAGEM =
  * caber dentro do prazo do controlador com folga para ele apurar e redigir.
  * Vinte e quatro horas deixam ao município praticamente os três dias inteiros.
  */
-export const PRAZO_INCIDENTE = "24 (vinte e quatro) horas";
+// ── A UNIDADE MORA NO DOCUMENTO, O VALOR É NU ──
+//
+// Primeira versão: "24 (vinte e quatro) horas". A cláusula já dizia "em até
+// [PRAZO DE INCIDENTE] horas da ciência", e o resultado foi para produção como
+// "em até 24 (vinte e quatro) horas horas da ciência".
+//
+// A convenção vale para todos: a tabela de severidade diz "[RESPOSTA CRÍTICA]
+// horas úteis" e o prazo de devolução diz "em até [PRAZO DE DEVOLUÇÃO] dias".
+// Se o valor carregasse a unidade, todos dobrariam. Há teste travando isso.
+export const PRAZO_INCIDENTE = "24 (vinte e quatro)";
 
 export const FUNDAMENTO_INCIDENTE =
   "O município, como controlador, tem 3 dias úteis para comunicar a ANPD (art. 48 da LGPD e " +
