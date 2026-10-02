@@ -18,38 +18,19 @@ import { modulosDoPedido } from "@/lib/pedidos";
 // proposta sai com o marcador entre colchetes — igual ao kit — e a mesa
 // avisa. Melhor um colchete visível do que um campo em branco que passa.
 
-export type DadosEmpresa = {
-  razaoSocial: string | null;
-  cnpj: string | null;
-  endereco: string | null;
-  representante: string | null;
-  emailSuporte: string | null;
-  telefoneSuporte: string | null;
-};
+// ── A IDENTIFICAÇÃO DA EMPRESA MORA EM lib/empresa.ts ──
+//
+// Havia duas cópias: este arquivo lia EMPRESA_* para a proposta em PDF, e
+// lib/empresa.ts lia NEXT_PUBLIC_* para o rodapé do site. Preencher um
+// conjunto deixava o outro em branco, e quem preenchesse acharia que tinha
+// terminado — justamente na parte que o jurídico da prefeitura lê.
+//
+// Importado para uso local E reexportado, para não quebrar quem já importava
+// daqui. `export ... from` sozinho reexporta sem trazer ao escopo deste
+// arquivo, e as funções abaixo precisam dos nomes.
+import { empresaDoAmbiente, pendenciasDaEmpresa, type DadosEmpresa } from "@/lib/empresa";
 
-export function empresaDoAmbiente(env: NodeJS.ProcessEnv = process.env): DadosEmpresa {
-  const v = (k: string) => env[k]?.trim() || null;
-  return {
-    razaoSocial: v("EMPRESA_RAZAO_SOCIAL"),
-    cnpj: v("EMPRESA_CNPJ"),
-    endereco: v("EMPRESA_ENDERECO"),
-    representante: v("EMPRESA_REPRESENTANTE"),
-    emailSuporte: v("SUPORTE_EMAIL"),
-    telefoneSuporte: v("SUPORTE_TELEFONE"),
-  };
-}
-
-/** Marcadores que ainda faltam preencher — a mesa mostra antes de baixar. */
-export function pendenciasDaEmpresa(e: DadosEmpresa): string[] {
-  const faltam: string[] = [];
-  if (!e.razaoSocial) faltam.push("EMPRESA_RAZAO_SOCIAL");
-  if (!e.cnpj) faltam.push("EMPRESA_CNPJ");
-  if (!e.endereco) faltam.push("EMPRESA_ENDERECO");
-  if (!e.representante) faltam.push("EMPRESA_REPRESENTANTE");
-  if (!e.emailSuporte) faltam.push("SUPORTE_EMAIL");
-  if (!e.telefoneSuporte) faltam.push("SUPORTE_TELEFONE");
-  return faltam;
-}
+export { empresaDoAmbiente, pendenciasDaEmpresa, type DadosEmpresa };
 
 export type PedidoParaProposta = {
   id: string;

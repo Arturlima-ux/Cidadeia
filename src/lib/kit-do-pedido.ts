@@ -56,8 +56,16 @@ export function substituicoesDoPedido(
     m.set("[VALOR ANUAL]", moeda(pedido.mensal * 12));
   }
 
+  // A identificação da contratada entra toda de uma vez, e só o que existe.
+  // Enquanto a empresa não estiver constituída, os marcadores ficam à vista —
+  // que é o certo: um contrato com a qualificação da contratada inventada é
+  // pior que um com o campo em branco.
   if (empresa.razaoSocial) m.set("[RAZÃO SOCIAL]", empresa.razaoSocial);
   if (empresa.cnpj) m.set("[CNPJ]", empresa.cnpj);
+  if (empresa.endereco) m.set("[ENDEREÇO]", empresa.endereco);
+  if (empresa.representante) m.set("[REPRESENTANTE LEGAL]", empresa.representante);
+  if (empresa.emailSuporte) m.set("[E-MAIL DE SUPORTE]", empresa.emailSuporte);
+  if (empresa.telefoneSuporte) m.set("[TELEFONE]", empresa.telefoneSuporte);
 
   return m;
 }
