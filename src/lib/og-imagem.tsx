@@ -18,7 +18,7 @@ const FUNDO = "#090c13";
 const CARTAO = "#131a26";
 const TEXTO = "#eef2f8";
 const MUDO = "#8794a8";
-const MARCA = "#3d86f0";
+const MARCA = "#4c8dff";
 const DESTAQUE = "#2fbf87";
 
 export function imagemDeCompartilhamento({

@@ -100,17 +100,17 @@ export default function SiteFooter() {
                 o que é coletado, com que base legal e por quanto tempo. Não é
                 a mesma coisa, e é a primeira pasta que o jurídico da
                 prefeitura abre antes de autorizar a contratação. */}
-            <Link href="/privacidade" className="hover:text-white transition">
+            <Link href="/privacidade" className="link-traco hover:text-white transition">
               Política de privacidade
             </Link>
-            <Link href="/termos" className="hover:text-white transition">
+            <Link href="/termos" className="link-traco hover:text-white transition">
               Termos de uso
             </Link>
             {/* O acordo de nível de serviço aponta para esta página em vez de
                 prometer um percentual de disponibilidade. Promessa de
                 publicação que o fiscal do contrato não acha de onde está
                 navegando é promessa pela metade. */}
-            <Link href="/disponibilidade" className="hover:text-white transition">
+            <Link href="/disponibilidade" className="link-traco hover:text-white transition">
               Disponibilidade
             </Link>
           </div>

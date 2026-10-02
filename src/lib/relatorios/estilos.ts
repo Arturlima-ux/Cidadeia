@@ -106,7 +106,7 @@ export const estilos = StyleSheet.create({
     borderTop: "1 solid #eee",
     paddingTop: 8,
   },
-  badgeUrgente: { color: "#b3261e" },
+  badgeUrgente: { color: "#c2341f" },
   badgeMedio: { color: "#96591a" },
   badgeInfo: { color: "#1a5c35" },
 });

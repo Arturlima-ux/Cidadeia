@@ -10,29 +10,29 @@
 :root {
   /* superfícies */
   --background: #ffffff;
-  --superficie: #f5f8fc; /* faixas alternadas de seção */
+  --superficie: #fafafa; /* faixas alternadas de seção */
   --card: #ffffff;
-  --foreground: #12203a;
-  --muted: #55637a;
-  --border: #e2e8f2;
+  --foreground: #10131a;
+  --muted: #6a6e78;
+  --border: #e5e5e8;
 
   /* marca */
-  --brand: #1560d4; /* azul institucional, para ação e link */
+  --brand: #0f52c7; /* azul institucional, para ação e link */
   --brand-dark: #0b3a82;
-  --brand-tint: #e8f0fc;
+  --brand-tint: #e8effb;
   --brand-profundo: #0b2350; /* fundo das faixas escuras e da barra utilitária */
   --accent: #147a52;
   --accent-tint: #e6f4ee;
-  --gradient-hero: linear-gradient(115deg, #0b2350 0%, #134089 60%, #1560d4 100%);
+  --gradient-hero: linear-gradient(115deg, #0b2350 0%, #123c83 60%, #0f52c7 100%);
 
   /* status — um só lugar define urgente/médio/info, usado no produto
      inteiro (alertas, central, sugestões da IA, badges de painel). */
-  --urgente: #b3261e;
-  --urgente-tint: #fdeceb;
-  --urgente-borda: #f3c9c6;
-  --medio: #8a5a12;
-  --medio-tint: #fdf1dd;
-  --medio-borda: #f0dcb4;
+  --urgente: #c2341f;
+  --urgente-tint: #fdeeea;
+  --urgente-borda: #f5cfc6;
+  --medio: #7d6b00;
+  --medio-tint: #f9f4e2;
+  --medio-borda: #e4dbae;
   --info: #2f6d4f;
   --info-tint: #e7eee9;
   --info-borda: #c5dbcd;
@@ -43,7 +43,7 @@
   /* Fundo sutil para trilhos, pílulas e faixas de gráfico.
      Existe porque o painel usava `bg-black/5` direto: preto sobre claro
      funciona, preto sobre escuro some. Este token inverte com o tema. */
-  --sutil: rgba(18, 32, 58, 0.05);
+  --sutil: rgba(16, 19, 26, 0.05);
 
   /* Cor de marca que LÊ sobre --brand-tint, nos dois temas.
      `--brand-dark` servia para isso e continua certo no claro, mas no escuro
@@ -52,8 +52,8 @@
   --brand-legivel: #0b3a82;
 
   /* elevação */
-  --shadow-sm: 0 1px 2px rgba(18, 32, 58, 0.04);
-  --shadow-md: 0 4px 16px -4px rgba(18, 32, 58, 0.1), 0 2px 6px -2px rgba(18, 32, 58, 0.06);
+  --shadow-sm: 0 1px 2px rgba(16, 19, 26, 0.05);
+  --shadow-md: 0 4px 16px -6px rgba(16, 19, 26, 0.12), 0 2px 6px -2px rgba(16, 19, 26, 0.06);
   --shadow-lg: 0 24px 60px -22px rgba(11, 35, 80, 0.28);
 
   /* tipografia — Plus Jakarta Sans nos títulos (geométrica, contemporânea,
@@ -64,6 +64,25 @@
      segue sendo font-serif, para não trocar centenas de usos no produto. */
   --font-titulo: var(--font-titulo-familia), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --font-corpo: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+
+  /* ── AS DUAS CURVAS ──
+     A curva estava escrita literalmente em cinco lugares do arquivo. Repetir
+     um número mágico é o caminho mais curto para ele divergir: basta alguém
+     escrever 0.2s ease num componente novo e a interface passa a ter dois
+     tempos diferentes para a mesma coisa. Quem olha não sabe dizer o que
+     está errado — só sente que não é fino.
+
+     --saida  expo-out. Começa rápido e desacelera muito no fim. É a curva de
+              QUEM ENTRA: o elemento chega decidido e pousa.
+     --rapido  curva curta para micro-interação (hover, foco, pressão). Aqui
+              o que importa é responder antes de o olho perceber espera.
+
+     Não há curva de "quem sai" com salto nem elástico de propósito. Bounce é
+     o som de brinquedo; este produto conversa com jurídico de prefeitura. */
+  --saida: cubic-bezier(0.16, 1, 0.3, 1);
+  --rapido: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-micro: 150ms;
+  --t-entrada: 520ms;
 }
 
 /* ── TEMA NOITE ──
@@ -72,14 +91,14 @@
    SiteHeader, SiteFooter e MontadorProposta leem os tokens em vez de cor
    fixa, basta envolver a página nesta classe para tudo acompanhar. */
 .tema-noite {
-  --background: #090c13;
-  --superficie: #0e131d;
-  --card: #131a26;
-  --foreground: #eef2f8;
-  --muted: #8794a8;
-  --border: rgba(238, 242, 248, 0.11);
+  --background: #08090c;
+  --superficie: #0d0f13;
+  --card: #14161b;
+  --foreground: #f3f4f6;
+  --muted: #8b8f98;
+  --border: rgba(243, 244, 246, 0.13);
 
-  --brand: #3d86f0;
+  --brand: #4c8dff;
   --brand-dark: #2a6fd6;
   --brand-tint: rgba(61, 134, 240, 0.13);
   --brand-profundo: #0b1220;
@@ -87,12 +106,12 @@
   --accent-tint: rgba(47, 191, 135, 0.12);
   --gradient-hero: linear-gradient(140deg, #101828 0%, #16213a 55%, #1b2c4d 100%);
 
-  --urgente: #ff6b7a;
-  --urgente-tint: rgba(255, 107, 122, 0.12);
-  --urgente-borda: rgba(255, 107, 122, 0.3);
-  --medio: #e0a340;
-  --medio-tint: rgba(224, 163, 64, 0.12);
-  --medio-borda: rgba(224, 163, 64, 0.32);
+  --urgente: #ff5f52;
+  --urgente-tint: rgba(255, 95, 82, 0.13);
+  --urgente-borda: rgba(255, 95, 82, 0.32);
+  --medio: #e8b949;
+  --medio-tint: rgba(232, 185, 73, 0.12);
+  --medio-borda: rgba(232, 185, 73, 0.32);
   --info: #2fbf87;
   --info-tint: rgba(47, 191, 135, 0.12);
   --info-borda: rgba(47, 191, 135, 0.3);
@@ -212,7 +231,7 @@ body {
 
 @layer utilities {
   .animate-fade-in-up {
-    animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: fade-in-up 0.5s var(--saida) both;
   }
   .animate-pulse-soft {
     animation: pulse-soft 2s ease-in-out infinite;
@@ -222,8 +241,8 @@ body {
   }
   .card-interactive {
     transition:
-      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.2s var(--saida),
+      box-shadow 0.2s var(--saida),
       border-color 0.2s ease;
   }
   .card-interactive:hover {
@@ -275,7 +294,7 @@ body {
 }
 
 * {
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-timing-function: var(--saida);
 }
 
 button,
@@ -354,7 +373,7 @@ button:active {
 }
 
 /* ── CONTRASTE DO BOTÃO NO TEMA ESCURO ──
-   O azul --brand (#3d86f0) serve bem como texto sobre o fundo escuro, mas
+   O azul --brand (#4c8dff) serve bem como texto sobre o fundo escuro, mas
    branco sobre ele dá 3,6:1 — abaixo do 4,5:1 que a WCAG AA pede para
    texto de botão. Aqui o botão usa o tom mais fundo (4,8:1) sem mudar a
    cor dos links. */
@@ -387,8 +406,8 @@ button:active {
    de um balcão de prefeitura custa memória de vídeo à toa. */
 .revelar {
   transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.7s var(--saida),
+    transform 0.7s var(--saida);
 }
 
 .com-js .revelar:not([data-visivel]) {
@@ -634,7 +653,7 @@ button:active {
   .inclinavel {
     transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
     transition:
-      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.4s var(--saida),
       box-shadow 0.3s ease,
       border-color 0.3s ease;
     transform-style: preserve-3d;
@@ -654,7 +673,7 @@ button:active {
      clique. */
   .magnetico {
     transform: translate3d(var(--mx, 0), var(--my, 0), 0);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.35s var(--saida);
   }
   .magnetico[data-seguindo] {
     transition: none;
@@ -715,5 +734,126 @@ button:active {
   .magnetico {
     transform: none !important;
     transition: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ACABAMENTO
+   ══════════════════════════════════════════════════════════════════
+
+   O que faz uma interface parecer cara não é quantidade de efeito — é o
+   contrário. É a mesma curva em toda parte, o mesmo tempo, a mesma
+   distância de deslocamento. O olho não enumera essas coisas; ele percebe
+   quando elas DISCORDAM.
+
+   Tudo aqui anima só `transform`, `opacity` e `filter`, pela mesma regra do
+   motor acima, e desliga inteiro em `prefers-reduced-motion`. */
+
+@layer utilities {
+  /* ── O SUBLINHADO QUE SE DESENHA ──
+     `text-decoration` acende de uma vez e ocupa a linha inteira desde o
+     primeiro quadro. Um traço que cresce da esquerda custa o mesmo e diz
+     que alguém pensou no detalhe.
+
+     Fica em ::after com transform: scaleX, que o compositor resolve
+     sozinho — animar `width` recalcularia layout a cada quadro. */
+  .link-traco {
+    position: relative;
+    text-decoration: none;
+  }
+  .link-traco::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-micro) var(--rapido);
+  }
+  .link-traco:hover::after,
+  .link-traco:focus-visible::after {
+    transform: scaleX(1);
+  }
+  /* Saindo, o traço recolhe pela direita. Recolher pelo mesmo lado de onde
+     cresceu daria a impressão de rebobinar. */
+  .link-traco:not(:hover)::after {
+    transform-origin: right;
+  }
+
+  /* ── ELEVAÇÃO DE UM PIXEL ──
+     Um pixel. Dois já viram "botão de jogo". O que vende a sensação não é a
+     distância, é a sombra crescer junto — é ela que diz que o elemento
+     saiu do plano em vez de só escorregar nele. */
+  .elevar {
+    transition:
+      transform var(--t-micro) var(--rapido),
+      box-shadow var(--t-micro) var(--rapido);
+  }
+  .elevar:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  /* Pressionado, volta ao plano. Sem isto o clique não tem resposta física
+     e a interface parece gravada em vez de operada. */
+  .elevar:active {
+    transform: translateY(0);
+    transition-duration: 60ms;
+  }
+}
+
+/* ── O ANEL DE FOCO ──
+   Detalhe que quase ninguém trabalha, e é exatamente por isso que denuncia
+   o cuidado de quem fez. Um anel só, da cor da marca, some em fundo claro e
+   some em fundo escuro — depende de qual deles estiver atrás.
+
+   Dois anéis resolvem: o de dentro na cor do fundo, o de fora na marca. O
+   contraste passa a existir contra qualquer superfície, inclusive sobre uma
+   imagem. É a mesma ideia do anel do MarcadorSituacao, aplicada ao foco. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background);
+  border-radius: inherit;
+}
+
+/* ── NÚMERO É COLUNA, NÃO PALAVRA ──
+   Fonte proporcional dá larguras diferentes a cada dígito, e uma coluna de
+   valores fica com a vírgula dançando. Em tela que o gestor leva à câmara,
+   isso é o detalhe que faz o número parecer estimativa.
+
+   `tabular-nums` já é usado à mão em dezenas de lugares; aqui vira regra
+   para todo elemento de dado, e quem escrever um novo não precisa lembrar. */
+:where(td, th, time, data, output, .tabular, [data-numero]) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── TIPOGRAFIA DE DISPLAY ──
+   Título grande com o mesmo espacejamento de texto corrido parece inflado:
+   a letra foi desenhada para corpo 16, e ampliada carrega espaço demais
+   entre as formas. Apertar devolve a densidade.
+
+   A conta é progressiva de propósito — quanto maior o corpo, mais aperta.
+   Um valor fixo para todos os tamanhos corrige o maior e estraga o menor. */
+.font-serif {
+  letter-spacing: -0.02em;
+}
+h1.font-serif,
+.display {
+  letter-spacing: -0.035em;
+  /* Linha mais curta no título do que no texto: título é para ser lido de
+     relance, e entrelinha larga quebra o bloco em frases soltas. */
+  line-height: 1.06;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-traco::after,
+  .elevar {
+    transition: none;
+  }
+  .elevar:hover {
+    transform: none;
   }
 }

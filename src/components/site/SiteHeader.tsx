@@ -81,7 +81,7 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 o botão do cabeçalho, e aqui não se repete: o cliente que já
                 contratou não precisa escolher entre dois caminhos iguais. */}
             {!sessao && (
-              <Link href="/login" className="hover:text-white transition">
+              <Link href="/login" className="link-traco hover:text-white transition">
                 Entrar
               </Link>
             )}
@@ -89,7 +89,7 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 o link do cidadão, e a conversa comercial já tem o botão
                 principal do cabeçalho logo abaixo. Esta barra é do morador e
                 do servidor. */}
-            <Link href="/suporte" className="hover:text-white transition">
+            <Link href="/suporte" className="link-traco hover:text-white transition">
               Fale conosco
             </Link>
           </div>

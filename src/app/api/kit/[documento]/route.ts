@@ -43,7 +43,7 @@ function paraWord(documento: Documento): string {
 <meta charset="utf-8">
 <title>${escapar(documento.nome)}</title>
 <style>
-  body { font-family: "Calibri", "Segoe UI", sans-serif; font-size: 11pt; line-height: 1.5; color: #12203a; }
+  body { font-family: "Calibri", "Segoe UI", sans-serif; font-size: 11pt; line-height: 1.5; color: #10131a; }
   h1 { font-size: 16pt; margin-bottom: 2pt; }
   .subtitulo { color: #55637a; font-size: 10pt; margin-top: 0; }
   h2 { font-size: 12pt; margin-top: 16pt; margin-bottom: 4pt; }

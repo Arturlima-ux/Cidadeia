@@ -4,14 +4,30 @@
 // ou escola com um ponto colorido, `aria-hidden`, sem rótulo nenhum.
 //
 // O validador de paleta mostrou por que isso é grave: no tema noite, o par
-// mais parecido de toda a paleta é justamente `--urgente` (#ff6b7a) contra
-// `--accent` (#2fbf87) — ΔE 3,3 para deuteranopia. Ou seja, "urgente" e
-// "sem pendência" são O MESMO PONTO para cerca de 8% dos homens. No tema
-// claro o par pior é `--medio` contra `--urgente`: ΔE 0,1.
+// mais parecido era `--urgente` (#ff6b7a) contra `--accent` (#2fbf87) — ΔE 3,3
+// para deuteranopia. Ou seja, "urgente" e "sem pendência" eram O MESMO PONTO
+// para cerca de 8% dos homens. No tema claro o par pior era `--medio` contra
+// `--urgente`: ΔE 0,1.
 //
-// Com visão normal as cores se distinguem (ΔE 16,6), então o defeito era
+// Com visão normal as cores se distinguiam (ΔE 16,6), então o defeito era
 // invisível para quem escreveu a tela. É exatamente o tipo de coisa que só
 // aparece quando se roda a conta em vez de olhar.
+//
+// ── A PALETA MELHOROU, E MESMO ASSIM ISTO CONTINUA ──
+//
+// Em 03/10/2026 as cores de situação foram refeitas e medidas de novo:
+//
+//   noite  --urgente #ff5f52 × --accent #2fbf87 → ΔE 3,3 virou 7,2 (deutan)
+//   claro  --medio #7d6b00 × --urgente #c2341f → ΔE normal 12,3 virou 17,0
+//
+// No tema claro o par âmbar/vermelho continua reprovando para deuteranopia, e
+// nenhum âmbar testado passou: é limite do par, não escolha de tom. No noite,
+// 7,2 cai na faixa que o validador chama de piso — legal SOMENTE com
+// codificação secundária.
+//
+// Ou seja: a paleta ficou melhor e este componente continua sendo obrigatório.
+// Cor melhor não dispensa o segundo canal; só diminui o estrago de quem
+// esquecer dele em outro lugar.
 //
 // A correção não é trocar a cor — o vermelho e o verde significam o que
 // significam para quem enxerga. É acrescentar um segundo canal:

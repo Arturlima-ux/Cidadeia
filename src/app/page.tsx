@@ -290,7 +290,7 @@ export default async function LandingPage() {
                   <Magnetico>
                     <Link
                       href="/raio-x"
-                      className="inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                      className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 shadow-elevated"
                     >
                       Ver o Raio-X do meu município&nbsp;&nbsp;→
                     </Link>
@@ -836,7 +836,7 @@ export default async function LandingPage() {
                 <Magnetico>
                   <Link
                     href="/proposta"
-                    className="inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
+                    className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 shadow-elevated"
                   >
                     Receber proposta e kit&nbsp;&nbsp;→
                   </Link>
