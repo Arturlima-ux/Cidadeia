@@ -650,8 +650,15 @@ button:active {
   /* Cartão que inclina na direção do ponteiro. As duas variáveis são
      escritas por JavaScript (Inclinavel.tsx); sem ele, ficam em zero e o
      cartão só levanta, como os outros. */
+  /* ── A PERSPECTIVA ACOMPANHA O TAMANHO ──
+     900px é calibrado para cartão de módulo. O mesmo valor num painel
+     grande exagera a inclinação: perspectiva curta aproxima o ponto de
+     fuga, e o elemento parece girar em torno de um eixo logo atrás dele.
+     Elemento grande pede ponto de fuga mais longe, senão a borda de cima
+     foge e a de baixo avança — vira gangorra em vez de resposta. */
   .inclinavel {
-    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+    transform: perspective(var(--perspectiva, 900px)) rotateX(var(--rx, 0deg))
+      rotateY(var(--ry, 0deg)) translateZ(0);
     transition:
       transform 0.4s var(--saida),
       box-shadow 0.3s ease,
@@ -664,6 +671,10 @@ button:active {
   /* Enquanto o ponteiro está sobre o cartão o movimento acompanha o
      ponteiro, sem transição — transição aqui faria o cartão "nadar"
      atrás do cursor. Ela volta na saída, que é quando suaviza. */
+  /* Painel do herói e qualquer coisa acima de ~400px de altura. */
+  .inclinavel-amplo {
+    --perspectiva: 1600px;
+  }
   .inclinavel[data-seguindo] {
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
   }

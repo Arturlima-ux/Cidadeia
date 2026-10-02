@@ -375,9 +375,24 @@ export default async function LandingPage() {
                 vê a tela que está comprando antes de ler qualquer argumento. */}
             {/* O painel sobe um pouco mais devagar que o texto ao lado. É o
                 que dá sensação de camada sem desenhar nada a mais. */}
+            {/* ── O PAINEL RESPONDE AO CURSOR ──
+                É a primeira coisa que o prefeito olha, e um retângulo parado
+                parece imagem. Inclinar de leve diz que aquilo é uma TELA, não
+                uma captura — e a pergunta "isso é um print ou o sistema?" é a
+                primeira que ele faz sozinho.
+
+                Intensidade 3, metade do padrão: o painel é grande, e ângulo
+                que funciona num cartão pequeno vira gangorra aqui. Sutileza é
+                o que lê como caro; exagero lê como template de portfólio.
+
+                No toque nada acontece — o componente ignora pointerType que
+                não seja mouse, porque cartão que inclina ao encostar o dedo
+                parece defeito. */}
             <Reveal delay={140}>
               <div className="parallax parallax-sutil">
-                <PainelDemonstracao />
+                <Inclinavel intensidade={3} className="inclinavel-amplo">
+                  <PainelDemonstracao />
+                </Inclinavel>
               </div>
             </Reveal>
           </div>

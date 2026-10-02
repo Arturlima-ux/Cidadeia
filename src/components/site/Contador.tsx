@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 // ── O NÚMERO QUE CONTA ──
 //
@@ -42,6 +42,25 @@ export default function Contador({
   const ref = useRef<HTMLSpanElement>(null);
   // Nasce no valor final, não em zero: é ele que vai para o HTML servido.
   const [valor, setValor] = useState(ate);
+
+  // ── O SALTO PARA TRÁS QUE NINGUÉM VIA, E TODO MUNDO SENTIA ──
+  //
+  // O HTML sai com o valor final — e tem de sair, senão quem não executa
+  // JavaScript recebe "0 municípios". Mas o primeiro quadro da animação
+  // escrevia zero, e o número aparecia CERTO e dava um salto para trás antes
+  // de subir. Em contador acima da dobra o salto era imediato; abaixo, ele
+  // acontecia bem na hora em que o número entrava no campo de visão.
+  //
+  // `useLayoutEffect` roda depois da hidratação e ANTES da pintura: o zero
+  // entra sem nunca chegar à tela. O efeito abaixo, que espera o elemento
+  // aparecer, continua sendo quem dispara a contagem.
+  //
+  // Sem JavaScript ou com movimento reduzido, nada disto executa e o valor
+  // final permanece — que é o comportamento correto nos dois casos.
+  useLayoutEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setValor(0);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
