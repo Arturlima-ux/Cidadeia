@@ -50,16 +50,27 @@ import { NOME_DOS_ESTADOS } from "@/lib/estados";
 //
 // Um dia aqui traz a mudança para o dia seguinte sem nenhuma consulta a
 // mais ao Tesouro: a remontagem reaproveita o dado que já está em cache.
-export const revalidate = 86400; // 1 dia
-export const dynamicParams = true;
+// ── POR QUE ESTA ROTA DEIXOU DE SER ESTÁTICA ──
+//
+// Era SSG: o build a classificava com ● e gerava cada município sob demanda
+// como HTML estático, cacheado por um dia. Rápido a partir da segunda visita
+// — e 2 a 5 segundos de tela BRANCA na primeira, que com 5.570 municípios e
+// tráfego de busca de cauda longa é quase todo visitante.
+//
+// Página estática é bufferizada inteira antes de sair, então o limite de
+// Suspense em DadosDoTesouro não tinha o que segurar. Medido: Content-Length
+// fixo e 2,7s até o primeiro byte.
+//
+// Agora o cache sai da página e vai para o DADO: a consulta ao SICONFI já
+// declara o próprio prazo em cada fetch, e "default-cache" garante que ela
+// continue valendo mesmo depois do connection(). Sem essa linha, fetch
+// depois de API de requisição deixaria de ser cacheado e TODA visita pagaria
+// o Tesouro — pior que o problema original.
+export const fetchCache = "default-cache";
 export const maxDuration = 60;
 
 // Nenhuma pré-construída (ver acima). A lista existe para o Next saber que
 // os parâmetros são conhecidos e válidos, não para gerar no build.
-export function generateStaticParams() {
-  return [];
-}
-
 function acharMunicipio(uf: string, slug: string) {
   const sigla = uf.toUpperCase();
   if (!(ESTADOS as readonly string[]).includes(sigla)) return null;
