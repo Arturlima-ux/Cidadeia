@@ -138,11 +138,13 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 export default async function LandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ m?: string }>;
+  searchParams: Promise<{ m?: string; uf?: string }>;
 }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API pública do Tesouro.
-  const municipio = municipioDoParametro((await searchParams).m);
+  const parametros = await searchParams;
+  const municipio = municipioDoParametro(parametros.m);
+  const ufEscolhida = typeof parametros.uf === "string" && /^[A-Z]{2}$/.test(parametros.uf) ? parametros.uf : null;
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
   // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
@@ -325,7 +327,7 @@ export default async function LandingPage({
                     precisa funcionar antes de hidratar, e o resultado precisa
                     ser um endereço que a pessoa copia e manda para o prefeito. */}
                 <div className="mt-8">
-                  <SeletorMunicipio inicial={municipio} />
+                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
                 </div>
 
                 <p className="text-xs text-muted mt-4">
