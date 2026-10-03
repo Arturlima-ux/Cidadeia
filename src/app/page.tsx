@@ -4,7 +4,7 @@ import { registrarEvento } from "@/lib/registrar-evento";
 import { lerSessao } from "@/lib/sessao";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { EXIGENCIAS } from "@/lib/diagnostico";
-import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
+import { modulosNaOrdemDaHome, SERIE_DO_MODULO } from "@/lib/modulos-detalhe";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -17,6 +17,8 @@ import Olho from "@/components/site/Olho";
 import BarraLeitura from "@/components/site/BarraLeitura";
 import NumerosVerificaveis from "@/components/site/NumerosVerificaveis";
 import PorDentro from "@/components/site/PorDentro";
+import BentoModulos from "@/components/site/BentoModulos";
+import FundoTematico from "@/components/site/FundoTematico";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
@@ -246,11 +248,13 @@ export default async function LandingPage({
             Nova — quem clicava achava que estava entrando no seu. Aqui ela
             conta como visita. */}
         <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
+      <FundoTematico />
+
       <main id="conteudo">
         <BarraConversao />
 
         {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-16 sm:pb-20">
+        <section data-tema="gestao" className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-16 sm:pb-20">
           <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
             <Reveal>
               <div>
@@ -504,7 +508,7 @@ export default async function LandingPage({
             Agora ela apresenta os seis em uma grade curta e manda para a
             página, como o "Premium" do Spotify: o botão abre, a home não
             carrega tudo. A âncora #solucoes fica, porque há links antigos. */}
-        <section id="solucoes" className="border-y border-border scroll-mt-24" style={{ background: "var(--superficie)" }}>
+        <section id="solucoes" data-tema="saude" className="border-y border-border scroll-mt-24" style={{ background: "var(--superficie)" }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
             <Reveal>
               <div className="flex flex-wrap items-end justify-between gap-6">
@@ -521,36 +525,31 @@ export default async function LandingPage({
               </div>
             </Reveal>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-              {modulos.map(({ chave, nome, detalhe }, i) => {
-                const Icone = ICONE_ADDON[chave];
-                return (
-                  <Reveal key={chave} delay={i * 50}>
-                    <Inclinavel className="h-full">
-                    <Link
-                      href={`/modulos/${chave}`}
-                      className="group h-full flex flex-col gap-3 rounded-2xl border border-border p-5 borda-viva hover:border-brand transition"
-                      style={{ background: "var(--card)" }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="w-10 h-10 arco-card-sm flex items-center justify-center shrink-0"
-                          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
-                        >
-                          <Icone className="w-5 h-5" />
-                        </span>
-                        <h3 className="font-serif text-lg font-bold leading-tight">{nome}</h3>
-                      </div>
-                      <p className="text-sm text-muted leading-relaxed flex-1">{detalhe.resumo}</p>
-                      <span className="text-sm font-bold text-brand group-hover:text-brand-claro transition">
-                        Conhecer →
-                      </span>
-                    </Link>
-                    </Inclinavel>
-                  </Reveal>
-                );
-              })}
-            </div>
+            {/* ── BENTO GRID ──
+                Tiles de tamanhos diferentes porque os módulos têm pesos
+                diferentes: as duas bases ocupam o dobro, as quatro
+                secretarias entram como quadrados. Bento em que todo tile tem
+                o mesmo tamanho é só uma grade com cantos arredondados.
+
+                A aba ativa e o detalhe usam motion: realce que VIAJA entre
+                abas e saída animada são as duas coisas que CSS não faz, e são
+                o que paga os ~34 KB da biblioteca. Ver BentoModulos.tsx. */}
+            <Reveal delay={60}>
+              <div className="mt-10">
+                <BentoModulos
+                  modulos={modulos.map(({ chave, nome, detalhe }) => ({
+                    chave,
+                    nome,
+                    resumo: detalhe.resumo,
+                    capacidades: detalhe.capacidades.slice(0, 6),
+                    automacao: detalhe.automacao,
+                    href: `/modulos/${chave}`,
+                    serie: SERIE_DO_MODULO[chave],
+                    largo: chave === "essencial" || chave === "gestao",
+                  }))}
+                />
+              </div>
+            </Reveal>
 
             <Reveal delay={200}>
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -582,7 +581,7 @@ export default async function LandingPage({
             na página que deveria vender o produto. Ela foi para
             /como-contratar. No lugar, o que o produto muda: o caminho entre
             um dado e uma decisão, antes e depois. */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+        <section data-tema="educacao" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <Reveal>
             <div className="max-w-2xl">
               <Olho>Como a decisão acontece</Olho>
@@ -618,7 +617,7 @@ export default async function LandingPage({
         </section>
 
         {/* ═══ PROPOSTA ═══ */}
-        <section id="proposta" className="border-y border-border" style={{ background: "var(--superficie)" }}>
+        <section id="proposta" data-tema="licitacoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
             <Reveal>
               <div className="text-center flex flex-col items-center gap-4 mb-10">
@@ -695,7 +694,7 @@ export default async function LandingPage({
             O formato também muda de propósito. Depois de quatro seções em
             grade de cartões, mais uma grade some no meio das outras — aqui é
             lista, para o olho ter onde descansar. */}
-        <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
+        <section data-tema="gestao" className="border-y border-border" style={{ background: "var(--superficie)" }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
             <div className="grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16">
               <Reveal>
@@ -813,7 +812,7 @@ export default async function LandingPage({
             saber que existe o outro lado — é metade do argumento de
             conformidade. Uma faixa diz isso em duas linhas; uma seção gastava
             uma tela inteira para dizer o mesmo. */}
-        <section className="border-t border-border">
+        <section data-tema="essencial" className="border-t border-border">
           <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
             <Reveal>
               <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4">
@@ -842,7 +841,7 @@ export default async function LandingPage({
             existindo, em /como-contratar. A home fica com os quatro passos,
             que respondem à única pergunta que cabe aqui — "e depois que eu
             decidir?" — e manda para a página quem quiser o resto. */}
-        <section id="como-contratar" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
+        <section id="como-contratar" data-tema="obras" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
           <Reveal>
             <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4 mb-8">
               <div>
@@ -891,7 +890,7 @@ export default async function LandingPage({
           </Reveal>
         </section>
         {/* ═══ FECHO ═══ */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
+        <section data-tema="licitacoes" className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
           <Reveal>
             <div className="vidro rounded-3xl p-10 sm:p-14 text-center">
               <span

@@ -4,6 +4,7 @@ import { TOTAL_MUNICIPIOS } from "@/lib/municipios";
 import { EXIGENCIAS } from "@/lib/diagnostico";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { TOTAL_ARTIGOS, TOTAL_NORMAS } from "@/lib/normas-verificadas";
 
 // ── A FAIXA DE NÚMEROS ──
 //
@@ -37,6 +38,19 @@ export default function NumerosVerificaveis() {
       detalhe: "LAI, Lei 13.460, LRF e LGPD — cada pendência sai com o artigo que a cria.",
       href: "/diagnostico",
       cor: "var(--accent-claro)",
+    },
+    {
+      // O pedido original para esta faixa trazia "100.000+ processos
+      // digitalizados" e "R$ 15M+ economizados aos cofres públicos". O produto
+      // tem zero clientes: os dois seriam falsos, e numa venda B2G quem valida
+      // é o procurador da prefeitura. Este número é grande, é verdadeiro, e
+      // ninguém mais diz — a lista inteira está em lib/normas-verificadas.ts,
+      // com o arquivo onde cada conta mora.
+      valor: TOTAL_ARTIGOS,
+      rotulo: "artigos de lei verificados",
+      detalhe: `De ${TOTAL_NORMAS} normas federais. Cada um tem regra no código, não é citação de texto.`,
+      href: "/conformidade",
+      cor: "var(--brand-claro)",
     },
     {
       valor: PLANOS_ADDON.length,

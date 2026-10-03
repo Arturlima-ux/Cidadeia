@@ -174,3 +174,22 @@ export function modulosNaOrdemDaHome(): { chave: PlanoAddon; nome: string; detal
     return plano && detalhe ? [{ chave, nome: plano.nome, detalhe }] : [];
   });
 }
+
+/**
+ * Qual slot da paleta categórica identifica cada módulo.
+ *
+ * Fica aqui, e não na tela, porque a mesma cor é usada no bento da home, no
+ * halo do fundo temático e no mapa da cidade. Três lugares lendo a mesma
+ * constante é o que impede Saúde de ser verde numa tela e âmbar na outra.
+ *
+ * Os valores apontam para `--serie-1..6` de globals.css, validados nos dois
+ * temas — nenhuma cor nova nasce aqui.
+ */
+export const SERIE_DO_MODULO: Record<PlanoAddon, number> = {
+  essencial: 4,
+  gestao: 1,
+  saude: 3,
+  educacao: 1,
+  obras: 5,
+  licitacoes: 2,
+};
