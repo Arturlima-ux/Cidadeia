@@ -40,6 +40,36 @@
   --danger: var(--urgente);
   --warning: var(--medio);
 
+  /* ── SÉRIES DE GRÁFICO ──────────────────────────────────────────────
+     Ordem FIXA: a série 1 é sempre a série 1. Cor segue a entidade, nunca
+     a posição no ranking — um filtro que muda a quantidade de linhas não
+     pode repintar as que sobraram.
+
+     NÃO são cores de status. --urgente, --medio e --info significam estado
+     e ficam reservados para isso; usá-los como "série 4" faria um gráfico
+     parecer um alarme.
+
+     Validadas com scripts/validate_palette.js do skill de dataviz, nos dois
+     temas, contra a superfície de cartão de cada um (#ffffff aqui, #14161b
+     no escuro): faixa de luminosidade, piso de croma, separação sob
+     daltonismo, piso de visão normal e contraste — tudo passa. A separação
+     sob daltonismo fica na faixa 6–8 em alguns pares, o que só é legal com
+     codificação secundária: todo gráfico com duas ou mais séries precisa de
+     legenda ou rótulo direto. Ver docs/design-system.md. */
+  --serie-1: #1a5fd0;
+  --serie-2: #b5451a;
+  --serie-3: #02855f;
+  --serie-4: #7a3fb5;
+  --serie-5: #a8820f;
+  --serie-6: #b02a6b;
+
+  /* Tinta que fica SOBRE um preenchimento saturado (--brand, --urgente,
+     --accent). Não troca com o tema, porque o preenchimento embaixo dela não
+     clareia: botão de marca é azul forte nos dois temas. O token existe para
+     o "#fff" solto parar de ser decidido de novo a cada tela. */
+  --sobre-forte: #ffffff;
+  --sobre-acento: #04140d;
+
   /* Fundo sutil para trilhos, pílulas e faixas de gráfico.
      Existe porque o painel usava `bg-black/5` direto: preto sobre claro
      funciona, preto sobre escuro some. Este token inverte com o tema. */
@@ -115,6 +145,17 @@
   --info: #2fbf87;
   --info-tint: rgba(47, 191, 135, 0.12);
   --info-borda: rgba(47, 191, 135, 0.3);
+
+  /* Os passos do escuro são ESCOLHIDOS, não um clareamento automático dos
+     do claro: a faixa de luminosidade que o validador exige aqui é mais
+     estreita e mais baixa (L 0.48–0.67 contra 0.43–0.77), então inverter o
+     tema sozinho joga metade da paleta para fora dela. */
+  --serie-1: #4d8ae8;
+  --serie-2: #d4663a;
+  --serie-3: #13a87c;
+  --serie-4: #9f6ad6;
+  --serie-5: #a8871f;
+  --serie-6: #d1649c;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 10px 30px -8px rgba(0, 0, 0, 0.55);

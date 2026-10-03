@@ -46,22 +46,22 @@ export default async function HistoricoPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <GraficoTendencia
             titulo="Receita"
-            cor="#1a5c35"
+            cor="var(--serie-3)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.receita }))}
           />
           <GraficoTendencia
             titulo="Despesas"
-            cor="#96591a"
+            cor="var(--serie-2)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.despesas }))}
           />
           <GraficoTendencia
             titulo="Saldo"
-            cor="#2e5266"
+            cor="var(--serie-1)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.saldo }))}
           />
           <GraficoTendencia
             titulo="Índice de Transparência"
-            cor="#4a3b6b"
+            cor="var(--serie-4)"
             sufixo="%"
             serie={snapshots.map((s) => ({
               data: s.atualizadoEm,
@@ -84,7 +84,7 @@ export default async function HistoricoPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <GraficoTendencia
             titulo="Tempo médio de atendimento"
-            cor="#7a2e3a"
+            cor="var(--serie-6)"
             sufixo=" min"
             serie={saude.map((s) => ({
               data: s.atualizadoEm,
@@ -93,7 +93,7 @@ export default async function HistoricoPage() {
           />
           <GraficoTendencia
             titulo="Faltas"
-            cor="#7a2e3a"
+            cor="var(--serie-6)"
             sufixo="%"
             serie={saude.map((s) => ({ data: s.atualizadoEm, valor: s.faltasPercentual }))}
           />
@@ -107,7 +107,7 @@ export default async function HistoricoPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <GraficoTendencia
             titulo="Frequência"
-            cor="#1f5f6b"
+            cor="var(--serie-5)"
             sufixo="%"
             serie={educacao.map((e) => ({
               data: e.atualizadoEm,
@@ -116,7 +116,7 @@ export default async function HistoricoPage() {
           />
           <GraficoTendencia
             titulo="Nota média"
-            cor="#1f5f6b"
+            cor="var(--serie-5)"
             serie={educacao.map((e) => ({ data: e.atualizadoEm, valor: e.notaMedia }))}
           />
         </div>

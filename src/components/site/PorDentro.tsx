@@ -137,7 +137,7 @@ export default function PorDentro() {
                   className="w-10 h-10 rounded-full grid place-items-center font-serif text-sm font-extrabold shrink-0 border"
                   style={{
                     background: p.saida ? "var(--accent)" : "var(--superficie)",
-                    color: p.saida ? "#04140d" : "var(--brand-claro)",
+                    color: p.saida ? "var(--sobre-acento)" : "var(--brand-claro)",
                     borderColor: p.saida ? "var(--accent)" : "var(--border)",
                   }}
                 >

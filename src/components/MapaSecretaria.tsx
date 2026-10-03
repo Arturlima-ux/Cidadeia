@@ -28,7 +28,7 @@ export type PontoMapa = {
 
 export default function MapaSecretaria({
   pontos,
-  corDestaque = "#1a5c35",
+  corDestaque = "var(--serie-3)",
 }: {
   pontos: PontoMapa[];
   corDestaque?: string;

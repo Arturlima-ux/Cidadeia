@@ -31,7 +31,7 @@ const LABEL_CONFIANCA: Record<string, string> = {
 export default function GraficoTendencia({
   titulo,
   serie,
-  cor = "#1a5c35",
+  cor = "var(--serie-1)",
   sufixo = "",
 }: {
   titulo: string;
@@ -87,8 +87,8 @@ export default function GraficoTendencia({
         <ResponsiveContainer>
           <LineChart data={dadosFormatados} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--sutil)" />
-            <XAxis dataKey="data" tick={{ fontSize: 11 }} stroke="#999" />
-            <YAxis tick={{ fontSize: 11 }} stroke="#999" width={44} />
+            <XAxis dataKey="data" tick={{ fontSize: 11 }} stroke="var(--muted)" />
+            <YAxis tick={{ fontSize: 11 }} stroke="var(--muted)" width={44} />
             <Tooltip
               formatter={(v, nome) => [
                 `${v}${sufixo}`,

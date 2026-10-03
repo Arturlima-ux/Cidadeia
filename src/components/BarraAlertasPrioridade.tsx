@@ -2,12 +2,22 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-// Paleta de status validada (references/palette.md do skill de dataviz) —
-// ordem fixa por severidade, nunca por contagem.
+// ── AS CORES DE STATUS SÃO AS DO PRODUTO, NÃO AS DE UMA REFERÊNCIA ──
+//
+// Aqui havia a paleta de status padrão da referência de dataviz, escrita em
+// hexadecimal: #d03b3b, #fab219, #0ca30c. São boas cores, e eram as erradas.
+//
+// Dois motivos. O primeiro é que o resto do produto inteiro pinta urgência com
+// --urgente e informação com --info: o prefeito via um vermelho na rosca e
+// outro vermelho no cartão de alerta logo abaixo dela, para a mesma coisa. O
+// segundo é que hexadecimal fixo não tem tema — no modo escuro aquele verde
+// escuro ficava sobre um cartão escuro, enquanto os tokens trocam de passo.
+//
+// Ordem fixa por severidade, nunca por contagem.
 const STATUS = [
-  { chave: "urgente", label: "Urgente", cor: "#d03b3b" },
-  { chave: "medio", label: "Médio", cor: "#fab219" },
-  { chave: "info", label: "Informação", cor: "#0ca30c" },
+  { chave: "urgente", label: "Urgente", cor: "var(--urgente)" },
+  { chave: "medio", label: "Médio", cor: "var(--medio)" },
+  { chave: "info", label: "Informação", cor: "var(--info)" },
 ] as const;
 
 export default function BarraAlertasPrioridade({

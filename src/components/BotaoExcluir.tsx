@@ -62,7 +62,7 @@ export default function BotaoExcluir({
         style={
           armado
             ? {
-                color: "#fff",
+                color: "var(--sobre-forte)",
                 background: "var(--urgente)",
                 borderColor: "var(--urgente)",
               }

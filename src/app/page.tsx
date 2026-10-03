@@ -928,7 +928,7 @@ function FluxoColuna({
                 className="w-7 h-7 rounded-full grid place-items-center text-xs font-extrabold font-serif shrink-0"
                 style={{
                   background: brand ? "var(--brand)" : "var(--superficie)",
-                  color: brand ? "#fff" : "var(--muted)",
+                  color: brand ? "var(--sobre-forte)" : "var(--muted)",
                 }}
               >
                 {i + 1}

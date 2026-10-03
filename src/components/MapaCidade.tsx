@@ -28,13 +28,21 @@ export type PontoCidade = {
   emAtraso?: boolean;
 };
 
+// ── TRÊS CAMADAS SÃO TRÊS SÉRIES ──
+//
+// Saúde, Educação e Obras são entidades fixas, e a cor segue a entidade: o
+// filtro que esconde uma camada não repinta as outras duas. É exatamente o
+// trabalho dos tokens de série, e eram três hexadecimais avulsos que não
+// existiam em nenhum outro lugar do produto nem acompanhavam o tema.
 export const CORES_CAMADA: Record<CamadaMapa, string> = {
-  saude: "#e0533d",
-  educacao: "#2f7ad6",
-  obras: "#e0a441",
+  saude: "var(--serie-2)",
+  educacao: "var(--serie-1)",
+  obras: "var(--serie-5)",
 };
 
-const COR_ATRASO = "#c0392b";
+// Atraso é ESTADO, não camada: vem da paleta de status, e nunca de um slot de
+// série — um gráfico cuja quarta série é vermelha vira um alarme falso.
+const COR_ATRASO = "var(--urgente)";
 
 export const NOME_CAMADA: Record<CamadaMapa, string> = {
   saude: "Saúde",
@@ -55,8 +63,8 @@ function icone(cor: string, destacado: boolean): L.DivIcon {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="${tamanho}" height="${tamanho * 1.33}">
       <path d="M12 0C5.4 0 0 5.4 0 12c0 8.4 12 20 12 20s12-11.6 12-20C24 5.4 18.6 0 12 0z"
-            fill="${cor}" stroke="#ffffff" stroke-width="2"/>
-      <circle cx="12" cy="12" r="4.5" fill="#ffffff"/>
+            fill="${cor}" stroke="var(--sobre-forte)" stroke-width="2"/>
+      <circle cx="12" cy="12" r="4.5" fill="var(--sobre-forte)"/>
     </svg>`;
 
   return L.divIcon({
@@ -125,7 +133,7 @@ export default function MapaCidade({ pontos }: { pontos: PontoCidade[] }) {
             >
               <span
                 className="w-3 h-3 rounded-full shrink-0"
-                style={{ background: CORES_CAMADA[c], border: "2px solid #fff", boxShadow: "0 0 0 1px var(--border)" }}
+                style={{ background: CORES_CAMADA[c], border: "2px solid var(--sobre-forte)", boxShadow: "0 0 0 1px var(--border)" }}
               />
               {NOME_CAMADA[c]}
               <span className="text-muted tabular-nums">{total}</span>
@@ -137,7 +145,7 @@ export default function MapaCidade({ pontos }: { pontos: PontoCidade[] }) {
           <span className="flex items-center gap-2 text-sm font-semibold" style={{ color: COR_ATRASO }}>
             <span
               className="w-3 h-3 rounded-full shrink-0"
-              style={{ background: COR_ATRASO, border: "2px solid #fff" }}
+              style={{ background: COR_ATRASO, border: "2px solid var(--sobre-forte)" }}
             />
             {atrasadas} {atrasadas === 1 ? "obra atrasada" : "obras atrasadas"}
           </span>
@@ -168,7 +176,7 @@ export default function MapaCidade({ pontos }: { pontos: PontoCidade[] }) {
               <Popup>
                 <strong>{p.nome}</strong>
                 <br />
-                <span style={{ color: "#666" }}>{NOME_CAMADA[p.camada]}</span>
+                <span style={{ color: "var(--muted)" }}>{NOME_CAMADA[p.camada]}</span>
                 {p.descricao && (
                   <>
                     <br />

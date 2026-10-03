@@ -316,7 +316,7 @@ export default async function EducacaoPage() {
         <div>
           <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">Mapa das escolas</h2>
           <MapaSecretariaClient
-            corDestaque="#7a5c1a"
+            corDestaque="var(--serie-5)"
             pontos={listaEscolas
               .filter((e) => e.latitude !== null && e.longitude !== null)
               .map((e) => ({

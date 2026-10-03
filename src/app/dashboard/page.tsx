@@ -357,7 +357,11 @@ function DeltaBadge({
   const subiu = percentual > 0;
   const neutro = Math.abs(percentual) < 0.05;
   const bom = subiu === upEhBom;
-  const cor = neutro ? "#6b6b64" : bom ? "#0ca30c" : "#d03b3b";
+  // Tokens, não hexadecimal: estes três eram #6b6b64, #0ca30c e #d03b3b — um
+  // cinza, um verde e um vermelho que não existem em nenhum outro lugar do
+  // produto e não acompanham o modo escuro. Variação boa é --info, variação
+  // ruim é --urgente, e sem variação é --muted, como em toda outra tela.
+  const cor = neutro ? "var(--muted)" : bom ? "var(--info)" : "var(--urgente)";
   const Icone = subiu ? IconSetaCima : IconSetaBaixo;
 
   return (

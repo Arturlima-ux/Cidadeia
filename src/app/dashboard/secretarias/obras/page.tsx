@@ -165,7 +165,7 @@ export default async function ObrasPage() {
           Mapa das obras
         </h2>
         <MapaSecretariaClient
-          corDestaque="#8a2b2b"
+          corDestaque="var(--serie-2)"
           pontos={listaObras
             .filter((o) => o.latitude !== null && o.longitude !== null)
             .map((o) => ({
