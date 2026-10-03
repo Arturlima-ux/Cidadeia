@@ -208,10 +208,20 @@ export default async function LandingPage({
 
         {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
         <section data-tema="gestao" className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-16 sm:pb-20">
-          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
+          {/* ── O ESQUELETO MUDOU, NÃO SÓ A TINTA ──
+
+              Era uma grade de duas colunas: texto à esquerda, painel espremido
+              na direita. É a diagramação de SaaS que todo mundo usa, e era a
+              mesma de antes da troca de cores — o fundador apontou que as
+              referências não tinham sido seguidas, e estava certo.
+
+              As dez referências do Dribbble têm uma estrutura em comum:
+              manchete grande e CENTRALIZADA, uma linha, um gesto embaixo, e o
+              produto aparecendo depois — largo, inclinado, ocupando a tela.
+              O produto é o herói; o texto apresenta. */}
+          <div className="max-w-4xl mx-auto text-center">
             <Reveal>
-              <div>
-                <span
+              <span
                   className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] rounded-full px-4 py-2 border"
                   style={{
                     color: "var(--accent-claro)",
@@ -226,103 +236,41 @@ export default async function LandingPage({
                   Dado do Tesouro Nacional · exercício de {LIMITE_DISPENSA.ano}
                 </span>
 
-                {/* A dobra abria com COMO COMPRAR — dispensa, limite, valor —
-                    e a primeira coisa que o prefeito lia era um convite a
-                    gastar sem licitar. Correto pelo art. 75, II, e mesmo
-                    assim o pior som possível para quem vive com medo de
-                    improbidade. Pior: ele descia a tela inteira sem descobrir
-                    o que o sistema faz.
-
-                    Agora abre pelo risco que ele já corre com ou sem a gente.
-                    A dispensa continua na página — desceu para junto do
-                    preço, que é onde ela remove objeção em vez de criar. */}
-                <h1 className="font-serif text-[2.9rem] leading-[1.0] sm:text-[3.8rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[16ch] [text-wrap:balance]">
+              <h1 className="font-serif text-[3.2rem] leading-[1.0] sm:text-[4.6rem] lg:text-[5.4rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[18ch] mx-auto [text-wrap:balance]">
                   O Tribunal de Contas já está contando.
                 </h1>
 
-                {/* O que o herói NÃO dizia: o que o produto é. Quem lia só a
-                    primeira dobra saía achando que o CidadeIA é ferramenta de
-                    compliance, e não um sistema de gestão — o gancho da
-                    conformidade estava vendendo risco jurídico no lugar da
-                    plataforma. O nome do produto agora aparece antes do
-                    gancho, e o gancho vira o primeiro passo dentro dele. */}
-                {/* "Sistema operacional" era o slogan e ninguém explicava por
-                    quê. A frase seguinte é a explicação: um ambiente só para
-                    enxergar, analisar e agir. O gancho da LAI, que abria a
-                    página, desce para segundo parágrafo — continua sendo o
-                    primeiro passo, mas depois de a pessoa saber o que é isto. */}
-                <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[50ch]">
+              <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[46ch] mx-auto">
                   Ele compara o que o seu município declarou ao Tesouro com o limite
                   que o próprio município declarou no mesmo documento.
                 </p>
 
-{/* O gesto do herói. Um formulário GET de verdade: a home
-                    precisa funcionar antes de hidratar, e o resultado precisa
-                    ser um endereço que a pessoa copia e manda para o prefeito. */}
-                <div className="mt-8">
-                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
-                </div>
-                {/* ── O SEGUNDO PARÁGRAFO E O BOTÃO DO RAIO-X SAÍRAM ──
-                    A dobra pedia cinco coisas ao mesmo tempo: título, dois
-                    parágrafos, contador, dois botões cheios e uma ressalva. O
-                    seletor logo abaixo É o Raio-X, e com ele um botão
-                    "Ver o Raio-X do meu município" ao lado virava o mesmo
-                    destino oferecido duas vezes, competindo consigo mesmo.
+              {/* O gesto, centralizado embaixo da manchete. */}
+              <div className="mt-9 flex justify-center">
+                <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+              </div>
 
-                    O que sobrou é uma afirmação, uma prova e um gesto. O
-                    diagnóstico continua, em botão de contorno: ele pede dois
-                    minutos de respostas e por isso vem depois de a pessoa já
-                    ter visto um número do município dela. */}
-                {/* ── O HERÓI PERDEU QUATRO BLOCOS ──
-                    Tinha, embaixo da manchete: parágrafo de quatro linhas,
-                    botão de diagnóstico, micro-linha de ressalva, dois links
-                    de texto e uma faixa de prova com divisória. Cinco coisas
-                    competindo pelo mesmo olhar, e o gesto que importa — o
-                    seletor de município — espremido no meio delas.
-
-                    Sobrou manchete, uma linha, o gesto e a ressalva. O
-                    diagnóstico, a demonstração e a proposta continuam na
-                    página, mais abaixo, onde quem já viu um número do próprio
-                    município chega com motivo para clicar. */}
-                <p className="text-xs text-muted mt-5">
+              <p className="text-xs text-muted mt-5">
                   Sem cadastro, sem formulário, com dado que já é público.
                 </p>
-
-              </div>
-            </Reveal>
-            {/* Aqui ficava o cartão das ${EXIGENCIAS.length} exigências — o
-                diagnóstico resumido. Ele foi para /conformidade, onde é o
-                resumo da tabela. No herói entra o produto: a Visão Geral
-                desenhada em HTML, com os mesmos tokens do painel. Quem chega
-                vê a tela que está comprando antes de ler qualquer argumento. */}
-            {/* O painel sobe um pouco mais devagar que o texto ao lado. É o
-                que dá sensação de camada sem desenhar nada a mais. */}
-            {/* ── O PAINEL RESPONDE AO CURSOR ──
-                É a primeira coisa que o prefeito olha, e um retângulo parado
-                parece imagem. Inclinar de leve diz que aquilo é uma TELA, não
-                uma captura — e a pergunta "isso é um print ou o sistema?" é a
-                primeira que ele faz sozinho.
-
-                Intensidade 3, metade do padrão: o painel é grande, e ângulo
-                que funciona num cartão pequeno vira gangorra aqui. Sutileza é
-                o que lê como caro; exagero lê como template de portfólio.
-
-                No toque nada acontece — o componente ignora pointerType que
-                não seja mouse, porque cartão que inclina ao encostar o dedo
-                parece defeito. */}
-            <Reveal delay={140}>
-              <div className="parallax parallax-sutil">
-                <Inclinavel intensidade={3} className="inclinavel-amplo">
-                  <PainelDemonstracao />
-                </Inclinavel>
-              </div>
             </Reveal>
           </div>
 
-          {/* ── A PROVA, NO MUNICÍPIO DE QUEM ESTÁ LENDO ──
-              A manchete afirma; isto prova. Dois limites de Suspense porque
-              são duas consultas ao Tesouro: o RGF é o lento e fica sozinho
-              para não segurar o RREO. Ver src/app/_heroi/. */}
+          {/* ── O PRODUTO, LARGO E INCLINADO ──
+
+              Antes ocupava metade da dobra, do tamanho de um cartão. Aqui ele
+              é a imagem principal: largura quase cheia, perspectiva leve e um
+              brilho da marca por baixo, sangrando para fora do bloco. É o que
+              as referências fazem — o painel não ilustra o texto, ele É o
+              argumento. */}
+          <Reveal delay={140}>
+            <div className="palco-produto mt-16 sm:mt-20">
+              <Inclinavel intensidade={2} className="inclinavel-amplo">
+                <PainelDemonstracao />
+              </Inclinavel>
+            </div>
+          </Reveal>
+
           {municipio && (
             <div className="mt-14">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted">
