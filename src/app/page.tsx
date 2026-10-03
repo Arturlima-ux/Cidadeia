@@ -111,7 +111,7 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
       : {
           titulo: "Confira com o seu próprio município",
           texto:
-            "O Raio-X lê os dados que a União já publica sobre qualquer prefeitura do país e responde na hora. Digite a sua e veja o que sai — sem cadastro, sem conversa com vendedor.",
+            "O Raio-X lê os dados que a União já publica sobre qualquer prefeitura do país e responde na hora. Digite a sua e veja o que sai. Sem cadastro, sem conversa com vendedor.",
         },
     {
       titulo: "O contrato é público antes da venda",
@@ -258,7 +258,7 @@ export default async function LandingPage({
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
                   />
-                  Sistema operacional da prefeitura · {LIMITE_DISPENSA.ano}
+                  Dado do Tesouro Nacional · exercício de {LIMITE_DISPENSA.ano}
                 </span>
 
                 {/* A dobra abria com COMO COMPRAR — dispensa, limite, valor —
@@ -272,7 +272,7 @@ export default async function LandingPage({
                     A dispensa continua na página — desceu para junto do
                     preço, que é onde ela remove objeção em vez de criar. */}
                 <h1 className="font-serif text-[2.9rem] leading-[1.0] sm:text-[3.8rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[16ch] [text-wrap:balance]">
-                  A prefeitura inteira numa tela que diz o que decidir.
+                  O Tribunal de Contas já está contando.
                 </h1>
 
                 {/* O que o herói NÃO dizia: o que o produto é. Quem lia só a
@@ -287,33 +287,23 @@ export default async function LandingPage({
                     página, desce para segundo parágrafo — continua sendo o
                     primeiro passo, mas depois de a pessoa saber o que é isto. */}
                 <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[50ch]">
-                  Um único ambiente para enxergar, analisar e agir: saúde,
-                  educação, obras, licitações, transparência e ouvidoria numa
-                  base só — e a IA dizendo o que mudou e o que fazer.
+                  Ele soma o que o seu município declarou ao Tesouro Nacional e compara
+                  com o limite que o próprio município declarou no mesmo documento.
+                  Veja agora, sem cadastro.
                 </p>
 
-                {/* Duas portas de entrada, e a ordem importa. O Raio-X não
-                    pede nada: basta o nome do município e ele mostra o que o
-                    Tesouro já publicou. O diagnóstico pede dois minutos de
-                    respostas. Quem chega frio começa pelo que não cobra nada
-                    dele. */}
-                <p className="text-muted text-base leading-relaxed mt-4 max-w-[50ch]">
-                  Comece vendo o Raio-X do seu município: receita, aplicação em
-                  saúde e educação e quais relatórios obrigatórios constam, direto
-                  do Tesouro Nacional. Depois, o diagnóstico gratuito confere{" "}
-                  {EXIGENCIAS.length} exigências da LAI, da Lei 13.460, da LRF e
-                  da LGPD, cada pendência com o artigo que a cria.
-                </p>
+                {/* ── O SEGUNDO PARÁGRAFO E O BOTÃO DO RAIO-X SAÍRAM ──
+                    A dobra pedia cinco coisas ao mesmo tempo: título, dois
+                    parágrafos, contador, dois botões cheios e uma ressalva. O
+                    seletor logo abaixo É o Raio-X, e com ele um botão
+                    "Ver o Raio-X do meu município" ao lado virava o mesmo
+                    destino oferecido duas vezes, competindo consigo mesmo.
 
+                    O que sobrou é uma afirmação, uma prova e um gesto. O
+                    diagnóstico continua, em botão de contorno: ele pede dois
+                    minutos de respostas e por isso vem depois de a pessoa já
+                    ter visto um número do município dela. */}
                 <div className="flex flex-wrap items-center gap-3 mt-8">
-                  <Magnetico>
-                    <Link
-                      href="/raio-x"
-                      className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 shadow-elevated"
-                    >
-                      Ver o Raio-X do meu município&nbsp;&nbsp;→
-                    </Link>
-                  </Magnetico>
                   <Magnetico forca={3}>
                     <Link
                       href="/diagnostico"
@@ -344,7 +334,7 @@ export default async function LandingPage({
                     className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
-                    Explorar a demonstração — o painel de verdade, sem cadastro →
+                    Explorar a demonstração: o painel de verdade, sem cadastro →
                   </a>
                 </p>
                 <p className="text-sm mt-2.5">
@@ -353,7 +343,7 @@ export default async function LandingPage({
                     className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--brand)" }} />
-                    Montar a proposta do município — módulos, prazo e valor →
+                    Montar a proposta do município: módulos, prazo e valor →
                   </Link>
                 </p>
 
@@ -387,7 +377,7 @@ export default async function LandingPage({
                       ? `Portal de ${portalVitrine.municipio} · ${portalVitrine.estado}`
                       : "Ver o Raio-X do seu município"}
                     <span className="text-muted font-normal group-hover:text-brand-claro transition">
-                      {portalVitrine ? "— abra sem login" : "— dado federal, sem cadastro"}
+                      {portalVitrine ? "· abra sem login" : "· dado federal, sem cadastro"}
                     </span>
                   </Link>
 
@@ -453,6 +443,16 @@ export default async function LandingPage({
               <div className="mt-4 max-w-2xl">
                 <PedirProjecao codigoIbge={municipio.codigo} municipio={municipio.nome} />
               </div>
+
+              {/* ── O LIMITE, DITO NA TELA ──
+                  Sem carteira de clientes para exibir, confiança se constrói
+                  admitindo limite. A nota fica aqui, junto dos números, e não
+                  no rodapé: quem precisa dela é quem está lendo o número. */}
+              <p className="text-xs text-muted mt-5 leading-relaxed max-w-[64ch]">
+                O CidadeIA não substitui o parecer da contabilidade interna nem a assessoria
+                jurídica do município. A plataforma processa dado público oficial para apontar
+                desvio de rota antes que ele vire apontamento formal.
+              </p>
             </div>
           )}
         </section>
@@ -583,7 +583,7 @@ export default async function LandingPage({
               </h2>
               <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
                 O que muda não é o gráfico. É o caminho que um número faz até
-                virar uma decisão — e quanto tempo ele leva.
+                virar uma decisão, e quanto tempo ele leva.
               </p>
             </div>
           </Reveal>
@@ -599,7 +599,7 @@ export default async function LandingPage({
 
           <Reveal>
             <p className="text-sm text-muted mt-8 max-w-[62ch] leading-relaxed">
-              Cada passo do lado direito é uma tela que existe — a Visão Geral
+              Cada passo do lado direito é uma tela que existe: a Visão Geral
               está desenhada no topo desta página, com a mesma lista. Quer ver
               nós contra as incumbentes em preço, caminho legal e processo?{" "}
               <Link href="/como-contratar" className="font-semibold text-brand hover:text-brand-claro transition">
@@ -621,7 +621,7 @@ export default async function LandingPage({
                 <p className="text-muted leading-relaxed max-w-[52ch]">
                   Município e módulos. A proposta chega em até um dia útil, por
                   módulo e pela faixa de habitantes do seu município, com o
-                  termo de referência pronto — sem reunião obrigatória.
+                  termo de referência pronto, sem reunião obrigatória.
                 </p>
               </div>
             </Reveal>
@@ -814,7 +814,7 @@ export default async function LandingPage({
                     O morador tem entrada própria.
                   </span>{" "}
                   Ver para onde vai o dinheiro, acompanhar um pedido pelo número
-                  e denunciar sem se identificar — sem cadastro, sem login e sem
+                  e denunciar sem se identificar, sem cadastro, sem login e sem
                   passar por esta página de vendas.
                 </p>
                 <Link
@@ -903,7 +903,7 @@ export default async function LandingPage({
 
               <p className="text-muted leading-relaxed mt-5 max-w-[46ch] mx-auto">
                 Proposta com o valor anual, termo de referência, minuta de
-                contrato e certidões — no mesmo e-mail, sem reunião antes.
+                contrato e certidões, no mesmo e-mail, sem reunião antes.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-3 mt-8">

@@ -188,8 +188,17 @@ describe("hierarquia de chamada para ação", () => {
     //
     // Qualificar continua obrigatório no topo. Qual das duas portas faz
     // isso é decisão de produto.
+    //
+    // Em 02/10/2026 o qualificador deixou de ser um LINK e virou um
+    // formulário: o seletor de município no herói calcula ali mesmo, sem
+    // navegar. O botão cheio dele é um <button type="submit">, que este
+    // detector — que lê <Link> — não enxerga. A regra continua honrada, e de
+    // forma mais direta que antes; quem precisou mudar foi o detector.
     const QUALIFICADORES = ["/raio-x", "/diagnostico"];
-    expect(destinos.some((d) => QUALIFICADORES.some((q) => d.startsWith(q)))).toBe(true);
+    const qualificaNoTopo =
+      destinos.some((d) => QUALIFICADORES.some((q) => d.startsWith(q))) ||
+      /<SeletorMunicipio\b/.test(home);
+    expect(qualificaNoTopo).toBe(true);
     // O fecho converte pedindo a proposta — que tem página própria, não é
     // "precisa de ajuda". /suporte fica para suporte.
     expect(destinos.some((d) => d.startsWith("/proposta"))).toBe(true);
@@ -290,5 +299,53 @@ describe("claims sem fonte", () => {
       )
     );
     expect(suspeitos).toEqual([]);
+  });
+});
+
+describe("a home não soa como texto de máquina", () => {
+  // ── O DEFEITO QUE ISTO TRAVA ──
+  //
+  // O fundador leu a página pronta e disse: "o comercial está fraco, ainda
+  // possui traços de IA". Os traços eram todos de CADÊNCIA, não de conteúdo —
+  // travessão em quase todo parágrafo, tudo em três, a construção "Não é X. É
+  // Y." repetida em seções diferentes. Frases boas afogadas em argumento
+  // uniforme.
+  //
+  // Regra de estilo sem teste vira folclore em dois meses. Foi o que aconteceu
+  // com a cor antes de docs/design-system.md existir.
+
+  /** Só o texto que chega na tela: fora de atributo, fora de classe. */
+  const textoVisivel = home
+    .replace(/className="[^"]*"/g, "")
+    .replace(/\b(href|src|style|id|name|action|method|aria-[a-z]+)="[^"]*"/g, "")
+    // JSX quebra uma frase em várias linhas com indentação no meio. Quebra de
+    // linha não é violação de estilo: a regra é sobre o texto que a pessoa lê.
+    .replace(/\s+/g, " ");
+
+  it("no máximo três travessões retóricos na página inteira", () => {
+    const quantos = (textoVisivel.match(/—/g) ?? []).length;
+    expect(quantos, `${quantos} travessões`).toBeLessThanOrEqual(3);
+  });
+
+  it("não usa a construção 'Não é X. É Y.'", () => {
+    expect(textoVisivel).not.toMatch(/Não é [^.]{3,80}\.\s*É /);
+  });
+
+  it("não usa palavra de marketing", () => {
+    for (const p of ["completo", "poderoso", "revolucionário", "tudo em um", "de ponta"]) {
+      expect(textoVisivel.toLowerCase(), p).not.toContain(p);
+    }
+  });
+
+  it("não diz tempo real", () => {
+    // O SICONFI publica por bimestre e por quadrimestre. Dizer tempo real para
+    // um contador perde a sala no primeiro parágrafo.
+    expect(textoVisivel).not.toMatch(/tempo real/i);
+  });
+
+  it("o limite do produto está declarado na própria tela", () => {
+    // Confiança sem carteira de clientes se constrói admitindo limite.
+    expect(textoVisivel).toMatch(/não substitui o parecer da contabilidade interna/i);
+    expect(textoVisivel).toMatch(/assessoria jurídica/i);
   });
 });
