@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
 import { lerSessao } from "@/lib/sessao";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
@@ -16,6 +17,11 @@ import Olho from "@/components/site/Olho";
 import BarraLeitura from "@/components/site/BarraLeitura";
 import NumerosVerificaveis from "@/components/site/NumerosVerificaveis";
 import PorDentro from "@/components/site/PorDentro";
+import SeletorMunicipio from "@/components/site/SeletorMunicipio";
+import EsqueletoFato from "@/components/site/EsqueletoFato";
+import CarregaPessoal from "./_heroi/CarregaPessoal";
+import CarregaRreo from "./_heroi/CarregaRreo";
+import { municipioDoParametro } from "@/lib/fatos-do-municipio";
 import { Inclinavel, Magnetico } from "@/components/site/Ponteiro";
 import { IMPLANTACAO } from "@/lib/textos-contratacao";
 import { FLUXO_ANTES, FLUXO_COM, type PassoFluxo } from "@/lib/fluxo-decisao";
@@ -129,7 +135,14 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 // perde ao escolher a alternativa. Cada linha é verificável.
 
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ m?: string }>;
+}) {
+  // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
+  // endereço vira a home inicial, não uma chamada à API pública do Tesouro.
+  const municipio = municipioDoParametro((await searchParams).m);
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
   // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
@@ -308,6 +321,13 @@ export default async function LandingPage() {
                   </Magnetico>
                 </div>
 
+                {/* O gesto do herói. Um formulário GET de verdade: a home
+                    precisa funcionar antes de hidratar, e o resultado precisa
+                    ser um endereço que a pessoa copia e manda para o prefeito. */}
+                <div className="mt-8">
+                  <SeletorMunicipio inicial={municipio} />
+                </div>
+
                 <p className="text-xs text-muted mt-4">
                   Sem cadastro · sem formulário · dado que já é público
                 </p>
@@ -399,6 +419,33 @@ export default async function LandingPage() {
               </div>
             </Reveal>
           </div>
+
+          {/* ── A PROVA, NO MUNICÍPIO DE QUEM ESTÁ LENDO ──
+              A manchete afirma; isto prova. Dois limites de Suspense porque
+              são duas consultas ao Tesouro: o RGF é o lento e fica sozinho
+              para não segurar o RREO. Ver src/app/_heroi/. */}
+          {municipio && (
+            <div className="mt-14">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                {municipio.nome} · {municipio.uf}
+              </p>
+              <div className="grid md:grid-cols-3 gap-4 mt-3">
+                <Suspense fallback={<EsqueletoFato titulo="Despesa com pessoal" />}>
+                  <CarregaPessoal codigoIbge={municipio.codigo} />
+                </Suspense>
+                <Suspense
+                  fallback={
+                    <>
+                      <EsqueletoFato titulo="Aplicação em saúde e educação" />
+                      <EsqueletoFato titulo="Relatórios obrigatórios" />
+                    </>
+                  }
+                >
+                  <CarregaRreo municipio={municipio.nome} uf={municipio.uf} />
+                </Suspense>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* ═══ O SISTEMA ═══

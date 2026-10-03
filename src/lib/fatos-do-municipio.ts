@@ -3,6 +3,7 @@ import type { ResultadoRaioX } from "@/lib/raio-x";
 import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
 import { RESSALVA_MINIMOS } from "@/lib/raio-x-texto";
 import { formatarMoeda } from "@/lib/formatadores";
+import { municipioPorCodigo, type Municipio } from "@/lib/municipios";
 
 // ── OS TRÊS FATOS QUE ABREM A PÁGINA ──
 //
@@ -227,4 +228,19 @@ export function fatoDosRelatorios(raioX: ResultadoRaioX, consultadoEm: string): 
       consultadoEm: dataSemHora(consultadoEm),
     },
   };
+}
+
+// ── O PARÂMETRO DA HOME ──
+
+/**
+ * Resolve `?m=` contra a lista local de municípios.
+ *
+ * Validar antes de consultar é o que impede que qualquer coisa colada na barra
+ * de endereço vire uma chamada à API pública do Tesouro — e o que garante que
+ * lixo responda com a home inicial em vez de um erro.
+ */
+export function municipioDoParametro(m: string | undefined | null): Municipio | null {
+  if (!m) return null;
+  if (!/^\d{7}$/.test(m)) return null;
+  return municipioPorCodigo(m);
 }

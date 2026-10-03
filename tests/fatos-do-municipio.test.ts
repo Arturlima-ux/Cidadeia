@@ -4,6 +4,7 @@ import {
   fatoDaAplicacao,
   fatoDosRelatorios,
   rotuloDoPeriodoRgf,
+  municipioDoParametro,
 } from "@/lib/fatos-do-municipio";
 import { RESSALVA_MINIMOS } from "@/lib/raio-x-texto";
 import type { ImportacaoRgf, PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
@@ -181,5 +182,24 @@ describe("toda fonte é nomeada", () => {
       expect(f.fonte.length, f.chave).toBeGreaterThan(5);
       expect(f.fundamento.length, f.chave).toBeGreaterThan(10);
     }
+  });
+});
+
+describe("o parâmetro ?m= da home", () => {
+  it("código válido resolve o município", () => {
+    expect(municipioDoParametro("2211001")?.uf).toBe("PI");
+  });
+
+  it("lixo não vira consulta ao Tesouro", () => {
+    // Validar contra a lista LOCAL antes de consultar é o que impede que
+    // qualquer coisa colada na barra de endereço vire chamada à API pública.
+    for (const m of ["", "abc", "0", "99999999", "<script>", "2211001; DROP", "221100", "22110011"]) {
+      expect(municipioDoParametro(m), m).toBeNull();
+    }
+  });
+
+  it("parâmetro ausente é estado inicial, não erro", () => {
+    expect(municipioDoParametro(undefined)).toBeNull();
+    expect(municipioDoParametro(null)).toBeNull();
   });
 });
