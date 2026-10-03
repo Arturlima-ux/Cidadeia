@@ -19,6 +19,7 @@ import NumerosVerificaveis from "@/components/site/NumerosVerificaveis";
 import PorDentro from "@/components/site/PorDentro";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
+import PedirProjecao from "@/components/site/PedirProjecao";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import { municipioDoParametro } from "@/lib/fatos-do-municipio";
@@ -445,6 +446,12 @@ export default async function LandingPage({
                 >
                   <CarregaRreo municipio={municipio.nome} uf={municipio.uf} />
                 </Suspense>
+              </div>
+
+              {/* A trava. O que está acima é dado público e fica aberto; isto
+                  cobra o que é trabalho do software. */}
+              <div className="mt-4 max-w-2xl">
+                <PedirProjecao codigoIbge={municipio.codigo} municipio={municipio.nome} />
               </div>
             </div>
           )}
