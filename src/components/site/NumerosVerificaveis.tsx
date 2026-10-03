@@ -70,22 +70,30 @@ export default function NumerosVerificaveis() {
   ];
 
   return (
-    <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
-        <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted text-center">
-          Quatro números, quatro links — confira cada um
-        </p>
-
-        <div className="cascata grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+    // ── SEM MOLDURA, SEM TÍTULO, EM CORPO GIGANTE ──
+    //
+    // Era uma <section> com borda em cima e embaixo, fundo próprio e um
+    // título explicando a faixa. Isso a transformava num bloco separado, que
+    // é como ela lia: rodapé de seção. Em GANNET e AuraVox os números SÃO a
+    // dobra — grandes, sem caixa em volta, com o rótulo pequeno embaixo.
+    //
+    // O título saiu porque a faixa não precisa ser apresentada: quatro
+    // números enormes com "conferir" embaixo dizem sozinhos o que são.
+    <section>
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="cascata grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
           {numeros.map((n, i) => (
             <Link
               key={n.rotulo}
               href={n.href}
               style={{ "--i": i } as React.CSSProperties}
-              className="group borda-viva rounded-2xl border border-border p-5 sm:p-6 flex flex-col gap-2 hover:border-brand transition"
+              /* Sem cartão: borda e fundo em volta de cada número os
+                 transformava em quatro caixinhas, e o conjunto lia como
+                 tabela. Sem caixa, os quatro valores formam uma linha só. */
+              className="group flex flex-col gap-2 transition"
             >
               <span
-                className="font-serif text-[2rem] sm:text-[2.6rem] leading-none font-extrabold tracking-[-0.04em]"
+                className="font-serif numero-gigante tabular-nums"
                 style={{ color: n.cor }}
               >
                 {n.moeda ? (

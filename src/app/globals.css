@@ -1069,3 +1069,59 @@ h1.font-serif,
     transform: none;
   }
 }
+
+/* ── MOLDURA DE DISPOSITIVO ─────────────────────────────────────────
+   O painel era um retângulo com borda de 1px e três bolinhas desenhadas:
+   lido como wireframe, não como produto. Nas referências (Orbix, Equinox,
+   Project Management) o que carrega o visual é o aparelho — corpo escuro
+   com espessura, luz pegando na aresta de cima, vidro com reflexo e
+   sombra funda por baixo.
+
+   Tudo isto é CSS sobre o painel que já existe. Não há captura de tela:
+   o conteúdo continua sendo HTML de verdade, legível e selecionável, que
+   é o que separa uma demonstração de uma imagem de marketing. */
+.moldura-dispositivo {
+  position: relative;
+  border-radius: 28px;
+  padding: 12px;
+  background: linear-gradient(180deg, #2a2a33 0%, #15151b 42%, #0e0e13 100%);
+  /* A aresta de cima pega luz; a de baixo, não. É o que dá espessura a um
+     retângulo chapado. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 40px 90px -30px rgba(0, 0, 0, 0.85);
+}
+
+.moldura-dispositivo > * {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* O reflexo do vidro: uma faixa clara atravessando o canto superior
+   esquerdo. Fica acima do conteúdo e não captura ponteiro. */
+.moldura-dispositivo::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 18px;
+  pointer-events: none;
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 24%,
+    transparent 46%
+  );
+}
+
+/* ── FILEIRA DE NÚMEROS GIGANTES ───────────────────────────────────
+   GANNET e AuraVox usam os números como MOBÍLIA do herói, não como uma
+   faixa de rodapé: três valores enormes em linha, com o rótulo pequeno
+   embaixo. É o que faz a dobra ter peso sem precisar de mais texto. */
+.numero-gigante {
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}

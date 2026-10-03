@@ -256,6 +256,18 @@ export default async function LandingPage({
             </Reveal>
           </div>
 
+          {/* ── OS NÚMEROS COMO MOBÍLIA DO HERÓI ──
+
+              Ficavam numa faixa depois da dobra, em corpo pequeno, como
+              rodapé de seção. Em GANNET e AuraVox os números SÃO a dobra:
+              valores enormes em linha, rótulo pequeno embaixo. É o que dá
+              peso sem acrescentar uma linha de texto. */}
+          <Reveal delay={100}>
+            <div className="mt-14 sm:mt-16">
+              <NumerosVerificaveis />
+            </div>
+          </Reveal>
+
           {/* ── O PRODUTO, LARGO E INCLINADO ──
 
               Antes ocupava metade da dobra, do tamanho de um cartão. Aqui ele
@@ -264,9 +276,15 @@ export default async function LandingPage({
               as referências fazem — o painel não ilustra o texto, ele É o
               argumento. */}
           <Reveal delay={140}>
-            <div className="palco-produto mt-16 sm:mt-20">
+            <div className="palco-produto mt-14 sm:mt-16">
               <Inclinavel intensidade={2} className="inclinavel-amplo">
-                <PainelDemonstracao />
+                {/* O painel dentro de um aparelho, não solto na página. O
+                    conteúdo continua HTML de verdade — legível, selecionável,
+                    com os números reais — que é o que separa uma demonstração
+                    de uma imagem de marketing. Ver a classe no globals.css. */}
+                <div className="moldura-dispositivo">
+                  <PainelDemonstracao />
+                </div>
               </Inclinavel>
             </div>
           </Reveal>
@@ -336,12 +354,6 @@ export default async function LandingPage({
             })}
           </div>
         </div>
-
-        {/* ═══ NÚMEROS QUE SE CONFEREM ═══
-            Toda landing tem uma faixa de números, e quase todas mentem.
-            Nenhum destes é escrito à mão: saem das constantes que o sistema
-            usa para funcionar, e cada um é um link para conferir. */}
-        <NumerosVerificaveis />
 
         {/* ═══ SOLUÇÕES — o resumo; a página inteira é /solucoes ═══
             Esta seção tinha os seis módulos com a lista completa de
