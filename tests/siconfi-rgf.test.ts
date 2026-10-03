@@ -65,6 +65,33 @@ describe("leitura do RGF Anexo 01", () => {
     expect(linha("LimiteDeAlertaDespesaComPessoalTotal")).toBeCloseTo(LIMITE_ALERTA, 2);
   });
 
+  it("lê os três limites declarados, em reais", () => {
+    // O herói da home confronta a despesa declarada com o LIMITE DECLARADO
+    // pela própria prefeitura, no mesmo documento. Sem estes campos saindo da
+    // extração, a página teria que calcular o limite — e aí vira a nossa
+    // conta contra o número dela, que é exatamente a discussão a evitar.
+    const r = extrairRgf(bruto, PERIODO);
+    if (!r.ok) throw new Error("fixture deveria extrair");
+
+    const pct = (v: number) => (v / r.dados.rclAjustada) * 100;
+    expect(pct(r.dados.limiteMaximo!)).toBeCloseTo(LIMITE_PESSOAL, 1);
+    expect(pct(r.dados.limitePrudencial!)).toBeCloseTo(LIMITE_PRUDENCIAL, 1);
+    expect(pct(r.dados.limiteAlerta!)).toBeCloseTo(LIMITE_ALERTA, 1);
+  });
+
+  it("limite ausente vira null, nunca zero", () => {
+    // `limiteMaximo ?? 0` fazia um limite ausente virar R$ 0 — e R$ 0 na tela
+    // afirma que o município estourou tudo. É o espelho do "0% de despesa com
+    // pessoal" que a função já se preocupa em evitar algumas linhas acima.
+    const semLimites = bruto.filter((l) => !String(l.cod_conta).startsWith("Limite"));
+    const r = extrairRgf(semLimites, PERIODO);
+    if (!r.ok) throw new Error("sem os limites, a extração ainda deve funcionar");
+
+    expect(r.dados.limiteMaximo).toBeNull();
+    expect(r.dados.limitePrudencial).toBeNull();
+    expect(r.dados.limiteAlerta).toBeNull();
+  });
+
   it("classifica o município real com o número importado", () => {
     const r = extrairRgf(bruto, PERIODO);
     if (!r.ok) throw new Error("fixture deveria extrair");

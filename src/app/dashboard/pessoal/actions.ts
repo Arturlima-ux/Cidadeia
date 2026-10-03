@@ -198,7 +198,9 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
   // ele publica não representar 54% da RCL ajustada, alguma premissa mudou —
   // e é melhor recusar do que gravar um número que a tela vai julgar por uma
   // régua que não vale mais.
-  if (dados.limiteMaximo > 0) {
+  // Null é "o anexo não trouxe a linha", e não "o limite é zero": sem o número
+  // publicado não há o que conferir, e a importação segue com a régua da lei.
+  if (dados.limiteMaximo !== null && dados.limiteMaximo > 0) {
     const limitePublicado = (dados.limiteMaximo / dados.rclAjustada) * 100;
     if (Math.abs(limitePublicado - LIMITE_PESSOAL) > 0.5) {
       return {

@@ -74,14 +74,24 @@ export type ImportacaoRgf = {
   rcl: number;
   despesaTotal: number;
   /**
-   * Limites em reais, como o próprio Tesouro calcula.
+   * Limites em reais, como o próprio Tesouro publica no anexo.
    *
    * Servem de conferência: se o percentual que o limite máximo representa da
    * RCL ajustada não for 54%, alguma premissa nossa mudou — repartição do art.
    * 20 alterada por lei, ou município de esfera diferente — e é melhor a
    * importação recusar do que gravar sobre uma régua errada.
+   *
+   * E servem de ARGUMENTO: a home confronta a despesa declarada com o limite
+   * declarado, os dois no mesmo documento assinado pela prefeitura. Não é a
+   * nossa conta contra o número dela.
+   *
+   * Null, nunca zero, quando o anexo não traz a linha. Um limite de R$ 0 na
+   * tela afirma que o município estourou tudo — o espelho exato do "0% de
+   * despesa com pessoal" que `extrairRgf` já recusa logo abaixo.
    */
-  limiteMaximo: number;
+  limiteMaximo: number | null;
+  limitePrudencial: number | null;
+  limiteAlerta: number | null;
 };
 
 export type ResultadoRgf =
@@ -113,6 +123,8 @@ export function extrairRgf(
   const rcl = valor(CONTAS.rcl) ?? rclAjustada;
   const despesaTotal = valor(CONTAS.despesaTotal);
   const limiteMaximo = valor(CONTAS.limiteMaximo);
+  const limitePrudencial = valor(CONTAS.limitePrudencial);
+  const limiteAlerta = valor(CONTAS.limiteAlerta);
 
   if (rclAjustada === null || rclAjustada <= 0 || despesaTotal === null) {
     // Estrutura conhecida mas sem os números: acontece com demonstrativo
@@ -132,7 +144,9 @@ export function extrairRgf(
       rclAjustada,
       rcl: rcl ?? rclAjustada,
       despesaTotal,
-      limiteMaximo: limiteMaximo ?? 0,
+      limiteMaximo,
+      limitePrudencial,
+      limiteAlerta,
     },
   };
 }
