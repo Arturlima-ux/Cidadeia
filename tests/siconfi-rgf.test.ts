@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   extrairRgf,
   mesDeReferencia,
   periodosParaTentar,
+  buscarSerieRgf,
   type PeriodoRgf,
 } from "@/lib/siconfi-rgf";
 import {
@@ -178,5 +179,53 @@ describe("janela de busca", () => {
     const lista = periodosParaTentar(2026, 1);
     expect(lista.length).toBeGreaterThan(0);
     expect(lista.every((p) => p.exercicio === 2025)).toBe(true);
+  });
+});
+
+describe("a série de períodos", () => {
+  // A trajetória da despesa com pessoal precisa de VÁRIOS períodos. É a
+  // diferença entre esta função e `buscarRgfMaisRecente`, que para no
+  // primeiro que extrai.
+
+  const resposta = (itens: unknown[]) =>
+    Response.json({ items: itens }, { status: 200 });
+
+  /** Monta o anexo de um período com o percentual pedido. */
+  const anexo = (rcl: number, percentual: number) => [
+    { cod_conta: "ReceitaCorrenteLiquidaAjustada", coluna: "Valor", valor: rcl },
+    { cod_conta: "ReceitaCorrenteLiquidaLimiteLegal", coluna: "Valor", valor: rcl },
+    { cod_conta: "DespesaComPessoalTotal", coluna: "Valor", valor: (rcl * percentual) / 100 },
+    { cod_conta: "LimiteMaximoDespesaComPessoalTotal", coluna: "Valor", valor: rcl * 0.54 },
+    { instituicao: "Prefeitura Municipal de Exemplo" },
+  ];
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("devolve a série em ordem cronológica", async () => {
+    let n = 0;
+    vi.stubGlobal("fetch", vi.fn(async () => resposta(anexo(100_000_000, 50 - n++))));
+
+    const serie = await buscarSerieRgf("2211001", 4);
+    const meses = serie.map((s) => s.periodo.exercicio * 12 + s.periodo.mesReferencia);
+    expect(serie.length).toBeGreaterThan(1);
+    expect(meses).toEqual([...meses].sort((a, b) => a - b));
+  });
+
+  it("não devolve período em branco", async () => {
+    // Período publicado sem valores não entra na série: entraria como ponto
+    // falso numa reta que decide uma data.
+    let chamada = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => (chamada++ % 2 === 0 ? resposta([]) : resposta(anexo(100_000_000, 48))))
+    );
+
+    const serie = await buscarSerieRgf("2211001", 4);
+    expect(serie.every((s) => s.despesaTotal > 0)).toBe(true);
+  });
+
+  it("município sem nada publicado devolve série vazia, não exceção", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => resposta([])));
+    await expect(buscarSerieRgf("2211001", 3)).resolves.toEqual([]);
   });
 });

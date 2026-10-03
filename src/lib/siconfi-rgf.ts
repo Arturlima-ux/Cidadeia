@@ -266,3 +266,42 @@ export async function buscarRgfMaisRecente(
       "Pode ser que ainda não tenha sido publicado — informe os valores à mão abaixo.",
   };
 }
+
+/**
+ * Vários períodos do RGF, do mais antigo para o mais novo.
+ *
+ * `buscarRgfMaisRecente` para no primeiro período que extrai — é o que a tela
+ * de importação precisa. A trajetória da despesa com pessoal precisa do
+ * contrário: de uma SÉRIE, porque uma reta sobre um ponto não existe.
+ *
+ * Período publicado em branco não entra. Entraria como ponto falso numa reta
+ * que depois decide uma data, e `lib/antecipacao.ts` recusa previsão sobre
+ * base ruim justamente para isso não acontecer.
+ */
+export async function buscarSerieRgf(
+  codigoIbge: string,
+  periodos = 8
+): Promise<ImportacaoRgf[]> {
+  const agora = new Date();
+  const candidatos = periodosParaTentar(agora.getFullYear(), agora.getMonth() + 1).slice(
+    0,
+    periodos
+  );
+
+  const serie: ImportacaoRgf[] = [];
+  for (const periodo of candidatos) {
+    const itens = await buscarPeriodo(codigoIbge, periodo);
+    if (itens.length === 0) continue;
+    const resultado = extrairRgf(itens, periodo);
+    if (resultado.ok) serie.push(resultado.dados);
+  }
+
+  // `periodosParaTentar` devolve do mais recente para o mais antigo. A série
+  // vai ao contrário: regressão sobre série invertida produz ritmo com o sinal
+  // trocado, isto é, um aviso dizendo o oposto da realidade.
+  return serie.sort(
+    (a, b) =>
+      a.periodo.exercicio * 12 + a.periodo.mesReferencia -
+      (b.periodo.exercicio * 12 + b.periodo.mesReferencia)
+  );
+}
