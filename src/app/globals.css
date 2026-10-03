@@ -17,13 +17,13 @@
   --border: #e5e5e8;
 
   /* marca */
-  --brand: #0f52c7; /* azul institucional, para ação e link */
-  --brand-dark: #0b3a82;
-  --brand-tint: #e8effb;
-  --brand-profundo: #0b2350; /* fundo das faixas escuras e da barra utilitária */
-  --accent: #147a52;
-  --accent-tint: #e6f4ee;
-  --gradient-hero: linear-gradient(115deg, #0b2350 0%, #123c83 60%, #0f52c7 100%);
+  --brand: #5233d9; /* violeta: o acento único do produto */
+  --brand-dark: #3f28a8;
+  --brand-tint: #efeafe;
+  --brand-profundo: #18103d; /* fundo das faixas escuras e da barra utilitária */
+  --accent: #6f4ff0;
+  --accent-tint: #f1ecff;
+  --gradient-hero: linear-gradient(115deg, #18103d 0%, #35219c 58%, #5233d9 100%);
 
   /* status — um só lugar define urgente/médio/info, usado no produto
      inteiro (alertas, central, sugestões da IA, badges de painel). */
@@ -79,7 +79,7 @@
      `--brand-dark` servia para isso e continua certo no claro, mas no escuro
      vira azul médio sobre fundo escuro: contraste abaixo do mínimo. Aqui a
      regra é legibilidade, não profundidade. */
-  --brand-legivel: #0b3a82;
+  --brand-legivel: #3f28a8;
 
   /* elevação */
   --shadow-sm: 0 1px 2px rgba(16, 19, 26, 0.05);
@@ -128,13 +128,13 @@
   --muted: #8b8f98;
   --border: rgba(243, 244, 246, 0.13);
 
-  --brand: #4c8dff;
-  --brand-dark: #2a6fd6;
-  --brand-tint: rgba(61, 134, 240, 0.13);
-  --brand-profundo: #0b1220;
-  --accent: #2fbf87;
-  --accent-tint: rgba(47, 191, 135, 0.12);
-  --gradient-hero: linear-gradient(140deg, #101828 0%, #16213a 55%, #1b2c4d 100%);
+  --brand: #7c5cff;
+  --brand-dark: #6344e0;
+  --brand-tint: rgba(124, 92, 255, 0.15);
+  --brand-profundo: #0c0a18;
+  --accent: #a68fff;
+  --accent-tint: rgba(166, 143, 255, 0.14);
+  --gradient-hero: linear-gradient(140deg, #0c0a18 0%, #171133 55%, #231a52 100%);
 
   --urgente: #ff5f52;
   --urgente-tint: rgba(255, 95, 82, 0.13);
@@ -162,11 +162,11 @@
   --shadow-lg: 0 28px 70px -18px rgba(0, 0, 0, 0.65);
 
   --sutil: rgba(255, 255, 255, 0.06);
-  --brand-legivel: #7fb0ff;
+  --brand-legivel: #b7a3ff;
 
   /* claros só do tema noite */
-  --brand-claro: #7fb0ff;
-  --accent-claro: #6be3b4;
+  --brand-claro: #b7a3ff;
+  --accent-claro: #cbbcff;
 
   background: var(--background);
   color: var(--foreground);

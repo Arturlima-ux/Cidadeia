@@ -53,49 +53,15 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
       <a href="#conteudo" className="pular-para-conteudo">
         Pular para o conteúdo
       </a>
-      {/* Barra utilitária — é a assinatura do formato institucional: o
-          cidadão e o servidor têm porta de entrada própria, separada da
-          conversa comercial. */}
-      <div
-        className="text-white/75 text-xs"
-        style={{ background: "var(--brand-profundo)" }}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-2 flex items-center justify-between gap-4">
-          <span className="hidden sm:inline">Atendimento: seg a sex, 8h às 18h</span>
-          <div className="flex items-center gap-5 ml-auto">
-            {/* O morador chega ao site por este link e por mais nenhum.
-                Ele fica em texto branco cheio, com o ponto verde de "no ar",
-                porque ao lado de "Área do servidor" em cinza ele desaparecia
-                — e quem procura o portal da própria cidade não vem lendo a
-                barra inteira, vem varrendo atrás de uma palavra conhecida. */}
-            <Link
-              href="/transparencia"
-              className="inline-flex items-center gap-1.5 text-white font-semibold hover:opacity-80 transition"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--accent)] shrink-0" />
-              Portal do cidadão
-            </Link>
-            {/* Sem sessão, esta é a única porta de login do site — o cabeçalho
-                abaixo repetia "Entrar", e duas portas para a mesma sala fazem
-                o topo parecer desarrumado. Com sessão, quem leva ao painel é
-                o botão do cabeçalho, e aqui não se repete: o cliente que já
-                contratou não precisa escolher entre dois caminhos iguais. */}
-            {!sessao && (
-              <Link href="/login" className="link-traco hover:text-white transition">
-                Entrar
-              </Link>
-            )}
-            {/* Rebaixado para cinza: em branco cheio disputava a atenção com
-                o link do cidadão, e a conversa comercial já tem o botão
-                principal do cabeçalho logo abaixo. Esta barra é do morador e
-                do servidor. */}
-            <Link href="/suporte" className="link-traco hover:text-white transition">
-              Fale conosco
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* ── A BARRA UTILITÁRIA SAIU ──
+          Eram DUAS barras empilhadas no topo de toda página: uma faixa
+          escura com horário de atendimento e três links, e o cabeçalho
+          abaixo dela. Somadas, ocupavam a primeira coisa que o visitante vê
+          com informação que ninguém procura na primeira visita.
 
+          O portal do cidadão e o "fale conosco" continuam no rodapé, que é
+          onde quem procura por eles de fato olha. "Entrar" entrou no
+          cabeçalho, em texto. */}
       {/* Opaco, sem backdrop-blur. O cabeçalho é sticky e fica na tela o tempo
           todo: com desfoque de fundo, o navegador reamostra e reborra a página
           inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
@@ -119,17 +85,33 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 barra de cima; a demonstração, na navegação; e o cadastro
                 nasce do próprio pedido (/cadastro?proposta=…), não de um
                 botão solto — prefeitura não abre conta antes de contratar. */}
+            {/* "Entrar" em texto, porque a barra utilitária que o guardava
+                saiu. Texto e não botão: duas ações com peso no mesmo canto é
+                o que fazia o topo parecer desarrumado. */}
+            {!sessao && (
+              <Link
+                href="/login"
+                className="hidden sm:inline text-sm font-medium text-muted hover:text-foreground transition px-2"
+              >
+                Entrar
+              </Link>
+            )}
             {sessao ? (
               <Link
                 href="/dashboard"
-                className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
+                className="text-sm font-semibold rounded-full px-5 py-2.5 transition"
+                style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 Ir para o painel
               </Link>
             ) : (
+              /* Pílula, não retângulo: é a forma dos botões em todas as
+                 referências que o fundador mandou, e é o que separa um
+                 cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="text-sm font-bold bg-brand hover:bg-brand-dark text-white rounded-xl px-4 sm:px-5 py-2.5 transition shadow-elevated"
+                className="text-sm font-semibold rounded-full px-5 py-2.5 transition"
+                style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 Receber proposta
               </Link>

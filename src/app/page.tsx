@@ -193,62 +193,15 @@ export default async function LandingPage({
           palavras a pergunta que faz a pessoa desistir: "isso vai longe?".
           Zero JavaScript — ver BarraLeitura.tsx. */}
       <BarraLeitura />
-      {/* ── atmosfera ──
-          Eram dois círculos de 736px e 608px com `filter: blur(90px)`, numa
-          camada fixa. O comentário antigo os chamava de "profundidade barata";
-          eram o oposto: blur de 90px sobre elemento desse tamanho aloca uma
-          textura enorme e a convolução ficava viva durante toda a rolagem,
-          porque a camada é position:fixed.
-
-          Gradiente radial produz a mesma mancha suave — é literalmente uma
-          interpolação de cor — e custa uma pintura só, sem filtro nenhum. */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div
-          className="halo absolute -top-64 -left-40 w-[46rem] h-[46rem]"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(61,134,240,0.20) 0%, rgba(61,134,240,0.10) 40%, transparent 70%)",
-          }}
-        />
-        <div
-          className="halo absolute -bottom-56 -right-32 w-[38rem] h-[38rem]"
-          /* Meio ciclo fora de fase da primeira: as duas manchas nunca
-             pulsam juntas, o que faria a tela inteira "piscar". */
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(47,191,135,0.14) 0%, rgba(47,191,135,0.07) 40%, transparent 70%)",
-          }}
-        />
-        {/* A malha ficava desbotada por `mask-image`. Máscara obriga o
-            navegador a manter uma camada de composição separada e a recompor a
-            cada quadro — caro, e nesta camada fixa ficava caro o tempo todo.
-
-            Duas camadas planas fazem o mesmo: a grade inteira, e por cima um
-            degradê da cor de fundo que a apaga descendo. É só pintura. */}
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{
-            backgroundImage:
-              "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
-            backgroundSize: "64px 64px",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent 0%, var(--background) 55%)",
-          }}
-        />
-      </div>
-
-      <div className="relative z-10">
-        {/* A sessão da DEMONSTRAÇÃO não é a de um cliente: com ela aberta, o
-            topo dizia "Ir para o painel" e levava ao painel fictício de Vila
-            Nova — quem clicava achava que estava entrando no seu. Aqui ela
-            conta como visita. */}
-        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
       <FundoTematico />
+
+      {/* Acima do fundo fixo, que vive em z-index -1. */}
+      <div className="relative z-10">
+        {/* `sessaoAtiva` vem daqui e não de `lerSessao()` dentro do cabeçalho:
+            a sessão de DEMONSTRAÇÃO não vale como cliente no site público, e a
+            distinção é feita aqui, uma vez. Travado por
+            tests/sessao-demo-nao-e-cliente.test.ts. */}
+        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
 
       <main id="conteudo">
         <BarraConversao />
@@ -299,9 +252,8 @@ export default async function LandingPage({
                     página, desce para segundo parágrafo — continua sendo o
                     primeiro passo, mas depois de a pessoa saber o que é isto. */}
                 <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[50ch]">
-                  O CidadeIA soma o que o seu município declarou ao Tesouro Nacional e compara
-                  com o limite que o próprio município declarou no mesmo documento.
-                  Veja agora, sem cadastro.
+                  Ele compara o que o seu município declarou ao Tesouro com o limite
+                  que o próprio município declarou no mesmo documento.
                 </p>
 
 {/* O gesto do herói. Um formulário GET de verdade: a home
@@ -321,79 +273,21 @@ export default async function LandingPage({
                     diagnóstico continua, em botão de contorno: ele pede dois
                     minutos de respostas e por isso vem depois de a pessoa já
                     ter visto um número do município dela. */}
-                <div className="flex flex-wrap items-center gap-3 mt-8">
-                  <Magnetico forca={3}>
-                    <Link
-                      href="/diagnostico"
-                      className="inline-block border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
-                    >
-                      Fazer o diagnóstico
-                    </Link>
-                  </Magnetico>
-                </div>
+                {/* ── O HERÓI PERDEU QUATRO BLOCOS ──
+                    Tinha, embaixo da manchete: parágrafo de quatro linhas,
+                    botão de diagnóstico, micro-linha de ressalva, dois links
+                    de texto e uma faixa de prova com divisória. Cinco coisas
+                    competindo pelo mesmo olhar, e o gesto que importa — o
+                    seletor de município — espremido no meio delas.
 
-                
-                <p className="text-xs text-muted mt-4">
-                  Sem cadastro · sem formulário · dado que já é público
-                </p>
-                {/* A demonstração é o painel real com uma prefeitura fictícia.
-                    Em texto, não em botão: a página tem duas ações cheias que
-                    não competem, e esta é a terceira porta — para quem quer
-                    ver antes de se qualificar ou de perguntar preço. */}
-                <p className="text-sm mt-5">
-                  <a
-                    href="/demo"
-                    className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
-                    Explorar a demonstração: o painel de verdade, sem cadastro →
-                  </a>
-                </p>
-                <p className="text-sm mt-2.5">
-                  <Link
-                    href="#proposta"
-                    className="inline-flex items-center gap-2 font-semibold text-brand-claro hover:text-foreground transition"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--brand)" }} />
-                    Montar a proposta do município: módulos, prazo e valor →
-                  </Link>
+                    Sobrou manchete, uma linha, o gesto e a ressalva. O
+                    diagnóstico, a demonstração e a proposta continuam na
+                    página, mais abaixo, onde quem já viu um número do próprio
+                    município chega com motivo para clicar. */}
+                <p className="text-xs text-muted mt-5">
+                  Sem cadastro, sem formulário, com dado que já é público.
                 </p>
 
-                {/* A prova sobe para o herói. Ficava na quarta seção, depois
-                    do preço — quem desistia antes nunca via que dá para
-                    conferir. Nas govtechs estabelecidas a prova abre a
-                    página; a delas é logo de cliente, a nossa é um endereço
-                    que abre. */}
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 pt-7 border-t border-border">
-                  {/* Sem portal no ar, este link dizia "Ver um portal
-                      publicado", com bolinha verde pulsando e "abra sem
-                      login" — e levava a uma página que responde "Nenhum
-                      portal publicado ainda". A prova mais visível da página
-                      provava o contrário do que prometia, em dez segundos.
-
-                      O Raio-X ocupa o lugar porque é conferível de verdade
-                      hoje: lê dado federal público de qualquer município,
-                      inclusive o de quem está lendo. A bolinha pulsando só
-                      aparece quando há de fato um endereço no ar. */}
-                  <Link
-                    href={portalVitrine ? `/transparencia/${portalVitrine.slug}` : "/raio-x"}
-                    className="group inline-flex items-center gap-2.5 text-sm font-semibold hover:text-brand-claro transition"
-                  >
-                    {portalVitrine && (
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
-                        style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
-                      />
-                    )}
-                    {portalVitrine
-                      ? `Portal de ${portalVitrine.municipio} · ${portalVitrine.estado}`
-                      : "Ver o Raio-X do seu município"}
-                    <span className="text-muted font-normal group-hover:text-brand-claro transition">
-                      {portalVitrine ? "· abra sem login" : "· dado federal, sem cadastro"}
-                    </span>
-                  </Link>
-
-                </div>
               </div>
             </Reveal>
             {/* Aqui ficava o cartão das ${EXIGENCIAS.length} exigências — o
