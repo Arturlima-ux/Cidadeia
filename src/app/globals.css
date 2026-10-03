@@ -914,75 +914,108 @@ h1.font-serif,
   }
 }
 
+
 /* ── FUNDO TEMÁTICO ──────────────────────────────────────────────────
    Um halo só, fixo atrás de tudo, que muda de cor conforme a seção lida.
-   A página inteira parece uma coisa que muda de temperatura, em vez de
-   seis blocos empilhados. Ver components/site/FundoTematico.tsx.
 
-   A cor sai de --serie-*, a paleta categórica já validada nos dois temas:
-   inventar um tom novo aqui desfaria a garantia de contraste e de
-   separação sob daltonismo, e perderia o ponto — o halo é a MESMA cor que
-   identifica o módulo no resto do produto. O fundo não decora, situa. */
+   ── O DEFEITO DA PRIMEIRA VERSÃO ──
+
+   As variantes eram `:root[data-fundo="x"] { --halo: ... }`, e a home inteira
+   vive dentro de `<div class="tema-noite">`, que também definia --halo.
+   Variável CSS resolve pelo ancestral MAIS PRÓXIMO: a div ganhava do :root, e
+   a troca de tema nunca chegava no halo. Não ficou sutil — ficou desligada.
+
+   Agora cada variante escreve a variável NO PRÓPRIO elemento do halo, que é o
+   último da cadeia e não tem como ser sombreado por ancestral nenhum.
+
+   As cores saem de --serie-1..6, a paleta já validada nos dois temas. O halo é
+   a MESMA cor que identifica o módulo no resto do produto: ele não decora,
+   situa. */
 .fundo-tematico {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* Dois halos, um alto e um baixo, para a cor não terminar numa borda
-     reta quando a seção seguinte entra. */
+  /* Dois halos, um alto e um baixo, para a cor não terminar numa borda reta
+     quando a seção seguinte entra. */
   background:
-    radial-gradient(60rem 40rem at 78% 12%, var(--halo) 0%, transparent 70%),
-    radial-gradient(48rem 36rem at 12% 88%, var(--halo-apoio) 0%, transparent 72%);
-  /* 900ms é longo de propósito: a troca acompanha a rolagem em vez de
-     piscar. Abaixo de ~600ms o olho lê como falha de renderização. */
+    radial-gradient(70rem 50rem at 76% 8%, var(--halo) 0%, transparent 62%),
+    radial-gradient(56rem 44rem at 10% 92%, var(--halo-apoio) 0%, transparent 66%);
+  /* 900ms é longo de propósito: a troca acompanha a rolagem em vez de piscar.
+     Abaixo de ~600ms o olho lê como falha de renderização. */
   transition: background 900ms var(--saida);
+
+  /* Neutro, antes de qualquer seção entrar. Sobre o fundo escuro da home,
+     um tom a 9% simplesmente não se vê — foi o erro de calibragem da
+     primeira versão. Estes valores foram escolhidos para SER vistos. */
+  --halo: color-mix(in oklab, var(--serie-1) 34%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-3) 22%, transparent);
 }
 
-:root {
-  --halo: color-mix(in oklab, var(--brand) 7%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--accent) 5%, transparent);
+:root[data-fundo="gestao"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-1) 38%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-4) 24%, transparent);
 }
-
-:root[data-fundo="gestao"] {
-  --halo: color-mix(in oklab, var(--serie-1) 9%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-4) 5%, transparent);
+:root[data-fundo="essencial"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-4) 38%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-1) 24%, transparent);
 }
-:root[data-fundo="essencial"] {
-  --halo: color-mix(in oklab, var(--serie-4) 9%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-1) 5%, transparent);
+:root[data-fundo="saude"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-3) 40%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-1) 24%, transparent);
 }
-:root[data-fundo="saude"] {
-  --halo: color-mix(in oklab, var(--serie-3) 10%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-1) 5%, transparent);
+:root[data-fundo="educacao"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-1) 40%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-3) 26%, transparent);
 }
-:root[data-fundo="educacao"] {
-  --halo: color-mix(in oklab, var(--serie-1) 10%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-3) 5%, transparent);
+:root[data-fundo="obras"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-5) 38%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-2) 26%, transparent);
 }
-:root[data-fundo="obras"] {
-  --halo: color-mix(in oklab, var(--serie-5) 10%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-2) 5%, transparent);
-}
-:root[data-fundo="licitacoes"] {
-  --halo: color-mix(in oklab, var(--serie-2) 9%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--serie-6) 5%, transparent);
-}
-
-/* No tema noite o halo pesa mais: sobre fundo escuro, 9% de cor some. */
-.tema-noite .fundo-tematico {
-  background:
-    radial-gradient(60rem 40rem at 78% 12%, var(--halo) 0%, transparent 68%),
-    radial-gradient(48rem 36rem at 12% 88%, var(--halo-apoio) 0%, transparent 70%);
-}
-.tema-noite {
-  --halo: color-mix(in oklab, var(--brand) 16%, transparent);
-  --halo-apoio: color-mix(in oklab, var(--accent) 10%, transparent);
+:root[data-fundo="licitacoes"] .fundo-tematico {
+  --halo: color-mix(in oklab, var(--serie-2) 38%, transparent);
+  --halo-apoio: color-mix(in oklab, var(--serie-6) 26%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Sem troca de tema e sem transição: o halo fica no tom neutro. A página
-     continua inteira; só para de mudar de temperatura. */
+  /* Sem transição. A cor ainda troca, mas sem animar entre uma e outra:
+     quem pede movimento reduzido não quer o fundo respirando atrás do texto. */
   .fundo-tematico {
+    transition: none;
+  }
+}
+
+/* ── TILE DO BENTO ───────────────────────────────────────────────────
+   O tile precisa ler como OBJETO, não como item de lista. A diferença é
+   um vidro escuro com um vinco de cor no canto, e profundidade real no
+   hover — a primeira versão usava o fundo do cartão comum e o bento ficou
+   indistinguível da grade que ele substituiu. */
+.tile-bento {
+  background:
+    radial-gradient(22rem 16rem at 100% 0%, color-mix(in oklab, var(--cor-viva) 20%, transparent) 0%, transparent 62%),
+    var(--card);
+  transition:
+    transform var(--t-micro) var(--rapido),
+    box-shadow var(--t-micro) var(--rapido),
+    border-color var(--t-micro) var(--rapido);
+}
+
+.tile-bento:hover,
+.tile-bento:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--cor-viva) 55%, var(--border));
+  /* O brilho é da cor do módulo e fica POR BAIXO, não um contorno: contorno
+     colorido em volta de seis tiles vira carnaval. */
+  box-shadow:
+    0 18px 50px -24px color-mix(in oklab, var(--cor-viva) 70%, transparent),
+    var(--shadow-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-bento,
+  .tile-bento:hover,
+  .tile-bento:focus-visible {
+    transform: none;
     transition: none;
   }
 }

@@ -304,6 +304,12 @@ export default async function LandingPage({
                   Veja agora, sem cadastro.
                 </p>
 
+{/* O gesto do herói. Um formulário GET de verdade: a home
+                    precisa funcionar antes de hidratar, e o resultado precisa
+                    ser um endereço que a pessoa copia e manda para o prefeito. */}
+                <div className="mt-8">
+                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+                </div>
                 {/* ── O SEGUNDO PARÁGRAFO E O BOTÃO DO RAIO-X SAÍRAM ──
                     A dobra pedia cinco coisas ao mesmo tempo: título, dois
                     parágrafos, contador, dois botões cheios e uma ressalva. O
@@ -326,13 +332,7 @@ export default async function LandingPage({
                   </Magnetico>
                 </div>
 
-                {/* O gesto do herói. Um formulário GET de verdade: a home
-                    precisa funcionar antes de hidratar, e o resultado precisa
-                    ser um endereço que a pessoa copia e manda para o prefeito. */}
-                <div className="mt-8">
-                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
-                </div>
-
+                
                 <p className="text-xs text-muted mt-4">
                   Sem cadastro · sem formulário · dado que já é público
                 </p>

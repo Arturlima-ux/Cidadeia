@@ -58,8 +58,15 @@ export default function BentoModulos({ modulos }: { modulos: ModuloBento[] }) {
               role="tab"
               aria-selected={selecionado}
               onClick={() => setAtivo(selecionado ? null : m.chave)}
-              className="relative rounded-full px-4 py-2 text-sm font-semibold transition"
-              style={{ color: selecionado ? "var(--sobre-forte)" : "var(--muted)" }}
+              // Contorno quando não está ativa. Sem ele a fileira lia como uma
+              // lista de palavras soltas, e ninguém descobria que são
+              // controles — a pílula só aparecia depois do clique que nunca
+              // acontecia.
+              className="relative rounded-full px-4 py-2 text-sm font-semibold transition border"
+              style={{
+                color: selecionado ? "var(--sobre-forte)" : "var(--foreground)",
+                borderColor: selecionado ? "transparent" : "var(--border)",
+              }}
             >
               {/* O realce viaja entre as abas porque as duas compartilham o
                   mesmo layoutId. É o único motivo de a biblioteca estar aqui. */}
@@ -123,11 +130,19 @@ export default function BentoModulos({ modulos }: { modulos: ModuloBento[] }) {
             href={m.href}
             onMouseEnter={() => setAtivo(m.chave)}
             onFocus={() => setAtivo(m.chave)}
-            className={`borda-viva card-interactive group relative overflow-hidden rounded-2xl border border-border p-5 ${
-              m.largo ? "sm:col-span-2" : ""
+            className={`borda-viva card-interactive group relative overflow-hidden rounded-2xl border p-6 tile-bento ${
+              m.largo ? "sm:col-span-2 sm:row-span-1" : ""
             }`}
             style={{
-              background: "var(--card)",
+              // ── POR QUE NÃO É `var(--card)` ──
+              //
+              // A primeira versão usava o fundo e a borda do cartão comum, e o
+              // bento ficou indistinguível da grade que ele substituiu —
+              // mudou o layout, não a aparência. Aqui cada tile carrega um
+              // vidro escuro com um vinco da cor do módulo no canto: é o que
+              // faz a grade ler como objeto, e não como lista com cantos
+              // arredondados.
+              borderColor: "var(--border)",
               // A luz na borda, no hover, é a cor do próprio módulo. Ver
               // `.borda-viva` em globals.css: o brilho corre pela borda, não
               // é uma sombra colorida por fora.
