@@ -4,6 +4,7 @@ import {
   mesDeReferencia,
   periodosParaTentar,
   buscarSerieRgf,
+  buscarRgfMaisRecente,
   type PeriodoRgf,
 } from "@/lib/siconfi-rgf";
 import {
@@ -227,5 +228,60 @@ describe("a série de períodos", () => {
   it("município sem nada publicado devolve série vazia, não exceção", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => resposta([])));
     await expect(buscarSerieRgf("2211001", 3)).resolves.toEqual([]);
+  });
+});
+
+describe("a causa da ausência é estruturada, não uma frase", () => {
+  // ── O DEFEITO QUE ISTO FECHA ──
+  //
+  // `buscarPeriodo` engolia qualquer falha de rede com `catch { return [] }`,
+  // e timeout do Tesouro ficava indistinguível de "o período não existe". A
+  // página então escrevia "Nenhum RGF deste município consta publicado no
+  // Tesouro" — uma afirmação sobre a CONDUTA do cliente, numa visita em que
+  // o problema era nosso. Numa página cujo argumento é precisão, é o pior
+  // defeito possível.
+  //
+  // E a camada de texto fazia regex sobre a mensagem de erro para distinguir
+  // "em branco" de "não publicado". A frase do em-branco nunca saía de
+  // `buscarRgfMaisRecente`, então a prefeitura que entregou o demonstrativo
+  // vazio era acusada de não ter entregado.
+
+  const resposta = (itens: unknown[]) => Response.json({ items: itens }, { status: 200 });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("falha de rede devolve causa de consulta, não de publicação", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("ECONNRESET"); }));
+    const r = await buscarRgfMaisRecente("2211001", 2026, 10);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.causa).toBe("consulta_falhou");
+  });
+
+  it("nada publicado devolve causa de publicação", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => resposta([])));
+    const r = await buscarRgfMaisRecente("2211001", 2026, 10);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.causa).toBe("nao_publicado");
+  });
+
+  it("publicado em branco chega como em_branco, e não como não publicado", async () => {
+    // Entrega aconteceu; conteúdo, não. São coisas diferentes.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => resposta([{ cod_conta: "OutraConta", coluna: "Valor", valor: 1 }]))
+    );
+    const r = await buscarRgfMaisRecente("2211001", 2026, 10);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.causa).toBe("em_branco");
+  });
+
+  it("a ausência diz quantos períodos foram procurados", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => resposta([])));
+    const r = await buscarRgfMaisRecente("2211001", 2026, 10, 3);
+    if (r.ok) return;
+    expect(r.periodosProcurados).toBe(3);
   });
 });

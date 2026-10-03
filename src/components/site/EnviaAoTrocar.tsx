@@ -19,7 +19,15 @@ export default function EnviaAoTrocar() {
   useEffect(() => {
     const campo = marca.current?.closest("label")?.querySelector("select");
     if (!campo) return;
-    const enviar = () => campo.form?.requestSubmit();
+    const enviar = () => {
+      // Limpa o município ANTES de enviar. Sem isto o GET sai com a UF nova e
+      // o código do município antigo, e a página mostra "Teresina · PI" com o
+      // seletor exibindo Ceará — número certo, município errado.
+      const form = campo.form;
+      const cidade = form?.elements.namedItem("m");
+      if (cidade instanceof HTMLSelectElement) cidade.value = "";
+      form?.requestSubmit();
+    };
     campo.addEventListener("change", enviar);
     return () => campo.removeEventListener("change", enviar);
   }, []);

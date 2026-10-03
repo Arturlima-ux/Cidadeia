@@ -27,6 +27,7 @@ function rgfOk(ajuste: Partial<ImportacaoRgf> = {}): ResultadoRgf {
       limiteMaximo: rclAjustada * 0.54,
       limitePrudencial: rclAjustada * 0.513,
       limiteAlerta: rclAjustada * 0.486,
+      rclVeioDeReserva: false,
       ...ajuste,
     },
   };
@@ -35,11 +36,22 @@ function rgfOk(ajuste: Partial<ImportacaoRgf> = {}): ResultadoRgf {
 const rgfNaoPublicado = (): ResultadoRgf => ({
   ok: false,
   erro: "Nenhum RGF encontrado no Tesouro para este município nos últimos períodos.",
+  causa: "nao_publicado",
+  periodosProcurados: 8,
 });
 
 const rgfEmBranco = (): ResultadoRgf => ({
   ok: false,
-  erro: "O RGF deste período foi publicado sem os valores de despesa com pessoal.",
+  erro: "O RGF foi publicado sem os valores de despesa com pessoal.",
+  causa: "em_branco",
+  periodosProcurados: 8,
+});
+
+const rgfConsultaFalhou = (): ResultadoRgf => ({
+  ok: false,
+  erro: "A consulta ao Tesouro não respondeu nesta tentativa.",
+  causa: "consulta_falhou",
+  periodosProcurados: 8,
 });
 
 function raioXOk(ajuste: Partial<RaioX> = {}): ResultadoRaioX {
@@ -201,5 +213,99 @@ describe("o parâmetro ?m= da home", () => {
   it("parâmetro ausente é estado inicial, não erro", () => {
     expect(municipioDoParametro(undefined)).toBeNull();
     expect(municipioDoParametro(null)).toBeNull();
+  });
+});
+
+describe("o Tesouro fora do ar não acusa o município", () => {
+  // ── O DEFEITO QUE ISTO FECHA ──
+  //
+  // Com o Tesouro lento ou recusando, a página escrevia "Nenhum RGF deste
+  // município consta publicado no Tesouro" — uma afirmação sobre a conduta do
+  // cliente numa visita em que o problema era nosso. Quem lê pode ser o
+  // próprio secretário de finanças do município.
+
+  it("falha de consulta não vira acusação de não publicar", () => {
+    const f = fatoDoPessoal(rgfConsultaFalhou(), HOJE);
+    expect(f.ausencia).not.toMatch(/não consta publicado|consta publicado/i);
+    expect(f.ausencia).toMatch(/nossa pergunta não chegou/i);
+  });
+
+  it("as três ausências têm frases diferentes", () => {
+    const frases = [rgfNaoPublicado(), rgfEmBranco(), rgfConsultaFalhou()].map(
+      (r) => fatoDoPessoal(r, HOJE).ausencia
+    );
+    expect(new Set(frases).size).toBe(3);
+  });
+
+  it("a ausência também é carimbada e diz quantos períodos", () => {
+    // Sem data de consulta, um print desta tela não é auditável.
+    const c = fatoDoPessoal(rgfNaoPublicado(), HOJE).carimbo;
+    expect(c).not.toBeNull();
+    expect(c!.periodo).toContain("8");
+    expect(c!.consultadoEm).not.toMatch(/\d{2}:\d{2}/);
+  });
+});
+
+describe("nenhum cartão sai sem texto", () => {
+  // Quando o RREO existe mas o anexo não trouxe a receita, `valor` ficava null
+  // E `ausencia` ficava null: o visitante via um cartão tracejado com título,
+  // carimbo e NENHUMA frase, no herói da home.
+  it("receita não publicada vira ausência com frase, não cartão vazio", () => {
+    const f = fatoDaAplicacao(
+      raioXOk({ receita: { valor: null, fonte: "Tesouro Nacional · SICONFI", detalhe: "RREO" } }),
+      HOJE
+    );
+    expect(f.valor).toBeNull();
+    expect(f.ausencia).toBeTruthy();
+  });
+
+  it("despesa de saúde não publicada também", () => {
+    const f = fatoDaAplicacao(
+      raioXOk({ despesaSaude: { valor: null, fonte: "Tesouro Nacional · SICONFI", detalhe: "RREO" } }),
+      HOJE
+    );
+    expect(f.valor === null ? f.ausencia : f.leitura).toBeTruthy();
+  });
+
+  it("todo fato tem OU valor com leitura OU ausência, nunca nenhum dos dois", () => {
+    const todos = [
+      fatoDoPessoal(rgfOk(), HOJE),
+      fatoDoPessoal(rgfConsultaFalhou(), HOJE),
+      fatoDaAplicacao(raioXOk(), HOJE),
+      fatoDaAplicacao(raioXOk({ receita: { valor: null, fonte: "Tesouro Nacional · SICONFI", detalhe: "RREO" } }), HOJE),
+      fatoDaAplicacao(raioXOk({ bimestreReferencia: null }), HOJE),
+      fatoDosRelatorios(raioXOk(), HOJE),
+      fatoDosRelatorios({ ok: false, erro: "x", municipioNaoEncontrado: false }, HOJE),
+    ];
+    for (const f of todos) {
+      const temConteudo = (f.valor !== null && f.leitura !== null) || f.ausencia !== null;
+      expect(temConteudo, `${f.chave} saiu sem texto`).toBe(true);
+    }
+  });
+});
+
+describe("não chama de declarado o que foi calculado por nós", () => {
+  // ── O DEFEITO QUE ISTO FECHA ──
+  //
+  // Quando a linha da RCL ajustada não vem no anexo, `extrairRgf` cai para a
+  // RCL do limite legal. Nesse caso o percentual sai de uma divisão NOSSA
+  // sobre uma base diferente da que o Tesouro usou — e a frase dizia "o limite
+  // que a própria prefeitura declarou", apresentando como declarado um número
+  // que ninguém declarou. Numa página cujo argumento é precisão, é a frase que
+  // um contador derruba.
+
+  it("com RCL ajustada publicada, a frase afirma o que foi declarado", () => {
+    const f = fatoDoPessoal(rgfOk(), HOJE);
+    expect(f.leitura).toMatch(/a própria prefeitura declarou/);
+  });
+
+  it("com RCL ajustada ausente, a frase não diz 'declarou'", () => {
+    const rcl = 100_000_000;
+    const f = fatoDoPessoal(
+      rgfOk({ rclAjustada: rcl, rcl, limiteAlerta: rcl * 0.486, rclVeioDeReserva: true }),
+      HOJE
+    );
+    expect(f.leitura).not.toMatch(/a própria prefeitura declarou/);
+    expect(f.leitura).toMatch(/base de reserva|não trouxe a receita corrente líquida ajustada/i);
   });
 });

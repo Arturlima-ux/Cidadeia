@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { montarRaioX, type ResultadoRaioX } from "@/lib/raio-x";
 import { fatoDaAplicacao, fatoDosRelatorios } from "@/lib/fatos-do-municipio";
 import FatoDoMunicipio from "@/components/site/FatoDoMunicipio";
+import { podeConsultarPelaHome, AUSENCIA_POR_LIMITE } from "./limite-do-heroi";
 
 // ── DOIS FATOS, UMA CONSULTA ──
 //
@@ -23,6 +24,17 @@ export default async function CarregaRreo({
   await connection();
 
   const agora = new Date().toISOString();
+
+  if (!(await podeConsultarPelaHome())) {
+    const barrado: ResultadoRaioX = { ok: false, erro: AUSENCIA_POR_LIMITE, municipioNaoEncontrado: false };
+    return (
+      <>
+        <FatoDoMunicipio fato={{ ...fatoDaAplicacao(barrado, agora), ausencia: AUSENCIA_POR_LIMITE }} />
+        <FatoDoMunicipio fato={{ ...fatoDosRelatorios(barrado, agora), ausencia: AUSENCIA_POR_LIMITE }} />
+      </>
+    );
+  }
+
   let resultado: ResultadoRaioX;
   try {
     resultado = await montarRaioX(municipio, uf);

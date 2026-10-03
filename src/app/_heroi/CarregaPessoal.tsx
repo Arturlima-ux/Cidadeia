@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { buscarRgfMaisRecente, type ResultadoRgf } from "@/lib/siconfi-rgf";
 import { fatoDoPessoal } from "@/lib/fatos-do-municipio";
+import { podeConsultarPelaHome, AUSENCIA_POR_LIMITE } from "./limite-do-heroi";
 import FatoDoMunicipio from "@/components/site/FatoDoMunicipio";
 
 // ── O FATO QUE ESPERA O RGF ──
@@ -17,6 +18,23 @@ export default async function CarregaPessoal({ codigoIbge }: { codigoIbge: strin
   await connection();
 
   const agora = new Date();
+
+  // O limite vem antes da rede, nunca depois: contar a consulta que já saiu
+  // não protege ninguém.
+  if (!(await podeConsultarPelaHome())) {
+    return (
+      <FatoDoMunicipio
+        fato={{
+          ...fatoDoPessoal(
+            { ok: false, erro: AUSENCIA_POR_LIMITE, causa: "consulta_falhou", periodosProcurados: 0 },
+            agora.toISOString()
+          ),
+          ausencia: AUSENCIA_POR_LIMITE,
+        }}
+      />
+    );
+  }
+
   let resultado: ResultadoRgf;
   try {
     resultado = await buscarRgfMaisRecente(
@@ -28,7 +46,12 @@ export default async function CarregaPessoal({ codigoIbge }: { codigoIbge: strin
     // Tesouro fora não vira página de erro: vira ausência, que é um estado
     // previsto e já tem texto próprio.
     console.error(`[heroi/${codigoIbge}] RGF não respondeu:`, e);
-    resultado = { ok: false, erro: "A consulta ao Tesouro falhou nesta visita." };
+    resultado = {
+      ok: false,
+      erro: "A consulta ao Tesouro falhou nesta visita.",
+      causa: "consulta_falhou",
+      periodosProcurados: 0,
+    };
   }
 
   return <FatoDoMunicipio fato={fatoDoPessoal(resultado, agora.toISOString())} />;

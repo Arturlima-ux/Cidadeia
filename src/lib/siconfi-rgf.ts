@@ -92,11 +92,47 @@ export type ImportacaoRgf = {
   limiteMaximo: number | null;
   limitePrudencial: number | null;
   limiteAlerta: number | null;
+  /**
+   * A RCL ajustada veio de reserva (a RCL do limite legal), porque o anexo não
+   * trouxe a linha própria.
+   *
+   * Importa para o TEXTO: nesse caso o percentual sai de uma divisão nossa
+   * sobre base diferente da que o Tesouro usou, e chamá-lo de "declarado pela
+   * prefeitura" seria apresentar como declarado um número que ninguém
+   * declarou.
+   */
+  rclVeioDeReserva: boolean;
 };
+
+/**
+ * Por que não há número.
+ *
+ * Três ausências diferentes, e tratá-las igual acusa quem não tem culpa:
+ *
+ *   `nao_publicado`    perguntamos e o Tesouro não tem. É achado sobre a
+ *                      prefeitura, e o único dos três que é;
+ *   `em_branco`        o demonstrativo foi entregue sem os valores. A entrega
+ *                      aconteceu; o conteúdo, não;
+ *   `consulta_falhou`  não conseguimos perguntar. É problema NOSSO, e dizer
+ *                      "não consta publicado" aqui seria afirmar sobre a
+ *                      conduta do cliente o que não se sabe.
+ *
+ * A causa é um campo, e não uma frase, porque a camada de texto fazia regex
+ * sobre a mensagem de erro para distinguir os casos — e a frase do em-branco
+ * nunca saía de `buscarRgfMaisRecente`, então a prefeitura que entregou o
+ * demonstrativo vazio era acusada de não ter entregado.
+ */
+export type CausaSemRgf = "nao_publicado" | "em_branco" | "consulta_falhou";
 
 export type ResultadoRgf =
   | { ok: true; dados: ImportacaoRgf }
-  | { ok: false; erro: string };
+  | {
+      ok: false;
+      erro: string;
+      causa: CausaSemRgf;
+      /** Quantos períodos foram procurados. É o que torna a ausência auditável. */
+      periodosProcurados: number;
+    };
 
 /**
  * Extrai os valores do corpo devolvido pela API.
@@ -110,7 +146,7 @@ export function extrairRgf(
   periodo: PeriodoRgf
 ): ResultadoRgf {
   if (itens.length === 0) {
-    return { ok: false, erro: "O Tesouro ainda não tem o RGF deste período publicado." };
+    return { ok: false, erro: "O Tesouro ainda não tem o RGF deste período publicado.", causa: "nao_publicado", periodosProcurados: 1 };
   }
 
   const valor = (codConta: string): number | null => {
@@ -119,7 +155,8 @@ export function extrairRgf(
     return typeof v === "number" && Number.isFinite(v) ? v : null;
   };
 
-  const rclAjustada = valor(CONTAS.rclAjustada) ?? valor(CONTAS.rcl);
+  const rclPublicada = valor(CONTAS.rclAjustada);
+  const rclAjustada = rclPublicada ?? valor(CONTAS.rcl);
   const rcl = valor(CONTAS.rcl) ?? rclAjustada;
   const despesaTotal = valor(CONTAS.despesaTotal);
   const limiteMaximo = valor(CONTAS.limiteMaximo);
@@ -133,6 +170,8 @@ export function extrairRgf(
     return {
       ok: false,
       erro: "O RGF deste período foi publicado sem os valores de despesa com pessoal.",
+      causa: "em_branco",
+      periodosProcurados: 1,
     };
   }
 
@@ -142,6 +181,7 @@ export function extrairRgf(
       periodo,
       instituicao: itens.find((i) => i.instituicao)?.instituicao ?? null,
       rclAjustada,
+      rclVeioDeReserva: rclPublicada === null,
       rcl: rcl ?? rclAjustada,
       despesaTotal,
       limiteMaximo,
@@ -154,7 +194,7 @@ export function extrairRgf(
 async function buscarPeriodo(
   codigoIbge: string,
   periodo: PeriodoRgf
-): Promise<LinhaRgf[]> {
+): Promise<LinhaRgf[] | null> {
   const query = new URLSearchParams({
     an_exercicio: String(periodo.exercicio),
     in_periodicidade: periodo.periodicidade,
@@ -176,11 +216,14 @@ async function buscarPeriodo(
       signal: controle.signal,
       next: { revalidate: 604800 },
     });
-    if (!resposta.ok) return [];
+    // null é "não consegui perguntar"; [] é "perguntei e não tem". Confundir os
+    // dois faz a tela acusar a prefeitura de não publicar numa visita em que o
+    // problema era nosso. Mesma distinção que raio-x.ts já faz.
+    if (!resposta.ok) return null;
     const corpo = (await resposta.json()) as { items?: LinhaRgf[] };
     return corpo.items ?? [];
   } catch {
-    return [];
+    return null;
   } finally {
     clearTimeout(timer);
   }
@@ -249,14 +292,45 @@ export async function buscarRgfMaisRecente(
 ): Promise<ResultadoRgf> {
   const candidatos = periodosParaTentar(exercicioAtual, mesAtual).slice(0, tentativas);
 
+  // A varredura lembra o que viu: um período em branco é achado diferente de
+  // nenhum período, e uma falha de rede não é achado nenhum sobre a prefeitura.
+  let viuEmBranco = false;
+  let falhouAConsulta = false;
+
   for (const periodo of candidatos) {
     const itens = await buscarPeriodo(codigoIbge, periodo);
+    if (itens === null) {
+      falhouAConsulta = true;
+      continue;
+    }
     if (itens.length === 0) continue;
 
     const resultado = extrairRgf(itens, periodo);
     // Período publicado em branco não encerra a busca: o anterior pode estar
     // completo, e é melhor um número de quatro meses atrás que nenhum.
     if (resultado.ok) return resultado;
+    if (resultado.causa === "em_branco") viuEmBranco = true;
+  }
+
+  // Ordem de prioridade: falha nossa antes de achado sobre o cliente. Se não
+  // conseguimos perguntar em algum período, não afirmamos que nada foi
+  // publicado — pode ter sido, e a pergunta é que não chegou.
+  if (falhouAConsulta) {
+    return {
+      ok: false,
+      erro: "A consulta ao Tesouro não respondeu nesta tentativa.",
+      causa: "consulta_falhou",
+      periodosProcurados: candidatos.length,
+    };
+  }
+
+  if (viuEmBranco) {
+    return {
+      ok: false,
+      erro: "O RGF foi publicado sem os valores de despesa com pessoal.",
+      causa: "em_branco",
+      periodosProcurados: candidatos.length,
+    };
   }
 
   return {
@@ -264,6 +338,8 @@ export async function buscarRgfMaisRecente(
     erro:
       "Nenhum RGF encontrado no Tesouro para este município nos últimos períodos. " +
       "Pode ser que ainda não tenha sido publicado — informe os valores à mão abaixo.",
+    causa: "nao_publicado",
+    periodosProcurados: candidatos.length,
   };
 }
 
@@ -291,7 +367,7 @@ export async function buscarSerieRgf(
   const serie: ImportacaoRgf[] = [];
   for (const periodo of candidatos) {
     const itens = await buscarPeriodo(codigoIbge, periodo);
-    if (itens.length === 0) continue;
+    if (itens === null || itens.length === 0) continue;
     const resultado = extrairRgf(itens, periodo);
     if (resultado.ok) serie.push(resultado.dados);
   }

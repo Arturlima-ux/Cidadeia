@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { montarProjecao } from "@/lib/projecao-do-municipio";
 import type { ImportacaoRgf } from "@/lib/siconfi-rgf";
 import { LIMITE_PESSOAL } from "@/lib/despesa-pessoal";
@@ -25,6 +26,7 @@ function serie(percentuais: number[]): ImportacaoRgf[] {
       limiteMaximo: RCL * 0.54,
       limitePrudencial: RCL * 0.513,
       limiteAlerta: RCL * 0.486,
+      rclVeioDeReserva: false,
     };
   });
 }
@@ -81,5 +83,45 @@ describe("a projeção do exercício", () => {
     // Quem enquadra é o procurador do município.
     const p = montarProjecao(serie([52, 53.5, 55, 56.5]));
     expect(p.acoes.join(" ")).not.toMatch(/está irregular|é improbidade/i);
+  });
+});
+
+describe("a tela não promete envio que não acontece", () => {
+  // ── A ÚNICA PROMESSA QUE O SPEC CHAMA DE DEPENDÊNCIA BLOQUEANTE ──
+  //
+  // Enquanto o remetente do Resend for o gratuito, ele entrega só para o dono
+  // da conta. A tela diz "recebido", não "enviado". Era a regra sem trava — e
+  // regra de texto sem teste vira folclore em dois meses.
+  //
+  // O teste olha o código-fonte porque o que precisa ser travado é a AUSÊNCIA
+  // de uma promessa incondicional dentro do JSX. Mesma técnica de
+  // tests/promessas-da-home.test.ts.
+
+  const tela = readFileSync("src/components/site/PedirProjecao.tsx", "utf8");
+  const acao = readFileSync("src/app/_heroi/projecao-actions.ts", "utf8");
+
+  it("o 'Enviado.' é condicional ao retorno do provedor", () => {
+    expect(tela).toMatch(/enviadoParaVoce\s*\?\s*"Enviado\."/);
+  });
+
+  it("o caminho de não-envio não diz enviado", () => {
+    const naoEnviado = tela.slice(tela.indexOf("Pedido recebido."));
+    // Só a AFIRMAÇÃO é proibida. "Ainda não enviamos por robô" é uma negação,
+    // e é exatamente o que a tela deve dizer — uma regex cega pela palavra
+    // reprovaria a frase honesta. Já caí nisso antes, nos guardas da medição.
+    expect(naoEnviado).not.toMatch(/\bEnviado\b/);
+    expect(naoEnviado).not.toMatch(/(?<!não )enviamos/);
+    expect(naoEnviado).toMatch(/até um dia útil/);
+  });
+
+  it("a ação devolve enviadoParaVoce do provedor, nunca true fixo", () => {
+    expect(acao).toMatch(/enviadoParaVoce:\s*paraVoce\.enviado/);
+    expect(acao).not.toMatch(/enviadoParaVoce:\s*true/);
+  });
+
+  it("pedido que não foi gravado nem avisado não vira promessa", () => {
+    // Com o banco fora e o Resend recusando, dizer "chega em um dia útil"
+    // prometeria entrega de um pedido que não existe em lugar nenhum.
+    expect(acao).toMatch(/if \(!gravado && !paraEquipe\.enviado\)/);
   });
 });

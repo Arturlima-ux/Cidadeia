@@ -63,6 +63,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
   if (!municipio) return { ok: false, erro: "Município não encontrado." };
 
   // 1) grava. É o registro que vale, mesmo que nenhum e-mail saia.
+  let gravado = false;
   try {
     await db.insert(leads).values({
       id: gerarId("lead"),
@@ -74,6 +75,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
       cargo: dados.cargo,
       email: dados.email,
     });
+    gravado = true;
   } catch (e) {
     console.error("[projecao] falha ao gravar:", e);
   }
@@ -130,7 +132,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
     ].join("\n"),
   });
 
-  await enviarEmail({
+  const paraEquipe = await enviarEmail({
     para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_EQUIPE_PADRAO,
     assunto: `Projeção pedida — ${municipio.nome}/${municipio.uf} — ${dados.cargo}`,
     html: [
@@ -142,6 +144,18 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
       corpo,
     ].join("\n"),
   });
+
+  // Nada gravado E nenhum aviso à equipe significa que o pedido não existe em
+  // lugar nenhum. Dizer "chega em até um dia útil" aí é a mesma doença que
+  // esta ação combate do outro lado: prometer o que não acontece.
+  if (!gravado && !paraEquipe.enviado) {
+    return {
+      ok: false,
+      erro:
+        "Não conseguimos registrar o pedido agora. Nada foi perdido do seu lado: tente de novo " +
+        "em alguns minutos, ou escreva para contato@cidadeia.com.br.",
+    };
+  }
 
   return { ok: true, enviadoParaVoce: paraVoce.enviado };
 }

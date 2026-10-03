@@ -1,4 +1,4 @@
-import type { PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
+import type { CausaSemRgf, PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
 import type { ResultadoRaioX } from "@/lib/raio-x";
 import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
 import { RESSALVA_MINIMOS } from "@/lib/raio-x-texto";
@@ -86,6 +86,23 @@ const FUNDAMENTO_PESSOAL =
   "Limite de alerta da Lei de Responsabilidade Fiscal, art. 59, § 1º, IV. " +
   "O teto é do art. 20, III, “b” da Lei Complementar 101/2000.";
 
+/**
+ * Uma frase por causa. A terceira é a que mais importa.
+ *
+ * Quando a consulta falha, o problema é NOSSO, e dizer "não consta publicado"
+ * seria afirmar sobre a conduta do cliente o que não se sabe — numa página
+ * cujo argumento inteiro é precisão, e que pode estar sendo lida pelo próprio
+ * secretário de finanças do município.
+ */
+const AUSENCIA_DO_PESSOAL: Record<CausaSemRgf, string> = {
+  nao_publicado:
+    "Nenhum RGF deste município consta publicado no Tesouro nos períodos procurados. Sem ele não há como saber de que lado do limite a prefeitura está.",
+  em_branco:
+    "O RGF foi publicado, mas sem os valores de despesa com pessoal. A entrega aconteceu; o conteúdo, não.",
+  consulta_falhou:
+    "Não conseguimos consultar o Tesouro nesta visita. Isso não diz nada sobre o que o município publicou — só que a nossa pergunta não chegou.",
+};
+
 export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   const base = {
     chave: "pessoal" as const,
@@ -100,11 +117,13 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
       ...base,
       valor: null,
       leitura: null,
-      carimbo: null,
-      // Duas ausências diferentes, duas frases diferentes.
-      ausencia: /sem os valores/i.test(rgf.erro)
-        ? "O RGF foi publicado, mas sem os valores de despesa com pessoal. A entrega aconteceu; o conteúdo, não."
-        : "Nenhum RGF deste município consta publicado no Tesouro nos últimos períodos. Sem ele não há como saber de que lado do limite a prefeitura está.",
+      // A ausência também é carimbada: sem data de consulta, um print desta
+      // tela não é auditável — não dá para saber quando se procurou.
+      carimbo: {
+        periodo: `${rgf.periodosProcurados} ${rgf.periodosProcurados === 1 ? "período procurado" : "períodos procurados"}`,
+        consultadoEm: dataSemHora(consultadoEm),
+      },
+      ausencia: AUSENCIA_DO_PESSOAL[rgf.causa],
     };
   }
 
@@ -114,14 +133,27 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   // O limite declarado, quando existe, é o que manda. Sem ele a frase fala só
   // do que foi declarado — nunca de um limite de R$ 0.
   const alerta = d.limiteAlerta;
+  const comum =
+    `${formatarMoeda(d.despesaTotal)} sobre uma receita corrente líquida de ` +
+    `${formatarMoeda(d.rclAjustada)}.`;
+
+  // Três frases, e a diferença entre elas é o que se pode AFIRMAR.
+  //
+  // Só a primeira diz "a própria prefeitura declarou", e só quando os dois
+  // números saíram do anexo: a despesa e o limite, sobre a receita que o
+  // Tesouro usou. Quando a RCL ajustada veio de reserva, o percentual é uma
+  // divisão nossa sobre outra base, e chamá-lo de declarado seria apresentar
+  // como dela um número que é nosso.
   const leitura =
-    alerta !== null
-      ? `${formatarMoeda(d.despesaTotal)} sobre uma receita corrente líquida de ` +
-        `${formatarMoeda(d.rclAjustada)}. O limite de alerta que a própria prefeitura declarou ` +
-        `no mesmo documento é ${pct((alerta / d.rclAjustada) * 100)}.`
-      : `${formatarMoeda(d.despesaTotal)} sobre uma receita corrente líquida de ` +
-        `${formatarMoeda(d.rclAjustada)}. O anexo publicado não trouxe a linha do limite, ` +
-        `então aqui fica só o que a prefeitura declarou ter gasto.`;
+    alerta !== null && !d.rclVeioDeReserva
+      ? `${comum} O limite de alerta que a própria prefeitura declarou no mesmo documento é ` +
+        `${pct((alerta / d.rclAjustada) * 100)}.`
+      : d.rclVeioDeReserva
+      ? `${comum} O anexo não trouxe a receita corrente líquida ajustada, então este percentual ` +
+        `usa a base de reserva publicada no mesmo documento e não reproduz exatamente a conta do ` +
+        `Tesouro.`
+      : `${comum} O anexo publicado não trouxe a linha do limite, então aqui fica só o que a ` +
+        `prefeitura declarou ter gasto.`;
 
   return {
     ...base,
@@ -169,11 +201,31 @@ export function fatoDaAplicacao(raioX: ResultadoRaioX, consultadoEm: string): Fa
   const ps = proporcaoDaReceita(r.despesaSaude.valor, r.receita.valor);
   const pe = proporcaoDaReceita(r.despesaEducacao.valor, r.receita.valor);
 
+  // Sem receita não há percentual, e sem percentual este cartão ficava com
+  // título, carimbo e NENHUMA frase: `valor` null e `ausencia` null ao mesmo
+  // tempo, e a tela renderiza `ausencia` quando `valor` é null. Um cartão
+  // vazio no herói da home.
+  if (ps === null) {
+    return {
+      ...base,
+      valor: null,
+      leitura: null,
+      carimbo: {
+        periodo: `RREO do ${r.bimestreReferencia}º bimestre de ${r.exercicio}`,
+        consultadoEm: dataSemHora(consultadoEm),
+      },
+      ausencia:
+        r.receita.valor === null
+          ? "O bimestre consta publicado, mas o anexo não trouxe a receita realizada, que é o denominador do percentual."
+          : "O bimestre consta publicado, mas o anexo não trouxe a despesa da função Saúde.",
+    };
+  }
+
   return {
     ...base,
-    valor: ps === null ? null : pct(ps),
+    valor: pct(ps),
     leitura:
-      `Saúde recebeu ${ps === null ? "valor não publicado" : pct(ps)} da receita realizada e ` +
+      `Saúde recebeu ${pct(ps)} da receita realizada e ` +
       `educação ${pe === null ? "valor não publicado" : pct(pe)}, sobre ` +
       `${formatarMoeda(r.receita.valor ?? 0)} arrecadados até o ${r.bimestreReferencia}º bimestre.`,
     ausencia: null,

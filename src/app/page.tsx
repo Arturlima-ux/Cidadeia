@@ -23,6 +23,7 @@ import PedirProjecao from "@/components/site/PedirProjecao";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import { municipioDoParametro } from "@/lib/fatos-do-municipio";
+import { ESTADOS } from "@/lib/estados";
 import { Inclinavel, Magnetico } from "@/components/site/Ponteiro";
 import { IMPLANTACAO } from "@/lib/textos-contratacao";
 import { FLUXO_ANTES, FLUXO_COM, type PassoFluxo } from "@/lib/fluxo-decisao";
@@ -144,8 +145,15 @@ export default async function LandingPage({
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API pública do Tesouro.
   const parametros = await searchParams;
-  const municipio = municipioDoParametro(parametros.m);
-  const ufEscolhida = typeof parametros.uf === "string" && /^[A-Z]{2}$/.test(parametros.uf) ? parametros.uf : null;
+  const pedido = municipioDoParametro(parametros.m);
+  const ufEscolhida =
+    typeof parametros.uf === "string" && (ESTADOS as readonly string[]).includes(parametros.uf)
+      ? parametros.uf
+      : null;
+  // Município que não é da UF pedida é resto de uma troca de estado, não uma
+  // escolha: exibi-lo mostraria o número de um município com o seletor
+  // apontando para outro estado.
+  const municipio = pedido && ufEscolhida && pedido.uf !== ufEscolhida ? null : pedido;
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
   // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
@@ -287,7 +295,7 @@ export default async function LandingPage({
                     página, desce para segundo parágrafo — continua sendo o
                     primeiro passo, mas depois de a pessoa saber o que é isto. */}
                 <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[50ch]">
-                  Ele soma o que o seu município declarou ao Tesouro Nacional e compara
+                  O CidadeIA soma o que o seu município declarou ao Tesouro Nacional e compara
                   com o limite que o próprio município declarou no mesmo documento.
                   Veja agora, sem cadastro.
                 </p>
