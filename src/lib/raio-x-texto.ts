@@ -37,8 +37,17 @@ export function resumoDoRaioX(r: RaioX): string[] {
       ? `RREO: ${r.rreoEntregues} de ${r.rreoEsperados} bimestres encerrados constam publicados — em dia.`
       : `RREO: faltam ${r.rreoFaltando.length} de ${r.rreoEsperados} bimestres encerrados (${r.rreoFaltando.map((b) => `${b}º`).join(", ")}). Cada um é uma pendência apontável.`
   );
-  linhas.push(
-    "Os percentuais da receita são indício, não cálculo de mínimo constitucional: a base legal do mínimo (15% em saúde, 25% em educação) é a receita de impostos e transferências, não a receita total."
-  );
+  linhas.push(RESSALVA_MINIMOS);
   return linhas;
 }
+
+/**
+ * A ressalva sobre o percentual da receita, em um lugar só.
+ *
+ * O Raio-X e a home dizem a mesma coisa sobre o mesmo número. Duas cópias do
+ * texto é como uma delas deixa de ser corrigida — e aqui a frase existe
+ * justamente para impedir que alguém leia "14,5% da receita" como "abaixo do
+ * mínimo da saúde", que é leitura errada sobre base errada.
+ */
+export const RESSALVA_MINIMOS =
+  "Os percentuais da receita são indício, não cálculo de mínimo constitucional: a base legal do mínimo (15% em saúde, 25% em educação) é a receita de impostos e transferências, não a receita total.";
