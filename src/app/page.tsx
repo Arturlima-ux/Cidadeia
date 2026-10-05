@@ -333,7 +333,7 @@ export default async function LandingPage({
               </p>
             </div>
           </div>
-          <MontadorProposta destaque={dados ? indiceNoMapa(dados.codigo) : null} />
+          <MontadorProposta />
         </section>
 
         {/* ═══ FECHO ═══ */}
