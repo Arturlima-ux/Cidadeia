@@ -151,12 +151,16 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
                 Tesouro neste exercício. Nada aqui foi digitado por ninguém.
               </p>
               <div className="mt-10">
-                <Suspense
-                  key={m.codigo}
-                  fallback={<ReguaLrf dado={{ modo: "carregando", municipio: m.nome }} />}
-                >
-                  <CarregaRegua codigoIbge={m.codigo} municipio={m.nome} />
-                </Suspense>
+                {m.uf === "DF" ? (
+                  <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
+                ) : (
+                  <Suspense
+                    key={m.codigo}
+                    fallback={<ReguaLrf dado={{ modo: "carregando", municipio: m.nome }} />}
+                  >
+                    <CarregaRegua codigoIbge={m.codigo} municipio={m.nome} />
+                  </Suspense>
+                )}
               </div>
             </div>
             <div className="hidden lg:block relative h-[520px]" aria-hidden>

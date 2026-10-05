@@ -21,7 +21,8 @@ import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
-import { municipioDoParametro } from "@/lib/fatos-do-municipio";
+import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
+import { AVISO_DF, ehDistritoFederal, ehRegiaoDf } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
 import { Inclinavel } from "@/components/site/Ponteiro";
 
@@ -87,6 +88,11 @@ export default async function LandingPage({
       : null;
   // Município de outra UF é resto de uma troca de estado, não uma escolha.
   const municipio = pedido && ufEscolhida && pedido.uf !== ufEscolhida ? null : pedido;
+  // Região administrativa do DF: o nome escolhido fica na tela, e os números
+  // são os do Distrito Federal inteiro, que é quem reporta ao Tesouro.
+  const dados = municipio ? municipioParaDados(municipio) : null;
+  const regiaoDf = ehRegiaoDf(municipio);
+  const df = ehDistritoFederal(municipio?.uf);
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
   // A sessão é lida aqui e passada ao cabeçalho: ler cookie dentro dele
@@ -113,7 +119,7 @@ export default async function LandingPage({
               do título no celular, e some nas bordas para não brigar com o
               texto. Ver MapaVivo.tsx. */}
           <div className="inicio-mapa absolute pointer-events-none" aria-hidden>
-            <MapaVivo destaque={municipio ? indiceNoMapa(municipio.codigo) : null} className="w-full h-full" />
+            <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
           </div>
 
           <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 pb-16 sm:pb-24">
@@ -144,12 +150,14 @@ export default async function LandingPage({
 
               <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
                 {/* Com município escolhido, a régua corre o número dele. */}
-                {municipio ? (
+                {municipio && df ? (
+                  <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
+                ) : municipio ? (
                   <Suspense
                     key={municipio.codigo}
                     fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
                   >
-                    <CarregaRegua codigoIbge={municipio.codigo} municipio={municipio.nome} />
+                    <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
                   </Suspense>
                 ) : (
                   <ReguaLrf />
@@ -162,9 +170,24 @@ export default async function LandingPage({
                 <p className="text-sm font-medium text-muted">
                   {municipio.nome}, {municipio.uf}
                 </p>
+                {regiaoDf && (
+                  <p className="text-sm text-muted mt-1 max-w-[64ch] leading-relaxed">
+                    {municipio.nome} é uma região administrativa do Distrito Federal, não um município: não
+                    tem prefeitura nem relatório próprio no Tesouro.
+                  </p>
+                )}
+                {df ? (
+                  <p
+                    className="mt-4 max-w-[72ch] rounded-2xl border px-5 py-4 text-sm leading-relaxed"
+                    style={{ borderColor: "var(--info-borda)", background: "var(--info-tint)" }}
+                  >
+                    {AVISO_DF}
+                  </p>
+                ) : (
+                  <>
                 <div className="grid md:grid-cols-3 gap-4 mt-3">
                   <Suspense fallback={<EsqueletoFato titulo="Despesa com pessoal" />}>
-                    <CarregaPessoal codigoIbge={municipio.codigo} />
+                    <CarregaPessoal codigoIbge={dados!.codigo} />
                   </Suspense>
                   <Suspense
                     fallback={
@@ -174,15 +197,18 @@ export default async function LandingPage({
                       </>
                     }
                   >
-                    <CarregaRreo municipio={municipio.nome} uf={municipio.uf} />
+                    <CarregaRreo municipio={dados!.nome} uf={dados!.uf} />
                   </Suspense>
                 </div>
 
                 {/* A trava: o que está acima é dado público e fica aberto;
                     a projeção é trabalho do software. */}
                 <div className="mt-4 max-w-2xl">
-                  <PedirProjecao codigoIbge={municipio.codigo} municipio={municipio.nome} />
+                  <PedirProjecao codigoIbge={dados!.codigo} municipio={dados!.nome} />
                 </div>
+
+                  </>
+                )}
 
                 <p className="text-xs text-muted mt-5 leading-relaxed max-w-[64ch]">
                   O CidadeIA não substitui o parecer da contabilidade interna nem a assessoria

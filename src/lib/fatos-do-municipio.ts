@@ -1,4 +1,5 @@
 import type { CausaSemRgf, PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
+import { CODIGO_BRASILIA, ehRegiaoDf, regiaoPorCodigo } from "@/lib/regioes-df";
 import type { ResultadoRaioX } from "@/lib/raio-x";
 import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
 import { RESSALVA_MINIMOS } from "@/lib/raio-x-texto";
@@ -293,6 +294,18 @@ export function fatoDosRelatorios(raioX: ResultadoRaioX, consultadoEm: string): 
  */
 export function municipioDoParametro(m: string | undefined | null): Municipio | null {
   if (!m) return null;
+  const regiao = regiaoPorCodigo(m);
+  if (regiao) return regiao;
   if (!/^\d{7}$/.test(m)) return null;
   return municipioPorCodigo(m);
+}
+
+/**
+ * O município de onde vêm os números. Para uma região administrativa do DF,
+ * é Brasília, que responde pelo Distrito Federal inteiro no IBGE e no
+ * Tesouro (lib/regioes-df.ts). Para os demais, ele mesmo.
+ */
+export function municipioParaDados(m: Municipio): Municipio {
+  if (!ehRegiaoDf(m)) return m;
+  return municipioPorCodigo(CODIGO_BRASILIA) ?? { codigo: CODIGO_BRASILIA, nome: "Brasília", uf: "DF", populacao: null };
 }
