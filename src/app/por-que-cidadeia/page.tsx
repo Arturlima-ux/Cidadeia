@@ -34,10 +34,10 @@ export default function PorQueCidadeIAPage() {
 
       <Reveal>
         <section className="max-w-2xl mx-auto px-4 sm:px-8 pt-16 pb-10 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-dark bg-brand-tint border border-brand/15 inline-block px-3 py-1 rounded-full">
+          <p className="text-xs font-semibold text-brand-dark bg-brand-tint border border-brand/15 inline-block px-3 py-1 rounded-full">
             Por que CidadeIA
           </p>
-          <h1 className="font-serif text-4xl font-bold mt-4">
+          <h1 className="titulo-pagina mt-4">
             Gerir uma prefeitura não devia depender de planilha solta e sorte.
           </h1>
           <p className="text-muted text-base mt-4 leading-relaxed">
@@ -52,7 +52,7 @@ export default function PorQueCidadeIAPage() {
         <div className="grid md:grid-cols-2 gap-5">
           <Reveal direcao="right">
             <div className="h-full">
-              <p className="text-xs font-semibold uppercase tracking-wide text-danger mb-3">
+              <p className="text-xs font-semibold text-danger mb-3">
                 A realidade hoje
               </p>
               <div className="space-y-3">
@@ -70,7 +70,7 @@ export default function PorQueCidadeIAPage() {
 
           <Reveal direcao="left" delay={100}>
             <div className="h-full">
-              <p className="text-xs font-semibold uppercase tracking-wide text-brand mb-3">
+              <p className="text-xs font-semibold text-brand mb-3">
                 Com CidadeIA
               </p>
               <div className="space-y-3">
@@ -123,7 +123,7 @@ export default function PorQueCidadeIAPage() {
         />
         <Reveal>
           <div className="relative max-w-2xl mx-auto px-4 sm:px-8 py-16 text-center text-white">
-            <h2 className="font-serif text-3xl font-bold">
+            <h2 className="titulo-secao">
               Sua gestão merece ver o próprio resultado com clareza.
             </h2>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-4">

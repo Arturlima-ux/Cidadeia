@@ -141,7 +141,7 @@ export default async function LicitacoesPage() {
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Licitações</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Licitações</h1>
           <p className="text-muted text-sm mt-1.5 leading-relaxed">
             Os processos podem entrar pelo próprio PNCP, onde o município é obrigado a
             publicar desde abril de 2024 — é de lá que vêm número, objeto, modalidade,
@@ -179,7 +179,7 @@ export default async function LicitacoesPage() {
 
       {padroes.length > 0 && (
         <div className="space-y-2">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+          <h2 className="font-semibold text-sm text-muted">
             Padrões entre processos
           </h2>
           {/* Contagens que pedem conferência no processo físico — nunca
@@ -206,7 +206,7 @@ export default async function LicitacoesPage() {
       )}
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Novo processo
         </h2>
         <form
@@ -305,7 +305,7 @@ export default async function LicitacoesPage() {
       </div>
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Todos os processos ({lista.length})
         </h2>
         {lista.length === 0 ? (

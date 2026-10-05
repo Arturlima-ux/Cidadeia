@@ -1,5 +1,6 @@
 "use client";
 
+import EtapasPedido from "@/components/EtapasPedido";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { acompanharPedido, type Acompanhamento } from "./actions";
@@ -71,28 +72,26 @@ export default function FormularioAcompanhar({ protocoloInicial }: { protocoloIn
 
       {pedido && (
         <div className="rounded-2xl border border-border p-6" style={{ background: "var(--card)" }}>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="font-serif text-xl font-bold">
-              {pedido.municipio}/{pedido.uf}
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <p className="text-xl font-semibold tracking-[-0.025em]">
+              {pedido.municipio}, {pedido.uf}
             </p>
-            <span
-              className="text-[11px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 border"
-              style={{ color: "var(--accent)", background: "var(--accent-tint)", borderColor: "var(--info-borda)" }}
-            >
-              {pedido.rotulo}
-            </span>
+            <span className="text-sm text-muted">{pedido.rotulo}</span>
           </div>
           <p className="text-sm text-muted mt-2">
-            {pedido.modulos.join(" + ") || "sem módulos marcados"} · protocolo{" "}
-            <span className="font-mono text-foreground">{pedido.protocolo}</span>
+            {pedido.modulos.join(" + ") || "sem módulos marcados"}, protocolo{" "}
+            <span className="tabular-nums text-foreground">{pedido.protocolo}</span>
           </p>
+          <div className="mt-5">
+            <EtapasPedido status={pedido.status} />
+          </div>
           <p className="text-sm mt-4 leading-relaxed">{pedido.mensagem}</p>
 
           {pedido.linkCadastro ? (
             <div className="mt-5 rounded-xl border border-border p-4">
               <p className="font-semibold text-sm">Crie a conta da prefeitura</p>
               <p className="text-sm text-muted mt-1 leading-relaxed">
-                É nela que os módulos são ativados quando o contrato for assinado. Já vem preenchida
+                É nela que os módulos são ativados quando o pagamento da primeira fatura for confirmado. Já vem preenchida
                 com o que você informou.
               </p>
               <Link

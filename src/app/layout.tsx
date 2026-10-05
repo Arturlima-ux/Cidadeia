@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
-// Tipografia do sistema "Quadra": Plus Jakarta Sans nos títulos (geométrica,
-// contemporânea) e Public Sans na UI (desenhada para uso governamental).
-// Substituiu a serifada Fraunces, que dava ao site ar de documento impresso.
-const fonteTitulo = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-titulo-familia",
-  display: "swap",
-});
-const publicSans = Public_Sans({
-  subsets: ["latin"],
-  variable: "--font-public-sans",
+// Geist, a família do site inteiro, servida do próprio projeto (licença OFL
+// em app/fontes). Ver a nota de tipografia em globals.css.
+const geist = localFont({
+  src: "./fontes/Geist.woff2",
+  variable: "--font-geist",
+  weight: "100 900",
   display: "swap",
 });
 
@@ -55,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable}`}
+      className={`h-full antialiased ${geist.variable}`}
     >
       <head>
         {/* ── MARCA QUE O JAVASCRIPT EXISTE ──

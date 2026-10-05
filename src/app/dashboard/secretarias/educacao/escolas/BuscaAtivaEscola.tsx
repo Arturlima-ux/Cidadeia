@@ -44,7 +44,7 @@ export default function BuscaAtivaEscola({ escolaId, casos }: { escolaId: string
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Busca ativa</h2>
+          <h2 className="font-semibold text-sm text-muted">Busca ativa</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             O aluno que parou de vir. A LDB exige {FREQUENCIA_MINIMA_LDB}% de frequência (art. 24, VI) e o
             ECA manda comunicar o Conselho Tutelar depois de esgotados os recursos escolares (art. 56, II)
@@ -156,7 +156,7 @@ export default function BuscaAtivaEscola({ escolaId, casos }: { escolaId: string
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="font-serif text-xl font-bold tabular-nums" style={{ color: COR_FREQ[l.situacaoFrequencia] }}>
+              <p className="text-xl font-semibold tabular-nums tracking-[-0.02em]" style={{ color: COR_FREQ[l.situacaoFrequencia] }}>
                 {l.frequencia === null ? "—" : `${l.frequencia.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`}
               </p>
               <p className="text-[11px] text-muted">frequência</p>
@@ -178,7 +178,7 @@ export default function BuscaAtivaEscola({ escolaId, casos }: { escolaId: string
           {l.riscoBolsaFamilia && <p className="text-sm leading-relaxed">{l.riscoBolsaFamilia}</p>}
 
           <p className="text-sm leading-relaxed rounded-xl px-3 py-2.5" style={{ background: "var(--medio-tint)" }}>
-            <span className="text-[11px] font-bold uppercase tracking-wider mr-1.5" style={{ color: "var(--medio)" }}>
+            <span className="text-xs font-bold mr-1.5" style={{ color: "var(--medio)" }}>
               Agora
             </span>
             {l.proximaAcao}

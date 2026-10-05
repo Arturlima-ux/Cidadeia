@@ -89,7 +89,7 @@ export default function PainelPca({
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-xl">
-          <h2 className="font-serif text-lg font-bold">Plano de contratações {plano.ano}</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Plano de contratações {plano.ano}</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">
             Fracionamento quase nunca é má-fé: é calendário. O contrato vence, ninguém planejou a
             substituição, o serviço não pode parar, e entra a dispensa emergencial. Este rascunho
@@ -134,7 +134,7 @@ export default function PainelPca({
 
           {comData.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-semibold text-sm text-muted uppercase tracking-wide mb-2.5">
+              <h3 className="font-semibold text-sm text-muted mb-2.5">
                 Com data definida
               </h3>
               <ul className="flex flex-col gap-3">
@@ -147,7 +147,7 @@ export default function PainelPca({
 
           {sugestoes.length > 0 && (
             <div className="mt-5">
-              <h3 className="font-semibold text-sm text-muted uppercase tracking-wide mb-1">
+              <h3 className="font-semibold text-sm text-muted mb-1">
                 Sugestões, para confirmar ou riscar
               </h3>
               <p className="text-xs text-muted mb-2.5 leading-relaxed">

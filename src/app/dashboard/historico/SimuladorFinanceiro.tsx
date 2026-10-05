@@ -19,7 +19,7 @@ export default function SimuladorFinanceiro({
   if (receitaAtual === null || despesaAtual === null) {
     return (
       <div className="bg-card border border-border rounded-xl p-4">
-        <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           Simulador financeiro
         </p>
         <p className="text-sm text-muted">
@@ -37,7 +37,7 @@ export default function SimuladorFinanceiro({
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-1">
+      <p className="text-xs font-semibold text-muted mb-1">
         Simulador financeiro
       </p>
       <p className="text-xs text-muted mb-4 leading-relaxed">

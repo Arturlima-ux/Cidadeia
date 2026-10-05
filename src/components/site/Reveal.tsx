@@ -1,116 +1,30 @@
-"use client";
+import type { ReactNode } from "react";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-
-type Direcao = "up" | "left" | "right" | "none";
-
-const DESLOCAMENTO: Record<Direcao, string> = {
-  up: "translateY(28px)",
-  left: "translateX(-28px)",
-  right: "translateX(28px)",
-  none: "translateY(0)",
-};
-
-// ── OBSERVADOR ÚNICO ──
+// ── O REVEAL QUE NÃO ANIMA MAIS ──
 //
-// Cada Reveal criava o próprio IntersectionObserver. A home tem 29 deles, o
-// que significava 29 observadores instanciados no carregamento — trabalho que
-// o navegador faz antes de a página ficar utilizável, e que aparece justamente
-// na máquina fraca de um balcão de prefeitura.
+// Era uma entrada animada (sobe 28px e acende) em quase todo bloco do site,
+// disparada por IntersectionObserver. Duas razões para desligar, no
+// redesenho de outubro de 2026:
 //
-// Um observador só, compartilhado, com um registro de callbacks. O navegador
-// agrupa as verificações de interseção num único ciclo.
-
-type Callback = () => void;
-
-let observador: IntersectionObserver | null = null;
-const inscritos = new Map<Element, Callback>();
-
-function obterObservador(): IntersectionObserver {
-  if (observador) return observador;
-
-  observador = new IntersectionObserver(
-    (entradas) => {
-      for (const entrada of entradas) {
-        if (!entrada.isIntersecting) continue;
-        const callback = inscritos.get(entrada.target);
-        if (callback) {
-          callback();
-          // Revelar é irreversível: uma vez visto, o elemento não volta a
-          // esconder. Deixar de observar libera o trabalho para sempre.
-          inscritos.delete(entrada.target);
-          observador?.unobserve(entrada.target);
-        }
-      }
-    },
-    { rootMargin: "0px 0px -10% 0px" }
-  );
-
-  return observador;
-}
-
-// ── O ESTADO ESCONDIDO SAIU DAQUI ──
+// 1. Entrada em cada seção é o sinal mais reconhecível de página gerada em
+//    série. A home nova tem um único momento de movimento, no topo, e o resto
+//    do site passa a seguir a mesma regra.
+// 2. Quando o observador não disparava (rolagem rápida, aba em segundo
+//    plano, captura de tela), o bloco ficava invisível: "Como contratar"
+//    chegou a mostrar uma faixa em branco no lugar de duas seções.
 //
-// Este componente aplicava `opacity: 0` no estilo do próprio elemento, então o
-// HTML servido já saía com o conteúdo invisível — quarenta blocos assim na
-// home. Quem não executa JavaScript recebia uma página em branco: buscador,
-// pré-visualização de link em mensageiro, leitor de texto.
-//
-// Agora quem esconde é o CSS, e só quando a classe `.com-js` existe no
-// documento — ela é posta por um script no <head> (ver app/layout.tsx). Sem
-// script a regra não se aplica e o conteúdo aparece; com script a animação é a
-// mesma de antes, e começa antes da primeira pintura, sem piscar.
-//
-// O atributo `data-visivel` é o interruptor: ausente, o CSS esconde; presente,
-// o elemento volta ao normal e a transição roda.
-
+// A assinatura continua a mesma para não mexer nos cerca de cem usos; os
+// parâmetros de atraso e direção são aceitos e ignorados.
 export default function Reveal({
   children,
-  delay = 0,
-  direcao = "up",
   className = "",
   as: Tag = "div",
 }: {
   children: ReactNode;
   delay?: number;
-  direcao?: Direcao;
+  direcao?: "up" | "left" | "right" | "none";
   className?: string;
   as?: React.ElementType;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visivel, setVisivel] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisivel(true);
-      return;
-    }
-
-    inscritos.set(el, () => setVisivel(true));
-    obterObservador().observe(el);
-
-    return () => {
-      inscritos.delete(el);
-      observador?.unobserve(el);
-    };
-  }, []);
-
-  return (
-    <Tag
-      ref={ref}
-      className={`revelar ${className}`}
-      data-visivel={visivel ? "1" : undefined}
-      style={
-        {
-          "--revelar-deslocamento": DESLOCAMENTO[direcao],
-          transitionDelay: visivel ? `${delay}ms` : "0ms",
-        } as React.CSSProperties
-      }
-    >
-      {children}
-    </Tag>
-  );
+  return <Tag className={className || undefined}>{children}</Tag>;
 }

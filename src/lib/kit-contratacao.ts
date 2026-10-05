@@ -1,4 +1,9 @@
+import { CARENCIA_DIAS } from "@/lib/cobranca";
+
 import { preencherCompromissos } from "@/lib/compromissos";
+
+// Carência por extenso, como pede a redação de contrato.
+const CARENCIA_EXTENSO: Record<number, string> = { 3: "três", 5: "cinco", 7: "sete", 10: "dez", 15: "quinze" };
 
 // ── KIT DE CONTRATAÇÃO ──
 //
@@ -238,7 +243,16 @@ const TERMO_DE_REFERENCIA: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "O pagamento é mensal, no valor de [VALOR MENSAL] por módulo contratado, totalizando [VALOR ANUAL] no período, mediante apresentação de nota fiscal e atesto do fiscal do contrato.",
+            "O pagamento é mensal e antecipado, no valor de [VALOR MENSAL], totalizando [VALOR ANUAL] no período, com vencimento no [DIA] dia de cada mês de utilização, mediante apresentação de nota fiscal. Os módulos contratados são liberados após a confirmação do primeiro pagamento.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "Justificativa da antecipação (art. 145, § 1º, da Lei nº 14.133/2021): o objeto é cessão de uso de software por assinatura mensal, hospedado pela contratada, cuja infraestrutura, processamento e suporte são alocados antes do período de uso. O pagamento antecipado é condição indispensável para a prestação do serviço nesse modelo, que é o praticado pelo mercado para software como serviço.",
+        },
+        {
+          tipo: "paragrafo",
+          texto: `Não confirmado o pagamento em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, o acesso ao painel de gestão poderá ser suspenso até a regularização, sem prejuízo do funcionamento do portal público do município, da guarda dos dados e da sua exportação integral a qualquer tempo.`,
         },
       ],
     },
@@ -325,7 +339,16 @@ const MINUTA_CONTRATO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "O valor mensal é de [VALOR MENSAL], perfazendo [VALOR ANUAL] no período de vigência, pago até o [DIA] dia útil do mês subsequente ao da prestação, mediante nota fiscal e atesto do fiscal do contrato.",
+            "O valor mensal é de [VALOR MENSAL], perfazendo [VALOR ANUAL] no período de vigência, pago antecipadamente até o [DIA] dia de cada mês de utilização, mediante nota fiscal, nos termos do art. 145, § 1º, da Lei nº 14.133/2021 e da justificativa constante do termo de referência.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "Parágrafo primeiro. Os módulos contratados serão liberados pela CONTRATADA após a confirmação do pagamento da primeira parcela.",
+        },
+        {
+          tipo: "paragrafo",
+          texto: `Parágrafo segundo. Não confirmado o pagamento de parcela em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, a CONTRATADA poderá suspender o acesso ao painel de gestão até a regularização, mantidos em funcionamento o portal público do município e os canais de atendimento ao cidadão, preservados os dados e assegurada a sua exportação integral a qualquer tempo. Regularizado o pagamento, o acesso é restabelecido no mesmo dia útil.`,
         },
         {
           tipo: "paragrafo",

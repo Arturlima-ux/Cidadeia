@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   PLANOS_ADDON,
   planosContratadosDe,
-  linkContratacao,
   HREF_PLANO_ADDON,
 } from "@/lib/planos";
 import AbasModulos from "../AbasModulos";
@@ -49,7 +48,7 @@ export default async function MarketplacePage() {
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Módulos</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Módulos</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed">
           Cada área da prefeitura é um módulo independente — ative só o que
           você precisa.
@@ -90,7 +89,6 @@ export default async function MarketplacePage() {
       <div className="grid sm:grid-cols-2 gap-4">
         {PLANOS_ADDON.map((p) => {
           const ativo = planosAtivos.includes(p.chave);
-          const { url } = linkContratacao(p.chave);
           return (
             <div
               key={p.chave}
@@ -118,22 +116,11 @@ export default async function MarketplacePage() {
                   Abrir módulo
                 </Link>
               ) : (
-                // Sem checkout configurado, o botão leva ao caminho que a
-                // contratação pública de fato percorre — proposta, processo,
-                // empenho — em vez de a um pagamento que a tesouraria não
-                // faria. Antes daqui saía um link para uma URL inexistente, e
-                // logo abaixo o CLIENTE lia um aviso pedindo para configurar
-                // o .env.
-                url ? (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 text-center bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-4 py-2 transition"
-                  >
-                    Contratar
-                  </a>
-                ) : codigoIbge ? (
+                // Sem autoativação, em hipótese alguma: o módulo liga quando a
+                // equipe confirma o pagamento da primeira fatura
+                // (lib/cobranca.ts). Daqui sai um pedido, que entra na mesa da
+                // equipe e vira proposta, contrato e fatura.
+                codigoIbge ? (
                   // Pedido feito daqui mesmo, com os dados da conta — sem
                   // mandar o cliente ao formulário público digitar de novo
                   // o que já está cadastrado.

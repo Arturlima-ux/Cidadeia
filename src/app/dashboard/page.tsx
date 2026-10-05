@@ -17,6 +17,11 @@ import PainelAtencao from "@/components/PainelAtencao";
 import PainelAntecipacao from "@/components/PainelAntecipacao";
 import { antecipacoesDaPrefeitura } from "@/lib/antecipacoes-da-prefeitura";
 import { gerarDeteccoesAutomaticas } from "@/lib/ia";
+import ReguaLrf from "@/components/site/inicio/ReguaLrf";
+import { avaliarDespesaPessoal } from "@/lib/despesa-pessoal";
+import { buscarPeriodos } from "@/app/dashboard/pessoal/actions";
+
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 
 // A saudação e a data saem de lib/horario.ts, no fuso do estado da
 // prefeitura. Calcular aqui com `new Date().getHours()` devolvia a hora do
@@ -60,6 +65,13 @@ export default async function DashboardPage() {
       return [];
     }),
   ]);
+
+  // A régua da LRF, a mesma do site, com o último período que a prefeitura
+  // apurou. Sem período lançado, ela não aparece: régua de exemplo dentro do
+  // painel de um cliente seria número inventado na tela dele.
+  const periodosPessoal = await buscarPeriodos(1).catch(() => []);
+  const ultimoPessoal = periodosPessoal[0] ?? null;
+  const avaliacaoPessoal = ultimoPessoal ? avaliarDespesaPessoal(ultimoPessoal) : null;
   const snapshot = historico[historico.length - 1] ?? null;
   const anterior = historico.length > 1 ? historico[historico.length - 2] : null;
 
@@ -78,20 +90,15 @@ export default async function DashboardPage() {
     <div className="max-w-5xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted capitalize">
+          <p className="text-sm text-muted first-letter:uppercase">
             {dataPorExtenso(fuso)}
           </p>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold mt-1">
-            {/* Cumprimenta QUEM ENTROU, pelo nome da sessão. Antes usava o
-                campo "prefeito" do cadastro da prefeitura: quem entrava como
-                secretário era chamado pelo nome do prefeito, e a conta de
-                teste dizia "Prefeito(a) Prefeito de Teste". O tratamento vai
-                junto só quando o cargo é de prefeito. */}
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em] leading-[1.05] mt-2">
             {saudacao(fuso)}, {sessao.cargo === "prefeito" ? `Prefeito(a) ${sessao.nome}` : sessao.nome}.
           </h1>
           {/* A saudação encolheu para uma linha. Ela é cortesia, não conteúdo:
               o que o prefeito precisa ver primeiro está logo abaixo. */}
-          <p className="text-muted text-sm mt-1.5">
+          <p className="text-muted mt-2">
             {achados.length > 0
               ? `${achados.length} ${achados.length === 1 ? "ponto pede" : "pontos pedem"} sua decisão hoje.`
               : listaAlertas.length > 0
@@ -101,7 +108,7 @@ export default async function DashboardPage() {
         </div>
         <a
           href="/api/relatorios/executivo"
-          className="group shrink-0 flex items-center gap-2 border border-border bg-card rounded-lg px-4 py-2.5 text-sm font-semibold hover:border-brand hover:text-brand transition shadow-elevated"
+          className="group shrink-0 flex items-center gap-2 border border-border bg-card rounded-full px-5 py-2.5 text-sm font-medium hover:border-brand hover:text-brand-claro transition"
         >
           <IconDownload className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5" />
           Relatório executivo (PDF)
@@ -116,6 +123,23 @@ export default async function DashboardPage() {
       {/* Logo depois do que exige decisão hoje, e antes do financeiro: o que
           ainda não aconteceu vale mais que o retrato de como está, e menos que
           o que já está pedindo decisão. */}
+      {ultimoPessoal && avaliacaoPessoal && (
+        <ReguaLrf
+          dado={{
+            modo: "real",
+            municipio: prefeitura?.municipio ?? "sua prefeitura",
+            percentual: avaliacaoPessoal.percentual,
+            situacao: avaliacaoPessoal.situacao,
+            periodo: `${MESES[ultimoPessoal.mesReferencia - 1]} de ${ultimoPessoal.exercicio}`,
+            margemAtePrudencial: avaliacaoPessoal.margemAtePrudencial,
+            baseDeReserva: false,
+            nota: `Doze meses até ${MESES[ultimoPessoal.mesReferencia - 1]} de ${ultimoPessoal.exercicio}, ${
+              ultimoPessoal.origem === "siconfi" ? "importados do RGF no SICONFI" : "lançados pela equipe da prefeitura"
+            }. Série completa em Despesa com pessoal.`,
+          }}
+        />
+      )}
+
       <PainelAntecipacao antecipacoes={antecipacoes} />
 
       {/* A lista acima é o que se decide HOJE. O que o Tribunal de Contas
@@ -156,7 +180,7 @@ export default async function DashboardPage() {
       {/* VISÃO GERAL */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+          <h2 className="font-semibold text-sm text-muted">
             Visão Geral
           </h2>
           <DetalhesSnapshotForm />
@@ -230,7 +254,7 @@ export default async function DashboardPage() {
       {/* ALERTAS */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+          <h2 className="font-semibold text-sm text-muted">
             Alertas
           </h2>
           <Link
@@ -296,16 +320,16 @@ function CardMetrica({
   if (semCartao) {
     return (
       <div className="border-l-2 pl-3.5" style={{ borderColor: cor }}>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
+        <p className="text-xs font-semibold text-muted">{label}</p>
         <div className="flex items-baseline gap-2 mt-1">
           {valorNumerico !== null ? (
             <ValorAnimado
               valor={valorNumerico}
               tipo={tipo}
-              className="text-xl font-serif font-bold leading-tight"
+              className="text-xl font-semibold leading-tight tracking-[-0.02em]"
             />
           ) : (
-            <span className="text-xl font-serif font-bold leading-tight text-muted">—</span>
+            <span className="text-xl font-semibold leading-tight text-muted tracking-[-0.02em]">—</span>
           )}
         </div>
         {delta !== null && delta !== undefined && (
@@ -318,12 +342,12 @@ function CardMetrica({
   }
 
   return (
-    <div className="card-interactive shadow-elevated relative overflow-hidden bg-card border border-border arco-card-sm p-4">
+    <div className="card-interactive relative overflow-hidden bg-card border border-border arco-card-sm p-4">
       <span
         className="absolute top-0 left-0 right-0 h-[3px]"
         style={{ background: cor }}
       />
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+      <p className="text-xs font-semibold text-muted">
         {label}
       </p>
       <div className="flex items-baseline gap-2 mt-1.5">
@@ -331,10 +355,10 @@ function CardMetrica({
           <ValorAnimado
             valor={valorNumerico}
             tipo={tipo}
-            className="text-2xl font-serif font-bold leading-tight"
+            className="text-2xl font-semibold leading-tight tracking-[-0.02em]"
           />
         ) : (
-          <p className="text-2xl font-serif font-bold leading-tight">—</p>
+          <p className="text-2xl font-semibold leading-tight tracking-[-0.02em]">—</p>
         )}
         {delta !== null && delta !== undefined && (
           <DeltaBadge percentual={delta} upEhBom={upEhBom ?? true} />

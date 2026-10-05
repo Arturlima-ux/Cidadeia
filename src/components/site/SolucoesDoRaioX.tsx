@@ -18,8 +18,8 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
 
   return (
     <section className="border-t border-border pt-10">
-      <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">O que fazer com isso</p>
-      <h2 className="font-serif text-2xl sm:text-[1.9rem] font-extrabold tracking-[-0.03em] mt-3 leading-tight">
+      <p className="text-xs text-muted font-medium">O que fazer com isso</p>
+      <h2 className="font-serif text-2xl sm:text-[1.9rem] font-semibold tracking-[-0.03em] mt-3 leading-tight">
         Do diagnóstico para a mesa de quem decide
       </h2>
       <p className="text-muted text-base leading-relaxed mt-4 max-w-[60ch]">{resumo}</p>
@@ -33,13 +33,13 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
           >
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h3 className="font-semibold text-[1.02rem] leading-snug">{s.achado}</h3>
-              <span className="text-[11px] font-mono uppercase tracking-[0.12em] text-brand-claro shrink-0">
+              <span className="text-xs text-brand-claro shrink-0 font-medium">
                 módulo {NOME_PLANO_ADDON[s.modulo]}
               </span>
             </div>
             <p className="text-sm text-muted leading-relaxed mt-2.5 max-w-[68ch]">{s.porque}</p>
             <p className="text-sm leading-relaxed mt-3 max-w-[68ch]">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-brand-claro mr-1.5">No CidadeIA</span>
+              <span className="text-xs font-bold text-brand-claro mr-1.5">No CidadeIA</span>
               {s.resolve}
             </p>
           </li>

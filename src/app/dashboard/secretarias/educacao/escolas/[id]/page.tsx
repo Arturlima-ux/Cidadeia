@@ -118,7 +118,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
         )}
         <div className="flex flex-wrap items-start justify-between gap-3 mt-2">
           <div className="min-w-0">
-            <h1 className="font-serif text-2xl font-bold">{e.nome}</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">{e.nome}</h1>
             <p className="text-sm text-muted mt-1">
               {e.dependencia ? ROTULO_DEPENDENCIA[e.dependencia] : "Rede não informada"}
               {e.bairro ? ` · ${e.bairro}` : ""}
@@ -126,7 +126,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
               {e.situacao === "paralisada" ? " · PARALISADA NO CENSO" : ""}
             </p>
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider rounded-full px-3 py-1.5" style={{ color: cor.cor, background: cor.fundo }}>
+          <span className="text-xs font-bold rounded-full px-3 py-1.5" style={{ color: cor.cor, background: cor.fundo }}>
             {cor.rotulo}
           </span>
         </div>
@@ -134,7 +134,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
 
       {/* ── leitura automática: o que importa agora, e o que fazer ── */}
       <section className="rounded-2xl border p-5" style={{ borderColor: cor.cor, background: leitura.achados.length ? cor.fundo : "var(--card)" }}>
-        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: cor.cor }}>
+        <p className="text-xs font-bold" style={{ color: cor.cor }}>
           Leitura automática
         </p>
         {leitura.achados.length === 0 ? (
@@ -147,7 +147,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
                   <span className="font-semibold">{a.titulo}.</span> <span className="text-muted">{a.detalhe}</span>
                 </p>
                 <p className="mt-0.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider mr-1.5" style={{ color: cor.cor }}>
+                  <span className="text-xs font-bold mr-1.5" style={{ color: cor.cor }}>
                     Ação
                   </span>
                   {a.acao}
@@ -166,8 +166,8 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
       {/* ── os dois números que decidem: matrícula e calendário ── */}
       <div className="grid sm:grid-cols-2 gap-3">
         <div className="rounded-2xl border border-border bg-card p-5">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Matrícula</p>
-          <p className="font-serif text-2xl font-bold mt-1">
+          <p className="text-xs font-bold text-muted">Matrícula</p>
+          <p className="text-2xl font-semibold mt-1 tracking-[-0.02em]">
             {e.matriculasAtuais ?? "—"}
             <span className="text-sm font-sans font-normal text-muted"> alunos hoje</span>
           </p>
@@ -178,10 +178,10 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
           </p>
         </div>
         <div className="rounded-2xl border p-5" style={{ borderColor: COR_CALENDARIO[calendario.situacao], background: calendario.situacao === "normal" ? "var(--card)" : calendario.situacao === "atencao" ? "var(--medio-tint)" : "var(--urgente-tint)" }}>
-          <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: COR_CALENDARIO[calendario.situacao] }}>
+          <p className="text-xs font-bold" style={{ color: COR_CALENDARIO[calendario.situacao] }}>
             Calendário letivo
           </p>
-          <p className="font-serif text-2xl font-bold mt-1">
+          <p className="text-2xl font-semibold mt-1 tracking-[-0.02em]">
             {calendario.perdidos}
             <span className="text-sm font-sans font-normal text-muted"> dia(s) de aula perdidos este ano</span>
           </p>
@@ -192,7 +192,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
       {/* ── o que o Censo diz ── */}
       {fatos.length > 0 && (
         <section className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">Cadastro</h2>
+          <h2 className="font-semibold text-sm text-muted mb-3">Cadastro</h2>
           <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
             {fatos.map((f) => (
               <div key={f.rotulo} className="flex gap-3">
@@ -211,7 +211,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
       )}
 
       <section>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-2">O que só a escola sabe</h2>
+        <h2 className="font-semibold text-sm text-muted mb-2">O que só a escola sabe</h2>
         <DadosDaEscola escolaId={e.id} matriculasAtuais={e.matriculasAtuais} diasPrevistos={e.diasPrevistos} bairro={e.bairro} />
       </section>
 
@@ -224,7 +224,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
       {/* ── ocorrências ── */}
       <section className="space-y-4">
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">O que está acontecendo</h2>
+          <h2 className="font-semibold text-sm text-muted">O que está acontecendo</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             Registre em segundos, pelo celular: professor faltou, ônibus quebrou, acabou a merenda,
             escola sem água. Vira a linha do tempo desta escola — e o que custou aula entra na conta dos
@@ -235,7 +235,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
 
         {abertas.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Abertas ({abertas.length})</h3>
+            <h3 className="text-xs font-bold text-muted mb-2">Abertas ({abertas.length})</h3>
             <div className="rounded-2xl border border-border bg-card divide-y divide-border">
               {abertas.map((o) => (
                 <div key={o.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
@@ -264,7 +264,7 @@ export default async function FichaEscolaPage({ params }: { params: Promise<{ id
 
         {resolvidas.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Resolvidas ({resolvidas.length})</h3>
+            <h3 className="text-xs font-bold text-muted mb-2">Resolvidas ({resolvidas.length})</h3>
             <div className="rounded-2xl border border-border divide-y divide-border opacity-80">
               {resolvidas.map((o) => (
                 <div key={o.id} className="px-4 py-2.5 text-sm">

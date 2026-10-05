@@ -51,7 +51,7 @@ const COLUNAS = [
 export default function SiteFooter() {
   return (
     <footer className="text-white/70" style={{ background: "var(--brand-profundo)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-12 pb-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 pb-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 pb-8 border-b border-white/10">
           <div className="lg:col-span-1">
             <MarcaCompleta tamanho={26} cor="#5f9bf0" corAcento="#6ee7b0" corTexto="#ffffff" />
@@ -76,7 +76,7 @@ export default function SiteFooter() {
 
           {COLUNAS.map((c) => (
             <div key={c.titulo}>
-              <p className="text-xs font-bold uppercase tracking-wider text-white mb-3">
+              <p className="text-xs font-bold text-white mb-3">
                 {c.titulo}
               </p>
               <ul className="space-y-2">

@@ -31,7 +31,7 @@ export default async function IndicePortais() {
       <main id="conteudo">
 
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 pb-10">
-        <h1 className="font-serif text-4xl sm:text-[3rem] leading-[1.02] font-extrabold tracking-[-0.04em]">
+        <h1 className="titulo-pagina">
           Portais da transparência
         </h1>
         <p className="text-muted text-base leading-relaxed mt-5 max-w-[56ch]">
@@ -87,7 +87,7 @@ export default async function IndicePortais() {
       <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-20">
         {portais.length > 0 ? (
           <>
-            <p className="text-xs font-mono uppercase tracking-wider text-muted mb-4">
+            <p className="text-xs text-muted mb-4 font-medium">
               {portais.length} {portais.length === 1 ? "portal no ar" : "portais no ar"}
             </p>
             <ul className="grid sm:grid-cols-2 gap-3">

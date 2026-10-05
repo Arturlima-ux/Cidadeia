@@ -46,7 +46,7 @@ export default async function ReposicaoMerendaPage() {
         </Link>
         <div className="flex flex-wrap items-end justify-between gap-3 mt-2">
           <div>
-            <h1 className="font-serif text-2xl font-bold">Pedido da merenda</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">Pedido da merenda</h1>
             <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
               O que acabou, acaba esta semana ou tem menos de {DIAS_AULA_ATENCAO} dias de aula de
               cobertura em qualquer escola, com a quantidade que repõe {DIAS_AULA_DE_REPOSICAO} dias
@@ -92,7 +92,7 @@ export default async function ReposicaoMerendaPage() {
             <div className="overflow-x-auto rolagem-discreta">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+                  <tr className="text-left text-xs text-muted border-b border-border font-medium">
                     <th className="px-4 py-2 font-medium">Item</th>
                     <th className="px-4 py-2 font-medium text-right">Saldo</th>
                     <th className="px-4 py-2 font-medium text-right">Dá para</th>

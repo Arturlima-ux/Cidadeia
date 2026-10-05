@@ -12,7 +12,7 @@ export default function EsqueletoFato({ titulo }: { titulo: string }) {
       aria-busy="true"
     >
       <span className="sr-only">Consultando {titulo} no Tesouro Nacional.</span>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted" aria-hidden>
+      <p className="text-xs font-semibold text-muted" aria-hidden>
         {titulo}
       </p>
       <div aria-hidden className="mt-2 flex flex-col gap-2">

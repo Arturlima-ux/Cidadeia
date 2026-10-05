@@ -89,10 +89,10 @@ export default async function PortalTransparencia({
       </a>
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-dark">
+          <p className="text-xs font-semibold text-brand-dark">
             Portal da Transparência
           </p>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold mt-2">{portal.nome}</h1>
+          <h1 className="titulo-pagina mt-2">{portal.nome}</h1>
           <p className="text-muted text-sm mt-1.5">
             {portal.municipio} / {portal.estado}
             {portal.prefeito ? ` · Prefeito(a): ${portal.prefeito}` : ""}
@@ -119,7 +119,7 @@ export default async function PortalTransparencia({
                   { label: "Saldo", valor: snapshot.saldo, tom: "var(--brand)" },
                 ].map((c) => (
                   <div key={c.label} className="arco-card bg-card border border-border p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    <p className="text-xs font-semibold text-muted">
                       {c.label}
                     </p>
                     <p

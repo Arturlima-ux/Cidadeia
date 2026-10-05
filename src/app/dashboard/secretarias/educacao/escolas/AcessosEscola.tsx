@@ -28,7 +28,7 @@ export default function AcessosEscola({
     <section className="rounded-2xl border border-border bg-card p-5 space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Acesso da direção</h2>
+          <h2 className="font-semibold text-sm text-muted">Acesso da direção</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             Quem dirige {nomeEscola} entra com o próprio CPF e senha e vê só esta ficha — registra o que
             acontece aqui, na hora, sem passar pela secretaria.

@@ -21,7 +21,7 @@ export default function FatoDoMunicipio({ fato }: { fato: Fato }) {
         borderStyle: ausente ? "dashed" : "solid",
       }}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+      <p className="text-xs font-semibold text-muted">
         {fato.titulo}
       </p>
 

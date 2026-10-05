@@ -140,7 +140,12 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // O caminho vai junto para o layout do painel: é ele que decide, no
+  // servidor, se a conta está travada por falta de pagamento e quais telas
+  // continuam abertas mesmo assim (lib/cobranca.ts, ROTAS_LIVRES_NA_TRAVA).
+  const cabecalhos = new Headers(request.headers);
+  cabecalhos.set("x-caminho", pathname);
+  return NextResponse.next({ request: { headers: cabecalhos } });
 }
 
 export const config = {

@@ -42,7 +42,7 @@ export default function SobrePage() {
 
       <Reveal>
         <section className="max-w-2xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
-          <h1 className="font-serif text-4xl font-bold">Segurança & LGPD</h1>
+          <h1 className="titulo-pagina">Segurança & LGPD</h1>
           <p className="text-muted text-base mt-4 leading-relaxed">
             Dado de gestão pública é sensível. Aqui está, sem enrolação, como ele é
             tratado dentro do CidadeIA.

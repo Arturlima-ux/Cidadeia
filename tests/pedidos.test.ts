@@ -14,11 +14,19 @@ describe("pedido de proposta → conta → acesso", () => {
     expect(modulosDoPedido(null)).toEqual([]);
   });
 
-  it("o caminho é recebido → proposta_enviada → contratado, e para", () => {
+  it("o caminho de um clique vai até em_contratacao; contrato e pagamento têm ação própria", () => {
     expect(PROXIMO_STATUS.recebido).toBe("proposta_enviada");
-    expect(PROXIMO_STATUS.proposta_enviada).toBe("contratado");
+    expect(PROXIMO_STATUS.proposta_enviada).toBe("em_contratacao");
+    // Contrato pede número e empenho; ativar pede pagamento confirmado.
+    expect(PROXIMO_STATUS.em_contratacao).toBeNull();
     expect(PROXIMO_STATUS.contratado).toBeNull();
+    expect(PROXIMO_STATUS.ativo).toBeNull();
     for (const s of Object.values(STATUS_PEDIDO)) expect(s.paraOCliente.length).toBeGreaterThan(20);
+  });
+
+  it("contratado não diz ao cliente que os módulos já ligaram", () => {
+    expect(STATUS_PEDIDO.contratado.paraOCliente).toMatch(/pagamento/);
+    expect(STATUS_PEDIDO.contratado.paraOCliente).not.toMatch(/ativos/);
   });
 
   it("admin é só quem está na lista — e sem lista, ninguém", () => {

@@ -75,7 +75,7 @@ export default function FaqPage() {
 
       <Reveal>
         <section className="max-w-2xl mx-auto px-4 sm:px-8 pt-16 pb-8 text-center">
-          <h1 className="font-serif text-4xl font-bold">Perguntas frequentes</h1>
+          <h1 className="titulo-pagina">Perguntas frequentes</h1>
           <p className="text-muted text-base mt-4 leading-relaxed">
             O que mais perguntam antes de começar a usar o CidadeIA.
           </p>

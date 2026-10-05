@@ -27,7 +27,7 @@ export default async function AcompanharPage({ searchParams }: { searchParams: P
       <main id="conteudo" className="max-w-2xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-20">
         <Reveal>
           <Olho>Pedido de proposta</Olho>
-          <h1 className="font-serif text-[2rem] sm:text-[2.6rem] leading-[1.05] font-extrabold tracking-[-0.035em] mt-5">
+          <h1 className="titulo-pagina mt-5">
             Onde está o seu pedido
           </h1>
           <p className="text-muted leading-relaxed mt-4">

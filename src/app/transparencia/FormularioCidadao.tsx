@@ -88,11 +88,11 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
           <div className="bg-card border border-border rounded-lg p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Protocolo</p>
+            <p className="text-xs font-semibold text-muted">Protocolo</p>
             <p className="font-mono text-lg font-bold tabular-nums mt-0.5">{sucesso.protocolo}</p>
           </div>
           <div className="bg-card border border-border rounded-lg p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+            <p className="text-xs font-semibold text-muted">
               Chave de consulta
             </p>
             <p className="font-mono text-lg font-bold tabular-nums mt-0.5">{sucesso.chave}</p>
@@ -285,7 +285,7 @@ function Consultar() {
             </span>
           </div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+            <p className="text-xs font-semibold text-muted">
               {resultado.tipo}
             </p>
             <p className="font-medium text-sm mt-0.5">{resultado.assunto}</p>
@@ -295,7 +295,7 @@ function Consultar() {
           </div>
           {resultado.resposta ? (
             <div className="border-t border-border pt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-brand">
+              <p className="text-xs font-semibold text-brand">
                 Resposta da prefeitura
               </p>
               <p className="text-sm mt-1 whitespace-pre-line leading-relaxed">

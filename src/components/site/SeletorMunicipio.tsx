@@ -20,8 +20,8 @@ import EnviaAoTrocar from "@/components/site/EnviaAoTrocar";
 // Aqui o servidor já tem a tabela e manda só os municípios do estado escolhido
 // (umas duas centenas). Sem estado selecionado, a segunda caixa vem vazia e o
 // visitante escolhe o estado primeiro — dois envios, nenhum JavaScript
-// obrigatório. Com JavaScript, `EnviaAoTrocar` envia sozinho na troca do
-// estado e vira um gesto só.
+// obrigatório. Com JavaScript, `EnviaAoTrocar` atualiza a página sozinho na
+// troca do estado e do município, sem botão.
 
 export default function SeletorMunicipio({
   uf,
@@ -37,7 +37,7 @@ export default function SeletorMunicipio({
   return (
     <form method="get" action="/" className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Estado</span>
+        <span className="text-xs font-semibold text-muted">Estado</span>
         <select
           name="uf"
           defaultValue={ufAtual}
@@ -54,28 +54,30 @@ export default function SeletorMunicipio({
       </label>
 
       <label className="flex flex-col gap-1.5 min-w-0 flex-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Município</span>
+        <span className="text-xs font-semibold text-muted">Município</span>
         <select
+          key={ufAtual}
           name="m"
           defaultValue={inicial?.codigo ?? ""}
           disabled={municipios.length === 0}
           className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-brand disabled:opacity-50"
         >
-          <option value="">{ufAtual ? "Selecione" : "Escolha o estado primeiro"}</option>
+          <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
           {municipios.map((m) => (
             <option key={m.codigo} value={m.codigo}>
               {m.nome}
             </option>
           ))}
         </select>
+        <EnviaAoTrocar />
       </label>
 
       <button
         type="submit"
-        className="elevar bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
+        className="elevar w-full sm:w-auto bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
         style={{ color: "var(--sobre-forte)" }}
       >
-        Ver os números
+        Ver o Raio-X
       </button>
     </form>
   );

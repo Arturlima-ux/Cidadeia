@@ -84,7 +84,7 @@ export default async function EficaciaPage() {
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.02em]">
             Investimento × Resultado
           </h1>
           <p className="text-muted text-sm mt-2 max-w-2xl leading-relaxed">
@@ -111,10 +111,10 @@ export default async function EficaciaPage() {
           {/* RESUMO */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-card border border-border arco-card p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+              <p className="text-xs font-semibold text-muted">
                 Aplicado na cidade
               </p>
-              <p className="text-2xl font-serif font-bold mt-1.5 tabular-nums">
+              <p className="text-2xl font-semibold mt-1.5 tabular-nums tracking-[-0.02em]">
                 {formatarMoeda(investimentoTotal)}
               </p>
               <p className="text-[11px] text-muted mt-1">
@@ -129,13 +129,13 @@ export default async function EficaciaPage() {
               }}
             >
               <p
-                className="text-[11px] font-semibold uppercase tracking-wider"
+                className="text-xs font-semibold"
                 style={{ color: emRisco > 0 ? "var(--urgente)" : "var(--muted)" }}
               >
                 Valor em risco
               </p>
               <p
-                className="text-2xl font-serif font-bold mt-1.5 tabular-nums"
+                className="text-2xl font-semibold mt-1.5 tabular-nums tracking-[-0.02em]"
                 style={{ color: emRisco > 0 ? "var(--urgente)" : undefined }}
               >
                 {formatarMoeda(emRisco)}
@@ -145,10 +145,10 @@ export default async function EficaciaPage() {
               </p>
             </div>
             <div className="bg-card border border-border arco-card p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+              <p className="text-xs font-semibold text-muted">
                 Áreas com problema
               </p>
-              <p className="text-2xl font-serif font-bold mt-1.5 tabular-nums">
+              <p className="text-2xl font-semibold mt-1.5 tabular-nums tracking-[-0.02em]">
                 {areasComProblema.length}
                 <span className="text-base text-muted font-sans"> de {analise.length}</span>
               </p>
@@ -196,10 +196,10 @@ export default async function EficaciaPage() {
 
                   <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 mt-4 pt-4 border-t border-border">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                      <p className="text-xs font-semibold text-muted">
                         Investido
                       </p>
-                      <p className="font-serif text-lg font-bold tabular-nums">
+                      <p className="text-lg font-semibold tabular-nums tracking-[-0.02em]">
                         {formatarMoeda(s.investimento)}
                       </p>
                       {s.origemInvestimento.length > 0 && (
@@ -215,11 +215,11 @@ export default async function EficaciaPage() {
                     </div>
                     {riscoArea > 0 && (
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                        <p className="text-xs font-semibold text-muted">
                           Em risco
                         </p>
                         <p
-                          className="font-serif text-lg font-bold tabular-nums"
+                          className="text-lg font-semibold tabular-nums tracking-[-0.02em]"
                           style={{ color: "var(--urgente)" }}
                         >
                           {formatarMoeda(riscoArea)}
@@ -265,7 +265,7 @@ export default async function EficaciaPage() {
       {/* LANÇAMENTOS */}
       {listaInvestimentos.length > 0 && (
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+          <h2 className="font-semibold text-sm text-muted mb-3">
             Lançamentos de investimento ({listaInvestimentos.length})
           </h2>
           <div className="space-y-2">
@@ -278,7 +278,7 @@ export default async function EficaciaPage() {
                   <p className="font-medium break-words">
                     {formatarMoeda(i.valor)} · {i.secretaria}
                     <span
-                      className="ml-2 text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 align-middle"
+                      className="ml-2 text-xs font-semibold rounded-full px-2 py-0.5 align-middle"
                       style={
                         i.origem === "siconfi"
                           ? { color: "var(--brand)", background: "var(--brand-tint)" }

@@ -59,15 +59,15 @@ const PASSOS: Passo[] = [
 export default function PorDentro() {
   return (
     <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
         <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-10 lg:gap-16">
           {/* A coluna da esquerda gruda enquanto os passos passam ao lado.
               O leitor não perde o contexto do que está lendo. */}
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">
+            <p className="text-xs text-muted font-medium">
               Um módulo, por dentro
             </p>
-            <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[15ch]">
+            <h2 className="titulo-secao mt-5 max-w-[15ch]">
               Não é um cadastro com gráfico em cima.
             </h2>
             <p className="text-muted leading-relaxed mt-5 max-w-[44ch]">
@@ -134,7 +134,7 @@ export default function PorDentro() {
                 className="relative grid sm:grid-cols-[40px_1fr] gap-x-4 gap-y-3"
               >
                 <span
-                  className="w-10 h-10 rounded-full grid place-items-center font-serif text-sm font-extrabold shrink-0 border"
+                  className="w-10 h-10 rounded-full grid place-items-center font-serif text-sm font-semibold shrink-0 border"
                   style={{
                     background: p.saida ? "var(--accent)" : "var(--superficie)",
                     color: p.saida ? "var(--sobre-acento)" : "var(--brand-claro)",
@@ -151,7 +151,7 @@ export default function PorDentro() {
                   <p className="text-sm text-muted leading-relaxed mt-2.5">{p.texto}</p>
                   {p.lei && (
                     <p
-                      className="text-[11px] font-mono uppercase tracking-[0.1em] mt-3.5 pt-3.5 border-t border-border"
+                      className="text-xs mt-3.5 pt-3.5 border-t border-border font-medium"
                       style={{ color: "var(--brand-claro)" }}
                     >
                       {p.lei}

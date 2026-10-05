@@ -52,11 +52,11 @@ export default async function PropostaPage({
         <SiteHeader />
         <main id="conteudo">
           <Reveal>
-            <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-16">
-              <div className="text-center mb-8">
-                <Olho centrado>Proposta</Olho>
-                <h1 className="font-serif text-3xl sm:text-4xl font-bold mt-4">Monte a sua proposta</h1>
-                <p className="text-muted mt-3 leading-relaxed max-w-lg mx-auto">
+            <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-24">
+              <div className="mb-12">
+                <Olho>Proposta</Olho>
+                <h1 className="titulo-pagina mt-4">Monte a sua proposta</h1>
+                <p className="inicio-lead text-muted mt-5 max-w-[48ch]">
                   Informe o município e marque os módulos. O porte sai da população do IBGE
                   — não é uma escolha — e o pedido segue na tela seguinte.
                 </p>
@@ -77,11 +77,11 @@ export default async function PropostaPage({
     <div className="tema-noite min-h-screen">
       <SiteHeader />
       <main id="conteudo">
-        <section className="max-w-5xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-16">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-24">
           <Reveal>
             <div className="max-w-2xl mb-10">
               <Olho>Proposta</Olho>
-              <h1 className="font-serif text-3xl sm:text-4xl font-bold mt-4">
+              <h1 className="titulo-pagina mt-4">
                 Proposta para {municipio.nome}/{municipio.uf}
               </h1>
               <p className="text-muted mt-3 leading-relaxed">
@@ -98,7 +98,7 @@ export default async function PropostaPage({
                 className="rounded-2xl p-6 sm:p-7 text-white flex flex-col gap-4"
                 style={{ background: "var(--brand-profundo)" }}
               >
-                <h2 className="font-serif font-bold text-base">O que você montou</h2>
+                <h2 className="text-lg font-semibold tracking-[-0.02em]">O que você montou</h2>
 
                 <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
                   <p className="text-xs text-white/60">Município</p>

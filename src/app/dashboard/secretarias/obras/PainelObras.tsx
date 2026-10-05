@@ -88,7 +88,7 @@ export default function PainelObras({
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-xl">
-          <h2 className="font-serif text-lg font-bold">Prazo das obras</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Prazo das obras</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">
             O atraso deixou de ser medido contra um percentual digitado à mão. A régua agora é a
             vigência do contrato, que existe independentemente de quem cadastrou a obra — e é a

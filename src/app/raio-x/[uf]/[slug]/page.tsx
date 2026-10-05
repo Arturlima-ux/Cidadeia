@@ -6,7 +6,6 @@ import EsqueletoRaioX from "@/components/site/EsqueletoRaioX";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
-import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
 import RaioXResultado from "@/components/site/RaioXResultado";
 import CapturaLeadRaioX from "@/components/site/CapturaLeadRaioX";
@@ -18,6 +17,10 @@ import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { compartilhamento, JsonLdScript, ldBreadcrumb, ldPrefeitura } from "@/lib/seo";
 import { NOME_DOS_ESTADOS } from "@/lib/estados";
+import MapaVivo from "@/components/site/inicio/MapaVivo";
+import ReguaLrf from "@/components/site/inicio/ReguaLrf";
+import CarregaRegua from "@/app/_heroi/CarregaRegua";
+import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 
 // ── UMA PÁGINA PÚBLICA POR MUNICÍPIO ──
 //
@@ -115,7 +118,7 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
     .slice(0, 6);
 
   return (
-    <div className="tema-noite min-h-screen">
+    <div className="tema-noite min-h-screen overflow-x-clip">
       <JsonLdScript
         dados={[
           ldBreadcrumb([
@@ -129,20 +132,37 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
       />
       <SiteHeader />
       <main id="conteudo">
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-8">
-          <Reveal>
-            <Olho>Raio-X · dado público do Tesouro Nacional</Olho>
-            <h1 className="font-serif text-[2.2rem] leading-[1.02] sm:text-[3rem] font-extrabold tracking-[-0.04em] mt-5">
-              Prefeitura de {m.nome}
-              <span className="text-muted font-normal"> · {m.uf}</span>
-            </h1>
-            <p className="text-muted text-base sm:text-lg leading-relaxed mt-5 max-w-[58ch]">
-              {new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0)} habitantes pela estimativa do
-              IBGE — município de {porte?.rotulo.toLowerCase()} habitantes. Abaixo, o que a própria
-              prefeitura publicou no Tesouro Nacional neste exercício: receita, quanto foi aplicado em
-              cada área e quais relatórios obrigatórios constam. Nada aqui foi digitado por ninguém.
-            </p>
-          </Reveal>
+        {/* ── O TOPO NO PADRÃO DA HOME ──
+            Título grande, o país com este município aceso e a régua da LRF
+            com o número que a prefeitura declarou. Nome, população e o ponto
+            no mapa são dado local; só a régua espera o Tesouro, dentro do
+            próprio Suspense. */}
+        <section className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-12">
+          <div className="grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] gap-10 lg:gap-14 items-start">
+            <div>
+              <Olho>Raio-X do Tesouro Nacional</Olho>
+              <h1 className="titulo-pagina mt-5">
+                {m.nome}
+                <span className="text-muted font-normal">, {m.uf}</span>
+              </h1>
+              <p className="inicio-lead text-muted mt-6 max-w-[44ch]">
+                {new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0)} habitantes, faixa de{" "}
+                {porte?.rotulo.toLowerCase()}. Abaixo, o que a própria prefeitura publicou no
+                Tesouro neste exercício. Nada aqui foi digitado por ninguém.
+              </p>
+              <div className="mt-10">
+                <Suspense
+                  key={m.codigo}
+                  fallback={<ReguaLrf dado={{ modo: "carregando", municipio: m.nome }} />}
+                >
+                  <CarregaRegua codigoIbge={m.codigo} municipio={m.nome} />
+                </Suspense>
+              </div>
+            </div>
+            <div className="hidden lg:block relative h-[520px]" aria-hidden>
+              <MapaVivo destaque={indiceNoMapa(m.codigo)} className="w-full h-full" />
+            </div>
+          </div>
         </section>
 
         {/* ── O QUE ESPERA O TESOURO FICA SOZINHO ESPERANDO ──
@@ -152,16 +172,18 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
 
             Acima deste ponto nada depende da rede — nome, população e porte
             saem de dado local. O limite de Suspense entra aqui, e só aqui. */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-12">
+          <div className="max-w-4xl">
           <Suspense fallback={<EsqueletoRaioX nome={m.nome} />}>
             <DadosDoTesouro nome={m.nome} uf={m.uf} codigoIbge={m.codigo} />
           </Suspense>
+          </div>
         </section>
 
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-12">
-          <Reveal>
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-12">
+          <div className="max-w-4xl">
             <CapturaLeadRaioX codigoIbge={m.codigo} municipio={m.nome} />
-          </Reveal>
+          </div>
         </section>
 
         {/* ── A SEÇÃO QUE MORAVA AQUI ──
@@ -174,8 +196,8 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             os dois. */}
 
         {/* ── vizinhos de porte: navegação interna que o Google segue ── */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-8 py-12">
-          <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted mb-4">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-12">
+          <p className="text-sm font-medium text-muted mb-4">
             Municípios de porte parecido em {m.uf}
           </p>
           <div className="flex flex-wrap gap-2.5">
@@ -183,9 +205,9 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
               <Link
                 key={v.codigo}
                 href={caminhoDoRaioX(v)}
-                className="text-sm font-semibold rounded-full border border-border px-4 py-2 hover:border-brand hover:text-brand-claro transition"
+                className="text-sm font-medium rounded-full border border-border px-4 py-2 hover:border-brand hover:text-brand-claro transition"
               >
-                {v.nome} →
+                {v.nome}
               </Link>
             ))}
           </div>
@@ -193,7 +215,7 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             href={`/raio-x/${m.uf.toLowerCase()}`}
             className="inline-block mt-5 text-sm font-semibold text-brand hover:underline"
           >
-            Todas as prefeituras {doEstado(m.uf as Estado)} →
+            Todas as prefeituras {doEstado(m.uf as Estado)}
           </Link>
           <p className="text-xs text-muted mt-6 leading-relaxed max-w-[62ch]">
             Fonte: API pública do SICONFI, Tesouro Nacional, e estimativa de população do IBGE.

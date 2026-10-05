@@ -104,7 +104,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
         )}
         <div className="flex flex-wrap items-start justify-between gap-3 mt-2">
           <div className="min-w-0">
-            <h1 className="font-serif text-2xl font-bold">{u.nome}</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">{u.nome}</h1>
             <p className="text-sm text-muted mt-1">
               {NOME_TIPO_UNIDADE[u.tipo] ?? u.tipo}
               {u.bairro ? ` · ${u.bairro}` : ""}
@@ -112,7 +112,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
               {!u.ativo ? " · NÃO CONSTA MAIS NO CNES" : ""}
             </p>
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider rounded-full px-3 py-1.5" style={{ color: cor.cor, background: cor.fundo }}>
+          <span className="text-xs font-bold rounded-full px-3 py-1.5" style={{ color: cor.cor, background: cor.fundo }}>
             {cor.rotulo}
           </span>
         </div>
@@ -120,7 +120,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
 
       {/* ── leitura automática: o que importa agora, e o que fazer ── */}
       <section className="rounded-2xl border p-5" style={{ borderColor: cor.cor, background: leitura.achados.length ? cor.fundo : "var(--card)" }}>
-        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: cor.cor }}>Leitura automática</p>
+        <p className="text-xs font-bold" style={{ color: cor.cor }}>Leitura automática</p>
         {leitura.achados.length === 0 ? (
           <p className="text-sm mt-2">{leitura.resumo}</p>
         ) : (
@@ -131,7 +131,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
                   <span className="font-semibold">{a.titulo}.</span> <span className="text-muted">{a.detalhe}</span>
                 </p>
                 <p className="mt-0.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider mr-1.5" style={{ color: cor.cor }}>Ação</span>
+                  <span className="text-xs font-bold mr-1.5" style={{ color: cor.cor }}>Ação</span>
                   {a.acao}
                 </p>
               </li>
@@ -146,7 +146,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
 
       {/* ── o que o CNES diz ── */}
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">Cadastro</h2>
+        <h2 className="font-semibold text-sm text-muted mb-3">Cadastro</h2>
         <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
           {fatos.map((f) => (
             <div key={f.rotulo} className="flex gap-3">
@@ -181,7 +181,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
       {/* ── ocorrências ── */}
       <section className="space-y-4">
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">O que está acontecendo</h2>
+          <h2 className="font-semibold text-sm text-muted">O que está acontecendo</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             Registre em segundos, pelo celular: sem médico, faltou insulina, geladeira de vacina quebrou,
             fila. Vira a linha do tempo desta unidade — o que o indicador do mês nunca conta.
@@ -191,7 +191,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
 
         {abertas.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Abertas ({abertas.length})</h3>
+            <h3 className="text-xs font-bold text-muted mb-2">Abertas ({abertas.length})</h3>
             <div className="rounded-2xl border border-border bg-card divide-y divide-border">
               {abertas.map((o) => (
                 <div key={o.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
@@ -216,7 +216,7 @@ export default async function FichaUnidadePage({ params }: { params: Promise<{ i
 
         {resolvidas.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Resolvidas ({resolvidas.length})</h3>
+            <h3 className="text-xs font-bold text-muted mb-2">Resolvidas ({resolvidas.length})</h3>
             <div className="rounded-2xl border border-border divide-y divide-border opacity-80">
               {resolvidas.map((o) => (
                 <div key={o.id} className="px-4 py-2.5 text-sm">

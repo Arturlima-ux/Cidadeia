@@ -26,7 +26,7 @@ export default async function AlertasPage() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Alertas</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Alertas</h1>
         <p className="text-muted text-sm mt-1.5">
           Registre manualmente ou deixe a{" "}
           <Link href="/dashboard/central" className="font-semibold text-brand hover:underline">
@@ -82,7 +82,7 @@ export default async function AlertasPage() {
       <SugestoesAlertasIA sugestoes={sugestoes} />
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Em aberto ({abertos.length})
         </h2>
         {abertos.length === 0 ? (
@@ -126,7 +126,7 @@ export default async function AlertasPage() {
 
       {resolvidos.length > 0 && (
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+          <h2 className="font-semibold text-sm text-muted mb-3">
             Resolvidos ({resolvidos.length})
           </h2>
           <div className="space-y-2">

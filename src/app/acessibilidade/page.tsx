@@ -45,7 +45,7 @@ export default function AcessibilidadePage() {
       <main id="conteudo" className="max-w-3xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-20">
         <Reveal>
           <Olho>Declaração de acessibilidade</Olho>
-          <h1 className="font-serif text-[2rem] sm:text-[2.6rem] leading-[1.05] font-extrabold tracking-[-0.035em] mt-5">
+          <h1 className="titulo-pagina mt-5">
             O que este site faz por quem acessa de outro jeito
           </h1>
           <p className="text-muted leading-relaxed mt-4">

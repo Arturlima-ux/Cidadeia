@@ -27,7 +27,7 @@ export default async function MapaPage() {
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Mapa de {prefeitura.municipio}</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Mapa de {prefeitura.municipio}</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           Obras, escolas e unidades de saúde na mesma tela — porque o prefeito
           pensa o município por bairro, não por secretaria. Clique numa camada

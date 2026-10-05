@@ -42,7 +42,7 @@ export default async function BloqueioPlano({ plano, nota }: { plano: PlanoAddon
           <path d="M8 11V7.5a4 4 0 0 1 8 0V11" />
         </svg>
       </div>
-      <h1 className="font-serif text-xl font-bold mb-2">
+      <h1 className="text-xl font-semibold mb-2 tracking-[-0.02em]">
         Módulo {NOME_PLANO_ADDON[plano]} não contratado
       </h1>
       <p className="text-sm text-muted leading-relaxed">{descricao}</p>

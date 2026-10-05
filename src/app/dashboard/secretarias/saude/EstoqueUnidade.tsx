@@ -41,7 +41,7 @@ export default function EstoqueUnidade({ unidadeId, linhas, fuso }: { unidadeId:
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Estoque</h2>
+          <h2 className="font-semibold text-sm text-muted">Estoque</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             Saldo e consumo por mês → em quantos dias acaba. Conte, lance, e o pedido de reposição sai
             sozinho antes de faltar.
@@ -117,7 +117,7 @@ export default function EstoqueUnidade({ unidadeId, linhas, fuso }: { unidadeId:
         <div className="overflow-x-auto rolagem-discreta rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+              <tr className="text-left text-xs text-muted border-b border-border font-medium">
                 <th className="px-4 py-2.5 font-medium">Item</th>
                 <th className="px-4 py-2.5 font-medium text-right">Saldo</th>
                 <th className="px-4 py-2.5 font-medium text-right">Sai/mês</th>

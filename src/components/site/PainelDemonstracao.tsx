@@ -119,7 +119,7 @@ export default function PainelDemonstracao() {
         >
           {MENU.map((g) => (
             <div key={g.grupo} className="flex flex-col gap-0.5">
-              <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted px-2.5 pb-1">
+              <span className="text-[9px] font-bold text-muted px-2.5 pb-1">
                 {g.grupo}
               </span>
               {g.itens.map((m) => (
@@ -145,7 +145,7 @@ export default function PainelDemonstracao() {
               que conta quantos pontos pedem decisão. É a primeira coisa que
               o prefeito lê ao entrar — e a que diz que isto é dele. */}
           <div className="mb-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <p className="text-xs font-semibold text-muted">
               Prefeitura Modelo · quinta-feira, 10 de setembro
             </p>
             <p className="font-serif font-bold text-base sm:text-lg leading-tight mt-1">
@@ -200,7 +200,7 @@ export default function PainelDemonstracao() {
               <IconIA className="w-3 h-3" />
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-legivel">
+              <p className="text-xs font-semibold text-brand-legivel">
                 Leitura automática
               </p>
               <p className="text-[11px] sm:text-xs leading-snug mt-1">

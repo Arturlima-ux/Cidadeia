@@ -3,8 +3,6 @@ import Contador from "@/components/site/Contador";
 import { TOTAL_MUNICIPIOS } from "@/lib/municipios";
 import { EXIGENCIAS } from "@/lib/diagnostico";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
-import { PLANOS_ADDON } from "@/lib/planos";
-import { TOTAL_ARTIGOS, TOTAL_NORMAS } from "@/lib/normas-verificadas";
 
 // ── A FAIXA DE NÚMEROS ──
 //
@@ -17,11 +15,18 @@ import { TOTAL_ARTIGOS, TOTAL_NORMAS } from "@/lib/normas-verificadas";
 //
 //   TOTAL_MUNICIPIOS   vem do arquivo do IBGE que monta as páginas do Raio-X
 //   EXIGENCIAS.length  é a lista que o diagnóstico de fato percorre
-//   PLANOS_ADDON       é o catálogo que o montador de proposta lê
 //   LIMITE_DISPENSA    é o valor do decreto, com base legal ao lado
 //
 // Se um deles mudar, a faixa muda sozinha. E cada um é clicável: o
 // visitante confere em um clique, que é a única autoridade que temos.
+
+// ── TRÊS, NÃO CINCO ──
+//
+// Eram cinco números numa grade de quatro colunas, e o quinto ficava órfão
+// na segunda linha do desktop. Dois deles (artigos verificados, quantidade de
+// módulos) falavam de nós, não do que o secretário ganha. Ficaram os três que
+// respondem a ele: o meu município está aí, o que é conferido, e se dá para
+// contratar sem licitar. Os artigos continuam contados em /conformidade.
 
 export default function NumerosVerificaveis() {
   const numeros = [
@@ -38,26 +43,6 @@ export default function NumerosVerificaveis() {
       detalhe: "LAI, Lei 13.460, LRF e LGPD — cada pendência sai com o artigo que a cria.",
       href: "/diagnostico",
       cor: "var(--accent-claro)",
-    },
-    {
-      // O pedido original para esta faixa trazia "100.000+ processos
-      // digitalizados" e "R$ 15M+ economizados aos cofres públicos". O produto
-      // tem zero clientes: os dois seriam falsos, e numa venda B2G quem valida
-      // é o procurador da prefeitura. Este número é grande, é verdadeiro, e
-      // ninguém mais diz — a lista inteira está em lib/normas-verificadas.ts,
-      // com o arquivo onde cada conta mora.
-      valor: TOTAL_ARTIGOS,
-      rotulo: "artigos de lei verificados",
-      detalhe: `De ${TOTAL_NORMAS} normas federais. Cada um tem regra no código, não é citação de texto.`,
-      href: "/conformidade",
-      cor: "var(--brand-claro)",
-    },
-    {
-      valor: PLANOS_ADDON.length,
-      rotulo: "módulos independentes",
-      detalhe: "Contrate só a área que precisa. Sem pacote fechado, sem cobrança por usuário.",
-      href: "/solucoes",
-      cor: "var(--brand-claro)",
     },
     {
       valor: LIMITE_DISPENSA.valor,
@@ -80,8 +65,8 @@ export default function NumerosVerificaveis() {
     // O título saiu porque a faixa não precisa ser apresentada: quatro
     // números enormes com "conferir" embaixo dizem sozinhos o que são.
     <section>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="cascata grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
+        <div className="cascata grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-8 max-w-4xl mx-auto">
           {numeros.map((n, i) => (
             <Link
               key={n.rotulo}

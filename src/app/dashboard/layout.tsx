@@ -8,6 +8,10 @@ import { planosContratadosDe, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/pl
 import { type NavItem } from "@/components/SidebarNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import FaixaDemo from "@/components/FaixaDemo";
+import { headers } from "next/headers";
+import { BloqueioFinanceiro, FaixaFinanceira } from "@/components/AvisosFinanceiros";
+import { painelTravado, rotaLivreNaTrava } from "@/lib/cobranca";
+import { situacaoDaPrefeitura } from "@/lib/cobranca-servidor";
 
 const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
   saude: { href: "/dashboard/secretarias/saude", label: "Saúde", icone: "saude" },
@@ -144,6 +148,7 @@ function montarGrupos(
       { href: "/dashboard/modulos", label: "Módulos", icone: "modulos" },
       // Fora de qualquer trava de plano: a exportação existe justamente para
       // a prefeitura poder sair levando os dados dela.
+      ...(!ehGestor(sessao) ? [] : [{ href: "/dashboard/financeiro", label: "Financeiro", icone: "modulos" } as NavItem]),
       { href: "/dashboard/dados", label: "Meus dados", icone: "download" },
       // Auditoria fora de trava de módulo: a trilha existe para dar
       // confiança, e confiança não se vende à parte. Só quem vê a
@@ -188,6 +193,16 @@ export default async function DashboardLayout({
   const usuarioAtual = await buscarUsuarioPorId(sessao.usuarioId);
   const planosAtivos = planosContratadosDe(prefeitura.planosContratados);
 
+  // ── A TRAVA FINANCEIRA, NO SERVIDOR ──
+  // Fatura além da carência: no lugar de qualquer tela do painel entra o
+  // aviso de suspensão, menos nas rotas livres (financeiro, exportação,
+  // conta). A demonstração nunca tem cobrança. Regra em lib/cobranca.ts.
+  const situacaoFinanceira = sessao.demo
+    ? ({ tipo: "sem_cobranca" } as const)
+    : await situacaoDaPrefeitura(sessao.prefeituraId);
+  const caminho = (await headers()).get("x-caminho") ?? "";
+  const travado = painelTravado(situacaoFinanceira) && !rotaLivreNaTrava(caminho);
+
   return (
     // O painel passa a usar o mesmo tema escuro do site. Antes ele era claro e
     // o site escuro: quem via a página de vendas e depois entrava encontrava
@@ -218,7 +233,8 @@ export default async function DashboardLayout({
       <div className="flex-1 min-w-0 flex flex-col">
         <VoltarAoTopo />
         {sessao.demo && <FaixaDemo />}
-        <header className="shadow-elevated md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
+        {!sessao.demo && <FaixaFinanceira situacao={situacaoFinanceira} />}
+        <header className="md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
             <div
               className="w-9 h-9 rounded-full text-white flex items-center justify-center text-xs font-bold shrink-0 bg-cover bg-center"
@@ -243,21 +259,27 @@ export default async function DashboardLayout({
               esmagavam o nome da pessoa até "A. / V..". No desktop cabem. */}
           <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-end">
             {planosAtivos.length === 0 && (
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
+              <span className="text-xs font-semibold text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
                 Nenhum módulo contratado
               </span>
             )}
             {planosAtivos.map((p) => (
               <span
                 key={p}
-                className="text-[11px] font-semibold uppercase tracking-wide text-brand-legivel bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
+                className="text-xs font-semibold text-brand-legivel bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
               >
                 {NOME_PLANO_ADDON[p]}
               </span>
             ))}
           </div>
         </header>
-        <main className="flex-1 px-4 sm:px-8 py-6 sm:py-8 animate-fade-in-up">{children}</main>
+        <main className="flex-1 px-4 sm:px-8 py-6 sm:py-8 animate-fade-in-up">
+          {travado && situacaoFinanceira.tipo === "travada" ? (
+            <BloqueioFinanceiro situacao={situacaoFinanceira} />
+          ) : (
+            children
+          )}
+        </main>
       </div>
     </div>
   );

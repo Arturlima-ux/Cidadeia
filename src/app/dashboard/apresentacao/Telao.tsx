@@ -84,7 +84,7 @@ export default function Telao({
   if (paineis.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <p className="font-serif text-3xl font-bold">Nada para apresentar ainda</p>
+        <p className="text-3xl font-semibold tracking-[-0.02em]">Nada para apresentar ainda</p>
         <p className="text-muted max-w-md leading-relaxed">
           O telão mostra os números que já estão cadastrados. Preencha os
           indicadores das secretarias e a base dos mínimos constitucionais para
@@ -102,7 +102,7 @@ export default function Telao({
   return (
     <div className="min-h-screen flex flex-col">
       <header className="flex items-center justify-between px-8 sm:px-12 py-6">
-        <p className="font-serif text-lg sm:text-xl font-bold">{municipio}</p>
+        <p className="text-lg sm:text-xl font-semibold tracking-[-0.02em]">{municipio}</p>
         <Link
           href="/dashboard"
           className="text-sm text-muted hover:text-foreground transition"
@@ -112,17 +112,17 @@ export default function Telao({
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-        <p className="text-sm sm:text-base font-semibold uppercase tracking-[0.2em] text-muted">
+        <p className="text-sm sm:text-base font-semibold text-muted">
           {painel.rotulo}
         </p>
 
         {painel.semDado ? (
-          <p className="font-serif text-4xl sm:text-6xl font-bold mt-8 text-muted max-w-[16ch] leading-tight">
+          <p className="text-4xl sm:text-6xl font-semibold mt-8 text-muted max-w-[16ch] leading-tight tracking-[-0.02em]">
             Sem dado cadastrado
           </p>
         ) : (
           <p
-            className="font-serif font-extrabold tracking-[-0.04em] tabular-nums mt-6 leading-none"
+            className="font-semibold tracking-[-0.04em] tabular-nums mt-6 leading-none"
             style={{ color: COR[painel.tom], fontSize: "clamp(4rem, 18vw, 14rem)" }}
           >
             {painel.valor}

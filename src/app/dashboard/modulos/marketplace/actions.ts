@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, notInArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { pedidosProposta, prefeituras, usuarios } from "@/db/schema";
@@ -53,7 +53,7 @@ export async function pedirModuloDoPainel(modulo: string): Promise<ResultadoPedi
   const abertos = await db
     .select({ modulos: pedidosProposta.modulos })
     .from(pedidosProposta)
-    .where(and(eq(pedidosProposta.prefeituraId, pref.id), ne(pedidosProposta.status, "contratado")));
+    .where(and(eq(pedidosProposta.prefeituraId, pref.id), notInArray(pedidosProposta.status, ["ativo", "perdido"])));
   if (abertos.some((p) => modulosDoPedido(p.modulos).includes(chave))) {
     return { ok: false, erro: "Já existe um pedido em andamento com este módulo. Acompanhe em 'Sua proposta', acima." };
   }

@@ -79,7 +79,7 @@ export default function Diagnostico() {
       <div className="border-b border-border px-6 sm:px-8 py-5">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">
+            <p className="text-xs text-muted font-medium">
               Etapa {etapa + 1} de {BLOCOS.length}
             </p>
             <h2 className="font-serif text-xl sm:text-2xl font-bold mt-1">
@@ -185,11 +185,11 @@ function ResultadoDiagnostico({
         className="border rounded-2xl p-7 sm:p-9 text-center"
         style={{ background: cor.fundo, borderColor: cor.borda }}
       >
-        <p className="text-[11px] font-mono uppercase tracking-[0.14em]" style={{ color: cor.texto }}>
+        <p className="text-xs font-medium" style={{ color: cor.texto }}>
           {NOME_NIVEL[resultado.nivel]}
         </p>
         <p
-          className="font-serif text-[3.4rem] leading-none font-extrabold tracking-[-0.05em] mt-3 tabular-nums"
+          className="font-serif text-[3.4rem] leading-none font-semibold tracking-[-0.05em] mt-3 tabular-nums"
           style={{ color: cor.texto }}
         >
           {resultado.conformes}
@@ -219,7 +219,7 @@ function ResultadoDiagnostico({
           começa. */}
       {abertas && (
         <div className="border border-border rounded-2xl p-6" style={{ background: "var(--card)" }}>
-          <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">Por bloco</p>
+          <p className="text-xs text-muted font-medium">Por bloco</p>
           <ul className="mt-4 flex flex-col gap-3">
             {resultado.porBloco.map((b) => {
               const abertasDoBloco = b.pendentes + b.incertas;
@@ -343,7 +343,7 @@ function ResultadoDiagnostico({
 function Contagem({ n, rotulo, cor, fundo }: { n: number; rotulo: string; cor: string; fundo: string }) {
   return (
     <div className="rounded-xl px-3 py-3" style={{ background: fundo }}>
-      <p className="font-serif text-2xl font-extrabold tabular-nums leading-none" style={{ color: cor }}>
+      <p className="font-serif text-2xl font-semibold tabular-nums leading-none" style={{ color: cor }}>
         {n}
       </p>
       <p className="text-[11px] text-muted mt-1.5">{rotulo}</p>

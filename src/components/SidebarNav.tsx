@@ -47,7 +47,7 @@ export default function SidebarNav({
     <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta">
       {grupos.map((grupo) => (
         <div key={grupo.titulo}>
-          <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/80">
+          <p className="px-3 mb-1.5 text-xs font-semibold text-muted/80">
             {grupo.titulo}
           </p>
           <div className="space-y-0.5">

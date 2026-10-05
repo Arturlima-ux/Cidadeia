@@ -24,7 +24,7 @@ export default function PainelFracionamento({
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-bold">Fracionamento de despesa</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Fracionamento de despesa</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-xl">
             A lei manda somar, no exercício, as dispensas de{" "}
             <strong className="text-foreground">objetos de mesma natureza</strong> antes de
@@ -33,10 +33,10 @@ export default function PainelFracionamento({
           </p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-xs font-mono uppercase tracking-wide text-muted">
+          <p className="text-xs text-muted font-medium">
             Dispensas em {exercicio}
           </p>
-          <p className="font-serif text-xl font-bold tabular-nums mt-0.5">
+          <p className="text-xl font-semibold tabular-nums mt-0.5 tracking-[-0.02em]">
             {formatarMoeda(analise.totalDispensas)}
           </p>
         </div>
@@ -114,7 +114,7 @@ function Grupo({
         <p className="font-semibold text-sm">
           {grupo.termos.length > 0 ? grupo.termos.join(" · ") : "objetos semelhantes"}
         </p>
-        <p className="font-serif font-bold tabular-nums" style={{ color: cor }}>
+        <p className="font-semibold tabular-nums tracking-[-0.02em]" style={{ color: cor }}>
           {formatarMoeda(grupo.total)}
         </p>
       </div>
