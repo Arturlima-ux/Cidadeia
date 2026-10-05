@@ -58,7 +58,7 @@ export default async function ConfiguracoesPage() {
         <h2 className="font-semibold text-sm mb-4">Dados da prefeitura</h2>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <Item label="Nome" valor={prefeitura?.nome} />
-          <Item label="Município" valor={`${prefeitura?.municipio} / ${prefeitura?.estado}`} />
+          <Item label="Município" valor={prefeitura?.estado === "--" ? (prefeitura?.municipio ?? "") : `${prefeitura?.municipio} / ${prefeitura?.estado}`} />
           <Item label="CNPJ" valor={prefeitura?.cnpj} />
           <Item label="Prefeito(a)" valor={prefeitura?.prefeito} />
           <Item label="População" valor={prefeitura?.populacao?.toLocaleString("pt-BR")} />

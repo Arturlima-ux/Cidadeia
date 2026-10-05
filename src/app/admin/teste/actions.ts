@@ -25,25 +25,27 @@ export async function abrirPainelDeTeste(): Promise<void> {
   const u = await usuarioDaEquipe();
   if (!u) redirect("/login");
 
+  // Sem município nenhum: o ambiente de teste não é nem finge ser uma
+  // prefeitura real. Os dados de identificação são regravados a cada entrada,
+  // para corrigir uma versão anterior que nascia como Teresina.
+  const identidade = {
+    nome: "Ambiente de teste",
+    estado: "--",
+    municipio: "Ambiente de teste",
+    codigoIbge: null,
+    populacao: null,
+    prefeito: u.nome,
+    planosContratados: JSON.stringify(PLANOS_ADDON.map((p) => p.chave)),
+  };
   const [existe] = await db
     .select({ id: prefeituras.id })
     .from(prefeituras)
     .where(eq(prefeituras.id, PREFEITURA_TESTE_ID))
     .limit(1);
-  if (!existe) {
-    await db.insert(prefeituras).values({
-      id: PREFEITURA_TESTE_ID,
-      nome: "Prefeitura de Teste da Equipe",
-      // Teresina: código IBGE e população reais, para o Raio-X, o RGF e os
-      // painéis que consultam o Tesouro terem o que mostrar.
-      estado: "PI",
-      municipio: "Teresina",
-      codigoIbge: "2211001",
-      populacao: 908012,
-      cnpj: "TESTE-EQUIPE",
-      prefeito: u.nome,
-      planosContratados: JSON.stringify(PLANOS_ADDON.map((p) => p.chave)),
-    });
+  if (existe) {
+    await db.update(prefeituras).set(identidade).where(eq(prefeituras.id, PREFEITURA_TESTE_ID));
+  } else {
+    await db.insert(prefeituras).values({ id: PREFEITURA_TESTE_ID, cnpj: "TESTE-EQUIPE", ...identidade });
   }
 
   await criarSessao({ usuarioId: u.id, prefeituraId: PREFEITURA_TESTE_ID, nome: u.nome, cargo: "prefeito" });

@@ -58,8 +58,8 @@ export async function emailDaEquipe(): Promise<string | null> {
 //
 // Um CPF só pode ter um login, e o da equipe não é prefeitura. Para conferir
 // o painel sem criar uma segunda conta, a equipe entra numa prefeitura de
-// teste própria: todos os módulos ligados, liberada para gravar, sem cobrança
-// e sem portal público. Os clientes não a veem; ela não entra em funil,
+// teste própria, sem município nenhum: todos os módulos ligados, liberada
+// para gravar, sem cobrança e sem portal público. Os clientes não a veem; ela não entra em funil,
 // financeiro nem lista nenhuma.
 //
 // A sessão passa a apontar para esta prefeitura, mas o usuário continua sendo
