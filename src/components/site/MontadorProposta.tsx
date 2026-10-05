@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
-import MolduraViva from "@/components/site/MolduraViva";
+import MolduraBrasil from "@/components/site/MolduraBrasil";
 import { ESTADOS } from "@/lib/estados";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
@@ -20,9 +20,12 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
 
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
+  destaque = null,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
+  /** Índice no mapa do município escolhido no topo da home: ele monta a moldura primeiro. */
+  destaque?: number | null;
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -89,13 +92,12 @@ export default function MontadorProposta({
     );
   }
 
-  // ── ACENDE COM A ROLAGEM ──
-  // O quadro entra apagado e a moldura pega fogo conforme a pessoa rola
-  // (MolduraViva): o fogo sai do meio da borda de cima, desce pelos dois
-  // lados e se encontra embaixo no instante em que o quadro inteiro cabe na
-  // tela. No encontro, o quadro acende. Uma vez só; depois o canvas sai.
+  // ── O BRASIL VIRA A MOLDURA ──
+  // O quadro entra apagado. Conforme a pessoa rola, os 5.570 municípios
+  // saem do mapa do Brasil e montam a borda, de cima para baixo pelos dois
+  // lados, fechando embaixo quando o quadro inteiro cabe na tela
+  // (MolduraBrasil). No fechamento, o quadro acende. Uma vez só.
   const quadro = useRef<HTMLDivElement>(null);
-  const [fogo, setFogo] = useState(true);
   const [aceso, setAceso] = useState(false);
   const [ligando, setLigando] = useState(false);
   const espera = useRef<number | undefined>(undefined);
@@ -109,7 +111,7 @@ export default function MontadorProposta({
 
   return (
     <div className="relative">
-    {fogo && <MolduraViva alvo={quadro} onAceso={aoAcender} onFim={() => setFogo(false)} />}
+    <MolduraBrasil alvo={quadro} destaque={destaque} onAceso={aoAcender} />
     <div
       ref={quadro}
       data-aceso={aceso ? "1" : "0"}
