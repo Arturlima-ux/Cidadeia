@@ -1368,3 +1368,15 @@ h1.font-serif,
     transform: none;
   }
 }
+
+/* Os dois seletores do herói (estado e município) não acendem ao focar:
+   a página recarrega com o foco neles a cada troca, e o anel violeta ficava
+   ali aceso o tempo todo. Ao focar pelo teclado, só a borda clareia. */
+.seletor-sem-luz:focus,
+.seletor-sem-luz:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.seletor-sem-luz:focus-visible {
+  border-color: color-mix(in oklab, var(--foreground) 45%, transparent);
+}
