@@ -9,11 +9,13 @@ import type { Municipio } from "@/lib/municipios";
 //
 // Mesmo assim, quem mora ou trabalha nelas procura pelo nome da região, e
 // encontrar só "Brasília" parecia falha do site. Então elas aparecem no
-// seletor, com código próprio (DF-RA-01 a DF-RA-35), e os números exibidos são
+// seletor, com código próprio (DF-RA-01 a DF-RA-37), e os números exibidos são
 // os do Distrito Federal inteiro, com a tela dizendo isso.
 //
-// Lista oficial de 35 RAs, na ordem da numeração, com Arapoanga e Água Quente
-// criadas em dezembro de 2022.
+// Lista oficial de 37 RAs, na ordem de criação: Arapoanga e Água Quente em
+// dezembro de 2022; 26 de Setembro e Ponte Alta sancionadas em 3 de julho de
+// 2026. Uma RA nova entra no fim da lista, para não mudar o código das demais
+// (links já compartilhados apontam para eles).
 
 export const CODIGO_BRASILIA = "5300108";
 
@@ -24,7 +26,7 @@ export const REGIOES_DF = [
   "Lago Norte", "Candangolândia", "Águas Claras", "Riacho Fundo II", "Sudoeste/Octogonal",
   "Varjão", "Park Way", "SCIA/Estrutural", "Sobradinho II", "Jardim Botânico", "Itapoã",
   "SIA", "Vicente Pires", "Fercal", "Sol Nascente/Pôr do Sol", "Arniqueira", "Arapoanga",
-  "Água Quente",
+  "Água Quente", "26 de Setembro", "Ponte Alta",
 ] as const;
 
 export function codigoDaRegiao(indice: number): string {

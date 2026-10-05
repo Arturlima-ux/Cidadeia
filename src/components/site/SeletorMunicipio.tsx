@@ -65,15 +65,14 @@ export default function SeletorMunicipio({
         >
           <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
           {ufAtual === "DF" ? (
-            // O DF numa lista só, em ordem alfabética: Brasília e as demais
-            // localidades lado a lado, sem rótulo separando (lib/regioes-df.ts).
-            [...municipios, ...regioesComoMunicipios()]
-              .sort((x, y) => x.nome.localeCompare(y.nome, "pt-BR"))
-              .map((m) => (
-                <option key={m.codigo} value={m.codigo}>
-                  {m.nome}
-                </option>
-              ))
+            // O DF são as 37 regiões, numa lista só e em ordem alfabética. O
+            // "Brasília" do IBGE (o DF inteiro) não entra: duplicaria o Plano
+            // Piloto e somaria 38 (lib/regioes-df.ts).
+            regioesComoMunicipios().map((m) => (
+              <option key={m.codigo} value={m.codigo}>
+                {m.nome}
+              </option>
+            ))
           ) : (
             municipios.map((m) => (
               <option key={m.codigo} value={m.codigo}>
