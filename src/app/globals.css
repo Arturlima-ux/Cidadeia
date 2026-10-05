@@ -1272,28 +1272,100 @@ h1.font-serif,
   }
 }
 
-/* ── O MONTADOR DE PROPOSTA COM LUZ ──
-   O quadro era cinza sobre preto: as cores certas, mas apagadas. A luz vem
-   da própria marca, misturada com color-mix: um halo violeta em volta, um
-   brilho no canto de cada lado e os módulos marcados acesos. Nada anima
-   em repouso; o que se mexe é só a transição do clique. */
+/* ── O MONTADOR DE PROPOSTA ACENDE ──
+   O quadro chega apagado (as cores certas, sem luz) e acende quando entra
+   na tela, logo depois do subtítulo: halo em volta, como lâmpada ligando,
+   o resumo ganha o degradê e os módulos marcados acendem um por um.
+
+   Quem liga é o MontadorProposta (IntersectionObserver), escrevendo
+   data-aceso="1". Acende uma vez e fica aceso. As camadas de luz são
+   pseudo-elementos com opacity: o navegador anima isso fora do layout. */
 .montador-vivo {
-  border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
+  position: relative;
+  isolation: isolate;
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color 1.2s ease, box-shadow 1.6s ease;
+}
+.montador-vivo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
     radial-gradient(70% 55% at 0% 0%, color-mix(in oklab, var(--brand) 34%, transparent), transparent 70%),
-    radial-gradient(50% 40% at 70% 100%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%),
-    var(--card);
+    radial-gradient(50% 40% at 70% 100%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%);
+  opacity: 0;
+}
+.montador-vivo[data-aceso="1"] {
+  border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--brand) 18%, transparent),
     0 30px 90px -30px color-mix(in oklab, var(--brand) 65%, transparent),
     0 0 140px -40px color-mix(in oklab, var(--accent) 50%, transparent);
 }
+.montador-vivo[data-aceso="1"]::before {
+  animation: montador-liga 1.1s ease-out forwards;
+}
+
+/* Lâmpada ligando: pisca duas vezes antes de firmar. */
+@keyframes montador-liga {
+  0% { opacity: 0; }
+  12% { opacity: 0.7; }
+  20% { opacity: 0.15; }
+  32% { opacity: 0.9; }
+  40% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Faixa de luz que atravessa o quadro uma vez, quando acende. */
+.montador-vivo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in oklab, var(--accent) 22%, transparent) 48%,
+    color-mix(in oklab, white 14%, transparent) 50%,
+    color-mix(in oklab, var(--accent) 22%, transparent) 52%,
+    transparent 65%
+  );
+  transform: translateX(-110%);
+  opacity: 0;
+}
+.montador-vivo[data-aceso="1"]::after {
+  animation: montador-varre 1.4s 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes montador-varre {
+  0% { transform: translateX(-110%); opacity: 1; }
+  100% { transform: translateX(110%); opacity: 1; }
+}
 
 .montador-resumo {
+  position: relative;
+  isolation: isolate;
+  background: var(--brand-profundo);
+}
+.montador-resumo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
     radial-gradient(90% 55% at 100% 0%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 65%),
     radial-gradient(80% 50% at 0% 100%, color-mix(in oklab, var(--brand) 45%, transparent), transparent 70%),
     linear-gradient(165deg, color-mix(in oklab, var(--brand) 55%, var(--brand-profundo)), var(--brand-profundo) 75%);
+  opacity: 0;
+  transition: opacity 1.4s ease 0.5s;
+}
+[data-aceso="1"] .montador-resumo::before {
+  opacity: 1;
 }
 
 .montador-numero {
@@ -1306,6 +1378,12 @@ h1.font-serif,
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--accent-claro, var(--accent));
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+  transition: background-color 0.6s ease, box-shadow 0.8s ease;
+  transition-delay: var(--atraso, 0s);
+}
+[data-aceso="1"] .montador-numero {
   background: color-mix(in oklab, var(--brand) 22%, transparent);
   box-shadow:
     inset 0 0 0 1px color-mix(in oklab, var(--accent) 55%, transparent),
@@ -1313,9 +1391,14 @@ h1.font-serif,
 }
 
 .montador-campo {
+  background: transparent;
+  border-color: var(--border);
+  transition: border-color 0.6s ease, background-color 0.6s ease, box-shadow 0.2s ease;
+}
+[data-aceso="1"] .montador-campo {
   background: color-mix(in oklab, var(--brand) 6%, transparent);
   border-color: color-mix(in oklab, var(--brand) 28%, var(--border));
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition-delay: 0.4s, 0.4s, 0s;
 }
 .montador-campo:focus {
   border-color: var(--brand);
@@ -1324,7 +1407,7 @@ h1.font-serif,
 
 .montador-modulo {
   background: color-mix(in oklab, var(--foreground) 2%, transparent);
-  transition: border-color 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.3s ease, box-shadow 0.4s ease, background-color 0.3s ease, transform 0.2s ease;
 }
 .montador-modulo:hover {
   transform: translateY(-1px);
@@ -1332,13 +1415,29 @@ h1.font-serif,
 }
 .montador-modulo[aria-pressed="true"] {
   border-color: var(--brand);
+  background: color-mix(in oklab, var(--brand) 12%, transparent);
+}
+/* Aceso: os marcados ganham brilho, um depois do outro (--atraso vem do
+   índice do módulo na grade). Depois de aceso, o clique acende na hora. */
+[data-aceso="1"] .montador-modulo[aria-pressed="true"] {
   background:
     linear-gradient(135deg, color-mix(in oklab, var(--brand) 30%, transparent), color-mix(in oklab, var(--accent) 10%, transparent));
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
     0 10px 34px -12px color-mix(in oklab, var(--brand) 85%, transparent);
+  animation: montador-modulo-liga 0.7s ease-out both;
 }
-.montador-modulo[aria-pressed="true"] .montador-check {
+/* O atraso escalonado vale só enquanto o quadro está ligando; depois, o
+   módulo que a pessoa marca acende na hora. */
+[data-ligando="1"] .montador-modulo[aria-pressed="true"] {
+  animation-delay: var(--atraso, 0s);
+}
+@keyframes montador-modulo-liga {
+  0% { box-shadow: 0 0 0 0 transparent; filter: brightness(1); }
+  40% { filter: brightness(1.5); }
+  100% { filter: brightness(1); }
+}
+[data-aceso="1"] .montador-modulo[aria-pressed="true"] .montador-check {
   box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 90%, transparent);
 }
 
@@ -1353,14 +1452,38 @@ h1.font-serif,
   box-shadow: 0 16px 50px -10px color-mix(in oklab, var(--accent) 100%, transparent);
 }
 .montador-cta-espera {
+  color: color-mix(in oklab, white 60%, transparent);
+  background: color-mix(in oklab, white 8%, transparent);
+  border: 1px dashed color-mix(in oklab, white 25%, transparent);
+  transition: color 0.8s ease 0.9s, background-color 0.8s ease 0.9s, border-color 0.8s ease 0.9s;
+}
+[data-aceso="1"] .montador-cta-espera {
   color: color-mix(in oklab, white 75%, transparent);
   background: color-mix(in oklab, var(--brand) 22%, transparent);
-  border: 1px dashed color-mix(in oklab, var(--accent) 60%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 60%, transparent);
 }
 
+/* Sem movimento: acende direto, sem piscar nem varrer. */
 @media (prefers-reduced-motion: reduce) {
+  .montador-vivo[data-aceso="1"]::before {
+    animation: none;
+    opacity: 1;
+  }
+  .montador-vivo::after,
+  .montador-vivo[data-aceso="1"]::after {
+    animation: none;
+    display: none;
+  }
+  [data-aceso="1"] .montador-modulo[aria-pressed="true"] {
+    animation: none;
+  }
+  .montador-vivo,
+  .montador-resumo::before,
+  .montador-numero,
+  .montador-campo,
   .montador-modulo,
-  .montador-cta {
+  .montador-cta,
+  .montador-cta-espera {
     transition: none;
   }
   .montador-modulo:hover,
