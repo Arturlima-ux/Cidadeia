@@ -75,7 +75,7 @@ export default function SeletorMunicipio({
         className="elevar bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
         style={{ color: "var(--sobre-forte)" }}
       >
-        Ver os números
+        Ver o Raio-X
       </button>
     </form>
   );

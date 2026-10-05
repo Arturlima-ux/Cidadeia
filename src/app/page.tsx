@@ -233,25 +233,37 @@ export default async function LandingPage({
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
                   />
-                  Dado do Tesouro Nacional · exercício de {LIMITE_DISPENSA.ano}
+                  Software de conformidade para prefeituras · LRF · LAI · LGPD
                 </span>
 
-              <h1 className="font-serif text-[3.2rem] leading-[1.0] sm:text-[4.6rem] lg:text-[5.4rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[18ch] mx-auto [text-wrap:balance]">
-                  O Tribunal de Contas já está contando.
+              {/* ── O QUE É, PARA QUEM, EM CINCO SEGUNDOS ──
+                  A manchete anterior ("O Tribunal de Contas já está contando.")
+                  prendia o olho, mas não dizia o que é o CidadeIA nem para quem
+                  ele serve, e o subtítulo pedia duas leituras. O secretário que
+                  chega aqui decide em segundos se a página é para ele. Agora a
+                  manchete diz o ganho, o subtítulo diz o que é o produto e de
+                  onde vem o dado, e o gesto embaixo tem nome. */}
+              <h1 className="font-serif text-[2.3rem] leading-[1.04] sm:text-[4.2rem] lg:text-[4.9rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[20ch] mx-auto [text-wrap:balance]">
+                  Saiba o que o Tribunal de Contas vai apontar antes dele.
                 </h1>
 
-              <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[46ch] mx-auto">
-                  Ele compara o que o seu município declarou ao Tesouro com o limite
-                  que o próprio município declarou no mesmo documento.
+              <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[52ch] mx-auto">
+                  O CidadeIA lê o que a sua prefeitura já envia ao Tesouro e mostra
+                  onde o município passou do limite e o que fazer. Contratação
+                  direta, sem licitação.
                 </p>
 
-              {/* O gesto, centralizado embaixo da manchete. */}
-              <div className="mt-9 flex justify-center">
+              {/* O gesto, centralizado embaixo da manchete, com nome. */}
+              <p className="mt-9 text-sm font-semibold" style={{ color: "var(--accent-claro)" }}>
+                Veja o Raio-X do seu município agora
+              </p>
+              <div className="mt-3 flex justify-center">
                 <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
               </div>
 
               <p className="text-xs text-muted mt-5">
-                  Sem cadastro, sem formulário, com dado que já é público.
+                  Sem cadastro e sem formulário. Dado público do Tesouro Nacional,
+                  exercício de {LIMITE_DISPENSA.ano}.
                 </p>
             </Reveal>
           </div>
@@ -470,70 +482,11 @@ export default async function LandingPage({
           </Reveal>
         </section>
 
-        {/* ═══ PROPOSTA ═══ */}
-        <section id="proposta" data-tema="licitacoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <Reveal>
-              <div className="text-center flex flex-col items-center gap-4 mb-10">
-                <Olho centrado>Proposta</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02]">
-                  Monte a sua proposta em dois passos.
-                </h2>
-                <p className="text-muted leading-relaxed max-w-[52ch]">
-                  Município e módulos. A proposta chega em até um dia útil, por
-                  módulo e pela faixa de habitantes do seu município, com o
-                  termo de referência pronto, sem reunião obrigatória.
-                </p>
-              </div>
-            </Reveal>
-            {/* Todo o conteúdo do antigo cartão do herói, inteiro, no lugar
-                onde ele trabalha: encostado no preço. Aqui o limite responde
-                "e eu posso comprar isso?"; lá em cima ele perguntava "quer
-                gastar 65 mil sem licitar?" antes de dizer o que o produto é. */}
-            <Reveal delay={80}>
-              <div className="vidro rounded-2xl p-6 sm:p-7 mb-6 grid sm:grid-cols-[auto_1fr] gap-6 sm:gap-8">
-                <div className="shrink-0">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                    Limite de dispensa · {LIMITE_DISPENSA.ano}
-                  </p>
-                  <p className="font-serif text-[2.4rem] leading-none font-extrabold tracking-[-0.05em] mt-2.5 tabular-nums">
-                    {formatarMoedaExata(LIMITE_DISPENSA.valor)}
-                  </p>
-                  <p className="text-xs text-muted mt-2">por contratação, no exercício</p>
-                </div>
-
-                <div className="sm:border-l border-border sm:pl-8">
-                  <ul className="flex flex-col gap-2.5">
-                    {[
-                      "Contratação direta, sem edital",
-                      "Termo de referência já redigido",
-                      LIMITE_DISPENSA.base,
-                    ].map((item) => (
-                      <li key={item} className="flex gap-2.5 text-sm leading-snug">
-                        <IconCheck
-                          className="w-4 h-4 shrink-0 mt-0.5"
-                          style={{ color: "var(--accent)" }}
-                        />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-muted leading-relaxed border-t border-border pt-4 mt-4">
-                    Atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
-                    {LIMITE_DISPENSA.vigenteDesde} e reajustado todo ano. É vedado
-                    fracionar a despesa para caber no limite: o que conta é o total
-                    anual do objeto.
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={120}>
-              <MontadorProposta />
-            </Reveal>
-          </div>
-        </section>
-
+        {/* ═══ ORDEM: PROVA ANTES DA PROPOSTA ═══
+            O montador de proposta vinha antes da seção "confira". Pedir o
+            município e os módulos de quem ainda não decidiu se confia é
+            cobrar antes de mostrar. Agora a pessoa vê o que pode conferir e,
+            logo depois, monta a proposta com a dúvida já respondida. */}
         {/* ═══ PROVA E AUTORIDADE ═══
             Eram DUAS seções separadas — "Não peça fé, abra e confira" e "Não
             temos cem prefeituras para mostrar" — dizendo a mesma coisa com
@@ -555,12 +508,17 @@ export default async function LandingPage({
                 <div>
                   <Olho>Quem está do outro lado</Olho>
                   <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
-                    Não temos cem prefeituras para mostrar.
+                    Não peça fé. Confira.
                   </h2>
+                  {/* O título era "Não temos cem prefeituras para mostrar." A
+                      admissão é honesta e continua aqui, mas no texto: como
+                      manchete, a fraqueza era a primeira coisa que ficava na
+                      cabeça. O título agora diz o que a seção entrega. */}
                   <p className="text-muted leading-relaxed mt-5 max-w-[46ch]">
-                    O CidadeIA é novo, e não vamos pendurar aqui logotipo de
-                    município que não é cliente. Autoridade emprestada quebra na
-                    primeira checagem do jurídico. Em vez disso: abra e confira.
+                    O CidadeIA é novo e não temos cem prefeituras para mostrar.
+                    Também não vamos pendurar aqui logotipo de município que não
+                    é cliente: autoridade emprestada quebra na primeira checagem
+                    do jurídico. Tudo abaixo você abre e confere sozinho.
                   </p>
 
                   {/* A prova clicável fica junto da admissão, não numa seção
@@ -647,6 +605,69 @@ export default async function LandingPage({
           </div>
         </section>
 
+        {/* ═══ PROPOSTA ═══ */}
+        <section id="proposta" data-tema="licitacoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+            <Reveal>
+              <div className="text-center flex flex-col items-center gap-4 mb-10">
+                <Olho centrado>Proposta</Olho>
+                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02]">
+                  Monte a sua proposta em dois passos.
+                </h2>
+                <p className="text-muted leading-relaxed max-w-[52ch]">
+                  Município e módulos. A proposta chega em até um dia útil, por
+                  módulo e pela faixa de habitantes do seu município, com o
+                  termo de referência pronto, sem reunião obrigatória.
+                </p>
+              </div>
+            </Reveal>
+            {/* Todo o conteúdo do antigo cartão do herói, inteiro, no lugar
+                onde ele trabalha: encostado no preço. Aqui o limite responde
+                "e eu posso comprar isso?"; lá em cima ele perguntava "quer
+                gastar 65 mil sem licitar?" antes de dizer o que o produto é. */}
+            <Reveal delay={80}>
+              <div className="vidro rounded-2xl p-6 sm:p-7 mb-6 grid sm:grid-cols-[auto_1fr] gap-6 sm:gap-8">
+                <div className="shrink-0">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                    Limite de dispensa · {LIMITE_DISPENSA.ano}
+                  </p>
+                  <p className="font-serif text-[2.4rem] leading-none font-extrabold tracking-[-0.05em] mt-2.5 tabular-nums">
+                    {formatarMoedaExata(LIMITE_DISPENSA.valor)}
+                  </p>
+                  <p className="text-xs text-muted mt-2">por contratação, no exercício</p>
+                </div>
+
+                <div className="sm:border-l border-border sm:pl-8">
+                  <ul className="flex flex-col gap-2.5">
+                    {[
+                      "Contratação direta, sem edital",
+                      "Termo de referência já redigido",
+                      LIMITE_DISPENSA.base,
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm leading-snug">
+                        <IconCheck
+                          className="w-4 h-4 shrink-0 mt-0.5"
+                          style={{ color: "var(--accent)" }}
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-muted leading-relaxed border-t border-border pt-4 mt-4">
+                    Atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
+                    {LIMITE_DISPENSA.vigenteDesde} e reajustado todo ano. É vedado
+                    fracionar a despesa para caber no limite: o que conta é o total
+                    anual do objeto.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={120}>
+              <MontadorProposta />
+            </Reveal>
+          </div>
+        </section>
 
         {/* ═══ A PORTA DO CIDADÃO ═══
             Era uma SEÇÃO INTEIRA, com título grande, três cartões de direitos
