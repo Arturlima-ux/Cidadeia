@@ -74,7 +74,7 @@ export default async function AtendimentoPage() {
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold">Atendimento ao cidadão</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.02em]">Atendimento ao cidadão</h1>
         <p className="text-muted text-sm mt-2 max-w-2xl leading-relaxed">
           Protocolo, Ouvidoria e Portal da Transparência. O cidadão abre a
           manifestação pelo portal público do município e acompanha pelo número
@@ -103,7 +103,7 @@ export default async function AtendimentoPage() {
       {/* EM ABERTO */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+          <h2 className="font-semibold text-sm text-muted">
             Aguardando resposta ({abertos.length})
           </h2>
         </div>
@@ -130,7 +130,7 @@ export default async function AtendimentoPage() {
                         {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · {dataCurta(a.createdAt, fuso)}
                       </span>
                       {a.anonimo && (
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-sutil rounded-full px-2 py-0.5">
+                        <span className="text-xs font-semibold text-muted bg-sutil rounded-full px-2 py-0.5">
                           Anônimo
                         </span>
                       )}
@@ -162,7 +162,7 @@ export default async function AtendimentoPage() {
       {/* RESPONDIDOS */}
       {fechados.length > 0 && (
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+          <h2 className="font-semibold text-sm text-muted mb-3">
             Respondidas ({fechados.length})
           </h2>
           <div className="space-y-2">

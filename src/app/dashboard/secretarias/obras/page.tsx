@@ -119,7 +119,7 @@ export default async function ObrasPage() {
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Obras</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Obras</h1>
           <p className="text-muted text-sm mt-1.5">
             Progresso registrado manualmente por enquanto. O alerta de atraso
             abaixo é um cálculo simples (progresso atual bem abaixo do esperado)
@@ -161,7 +161,7 @@ export default async function ObrasPage() {
       )}
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Mapa das obras
         </h2>
         <MapaSecretariaClient
@@ -182,7 +182,7 @@ export default async function ObrasPage() {
       </div>
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Nova obra
         </h2>
         <form
@@ -295,7 +295,7 @@ export default async function ObrasPage() {
       </div>
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Todas as obras ({listaObras.length})
         </h2>
         {listaObras.length === 0 ? (

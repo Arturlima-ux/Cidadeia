@@ -84,7 +84,7 @@ export default function GaugeEficiencia({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-serif text-2xl font-bold tabular-nums">
+          <span className="text-2xl font-semibold tabular-nums tracking-[-0.02em]">
             {Math.round(animado)}%
           </span>
         </div>

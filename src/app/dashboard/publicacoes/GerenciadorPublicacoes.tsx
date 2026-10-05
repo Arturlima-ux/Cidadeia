@@ -33,7 +33,7 @@ export default function GerenciadorPublicacoes({
     <div className="flex flex-col gap-6">
       {!emFormulario && (
         <div className="bg-card border border-border arco-card p-6">
-          <h2 className="font-serif text-lg font-bold">Publicar algo novo</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Publicar algo novo</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">
             Escolha o que está publicando. O tipo não é etiqueta: é ele que diz
             qual exigência da lei aquele conteúdo atende.
@@ -110,7 +110,7 @@ function Formulario({
       {publicacao && <input type="hidden" name="id" value={publicacao.id} />}
 
       <div>
-        <h2 className="font-serif text-lg font-bold">
+        <h2 className="text-lg font-semibold tracking-[-0.02em]">
           {publicacao ? "Editar" : "Nova"} · {definicao.nome}
         </h2>
         {definicao.lei && (
@@ -293,7 +293,7 @@ function Lista({
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="font-serif text-lg font-bold">
+      <h2 className="text-lg font-semibold tracking-[-0.02em]">
         Publicado e em rascunho{" "}
         <span className="text-muted font-sans text-sm font-semibold">({publicacoes.length})</span>
       </h2>
@@ -307,7 +307,7 @@ function Lista({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5"
+                className="text-xs font-bold rounded-full px-2.5 py-0.5"
                 style={{
                   background: p.publicado ? "var(--info-tint)" : "var(--medio-tint)",
                   color: p.publicado ? "var(--info)" : "var(--medio)",

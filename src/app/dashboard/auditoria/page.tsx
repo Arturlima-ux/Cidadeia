@@ -53,7 +53,7 @@ export default async function AuditoriaPage({
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Auditoria</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Auditoria</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           Quem alterou o quê, e quando. Cada linha é uma ação de alguém com acesso a esta conta —
           criar, alterar, excluir, responder, publicar, importar. Leitura de tela não é registrada.

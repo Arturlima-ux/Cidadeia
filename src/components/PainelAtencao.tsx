@@ -57,6 +57,12 @@ const TOM: Record<DeteccaoAutomatica["prioridade"], { cor: string; fundo: string
  * da gravidade. Sem esta reordenação, uma obra parada poderia aparecer acima
  * de um mínimo constitucional em risco.
  */
+const ROTULO: Record<DeteccaoAutomatica["prioridade"], string> = {
+  urgente: "Urgente",
+  medio: "Atenção",
+  info: "Informativo",
+};
+
 const PESO: Record<DeteccaoAutomatica["prioridade"], number> = { urgente: 0, medio: 1, info: 2 };
 
 export default function PainelAtencao({ achados }: { achados: DeteccaoAutomatica[] }) {
@@ -71,64 +77,77 @@ export default function PainelAtencao({ achados }: { achados: DeteccaoAutomatica
       >
         <IconCheck className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "var(--info)" }} />
         <div>
-          <h2 className="font-serif text-lg font-bold">Nada exige decisão agora</h2>
+          <h2 className="text-xl font-semibold tracking-[-0.025em]">Nada exige decisão agora</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-2xl">
             Nenhuma regra disparou sobre os dados cadastrados: prazos em dia,
             obras com progresso registrado, indicadores atualizados e mínimos
             dentro do exigido. Se algo parece faltando, provavelmente é dado que
-            ainda não foi lançado — a verificação só enxerga o que existe.
+            ainda não foi lançado: a verificação só enxerga o que existe.
           </p>
         </div>
       </section>
     );
   }
 
+  // ── LINHAS NEUTRAS, PRIORIDADE NA ETIQUETA ──
+  // Cada linha era um bloco inteiro pintado da cor da prioridade. Com cinco
+  // urgentes, a tela virava uma parede vermelha e nada mais se destacava: a
+  // cor perdia o sentido justamente quando mais precisava dele. Agora a linha
+  // é neutra, e a prioridade vem num ponto e numa etiqueta escrita, que não
+  // depende de enxergar cor (docs/design-system.md).
   return (
-    <section className="arco-card border border-border p-6" style={{ background: "var(--card)" }}>
-      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
-        <h2 className="font-serif text-lg font-bold">O que precisa da sua atenção</h2>
-        <span className="text-xs font-mono text-muted shrink-0">
+    <section className="arco-card border border-border p-6 sm:p-7" style={{ background: "var(--card)" }}>
+      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-2">
+        <h2 className="text-xl font-semibold tracking-[-0.025em]">O que precisa da sua atenção</h2>
+        <span className="text-sm text-muted shrink-0 tabular-nums">
           {ordenados.length} {ordenados.length === 1 ? "item" : "itens"}
           {urgentes > 0 && (
-            <span style={{ color: "var(--urgente)" }}> · {urgentes} urgente{urgentes > 1 ? "s" : ""}</span>
+            <>
+              ,{" "}
+              <span style={{ color: "var(--urgente)" }}>
+                {urgentes} urgente{urgentes > 1 ? "s" : ""}
+              </span>
+            </>
           )}
         </span>
       </div>
-
-      <div className="flex flex-col gap-2.5">
+      <ul className="flex flex-col">
         {ordenados.map((a, i) => {
           const tom = TOM[a.prioridade];
           const Icone = ICONE_POR_CATEGORIA[a.categoria];
           const destino = DESTINO_POR_CATEGORIA[a.categoria];
-
           return (
-            <Link
-              key={`${a.categoria}-${a.titulo}-${i}`}
-              href={destino}
-              className="flex gap-3.5 rounded-xl border px-4 py-3 transition hover:brightness-110"
-              style={{ background: tom.fundo, borderColor: tom.borda }}
-            >
-              <Icone className="w-4 h-4 shrink-0 mt-0.5" style={{ color: tom.cor }} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold leading-snug">{a.titulo}</p>
-                <p className="text-xs text-muted mt-1 leading-relaxed">{a.descricao}</p>
-              </div>
-              <span
-                aria-hidden
-                className="shrink-0 self-center text-sm"
-                style={{ color: tom.cor }}
+            <li key={`${a.categoria}-${a.titulo}-${i}`} className="border-b border-border last:border-b-0">
+              <Link
+                href={destino}
+                className="group flex items-start gap-4 py-4 -mx-3 px-3 rounded-xl transition-colors hover:bg-sutil"
               >
-                →
-              </span>
-            </Link>
+                <span className="relative mt-0.5 shrink-0">
+                  <Icone className="w-4 h-4 text-muted" />
+                  <span
+                    aria-hidden
+                    className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full"
+                    style={{ background: tom.cor, boxShadow: "0 0 0 2px var(--card)" }}
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-medium leading-snug">{a.titulo}</span>
+                  <span className="block text-sm text-muted mt-1 leading-relaxed">{a.descricao}</span>
+                </span>
+                <span
+                  className="shrink-0 text-xs font-medium rounded-full border px-2.5 py-1 mt-0.5"
+                  style={{ color: tom.cor, borderColor: tom.borda }}
+                >
+                  {ROTULO[a.prioridade]}
+                </span>
+              </Link>
+            </li>
           );
         })}
-      </div>
-
-      <p className="text-xs text-muted mt-4 pt-3 border-t border-border leading-relaxed">
+      </ul>
+      <p className="text-xs text-muted mt-3 pt-4 border-t border-border leading-relaxed">
         Cada linha leva à tela onde se resolve. Tudo aqui vem de regra sobre o
-        dado cadastrado — nenhum item depende de inteligência artificial nem de
-        conexão com serviço externo.
+        dado cadastrado, sem depender de inteligência artificial nem de serviço externo.
       </p>
     </section>
   );

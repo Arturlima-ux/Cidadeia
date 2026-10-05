@@ -37,7 +37,7 @@ export default function BarraAlertasPrioridade({
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-3">
+      <p className="text-xs font-semibold text-muted mb-3">
         Alertas em aberto por prioridade
       </p>
       <div className="flex items-center gap-4">

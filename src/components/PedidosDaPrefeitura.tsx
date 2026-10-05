@@ -33,7 +33,7 @@ export default async function PedidosDaPrefeitura({ prefeituraId }: { prefeitura
 
   return (
     <section className="space-y-3">
-      <h2 className="font-serif text-lg font-bold">Sua proposta</h2>
+      <h2 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h2>
       {pedidos.map((p) => {
         const status = p.status as StatusPedido;
         const cor = COR[status] ?? COR.recebido;
@@ -47,7 +47,7 @@ export default async function PedidosDaPrefeitura({ prefeituraId }: { prefeitura
                 <span className="font-mono text-xs">{p.id.slice(-8).toUpperCase()}</span>
               </p>
               <span
-                className="text-[11px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 border"
+                className="text-xs font-bold rounded-full px-2.5 py-1 border"
                 style={{ color: cor.cor, background: cor.fundo, borderColor: cor.borda }}
               >
                 {STATUS_PEDIDO[status]?.rotulo ?? status}

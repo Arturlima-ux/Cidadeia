@@ -112,7 +112,7 @@ export default async function MinimosPage() {
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Mínimos constitucionais</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Mínimos constitucionais</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           Acompanhamento de {semNenhumDado ? MUNICIPIO_EXEMPLO : prefeitura.municipio} no
           exercício de {exercicio}. Mostra quanto falta aplicar{" "}
@@ -146,20 +146,20 @@ export default async function MinimosPage() {
               }}
             >
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-serif text-lg font-bold">{info.area}</h2>
+                <h2 className="text-lg font-semibold tracking-[-0.02em]">{info.area}</h2>
                 <span className="text-xs font-mono text-muted">mínimo {info.percentual}%</span>
               </div>
 
               {avaliacao ? (
                 <>
                   <p
-                    className="font-serif text-[2.6rem] leading-none font-extrabold tracking-tight tabular-nums"
+                    className="text-[2.6rem] leading-none font-semibold tracking-tight tabular-nums"
                     style={{ color: tom?.cor ?? "var(--muted)" }}
                   >
                     {percentual(avaliacao.percentualAtual)}
                   </p>
                   <p
-                    className="text-xs font-semibold uppercase tracking-wide"
+                    className="text-xs font-semibold"
                     style={{ color: tom?.cor ?? "var(--muted)" }}
                   >
                     {desatualizado
@@ -232,7 +232,7 @@ export default async function MinimosPage() {
       </div>
 
       <div className="space-y-6">
-        <h2 className="font-serif text-lg font-bold">Informar os valores</h2>
+        <h2 className="text-lg font-semibold tracking-[-0.02em]">Informar os valores</h2>
         <div className="grid md:grid-cols-2 gap-5">
           {/* Lê `bases`, não `painel`: com a tela em modo exemplo, `salvo` é o
               município fictício, e pré-preencher o formulário com ele faria o

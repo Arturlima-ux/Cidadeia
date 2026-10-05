@@ -51,7 +51,7 @@ export default function FormularioImportacao() {
         >
           <IconCheck className="w-6 h-6" />
         </div>
-        <h2 className="font-serif text-xl font-bold">
+        <h2 className="text-xl font-semibold tracking-[-0.02em]">
           {etapa.gravadas.toLocaleString("pt-BR")}{" "}
           {etapa.gravadas === 1 ? "registro importado" : "registros importados"}
         </h2>

@@ -67,7 +67,7 @@ export default function PainelPncp({ ano }: { ano: number }) {
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-bold">Processos no PNCP</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Processos no PNCP</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-xl">
             A divulgação no Portal Nacional de Contratações Públicas é{" "}
             <strong className="text-foreground">condição de eficácia do contrato</strong> —

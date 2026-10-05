@@ -24,7 +24,7 @@ export default async function MeusModulosPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Módulos</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Módulos</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed">
           Cada área da prefeitura é um módulo independente — ative só o que
           você precisa.

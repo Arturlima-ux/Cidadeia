@@ -76,7 +76,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
         <Link href="/dashboard/secretarias/educacao" className="text-xs font-semibold text-muted hover:text-brand transition">
           ← Secretaria da Educação
         </Link>
-        <h1 className="font-serif text-2xl font-bold mt-2">Merenda e os 30% da agricultura familiar</h1>
+        <h1 className="text-2xl font-semibold mt-2 tracking-[-0.02em]">Merenda e os 30% da agricultura familiar</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           A Lei 11.947/2009, art. 14, manda aplicar no mínimo {PERCENTUAL_MINIMO_AF}% do repasse do PNAE em
           compra direta da agricultura familiar — com prioridade para assentamentos da reforma agrária e
@@ -103,10 +103,10 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
 
       {/* ── o número ── */}
       <section className="rounded-2xl border p-5" style={{ borderColor: cor, background: fundo }}>
-        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: cor }}>
+        <p className="text-xs font-bold" style={{ color: cor }}>
           Agricultura familiar em {ano}
         </p>
-        <p className="font-serif text-3xl font-bold mt-1">
+        <p className="text-3xl font-semibold mt-1 tracking-[-0.02em]">
           {apuracao.percentual === null ? "—" : `${apuracao.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`}
           <span className="text-sm font-sans font-normal text-muted"> do repasse do PNAE</span>
         </p>
@@ -155,19 +155,19 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
 
       {/* ── o repasse ── */}
       <section>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-2">Repasse do ano</h2>
+        <h2 className="font-semibold text-sm text-muted mb-2">Repasse do ano</h2>
         <FormularioRepasse ano={ano} valorAtual={repasse?.valor ?? null} motivoAtual={repasse?.motivoDispensa ?? null} />
       </section>
 
       {/* ── as compras ── */}
       <section className="space-y-3">
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Compras de {ano} ({compras.length})</h2>
+        <h2 className="font-semibold text-sm text-muted">Compras de {ano} ({compras.length})</h2>
 
         {compras.length > 0 && (
           <div className="overflow-x-auto rolagem-discreta rounded-2xl border border-border bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+                <tr className="text-left text-xs text-muted border-b border-border font-medium">
                   <th className="px-4 py-2.5 font-medium">Compra</th>
                   <th className="px-4 py-2.5 font-medium hidden sm:table-cell">Fornecedor</th>
                   <th className="px-4 py-2.5 font-medium">Data</th>
@@ -201,7 +201,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
         )}
 
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Lançar compra</h3>
+          <h3 className="text-xs font-bold text-muted mb-2">Lançar compra</h3>
           <FormularioCompra ano={ano} />
         </div>
       </section>
@@ -219,7 +219,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
 function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string; detalhe?: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-lg font-serif font-bold tabular-nums">{valor}</p>
+      <p className="text-lg font-semibold tabular-nums tracking-[-0.02em]">{valor}</p>
       <p className="text-xs text-muted mt-1">
         {rotulo}
         {detalhe ? ` · ${detalhe}` : ""}

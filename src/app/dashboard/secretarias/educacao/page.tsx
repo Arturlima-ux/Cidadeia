@@ -105,7 +105,7 @@ export default async function EducacaoPage() {
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Secretaria da Educação</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Secretaria da Educação</h1>
           <p className="text-muted text-sm mt-1.5 max-w-2xl leading-relaxed">
             A rede vem do Censo Escolar — toda escola do município com código INEP, etapas ofertadas e a
             matrícula declarada, que é o número pelo qual o FUNDEB paga. O que acontece dentro de cada uma
@@ -139,12 +139,12 @@ export default async function EducacaoPage() {
           }}
         >
           <p
-            className="text-[11px] font-bold uppercase tracking-wider"
+            className="text-xs font-bold"
             style={{ color: primeira.leitura.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}
           >
             A escola que mais precisa de você agora
           </p>
-          <p className="font-serif text-lg font-bold mt-1">{primeira.escola.nome}</p>
+          <p className="text-lg font-semibold mt-1 tracking-[-0.02em]">{primeira.escola.nome}</p>
           <p className="text-sm mt-1 leading-relaxed">{primeira.leitura.resumo}</p>
           {primeira.leitura.achados.length > 1 && (
             <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} outro(s) ponto(s) na ficha →</p>
@@ -289,7 +289,7 @@ export default async function EducacaoPage() {
       {/* Indicadores */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Indicadores</h2>
+          <h2 className="font-semibold text-sm text-muted">Indicadores</h2>
           <FormularioIndicador />
         </div>
         {indicador ? (
@@ -314,7 +314,7 @@ export default async function EducacaoPage() {
       {/* Mapa */}
       {listaEscolas.some((e) => e.latitude !== null && e.longitude !== null) && (
         <div>
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">Mapa das escolas</h2>
+          <h2 className="font-semibold text-sm text-muted mb-3">Mapa das escolas</h2>
           <MapaSecretariaClient
             corDestaque="var(--serie-5)"
             pontos={listaEscolas
@@ -334,7 +334,7 @@ export default async function EducacaoPage() {
       <div>
         <div className="flex flex-wrap items-end justify-between gap-3 mb-3">
           <div>
-            <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">Rede de escolas ({ativas.length})</h2>
+            <h2 className="font-semibold text-sm text-muted">Rede de escolas ({ativas.length})</h2>
             {doCenso > 0 && (
               <p className="text-xs text-muted mt-1">
                 {doCenso} do Censo Escolar · {listaEscolas.length - doCenso} cadastrada(s) à mão
@@ -477,7 +477,7 @@ export default async function EducacaoPage() {
 function Card({ label, valor }: { label: string; valor: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-2xl font-serif font-bold">{valor}</p>
+      <p className="text-2xl font-semibold tracking-[-0.02em]">{valor}</p>
       <p className="text-xs text-muted mt-1">{label}</p>
     </div>
   );

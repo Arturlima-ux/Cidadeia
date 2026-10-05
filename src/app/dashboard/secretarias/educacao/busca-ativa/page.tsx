@@ -56,7 +56,7 @@ export default async function BuscaAtivaRedePage() {
         <Link href="/dashboard/secretarias/educacao" className="text-xs font-semibold text-muted hover:text-brand transition">
           ← Secretaria da Educação
         </Link>
-        <h1 className="font-serif text-2xl font-bold mt-2">Busca ativa escolar</h1>
+        <h1 className="text-2xl font-semibold mt-2 tracking-[-0.02em]">Busca ativa escolar</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           Todo aluno que parou de vir, na ordem em que o problema queima. A LDB exige{" "}
           {FREQUENCIA_MINIMA_LDB}% de frequência para aprovação (art. 24, VI) e o ECA manda comunicar o
@@ -91,7 +91,7 @@ export default async function BuscaAtivaRedePage() {
         <div className="overflow-x-auto rolagem-discreta rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+              <tr className="text-left text-xs text-muted border-b border-border font-medium">
                 <th className="px-4 py-2.5 font-medium">Aluno</th>
                 <th className="px-4 py-2.5 font-medium hidden sm:table-cell">Escola</th>
                 <th className="px-4 py-2.5 font-medium text-right">Frequência</th>
@@ -163,7 +163,7 @@ export default async function BuscaAtivaRedePage() {
 function Numero({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-2xl font-serif font-bold tabular-nums" style={cor ? { color: cor } : undefined}>
+      <p className="text-2xl font-semibold tabular-nums tracking-[-0.02em]" style={cor ? { color: cor } : undefined}>
         {valor}
       </p>
       <p className="text-xs text-muted mt-1">{rotulo}</p>

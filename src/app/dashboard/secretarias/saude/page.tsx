@@ -72,7 +72,7 @@ export default async function SaudePage() {
     <div className="max-w-4xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Secretaria da Saúde</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Secretaria da Saúde</h1>
           <p className="text-muted text-sm mt-1.5 max-w-2xl leading-relaxed">
             A rede vem do CNES — toda unidade que o município tem cadastrada no Ministério da Saúde,
             com tipo, endereço, turno e a data da última atualização. O que acontece dentro de cada
@@ -97,7 +97,7 @@ export default async function SaudePage() {
       {/* Indicadores */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+          <h2 className="font-semibold text-sm text-muted">
             Indicadores
           </h2>
           <FormularioIndicador />
@@ -144,7 +144,7 @@ export default async function SaudePage() {
 
       {/* Mapa */}
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Mapa das unidades
         </h2>
         <MapaSecretariaClient
@@ -170,10 +170,10 @@ export default async function SaudePage() {
             background: primeira.situacao === "urgente" ? "var(--urgente-tint)" : "var(--medio-tint)",
           }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}>
+          <p className="text-xs font-bold" style={{ color: primeira.situacao === "urgente" ? "var(--urgente)" : "var(--medio)" }}>
             A unidade que mais precisa de você agora
           </p>
-          <p className="font-serif text-lg font-bold mt-1">{primeira.u.nome}</p>
+          <p className="text-lg font-semibold mt-1 tracking-[-0.02em]">{primeira.u.nome}</p>
           <p className="text-sm mt-1 leading-relaxed">{primeira.leitura.resumo}</p>
           {primeira.leitura.achados.length > 1 && (
             <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} outro(s) ponto(s) na ficha →</p>
@@ -224,7 +224,7 @@ export default async function SaudePage() {
       <div>
         <div className="flex flex-wrap items-end justify-between gap-3 mb-3">
           <div>
-            <h2 className="font-semibold text-sm text-muted uppercase tracking-wide">
+            <h2 className="font-semibold text-sm text-muted">
               Rede de saúde ({ativas.length})
             </h2>
             {doCnes > 0 && (
@@ -356,7 +356,7 @@ export default async function SaudePage() {
 function Card({ label, valor }: { label: string; valor: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-2xl font-serif font-bold">{valor}</p>
+      <p className="text-2xl font-semibold tracking-[-0.02em]">{valor}</p>
       <p className="text-xs text-muted mt-1">{label}</p>
     </div>
   );

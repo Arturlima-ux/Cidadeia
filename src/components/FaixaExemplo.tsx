@@ -16,7 +16,7 @@ export default function FaixaExemplo({ children }: { children: React.ReactNode }
       aria-label={`Exemplo com dados do município fictício ${MUNICIPIO_EXEMPLO}`}
     >
       <p className="text-xs leading-relaxed mb-4" style={{ color: "var(--medio)" }}>
-        <strong className="uppercase tracking-wide">Exemplo</strong> — {AVISO_EXEMPLO}
+        <strong className="font-medium">Exemplo</strong> — {AVISO_EXEMPLO}
       </p>
       {children}
     </section>

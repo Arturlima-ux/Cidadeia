@@ -59,7 +59,7 @@ export default async function OficioPage({ params }: { params: Promise<{ id: str
         </Link>
         <div className="flex flex-wrap items-end justify-between gap-3 mt-2">
           <div>
-            <h1 className="font-serif text-2xl font-bold">Ofício ao Conselho Tutelar</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">Ofício ao Conselho Tutelar</h1>
             <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
               Montado do que está na ficha. Confira, imprima, assine e protocole — e depois marque a etapa
               “Comunicação ao Conselho Tutelar” na ficha, para a data ficar registrada.

@@ -40,10 +40,10 @@ export default async function ImplantacaoPage() {
       {/* Sem saudação: quem recebe é a Visão Geral. Esta é uma tela de
           trabalho, e abre pelo nome da tarefa. */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           {prefeitura.nome}
         </p>
-        <h1 className="font-serif text-2xl font-bold">Implantação</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Implantação</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-xl">
           {fraseDeProgresso(resumo)} Cada passo destrava uma parte do painel. Os que
           dependem de contratação ou de decisão da prefeitura ficam marcados — não

@@ -31,7 +31,7 @@ export default function DashboardErrorPage({
     <div className="max-w-md mx-auto mt-16 text-center bg-card border border-border rounded-2xl p-6 shadow-sm">
       {recarregando ? (
         <>
-          <h1 className="font-serif text-xl font-bold mb-2">Atualizando…</h1>
+          <h1 className="text-xl font-semibold mb-2 tracking-[-0.02em]">Atualizando…</h1>
           <p className="text-sm text-muted leading-relaxed">
             Saiu uma versão nova enquanto esta aba estava aberta. Recarregando
             para pegar a atual.
@@ -39,7 +39,7 @@ export default function DashboardErrorPage({
         </>
       ) : (
         <>
-          <h1 className="font-serif text-xl font-bold mb-2">
+          <h1 className="text-xl font-semibold mb-2 tracking-[-0.02em]">
             Não foi possível carregar esta página
           </h1>
           <p className="text-sm text-muted mb-5 leading-relaxed">

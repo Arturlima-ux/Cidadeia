@@ -218,7 +218,7 @@ export default async function DashboardLayout({
       <div className="flex-1 min-w-0 flex flex-col">
         <VoltarAoTopo />
         {sessao.demo && <FaixaDemo />}
-        <header className="shadow-elevated md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
+        <header className="md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
             <div
               className="w-9 h-9 rounded-full text-white flex items-center justify-center text-xs font-bold shrink-0 bg-cover bg-center"
@@ -243,14 +243,14 @@ export default async function DashboardLayout({
               esmagavam o nome da pessoa até "A. / V..". No desktop cabem. */}
           <div className="hidden md:flex items-center gap-1.5 flex-wrap justify-end">
             {planosAtivos.length === 0 && (
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
+              <span className="text-xs font-semibold text-muted bg-sutil border border-border px-2.5 py-1 rounded-md">
                 Nenhum módulo contratado
               </span>
             )}
             {planosAtivos.map((p) => (
               <span
                 key={p}
-                className="text-[11px] font-semibold uppercase tracking-wide text-brand-legivel bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
+                className="text-xs font-semibold text-brand-legivel bg-brand-tint border border-brand/15 px-2.5 py-1 rounded-md"
               >
                 {NOME_PLANO_ADDON[p]}
               </span>

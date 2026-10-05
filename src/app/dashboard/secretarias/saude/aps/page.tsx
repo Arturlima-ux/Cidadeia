@@ -72,7 +72,7 @@ export default async function ApsPage({ searchParams }: { searchParams: Promise<
         <Link href="/dashboard/secretarias/saude" className="text-xs font-semibold text-muted hover:text-brand transition">
           ← Secretaria da Saúde
         </Link>
-        <h1 className="font-serif text-2xl font-bold mt-2">Qualidade da APS</h1>
+        <h1 className="text-2xl font-semibold mt-2 tracking-[-0.02em]">Qualidade da APS</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           O componente de qualidade do cofinanciamento federal (Portaria GM/MS 3.493/2024) paga conforme o
           resultado das equipes, apurado por quadrimestre. Lance aqui o que o painel do SIAPS mostra: o
@@ -114,7 +114,7 @@ export default async function ApsPage({ searchParams }: { searchParams: Promise<
         <div className="overflow-x-auto rolagem-discreta rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+              <tr className="text-left text-xs text-muted border-b border-border font-medium">
                 <th className="px-4 py-2.5 font-medium">Indicador</th>
                 <th className="px-4 py-2.5 font-medium hidden sm:table-cell">Equipe</th>
                 <th className="px-4 py-2.5 font-medium text-right">Resultado</th>
@@ -165,7 +165,7 @@ export default async function ApsPage({ searchParams }: { searchParams: Promise<
       )}
 
       <div>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-2">Lançar resultado</h2>
+        <h2 className="font-semibold text-sm text-muted mb-2">Lançar resultado</h2>
         <FormularioAps quadrimestres={opcoes} selecionado={escolhido} />
       </div>
 

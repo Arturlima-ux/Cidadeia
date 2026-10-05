@@ -23,7 +23,7 @@ export default async function HistoricoPage() {
   return (
     <div className="max-w-4xl space-y-10">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Histórico e Simulação</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Histórico e Simulação</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           Gráficos com o histórico real de cada atualização registrada. A
           partir de {" "}
@@ -40,7 +40,7 @@ export default async function HistoricoPage() {
       </div>
 
       <section>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Financeiro
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -78,7 +78,7 @@ export default async function HistoricoPage() {
       </section>
 
       <section>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Saúde
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -101,7 +101,7 @@ export default async function HistoricoPage() {
       </section>
 
       <section>
-        <h2 className="font-semibold text-sm text-muted uppercase tracking-wide mb-3">
+        <h2 className="font-semibold text-sm text-muted mb-3">
           Educação
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">

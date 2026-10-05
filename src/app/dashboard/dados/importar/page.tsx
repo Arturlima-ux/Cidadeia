@@ -26,7 +26,7 @@ export default async function ImportarPage() {
     <div className="max-w-3xl space-y-7">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Importar dados</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Importar dados</h1>
           <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-xl">
             Traga o que já está no sistema atual da prefeitura. Você confere o
             resultado antes de gravar — nada entra sem a sua confirmação.

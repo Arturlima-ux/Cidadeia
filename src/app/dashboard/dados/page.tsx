@@ -26,7 +26,7 @@ export default async function MeusDadosPage() {
     <div className="max-w-3xl space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Meus dados</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">Meus dados</h1>
           <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-xl">
             Os dados cadastrados aqui são do município. Baixe todos, a qualquer
             momento, em formato aberto — sem pedir autorização e sem custo.
@@ -47,7 +47,7 @@ export default async function MeusDadosPage() {
       >
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="min-w-0">
-            <h2 className="font-serif text-xl font-bold">Exportação completa</h2>
+            <h2 className="text-xl font-semibold tracking-[-0.02em]">Exportação completa</h2>
             <p className="text-white/85 text-sm mt-2 leading-relaxed max-w-md">
               Um arquivo JSON com as {TABELAS_EXPORTAVEIS.length} tabelas do
               município — {total.toLocaleString("pt-BR")}{" "}

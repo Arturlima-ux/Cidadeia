@@ -25,7 +25,7 @@ export default function PainelAntecipacao({ antecipacoes }: { antecipacoes: Ante
   return (
     <section className="arco-card border border-border p-6" style={{ background: "var(--card)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-3 mb-1">
-        <h2 className="font-serif text-lg font-bold">O que vem, se nada mudar</h2>
+        <h2 className="text-lg font-semibold tracking-[-0.02em]">O que vem, se nada mudar</h2>
         <span className="text-xs font-mono text-muted shrink-0">
           {antecipacoes.length} {antecipacoes.length === 1 ? "trajetória" : "trajetórias"}
         </span>

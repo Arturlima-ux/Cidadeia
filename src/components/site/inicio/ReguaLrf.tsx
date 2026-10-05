@@ -37,6 +37,8 @@ export type DadoRegua =
       margemAtePrudencial: number;
       /** A RCL ajustada não veio no anexo; o percentual usa a base de reserva. */
       baseDeReserva: boolean;
+      /** Substitui a linha de fonte (no painel, o dado é da própria prefeitura). */
+      nota?: string;
     };
 
 const EXEMPLO = 52.4;
@@ -240,7 +242,9 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
       )}
 
       <p className="mt-3 text-xs text-muted leading-relaxed">
-        {dado.modo === "real"
+        {dado.modo === "real" && dado.nota
+          ? dado.nota
+          : dado.modo === "real"
           ? `Declarado pela prefeitura no ${dado.periodo}. Fonte: Tesouro Nacional, SICONFI.` +
             (dado.baseDeReserva
               ? " O anexo não trouxe a receita ajustada; o percentual usa a base de reserva do mesmo documento."

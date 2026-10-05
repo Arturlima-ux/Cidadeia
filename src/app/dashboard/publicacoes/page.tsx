@@ -29,7 +29,7 @@ export default async function PublicacoesPage() {
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Publicações do portal</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Publicações do portal</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           O portal já mostra sozinho o orçamento, as obras e as licitações. Aqui
           você escreve o resto — o que está sendo feito, os serviços, os

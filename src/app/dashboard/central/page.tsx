@@ -38,7 +38,7 @@ export default async function CentralInteligentePage() {
             >
               <IconCentral className="w-4.5 h-4.5" />
             </div>
-            <h1 className="font-serif text-2xl font-bold">Central Inteligente</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.02em]">Central Inteligente</h1>
           </div>
           <p className="text-muted text-sm mt-2 max-w-xl">
             Cruza todas as secretarias contratadas automaticamente, todo dia — sem
@@ -60,9 +60,9 @@ export default async function CentralInteligentePage() {
         </p>
       ) : (
         <>
-          <div className="bg-card border border-border arco-card p-5 shadow-elevated">
+          <div className="bg-card border border-border arco-card p-5">
             <div className="flex items-center justify-between gap-3 mb-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              <p className="text-xs font-semibold text-muted">
                 Resumo geral · {formatarQuando(resultado.central.geradoEm)}
                 {resultado.deCache ? " (em cache)" : ""}
               </p>
@@ -93,13 +93,13 @@ export default async function CentralInteligentePage() {
                     {item.modulos.map((m) => (
                       <span
                         key={m}
-                        className="text-[10px] font-semibold uppercase tracking-wide text-muted bg-sutil rounded-full px-2 py-0.5"
+                        className="text-xs font-semibold text-muted bg-sutil rounded-full px-2 py-0.5"
                       >
                         {m}
                       </span>
                     ))}
                     {item.automatico && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-legivel bg-brand-tint rounded-full px-2 py-0.5">
+                      <span className="text-xs font-semibold text-brand-legivel bg-brand-tint rounded-full px-2 py-0.5">
                         Regra automática
                       </span>
                     )}

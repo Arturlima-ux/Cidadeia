@@ -44,7 +44,7 @@ export default function GraficoTendencia({
   if (pontosValidos.length < 2) {
     return (
       <div className="bg-card border border-border rounded-xl p-4">
-        <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+        <p className="text-xs font-semibold text-muted mb-2">
           {titulo}
         </p>
         <div className="border border-dashed border-border rounded-lg p-6 text-center text-xs text-muted">
@@ -80,7 +80,7 @@ export default function GraficoTendencia({
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+      <p className="text-xs font-semibold text-muted mb-2">
         {titulo}
       </p>
       <div style={{ width: "100%", height: 200 }}>

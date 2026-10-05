@@ -121,7 +121,7 @@ export default async function PessoalPage() {
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Despesa com pessoal</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Despesa com pessoal</h1>
         <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
           O teto da Lei de Responsabilidade Fiscal em{" "}
           {semNenhumDado ? MUNICIPIO_EXEMPLO : prefeitura.municipio}. Aqui a
@@ -144,13 +144,13 @@ export default async function PessoalPage() {
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <div>
               <p
-                className="font-serif text-[3rem] leading-none font-extrabold tracking-tight tabular-nums"
+                className="text-[3rem] leading-none font-semibold tracking-tight tabular-nums"
                 style={{ color: tom?.cor ?? corNeutra }}
               >
                 {pct(avaliacao.percentual)}
               </p>
               <p
-                className="text-xs font-semibold uppercase tracking-wide mt-2"
+                className="text-xs font-semibold mt-2"
                 style={{ color: tom?.cor ?? corNeutra }}
               >
                 {desatualizado
@@ -240,7 +240,7 @@ export default async function PessoalPage() {
         </section>
       ) : (
         <section className="arco-card border border-border p-6" style={{ background: "var(--card)" }}>
-          <h2 className="font-serif text-lg font-bold">Nenhum período informado</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Nenhum período informado</h2>
           <p className="text-sm text-muted mt-2 leading-relaxed max-w-2xl">
             {/* Dizia que "o endpoint de RGF do Tesouro volta zerado para todos
                 os municípios que testamos". Era falso: a consulta estava
@@ -264,7 +264,7 @@ export default async function PessoalPage() {
             borderColor: reconducao.noCronograma ? "var(--medio-borda)" : "var(--urgente-borda)",
           }}
         >
-          <h2 className="font-serif text-lg font-bold">
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">
             {reconducao.prazoEsgotado
               ? "Prazo de recondução esgotado"
               : `Prazo de recondução correndo — ${reconducao.periodosDecorridos === 0 ? "dois períodos" : "um período"} restante${reconducao.periodosDecorridos === 0 ? "s" : ""}`}
@@ -309,7 +309,7 @@ export default async function PessoalPage() {
       {/* ── Vedações ── */}
       {avaliacao && !vencido && (avaliacao.situacao === "prudencial" || avaliacao.situacao === "excedido") && (
         <section className="bg-card border border-border rounded-xl p-5 sm:p-6">
-          <h2 className="font-serif text-lg font-bold">O que a prefeitura não pode fazer agora</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">O que a prefeitura não pode fazer agora</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">
             Vedações do art. 22, parágrafo único da LRF — valem a partir de{" "}
             {pct(LIMITE_PRUDENCIAL)} e independem de qualquer decisão do Tribunal de Contas.
@@ -326,7 +326,7 @@ export default async function PessoalPage() {
       {/* ── Série histórica ── */}
       {periodos.length > 1 && (
         <section className="space-y-3">
-          <h2 className="font-serif text-lg font-bold">Períodos informados</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Períodos informados</h2>
           <div className="overflow-x-auto rolagem-discreta">
             <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
               <thead className="bg-sutil text-left">
@@ -388,7 +388,7 @@ export default async function PessoalPage() {
 
       <div className="space-y-5">
         <div>
-          <h2 className="font-serif text-lg font-bold">Informar um período</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Informar um período</h2>
           <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
             A apuração oficial é quadrimestral. Informar mês a mês também
             funciona e antecipa o problema — mas o cronograma de recondução

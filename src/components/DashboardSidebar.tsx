@@ -1,5 +1,6 @@
 "use client";
 
+import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -52,7 +53,7 @@ export default function DashboardSidebar({
         type="button"
         onClick={() => setAberto((v) => !v)}
         aria-label={aberto ? "Fechar menu" : "Abrir menu"}
-        className="md:hidden fixed top-3 left-3 z-50 w-10 h-10 rounded-full bg-card border border-border shadow-elevated flex items-center justify-center text-foreground"
+        className="md:hidden fixed top-3 left-3 z-50 w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-foreground"
       >
         <IconMenu aberto={aberto} />
       </button>
@@ -71,16 +72,10 @@ export default function DashboardSidebar({
         }`}
       >
         <Link href="/dashboard/conta" className="px-5 py-5 border-b border-border block hover:bg-sutil transition">
-          <p className="font-serif text-lg font-bold tracking-tight">
-            Cidade
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "var(--gradient-hero)" }}
-            >
-              IA
-            </span>
-          </p>
-          <p className="text-xs text-muted mt-1 truncate">{prefeituraNome}</p>
+          {/* A marca do site, e não "Cidade" + "IA" em texto com gradiente:
+              o recorte do gradiente falhava no tema escuro e o "IA" sumia. */}
+          <MarcaCompleta tamanho={24} />
+          <p className="text-xs text-muted mt-2.5 truncate">{prefeituraNome}</p>
         </Link>
         <SidebarNav grupos={grupos} />
         <div className="px-3 py-4 border-t border-border">

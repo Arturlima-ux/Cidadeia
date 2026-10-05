@@ -45,7 +45,7 @@ export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boo
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-bold">Obrigações fiscais do exercício</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Obrigações fiscais do exercício</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-xl">
             Relatório bimestral ao Tesouro, gestão fiscal, saúde e educação —
             dezesseis entregas por ano. Atraso no SIOPS e no SIOPE gera pendência
@@ -137,10 +137,10 @@ export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boo
 function Contador({ n, rotulo, cor }: { n: number; rotulo: string; cor: string }) {
   return (
     <div>
-      <p className="font-serif text-2xl font-extrabold tabular-nums leading-none" style={{ color: cor }}>
+      <p className="text-2xl font-semibold tabular-nums leading-none tracking-[-0.02em]" style={{ color: cor }}>
         {n}
       </p>
-      <p className="text-[11px] uppercase tracking-wide text-muted mt-1">{rotulo}</p>
+      <p className="text-xs text-muted mt-1 font-medium">{rotulo}</p>
     </div>
   );
 }
@@ -173,7 +173,7 @@ function Linha({ o }: { o: ObrigacaoAvaliada }) {
         <p className="text-[11px] text-muted mt-0.5 tabular-nums">
           prazo: {dataBr(o.vencimento)}
         </p>
-        <p className="text-[11px] uppercase tracking-wide text-muted mt-0.5">
+        <p className="text-xs text-muted mt-0.5 font-medium">
           {NOME_SITUACAO_OBRIGACAO[o.situacao]}
         </p>
       </div>

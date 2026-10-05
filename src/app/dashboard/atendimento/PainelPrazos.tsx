@@ -27,7 +27,7 @@ export default function PainelPrazos({ atendimentos }: { atendimentos: Atendimen
     <section className="bg-card border border-border arco-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-bold">Prazo de resposta</h2>
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Prazo de resposta</h2>
           <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-xl">
             Pedido de informação tem{" "}
             <strong className="text-foreground">20 dias</strong> pela Lei de Acesso à
@@ -86,10 +86,10 @@ function Contador({
     tom === "urgente" ? "var(--urgente)" : tom === "medio" ? "var(--medio)" : "var(--muted)";
   return (
     <div>
-      <p className="font-serif text-2xl font-extrabold tabular-nums leading-none" style={{ color: cor }}>
+      <p className="text-2xl font-semibold tabular-nums leading-none tracking-[-0.02em]" style={{ color: cor }}>
         {n}
       </p>
-      <p className="text-[11px] uppercase tracking-wide text-muted mt-1">{rotulo}</p>
+      <p className="text-xs text-muted mt-1 font-medium">{rotulo}</p>
     </div>
   );
 }
@@ -134,7 +134,7 @@ function Bloco({
               <p className="text-sm font-semibold" style={{ color: cor }}>
                 {descreverPrazo(avaliacao)}
               </p>
-              <p className="text-[11px] uppercase tracking-wide text-muted mt-0.5">
+              <p className="text-xs text-muted mt-0.5 font-medium">
                 {NOME_SITUACAO_PRAZO[avaliacao.situacao]}
               </p>
               {avaliacao.podeProrrogar && (

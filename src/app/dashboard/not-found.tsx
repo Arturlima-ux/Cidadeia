@@ -8,9 +8,9 @@ import Link from "next/link";
 export default function NaoEncontradaDashboard() {
   return (
     <div className="max-w-lg mx-auto mt-12 text-center arco-card border border-dashed border-border p-8">
-      <p className="font-serif text-5xl font-bold text-brand tabular-nums">404</p>
+      <p className="text-5xl font-semibold text-brand tabular-nums tracking-[-0.02em]">404</p>
 
-      <h1 className="font-serif text-xl font-bold mt-3">
+      <h1 className="text-xl font-semibold mt-3 tracking-[-0.02em]">
         Essa tela não existe no painel.
       </h1>
 

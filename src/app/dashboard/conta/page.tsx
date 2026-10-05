@@ -34,7 +34,7 @@ export default async function ContaPage() {
   return (
     <div className="max-w-2xl space-y-8">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Minha conta</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">Minha conta</h1>
         <p className="text-muted text-sm mt-1.5">
           Seus dados pessoais de acesso — visíveis só para você.
         </p>
