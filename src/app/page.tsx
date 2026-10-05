@@ -22,7 +22,7 @@ import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
-import { AVISO_DF, ehDistritoFederal, ehRegiaoDf } from "@/lib/regioes-df";
+import { AVISO_DF, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
 import { Inclinavel } from "@/components/site/Ponteiro";
 
@@ -91,7 +91,6 @@ export default async function LandingPage({
   // Região administrativa do DF: o nome escolhido fica na tela, e os números
   // são os do Distrito Federal inteiro, que é quem reporta ao Tesouro.
   const dados = municipio ? municipioParaDados(municipio) : null;
-  const regiaoDf = ehRegiaoDf(municipio);
   const df = ehDistritoFederal(municipio?.uf);
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
@@ -170,12 +169,7 @@ export default async function LandingPage({
                 <p className="text-sm font-medium text-muted">
                   {municipio.nome}, {municipio.uf}
                 </p>
-                {regiaoDf && (
-                  <p className="text-sm text-muted mt-1 max-w-[64ch] leading-relaxed">
-                    {municipio.nome} é uma região administrativa do Distrito Federal, não um município: não
-                    tem prefeitura nem relatório próprio no Tesouro.
-                  </p>
-                )}
+
                 {df ? (
                   <p
                     className="mt-4 max-w-[72ch] rounded-2xl border px-5 py-4 text-sm leading-relaxed"

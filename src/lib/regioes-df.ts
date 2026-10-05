@@ -65,7 +65,6 @@ export function ehDistritoFederal(uf: string | null | undefined): boolean {
 }
 
 export const AVISO_DF =
-  "O Distrito Federal presta contas ao Tesouro como unidade da federação, não como município, e tem limites " +
-  "da Lei de Responsabilidade Fiscal próprios. O Raio-X municipal não se aplica ao DF: os números da " +
-  "prefeitura que esta tela mostra para os outros municípios não existem para Brasília nem para as regiões " +
-  "administrativas.";
+  "O Distrito Federal presta contas ao Tesouro como unidade da federação, e não por localidade, com limites " +
+  "da Lei de Responsabilidade Fiscal próprios. Por isso o Raio-X municipal, que lê o relatório de cada " +
+  "prefeitura, não se aplica a Brasília nem às demais localidades do DF.";
