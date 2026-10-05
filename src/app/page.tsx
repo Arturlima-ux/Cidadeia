@@ -16,6 +16,7 @@ import PedirProjecao from "@/components/site/PedirProjecao";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
+import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -70,20 +71,6 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 // lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
 const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP"];
 
-const PASSOS = [
-  {
-    titulo: "Escolha o município",
-    texto: "O que já é público entra sozinho. Não há nada para instalar na prefeitura.",
-  },
-  {
-    titulo: "O sistema confere",
-    texto: "Cada desvio aparece com o número, o prazo e o artigo de lei que ele fere.",
-  },
-  {
-    titulo: "Quem decide é avisado",
-    texto: "O aviso chega antes do relatório oficial, com o que fazer e a quem pedir.",
-  },
-];
 
 export default async function LandingPage({
   searchParams,
@@ -114,7 +101,7 @@ export default async function LandingPage({
   const portalVitrine = portais[0] ?? null;
 
   return (
-    <div className="tema-noite pagina-inicial min-h-screen overflow-x-hidden relative">
+    <div className="tema-noite pagina-inicial min-h-screen overflow-x-clip relative">
       <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
 
       <main id="conteudo">
@@ -250,21 +237,9 @@ export default async function LandingPage({
         </section>
 
         {/* ═══ COMO FUNCIONA ═══
-            Aqui a numeração é informação: são três passos em ordem. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <h2 className="inicio-h2 max-w-[18ch]">Do dado público à decisão.</h2>
-          <ol className="mt-14 grid md:grid-cols-3 gap-10 md:gap-8">
-            {PASSOS.map((p, i) => (
-              <li key={p.titulo} className="border-t border-border pt-6">
-                <span className="block text-5xl font-light tabular-nums tracking-[-0.05em] text-brand-claro">
-                  {i + 1}
-                </span>
-                <h3 className="mt-6 text-lg font-semibold tracking-[-0.02em]">{p.titulo}</h3>
-                <p className="mt-2 text-muted leading-relaxed max-w-[34ch]">{p.texto}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+            Rolagem narrada no desktop, três blocos no celular. Ver
+            ComoFunciona.tsx. */}
+        <ComoFunciona />
 
         {/* ═══ O QUE DÁ PARA CONFERIR ═══ */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">

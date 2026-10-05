@@ -1216,6 +1216,14 @@ h1.font-serif,
   }
 }
 
+/* Os fios da seção "Como funciona": o traço corre da fonte ao município. */
+.fio-dados {
+  animation: fio-corre 1.6s linear infinite;
+}
+@keyframes fio-corre {
+  to { stroke-dashoffset: -28; }
+}
+
 .inicio-sublinhado {
   text-decoration: underline;
   text-decoration-color: var(--border);
@@ -1237,7 +1245,8 @@ h1.font-serif,
 
 @media (prefers-reduced-motion: reduce) {
   .inicio-titulo .linha > span,
-  .inicio-aparece {
+  .inicio-aparece,
+  .fio-dados {
     animation: none;
   }
 }
