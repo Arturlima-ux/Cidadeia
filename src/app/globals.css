@@ -1378,5 +1378,8 @@ h1.font-serif,
   outline: none;
   box-shadow: none;
   border-color: var(--border);
+  /* O anel global de foco troca o arredondamento (4px / inherit) e o campo
+     mudava de forma ao clicar. Aqui fica o mesmo do rounded-lg, sempre. */
+  border-radius: 0.5rem;
 }
 
