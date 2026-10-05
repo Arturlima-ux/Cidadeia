@@ -1271,3 +1271,100 @@ h1.font-serif,
     animation: none;
   }
 }
+
+/* ── O MONTADOR DE PROPOSTA COM LUZ ──
+   O quadro era cinza sobre preto: as cores certas, mas apagadas. A luz vem
+   da própria marca, misturada com color-mix: um halo violeta em volta, um
+   brilho no canto de cada lado e os módulos marcados acesos. Nada anima
+   em repouso; o que se mexe é só a transição do clique. */
+.montador-vivo {
+  border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
+  background:
+    radial-gradient(70% 55% at 0% 0%, color-mix(in oklab, var(--brand) 34%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 70% 100%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%),
+    var(--card);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--brand) 18%, transparent),
+    0 30px 90px -30px color-mix(in oklab, var(--brand) 65%, transparent),
+    0 0 140px -40px color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+.montador-resumo {
+  background:
+    radial-gradient(90% 55% at 100% 0%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 65%),
+    radial-gradient(80% 50% at 0% 100%, color-mix(in oklab, var(--brand) 45%, transparent), transparent 70%),
+    linear-gradient(165deg, color-mix(in oklab, var(--brand) 55%, var(--brand-profundo)), var(--brand-profundo) 75%);
+}
+
+.montador-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent-claro, var(--accent));
+  background: color-mix(in oklab, var(--brand) 22%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--accent) 55%, transparent),
+    0 0 22px -2px color-mix(in oklab, var(--brand) 70%, transparent);
+}
+
+.montador-campo {
+  background: color-mix(in oklab, var(--brand) 6%, transparent);
+  border-color: color-mix(in oklab, var(--brand) 28%, var(--border));
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.montador-campo:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 25%, transparent);
+}
+
+.montador-modulo {
+  background: color-mix(in oklab, var(--foreground) 2%, transparent);
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+.montador-modulo:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--brand) 55%, transparent);
+}
+.montador-modulo[aria-pressed="true"] {
+  border-color: var(--brand);
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--brand) 30%, transparent), color-mix(in oklab, var(--accent) 10%, transparent));
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
+    0 10px 34px -12px color-mix(in oklab, var(--brand) 85%, transparent);
+}
+.montador-modulo[aria-pressed="true"] .montador-check {
+  box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 90%, transparent);
+}
+
+.montador-cta {
+  background: linear-gradient(135deg, var(--brand), var(--accent));
+  color: white;
+  box-shadow: 0 12px 40px -10px color-mix(in oklab, var(--accent) 90%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.montador-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 50px -10px color-mix(in oklab, var(--accent) 100%, transparent);
+}
+.montador-cta-espera {
+  color: color-mix(in oklab, white 75%, transparent);
+  background: color-mix(in oklab, var(--brand) 22%, transparent);
+  border: 1px dashed color-mix(in oklab, var(--accent) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .montador-modulo,
+  .montador-cta {
+    transition: none;
+  }
+  .montador-modulo:hover,
+  .montador-cta:hover {
+    transform: none;
+  }
+}
