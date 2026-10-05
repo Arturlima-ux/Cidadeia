@@ -30,7 +30,7 @@ import { useEffect, useRef } from "react";
 // chega com o quadro já inteiro na tela (link para #proposta) vê o fogo
 // correr sozinho. Sem WebGL, ou com "reduzir movimento", o quadro só acende.
 
-const PAD = 90; // folga em volta da moldura: chamas, clarão e faíscas
+const PAD = 60; // folga em volta da moldura: chamas, clarão e faíscas
 const RAIO = 28; // rounded-[28px]
 
 const VERT = `
@@ -61,7 +61,7 @@ float noise(vec2 p) {
 }
 float fbm(vec2 p) {
   float v = 0.0, a = 0.5;
-  for (int i = 0; i < 5; i++) { v += a * noise(p); p = p * 2.03 + 17.0; a *= 0.5; }
+  for (int i = 0; i < 3; i++) { v += a * noise(p); p = p * 2.03 + 17.0; a *= 0.5; }
   return v;
 }
 
@@ -83,6 +83,13 @@ void main() {
   // distância com sinal à borda (fora > 0)
   vec2 q = abs(l) - hs + r;
   float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+
+  // ── corte cedo: o que está longe da borda não paga o ruído ──
+  // Antes do encontro, só a faixa da moldura tem fogo. Fora dela, nada; no
+  // miolo, só a luz que vaza (barata). É isto que mantém 60 fps.
+  if (uBurst < 0.0) {
+    if (uProg < 0.002 || d > 26.0) { gl_FragColor = vec4(0.0); return; }
+  }
 
   // posição no perímetro, a partir do meio da borda de cima (simétrico)
   float ax = abs(l.x), y = l.y;
@@ -109,6 +116,13 @@ void main() {
   float acabou = uBurst >= 0.0 ? 1.0 : 0.0;
   if (acabou > 0.5) vigor = mix(vigor, 0.35, clamp(uBurst * 1.5, 0.0, 1.0));
 
+  // Miolo do quadro antes do encontro: só a luz que vaza, sem ruído.
+  if (acabou < 0.5 && d < -22.0) {
+    vec3 luz = uBrand * queimado * exp(d / 60.0) * 0.10 * vigor * uFade;
+    gl_FragColor = vec4(luz, max(luz.r, max(luz.g, luz.b)));
+    return;
+  }
+
   float t = uTime;
   vec3 col = vec3(0.0);
   float calor = 0.0;
@@ -117,20 +131,21 @@ void main() {
   float e = d;                                  // fora > 0
   float n = fbm(vec2(s * 0.035, e * 0.06 - t * 2.6));
   float n2 = fbm(vec2(s * 0.09 + 40.0, e * 0.12 - t * 4.1));
-  float alt = (5.0 + 30.0 * n * n + 10.0 * n2) * vigor;
-  float corpo = smoothstep(alt, 0.0, e) * smoothstep(-5.0, 0.5, e);
+  // Chamas rentes à borda: o quadro não pode parecer maior do que é.
+  float alt = (3.0 + 13.0 * n * n + 4.0 * n2) * vigor;
+  float corpo = smoothstep(alt, 0.0, e) * smoothstep(-3.0, 0.5, e);
   float chama = corpo * pow(n * 0.6 + n2 * 0.6, 1.6) * 1.25;
   float fio = exp(-abs(e) / 1.3);               // a linha acesa da moldura
   calor += queimado * (chama + fio * (0.4 + 0.35 * vigor));
 
   // cabeça: núcleo quente, com tremor
   float dh = s - S;
-  float cabeca = exp(-dh * dh / (2.0 * 16.0 * 16.0)) * exp(-abs(e) / (6.0 + 6.0 * n));
+  float cabeca = exp(-dh * dh / (2.0 * 12.0 * 12.0)) * exp(-abs(e) / (3.0 + 3.0 * n));
   calor += (1.0 - acabou) * step(0.002, uProg) * cabeca * (1.4 + 0.4 * sin(t * 40.0 + s));
 
   // luz que vaza para dentro do quadro pelo trecho queimado
-  float dentro = step(e, 0.0) * exp(e / 85.0);
-  col += uBrand * queimado * dentro * 0.16 * vigor;
+  float dentro = step(e, 0.0) * exp(e / 60.0);
+  col += uBrand * queimado * dentro * 0.10 * vigor;
 
   // ── o encontro ──
   if (acabou > 0.5) {
@@ -154,7 +169,8 @@ void main() {
     float volta = exp(-pow((s - sv) / 46.0, 2.0)) * exp(-abs(e) / 5.0) * step(0.0, sv + 40.0);
     calor += volta * 1.6;
     // chuva de faíscas
-    for (int i = 0; i < 48; i++) {
+    // Faíscas só onde podem estar: pixel fora do alcance pula o laço.
+    if (tb < 1.5 && length(B) < 60.0 + 1000.0 * tb) for (int i = 0; i < 40; i++) {
       float fi = float(i);
       float ang = 3.14159 + hash(vec2(fi, 1.3)) * 3.14159;      // meia-lua de cima
       float v = 260.0 + 820.0 * hash(vec2(fi, 7.1));
@@ -169,7 +185,7 @@ void main() {
         col += mix(uClaro, vec3(1.0), hash(vec2(fi, 4.4))) * exp(-dd * dd / (tam * tam)) * a * 1.6;
       }
     }
-  } else if (uProg > 0.002) {
+  } else if (abs(s - S) < 90.0) {
     // faíscas soltando das duas cabeças enquanto corre
     for (int i = 0; i < 18; i++) {
       float fi = float(i);
@@ -294,8 +310,10 @@ export default function MolduraViva({
     const medir = () => {
       w = quadro.offsetWidth;
       h = quadro.offsetHeight;
-      // Fogo é borrado por natureza: não precisa de retina cheia.
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      // Fogo é borrado por natureza: desenha com metade da resolução de
+      // tela comum (nunca retina) e o navegador amplia. Junto com o corte
+      // cedo no shader, foi de 3 para 20 fps em GPU emulada (60 sem o efeito).
+      dpr = 0.5;
       const cw = w + PAD * 2, ch = h + PAD * 2;
       canvas.width = Math.round(cw * dpr);
       canvas.height = Math.round(ch * dpr);
