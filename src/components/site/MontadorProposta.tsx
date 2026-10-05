@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
-import MolduraFogo from "@/components/site/MolduraFogo";
+import MolduraViva from "@/components/site/MolduraViva";
 import { ESTADOS } from "@/lib/estados";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
@@ -89,36 +89,19 @@ export default function MontadorProposta({
     );
   }
 
-  // ── ACENDE QUANDO CHEGA ──
-  // O quadro entra apagado. Assim que ele aparece na tela, a moldura pega
-  // fogo no meio da borda de cima, os dois rastros descem e se encontram
-  // embaixo (MolduraFogo), e no encontro o quadro acende. Uma vez só.
-  // Quem pediu menos movimento no sistema vê o quadro já aceso.
+  // ── ACENDE COM A ROLAGEM ──
+  // O quadro entra apagado e a moldura pega fogo conforme a pessoa rola
+  // (MolduraViva): o fogo sai do meio da borda de cima, desce pelos dois
+  // lados e se encontra embaixo no instante em que o quadro inteiro cabe na
+  // tela. No encontro, o quadro acende. Uma vez só; depois o canvas sai.
   const quadro = useRef<HTMLDivElement>(null);
-  const [queimando, setQueimando] = useState(false);
+  const [fogo, setFogo] = useState(true);
   const [aceso, setAceso] = useState(false);
   const [ligando, setLigando] = useState(false);
   const espera = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    const el = quadro.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entradas) => {
-        if (!entradas.some((e) => e.isIntersecting)) return;
-        obs.disconnect();
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setAceso(true);
-        else setQueimando(true);
-      },
-      { rootMargin: "0px 0px -12% 0px" }
-    );
-    obs.observe(el);
-    return () => {
-      obs.disconnect();
-      window.clearTimeout(espera.current);
-    };
-  }, []);
+  useEffect(() => () => window.clearTimeout(espera.current), []);
 
-  function aoEncontrar() {
+  function aoAcender() {
     setAceso(true);
     setLigando(true);
     espera.current = window.setTimeout(() => setLigando(false), 1600);
@@ -126,9 +109,7 @@ export default function MontadorProposta({
 
   return (
     <div className="relative">
-    {queimando && (
-      <MolduraFogo alvo={quadro} onEncontro={aoEncontrar} onFim={() => setQueimando(false)} />
-    )}
+    {fogo && <MolduraViva alvo={quadro} onAceso={aoAcender} onFim={() => setFogo(false)} />}
     <div
       ref={quadro}
       data-aceso={aceso ? "1" : "0"}
