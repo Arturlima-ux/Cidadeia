@@ -65,7 +65,7 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
           <Reveal>
             <Olho>Raio-X · {nome}</Olho>
-            <h1 className="font-serif text-[2.2rem] leading-[1.02] sm:text-[3rem] font-extrabold tracking-[-0.04em] mt-5">
+            <h1 className="titulo-pagina mt-5">
               As {r.total} prefeituras {doEstado(uf)}
             </h1>
             <p className="text-muted text-base sm:text-lg leading-relaxed mt-5 max-w-[58ch]">
@@ -82,12 +82,12 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
           <Reveal delay={80}>
             <div className="grid sm:grid-cols-3 gap-3">
               <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">Municípios</p>
-                <p className="font-serif text-3xl font-extrabold mt-2">{r.total}</p>
+                <p className="text-xs text-muted font-medium">Municípios</p>
+                <p className="font-serif text-3xl font-semibold mt-2">{r.total}</p>
               </div>
               <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">Até 100 mil habitantes</p>
-                <p className="font-serif text-3xl font-extrabold mt-2">
+                <p className="text-xs text-muted font-medium">Até 100 mil habitantes</p>
+                <p className="font-serif text-3xl font-semibold mt-2">
                   {r.cabemNaDispensa} <span className="text-base font-normal text-muted">({pct}%)</span>
                 </p>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
@@ -96,7 +96,7 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
                 </p>
               </div>
               <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">Por faixa</p>
+                <p className="text-xs text-muted font-medium">Por faixa</p>
                 <ul className="mt-2 flex flex-col gap-1">
                   {r.porFaixa.filter((f) => f.quantidade > 0).map((f) => (
                     <li key={f.chave} className="flex justify-between text-sm">
@@ -159,7 +159,7 @@ export default async function RaioXUfPage({ params }: { params: Promise<{ uf: st
         </section>
 
         <section className="max-w-4xl mx-auto px-4 sm:px-8 py-12">
-          <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted mb-4">Outros estados</p>
+          <p className="text-xs text-muted mb-4 font-medium">Outros estados</p>
           <div className="flex flex-wrap gap-2">
             {outros.map((e) => (
               <Link

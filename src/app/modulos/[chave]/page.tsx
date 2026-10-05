@@ -56,12 +56,12 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
       <SiteHeader />
       <main id="conteudo">
         {/* ── capa: o que é, e a tela ── */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-12">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-12">
           <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-14 items-center">
             <Reveal>
               <div>
                 <Olho>Módulo</Olho>
-                <h1 className="font-serif text-4xl sm:text-5xl font-extrabold tracking-[-0.035em] leading-[1.02] mt-4">
+                <h1 className="titulo-pagina mt-4">
                   {plano.nome}
                 </h1>
                 <p className="text-foreground text-lg leading-relaxed mt-5 max-w-[46ch]">{detalhe.resumo}</p>
@@ -96,11 +96,11 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
 
         {/* ── o que passa a existir ── */}
         <section className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-16">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-14 sm:py-16">
             <div className="grid md:grid-cols-[1fr_1fr] gap-10">
               <Reveal>
                 <div>
-                  <h2 className="font-serif text-2xl font-extrabold tracking-[-0.03em]">
+                  <h2 className="titulo-secao">
                     O que a secretaria passa a ver
                   </h2>
                   <ul className="flex flex-col gap-3 mt-6">
@@ -117,14 +117,14 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
                 <div className="flex flex-col gap-4">
                   {detalhe.automacao && (
                     <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                      <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--accent-claro)" }}>
+                      <p className="text-xs font-bold" style={{ color: "var(--accent-claro)" }}>
                         Automático
                       </p>
                       <p className="text-sm leading-relaxed mt-2">{detalhe.automacao}</p>
                     </div>
                   )}
                   <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-brand-claro">
+                    <p className="text-xs font-bold text-brand-claro">
                       {iaAtiva ? "IA" : "Leitura automática"}
                     </p>
                     <p className="text-sm leading-relaxed mt-2">
@@ -135,7 +135,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
                   </div>
                   {detalhe.noPortal && (
                     <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Portal do cidadão</p>
+                      <p className="text-xs font-bold text-muted">Portal do cidadão</p>
                       <p className="text-sm leading-relaxed mt-2">
                         Parte do que este módulo registra aparece no portal público do
                         município, sem login — é a transparência ativa que a LAI exige.
@@ -149,11 +149,11 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
         </section>
 
         {/* ── valores ── */}
-        <section id="valores" className="max-w-6xl mx-auto px-4 sm:px-8 py-14 sm:py-16">
+        <section id="valores" className="max-w-[1200px] mx-auto px-4 sm:px-8 py-14 sm:py-16">
           <Reveal>
             <div className="max-w-2xl">
               <Olho>Valores</Olho>
-              <h2 className="font-serif text-2xl font-extrabold tracking-[-0.03em] mt-4">
+              <h2 className="titulo-secao mt-4">
                 Valor na proposta, pela faixa do seu município
               </h2>
               <p className="text-sm text-muted leading-relaxed mt-3">
@@ -181,8 +181,8 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
 
         {/* ── outros módulos ── */}
         <section className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12">
-            <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted mb-4">Outros módulos</p>
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-12">
+            <p className="text-xs text-muted mb-4 font-medium">Outros módulos</p>
             <div className="flex flex-wrap gap-2.5">
               {outros.map((o) => (
                 <Link

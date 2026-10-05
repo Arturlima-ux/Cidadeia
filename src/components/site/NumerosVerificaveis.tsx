@@ -65,7 +65,7 @@ export default function NumerosVerificaveis() {
     // O título saiu porque a faixa não precisa ser apresentada: quatro
     // números enormes com "conferir" embaixo dizem sozinhos o que são.
     <section>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8">
         <div className="cascata grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-8 max-w-4xl mx-auto">
           {numeros.map((n, i) => (
             <Link

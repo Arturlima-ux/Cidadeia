@@ -54,7 +54,7 @@ export default async function SuportePage({
           >
             <IconIA className="w-6 h-6" />
           </div>
-          <h1 className="font-serif text-4xl font-bold">Precisa de ajuda?</h1>
+          <h1 className="titulo-pagina">Precisa de ajuda?</h1>
           <p className="text-muted text-base mt-4 leading-relaxed">
             Manda sua dúvida, problema ou pedido de proposta que a gente responde o
             quanto antes.
@@ -65,7 +65,7 @@ export default async function SuportePage({
               <ContatoEmail modulo={texto(params.modulo)} chave={texto(params.assunto)} proposta={proposta} />
             </Suspense>
             <div className="border-t border-border pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-1">
+              <p className="text-xs font-semibold text-muted mb-1">
                 Antes de escrever
               </p>
               <p className="text-sm text-muted leading-relaxed">

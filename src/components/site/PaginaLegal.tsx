@@ -26,7 +26,7 @@ export default function PaginaLegal({
 
       <Reveal>
         <section className="max-w-2xl mx-auto px-4 sm:px-8 pt-16 pb-8">
-          <h1 className="font-serif text-4xl font-bold">{titulo}</h1>
+          <h1 className="titulo-pagina">{titulo}</h1>
           <p className="text-muted text-base mt-4 leading-relaxed">{chamada}</p>
           <p className="text-xs font-mono text-muted mt-6">
             Última revisão: {VIGENCIA_DOCUMENTOS}

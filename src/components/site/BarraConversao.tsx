@@ -46,7 +46,7 @@ export default function BarraConversao() {
         // tempo na tela. Sobre fundo escuro, 84% e opaco são quase idênticos.
         style={{ background: "var(--background)" }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-[62px] flex items-center justify-between gap-4">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[62px] flex items-center justify-between gap-4">
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={24} />
           </Link>

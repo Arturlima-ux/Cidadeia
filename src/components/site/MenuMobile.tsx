@@ -58,7 +58,7 @@ export default function MenuMobile({ links, sessao }: { links: LinkMenu[]; sessa
             className="absolute left-0 right-0 top-full border-b border-border shadow-elevated max-h-[70vh] overflow-y-auto"
             style={{ background: "var(--background)" }}
           >
-            <nav className="max-w-6xl mx-auto px-4 sm:px-8 py-4 flex flex-col">
+            <nav className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex flex-col">
               {links.map((l) => (
                 <Link
                   key={l.href}

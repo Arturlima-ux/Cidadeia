@@ -69,7 +69,7 @@ export function MarcaCompleta({
         compacta={compacta}
       />
       <span
-        className="font-serif font-extrabold tracking-[-0.045em] leading-none"
+        className="font-serif font-semibold tracking-[-0.045em] leading-none"
         style={{ fontSize: tamanho * 0.72, color: corTexto }}
       >
         cidade<span style={{ color: corAcento }}>ia</span>

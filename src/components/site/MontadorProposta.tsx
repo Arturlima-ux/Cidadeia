@@ -89,15 +89,15 @@ export default function MontadorProposta({
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-[var(--shadow-lg)] grid lg:grid-cols-[1fr_360px]">
+    <div className="bg-card border border-border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]">
       {/* ── escolhas ── */}
-      <div className="p-6 sm:p-7 flex flex-col gap-7">
+      <div className="p-6 sm:p-9 flex flex-col gap-9">
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="w-6 h-6 rounded-lg bg-brand text-white text-xs font-extrabold font-serif flex items-center justify-center">
+            <span className="text-2xl font-light tabular-nums tracking-[-0.04em] text-brand-claro w-6">
               1
             </span>
-            <span className="font-semibold text-base">Seu município</span>
+            <span className="text-lg font-semibold tracking-[-0.02em]">Seu município</span>
           </legend>
           <div className="flex flex-wrap items-end gap-2 mb-1">
             <label className="flex-1 min-w-[160px]">
@@ -107,7 +107,7 @@ export default function MontadorProposta({
                 value={municipio}
                 onChange={(e) => setMunicipio(e.target.value)}
                 placeholder="Ex.: Teresina"
-                className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-brand"
+                className="w-full rounded-xl border border-border bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-brand"
               />
             </label>
             <label className="w-24">
@@ -116,7 +116,7 @@ export default function MontadorProposta({
                 id="proposta-uf"
                 value={uf}
                 onChange={(e) => setUf(e.target.value)}
-                className="w-full rounded-lg border border-border bg-transparent px-2 py-2 text-sm outline-none focus:border-brand"
+                className="w-full rounded-xl border border-border bg-transparent px-2.5 py-2.5 text-sm outline-none focus:border-brand"
               >
                 <option value="">—</option>
                 {ESTADOS.map((e) => (
@@ -130,7 +130,7 @@ export default function MontadorProposta({
               type="button"
               onClick={descobrirPorte}
               disabled={consultando || municipio.trim().length < 2 || !uf}
-              className="text-sm font-semibold rounded-lg border border-border px-3 py-2 hover:border-brand hover:text-brand transition disabled:opacity-50"
+              className="text-sm font-medium rounded-full border border-border px-4 py-2.5 hover:border-brand hover:text-brand-claro transition disabled:opacity-50"
             >
               {consultando ? "Consultando o IBGE…" : "Descobrir o porte"}
             </button>
@@ -154,7 +154,7 @@ export default function MontadorProposta({
             <div className="rounded-xl border-[1.5px] border-brand bg-brand-tint px-4 py-3.5 flex items-center justify-between gap-3">
               <div>
                 <span className="block text-xs text-muted">Porte pela população do IBGE</span>
-                <span className="block text-sm font-bold text-brand-dark">
+                <span className="block text-sm font-semibold text-brand-claro">
                   {PORTES.find((p) => p.chave === porte)?.rotulo} habitantes
                 </span>
               </div>
@@ -172,10 +172,10 @@ export default function MontadorProposta({
 
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="w-6 h-6 rounded-lg bg-brand text-white text-xs font-extrabold font-serif flex items-center justify-center">
+            <span className="text-2xl font-light tabular-nums tracking-[-0.04em] text-brand-claro w-6">
               2
             </span>
-            <span className="font-semibold text-base">Módulos que a prefeitura vai usar</span>
+            <span className="text-lg font-semibold tracking-[-0.02em]">Módulos que a prefeitura vai usar</span>
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {PLANOS_ADDON.map((p) => {
@@ -198,7 +198,7 @@ export default function MontadorProposta({
                     {ativo && <IconCheck className="w-2.5 h-2.5 text-white" strokeWidth={3.5} />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className={`block text-sm font-bold ${ativo ? "text-brand-dark" : ""}`}>
+                    <span className={`block text-sm font-semibold ${ativo ? "text-brand-claro" : ""}`}>
                       {p.nome}
                     </span>
                     <span className="block text-xs text-muted mt-0.5">
@@ -218,10 +218,10 @@ export default function MontadorProposta({
           a promessa que substitui a tabela: proposta em um dia útil, sem
           reunião obrigatória, com o termo de referência pronto. */}
       <div
-        className="p-6 sm:p-7 flex flex-col gap-4 text-white"
+        className="p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-border"
         style={{ background: "var(--brand-profundo)" }}
       >
-        <h3 className="font-serif font-bold text-base">Sua proposta</h3>
+        <h3 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h3>
 
         {!identificado ? (
           <p className="text-sm text-white/70 leading-relaxed">
@@ -262,14 +262,14 @@ export default function MontadorProposta({
           {identificado ? (
             <Link
               href={linkProposta}
-              className="bg-white text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center hover:opacity-90 transition"
+              className="bg-white text-[color:var(--brand-profundo)] font-semibold text-sm rounded-full px-5 py-3.5 text-center hover:opacity-90 transition"
             >
               Receber esta proposta e o termo de referência
             </Link>
           ) : (
             <span
               aria-disabled
-              className="bg-white/40 text-[color:var(--brand-profundo)] font-bold text-sm rounded-xl px-4 py-3 text-center cursor-not-allowed"
+              className="bg-white/30 text-[color:var(--brand-profundo)] font-semibold text-sm rounded-full px-5 py-3.5 text-center cursor-not-allowed"
             >
               Informe o município para pedir a proposta
             </span>
@@ -280,7 +280,7 @@ export default function MontadorProposta({
               O kit é a segunda ação real: baixa na hora, sem cadastro. */}
           <Link
             href="/kit"
-            className="border border-white/25 font-semibold text-sm rounded-xl px-4 py-3 text-center hover:bg-white/10 transition"
+            className="border border-white/25 font-medium text-sm rounded-full px-5 py-3.5 text-center hover:bg-white/10 transition"
           >
             Baixar o kit de contratação
           </Link>

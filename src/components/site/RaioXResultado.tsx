@@ -16,7 +16,14 @@ function moeda(v: number | null): string {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 }
 
-export default function RaioXResultado({ raioX }: { raioX: RaioX }) {
+export default function RaioXResultado({
+  raioX,
+  semTitulo = false,
+}: {
+  raioX: RaioX;
+  /** Na página do município o nome já está no topo; aqui fica só a referência. */
+  semTitulo?: boolean;
+}) {
   const semDado = raioX.bimestreReferencia === null;
   const proporcaoSaude = proporcaoDaReceita(raioX.despesaSaude.valor, raioX.receita.valor);
   const proporcaoEducacao = proporcaoDaReceita(raioX.despesaEducacao.valor, raioX.receita.valor);
@@ -24,11 +31,16 @@ export default function RaioXResultado({ raioX }: { raioX: RaioX }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border pb-4">
-        <h2 className="font-serif text-2xl sm:text-3xl font-extrabold tracking-tight">
-          {raioX.municipio} <span className="text-muted font-normal">· {raioX.uf}</span>
-        </h2>
-        <p className="text-xs font-mono text-muted">
-          código IBGE {raioX.codigoIbge} · exercício {raioX.exercicio}
+        {semTitulo ? (
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">No Tesouro, exercício de {raioX.exercicio}</h2>
+        ) : (
+          <h2 className="titulo-secao">
+            {raioX.municipio}<span className="text-muted font-normal">, {raioX.uf}</span>
+          </h2>
+        )}
+        <p className="text-xs text-muted tabular-nums">
+          Código IBGE {raioX.codigoIbge}
+          {semTitulo ? "" : `, exercício ${raioX.exercicio}`}
         </p>
       </div>
 
@@ -161,8 +173,8 @@ function Cartao({
         borderColor: destaque ? "var(--brand)" : "var(--border)",
       }}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{rotulo}</p>
-      <p className="font-serif text-2xl font-extrabold tracking-tight tabular-nums mt-2">
+      <p className="text-xs font-semibold text-muted">{rotulo}</p>
+      <p className="font-serif text-2xl font-semibold tracking-tight tabular-nums mt-2">
         {formatar(dado.valor)}
       </p>
       {nota && <p className="text-xs text-muted mt-1">{nota}</p>}

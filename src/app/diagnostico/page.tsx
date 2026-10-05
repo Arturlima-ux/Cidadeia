@@ -20,14 +20,14 @@ export default function DiagnosticoPage() {
       <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
         <Reveal>
           <span
-            className="inline-flex items-center gap-2.5 text-xs font-mono uppercase tracking-[0.16em]"
+            className="inline-flex items-center gap-2.5 text-xs font-medium"
             style={{ color: "var(--brand-claro)" }}
           >
             <span className="block w-6 h-px" style={{ background: "currentColor" }} />
             Gratuito · sem cadastro
           </span>
 
-          <h1 className="font-serif text-[2.6rem] leading-[1.0] sm:text-[3.3rem] sm:leading-[0.98] font-extrabold tracking-[-0.045em] mt-6">
+          <h1 className="titulo-pagina mt-6">
             O que o seu município já descumpre?
           </h1>
 

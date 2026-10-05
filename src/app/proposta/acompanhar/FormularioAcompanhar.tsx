@@ -76,7 +76,7 @@ export default function FormularioAcompanhar({ protocoloInicial }: { protocoloIn
               {pedido.municipio}/{pedido.uf}
             </p>
             <span
-              className="text-[11px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 border"
+              className="text-xs font-bold rounded-full px-2.5 py-1 border"
               style={{ color: "var(--accent)", background: "var(--accent-tint)", borderColor: "var(--info-borda)" }}
             >
               {pedido.rotulo}

@@ -27,12 +27,12 @@ export default function ConformidadePage() {
     <div className="tema-noite min-h-screen">
       <SiteHeader />
       <main id="conteudo">
-        <section className="max-w-6xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
             <Reveal>
               <div>
                 <Olho>Conformidade</Olho>
-                <p className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
+                <p className="font-serif text-3xl sm:text-[2.9rem] font-semibold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
                   {EXIGENCIAS.length} exigências. Cada uma com o artigo que a cria.
                 </p>
                 <p className="text-muted leading-relaxed mt-5 max-w-[50ch]">
@@ -50,10 +50,10 @@ export default function ConformidadePage() {
             </Reveal>
         <Reveal>
           <div className="vidro rounded-2xl p-7">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted">
+            <p className="text-xs font-bold text-muted">
               O que é verificado
             </p>
-            <p className="font-serif text-[3.2rem] leading-none font-extrabold tracking-[-0.05em] mt-3 tabular-nums">
+            <p className="font-serif text-[3.2rem] leading-none font-semibold tracking-[-0.05em] mt-3 tabular-nums">
               {EXIGENCIAS.length}
             </p>
             <p className="text-sm text-muted mt-2">exigências, em quatro blocos</p>
@@ -91,12 +91,12 @@ export default function ConformidadePage() {
           </div>
         </section>
     <section id="conformidade" className="border-b border-border" style={{ background: "var(--superficie)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6 mb-8">
             <div>
               <Olho>Antes de assinar</Olho>
-              <h1 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
+              <h1 className="titulo-pagina mt-5 max-w-[20ch]">
                 O que a lei exige, e o que sempre perguntam.
               </h1>
             </div>
@@ -111,7 +111,7 @@ export default function ConformidadePage() {
         <Reveal>
           <div className="border border-border rounded-2xl overflow-hidden" style={{ background: "var(--card)" }}>
             <div
-              className="hidden md:grid grid-cols-[260px_1fr_120px] text-xs font-mono uppercase tracking-wider text-muted border-b border-border"
+              className="hidden md:grid grid-cols-[260px_1fr_120px] text-xs text-muted border-b border-border font-medium"
               style={{ background: "var(--superficie)" }}
             >
               <div className="px-5 py-3">Exigência</div>

@@ -71,7 +71,7 @@ export default function ListaMunicipiosUf({ uf, iniciais, total }: { uf: string;
       <div className="mt-4 overflow-x-auto rolagem-discreta rounded-2xl border border-border" style={{ background: "var(--card)" }}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-[11px] font-mono uppercase tracking-[0.12em] text-muted border-b border-border">
+            <tr className="text-left text-xs text-muted border-b border-border font-medium">
               <th className="px-4 py-3 font-medium w-10">#</th>
               <th className="px-4 py-3 font-medium">Município</th>
               <th className="px-4 py-3 font-medium text-right">Habitantes</th>

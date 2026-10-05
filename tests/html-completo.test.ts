@@ -50,7 +50,10 @@ describe("nada do site público depende de JavaScript para aparecer", () => {
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/^\s*\/\/.*$/gm, "");
     expect(reveal).not.toMatch(/opacity:\s*(visivel|0)/);
-    expect(reveal).toContain("data-visivel");
+    // Desde outubro de 2026 o Reveal não anima nem esconde: devolve o bloco
+    // como veio. Se a classe que o CSS esconde voltar, este teste avisa.
+    expect(reveal).not.toContain("revelar");
+    expect(reveal).not.toContain("useEffect");
   });
 
   it("a regra que esconde depende da marca de JavaScript", () => {

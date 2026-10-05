@@ -31,8 +31,8 @@ export default function PortalMinimo({
       </a>
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-dark">Portal do município</p>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold mt-2">{portal.nome}</h1>
+          <p className="text-xs font-semibold text-brand-dark">Portal do município</p>
+          <h1 className="titulo-pagina mt-2">{portal.nome}</h1>
           <p className="text-muted text-sm mt-1.5">
             {portal.municipio} / {portal.estado}
             {portal.prefeito ? ` · Prefeito(a): ${portal.prefeito}` : ""}
@@ -79,7 +79,7 @@ export default function PortalMinimo({
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Lei de Acesso à Informação</p>
+          <p className="text-xs font-semibold text-muted">Lei de Acesso à Informação</p>
           <p className="text-sm text-muted mt-2 leading-relaxed">
             Todo cidadão pode pedir informação a qualquer órgão público (Lei 12.527/2011, art. 10), e o
             órgão tem 20 dias para responder. O pedido pode ser feito no atendimento presencial da

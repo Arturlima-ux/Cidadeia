@@ -77,7 +77,7 @@ export default async function DadosDoTesouro({
   return (
     <>
       <Reveal delay={100}>
-        <RaioXResultado raioX={r} />
+        <RaioXResultado raioX={r} semTitulo />
       </Reveal>
 
       {/* ── do diagnóstico para a solução ──

@@ -71,10 +71,10 @@ export default async function DisponibilidadePage() {
       <main id="conteudo">
         <section className="max-w-4xl mx-auto px-4 sm:px-8 pt-16 pb-10">
           <Reveal>
-            <span className="text-xs uppercase tracking-[0.2em] text-white/50">
+            <span className="text-xs text-white/50 font-medium">
               Transparência da operação
             </span>
-            <h1 className="font-serif text-[2.2rem] sm:text-5xl font-extrabold tracking-[-0.035em] leading-[1.08] mt-5">
+            <h1 className="titulo-pagina mt-5">
               A disponibilidade é medida, não prometida
             </h1>
             <p className="text-white/80 text-base sm:text-lg leading-relaxed mt-4 max-w-2xl">

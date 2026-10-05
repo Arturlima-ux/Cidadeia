@@ -37,7 +37,7 @@ export default function SeletorMunicipio({
   return (
     <form method="get" action="/" className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Estado</span>
+        <span className="text-xs font-semibold text-muted">Estado</span>
         <select
           name="uf"
           defaultValue={ufAtual}
@@ -54,7 +54,7 @@ export default function SeletorMunicipio({
       </label>
 
       <label className="flex flex-col gap-1.5 min-w-0 flex-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted">Município</span>
+        <span className="text-xs font-semibold text-muted">Município</span>
         <select
           key={ufAtual}
           name="m"

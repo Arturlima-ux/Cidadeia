@@ -67,7 +67,7 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
           inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
           90% de opacidade o desfoque quase não aparecia; pagava-se caro à toa. */}
       <div className="border-b border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-[74px] flex items-center justify-between gap-6">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-6">
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={30} />
           </Link>

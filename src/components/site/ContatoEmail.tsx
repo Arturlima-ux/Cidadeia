@@ -124,7 +124,7 @@ export default function ContatoEmail({
           O rascunho fica visível para a pessoa conferir antes. */}
       {montada ? (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+          <p className="text-xs font-semibold text-muted mb-2">
             Sua proposta, pronta para enviar
           </p>
           <pre className="whitespace-pre-wrap font-sans text-sm rounded-lg border border-border px-3.5 py-3 leading-relaxed">
@@ -144,7 +144,7 @@ export default function ContatoEmail({
         </div>
       ) : (
         <>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-1">E-mail</p>
+          <p className="text-xs font-semibold text-muted mb-1">E-mail</p>
           <a href={mailto} className="text-brand font-semibold hover:underline">
             {CONTATO_EMAIL}
           </a>

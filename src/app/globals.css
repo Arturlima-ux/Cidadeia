@@ -86,14 +86,15 @@
   --shadow-md: 0 4px 16px -6px rgba(16, 19, 26, 0.12), 0 2px 6px -2px rgba(16, 19, 26, 0.06);
   --shadow-lg: 0 24px 60px -22px rgba(11, 35, 80, 0.28);
 
-  /* tipografia — Plus Jakarta Sans nos títulos (geométrica, contemporânea,
-     substituiu a serifada Fraunces que dava ar de documento impresso) e
-     Public Sans na UI, desenhada originalmente para uso governamental.
-     Fallback de sistema mantido caso o download da fonte falhe.
-     O nome da variável segue sendo --font-titulo, e a classe do Tailwind
-     segue sendo font-serif, para não trocar centenas de usos no produto. */
-  --font-titulo: var(--font-titulo-familia), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  --font-corpo: var(--font-public-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  /* tipografia — Geist em tudo, títulos e interface (outubro de 2026).
+     Uma família só, servida do próprio projeto (app/fontes, licença OFL):
+     não depende do Google Fonts e não muda de cara se o download falhar.
+     Substituiu o par Plus Jakarta Sans + Public Sans quando a home foi
+     redesenhada; manter dois sistemas no mesmo site fazia a home parecer de
+     outra empresa. O nome --font-titulo e a classe font-serif continuam,
+     para não trocar centenas de usos no produto. */
+  --font-titulo: var(--font-geist), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-corpo: var(--font-geist), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
 
   /* ── AS DUAS CURVAS ──
      A curva estava escrita literalmente em cinco lugares do arquivo. Repetir
@@ -1214,6 +1215,26 @@ h1.font-serif,
     height: 560px;
     opacity: 1;
   }
+}
+
+/* Títulos do site público na mesma escala da home: um h1 de página e um
+   h2 de seção. Substituíram cerca de quinze combinações de tamanho escritas
+   à mão, página a página. */
+.titulo-pagina {
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.titulo-secao {
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 /* Os fios da seção "Como funciona": o traço corre da fonte ao município. */

@@ -46,7 +46,7 @@ export default function SecoesPublicadas({ publicacoes }: { publicacoes: Publica
                   <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3 mt-4 pt-4 border-t border-border text-sm">
                     {item.requisitos && (
                       <div className="sm:col-span-2">
-                        <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+                        <dt className="text-xs font-semibold text-muted">
                           {secao.tipo === "servico" ? "O que levar" : "Endereço"}
                         </dt>
                         <dd className="mt-1 leading-relaxed whitespace-pre-line">
@@ -56,7 +56,7 @@ export default function SecoesPublicadas({ publicacoes }: { publicacoes: Publica
                     )}
                     {item.prazo && (
                       <div>
-                        <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+                        <dt className="text-xs font-semibold text-muted">
                           {secao.tipo === "servico" ? "Prazo" : "Horário"}
                         </dt>
                         <dd className="mt-1">{item.prazo}</dd>
@@ -64,7 +64,7 @@ export default function SecoesPublicadas({ publicacoes }: { publicacoes: Publica
                     )}
                     {item.contato && (
                       <div>
-                        <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+                        <dt className="text-xs font-semibold text-muted">
                           {secao.tipo === "servico" ? "Onde solicitar" : "Contato"}
                         </dt>
                         <dd className="mt-1 break-words">{item.contato}</dd>

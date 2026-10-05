@@ -93,10 +93,10 @@ export default function KitPage() {
       <section className="text-white" style={{ background: "var(--gradient-hero)" }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-8 py-14 sm:py-16">
           <Reveal>
-            <span className="inline-block text-xs font-bold uppercase tracking-[0.1em] rounded-full px-4 py-1.5 border border-white/25 bg-white/10">
+            <span className="inline-block text-xs font-bold rounded-full px-4 py-1.5 border border-white/25 bg-white/10">
               Kit de contratação
             </span>
-            <h1 className="font-serif text-[2.2rem] sm:text-5xl font-extrabold tracking-[-0.035em] leading-[1.08] mt-5">
+            <h1 className="titulo-pagina mt-5">
               O processo montado, para o jurídico só conferir
             </h1>
             <p className="text-white/80 text-base sm:text-lg leading-relaxed mt-4 max-w-2xl">
@@ -140,7 +140,7 @@ export default function KitPage() {
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-serif text-lg font-bold">{d.nome}</h2>
                   <span
-                    className="shrink-0 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1"
+                    className="shrink-0 text-xs font-bold rounded-full px-2.5 py-1"
                     style={{ color: "var(--accent)", background: "var(--accent-tint)" }}
                   >
                     Modelo
@@ -224,7 +224,7 @@ export default function KitPage() {
                         {c.marcador}
                       </code>
                       <span
-                        className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded"
+                        className="text-xs px-1.5 py-0.5 rounded font-medium"
                         style={{ background: "var(--info-tint)", color: "var(--info)" }}
                       >
                         {c.origem === "apurado" ? "apurado" : "deduzido da lei"}
@@ -288,7 +288,7 @@ export default function KitPage() {
               <div className="border-t-2 border-brand pt-6">
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
-                    <h2 className="font-serif text-2xl sm:text-3xl font-extrabold tracking-[-0.03em]">
+                    <h2 className="titulo-secao">
                       {d.nome}
                     </h2>
                     <p className="text-sm text-muted mt-1.5">{d.subtitulo}</p>
@@ -330,7 +330,7 @@ export default function KitPage() {
       <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-8 py-14 text-center">
           <Reveal>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold tracking-[-0.03em]">
+            <h2 className="titulo-secao">
               Falta o valor para fechar o processo
             </h2>
             <p className="text-muted mt-3 leading-relaxed max-w-xl mx-auto">

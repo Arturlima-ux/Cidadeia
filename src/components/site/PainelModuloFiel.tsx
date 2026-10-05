@@ -38,7 +38,7 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
       <div className="bg-background p-5 sm:p-6 space-y-5 text-left">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+            <p className="text-xs font-semibold text-muted">
               Prefeitura Modelo
             </p>
             <h3 className="font-serif text-xl font-bold mt-0.5">{painel.titulo}</h3>
@@ -56,7 +56,7 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
             </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-legivel">
+                <p className="text-xs font-semibold text-brand-legivel">
                   Leitura automática
                 </p>
                 <span className="text-[11px] font-semibold text-brand">Atualizar</span>
@@ -68,7 +68,7 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
 
         {painel.cartoes && (
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2.5">
+            <p className="text-xs font-semibold text-muted mb-2.5">
               Indicadores
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -113,7 +113,7 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
 
         {painel.lista && (
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2.5">
+            <p className="text-xs font-semibold text-muted mb-2.5">
               {painel.lista.cabecalho}
             </p>
             <div className="space-y-2">

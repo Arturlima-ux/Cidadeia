@@ -31,7 +31,7 @@ export default function FormularioRaioX() {
 
   return (
     <div className="flex flex-col gap-8">
-      <form action={enviar} className="vidro rounded-2xl p-6 sm:p-7">
+      <form action={enviar} className="rounded-[22px] border border-border p-5 sm:p-6" style={{ background: "var(--card)" }}>
         <div className="grid sm:grid-cols-[1fr_auto_auto] gap-3">
           <div>
             <label htmlFor="municipio" className="block text-sm font-medium mb-1.5">
@@ -65,7 +65,7 @@ export default function FormularioRaioX() {
             <button
               type="submit"
               disabled={pendente}
-              className="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-3.5 transition shadow-elevated disabled:opacity-60"
+              className="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full px-7 py-3.5 transition disabled:opacity-60"
             >
               {pendente ? "Consultando…" : "Ver o raio-X"}
             </button>
