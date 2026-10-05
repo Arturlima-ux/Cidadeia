@@ -44,7 +44,7 @@ export default function SeletorMunicipio({
           defaultValue={ufAtual}
           className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none seletor-sem-luz"
         >
-          <option value="">Selecione</option>
+          <option value="" disabled hidden>Selecione</option>
           {ESTADOS.map((u) => (
             <option key={u} value={u}>
               {u}
@@ -63,7 +63,7 @@ export default function SeletorMunicipio({
           disabled={municipios.length === 0}
           className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none seletor-sem-luz disabled:opacity-50"
         >
-          <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
+          <option value="" disabled hidden>{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
           {ufAtual === "DF" ? (
             // O DF são as 37 regiões, numa lista só e em ordem alfabética. O
             // "Brasília" do IBGE (o DF inteiro) não entra: duplicaria o Plano
