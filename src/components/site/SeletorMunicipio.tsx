@@ -42,7 +42,7 @@ export default function SeletorMunicipio({
         <select
           name="uf"
           defaultValue={ufAtual}
-          className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-brand"
+          className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none seletor-sem-luz"
         >
           <option value="">Selecione</option>
           {ESTADOS.map((u) => (
@@ -61,7 +61,7 @@ export default function SeletorMunicipio({
           name="m"
           defaultValue={inicial?.codigo ?? ""}
           disabled={municipios.length === 0}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-brand disabled:opacity-50"
+          className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none seletor-sem-luz disabled:opacity-50"
         >
           <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
           {ufAtual === "DF" ? (
