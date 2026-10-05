@@ -8,6 +8,7 @@ import { verificarSenha } from "@/lib/senha";
 import { normalizarDocumento } from "@/lib/documento";
 import { criarSessao } from "@/lib/sessao";
 import { redirect } from "next/navigation";
+import { PREFEITURA_EQUIPE_ID } from "@/lib/equipe";
 import { verificarBloqueio, registrarTentativaFalha, limparTentativas } from "@/lib/rate-limit";
 
 const schemaLogin = z.object({
@@ -80,6 +81,9 @@ export async function fazerLogin(
     unidadeId: usuario.unidadeId,
     escolaId: usuario.escolaId,
   });
+
+  // A equipe do CidadeIA não tem painel de prefeitura: vai para a mesa.
+  if (usuario.prefeituraId === PREFEITURA_EQUIPE_ID) redirect("/admin/pedidos");
 
   // A gerência de unidade não tem Visão Geral: vai direto para a ficha dela.
   if (usuario.cargo === "unidade" && usuario.unidadeId) {

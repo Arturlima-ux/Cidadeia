@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { eventos, pedidoEventos, pedidosProposta, prefeituras, usuarios } from "@/db/schema";
+import { eventos, pedidoEventos, pedidosProposta, prefeituras } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
+import { emailDaEquipe } from "@/lib/equipe";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
 import { formatarMoeda } from "@/lib/formatadores";
 import {
-  ehAdmin,
   linkCadastroDoPedido,
   modulosDoPedido,
   type StatusPedido,
@@ -48,10 +48,9 @@ export default async function AdminPedidosPage({
 }: {
   searchParams: Promise<{ etapa?: string }>;
 }) {
-  const sessao = await lerSessao();
-  if (!sessao || sessao.demo) redirect("/login");
-  const [u] = await db.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, sessao.usuarioId)).limit(1);
-  if (!ehAdmin(u?.email)) notFound();
+  if (!(await lerSessao())) redirect("/login");
+  const email = await emailDaEquipe();
+  if (!email) notFound();
 
   const { etapa } = await searchParams;
   const filtro = FILTROS.find((f) => f.chave === etapa)?.chave ?? "abertos";
@@ -113,7 +112,7 @@ export default async function AdminPedidosPage({
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Do clique ao pagamento</h1>
-            <p className="text-sm text-muted mt-2">Mesa da equipe, {u?.email}</p>
+            <p className="text-sm text-muted mt-2">Mesa da equipe, {email}</p>
           </div>
           <nav className="flex items-center gap-5 text-sm">
             <span className="font-medium">Pedidos</span>

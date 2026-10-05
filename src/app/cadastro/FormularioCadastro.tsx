@@ -1,5 +1,6 @@
 "use client";
 
+import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { cadastrarPrefeitura } from "./actions";
@@ -125,20 +126,16 @@ export default function FormularioCadastro({ inicial }: { inicial: InicialDoPedi
 
       <div className="relative max-w-md mx-auto animate-fade-in-up">
         <div className="text-center mb-8">
-          <Link href="/login" className="font-serif text-2xl font-bold text-foreground">
-            Cidade
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "var(--gradient-hero)" }}
-            >
-              IA
-            </span>
+          {/* A marca do site: o "IA" em texto com gradiente sumia no tema
+              escuro e a tela mostrava "Cidade A". */}
+          <Link href="/" aria-label="CidadeIA, início" className="inline-block">
+            <MarcaCompleta tamanho={28} />
           </Link>
-          <h1 className="font-serif text-xl font-bold mt-4">Criar a conta da prefeitura</h1>
+          <h1 className="text-2xl font-semibold tracking-[-0.03em] mt-6">Criar a conta da prefeitura</h1>
           <p className="text-sm text-muted mt-2 max-w-md mx-auto leading-relaxed">
             {inicial
-              ? `Conta para a proposta de ${inicial.municipio}/${inicial.uf}. Já preenchemos o que você informou; falta o CNPJ e a senha. Os módulos ligam aqui no dia em que o contrato for assinado.`
-              : "Leva menos de um minuto. Você ativa os módulos que quiser depois, direto no painel."}
+              ? `Conta para a proposta de ${inicial.municipio}/${inicial.uf}. Já preenchemos o que você informou; falta o CNPJ e a senha. Os módulos ligam nesta conta quando o pagamento da primeira fatura for confirmado.`
+              : "Leva menos de um minuto. Os módulos são contratados por proposta e ligam nesta conta depois do pagamento da primeira fatura."}
           </p>
         </div>
 

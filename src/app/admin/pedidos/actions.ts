@@ -3,10 +3,10 @@
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { faturas, pedidosProposta, usuarios } from "@/db/schema";
-import { lerSessao } from "@/lib/sessao";
+import { faturas, pedidosProposta } from "@/db/schema";
+import { emailDaEquipe } from "@/lib/equipe";
 import { enviarEmail } from "@/lib/email";
-import { ehAdmin, PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
+import { PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import { formatarMoeda } from "@/lib/formatadores";
 import { dataCurta, hojeEmBrasilia, rotuloCompetencia } from "@/lib/cobranca";
 import { confirmarPagamento, criarPrimeiraFatura, emailFatura, registrarPasso, rodarCobranca } from "@/lib/cobranca-servidor";
@@ -19,10 +19,7 @@ export type ResultadoAdmin = { ok: true; aviso?: string } | { ok: false; erro: s
 
 
 async function autorAdmin(): Promise<string | null> {
-  const sessao = await lerSessao();
-  if (!sessao || sessao.demo) return null;
-  const [u] = await db.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, sessao.usuarioId)).limit(1);
-  return ehAdmin(u?.email) ? (u?.email ?? "equipe") : null;
+  return emailDaEquipe();
 }
 
 function revalidar() {
