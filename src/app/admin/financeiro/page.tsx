@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BotaoPainelTeste from "@/app/admin/teste/BotaoPainelTeste";
 import { notFound, redirect } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -70,6 +71,7 @@ export default async function AdminFinanceiroPage() {
             <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
             <span className="font-medium">Financeiro</span>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
+            <BotaoPainelTeste />
           </nav>
         </div>
 

@@ -12,7 +12,8 @@ import { headers } from "next/headers";
 import { BloqueioFinanceiro, FaixaFinanceira } from "@/components/AvisosFinanceiros";
 import { painelTravado, rotaLivreNaTrava } from "@/lib/cobranca";
 import { situacaoDaPrefeitura } from "@/lib/cobranca-servidor";
-import { PREFEITURA_EQUIPE_ID } from "@/lib/equipe";
+import { PREFEITURA_EQUIPE_ID, PREFEITURA_TESTE_ID } from "@/lib/equipe";
+import FaixaPainelTeste from "@/components/FaixaPainelTeste";
 
 const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
   saude: { href: "/dashboard/secretarias/saude", label: "Saúde", icone: "saude" },
@@ -236,6 +237,7 @@ export default async function DashboardLayout({
       <div className="flex-1 min-w-0 flex flex-col">
         <VoltarAoTopo />
         {sessao.demo && <FaixaDemo />}
+        {sessao.prefeituraId === PREFEITURA_TESTE_ID && <FaixaPainelTeste />}
         {!sessao.demo && <FaixaFinanceira situacao={situacaoFinanceira} />}
         <header className="md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
