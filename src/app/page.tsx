@@ -3,141 +3,84 @@ import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
 import { lerSessao } from "@/lib/sessao";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
-import { EXIGENCIAS } from "@/lib/diagnostico";
-import { modulosNaOrdemDaHome, SERIE_DO_MODULO } from "@/lib/modulos-detalhe";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
-import Reveal from "@/components/site/Reveal";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import BarraConversao from "@/components/site/BarraConversao";
 import PainelDemonstracao from "@/components/site/PainelDemonstracao";
-import Olho from "@/components/site/Olho";
-import BarraLeitura from "@/components/site/BarraLeitura";
-import NumerosVerificaveis from "@/components/site/NumerosVerificaveis";
-import PorDentro from "@/components/site/PorDentro";
-import BentoModulos from "@/components/site/BentoModulos";
-import FundoTematico from "@/components/site/FundoTematico";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
+import ReguaLrf from "@/components/site/inicio/ReguaLrf";
+import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import { municipioDoParametro } from "@/lib/fatos-do-municipio";
 import { ESTADOS } from "@/lib/estados";
-import { Inclinavel, Magnetico } from "@/components/site/Ponteiro";
-import { IMPLANTACAO } from "@/lib/textos-contratacao";
-import { FLUXO_ANTES, FLUXO_COM, type PassoFluxo } from "@/lib/fluxo-decisao";
-import {
-  IconCheck,
-  IconAlertas,
-  IconVisaoGeral,
-  IconSaude,
-  IconEducacao,
-  IconObras,
-  IconLicitacoes,
-} from "@/components/icons";
+import { Inclinavel } from "@/components/site/Ponteiro";
 
-// ── A ORDEM DA PÁGINA ──
+// ── A PÁGINA EM SEIS PARTES ──
 //
-// O que é → o que faz → por que não a incumbente → quanto custa → dá para
-// conferir → como sai do papel → antes de assinar.
+// Herói (o que é, para quem, e a régua da LRF) → de onde vem o dado → os seis
+// módulos → como funciona → o que dá para conferir → proposta e fecho.
 //
-// O detalhe dos módulos ficava na nona seção, DEPOIS do preço. Quem chegava
-// sem saber o que é o CidadeIA — um vereador, um assessor, alguém que não é o
-// jurídico — via o valor antes de entender o que estava comprando, e a página
-// só fazia sentido para quem já sabia. Agora o produto vem antes da conta.
-//
-// ── POR QUE 11 BLOCOS, E NÃO 15 ──
-//
-// A página cresceu por acréscimo, e três histórias tinham chegado partidas:
-//
-// "Kit de contratação", "Como contratar" e "Implantação" eram seções seguidas
-// contando pedaços da MESMA resposta — como isso sai do papel. Viraram uma só,
-// em três bandas na ordem em que acontece: decidir o caminho, montar o
-// processo, entrar no ar.
-//
-// "Objeções" e "Conformidade" serviam o mesmo leitor, o que confere antes de
-// assinar, e estavam separadas por uma terceira seção no meio. "E a LGPD?" é a
-// versão informal de uma linha da tabela de conformidade; responder nos dois
-// lugares, longe um do outro, fazia a página parecer desorganizada.
-//
-// "Diagnóstico — lembrete" repetia a oferta que ABRE a página, e o argumento
-// de honestidade que ela carregava já vive na lista de provas verificáveis.
-// Saiu inteira.
-//
-// "Para o cidadão" era uma seção com título grande, três cartões de direitos e
-// botão próprio, no meio do funil comercial. O morador precisava atravessar
-// hero de risco fiscal, módulos, tabela comparativa e calculadora de preço
-// para achar o que é dele — e dois públicos disputavam a mesma rolagem, sem
-// caminho claro para nenhum. O conteúdo mudou para /transparencia, que é a
-// página que ele de fato abre; aqui ficou uma faixa de duas linhas, porque
-// quem COMPRA também precisa saber que existe o outro lado.
+// O redesenho de outubro cortou o texto pela metade. Saíram "Como a decisão
+// acontece", "Um módulo por dentro" e "Como sai do papel": as três seguem
+// inteiras em /solucoes, /modulos e /como-contratar, e a home aponta para lá.
+// Saiu também a entrada animada de cada seção. Sobra um único momento de
+// movimento, no topo.
 
-const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
-  essencial: IconAlertas,
-  gestao: IconVisaoGeral,
-  saude: IconSaude,
-  educacao: IconEducacao,
-  obras: IconObras,
-  licitacoes: IconLicitacoes,
-};
-
-// ── O QUE O VISITANTE CONSEGUE CONFERIR AGORA ──
+// ── O QUE O VISITANTE CONSEGUE CONFERIR ──
 //
-// Sinais de que existe alguém do outro lado, sem inventar credencial que não
-// temos. Cada linha aponta para algo que o visitante abre e confere sozinho —
-// a única forma de autoridade disponível para quem ainda não tem carteira de
-// clientes para exibir.
-//
-// É uma FUNÇÃO, e não uma lista fixa, por causa do primeiro item. Ele afirmava
-// "O portal já está no ar — endereço público de um município real" mesmo sem
-// nenhum portal publicado, e os botões ao lado levavam a uma página que
-// respondia "Nenhum portal publicado ainda".
-//
-// Era o pior defeito possível nesta seção: ela existe justamente para dizer
-// "não peça fé, confira" — e a conferência levava dez segundos e desmentia a
-// promessa. Um servidor cético não faz a segunda checagem depois dessa.
-//
-// Enquanto não houver o primeiro município no ar, o item sai. No lugar entra o
-// Raio-X, que é prova de verdade: lê dado federal público de QUALQUER
-// município e responde na hora, inclusive o de quem está lendo.
+// Cada linha aponta para algo que o visitante abre sozinho. É função, e não
+// lista fixa, porque a primeira afirmação só pode aparecer quando houver
+// portal publicado de verdade (tests/promessas-da-home.test.ts).
 function autoridadeVerificavel(temPortalNoAr: boolean) {
   return [
     temPortalNoAr
       ? {
           titulo: "O portal já está no ar",
-          texto:
-            "Endereço público de um município real, aberto sem cadastro. Não é ambiente de demonstração montado para a visita.",
+          texto: "Endereço público de um município real, aberto sem cadastro.",
         }
       : {
-          titulo: "Confira com o seu próprio município",
-          texto:
-            "O Raio-X lê os dados que a União já publica sobre qualquer prefeitura do país e responde na hora. Digite a sua e veja o que sai. Sem cadastro, sem conversa com vendedor.",
+          titulo: "Teste com o seu município",
+          texto: "O Raio-X lê o dado que a União publica sobre qualquer prefeitura e responde na hora.",
         },
     {
       titulo: "O contrato é público antes da venda",
-      texto:
-        "Termo de referência, minuta e acordo de tratamento de dados ficam para download sem cadastro. Dá para o jurídico reprovar antes de você falar com a gente.",
+      texto: "Termo de referência, minuta e acordo de dados baixam sem cadastro.",
     },
     {
       titulo: "A saída está escrita",
-      texto:
-        "Exportação em CSV e JSON a qualquer momento, sem custo e sem pedir autorização. Quem prende cliente por dificuldade de sair não escreve isso na home.",
+      texto: "Exportação em CSV e JSON quando quiser, sem custo e sem pedir licença.",
     },
     {
-      titulo: "O diagnóstico admite o que não fazemos",
-      texto:
-        "Parte das exigências continua com a prefeitura mesmo contratando o sistema, e elas aparecem no resultado com nome e artigo.",
+      titulo: "O diagnóstico diz o que não fazemos",
+      texto: "O que continua com a prefeitura aparece no resultado, com o artigo da lei.",
     },
   ];
 }
 
+// Bases que o produto de fato lê, cada uma com o arquivo que a consome em
+// lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
+const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP"];
 
-// A comparação é o argumento mais forte da página: o visitante sente o que
-// perde ao escolher a alternativa. Cada linha é verificável.
-
+const PASSOS = [
+  {
+    titulo: "Escolha o município",
+    texto: "O que já é público entra sozinho. Não há nada para instalar na prefeitura.",
+  },
+  {
+    titulo: "O sistema confere",
+    texto: "Cada desvio aparece com o número, o prazo e o artigo de lei que ele fere.",
+  },
+  {
+    titulo: "Quem decide é avisado",
+    texto: "O aviso chega antes do relatório oficial, com o que fazer e a quem pedir.",
+  },
+];
 
 export default async function LandingPage({
   searchParams,
@@ -145,745 +88,277 @@ export default async function LandingPage({
   searchParams: Promise<{ m?: string; uf?: string }>;
 }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
-  // endereço vira a home inicial, não uma chamada à API pública do Tesouro.
+  // endereço vira a home inicial, não uma chamada à API do Tesouro.
   const parametros = await searchParams;
   const pedido = municipioDoParametro(parametros.m);
   const ufEscolhida =
     typeof parametros.uf === "string" && (ESTADOS as readonly string[]).includes(parametros.uf)
       ? parametros.uf
       : null;
-  // Município que não é da UF pedida é resto de uma troca de estado, não uma
-  // escolha: exibi-lo mostraria o número de um município com o seletor
-  // apontando para outro estado.
+  // Município de outra UF é resto de uma troca de estado, não uma escolha.
   const municipio = pedido && ufEscolhida && pedido.uf !== ufEscolhida ? null : pedido;
   await registrarEvento({ tipo: "visita", caminho: "/" });
 
-  // Aqui havia `if (sessao) redirect("/dashboard")`, e ele custava caro: quem
-  // já era cliente NÃO CONSEGUIA MAIS VER O SITE. Nem para conferir a própria
-  // página de transparência, nem para mostrar a um secretário, nem para
-  // revisar o que a página promete antes de uma reunião. Digitar o domínio
-  // levava ao painel, sempre, sem escapatória.
-  //
-  // A conveniência era real — cliente que digita o endereço quer o painel —
-  // mas virou prisão. Agora ela vive no cabeçalho: quem tem sessão vê "Ir
-  // para o painel" no lugar de "Entrar". Oferta em vez de imposição.
-  //
-  // A sessão é lida AQUI e passada ao cabeçalho, em vez de lida dentro dele:
-  // ler cookie no componente compartilhado tornaria dinâmica toda página que
-  // o usa — preços, FAQ, sobre, kit —, tirando todas do cache do CDN por
-  // causa do rótulo de um botão. Esta página já é dinâmica porque lista os
-  // portais publicados, então aqui a leitura não custa nada.
+  // A sessão é lida aqui e passada ao cabeçalho: ler cookie dentro dele
+  // tiraria do cache todas as outras páginas que o usam. Quem tem sessão vê
+  // "Ir para o painel"; a de demonstração não conta como cliente
+  // (tests/sessao-demo-nao-e-cliente.test.ts).
   const sessao = await lerSessao();
 
-  // Prova social é o eixo de conversão de toda govtech estabelecida, e é
-  // exatamente o que não temos. O substituto é prova VERIFICÁVEL: em vez de
-  // afirmar quantos clientes existem, mostramos portais que qualquer um abre
-  // agora. O número sai do banco — nunca é escrito à mão — e quando não há
-  // portal (ou o banco não responde) a página convida a conferir sem
-  // prometer quantidade nenhuma.
+  // Prova verificável no lugar de muro de logos: portais que qualquer um
+  // abre agora. Sem portal, a página convida ao Raio-X.
   const { portais } = await listarPortaisPublicados();
   const portalVitrine = portais[0] ?? null;
-  const modulos = modulosNaOrdemDaHome();
-
-
 
   return (
-    <div className="tema-noite min-h-screen overflow-x-hidden relative">
-      {/* Um filete que avança com a rolagem. Numa página longa, responde sem
-          palavras a pergunta que faz a pessoa desistir: "isso vai longe?".
-          Zero JavaScript — ver BarraLeitura.tsx. */}
-      <BarraLeitura />
-      <FundoTematico />
-
-      {/* Acima do fundo fixo, que vive em z-index -1. */}
-      <div className="relative z-10">
-        {/* `sessaoAtiva` vem daqui e não de `lerSessao()` dentro do cabeçalho:
-            a sessão de DEMONSTRAÇÃO não vale como cliente no site público, e a
-            distinção é feita aqui, uma vez. Travado por
-            tests/sessao-demo-nao-e-cliente.test.ts. */}
-        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
+    <div className="tema-noite pagina-inicial min-h-screen overflow-x-hidden relative">
+      <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
 
       <main id="conteudo">
         <BarraConversao />
 
-        {/* ═══ HERÓI — a oferta antes da descrição ═══ */}
-        <section data-tema="gestao" className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-16 sm:pb-20">
-          {/* ── O ESQUELETO MUDOU, NÃO SÓ A TINTA ──
+        {/* ═══ HERÓI ═══ */}
+        <section className="relative">
+          <div className="inicio-quadras absolute inset-0 pointer-events-none" aria-hidden />
 
-              Era uma grade de duas colunas: texto à esquerda, painel espremido
-              na direita. É a diagramação de SaaS que todo mundo usa, e era a
-              mesma de antes da troca de cores — o fundador apontou que as
-              referências não tinham sido seguidas, e estava certo.
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 pb-16 sm:pb-24">
+            <h1 className="inicio-titulo max-w-[13ch]">
+              <span className="linha"><span style={{ "--i": 0 } as React.CSSProperties}>Saiba o que o</span></span>
+              <span className="linha"><span style={{ "--i": 1 } as React.CSSProperties}>Tribunal de Contas</span></span>
+              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>vai apontar</span></span>
+              <span className="linha"><span style={{ "--i": 3 } as React.CSSProperties}>antes dele.</span></span>
+            </h1>
 
-              As dez referências do Dribbble têm uma estrutura em comum:
-              manchete grande e CENTRALIZADA, uma linha, um gesto embaixo, e o
-              produto aparecendo depois — largo, inclinado, ocupando a tela.
-              O produto é o herói; o texto apresenta. */}
-          <div className="max-w-4xl mx-auto text-center">
-            <Reveal>
-              <span
-                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] rounded-full px-4 py-2 border"
-                  style={{
-                    color: "var(--accent-claro)",
-                    background: "var(--accent-tint)",
-                    borderColor: "var(--info-borda)",
-                  }}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: "var(--accent)", boxShadow: "0 0 0 3px var(--accent-tint)" }}
-                  />
-                  Software de conformidade para prefeituras · LRF · LAI · LGPD
-                </span>
-
-              {/* ── O QUE É, PARA QUEM, EM CINCO SEGUNDOS ──
-                  A manchete anterior ("O Tribunal de Contas já está contando.")
-                  prendia o olho, mas não dizia o que é o CidadeIA nem para quem
-                  ele serve, e o subtítulo pedia duas leituras. O secretário que
-                  chega aqui decide em segundos se a página é para ele. Agora a
-                  manchete diz o ganho, o subtítulo diz o que é o produto e de
-                  onde vem o dado, e o gesto embaixo tem nome. */}
-              <h1 className="font-serif text-[2.3rem] leading-[1.04] sm:text-[4.2rem] lg:text-[4.9rem] sm:leading-[0.98] font-extrabold tracking-[-0.035em] mt-6 max-w-[20ch] mx-auto [text-wrap:balance]">
-                  Saiba o que o Tribunal de Contas vai apontar antes dele.
-                </h1>
-
-              <p className="text-foreground text-base sm:text-lg leading-relaxed mt-6 max-w-[52ch] mx-auto">
-                  O CidadeIA lê o que a sua prefeitura já envia ao Tesouro e mostra
-                  onde o município passou do limite e o que fazer. Contratação
-                  direta, sem licitação.
+            <div className="mt-12 sm:mt-16 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
+              <div className="inicio-aparece" style={{ "--d": "420ms" } as React.CSSProperties}>
+                <p className="inicio-lead text-muted max-w-[40ch]">
+                  <span className="text-foreground">Software de conformidade para prefeituras.</span>{" "}
+                  Ele lê o que o município já envia ao Tesouro e avisa antes de
+                  um limite da lei estourar.
                 </p>
 
-              {/* O gesto, centralizado embaixo da manchete, com nome. */}
-              <p className="mt-9 text-sm font-semibold" style={{ color: "var(--accent-claro)" }}>
-                Veja o Raio-X do seu município agora
-              </p>
-              <div className="mt-3 flex justify-center">
-                <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
-              </div>
-
-              <p className="text-xs text-muted mt-5">
-                  Sem cadastro e sem formulário. Dado público do Tesouro Nacional,
-                  exercício de {LIMITE_DISPENSA.ano}.
-                </p>
-            </Reveal>
-          </div>
-
-          {/* ── OS NÚMEROS COMO MOBÍLIA DO HERÓI ──
-
-              Ficavam numa faixa depois da dobra, em corpo pequeno, como
-              rodapé de seção. Em GANNET e AuraVox os números SÃO a dobra:
-              valores enormes em linha, rótulo pequeno embaixo. É o que dá
-              peso sem acrescentar uma linha de texto. */}
-          <Reveal delay={100}>
-            <div className="mt-14 sm:mt-16">
-              <NumerosVerificaveis />
-            </div>
-          </Reveal>
-
-          {/* ── O PRODUTO, LARGO E INCLINADO ──
-
-              Antes ocupava metade da dobra, do tamanho de um cartão. Aqui ele
-              é a imagem principal: largura quase cheia, perspectiva leve e um
-              brilho da marca por baixo, sangrando para fora do bloco. É o que
-              as referências fazem — o painel não ilustra o texto, ele É o
-              argumento. */}
-          <Reveal delay={140}>
-            <div className="palco-produto mt-14 sm:mt-16">
-              <Inclinavel intensidade={2} className="inclinavel-amplo">
-                {/* O painel dentro de um aparelho, não solto na página. O
-                    conteúdo continua HTML de verdade — legível, selecionável,
-                    com os números reais — que é o que separa uma demonstração
-                    de uma imagem de marketing. Ver a classe no globals.css. */}
-                <div className="moldura-dispositivo">
-                  <PainelDemonstracao />
-                </div>
-              </Inclinavel>
-            </div>
-          </Reveal>
-
-          {municipio && (
-            <div className="mt-14">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                {municipio.nome} · {municipio.uf}
-              </p>
-              <div className="grid md:grid-cols-3 gap-4 mt-3">
-                <Suspense fallback={<EsqueletoFato titulo="Despesa com pessoal" />}>
-                  <CarregaPessoal codigoIbge={municipio.codigo} />
-                </Suspense>
-                <Suspense
-                  fallback={
-                    <>
-                      <EsqueletoFato titulo="Aplicação em saúde e educação" />
-                      <EsqueletoFato titulo="Relatórios obrigatórios" />
-                    </>
-                  }
-                >
-                  <CarregaRreo municipio={municipio.nome} uf={municipio.uf} />
-                </Suspense>
-              </div>
-
-              {/* A trava. O que está acima é dado público e fica aberto; isto
-                  cobra o que é trabalho do software. */}
-              <div className="mt-4 max-w-2xl">
-                <PedirProjecao codigoIbge={municipio.codigo} municipio={municipio.nome} />
-              </div>
-
-              {/* ── O LIMITE, DITO NA TELA ──
-                  Sem carteira de clientes para exibir, confiança se constrói
-                  admitindo limite. A nota fica aqui, junto dos números, e não
-                  no rodapé: quem precisa dela é quem está lendo o número. */}
-              <p className="text-xs text-muted mt-5 leading-relaxed max-w-[64ch]">
-                O CidadeIA não substitui o parecer da contabilidade interna nem a assessoria
-                jurídica do município. A plataforma processa dado público oficial para apontar
-                desvio de rota antes que ele vire apontamento formal.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* ═══ O SISTEMA ═══
-            Aqui havia uma tarja de quatro leis, que repetia o cartão do herói
-            — ele já mostra a lei de cada bloco do diagnóstico. O espaço logo
-            abaixo da dobra passa a responder a pergunta que ela deixava em
-            aberto: afinal, o que é isto? */}
-        <div className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted">
-              Um sistema, seis áreas
-            </span>
-            {modulos.map(({ chave, nome }) => {
-              const Icone = ICONE_ADDON[chave];
-              return (
-                <Link
-                  key={chave}
-                  href="#solucoes"
-                  className="flex items-center gap-2 text-sm font-semibold hover:text-brand-claro transition"
-                >
-                  <Icone className="w-4 h-4 shrink-0" style={{ color: "var(--brand-claro)" }} />
-                  {nome}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ═══ SOLUÇÕES — o resumo; a página inteira é /solucoes ═══
-            Esta seção tinha os seis módulos com a lista completa de
-            capacidades, automação e três links cada — a mesma coisa que a
-            página de Soluções mostra. A home ficava comprida e repetida.
-            Agora ela apresenta os seis em uma grade curta e manda para a
-            página, como o "Premium" do Spotify: o botão abre, a home não
-            carrega tudo. A âncora #solucoes fica, porque há links antigos. */}
-        <section id="solucoes" data-tema="saude" className="border-y border-border scroll-mt-24" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-6">
-                <div>
-                  <Olho>Soluções</Olho>
-                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[16ch]">
-                    Contrate por área, não por pacote.
-                  </h2>
-                </div>
-                <p className="text-sm text-muted leading-relaxed max-w-sm">
-                  Seis módulos independentes. Um município de 8 mil habitantes não paga
-                  pelo que uma capital usa; sem limite de relatórios, sem cobrança por usuário.
-                </p>
-              </div>
-            </Reveal>
-
-            {/* ── BENTO GRID ──
-                Tiles de tamanhos diferentes porque os módulos têm pesos
-                diferentes: as duas bases ocupam o dobro, as quatro
-                secretarias entram como quadrados. Bento em que todo tile tem
-                o mesmo tamanho é só uma grade com cantos arredondados.
-
-                A aba ativa e o detalhe usam motion: realce que VIAJA entre
-                abas e saída animada são as duas coisas que CSS não faz, e são
-                o que paga os ~34 KB da biblioteca. Ver BentoModulos.tsx. */}
-            <Reveal delay={60}>
-              <div className="mt-10">
-                <BentoModulos
-                  modulos={modulos.map(({ chave, nome, detalhe }) => ({
-                    chave,
-                    nome,
-                    resumo: detalhe.resumo,
-                    capacidades: detalhe.capacidades.slice(0, 6),
-                    automacao: detalhe.automacao,
-                    href: `/modulos/${chave}`,
-                    serie: SERIE_DO_MODULO[chave],
-                    largo: chave === "essencial" || chave === "gestao",
-                  }))}
-                />
-              </div>
-            </Reveal>
-
-            <Reveal delay={200}>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                {/* Contornado, não cheio: a home tem dois botões cheios — diagnóstico
-                    no topo, proposta no fecho — e o teste de hierarquia trava isso. */}
-                <Link
-                  href="/solucoes"
-                  className="border border-border hover:border-brand font-bold text-sm rounded-xl px-6 py-3.5 transition hover:text-brand"
-                >
-                  Ver todas as soluções&nbsp;&nbsp;→
-                </Link>
-                <p className="text-sm text-muted">
-                  O que cada módulo entrega, o painel de cada um e o montador de proposta.
-                </p>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ═══ UM MÓDULO, POR DENTRO ═══
-            A seção de Soluções diz "seis módulos" e manda embora. Quem nunca
-            abriu o produto lê isso como seis telas de cadastro. Esta abre uma
-            delas inteira — do arquivo que entra ao ofício que sai. */}
-        <PorDentro />
-
-        {/* ═══ COMO A DECISÃO ACONTECE ═══
-            Aqui havia a tabela "A diferença" — nós contra as incumbentes em
-            preço, caminho legal, processo, exportação. Tudo sobre COMPRAR,
-            na página que deveria vender o produto. Ela foi para
-            /como-contratar. No lugar, o que o produto muda: o caminho entre
-            um dado e uma decisão, antes e depois. */}
-        <section data-tema="educacao" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <Reveal>
-            <div className="max-w-2xl">
-              <Olho>Como a decisão acontece</Olho>
-              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
-                Do dado à decisão, sem esperar o parecer.
-              </h2>
-              <p className="text-muted leading-relaxed mt-5 max-w-[52ch]">
-                O que muda não é o gráfico. É o caminho que um número faz até
-                virar uma decisão, e quanto tempo ele leva.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid md:grid-cols-2 gap-6 mt-10">
-            <Reveal>
-              <FluxoColuna titulo="Sem o CidadeIA" passos={FLUXO_ANTES} tom="neutro" />
-            </Reveal>
-            <Reveal delay={120}>
-              <FluxoColuna titulo="Com o CidadeIA" passos={FLUXO_COM} tom="brand" />
-            </Reveal>
-          </div>
-
-          <Reveal>
-            <p className="text-sm text-muted mt-8 max-w-[62ch] leading-relaxed">
-              Cada passo do lado direito é uma tela que existe: a Visão Geral
-              está desenhada no topo desta página, com a mesma lista. Quer ver
-              nós contra as incumbentes em preço, caminho legal e processo?{" "}
-              <Link href="/como-contratar" className="font-semibold text-brand hover:text-brand-claro transition">
-                Está em Como contratar →
-              </Link>
-            </p>
-          </Reveal>
-        </section>
-
-        {/* ═══ ORDEM: PROVA ANTES DA PROPOSTA ═══
-            O montador de proposta vinha antes da seção "confira". Pedir o
-            município e os módulos de quem ainda não decidiu se confia é
-            cobrar antes de mostrar. Agora a pessoa vê o que pode conferir e,
-            logo depois, monta a proposta com a dúvida já respondida. */}
-        {/* ═══ PROVA E AUTORIDADE ═══
-            Eram DUAS seções separadas — "Não peça fé, abra e confira" e "Não
-            temos cem prefeituras para mostrar" — dizendo a mesma coisa com
-            palavras diferentes, e ainda separadas por uma terceira seção no
-            meio, o que fazia a repetição parecer desorganização.
-
-            Fundidas: uma admissão, uma prova clicável e uma lista do que dá
-            para conferir. Saíram junto os três cartões de canais, que
-            repetiam o que as capacidades do módulo Essencial já detalham logo
-            acima.
-
-            O formato também muda de propósito. Depois de quatro seções em
-            grade de cartões, mais uma grade some no meio das outras — aqui é
-            lista, para o olho ter onde descansar. */}
-        <section data-tema="gestao" className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <div className="grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16">
-              <Reveal>
-                <div>
-                  <Olho>Quem está do outro lado</Olho>
-                  <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[18ch]">
-                    Não peça fé. Confira.
-                  </h2>
-                  {/* O título era "Não temos cem prefeituras para mostrar." A
-                      admissão é honesta e continua aqui, mas no texto: como
-                      manchete, a fraqueza era a primeira coisa que ficava na
-                      cabeça. O título agora diz o que a seção entrega. */}
-                  <p className="text-muted leading-relaxed mt-5 max-w-[46ch]">
-                    O CidadeIA é novo e não temos cem prefeituras para mostrar.
-                    Também não vamos pendurar aqui logotipo de município que não
-                    é cliente: autoridade emprestada quebra na primeira checagem
-                    do jurídico. Tudo abaixo você abre e confere sozinho.
+                <div className="mt-9">
+                  <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
+                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+                  <p className="text-xs text-muted mt-4">
+                    Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
+                    {LIMITE_DISPENSA.ano}.
                   </p>
-
-                  {/* A prova clicável fica junto da admissão, não numa seção
-                      própria. Município de verdade, nome na tela, endereço que
-                      responde — o mais perto de um muro de logos que dá para
-                      fazer com honestidade. */}
-                  {/* Sem nenhum portal, isto virava um "abrir um portal →"
-                      solto apontando para a página vazia. A seção inteira
-                      dizia "abra e confira" e entregava nada para abrir.
-
-                      Enquanto o primeiro município não sobe, o convite é o
-                      Raio-X — que responde de verdade, sobre a prefeitura de
-                      quem está lendo. */}
-                  <div className="flex flex-wrap items-center gap-3 mt-7">
-                    {portais.length > 0 ? (
-                      <>
-                        {portais.slice(0, 3).map((p) => (
-                          <Link
-                            key={p.slug}
-                            href={`/transparencia/${p.slug}`}
-                            className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3 transition"
-                          >
-                            <span
-                              className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse-soft"
-                              style={{ background: "var(--accent)" }}
-                            />
-                            {p.municipio} · {p.estado}
-                          </Link>
-                        ))}
-                        <Link
-                          href="/transparencia"
-                          className="text-sm font-semibold text-muted hover:text-foreground transition"
-                        >
-                          {portais.length > 3 ? "ver todos" : "abrir um portal"} →
-                        </Link>
-                      </>
-                    ) : (
-                      <Link
-                        href="/raio-x"
-                        className="inline-flex items-center gap-2.5 border border-border bg-white/[0.03] hover:bg-white/[0.07] hover:border-brand font-semibold text-sm rounded-xl px-5 py-3 transition"
-                      >
-                        Ver o Raio-X do seu município →
-                      </Link>
-                    )}
-                  </div>
                 </div>
-              </Reveal>
+              </div>
 
-              <Reveal delay={120}>
-                <ul className="flex flex-col">
-                  {autoridadeVerificavel(Boolean(portalVitrine)).map((a) => (
-                    <li
-                      key={a.titulo}
-                      className="flex gap-3.5 py-4 border-b border-border last:border-b-0 first:pt-0"
-                    >
-                      <IconCheck
-                        className="w-4 h-4 shrink-0 mt-1"
-                        style={{ color: "var(--accent)" }}
-                      />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm leading-snug">{a.titulo}</p>
-                        <p className="text-sm text-muted mt-1 leading-relaxed">{a.texto}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6">
-                  <Link
-                    href="/por-que-cidadeia"
-                    className="text-sm font-bold text-brand hover:text-brand-claro transition"
-                  >
-                    Por que o CidadeIA existe →
-                  </Link>
-                  <Link
-                    href="/proposta"
-                    className="text-sm font-semibold text-muted hover:text-foreground transition"
-                  >
-                    Falar com quem construiu
-                  </Link>
-                </div>
-              </Reveal>
+              <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
+                <ReguaLrf />
+              </div>
             </div>
+
+            {municipio && (
+              <div className="mt-16">
+                <p className="text-sm font-medium text-muted">
+                  {municipio.nome}, {municipio.uf}
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 mt-3">
+                  <Suspense fallback={<EsqueletoFato titulo="Despesa com pessoal" />}>
+                    <CarregaPessoal codigoIbge={municipio.codigo} />
+                  </Suspense>
+                  <Suspense
+                    fallback={
+                      <>
+                        <EsqueletoFato titulo="Aplicação em saúde e educação" />
+                        <EsqueletoFato titulo="Relatórios obrigatórios" />
+                      </>
+                    }
+                  >
+                    <CarregaRreo municipio={municipio.nome} uf={municipio.uf} />
+                  </Suspense>
+                </div>
+
+                {/* A trava: o que está acima é dado público e fica aberto;
+                    a projeção é trabalho do software. */}
+                <div className="mt-4 max-w-2xl">
+                  <PedirProjecao codigoIbge={municipio.codigo} municipio={municipio.nome} />
+                </div>
+
+                <p className="text-xs text-muted mt-5 leading-relaxed max-w-[64ch]">
+                  O CidadeIA não substitui o parecer da contabilidade interna nem a assessoria
+                  jurídica do município. Ele aponta o desvio antes que vire apontamento formal.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ═══ O PRODUTO ═══
+            O painel dentro de um aparelho, largo. É HTML de verdade, com os
+            números do exemplo, e não uma imagem de marketing. */}
+        <section className="relative max-w-[1200px] mx-auto px-4 sm:px-8">
+          <div className="palco-produto">
+            <Inclinavel intensidade={2} className="inclinavel-amplo">
+              <div className="moldura-dispositivo">
+                <PainelDemonstracao />
+              </div>
+            </Inclinavel>
+          </div>
+        </section>
+
+        {/* ═══ DE ONDE VEM O DADO ═══ */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20 sm:pt-28">
+          <div className="flex flex-col md:flex-row md:items-baseline gap-4 md:gap-12 border-t border-border pt-8">
+            <p className="text-sm text-muted shrink-0">Lê direto das bases oficiais</p>
+            <ul className="flex flex-wrap gap-x-10 gap-y-3">
+              {FONTES.map((f) => (
+                <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em] text-foreground/80">
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ═══ MÓDULOS ═══ */}
+        <section id="solucoes" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-12">
+            <h2 className="inicio-h2 max-w-[16ch]">
+              Seis áreas. Você contrata só as que usa.
+            </h2>
+            <p className="text-muted leading-relaxed max-w-[42ch]">
+              Cada módulo funciona sozinho. Sem pacote fechado e sem cobrança por usuário.
+            </p>
+          </div>
+          <IndiceModulos />
+          <Link href="/solucoes" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
+            Ver cada módulo em detalhe
+          </Link>
+        </section>
+
+        {/* ═══ COMO FUNCIONA ═══
+            Aqui a numeração é informação: são três passos em ordem. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+          <h2 className="inicio-h2 max-w-[18ch]">Do dado público à decisão.</h2>
+          <ol className="mt-14 grid md:grid-cols-3 gap-10 md:gap-8">
+            {PASSOS.map((p, i) => (
+              <li key={p.titulo} className="border-t border-border pt-6">
+                <span className="block text-5xl font-light tabular-nums tracking-[-0.05em] text-brand-claro">
+                  {i + 1}
+                </span>
+                <h3 className="mt-6 text-lg font-semibold tracking-[-0.02em]">{p.titulo}</h3>
+                <p className="mt-2 text-muted leading-relaxed max-w-[34ch]">{p.texto}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ═══ O QUE DÁ PARA CONFERIR ═══ */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+          <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16">
+            <div>
+              <h2 className="inicio-h2">Não peça fé. Confira.</h2>
+              <p className="text-muted leading-relaxed mt-6 max-w-[40ch]">
+                O CidadeIA é novo e ainda não temos cem prefeituras para mostrar.
+                Por isso, tudo ao lado você confere sem falar com ninguém.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 mt-8">
+                {portais.length > 0 ? (
+                  <>
+                    {portais.slice(0, 3).map((p) => (
+                      <Link
+                        key={p.slug}
+                        href={`/transparencia/${p.slug}`}
+                        className="inline-flex items-center gap-2.5 border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--info)" }} />
+                        {p.municipio}, {p.estado}
+                      </Link>
+                    ))}
+                    <Link href="/transparencia" className="inicio-sublinhado text-sm text-muted">
+                      {portais.length > 3 ? "Ver todos os portais" : "Abrir um portal"}
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    href="/raio-x"
+                    className="inline-flex items-center border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
+                  >
+                    Ver o Raio-X do seu município
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            <ul className="border-t border-border">
+              {autoridadeVerificavel(Boolean(portalVitrine)).map((a) => (
+                <li
+                  key={a.titulo}
+                  className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-8 gap-y-1 py-6 border-b border-border"
+                >
+                  <p className="font-semibold tracking-[-0.01em]">{a.titulo}</p>
+                  <p className="text-muted leading-relaxed">{a.texto}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
         {/* ═══ PROPOSTA ═══ */}
-        <section id="proposta" data-tema="licitacoes" className="border-y border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <Reveal>
-              <div className="text-center flex flex-col items-center gap-4 mb-10">
-                <Olho centrado>Proposta</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02]">
-                  Monte a sua proposta em dois passos.
-                </h2>
-                <p className="text-muted leading-relaxed max-w-[52ch]">
-                  Município e módulos. A proposta chega em até um dia útil, por
-                  módulo e pela faixa de habitantes do seu município, com o
-                  termo de referência pronto, sem reunião obrigatória.
-                </p>
-              </div>
-            </Reveal>
-            {/* Todo o conteúdo do antigo cartão do herói, inteiro, no lugar
-                onde ele trabalha: encostado no preço. Aqui o limite responde
-                "e eu posso comprar isso?"; lá em cima ele perguntava "quer
-                gastar 65 mil sem licitar?" antes de dizer o que o produto é. */}
-            <Reveal delay={80}>
-              <div className="vidro rounded-2xl p-6 sm:p-7 mb-6 grid sm:grid-cols-[auto_1fr] gap-6 sm:gap-8">
-                <div className="shrink-0">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
-                    Limite de dispensa · {LIMITE_DISPENSA.ano}
-                  </p>
-                  <p className="font-serif text-[2.4rem] leading-none font-extrabold tracking-[-0.05em] mt-2.5 tabular-nums">
-                    {formatarMoedaExata(LIMITE_DISPENSA.valor)}
-                  </p>
-                  <p className="text-xs text-muted mt-2">por contratação, no exercício</p>
-                </div>
-
-                <div className="sm:border-l border-border sm:pl-8">
-                  <ul className="flex flex-col gap-2.5">
-                    {[
-                      "Contratação direta, sem edital",
-                      "Termo de referência já redigido",
-                      LIMITE_DISPENSA.base,
-                    ].map((item) => (
-                      <li key={item} className="flex gap-2.5 text-sm leading-snug">
-                        <IconCheck
-                          className="w-4 h-4 shrink-0 mt-0.5"
-                          style={{ color: "var(--accent)" }}
-                        />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-muted leading-relaxed border-t border-border pt-4 mt-4">
-                    Atualizado pelo {LIMITE_DISPENSA.atualizadoPor}, vigente desde{" "}
-                    {LIMITE_DISPENSA.vigenteDesde} e reajustado todo ano. É vedado
-                    fracionar a despesa para caber no limite: o que conta é o total
-                    anual do objeto.
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={120}>
-              <MontadorProposta />
-            </Reveal>
+        <section id="proposta" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16 items-end mb-12">
+            <div>
+              <h2 className="inicio-h2 max-w-[16ch]">Proposta pronta em um dia útil.</h2>
+              <p className="text-muted leading-relaxed mt-6 max-w-[46ch]">
+                Escolha o município e os módulos. Valor, termo de referência e
+                minuta de contrato chegam no mesmo e-mail, sem reunião antes.
+              </p>
+            </div>
+            <div className="lg:border-l border-border lg:pl-10">
+              <p className="text-sm text-muted">Cabe na dispensa de licitação até</p>
+              <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
+                {formatarMoedaExata(LIMITE_DISPENSA.valor)}
+              </p>
+              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
+                por ano, em contratação direta. {LIMITE_DISPENSA.base}, valor do{" "}
+                {LIMITE_DISPENSA.atualizadoPor}.
+              </p>
+            </div>
           </div>
+          <MontadorProposta />
+        </section>
+
+        {/* ═══ FECHO ═══ */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-28 sm:py-40">
+          <h2 className="inicio-titulo max-w-[15ch]" style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)" }}>
+            Leve o processo pronto para a próxima reunião.
+          </h2>
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <Link
+              href="/proposta"
+              className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-8 py-4"
+            >
+              Receber proposta e kit
+            </Link>
+            <Link href="/kit" className="inicio-sublinhado text-muted">
+              Baixar só o kit de contratação
+            </Link>
+          </div>
+          <p className="mt-6 text-sm text-muted">Sem compromisso. O kit baixa sem cadastro.</p>
         </section>
 
         {/* ═══ A PORTA DO CIDADÃO ═══
-            Era uma SEÇÃO INTEIRA, com título grande, três cartões de direitos
-            e botão próprio. Duas coisas erradas nisso.
-
-            A primeira: o morador não deveria precisar atravessar hero de risco
-            fiscal, módulos, tabela comparativa e calculadora de preço para
-            achar o que é dele. O conteúdo mudou para /transparencia, que é a
-            página que ele de fato abre — os três direitos, com a lei ao lado,
-            agora aparecem ANTES da lista de municípios.
-
-            A segunda: dois públicos disputavam a mesma rolagem. O secretário
-            de fazenda e o morador liam a mesma página, e nenhum dos dois tinha
-            caminho claro. Separar deu a cada um o seu.
-
-            Sobra aqui esta faixa, e ela tem trabalho: quem compra precisa
-            saber que existe o outro lado — é metade do argumento de
-            conformidade. Uma faixa diz isso em duas linhas; uma seção gastava
-            uma tela inteira para dizer o mesmo. */}
-        <section data-tema="essencial" className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
-            <Reveal>
-              <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-4">
-                <p className="text-sm text-muted leading-relaxed max-w-[62ch]">
-                  <span className="text-foreground font-semibold">
-                    O morador tem entrada própria.
-                  </span>{" "}
-                  Ver para onde vai o dinheiro, acompanhar um pedido pelo número
-                  e denunciar sem se identificar, sem cadastro, sem login e sem
-                  passar por esta página de vendas.
-                </p>
-                <Link
-                  href="/transparencia"
-                  className="shrink-0 text-sm font-semibold text-muted hover:text-brand-claro transition"
-                >
-                  Portal do cidadão&nbsp;&nbsp;→
-                </Link>
-              </div>
-            </Reveal>
+            Quem compra precisa saber que o outro lado existe; o morador tem a
+            página dele em /transparencia e não precisa atravessar esta. */}
+        <section className="border-t border-border">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-8 flex flex-wrap items-center justify-between gap-x-10 gap-y-3">
+            <p className="text-sm text-muted max-w-[62ch]">
+              <span className="text-foreground font-medium">É morador?</span> Veja para onde
+              vai o dinheiro, acompanhe um pedido ou faça uma denúncia sem se identificar.
+            </p>
+            <Link href="/transparencia" className="inicio-sublinhado text-sm text-muted shrink-0">
+              Portal do cidadão
+            </Link>
           </div>
         </section>
+      </main>
 
-        {/* ═══ COMO SAI DO PAPEL — resumo ═══
-            Aqui havia uma tela e meia: os três caminhos legais, o kit
-            baixável e os quatro passos da implantação. Tudo isso continua
-            existindo, em /como-contratar. A home fica com os quatro passos,
-            que respondem à única pergunta que cabe aqui — "e depois que eu
-            decidir?" — e manda para a página quem quiser o resto. */}
-        <section id="como-contratar" data-tema="obras" className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-20">
-          <Reveal>
-            <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4 mb-8">
-              <div>
-                <Olho>Como sai do papel</Olho>
-                <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] mt-5 max-w-[20ch]">
-                  Da assinatura ao portal no ar.
-                </h2>
-              </div>
-              <p className="text-sm text-muted leading-relaxed max-w-xs">
-                Sem licitação de infraestrutura, sem servidor na prefeitura e
-                sem equipe de tecnologia dedicada.
-              </p>
-            </div>
-          </Reveal>
-          <div className="cascata grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {IMPLANTACAO.map((p, i) => (
-              <Reveal key={p.n} delay={i * 90}>
-                <div
-                  className="h-full border rounded-2xl p-6 flex flex-col gap-3"
-                  style={{
-                    background: p.fim ? "var(--accent-tint)" : "var(--card)",
-                    borderColor: p.fim ? "var(--info-borda)" : "var(--border)",
-                  }}
-                >
-                  <span
-                    className="font-serif text-sm font-extrabold tracking-widest"
-                    style={{ color: p.fim ? "var(--accent-claro)" : "var(--brand-claro)" }}
-                  >
-                    {p.n}
-                  </span>
-                  <h3 className="font-semibold text-sm">{p.titulo}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{p.texto}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal>
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-8 text-sm font-semibold">
-              <Link href="/como-contratar" className="text-muted hover:text-brand-claro transition">
-                Os três caminhos legais e o kit pronto&nbsp;&nbsp;→
-              </Link>
-              <Link href="/conformidade" className="text-muted hover:text-brand-claro transition">
-                O que a lei exige, exigência por exigência&nbsp;&nbsp;→
-              </Link>
-            </div>
-          </Reveal>
-        </section>
-        {/* ═══ FECHO ═══ */}
-        <section data-tema="licitacoes" className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
-          <Reveal>
-            <div className="vidro rounded-3xl p-10 sm:p-14 text-center">
-              <span
-                className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.12em] rounded-full px-4 py-2 border mb-6"
-                style={{
-                  color: "var(--medio)",
-                  background: "var(--medio-tint)",
-                  borderColor: "var(--medio-borda)",
-                }}
-              >
-                O exercício de {LIMITE_DISPENSA.ano} não espera
-              </span>
-
-              <h2 className="font-serif text-3xl sm:text-[2.9rem] font-extrabold tracking-[-0.04em] leading-[1.02] max-w-[20ch] mx-auto">
-                Leve o processo pronto para a próxima reunião.
-              </h2>
-
-              <p className="text-muted leading-relaxed mt-5 max-w-[46ch] mx-auto">
-                Proposta com o valor anual, termo de referência, minuta de
-                contrato e certidões, no mesmo e-mail, sem reunião antes.
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-                <Magnetico>
-                  <Link
-                    href="/proposta"
-                    className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 shadow-elevated"
-                  >
-                    Receber proposta e kit&nbsp;&nbsp;→
-                  </Link>
-                </Magnetico>
-                {/* Aqui havia "Criar conta grátis". A conta é criada mesmo,
-                    mas nasce sem nenhum módulo, e o botão de ativar aponta
-                    para um checkout que ainda não existe
-                    (VARIAVEL_AMBIENTE_POR_PLANO em lib/planos.ts cai numa URL
-                    de exemplo). Era a segunda ação mais visível da página
-                    levando a um beco sem saída. Volta quando o checkout
-                    estiver configurado. */}
-                <Link
-                  href="/kit"
-                  className="border border-border bg-white/[0.03] hover:bg-white/[0.07] font-semibold text-sm rounded-xl px-6 py-4 transition"
-                >
-                  Só o kit, por enquanto
-                </Link>
-              </div>
-
-              <p className="text-xs text-muted mt-5">
-                Sem compromisso · o kit baixa sem cadastro
-              </p>
-            </div>
-          </Reveal>
-        </section>
-
-        </main>
-
-        <SiteFooter />
-      </div>
+      <SiteFooter />
     </div>
   );
 }
-
-/**
- * Linha etiquetada dentro do card de módulo.
- *
- * Separa visualmente o que é regra determinística ("Automático") do que é
- * chamada ao modelo ("IA"). Fundir as duas na mesma frase venderia um `if`
- * como inteligência artificial.
- */
-function FluxoColuna({
-  titulo,
-  passos,
-  tom,
-}: {
-  titulo: string;
-  passos: PassoFluxo[];
-  tom: "neutro" | "brand";
-}) {
-  const brand = tom === "brand";
-  return (
-    <div
-      className="h-full rounded-2xl border p-6 sm:p-7"
-      style={{
-        background: brand ? "var(--brand-tint)" : "var(--card)",
-        borderColor: brand ? "var(--brand)" : "var(--border)",
-      }}
-    >
-      <p
-        className="text-[11px] font-bold uppercase tracking-wider"
-        style={{ color: brand ? "var(--brand-claro)" : "var(--muted)" }}
-      >
-        {titulo}
-      </p>
-      <ol className="mt-5 flex flex-col">
-        {passos.map((p, i) => (
-          <li key={p.titulo} className="grid grid-cols-[28px_1fr] gap-x-3.5">
-            <div className="flex flex-col items-center">
-              <span
-                className="w-7 h-7 rounded-full grid place-items-center text-xs font-extrabold font-serif shrink-0"
-                style={{
-                  background: brand ? "var(--brand)" : "var(--superficie)",
-                  color: brand ? "var(--sobre-forte)" : "var(--muted)",
-                }}
-              >
-                {i + 1}
-              </span>
-              {i < passos.length - 1 && (
-                <span className="w-px flex-1 my-1" style={{ background: brand ? "var(--brand)" : "var(--border)", opacity: 0.5 }} />
-              )}
-            </div>
-            <div className={i < passos.length - 1 ? "pb-5" : ""}>
-              <p className="font-semibold text-sm leading-snug">{p.titulo}</p>
-              <p className="text-sm text-muted leading-relaxed mt-1">{p.detalhe}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-/** Olho editorial: rótulo curto com um traço, marcando o início da seção. */

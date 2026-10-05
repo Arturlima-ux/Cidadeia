@@ -1125,3 +1125,102 @@ h1.font-serif,
   letter-spacing: -0.04em;
   font-weight: 800;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HOME — redesenho de outubro de 2026
+   Uma família só (Geist), escala curta e um único momento de movimento:
+   o título sobe linha a linha e a régua da LRF corre até o valor. O resto
+   da página fica parado de propósito.
+   ═══════════════════════════════════════════════════════════════════════ */
+.pagina-inicial {
+  --font-titulo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-corpo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-corpo);
+  font-feature-settings: "ss03";
+}
+
+.inicio-titulo {
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  font-size: clamp(2.55rem, 7.4vw, 6.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.048em;
+}
+.inicio-titulo .linha {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.07em;
+  margin-bottom: -0.07em;
+}
+.inicio-titulo .linha > span {
+  display: block;
+  animation: inicio-linha-sobe 1.05s var(--saida) both;
+  animation-delay: calc(var(--i, 0) * 95ms + 60ms);
+}
+@keyframes inicio-linha-sobe {
+  from { transform: translateY(108%); }
+  to { transform: none; }
+}
+
+.inicio-aparece {
+  animation: inicio-aparece 0.9s var(--saida) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes inicio-aparece {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.inicio-h2 {
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.4vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.042em;
+}
+
+.inicio-lead {
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  line-height: 1.55;
+  letter-spacing: -0.008em;
+}
+
+/* A quadra: a malha de lotes de uma planta urbana, quase invisível, atrás do
+   título. É o desenho da marca (MarcaQuadra) virado textura, e some nas
+   bordas para não virar papel quadriculado. */
+.inicio-quadras {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 88px 88px;
+  background-position: -1px -1px;
+  opacity: 0.45;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 35%, black 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 35%, black 0%, transparent 72%);
+}
+
+.inicio-sublinhado {
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 0.28em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s var(--saida), color 0.2s var(--saida);
+}
+.inicio-sublinhado:hover {
+  color: var(--foreground);
+  text-decoration-color: var(--brand-claro);
+}
+
+.inicio-linha-modulo {
+  transition: background-color 0.25s var(--saida);
+}
+.inicio-linha-modulo:hover {
+  background-color: var(--sutil);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inicio-titulo .linha > span,
+  .inicio-aparece {
+    animation: none;
+  }
+}

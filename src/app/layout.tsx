@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
@@ -16,6 +17,16 @@ const fonteTitulo = Plus_Jakarta_Sans({
 const publicSans = Public_Sans({
   subsets: ["latin"],
   variable: "--font-public-sans",
+  display: "swap",
+});
+
+// Geist, servida do próprio projeto (licença OFL em app/fontes). Vive só na
+// home por enquanto, pela classe .pagina-inicial; o resto do site segue no
+// par acima até o redesenho chegar lá.
+const geist = localFont({
+  src: "./fontes/Geist.woff2",
+  variable: "--font-geist",
+  weight: "100 900",
   display: "swap",
 });
 
@@ -55,7 +66,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable}`}
+      className={`h-full antialiased ${fonteTitulo.variable} ${publicSans.variable} ${geist.variable}`}
     >
       <head>
         {/* ── MARCA QUE O JAVASCRIPT EXISTE ──

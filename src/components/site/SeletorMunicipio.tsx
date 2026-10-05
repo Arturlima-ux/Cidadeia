@@ -61,7 +61,7 @@ export default function SeletorMunicipio({
           disabled={municipios.length === 0}
           className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-brand disabled:opacity-50"
         >
-          <option value="">{ufAtual ? "Selecione" : "Escolha o estado primeiro"}</option>
+          <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
           {municipios.map((m) => (
             <option key={m.codigo} value={m.codigo}>
               {m.nome}
@@ -72,7 +72,7 @@ export default function SeletorMunicipio({
 
       <button
         type="submit"
-        className="elevar bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
+        className="elevar w-full sm:w-auto bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
         style={{ color: "var(--sobre-forte)" }}
       >
         Ver o Raio-X
