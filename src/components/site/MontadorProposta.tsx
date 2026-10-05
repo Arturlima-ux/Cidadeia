@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
+import MolduraFogo from "@/components/site/MolduraFogo";
 import { ESTADOS } from "@/lib/estados";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
@@ -89,36 +90,51 @@ export default function MontadorProposta({
   }
 
   // ── ACENDE QUANDO CHEGA ──
-  // O quadro entra apagado e acende quando o topo dele passa do terço de
-  // baixo da tela, logo depois do subtítulo. Uma vez só: depois fica aceso.
+  // O quadro entra apagado. Assim que ele aparece na tela, a moldura pega
+  // fogo no meio da borda de cima, os dois rastros descem e se encontram
+  // embaixo (MolduraFogo), e no encontro o quadro acende. Uma vez só.
+  // Quem pediu menos movimento no sistema vê o quadro já aceso.
   const quadro = useRef<HTMLDivElement>(null);
+  const [queimando, setQueimando] = useState(false);
   const [aceso, setAceso] = useState(false);
   const [ligando, setLigando] = useState(false);
+  const espera = useRef<number | undefined>(undefined);
   useEffect(() => {
     const el = quadro.current;
     if (!el) return;
-    let espera: number | undefined;
     const obs = new IntersectionObserver(
       (entradas) => {
-        if (entradas.some((e) => e.isIntersecting)) {
-          setAceso(true);
-          setLigando(true);
-          espera = window.setTimeout(() => setLigando(false), 2400);
-          obs.disconnect();
-        }
+        if (!entradas.some((e) => e.isIntersecting)) return;
+        obs.disconnect();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setAceso(true);
+        else setQueimando(true);
       },
-      { rootMargin: "0px 0px -30% 0px" }
+      { rootMargin: "0px 0px -12% 0px" }
     );
     obs.observe(el);
     return () => {
       obs.disconnect();
-      window.clearTimeout(espera);
+      window.clearTimeout(espera.current);
     };
   }, []);
 
+  function aoEncontrar() {
+    setAceso(true);
+    setLigando(true);
+    espera.current = window.setTimeout(() => setLigando(false), 1600);
+  }
+
   return (
-    <div ref={quadro} data-aceso={aceso ? "1" : "0"}
-      data-ligando={ligando ? "1" : "0"} className="montador-vivo border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]">
+    <div className="relative">
+    {queimando && (
+      <MolduraFogo alvo={quadro} onEncontro={aoEncontrar} onFim={() => setQueimando(false)} />
+    )}
+    <div
+      ref={quadro}
+      data-aceso={aceso ? "1" : "0"}
+      data-ligando={ligando ? "1" : "0"}
+      className="montador-vivo border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]"
+    >
       {/* ── escolhas ── */}
       <div className="p-6 sm:p-9 flex flex-col gap-9">
         <fieldset className="flex flex-col gap-3">
@@ -199,7 +215,7 @@ export default function MontadorProposta({
 
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="montador-numero tabular-nums" style={{ "--atraso": "0.25s" } as React.CSSProperties}>2</span>
+            <span className="montador-numero tabular-nums" style={{ "--atraso": "0.12s" } as React.CSSProperties}>2</span>
             <span className="text-lg font-semibold tracking-[-0.02em]">Módulos que a prefeitura vai usar</span>
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -211,7 +227,7 @@ export default function MontadorProposta({
                   type="button"
                   onClick={() => alternar(p.chave)}
                   aria-pressed={ativo}
-                  style={{ "--atraso": `${0.55 + i * 0.12}s` } as React.CSSProperties}
+                  style={{ "--atraso": `${0.15 + i * 0.07}s` } as React.CSSProperties}
                   className="montador-modulo flex items-center gap-3 text-left rounded-xl border-[1.5px] border-border px-4 py-3"
                 >
                   <span
@@ -309,6 +325,7 @@ export default function MontadorProposta({
           </Link>
         </div>
       </div>
+    </div>
     </div>
   );
 }

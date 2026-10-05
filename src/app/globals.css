@@ -1273,20 +1273,19 @@ h1.font-serif,
 }
 
 /* ── O MONTADOR DE PROPOSTA ACENDE ──
-   O quadro chega apagado (as cores certas, sem luz) e acende quando entra
-   na tela, logo depois do subtítulo: halo em volta, como lâmpada ligando,
-   o resumo ganha o degradê e os módulos marcados acendem um por um.
-
-   Quem liga é o MontadorProposta (IntersectionObserver), escrevendo
-   data-aceso="1". Acende uma vez e fica aceso. As camadas de luz são
-   pseudo-elementos com opacity: o navegador anima isso fora do layout. */
+   O quadro chega apagado (as cores certas, sem luz). Quando entra na tela,
+   a moldura pega fogo (MolduraFogo.tsx, num canvas por cima): os dois
+   rastros saem do topo e se encontram no meio da borda de baixo. No
+   encontro, o MontadorProposta escreve data-aceso="1" e a luz de dentro
+   se abre a partir desse ponto, de baixo para cima, como um clarão que
+   enche o quadro. Acende uma vez e fica aceso. */
 .montador-vivo {
   position: relative;
   isolation: isolate;
   background: var(--card);
   border-color: var(--border);
   box-shadow: 0 0 0 0 transparent;
-  transition: border-color 1.2s ease, box-shadow 1.6s ease;
+  transition: border-color 0.5s ease, box-shadow 1s ease;
 }
 .montador-vivo::before {
   content: "";
@@ -1296,8 +1295,9 @@ h1.font-serif,
   pointer-events: none;
   background:
     radial-gradient(70% 55% at 0% 0%, color-mix(in oklab, var(--brand) 34%, transparent), transparent 70%),
-    radial-gradient(50% 40% at 70% 100%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%);
-  opacity: 0;
+    radial-gradient(60% 60% at 50% 100%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%);
+  clip-path: circle(0% at 50% 100%);
+  transition: clip-path 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .montador-vivo[data-aceso="1"] {
   border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
@@ -1307,43 +1307,7 @@ h1.font-serif,
     0 0 140px -40px color-mix(in oklab, var(--accent) 50%, transparent);
 }
 .montador-vivo[data-aceso="1"]::before {
-  animation: montador-liga 1.1s ease-out forwards;
-}
-
-/* Lâmpada ligando: pisca duas vezes antes de firmar. */
-@keyframes montador-liga {
-  0% { opacity: 0; }
-  12% { opacity: 0.7; }
-  20% { opacity: 0.15; }
-  32% { opacity: 0.9; }
-  40% { opacity: 0.4; }
-  100% { opacity: 1; }
-}
-
-/* Faixa de luz que atravessa o quadro uma vez, quando acende. */
-.montador-vivo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    color-mix(in oklab, var(--accent) 22%, transparent) 48%,
-    color-mix(in oklab, white 14%, transparent) 50%,
-    color-mix(in oklab, var(--accent) 22%, transparent) 52%,
-    transparent 65%
-  );
-  transform: translateX(-110%);
-  opacity: 0;
-}
-.montador-vivo[data-aceso="1"]::after {
-  animation: montador-varre 1.4s 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-@keyframes montador-varre {
-  0% { transform: translateX(-110%); opacity: 1; }
-  100% { transform: translateX(110%); opacity: 1; }
+  clip-path: circle(150% at 50% 100%);
 }
 
 .montador-resumo {
@@ -1361,11 +1325,13 @@ h1.font-serif,
     radial-gradient(90% 55% at 100% 0%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 65%),
     radial-gradient(80% 50% at 0% 100%, color-mix(in oklab, var(--brand) 45%, transparent), transparent 70%),
     linear-gradient(165deg, color-mix(in oklab, var(--brand) 55%, var(--brand-profundo)), var(--brand-profundo) 75%);
-  opacity: 0;
-  transition: opacity 1.4s ease 0.5s;
+  /* O encontro é no meio da borda de baixo do quadro inteiro, à esquerda
+     deste painel: a luz entra por ali. */
+  clip-path: circle(0% at -60% 100%);
+  transition: clip-path 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s;
 }
 [data-aceso="1"] .montador-resumo::before {
-  opacity: 1;
+  clip-path: circle(260% at -60% 100%);
 }
 
 .montador-numero {
@@ -1398,7 +1364,7 @@ h1.font-serif,
 [data-aceso="1"] .montador-campo {
   background: color-mix(in oklab, var(--brand) 6%, transparent);
   border-color: color-mix(in oklab, var(--brand) 28%, var(--border));
-  transition-delay: 0.4s, 0.4s, 0s;
+  transition-delay: 0.15s, 0.15s, 0s;
 }
 .montador-campo:focus {
   border-color: var(--brand);
@@ -1455,7 +1421,7 @@ h1.font-serif,
   color: color-mix(in oklab, white 60%, transparent);
   background: color-mix(in oklab, white 8%, transparent);
   border: 1px dashed color-mix(in oklab, white 25%, transparent);
-  transition: color 0.8s ease 0.9s, background-color 0.8s ease 0.9s, border-color 0.8s ease 0.9s;
+  transition: color 0.6s ease 0.35s, background-color 0.6s ease 0.35s, border-color 0.6s ease 0.35s;
 }
 [data-aceso="1"] .montador-cta-espera {
   color: color-mix(in oklab, white 75%, transparent);
@@ -1465,14 +1431,9 @@ h1.font-serif,
 
 /* Sem movimento: acende direto, sem piscar nem varrer. */
 @media (prefers-reduced-motion: reduce) {
-  .montador-vivo[data-aceso="1"]::before {
-    animation: none;
-    opacity: 1;
-  }
-  .montador-vivo::after,
-  .montador-vivo[data-aceso="1"]::after {
-    animation: none;
-    display: none;
+  .montador-vivo::before,
+  .montador-resumo::before {
+    transition: none;
   }
   [data-aceso="1"] .montador-modulo[aria-pressed="true"] {
     animation: none;
