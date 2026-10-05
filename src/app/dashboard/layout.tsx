@@ -256,7 +256,7 @@ export default async function DashboardLayout({
                 {sessao.nome}
               </p>
               <p className="text-xs text-muted truncate">
-                {prefeitura.municipio} / {prefeitura.estado}
+                {prefeitura.municipio}{prefeitura.estado !== "--" ? ` / ${prefeitura.estado}` : ""}
               </p>
             </div>
           </Link>
