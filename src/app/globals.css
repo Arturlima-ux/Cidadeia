@@ -1185,18 +1185,35 @@ h1.font-serif,
   letter-spacing: -0.008em;
 }
 
-/* A quadra: a malha de lotes de uma planta urbana, quase invisível, atrás do
-   título. É o desenho da marca (MarcaQuadra) virado textura, e some nas
-   bordas para não virar papel quadriculado. */
-.inicio-quadras {
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 88px 88px;
-  background-position: -1px -1px;
-  opacity: 0.45;
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 35%, black 0%, transparent 72%);
-  mask-image: radial-gradient(ellipse 70% 60% at 30% 35%, black 0%, transparent 72%);
+/* O mapa vivo do topo. No desktop ocupa a metade direita e desce até a
+   régua; no celular fica atrás do título, mais apagado. A máscara apaga as
+   bordas para os pontos não cortarem seco. */
+.inicio-mapa {
+  top: 10px;
+  left: 50%;
+  width: 420px;
+  height: 420px;
+  transform: translateX(-50%);
+  opacity: 0.35;
+}
+@media (min-width: 640px) {
+  .inicio-mapa {
+    width: 560px;
+    height: 560px;
+    left: auto;
+    right: 0;
+    transform: none;
+    opacity: 0.45;
+  }
+}
+@media (min-width: 1024px) {
+  .inicio-mapa {
+    top: 0;
+    right: max(24px, calc((100vw - 1200px) / 2 + 8px));
+    width: 580px;
+    height: 560px;
+    opacity: 1;
+  }
 }
 
 .inicio-sublinhado {

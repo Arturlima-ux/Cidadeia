@@ -15,6 +15,8 @@ import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
+import MapaVivo from "@/components/site/inicio/MapaVivo";
+import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
@@ -120,7 +122,12 @@ export default async function LandingPage({
 
         {/* ═══ HERÓI ═══ */}
         <section className="relative">
-          <div className="inicio-quadras absolute inset-0 pointer-events-none" aria-hidden />
+          {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
+              do título no celular, e some nas bordas para não brigar com o
+              texto. Ver MapaVivo.tsx. */}
+          <div className="inicio-mapa absolute pointer-events-none" aria-hidden>
+            <MapaVivo destaque={municipio ? indiceNoMapa(municipio.codigo) : null} className="w-full h-full" />
+          </div>
 
           <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 pb-16 sm:pb-24">
             <h1 className="inicio-titulo max-w-[13ch]">
