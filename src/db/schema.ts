@@ -907,10 +907,26 @@ export const pedidosProposta = pgTable("pedidos_proposta", {
   // assinado, módulos ativados na conta). Quem avança o status é a equipe,
   // em /admin/pedidos — nunca o cliente, nunca um pagamento online.
   prefeituraId: text("prefeitura_id"),
-  status: text("status", { enum: ["recebido", "proposta_enviada", "contratado"] })
+  // ── O CAMINHO ATÉ O DINHEIRO (outubro de 2026) ──
+  // recebido → proposta_enviada → em_contratacao (a prefeitura abriu o
+  // processo) → contratado (contrato e empenho registrados, primeira fatura
+  // emitida) → ativo (primeiro pagamento confirmado: os módulos ligam).
+  // perdido encerra em qualquer ponto. A regra de cobrança está em
+  // lib/cobranca.ts.
+  status: text("status", {
+    enum: ["recebido", "proposta_enviada", "em_contratacao", "contratado", "ativo", "perdido"],
+  })
     .notNull()
     .default("recebido"),
   contratadoEm: text("contratado_em"),
+  numeroContrato: text("numero_contrato"),
+  numeroEmpenho: text("numero_empenho"),
+  /** Valor mensal do contrato. Pode diferir da tabela (negociação, aditivo). */
+  valorContratado: doublePrecision("valor_contratado"),
+  /** Dia do mês em que vencem as mensalidades. */
+  diaVencimento: integer("dia_vencimento").notNull().default(10),
+  ativadoEm: text("ativado_em"),
+  motivoPerda: text("motivo_perda"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),
@@ -1097,6 +1113,44 @@ export const eventos = pgTable("eventos", {
   origem: text("origem"),
   dispositivo: text("dispositivo", { enum: ["movel", "computador"] }).notNull(),
   criadoEm: text("criado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── A LINHA DO TEMPO DE UM PEDIDO ──
+// Cada passo, de quem pediu a proposta ao último pagamento: quando, o quê e
+// quem fez. É o que a equipe lê para saber onde cada venda está parada.
+export const pedidoEventos = pgTable("pedido_eventos", {
+  id: text("id").primaryKey(),
+  pedidoId: text("pedido_id").notNull(),
+  tipo: text("tipo").notNull(),
+  descricao: text("descricao").notNull(),
+  autor: text("autor").notNull(),
+  criadoEm: text("criado_em")
+    .notNull()
+    .default(sql`now()::text`),
+}).enableRLS();
+
+// ── FATURAS ──
+// Uma por mês de contrato, mensal e antecipada (lib/cobranca.ts). Quem marca
+// "paga" é a equipe, depois de ver o dinheiro: prefeitura paga por ordem
+// bancária, sem gateway que avise sozinho.
+export const faturas = pgTable("faturas", {
+  id: text("id").primaryKey(),
+  pedidoId: text("pedido_id").notNull(),
+  competencia: text("competencia").notNull(), // AAAA-MM
+  valor: doublePrecision("valor").notNull(),
+  vencimento: text("vencimento").notNull(), // AAAA-MM-DD
+  status: text("status", { enum: ["aberta", "paga", "cancelada"] })
+    .notNull()
+    .default("aberta"),
+  pagaEm: text("paga_em"),
+  formaPagamento: text("forma_pagamento"),
+  notaFiscal: text("nota_fiscal"),
+  observacao: text("observacao"),
+  /** Último aviso por e-mail enviado ao cliente sobre esta fatura. */
+  avisoEnviado: text("aviso_enviado"),
+  createdAt: text("created_at")
     .notNull()
     .default(sql`now()::text`),
 }).enableRLS();

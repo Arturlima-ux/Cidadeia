@@ -127,7 +127,7 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
       `<p><strong>Protocolo:</strong> ${protocolo}<br/><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "a definir")}</p>`,
       `<p>A proposta e o termo de referência, prontos para o jurídico, chegam neste e-mail em até um dia útil.</p>`,
       `<p>Acompanhe o andamento quando quiser: <a href="${base}/proposta/acompanhar?protocolo=${protocolo}">${base}/proposta/acompanhar</a> (protocolo + este e-mail).</p>`,
-      `<p>Se quiser adiantar, crie a conta da prefeitura — é nela que os módulos são ativados no dia em que o contrato for assinado: <a href="${base}/cadastro?proposta=${id}">criar a conta</a>.</p>`,
+      `<p>Se quiser adiantar, crie a conta da prefeitura — é nela que os módulos são ativados quando o pagamento da primeira fatura for confirmado: <a href="${base}/cadastro?proposta=${id}">criar a conta</a>.</p>`,
       `<p style="color:#888">CidadeIA · dado público do SICONFI e do IBGE.</p>`,
     ].join("\n"),
   });

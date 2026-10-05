@@ -223,7 +223,7 @@ variável CSS:
 | `src/lib/relatorios/*` | PDF. O renderizador não tem CSS do documento |
 | `src/app/api/kit/[documento]/route.ts` | documento gerado |
 | `src/lib/og-imagem.tsx` | imagem de compartilhamento, renderizada fora do navegador |
-| `src/lib/pedido-proposta.ts`, `src/app/raio-x/lead-actions.ts`, `src/app/admin/pedidos/actions.ts`, `src/instrumentation.ts` | HTML de e-mail. Cliente de e-mail não suporta variável CSS |
+| `src/lib/pedido-proposta.ts`, `src/app/raio-x/lead-actions.ts`, `src/lib/cobranca-servidor.ts`, `src/instrumentation.ts` | HTML de e-mail. Cliente de e-mail não suporta variável CSS |
 | `src/app/global-error.tsx` | substitui o layout raiz; a folha de estilo pode não ter carregado |
 | `src/components/site/SiteFooter.tsx` | a marca sobre o rodapé, que é escuro nos dois temas |
 | `src/components/FaixaDemo.tsx` | o selo de demonstração é âmbar fixo de propósito: ele precisa destoar do tema, não acompanhá-lo |

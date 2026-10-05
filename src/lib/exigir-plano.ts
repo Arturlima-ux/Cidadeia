@@ -28,6 +28,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { prefeituras } from "@/db/schema";
 import { temPlano, NOME_PLANO_ADDON, type PlanoAddon } from "@/lib/planos";
+import { painelTravado } from "@/lib/cobranca";
+import { situacaoDaPrefeitura } from "@/lib/cobranca-servidor";
 
 export type PlanoConferido =
   | { ok: true; cnpj: string; municipio: string; estado: string }
@@ -58,6 +60,11 @@ export async function exigirPlano(
   if (!p) return { ok: false, erro: "Prefeitura não encontrada." };
   if (!temPlano(p.planosContratados, addon)) {
     return { ok: false, erro: `O plano ${NOME_PLANO_ADDON[addon]} não está contratado.` };
+  }
+  // A trava financeira vale também para as ações, não só para as telas: com
+  // a conta suspensa, importação e gravação param até o pagamento.
+  if (painelTravado(await situacaoDaPrefeitura(prefeituraId))) {
+    return { ok: false, erro: "Conta suspensa por mensalidade em atraso. Veja Financeiro, no painel." };
   }
   return { ok: true, cnpj: p.cnpj, municipio: p.municipio, estado: p.estado };
 }

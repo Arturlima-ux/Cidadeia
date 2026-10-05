@@ -42,7 +42,9 @@ describe("trilha de auditoria", () => {
   });
 
   it("a ativação de módulos pela equipe entra na trilha da prefeitura", () => {
-    const fonte = readFileSync("src/app/admin/pedidos/actions.ts", "utf8");
+    // Desde outubro de 2026 a ativação acontece na confirmação do primeiro
+    // pagamento, que mora em lib/cobranca-servidor.ts.
+    const fonte = readFileSync("src/lib/cobranca-servidor.ts", "utf8");
     expect(fonte).toContain("db.insert(auditoria)");
     expect(fonte).toContain('acao: "ativar"');
   });
