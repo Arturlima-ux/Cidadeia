@@ -89,14 +89,12 @@ export default function MontadorProposta({
   }
 
   return (
-    <div className="bg-card border border-border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]">
+    <div className="montador-vivo border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]">
       {/* ── escolhas ── */}
       <div className="p-6 sm:p-9 flex flex-col gap-9">
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="text-2xl font-light tabular-nums tracking-[-0.04em] text-brand-claro w-6">
-              1
-            </span>
+            <span className="montador-numero tabular-nums">1</span>
             <span className="text-lg font-semibold tracking-[-0.02em]">Seu município</span>
           </legend>
           <div className="flex flex-wrap items-end gap-2 mb-1">
@@ -107,7 +105,7 @@ export default function MontadorProposta({
                 value={municipio}
                 onChange={(e) => setMunicipio(e.target.value)}
                 placeholder="Ex.: Teresina"
-                className="w-full rounded-xl border border-border bg-transparent px-3.5 py-2.5 text-sm outline-none focus:border-brand"
+                className="montador-campo w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none"
               />
             </label>
             <label className="w-24">
@@ -116,7 +114,7 @@ export default function MontadorProposta({
                 id="proposta-uf"
                 value={uf}
                 onChange={(e) => setUf(e.target.value)}
-                className="w-full rounded-xl border border-border bg-transparent px-2.5 py-2.5 text-sm outline-none focus:border-brand"
+                className="montador-campo w-full rounded-xl border px-2.5 py-2.5 text-sm outline-none"
               >
                 <option value="">—</option>
                 {ESTADOS.map((e) => (
@@ -130,7 +128,7 @@ export default function MontadorProposta({
               type="button"
               onClick={descobrirPorte}
               disabled={consultando || municipio.trim().length < 2 || !uf}
-              className="text-sm font-medium rounded-full border border-border px-4 py-2.5 hover:border-brand hover:text-brand-claro transition disabled:opacity-50"
+              className="montador-campo text-sm font-medium rounded-full border px-4 py-2.5 hover:border-brand hover:text-brand-claro disabled:opacity-60"
             >
               {consultando ? "Consultando o IBGE…" : "Descobrir o porte"}
             </button>
@@ -172,9 +170,7 @@ export default function MontadorProposta({
 
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="text-2xl font-light tabular-nums tracking-[-0.04em] text-brand-claro w-6">
-              2
-            </span>
+            <span className="montador-numero tabular-nums">2</span>
             <span className="text-lg font-semibold tracking-[-0.02em]">Módulos que a prefeitura vai usar</span>
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -186,12 +182,10 @@ export default function MontadorProposta({
                   type="button"
                   onClick={() => alternar(p.chave)}
                   aria-pressed={ativo}
-                  className={`flex items-center gap-3 text-left rounded-xl border-[1.5px] px-4 py-3 transition ${
-                    ativo ? "border-brand bg-brand-tint" : "border-border hover:border-brand/40"
-                  }`}
+                  className="montador-modulo flex items-center gap-3 text-left rounded-xl border-[1.5px] border-border px-4 py-3"
                 >
                   <span
-                    className={`w-[18px] h-[18px] rounded-[5px] shrink-0 flex items-center justify-center border-[1.5px] transition ${
+                    className={`montador-check w-[18px] h-[18px] rounded-[5px] shrink-0 flex items-center justify-center border-[1.5px] transition ${
                       ativo ? "bg-brand border-brand" : "border-border"
                     }`}
                   >
@@ -218,8 +212,7 @@ export default function MontadorProposta({
           a promessa que substitui a tabela: proposta em um dia útil, sem
           reunião obrigatória, com o termo de referência pronto. */}
       <div
-        className="p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-border"
-        style={{ background: "var(--brand-profundo)" }}
+        className="montador-resumo p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-white/10"
       >
         <h3 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h3>
 
@@ -230,7 +223,7 @@ export default function MontadorProposta({
           </p>
         ) : (
           <>
-            <div className="rounded-xl border border-white/20 bg-white/[0.06] p-4">
+            <div className="rounded-xl border border-white/20 bg-white/[0.08] p-4 backdrop-blur-sm">
               <p className="text-xs text-white/60">Município</p>
               <p className="font-semibold mt-0.5">{achado?.split(":")[0] ?? municipio}</p>
               <p className="text-xs text-white/70 mt-1">
@@ -262,14 +255,14 @@ export default function MontadorProposta({
           {identificado ? (
             <Link
               href={linkProposta}
-              className="bg-white text-[color:var(--brand-profundo)] font-semibold text-sm rounded-full px-5 py-3.5 text-center hover:opacity-90 transition"
+              className="montador-cta font-semibold text-sm rounded-full px-5 py-3.5 text-center"
             >
               Receber esta proposta e o termo de referência
             </Link>
           ) : (
             <span
               aria-disabled
-              className="bg-white/30 text-[color:var(--brand-profundo)] font-semibold text-sm rounded-full px-5 py-3.5 text-center cursor-not-allowed"
+              className="montador-cta-espera font-semibold text-sm rounded-full px-5 py-3.5 text-center cursor-not-allowed"
             >
               Informe o município para pedir a proposta
             </span>
