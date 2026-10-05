@@ -17,6 +17,7 @@ import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
+import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro } from "@/lib/fatos-do-municipio";
 import { ESTADOS } from "@/lib/estados";
 import { Inclinavel } from "@/components/site/Ponteiro";
@@ -148,7 +149,14 @@ export default async function LandingPage({
               </div>
 
               <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
-                <ReguaLrf />
+                {/* Com município escolhido, a régua corre o número dele. */}
+                {municipio ? (
+                  <Suspense fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}>
+                    <CarregaRegua codigoIbge={municipio.codigo} municipio={municipio.nome} />
+                  </Suspense>
+                ) : (
+                  <ReguaLrf />
+                )}
               </div>
             </div>
 
