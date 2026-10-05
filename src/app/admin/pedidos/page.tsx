@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BotaoPainelTeste from "@/app/admin/teste/BotaoPainelTeste";
 import { notFound, redirect } from "next/navigation";
 import { asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -118,8 +119,8 @@ export default async function AdminPedidosPage({
             <span className="font-medium">Pedidos</span>
             <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
-            <Link href="/dashboard" className="text-muted hover:text-foreground">Painel</Link>
-          </nav>
+            <BotaoPainelTeste />
+                      </nav>
         </div>
 
         {/* O caminho inteiro, numa linha. */}
