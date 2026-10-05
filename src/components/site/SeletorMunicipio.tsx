@@ -1,5 +1,6 @@
 import { municipiosDaUf, type Municipio } from "@/lib/municipios";
 import { ESTADOS } from "@/lib/estados";
+import { regioesComoMunicipios } from "@/lib/regioes-df";
 import EnviaAoTrocar from "@/components/site/EnviaAoTrocar";
 
 // ── O GESTO ÚNICO DO HERÓI ──
@@ -63,11 +64,30 @@ export default function SeletorMunicipio({
           className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-brand disabled:opacity-50"
         >
           <option value="">{ufAtual ? "Selecione" : "Primeiro o estado"}</option>
-          {municipios.map((m) => (
-            <option key={m.codigo} value={m.codigo}>
-              {m.nome}
-            </option>
-          ))}
+          {ufAtual === "DF" ? (
+            // O DF tem um município só; as regiões administrativas vêm logo
+            // abaixo, com os números do DF inteiro (lib/regioes-df.ts).
+            <>
+              {municipios.map((m) => (
+                <option key={m.codigo} value={m.codigo}>
+                  {m.nome} (todo o Distrito Federal)
+                </option>
+              ))}
+              <optgroup label="Regiões administrativas">
+                {regioesComoMunicipios().map((r) => (
+                  <option key={r.codigo} value={r.codigo}>
+                    {r.nome}
+                  </option>
+                ))}
+              </optgroup>
+            </>
+          ) : (
+            municipios.map((m) => (
+              <option key={m.codigo} value={m.codigo}>
+                {m.nome}
+              </option>
+            ))
+          )}
         </select>
         <EnviaAoTrocar />
       </label>

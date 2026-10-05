@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import Link from "next/link";
 import { montarRaioX } from "@/lib/raio-x";
+import { AVISO_DF, ehDistritoFederal } from "@/lib/regioes-df";
 import RaioXResultado from "@/components/site/RaioXResultado";
 import SolucoesDoRaioX from "@/components/site/SolucoesDoRaioX";
 import Reveal from "@/components/site/Reveal";
@@ -37,6 +38,19 @@ export default async function DadosDoTesouro({
   uf: string;
   codigoIbge: string;
 }) {
+  // O DF não presta contas como município (lib/regioes-df.ts): a consulta
+  // voltaria vazia e a tela acusaria o GDF de não publicar relatórios.
+  if (ehDistritoFederal(uf)) {
+    return (
+      <p
+        className="rounded-2xl border px-5 py-4 text-sm leading-relaxed"
+        style={{ borderColor: "var(--info-borda)", background: "var(--info-tint)" }}
+      >
+        {AVISO_DF}
+      </p>
+    );
+  }
+
   // Corta a geração estática exatamente aqui: o que está acima deste
   // componente — cabeçalho, população, porte, vizinhos — deixa de esperar.
   await connection();
