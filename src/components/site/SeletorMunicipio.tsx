@@ -20,8 +20,8 @@ import EnviaAoTrocar from "@/components/site/EnviaAoTrocar";
 // Aqui o servidor já tem a tabela e manda só os municípios do estado escolhido
 // (umas duas centenas). Sem estado selecionado, a segunda caixa vem vazia e o
 // visitante escolhe o estado primeiro — dois envios, nenhum JavaScript
-// obrigatório. Com JavaScript, `EnviaAoTrocar` envia sozinho na troca do
-// estado e vira um gesto só.
+// obrigatório. Com JavaScript, `EnviaAoTrocar` atualiza a página sozinho na
+// troca do estado e do município, sem botão.
 
 export default function SeletorMunicipio({
   uf,
@@ -56,6 +56,7 @@ export default function SeletorMunicipio({
       <label className="flex flex-col gap-1.5 min-w-0 flex-1">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted">Município</span>
         <select
+          key={ufAtual}
           name="m"
           defaultValue={inicial?.codigo ?? ""}
           disabled={municipios.length === 0}
@@ -68,6 +69,7 @@ export default function SeletorMunicipio({
             </option>
           ))}
         </select>
+        <EnviaAoTrocar />
       </label>
 
       <button

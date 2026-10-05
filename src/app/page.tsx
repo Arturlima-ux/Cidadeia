@@ -158,7 +158,10 @@ export default async function LandingPage({
               <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
                 {/* Com município escolhido, a régua corre o número dele. */}
                 {municipio ? (
-                  <Suspense fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}>
+                  <Suspense
+                    key={municipio.codigo}
+                    fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
+                  >
                     <CarregaRegua codigoIbge={municipio.codigo} municipio={municipio.nome} />
                   </Suspense>
                 ) : (
