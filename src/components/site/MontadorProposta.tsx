@@ -5,7 +5,6 @@ import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
-import MolduraBrasil from "@/components/site/MolduraBrasil";
 import { ESTADOS } from "@/lib/estados";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
@@ -20,12 +19,9 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
 
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
-  destaque = null,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
-  /** Índice no mapa do município escolhido no topo da home: ele monta a moldura primeiro. */
-  destaque?: number | null;
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -92,32 +88,37 @@ export default function MontadorProposta({
     );
   }
 
-  // ── O BRASIL VIRA A MOLDURA ──
-  // O quadro entra apagado. Conforme a pessoa rola, os 5.570 municípios
-  // saem do mapa do Brasil e montam a borda, de cima para baixo pelos dois
-  // lados, fechando embaixo quando o quadro inteiro cabe na tela
-  // (MolduraBrasil). No fechamento, o quadro acende. Uma vez só.
+  // ── ACENDE QUANDO CHEGA ──
+  // O quadro entra apagado e acende assim que o topo dele aparece na tela,
+  // logo depois do subtítulo. Uma vez só: depois fica aceso.
   const quadro = useRef<HTMLDivElement>(null);
   const [aceso, setAceso] = useState(false);
   const [ligando, setLigando] = useState(false);
-  const espera = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(espera.current), []);
-
-  function aoAcender() {
-    setAceso(true);
-    setLigando(true);
-    espera.current = window.setTimeout(() => setLigando(false), 1600);
-  }
+  useEffect(() => {
+    const el = quadro.current;
+    if (!el) return;
+    let espera: number | undefined;
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        if (entradas.some((e) => e.isIntersecting)) {
+          setAceso(true);
+          setLigando(true);
+          espera = window.setTimeout(() => setLigando(false), 2400);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" }
+    );
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      window.clearTimeout(espera);
+    };
+  }, []);
 
   return (
-    <div className="relative">
-    <MolduraBrasil alvo={quadro} destaque={destaque} onAceso={aoAcender} />
-    <div
-      ref={quadro}
-      data-aceso={aceso ? "1" : "0"}
-      data-ligando={ligando ? "1" : "0"}
-      className="montador-vivo border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]"
-    >
+    <div ref={quadro} data-aceso={aceso ? "1" : "0"}
+      data-ligando={ligando ? "1" : "0"} className="montador-vivo border rounded-[28px] overflow-hidden grid lg:grid-cols-[1fr_380px]">
       {/* ── escolhas ── */}
       <div className="p-6 sm:p-9 flex flex-col gap-9">
         <fieldset className="flex flex-col gap-3">
@@ -198,7 +199,7 @@ export default function MontadorProposta({
 
         <fieldset className="flex flex-col gap-3">
           <legend className="flex items-center gap-2.5 mb-3">
-            <span className="montador-numero tabular-nums" style={{ "--atraso": "0.12s" } as React.CSSProperties}>2</span>
+            <span className="montador-numero tabular-nums" style={{ "--atraso": "0.25s" } as React.CSSProperties}>2</span>
             <span className="text-lg font-semibold tracking-[-0.02em]">Módulos que a prefeitura vai usar</span>
           </legend>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -210,7 +211,7 @@ export default function MontadorProposta({
                   type="button"
                   onClick={() => alternar(p.chave)}
                   aria-pressed={ativo}
-                  style={{ "--atraso": `${0.15 + i * 0.07}s` } as React.CSSProperties}
+                  style={{ "--atraso": `${0.3 + i * 0.08}s` } as React.CSSProperties}
                   className="montador-modulo flex items-center gap-3 text-left rounded-xl border-[1.5px] border-border px-4 py-3"
                 >
                   <span
@@ -308,7 +309,6 @@ export default function MontadorProposta({
           </Link>
         </div>
       </div>
-    </div>
     </div>
   );
 }
