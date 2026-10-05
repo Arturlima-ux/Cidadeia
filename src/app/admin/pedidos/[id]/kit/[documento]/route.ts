@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { pedidosProposta, usuarios } from "@/db/schema";
-import { lerSessao } from "@/lib/sessao";
-import { ehAdmin } from "@/lib/pedidos";
+import { pedidosProposta } from "@/db/schema";
+import { emailDaEquipe } from "@/lib/equipe";
 import { documentoPorChave, documentoPreenchido, type Documento, type Bloco } from "@/lib/kit-contratacao";
 import { documentoDoPedido } from "@/lib/kit-do-pedido";
 import { empresaDoAmbiente } from "@/lib/proposta-comercial";
@@ -54,15 +53,7 @@ export async function GET(
   req: Request,
   ctx: { params: Promise<{ id: string; documento: string }> }
 ) {
-  const sessao = await lerSessao();
-  if (!sessao || sessao.demo) return NextResponse.redirect(new URL("/login", req.url));
-  const [u] = await db
-    .select({ email: usuarios.email })
-    .from(usuarios)
-    .where(eq(usuarios.id, sessao.usuarioId))
-    .limit(1);
-  // 404 e não 403: quem não é da equipe não precisa saber que esta rota existe.
-  if (!ehAdmin(u?.email)) return NextResponse.json({ erro: "Não encontrado." }, { status: 404 });
+  if (!(await emailDaEquipe())) return NextResponse.json({ erro: "Não encontrado." }, { status: 404 });
 
   const { id, documento: chave } = await ctx.params;
   if (!/^prop_[A-Za-z0-9_-]{4,64}$/.test(id)) {

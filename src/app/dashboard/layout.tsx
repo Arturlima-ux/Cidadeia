@@ -12,6 +12,7 @@ import { headers } from "next/headers";
 import { BloqueioFinanceiro, FaixaFinanceira } from "@/components/AvisosFinanceiros";
 import { painelTravado, rotaLivreNaTrava } from "@/lib/cobranca";
 import { situacaoDaPrefeitura } from "@/lib/cobranca-servidor";
+import { PREFEITURA_EQUIPE_ID } from "@/lib/equipe";
 
 const NAV_ITEMS_SECRETARIA: Record<string, NavItem> = {
   saude: { href: "/dashboard/secretarias/saude", label: "Saúde", icone: "saude" },
@@ -176,6 +177,8 @@ export default async function DashboardLayout({
   const sessao = await lerSessao();
   if (!sessao) redirect("/login");
 
+  // A conta da equipe não é prefeitura: o painel dela é /admin.
+  if (sessao.prefeituraId === PREFEITURA_EQUIPE_ID) redirect("/admin/pedidos");
   const prefeitura = await buscarPrefeitura(sessao.prefeituraId);
   if (!prefeitura) {
     // Sessão válida (assinatura ok) mas apontando pra um registro que não

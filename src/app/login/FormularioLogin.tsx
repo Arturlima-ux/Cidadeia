@@ -1,5 +1,6 @@
 "use client";
 
+import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { fazerLogin } from "./actions";
@@ -51,17 +52,14 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
 
       <div className="relative w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-10">
-          <h1 className="font-serif text-3xl font-bold text-foreground">
-            Cidade
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "var(--gradient-hero)" }}
-            >
-              IA
-            </span>
+          {/* A marca do site no lugar de "Cidade" + "IA" com gradiente, que
+              sumia no tema escuro. */}
+          <h1 className="flex justify-center">
+            <span className="sr-only">CidadeIA</span>
+            <MarcaCompleta tamanho={34} />
           </h1>
-          <p className="text-sm text-muted mt-2">
-            Inteligência Artificial para Gestão Pública
+          <p className="text-sm text-muted mt-4">
+            Gestão pública com dado oficial
           </p>
         </div>
 

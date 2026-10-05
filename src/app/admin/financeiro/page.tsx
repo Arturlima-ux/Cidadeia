@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { faturas, pedidosProposta, usuarios } from "@/db/schema";
+import { faturas, pedidosProposta } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
-import { ehAdmin } from "@/lib/pedidos";
+import { emailDaEquipe } from "@/lib/equipe";
 import { formatarMoeda } from "@/lib/formatadores";
 import {
   CARENCIA_DIAS,
@@ -27,10 +27,8 @@ export const dynamic = "force-dynamic";
 // liga os módulos (primeira fatura) ou destrava a conta (as seguintes).
 
 export default async function AdminFinanceiroPage() {
-  const sessao = await lerSessao();
-  if (!sessao || sessao.demo) redirect("/login");
-  const [u] = await db.select({ email: usuarios.email }).from(usuarios).where(eq(usuarios.id, sessao.usuarioId)).limit(1);
-  if (!ehAdmin(u?.email)) notFound();
+  if (!(await lerSessao())) redirect("/login");
+  if (!(await emailDaEquipe())) notFound();
 
   const hoje = hojeEmBrasilia();
   const linhas = await db

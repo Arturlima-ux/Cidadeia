@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { eq, gte, sql } from "drizzle-orm";
+import { gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { eventos, usuarios } from "@/db/schema";
-import { lerSessao } from "@/lib/sessao";
-import { ehAdmin } from "@/lib/pedidos";
+import { eventos } from "@/db/schema";
+import { emailDaEquipe } from "@/lib/equipe";
 import { notFound } from "next/navigation";
 import {
   montarFunil,
@@ -54,15 +53,8 @@ export default async function MedicaoPage({
 }: {
   searchParams: Promise<{ dias?: string }>;
 }) {
-  const sessao = await lerSessao();
-  if (!sessao || sessao.demo) notFound();
-  const [u] = await db
-    .select({ email: usuarios.email })
-    .from(usuarios)
-    .where(eq(usuarios.id, sessao.usuarioId))
-    .limit(1);
   // 404 e não 403: quem não é da equipe não precisa saber que esta tela existe.
-  if (!ehAdmin(u?.email)) notFound();
+  if (!(await emailDaEquipe())) notFound();
 
   const pedido = Number((await searchParams).dias);
   const dias = PERIODOS.some((p) => p.dias === pedido) ? pedido : 30;
