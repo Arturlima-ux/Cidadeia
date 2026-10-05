@@ -3,9 +3,12 @@ import { REGIOES_DF, regioesComoMunicipios, regiaoPorCodigo, ehRegiaoDf, codigoD
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 
 describe("regiões administrativas do DF", () => {
-  it("são as 35 oficiais, sem repetição", () => {
-    expect(REGIOES_DF.length).toBe(35);
-    expect(new Set(REGIOES_DF).size).toBe(35);
+  it("são as 37 oficiais, sem repetição", () => {
+    // 35 até 2022; 26 de Setembro e Ponte Alta sancionadas em 3/7/2026.
+    expect(REGIOES_DF.length).toBe(37);
+    expect(new Set(REGIOES_DF).size).toBe(37);
+    expect(REGIOES_DF).toContain("26 de Setembro");
+    expect(REGIOES_DF).toContain("Ponte Alta");
     expect(REGIOES_DF).toContain("Ceilândia");
     expect(REGIOES_DF).toContain("Água Quente");
   });
