@@ -8,6 +8,7 @@ import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MontadorProposta from "@/components/site/MontadorProposta";
+import VideoExplicativo from "@/components/site/VideoExplicativo";
 import BarraConversao from "@/components/site/BarraConversao";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
@@ -295,6 +296,24 @@ export default async function LandingPage({
               ))}
             </ul>
           </div>
+        </section>
+
+        {/* ═══ O VÍDEO ═══
+            Trinta segundos, entre a prova e o pedido: o último empurrão, e o
+            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+          <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8">
+            <h2 className="inicio-h2 max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
+            <p className="text-muted leading-relaxed max-w-[40ch]">
+              Para assistir agora, ou mandar para quem decide.
+            </p>
+          </div>
+          <VideoExplicativo
+            src="/video/cidadeia-explicativo.mp4"
+            srcWebm="/video/cidadeia-explicativo.webm"
+            capa="/video/cidadeia-explicativo.jpg"
+            titulo="O CidadeIA em 30 segundos: o aviso antes do limite da LRF, os seis módulos e a proposta em um dia útil."
+          />
         </section>
 
         {/* ═══ PROPOSTA ═══ */}
