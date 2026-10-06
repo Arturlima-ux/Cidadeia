@@ -23,13 +23,13 @@ export default function VitrinePortal() {
   const deCem = Math.round((GASTO / RECEITA) * 100);
 
   return (
-    <Surgir>
+    <Surgir className="max-w-[920px] mx-auto">
       <div
-        className="rounded-[28px] border border-border overflow-hidden"
+        className="rounded-[22px] border border-border overflow-hidden"
         style={{ background: "var(--superficie)", boxShadow: "0 40px 120px -40px color-mix(in oklab, var(--brand) 55%, transparent)" }}
       >
         {/* barra do navegador */}
-        <div className="flex items-center gap-3 px-4 sm:px-5 py-3 border-b border-border" style={{ background: "var(--card)" }}>
+        <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border" style={{ background: "var(--card)" }}>
           <div className="flex gap-1.5" aria-hidden>
             {[0, 1, 2].map((i) => (
               <span key={i} className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--sutil)" }} />
@@ -46,29 +46,29 @@ export default function VitrinePortal() {
           </Link>
         </div>
 
-        <div className="p-5 sm:p-8 lg:p-10 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-10">
+        <div className="p-4 sm:p-6 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-5 lg:gap-6">
           {/* a voz da cidade */}
           <div className="min-w-0">
             <p className="text-sm text-muted">Prefeitura Municipal · Bela Aurora</p>
-            <p className="text-2xl sm:text-4xl font-semibold tracking-[-0.04em] leading-tight mt-2">
+            <p className="text-xl sm:text-2xl font-semibold tracking-[-0.035em] leading-tight mt-1.5">
               A cidade fala. <span style={{ color: "var(--brand-claro)" }}>A prefeitura responde.</span>
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-6">
+            <div className="grid grid-cols-4 gap-2 mt-4">
               {[
                 { n: <Contador valor={voz.total} />, r: "mensagens", cor: "var(--foreground)" },
                 { n: <><Contador valor={voz.percentualRespondido} />%</>, r: "respondidas", cor: "var(--info)" },
                 { n: voz.diasMedioResposta === null ? "—" : <Contador valor={voz.diasMedioResposta} formato="decimal" />, r: "dias para responder", cor: "var(--brand-claro)" },
                 { n: <Contador valor={voz.elogios} />, r: "elogios", cor: "var(--medio)" },
               ].map((c) => (
-                <div key={c.r} className="rounded-2xl border border-border p-4" style={{ background: "var(--card)" }}>
-                  <p className="text-3xl font-semibold tracking-[-0.05em]" style={{ color: c.cor }}>
+                <div key={c.r} className="rounded-xl border border-border p-2.5 sm:p-3" style={{ background: "var(--card)" }}>
+                  <p className="text-xl sm:text-2xl font-semibold tracking-[-0.05em]" style={{ color: c.cor }}>
                     {c.n}
                   </p>
-                  <p className="text-xs text-muted mt-1">{c.r}</p>
+                  <p className="text-[11px] text-muted mt-0.5 leading-tight">{c.r}</p>
                 </div>
               ))}
             </div>
-            <div className="flex h-2.5 rounded-full overflow-hidden gap-[3px] mt-5" aria-hidden>
+            <div className="flex h-2 rounded-full overflow-hidden gap-[3px] mt-4" aria-hidden>
               {voz.porTipo.map((t) => (
                 <div key={t.tipo} style={{ flexGrow: t.quantidade, background: COR_TIPO[t.tipo] }} />
               ))}
@@ -81,20 +81,19 @@ export default function VitrinePortal() {
                 </li>
               ))}
             </ul>
-            <div className="mt-6 -mx-5 sm:-mx-8 lg:mx-0 space-y-2.5">
-              <Faixa itens={voz.faixa.slice(0, 7)} sentido="ida" duracao={45} />
-              <Faixa itens={voz.faixa.slice(7, 14)} sentido="volta" duracao={55} />
+            <div className="mt-4 -mx-4 sm:-mx-6 lg:mx-0">
+              <Faixa itens={voz.faixa.slice(0, 8)} sentido="ida" duracao={45} compacta />
             </div>
           </div>
 
           {/* o dinheiro e as obras */}
-          <div className="min-w-0 space-y-4">
-            <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-              <p className="text-lg font-semibold tracking-[-0.02em] leading-snug">
+          <div className="min-w-0 space-y-2.5">
+            <div className="rounded-xl border border-border p-4" style={{ background: "var(--card)" }}>
+              <p className="text-base font-semibold tracking-[-0.02em] leading-snug">
                 De cada <span style={{ color: "var(--brand-claro)" }}>R$ 100</span> que entraram,{" "}
                 <span style={{ color: "var(--brand-claro)" }}>R$ {deCem}</span> já foram gastos.
               </p>
-              <div className="space-y-3 mt-4">
+              <div className="space-y-2.5 mt-3">
                 <div>
                   <p className="flex justify-between text-xs text-muted mb-1.5">
                     <span>Entrou</span>
@@ -114,11 +113,10 @@ export default function VitrinePortal() {
             {[
               { nome: "Reforma da UBS do Centro", pct: 72, st: OBRA.em_andamento },
               { nome: "Pavimentação da Rua das Flores", pct: 100, st: OBRA.concluida },
-              { nome: "Quadra da Escola Municipal", pct: 35, st: OBRA.atrasada },
             ].map((o, i) => (
-              <div key={o.nome} className="rounded-2xl border border-border p-4 flex items-center gap-4" style={{ background: "var(--card)" }}>
-                <Anel pct={o.pct} cor={o.st.cor} tamanho={52} atraso={0.1 * i}>
-                  <span className="text-[11px] font-semibold tabular-nums">{o.pct}%</span>
+              <div key={o.nome} className="rounded-xl border border-border px-3.5 py-3 flex items-center gap-3" style={{ background: "var(--card)" }}>
+                <Anel pct={o.pct} cor={o.st.cor} tamanho={42} atraso={0.1 * i}>
+                  <span className="text-[10px] font-semibold tabular-nums">{o.pct}%</span>
                 </Anel>
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold" style={{ color: o.st.cor }}>
@@ -131,7 +129,7 @@ export default function VitrinePortal() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-8 py-4 border-t border-border text-xs text-muted">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 border-t border-border text-xs text-muted">
           <span>Bela Aurora é uma cidade fictícia, com dados de exemplo.</span>
           <Link href="/transparencia/exemplo" className="font-semibold hover:underline" style={{ color: "var(--brand-claro)" }}>
             Abrir o portal de exemplo →
