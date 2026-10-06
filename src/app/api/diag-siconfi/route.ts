@@ -1,4 +1,4 @@
-// TEMPORÁRIO — só no branch de diagnóstico, nunca vai para main.
+// TEMPORÁRIO — diagnóstico do RGF Simplificado; removido logo depois.
 export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
