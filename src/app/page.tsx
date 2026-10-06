@@ -82,7 +82,7 @@ const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP"];
 export default async function LandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ m?: string; uf?: string }>;
+  searchParams: Promise<{ m?: string; uf?: string; para?: string }>;
 }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
@@ -94,6 +94,17 @@ export default async function LandingPage({
       : null;
   // Município de outra UF é resto de uma troca de estado, não uma escolha.
   const municipio = pedido && ufEscolhida && pedido.uf !== ufEscolhida ? null : pedido;
+  // Quem está olhando: a prefeitura (padrão, o funil de venda) ou o morador
+  // (a porta do portal do cidadão). A chave fica no topo, ao lado da busca.
+  const morador = parametros.para === "morador";
+  const comPara = (para: "prefeitura" | "morador") => {
+    const q = new URLSearchParams();
+    if (ufEscolhida) q.set("uf", ufEscolhida);
+    if (municipio) q.set("m", municipio.codigo);
+    if (para === "morador") q.set("para", "morador");
+    const s = q.toString();
+    return s ? `/?${s}` : "/";
+  };
   // Região administrativa do DF: o nome escolhido fica na tela, e os números
   // são os do Distrito Federal inteiro, que é quem reporta ao Tesouro.
   const dados = municipio ? municipioParaDados(municipio) : null;
@@ -144,12 +155,53 @@ export default async function LandingPage({
                 </p>
 
                 <div className="mt-9">
-                  <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
-                  <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
-                  <p className="text-xs text-muted mt-4">
-                    Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
-                    {LIMITE_DISPENSA.ano}.
-                  </p>
+                  {/* ── A CHAVE DOS DOIS PÚBLICOS ──
+                      Mesma busca, dois destinos: a prefeitura vê o Raio-X
+                      aqui mesmo; o morador vai ao portal da cidade dele.
+                      É link (?para=morador), funciona sem JavaScript. */}
+                  <div role="tablist" aria-label="Quem está procurando" className="inline-flex rounded-full border border-border p-1 mb-5" style={{ background: "var(--card)" }}>
+                    {(["prefeitura", "morador"] as const).map((para) => {
+                      const ativo = (para === "morador") === morador;
+                      return (
+                        <Link
+                          key={para}
+                          href={comPara(para)}
+                          scroll={false}
+                          role="tab"
+                          aria-selected={ativo}
+                          className="rounded-full px-4 py-2 text-sm font-medium transition"
+                          style={
+                            ativo
+                              ? { background: para === "morador" ? "color-mix(in oklab, var(--info) 18%, transparent)" : "var(--brand-tint)", color: para === "morador" ? "var(--info)" : "var(--brand-claro)" }
+                              : { color: "var(--muted)" }
+                          }
+                        >
+                          {para === "prefeitura" ? "Sou da prefeitura" : "Sou morador"}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  {morador ? (
+                    <>
+                      <p className="text-sm font-medium mb-3">Encontre o portal da sua cidade</p>
+                      <SeletorMunicipio uf={ufEscolhida} inicial={municipio} acao="/transparencia" rotuloBotao="Procurar portal" contorno />
+                      <p className="text-xs text-muted mt-4">
+                        Para onde vai o dinheiro, as obras e um canal com a prefeitura. Sem cadastro.{" "}
+                        <Link href="/transparencia/exemplo" className="inicio-sublinhado">
+                          Ver uma cidade de exemplo
+                        </Link>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
+                      <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+                      <p className="text-xs text-muted mt-4">
+                        Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
+                        {LIMITE_DISPENSA.ano}.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -312,28 +364,6 @@ export default async function LandingPage({
             ))}
           </ul>
 
-          {/* ── A PORTA DO MORADOR ──
-              Quem chegou aqui morador, e não prefeitura, acha a cidade dele
-              sem passar pelo menu. Contornado de propósito: não disputa peso
-              com a venda (tests/promessas-da-home.test.ts). */}
-          <div
-            className="mt-14 rounded-[26px] border border-border p-6 sm:p-8 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6 items-end"
-            style={{ background: "radial-gradient(70% 120% at 0% 0%, color-mix(in oklab, var(--info) 10%, transparent), transparent 70%), var(--card)" }}
-          >
-            <div>
-              <p className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: "var(--info)" }}>
-                <span className="w-2 h-2 rounded-full portal-pulso" style={{ background: "var(--info)" }} />
-                É morador?
-              </p>
-              <p className="text-2xl sm:text-3xl font-semibold tracking-[-0.035em] leading-tight mt-2">
-                Encontre o portal da sua cidade.
-              </p>
-              <p className="text-sm text-muted mt-2">
-                Para onde vai o dinheiro, as obras e um canal com a prefeitura. Sem cadastro.
-              </p>
-            </div>
-            <SeletorMunicipio uf={ufEscolhida} inicial={municipio} acao="/transparencia" rotuloBotao="Procurar portal" contorno />
-          </div>
         </section>
 
         {/* ═══ O VÍDEO ═══
