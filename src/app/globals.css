@@ -1506,3 +1506,38 @@ h1.font-serif,
   border-radius: 0.5rem;
 }
 
+
+/* ── PORTAL: A FAIXA DA VOZ DA CIDADE ──
+   Duas faixas correndo em sentidos opostos, com o conteúdo duplicado para o
+   laço não ter emenda. Para ao passar o mouse; com movimento reduzido, vira
+   uma grade parada. */
+.portal-faixa-janela {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.portal-faixa {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: portal-correr var(--duracao, 70s) linear infinite;
+}
+.portal-faixa[data-sentido="volta"] {
+  animation-direction: reverse;
+}
+.portal-faixa-janela:hover .portal-faixa {
+  animation-play-state: paused;
+}
+@keyframes portal-correr {
+  to { transform: translateX(-50%); }
+}
+.portal-pulso {
+  animation: portal-pulso 2.4s ease-out infinite;
+}
+@keyframes portal-pulso {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--info) 70%, transparent); }
+  80%, 100% { box-shadow: 0 0 0 10px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-faixa { animation: none; flex-wrap: wrap; width: auto; }
+  .portal-pulso { animation: none; }
+}
