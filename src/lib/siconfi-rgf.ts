@@ -23,7 +23,9 @@
 // que é a direção em que o teto estoura. Por isso o campo que a tela guarda é
 // a ajustada, e é ela que a importação grava.
 
-const URL_RGF = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf";
+import { consultarTipos, TIPOS_RGF } from "@/lib/siconfi-tipos";
+
+const URL_RGF ="https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf";
 const TIMEOUT_MS = 25000;
 
 /** A coluna em reais. O anexo repete cada conta em "Valor" e em "%". */
@@ -191,15 +193,25 @@ export function extrairRgf(
   };
 }
 
-async function buscarPeriodo(
+/**
+ * Um período, nos dois tipos: o RGF comum e o RGF Simplificado, que é o que a
+ * maioria dos municípios pequenos entrega (ver lib/siconfi-tipos.ts). O Anexo
+ * 01 do simplificado traz as mesmas contas, então `extrairRgf` lê os dois.
+ */
+function buscarPeriodo(codigoIbge: string, periodo: PeriodoRgf): Promise<LinhaRgf[] | null> {
+  return consultarTipos(TIPOS_RGF, (tipo) => buscarPeriodoDoTipo(codigoIbge, periodo, tipo));
+}
+
+async function buscarPeriodoDoTipo(
   codigoIbge: string,
-  periodo: PeriodoRgf
+  periodo: PeriodoRgf,
+  tipo: string
 ): Promise<LinhaRgf[] | null> {
   const query = new URLSearchParams({
     an_exercicio: String(periodo.exercicio),
     in_periodicidade: periodo.periodicidade,
     nr_periodo: String(periodo.periodo),
-    co_tipo_demonstrativo: "RGF",
+    co_tipo_demonstrativo: tipo,
     no_anexo: "RGF-Anexo 01",
     // Poder Executivo: é da prefeitura que este sistema trata. A câmara tem
     // limite próprio (6%) e presta contas por conta dela.

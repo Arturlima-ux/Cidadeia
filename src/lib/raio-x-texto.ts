@@ -19,9 +19,11 @@ export function resumoDoRaioX(r: RaioX): string[] {
   linhas.push(`Município: ${r.municipio}/${r.uf} — código IBGE ${r.codigoIbge} — exercício ${r.exercicio}.`);
   if (r.bimestreReferencia === null) {
     linhas.push(
-      r.rreoEsperados === 0
-        ? "Nenhum bimestre do exercício se encerrou ainda; não há RREO a cobrar."
-        : `${r.rreoEsperados} bimestre(s) já se encerraram e nenhum RREO consta publicado no Tesouro. É falha de transparência apontável pelo Tribunal de Contas.`
+      r.rreoSemResposta.length > 0
+        ? "O Tesouro não respondeu à consulta agora, então nada se afirma sobre a entrega do RREO."
+        : r.rreoFaltando.length === 0
+          ? "Nenhum bimestre do exercício passou do prazo de publicação ainda; não há RREO a cobrar."
+          : `${r.rreoFaltando.length} bimestre(s) já passaram do prazo de publicação e nenhum RREO, comum ou simplificado, consta no Tesouro. É falha de transparência apontável pelo Tribunal de Contas.`
     );
     return linhas;
   }
@@ -33,9 +35,11 @@ export function resumoDoRaioX(r: RaioX): string[] {
   linhas.push(`Aplicado em educação: ${moeda(r.despesaEducacao.valor)} (${pct(pe)} da receita realizada).`);
   linhas.push(`Aplicado em obras (urbanismo): ${moeda(r.despesaObras.valor)}.`);
   linhas.push(
-    r.rreoFaltando.length === 0
-      ? `RREO: ${r.rreoEntregues} de ${r.rreoEsperados} bimestres encerrados constam publicados — em dia.`
-      : `RREO: faltam ${r.rreoFaltando.length} de ${r.rreoEsperados} bimestres encerrados (${r.rreoFaltando.map((b) => `${b}º`).join(", ")}). Cada um é uma pendência apontável.`
+    r.rreoFaltando.length > 0
+      ? `RREO: faltam ${r.rreoFaltando.length} de ${r.rreoEsperados} bimestres com prazo vencido (${r.rreoFaltando.map((b) => `${b}º`).join(", ")}). Cada um é uma pendência apontável.`
+      : r.rreoSemResposta.length > 0
+        ? `RREO: ${r.rreoEntregues} de ${r.rreoEsperados} bimestres com prazo vencido constam publicados; o Tesouro não respondeu sobre ${r.rreoSemResposta.map((b) => `${b}º`).join(", ")}.`
+        : `RREO: ${r.rreoEntregues} de ${r.rreoEsperados} bimestres com prazo vencido constam publicados — em dia.`
   );
   linhas.push(RESSALVA_MINIMOS);
   return linhas;

@@ -8,7 +8,7 @@ const base: RaioX = {
   despesaSaude: { valor: 3_600_000, detalhe: "", fonte: "Tesouro Nacional · SICONFI" },
   despesaEducacao: { valor: 6_000_000, detalhe: "", fonte: "Tesouro Nacional · SICONFI" },
   despesaObras: { valor: null, detalhe: "", fonte: "Tesouro Nacional · SICONFI" },
-  rreoEsperados: 4, rreoEntregues: 3, rreoFaltando: [4], consultadoEm: "2026-09-15T12:00:00Z",
+  rreoEsperados: 4, rreoEntregues: 3, rreoFaltando: [4], rreoSemResposta: [], consultadoEm: "2026-09-15T12:00:00Z",
 };
 
 describe("resumoDoRaioX", () => {
@@ -24,7 +24,7 @@ describe("resumoDoRaioX", () => {
 
   it("sem nenhum RREO, é uma frase só — e não inventa número", () => {
     const t = resumoDoRaioX({ ...base, bimestreReferencia: null, rreoEntregues: 0, rreoFaltando: [1, 2, 3, 4] }).join("\n");
-    expect(t).toContain("nenhum RREO consta");
+    expect(t).toContain("nenhum RREO, comum ou simplificado, consta");
     expect(t).not.toContain("Receita realizada");
   });
 });

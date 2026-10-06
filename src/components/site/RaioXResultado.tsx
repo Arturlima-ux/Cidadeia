@@ -108,8 +108,12 @@ export default function RaioXResultado({
                   Responsabilidade Fiscal, e a falta impede receber transferência
                   voluntária da União.
                 </>
+              ) : raioX.rreoSemResposta.length > 0 ? (
+                `O Tesouro não respondeu sobre o ${raioX.rreoSemResposta.map((b) => `${b}º`).join(", ")} bimestre nesta consulta, então nada se afirma sobre ele. Tente de novo em instantes.`
+              ) : raioX.rreoEsperados === 0 ? (
+                "Nenhum bimestre deste ano passou do prazo de publicação ainda."
               ) : (
-                "Todos os bimestres encerrados constam publicados. É o que o Tribunal de Contas confere primeiro."
+                "Todos os bimestres com prazo vencido constam publicados. É o que o Tribunal de Contas confere primeiro."
               )}
             </p>
           </div>

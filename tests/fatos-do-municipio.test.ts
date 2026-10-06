@@ -70,6 +70,7 @@ function raioXOk(ajuste: Partial<RaioX> = {}): ResultadoRaioX {
       rreoEsperados: 4,
       rreoEntregues: 4,
       rreoFaltando: [],
+      rreoSemResposta: [],
       consultadoEm: HOJE,
       ...ajuste,
     },
@@ -143,6 +144,18 @@ describe("o fato dos relatórios", () => {
     const f = fatoDosRelatorios(raioXOk({ rreoFaltando: [] }), HOJE);
     expect(f.valor).toBeTruthy();
     expect(f.ausencia).toBeNull();
+  });
+
+  it("bimestre sem resposta do Tesouro não é chamado de faltante", () => {
+    const f = fatoDosRelatorios(raioXOk({ rreoFaltando: [], rreoSemResposta: [4], rreoEntregues: 3 }), HOJE);
+    expect(f.leitura).not.toMatch(/não consta/);
+    expect(f.leitura).toMatch(/não respondeu/);
+  });
+
+  it("sem bimestre vencido não cobra nada", () => {
+    const f = fatoDosRelatorios(raioXOk({ rreoEsperados: 0, rreoEntregues: 0, bimestreReferencia: null }), HOJE);
+    expect(f.valor).toBeNull();
+    expect(f.ausencia).toMatch(/prazo/);
   });
 
   it("falha na consulta é ausência, não zero relatórios faltando", () => {

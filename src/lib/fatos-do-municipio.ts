@@ -266,20 +266,38 @@ export function fatoDosRelatorios(raioX: ResultadoRaioX, consultadoEm: string): 
 
   const r = raioX.raioX;
   const faltam = r.rreoFaltando.length;
+  const carimbo = { periodo: `Exercício de ${r.exercicio}`, consultadoEm: dataSemHora(consultadoEm) };
+  const ordinais = (l: number[]) => l.map((b) => `${b}º`).join(", ");
+
+  if (r.rreoEsperados === 0) {
+    return {
+      ...base,
+      valor: null,
+      leitura: null,
+      carimbo,
+      ausencia: "Nenhum bimestre deste exercício passou do prazo de publicação ainda, então não há entrega a cobrar.",
+    };
+  }
+
+  // Bimestre sem resposta do Tesouro não é contado como faltante nem como
+  // entregue: a frase diz que a pergunta não chegou, e só.
+  const semResposta =
+    r.rreoSemResposta.length > 0
+      ? ` O Tesouro não respondeu sobre o ${ordinais(r.rreoSemResposta)} bimestre nesta consulta.`
+      : "";
 
   return {
     ...base,
     valor: `${r.rreoEntregues} de ${r.rreoEsperados}`,
     leitura:
-      faltam === 0
-        ? `Todos os ${r.rreoEsperados} bimestres encerrados deste exercício constam publicados no Tesouro.`
-        : `${faltam} bimestre${faltam > 1 ? "s" : ""} encerrado${faltam > 1 ? "s" : ""} não consta${faltam > 1 ? "m" : ""} ` +
-          `publicado${faltam > 1 ? "s" : ""}: ${r.rreoFaltando.map((b) => `${b}º`).join(", ")}.`,
+      (faltam === 0
+        ? r.rreoSemResposta.length === 0
+          ? `Todos os ${r.rreoEsperados} bimestres com prazo vencido neste exercício constam publicados no Tesouro.`
+          : `Nenhum bimestre com prazo vencido consta como faltante.`
+        : `${faltam} bimestre${faltam > 1 ? "s" : ""} com prazo vencido não consta${faltam > 1 ? "m" : ""} ` +
+          `publicado${faltam > 1 ? "s" : ""} no Tesouro, nem na versão simplificada: ${ordinais(r.rreoFaltando)}.`) + semResposta,
     ausencia: null,
-    carimbo: {
-      periodo: `Exercício de ${r.exercicio}`,
-      consultadoEm: dataSemHora(consultadoEm),
-    },
+    carimbo,
   };
 }
 

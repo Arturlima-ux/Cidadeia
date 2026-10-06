@@ -1,5 +1,6 @@
 import { buscarCodigoIbge, agregarPorSecretaria, type LinhaSiconfi } from "@/lib/siconfi";
 import { periodosDoExercicio } from "@/lib/obrigacoes-fiscais";
+import { consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
 
 // ── RAIO-X DO MUNICÍPIO ──
 //
@@ -48,12 +49,18 @@ export type RaioX = {
   despesaSaude: NumeroComFonte;
   despesaEducacao: NumeroComFonte;
   despesaObras: NumeroComFonte;
-  /** Bimestres do exercício já encerrados. */
+  /** Bimestres do exercício com prazo de publicação vencido. */
   rreoEsperados: number;
   /** Quantos desses constam publicados no Tesouro. */
   rreoEntregues: number;
-  /** Bimestres encerrados que NÃO constam. É o achado que dói. */
+  /**
+   * Bimestres com prazo vencido que o Tesouro, perguntado, disse não ter (nem
+   * no RREO comum nem no simplificado). É o achado que dói, então só entra
+   * aqui o que foi efetivamente confirmado.
+   */
   rreoFaltando: number[];
+  /** Bimestres que não conseguimos consultar. Não são achado sobre ninguém. */
+  rreoSemResposta: number[];
   consultadoEm: string;
 };
 
@@ -61,15 +68,26 @@ export type ResultadoRaioX =
   | { ok: true; raioX: RaioX }
   | { ok: false; erro: string; municipioNaoEncontrado: boolean };
 
-async function buscarRreo(
+/** RREO comum ou simplificado, o que o município tiver entregue (lib/siconfi-tipos.ts). */
+function buscarRreo(
   codigoIbge: string,
   exercicio: number,
   periodo: number,
   anexo: string
 ): Promise<LinhaSiconfi[] | null> {
+  return consultarTipos(TIPOS_RREO, (tipo) => buscarRreoDoTipo(codigoIbge, exercicio, periodo, anexo, tipo));
+}
+
+async function buscarRreoDoTipo(
+  codigoIbge: string,
+  exercicio: number,
+  periodo: number,
+  anexo: string,
+  tipo: string
+): Promise<LinhaSiconfi[] | null> {
   const url =
     `${URL_SICONFI_RREO}?an_exercicio=${exercicio}&nr_periodo=${periodo}` +
-    `&co_tipo_demonstrativo=RREO&no_anexo=${encodeURIComponent(anexo)}&id_ente=${codigoIbge}`;
+    `&co_tipo_demonstrativo=${encodeURIComponent(tipo)}&no_anexo=${encodeURIComponent(anexo)}&id_ente=${codigoIbge}`;
   try {
     const resposta = await fetch(url, {
       headers: { accept: "application/json" },
@@ -117,6 +135,21 @@ export function bimestresEncerrados(exercicio: number, hoje: Date = new Date()):
     .map((p) => p.numero);
 }
 
+/**
+ * Bimestres cujo PRAZO de publicação já passou (30 dias após o fim, LRF art.
+ * 52).
+ *
+ * É só destes que se pode dizer "não consta publicado" como achado. O
+ * bimestre que acabou ontem ainda está dentro do prazo, e chamá-lo de
+ * faltante acusaria de atraso a prefeitura que está em dia.
+ */
+export function bimestresVencidos(exercicio: number, hoje: Date = new Date()): number[] {
+  const hojeIso = hoje.toISOString().slice(0, 10);
+  return periodosDoExercicio(exercicio)
+    .filter((p) => p.obrigacao.chave === "rreo" && p.vencimento < hojeIso)
+    .map((p) => p.numero);
+}
+
 // ── POR QUE AS CONSULTAS SAEM JUNTAS ──
 //
 // Eram em fila: um bimestre, pausa de 700 ms, outro bimestre, pausa… e no
@@ -153,12 +186,15 @@ export async function montarRaioX(
     };
   }
 
-  const esperados = bimestresEncerrados(exercicio);
+  // Os valores vêm de qualquer bimestre encerrado (um publicado antes do prazo
+  // é dado bom); a cobrança de entrega, só dos que já venceram.
+  const encerrados = bimestresEncerrados(exercicio);
+  const vencidos = bimestresVencidos(exercicio);
 
   // Do mais recente para o mais antigo: o primeiro que tiver dado é o que
   // alimenta os valores da tela. As consultas saem escalonadas e são lidas
   // na ordem, o que preserva exatamente a mesma decisão de antes.
-  const doMaisRecente = [...esperados].reverse();
+  const doMaisRecente = [...encerrados].reverse();
   const maisRecente = doMaisRecente[0] ?? null;
 
   const consultas = doMaisRecente.map(async (bimestre, i) => {
@@ -177,10 +213,16 @@ export async function montarRaioX(
   const resultados = await Promise.all(consultas);
 
   const entregues: number[] = [];
+  // Falha nossa de rede não pode virar "não consta publicado": era o que
+  // acontecia, porque o bimestre sem resposta caía em `rreoFaltando`.
+  const semResposta: number[] = [];
   let linhasDespesa: LinhaSiconfi[] | null = null;
   let bimestreReferencia: number | null = null;
   for (const { bimestre, linhas } of resultados) {
-    if (linhas === null) continue;
+    if (linhas === null) {
+      semResposta.push(bimestre);
+      continue;
+    }
     if (linhas.length === 0) continue;
     entregues.push(bimestre);
     if (linhasDespesa === null) {
@@ -236,9 +278,10 @@ export async function montarRaioX(
         fonte: "Tesouro Nacional · SICONFI",
         detalhe: `${detalhe} · Urbanismo, Saneamento e Transporte`,
       },
-      rreoEsperados: esperados.length,
-      rreoEntregues: entregues.length,
-      rreoFaltando: esperados.filter((b) => !entregues.includes(b)),
+      rreoEsperados: vencidos.length,
+      rreoEntregues: vencidos.filter((b) => entregues.includes(b)).length,
+      rreoFaltando: vencidos.filter((b) => !entregues.includes(b) && !semResposta.includes(b)),
+      rreoSemResposta: vencidos.filter((b) => semResposta.includes(b)),
       consultadoEm: new Date().toISOString(),
     },
   };

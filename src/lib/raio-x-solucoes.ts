@@ -64,7 +64,7 @@ export function solucoesParaORaioX(e: EntradaSolucoes): SolucaoSugerida[] {
     lista.push({
       modulo: "gestao",
       achado: `${e.rreoFaltando.length} relatório(s) bimestral(is) sem constar no Tesouro`,
-      porque: `Dos ${e.rreoEsperados} bimestres já encerrados neste exercício, ${e.rreoFaltando.map((b) => `${b}º`).join(", ")} não aparecem na consulta ao SICONFI. Pode ser atraso de publicação, e é assim que o tribunal de contas vê primeiro.`,
+      porque: `Dos ${e.rreoEsperados} bimestres com prazo de publicação vencido neste exercício, ${e.rreoFaltando.map((b) => `${b}º`).join(", ")} não aparecem na consulta ao SICONFI, nem na versão simplificada. É assim que o tribunal de contas vê primeiro.`,
       resolve:
         "O calendário das obrigações fiscais do ano — RREO, gestão fiscal, SIOPS e SIOPE — com aviso antes do prazo. O sistema consulta o Tesouro para saber se o relatório foi mesmo entregue, e o alerta some sozinho quando ele aparece lá.",
       peso: 40,
