@@ -42,30 +42,33 @@ import { ESTADOS } from "@/lib/estados";
 // lista fixa, porque a primeira afirmação só pode aparecer quando houver
 // portal publicado de verdade (tests/promessas-da-home.test.ts).
 function autoridadeVerificavel(temPortalNoAr: boolean) {
-  // Linguagem de quem não é da área: nada de sigla, formato de arquivo ou
-  // nome técnico de documento. Cada frase diz o que a pessoa ganha e como
-  // conferir sozinha.
+  // O portal da transparência que o módulo Essencial põe no ar, dito como o
+  // cidadão vê: sem sigla e sem nome técnico. Cada linha é uma parte que
+  // existe de verdade em /transparencia/[slug].
   return [
-    temPortalNoAr
-      ? {
-          titulo: "O portal já está no ar",
-          texto: "É o site onde o cidadão acompanha a prefeitura e faz pedidos. Abra agora, sem cadastro, e veja funcionando numa cidade de verdade.",
-        }
-      : {
-          titulo: "Teste com a sua cidade",
-          texto: "Escolha a sua cidade e veja na hora como estão as contas dela. Os números são do governo federal, não nossos.",
-        },
+    ...(temPortalNoAr
+      ? [
+          {
+            titulo: "O portal já está no ar",
+            texto: "Já tem cidade usando. Abra e veja funcionando, sem cadastro.",
+          },
+        ]
+      : []),
     {
-      titulo: "Você lê o contrato antes de comprar",
-      texto: "Os documentos da contratação estão no site. Baixe e mostre para o jurídico da prefeitura, sem precisar se cadastrar.",
+      titulo: "Para onde vai o dinheiro",
+      texto: "Quanto a prefeitura recebeu e quanto gastou, com os números que ela já manda ao governo federal.",
     },
     {
-      titulo: "Se quiser sair, leva tudo",
-      texto: "Os dados são da prefeitura. Baixe tudo quando quiser, sem pagar a mais e sem pedir permissão a ninguém.",
+      titulo: "Obras e compras à vista",
+      texto: "Cada obra com o andamento, e cada licitação aberta para qualquer pessoa conferir.",
     },
     {
-      titulo: "A gente diz o que não faz",
-      texto: "O diagnóstico mostra o que o sistema resolve e o que continua sendo trabalho da prefeitura. Sem promessa exagerada.",
+      titulo: "Pedido com número de protocolo",
+      texto: "O morador pede um serviço, reclama, sugere ou denuncia (até sem se identificar) e acompanha a resposta pelo número.",
+    },
+    {
+      titulo: "No celular, sem cadastro",
+      texto: "Qualquer pessoa abre e entende. E a prefeitura mostra, na prática, que não tem nada a esconder.",
     },
   ];
 }
@@ -250,15 +253,16 @@ export default async function LandingPage({
             ComoFunciona.tsx. */}
         <ComoFunciona />
 
-        {/* ═══ O QUE DÁ PARA CONFERIR ═══ */}
+        {/* ═══ O PORTAL DA TRANSPARÊNCIA ═══
+            O que o cidadão recebe com o módulo Essencial. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16">
             <div>
-              <h2 className="inicio-h2">Não precisa acreditar. Confira.</h2>
+              <h2 className="inicio-h2">O portal da transparência da sua cidade.</h2>
               <p className="text-muted leading-relaxed mt-6 max-w-[40ch]">
-                O CidadeIA é novo e ainda não tem muitas prefeituras para mostrar.
-                Por isso deixamos tudo aberto: você confere sozinho, sem ligar
-                para ninguém e sem fazer cadastro.
+                Um site da prefeitura para o morador: ele vê as contas e as obras
+                e fala com a prefeitura, tudo em linguagem simples. Vem pronto no
+                módulo Essencial.
               </p>
               <div className="flex flex-wrap items-center gap-3 mt-8">
                 {portais.length > 0 ? (
@@ -278,12 +282,17 @@ export default async function LandingPage({
                     </Link>
                   </>
                 ) : (
-                  <Link
-                    href="/raio-x"
-                    className="inline-flex items-center border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
-                  >
-                    Ver o Raio-X do seu município
-                  </Link>
+                  <>
+                    <Link
+                      href="/modulos/essencial"
+                      className="inline-flex items-center border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
+                    >
+                      Ver como é o portal
+                    </Link>
+                    <Link href="/raio-x" className="inicio-sublinhado text-sm text-muted">
+                      Ver o Raio-X do seu município
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
