@@ -14,6 +14,8 @@ export type PortalPublicado = {
   municipio: string;
   estado: string;
   nome: string;
+  /** Para casar com o município que o morador escolheu na busca. */
+  codigoIbge: string | null;
 };
 
 export type ListaPortais = {
@@ -30,6 +32,7 @@ export async function listarPortaisPublicados(): Promise<ListaPortais> {
         municipio: prefeituras.municipio,
         estado: prefeituras.estado,
         nome: prefeituras.nome,
+        codigoIbge: prefeituras.codigoIbge,
         planosContratados: prefeituras.planosContratados,
       })
       .from(configPublica)
@@ -42,7 +45,7 @@ export async function listarPortaisPublicados(): Promise<ListaPortais> {
     return {
       portais: linhas
         .filter((l) => planosContratadosDe(l.planosContratados).includes("essencial"))
-        .map(({ slug, municipio, estado, nome }) => ({ slug, municipio, estado, nome })),
+        .map(({ slug, municipio, estado, nome, codigoIbge }) => ({ slug, municipio, estado, nome, codigoIbge })),
       falhou: false,
     };
   } catch (e) {
