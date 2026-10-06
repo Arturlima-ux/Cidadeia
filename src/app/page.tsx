@@ -42,27 +42,30 @@ import { ESTADOS } from "@/lib/estados";
 // lista fixa, porque a primeira afirmação só pode aparecer quando houver
 // portal publicado de verdade (tests/promessas-da-home.test.ts).
 function autoridadeVerificavel(temPortalNoAr: boolean) {
+  // Linguagem de quem não é da área: nada de sigla, formato de arquivo ou
+  // nome técnico de documento. Cada frase diz o que a pessoa ganha e como
+  // conferir sozinha.
   return [
     temPortalNoAr
       ? {
           titulo: "O portal já está no ar",
-          texto: "Endereço público de um município real, aberto sem cadastro.",
+          texto: "É o site onde o cidadão acompanha a prefeitura e faz pedidos. Abra agora, sem cadastro, e veja funcionando numa cidade de verdade.",
         }
       : {
-          titulo: "Teste com o seu município",
-          texto: "O Raio-X lê o dado que a União publica sobre qualquer prefeitura e responde na hora.",
+          titulo: "Teste com a sua cidade",
+          texto: "Escolha a sua cidade e veja na hora como estão as contas dela. Os números são do governo federal, não nossos.",
         },
     {
-      titulo: "O contrato é público antes da venda",
-      texto: "Termo de referência, minuta e acordo de dados baixam sem cadastro.",
+      titulo: "Você lê o contrato antes de comprar",
+      texto: "Os documentos da contratação estão no site. Baixe e mostre para o jurídico da prefeitura, sem precisar se cadastrar.",
     },
     {
-      titulo: "A saída está escrita",
-      texto: "Exportação em CSV e JSON quando quiser, sem custo e sem pedir licença.",
+      titulo: "Se quiser sair, leva tudo",
+      texto: "Os dados são da prefeitura. Baixe tudo quando quiser, sem pagar a mais e sem pedir permissão a ninguém.",
     },
     {
-      titulo: "O diagnóstico diz o que não fazemos",
-      texto: "O que continua com a prefeitura aparece no resultado, com o artigo da lei.",
+      titulo: "A gente diz o que não faz",
+      texto: "O diagnóstico mostra o que o sistema resolve e o que continua sendo trabalho da prefeitura. Sem promessa exagerada.",
     },
   ];
 }
@@ -251,10 +254,11 @@ export default async function LandingPage({
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16">
             <div>
-              <h2 className="inicio-h2">Não peça fé. Confira.</h2>
+              <h2 className="inicio-h2">Não precisa acreditar. Confira.</h2>
               <p className="text-muted leading-relaxed mt-6 max-w-[40ch]">
-                O CidadeIA é novo e ainda não temos cem prefeituras para mostrar.
-                Por isso, tudo ao lado você confere sem falar com ninguém.
+                O CidadeIA é novo e ainda não tem muitas prefeituras para mostrar.
+                Por isso deixamos tudo aberto: você confere sozinho, sem ligar
+                para ninguém e sem fazer cadastro.
               </p>
               <div className="flex flex-wrap items-center gap-3 mt-8">
                 {portais.length > 0 ? (
