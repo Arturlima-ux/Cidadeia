@@ -27,16 +27,24 @@ import EnviaAoTrocar from "@/components/site/EnviaAoTrocar";
 export default function SeletorMunicipio({
   uf,
   inicial,
+  acao = "/",
+  rotuloBotao = "Ver o Raio-X",
+  contorno = false,
 }: {
   /** UF já escolhida, vinda de `?uf=`. */
   uf?: string | null;
   inicial?: Municipio | null;
+  /** Para onde o formulário vai: a home (Raio-X) ou a busca de portais do cidadão. */
+  acao?: string;
+  rotuloBotao?: string;
+  /** Botão contornado, para quando ele não pode disputar peso com a venda. */
+  contorno?: boolean;
 }) {
   const ufAtual = uf ?? inicial?.uf ?? "";
   const municipios: Municipio[] = ufAtual ? municipiosDaUf(ufAtual) : [];
 
   return (
-    <form method="get" action="/" className="flex flex-wrap items-end gap-3">
+    <form method="get" action={acao} className="flex flex-wrap items-end gap-3">
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold text-muted">Estado</span>
         <select
@@ -84,13 +92,19 @@ export default function SeletorMunicipio({
         <EnviaAoTrocar />
       </label>
 
-      <button
-        type="submit"
-        className="elevar w-full sm:w-auto bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
-        style={{ color: "var(--sobre-forte)" }}
-      >
-        Ver o Raio-X
-      </button>
+      {contorno ? (
+        <button type="submit" className="w-full sm:w-auto border border-border hover:border-brand text-sm font-semibold rounded-lg px-5 py-2.5 transition">
+          {rotuloBotao}
+        </button>
+      ) : (
+        <button
+          type="submit"
+          className="elevar w-full sm:w-auto bg-brand hover:bg-brand-dark text-sm font-semibold rounded-lg px-5 py-2.5 transition"
+          style={{ color: "var(--sobre-forte)" }}
+        >
+          {rotuloBotao}
+        </button>
+      )}
     </form>
   );
 }

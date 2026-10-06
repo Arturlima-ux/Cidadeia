@@ -311,6 +311,29 @@ export default async function LandingPage({
               </li>
             ))}
           </ul>
+
+          {/* ── A PORTA DO MORADOR ──
+              Quem chegou aqui morador, e não prefeitura, acha a cidade dele
+              sem passar pelo menu. Contornado de propósito: não disputa peso
+              com a venda (tests/promessas-da-home.test.ts). */}
+          <div
+            className="mt-14 rounded-[26px] border border-border p-6 sm:p-8 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6 items-end"
+            style={{ background: "radial-gradient(70% 120% at 0% 0%, color-mix(in oklab, var(--info) 10%, transparent), transparent 70%), var(--card)" }}
+          >
+            <div>
+              <p className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: "var(--info)" }}>
+                <span className="w-2 h-2 rounded-full portal-pulso" style={{ background: "var(--info)" }} />
+                É morador?
+              </p>
+              <p className="text-2xl sm:text-3xl font-semibold tracking-[-0.035em] leading-tight mt-2">
+                Encontre o portal da sua cidade.
+              </p>
+              <p className="text-sm text-muted mt-2">
+                Para onde vai o dinheiro, as obras e um canal com a prefeitura. Sem cadastro.
+              </p>
+            </div>
+            <SeletorMunicipio uf={ufEscolhida} inicial={municipio} acao="/transparencia" rotuloBotao="Procurar portal" contorno />
+          </div>
         </section>
 
         {/* ═══ O VÍDEO ═══
@@ -377,17 +400,6 @@ export default async function LandingPage({
         {/* ═══ A PORTA DO CIDADÃO ═══
             Quem compra precisa saber que o outro lado existe; o morador tem a
             página dele em /transparencia e não precisa atravessar esta. */}
-        <section className="border-t border-border">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-8 flex flex-wrap items-center justify-between gap-x-10 gap-y-3">
-            <p className="text-sm text-muted max-w-[62ch]">
-              <span className="text-foreground font-medium">É morador?</span> Veja para onde
-              vai o dinheiro, acompanhe um pedido ou faça uma denúncia sem se identificar.
-            </p>
-            <Link href="/transparencia" className="inicio-sublinhado text-sm text-muted shrink-0">
-              Portal do cidadão
-            </Link>
-          </div>
-        </section>
       </main>
 
       <SiteFooter />
