@@ -3,7 +3,8 @@
 import { z } from "zod";
 import { db } from "@/db";
 import { atendimentos, configPublica, prefeituras } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, notInArray } from "drizzle-orm";
+import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
 import {
@@ -204,7 +205,7 @@ export async function buscarPortal(slug: string) {
     })
     .from(configPublica)
     .innerJoin(prefeituras, eq(prefeituras.id, configPublica.prefeituraId))
-    .where(and(eq(configPublica.slug, slug), eq(configPublica.portalAtivo, true)))
+    .where(and(eq(configPublica.slug, slug), eq(configPublica.portalAtivo, true), notInArray(configPublica.prefeituraId, PREFEITURAS_INTERNAS)))
     .limit(1);
 
   return linha ?? null;

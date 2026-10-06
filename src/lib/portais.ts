@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { configPublica, prefeituras } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, notInArray } from "drizzle-orm";
+import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
 import { planosContratadosDe } from "@/lib/planos";
 
 // Os portais publicados são a única prova que o visitante consegue conferir
@@ -37,7 +38,8 @@ export async function listarPortaisPublicados(): Promise<ListaPortais> {
       })
       .from(configPublica)
       .innerJoin(prefeituras, eq(prefeituras.id, configPublica.prefeituraId))
-      .where(eq(configPublica.portalAtivo, true))
+      // A equipe e o painel de teste não são cidade: nunca aparecem ao público.
+      .where(and(eq(configPublica.portalAtivo, true), notInArray(configPublica.prefeituraId, PREFEITURAS_INTERNAS)))
       .orderBy(asc(prefeituras.municipio));
 
     // Mesma regra da página do portal: o endereço público faz parte do
