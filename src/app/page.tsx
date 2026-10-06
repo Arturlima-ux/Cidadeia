@@ -9,7 +9,6 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import BarraConversao from "@/components/site/BarraConversao";
-import PainelDemonstracao from "@/components/site/PainelDemonstracao";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
@@ -24,7 +23,6 @@ import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { AVISO_DF, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
-import { Inclinavel } from "@/components/site/Ponteiro";
 
 // ── A PÁGINA EM SEIS PARTES ──
 //
@@ -210,19 +208,6 @@ export default async function LandingPage({
                 </p>
               </div>
             )}
-          </div>
-        </section>
-
-        {/* ═══ O PRODUTO ═══
-            O painel dentro de um aparelho, largo. É HTML de verdade, com os
-            números do exemplo, e não uma imagem de marketing. */}
-        <section className="relative max-w-[1200px] mx-auto px-4 sm:px-8">
-          <div className="palco-produto">
-            <Inclinavel intensidade={2} className="inclinavel-amplo">
-              <div className="moldura-dispositivo">
-                <PainelDemonstracao />
-              </div>
-            </Inclinavel>
           </div>
         </section>
 
