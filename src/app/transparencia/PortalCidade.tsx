@@ -63,7 +63,7 @@ export const TIPO_CURTO: Record<TipoAtendimento, string> = {
   informacao: "Pedido de informação",
 };
 
-export function Faixa({ itens, sentido, duracao }: { itens: ItemFaixa[]; sentido: "ida" | "volta"; duracao: number }) {
+export function Faixa({ itens, sentido, duracao, compacta = false }: { itens: ItemFaixa[]; sentido: "ida" | "volta"; duracao: number; compacta?: boolean }) {
   const dobrado = [...itens, ...itens];
   return (
     <div className="portal-faixa-janela">
@@ -72,15 +72,15 @@ export function Faixa({ itens, sentido, duracao }: { itens: ItemFaixa[]; sentido
           <li
             key={i}
             aria-hidden={i >= itens.length}
-            className="shrink-0 rounded-2xl border border-border px-5 py-4 min-w-[250px]"
+            className={compacta ? "shrink-0 rounded-xl border border-border px-3.5 py-2.5 min-w-[190px] text-[13px]" : "shrink-0 rounded-2xl border border-border px-5 py-4 min-w-[250px]"}
             style={{ background: "var(--card)" }}
           >
-            <p className="flex items-center gap-2 text-sm font-medium">
+            <p className={`flex items-center gap-2 font-medium ${compacta ? "" : "text-sm"}`}>
               <span className="w-2 h-2 rounded-full" style={{ background: COR_TIPO[it.tipo] }} />
               {TIPO_CURTO[it.tipo]}
               <span className="text-muted font-normal">· {it.area}</span>
             </p>
-            <p className="text-sm mt-1.5" style={{ color: it.situacao === "respondida" ? "var(--info)" : "var(--muted)" }}>
+            <p className={compacta ? "mt-1" : "text-sm mt-1.5"} style={{ color: it.situacao === "respondida" ? "var(--info)" : "var(--muted)" }}>
               {it.situacao === "respondida"
                 ? it.dias === 0
                   ? "Respondida no mesmo dia"
