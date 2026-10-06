@@ -284,7 +284,7 @@ export default async function LandingPage({
                 ) : (
                   <>
                     <Link
-                      href="/modulos/essencial"
+                      href="/transparencia/exemplo"
                       className="inline-flex items-center border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
                     >
                       Ver como é o portal

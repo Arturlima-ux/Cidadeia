@@ -200,6 +200,7 @@ export async function buscarPortal(slug: string) {
       estado: prefeituras.estado,
       prefeito: prefeituras.prefeito,
       planosContratados: prefeituras.planosContratados,
+      codigoIbge: prefeituras.codigoIbge,
     })
     .from(configPublica)
     .innerJoin(prefeituras, eq(prefeituras.id, configPublica.prefeituraId))

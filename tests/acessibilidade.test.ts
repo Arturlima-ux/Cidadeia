@@ -18,7 +18,7 @@ function paginasPublicas(dir = "src/app", out: string[] = []): string[] {
 
 describe("acessibilidade", () => {
   it("o cabeçalho público e os portais têm 'pular para o conteúdo'", () => {
-    for (const a of ["src/components/site/SiteHeader.tsx", "src/app/transparencia/[slug]/page.tsx", "src/app/transparencia/PortalMinimo.tsx"]) {
+    for (const a of ["src/components/site/SiteHeader.tsx", "src/app/transparencia/PortalCidade.tsx", "src/app/transparencia/PortalMinimo.tsx"]) {
       expect(readFileSync(a, "utf8"), a).toContain('href="#conteudo"');
     }
   });
@@ -28,7 +28,8 @@ describe("acessibilidade", () => {
     for (const p of paginasPublicas()) {
       const s = readFileSync(p, "utf8");
       const temMain = /<main[^>]*id="conteudo"/.test(s);
-      const usaTemplate = /PaginaLegal|FormularioCadastro/.test(s);
+      // PortalCidade traz o <main id="conteudo"> do portal (real e exemplo).
+      const usaTemplate = /PaginaLegal|FormularioCadastro|<PortalCidade/.test(s);
       if (!temMain && !usaTemplate) semMain.push(p);
     }
     expect(semMain).toEqual([]);
