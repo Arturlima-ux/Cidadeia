@@ -9,6 +9,7 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MontadorProposta from "@/components/site/MontadorProposta";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
+import VitrinePortal from "@/components/site/VitrinePortal";
 import BarraConversao from "@/components/site/BarraConversao";
 import SeletorMunicipio from "@/components/site/SeletorMunicipio";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
@@ -254,17 +255,19 @@ export default async function LandingPage({
         <ComoFunciona />
 
         {/* ═══ O PORTAL DA TRANSPARÊNCIA ═══
-            O que o cidadão recebe com o módulo Essencial. */}
+            O que o cidadão recebe com o módulo Essencial, mostrado vivo: a
+            janela com a cidade de exemplo (VitrinePortal.tsx), e embaixo as
+            quatro coisas que o morador encontra. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16">
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
+            <h2 className="inicio-h2 max-w-[17ch]">O portal da transparência da sua cidade.</h2>
             <div>
-              <h2 className="inicio-h2">O portal da transparência da sua cidade.</h2>
-              <p className="text-muted leading-relaxed mt-6 max-w-[40ch]">
-                Um site da prefeitura para o morador: ele vê as contas e as obras
-                e fala com a prefeitura, tudo em linguagem simples. Vem pronto no
-                módulo Essencial.
+              <p className="text-muted leading-relaxed max-w-[42ch]">
+                Um site da prefeitura para o morador: ele vê as contas e as obras e
+                fala com a prefeitura, em linguagem simples. Vem pronto no módulo
+                Essencial.
               </p>
-              <div className="flex flex-wrap items-center gap-3 mt-8">
+              <div className="flex flex-wrap items-center gap-3 mt-6">
                 {portais.length > 0 ? (
                   <>
                     {portais.slice(0, 3).map((p) => (
@@ -273,12 +276,12 @@ export default async function LandingPage({
                         href={`/transparencia/${p.slug}`}
                         className="inline-flex items-center gap-2.5 border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--info)" }} />
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0 portal-pulso" style={{ background: "var(--info)" }} />
                         {p.municipio}, {p.estado}
                       </Link>
                     ))}
-                    <Link href="/transparencia" className="inicio-sublinhado text-sm text-muted">
-                      {portais.length > 3 ? "Ver todos os portais" : "Abrir um portal"}
+                    <Link href="/transparencia/exemplo" className="inicio-sublinhado text-sm text-muted">
+                      Ver a cidade de exemplo
                     </Link>
                   </>
                 ) : (
@@ -296,19 +299,18 @@ export default async function LandingPage({
                 )}
               </div>
             </div>
-
-            <ul className="border-t border-border">
-              {autoridadeVerificavel(Boolean(portalVitrine)).map((a) => (
-                <li
-                  key={a.titulo}
-                  className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-8 gap-y-1 py-6 border-b border-border"
-                >
-                  <p className="font-semibold tracking-[-0.01em]">{a.titulo}</p>
-                  <p className="text-muted leading-relaxed">{a.texto}</p>
-                </li>
-              ))}
-            </ul>
           </div>
+
+          <VitrinePortal />
+
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6 mt-10">
+            {autoridadeVerificavel(Boolean(portalVitrine)).filter((a) => a.titulo !== "O portal já está no ar").map((a) => (
+              <li key={a.titulo} className="border-t border-border pt-5">
+                <p className="font-semibold tracking-[-0.01em]">{a.titulo}</p>
+                <p className="text-sm text-muted leading-relaxed mt-1.5">{a.texto}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* ═══ O VÍDEO ═══

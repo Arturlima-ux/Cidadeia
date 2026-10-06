@@ -28,7 +28,7 @@ import { Anel, Barra, Contador, Surgir } from "@/components/portal/Vivo";
 // Linguagem de morador do começo ao fim: nada de "execução orçamentária",
 // "homologada" ou "modalidade" sem tradução.
 
-const OBRA: Record<string, { rotulo: string; cor: string }> = {
+export const OBRA: Record<string, { rotulo: string; cor: string }> = {
   planejada: { rotulo: "Vai começar", cor: "var(--muted)" },
   em_andamento: { rotulo: "Em andamento", cor: "var(--brand-claro)" },
   atrasada: { rotulo: "Atrasada", cor: "var(--urgente)" },
@@ -44,7 +44,7 @@ const COMPRA: Record<string, { rotulo: string; cor: string }> = {
   cancelada: { rotulo: "Cancelada", cor: "var(--urgente)" },
 };
 
-const COR_TIPO: Record<TipoAtendimento, string> = {
+export const COR_TIPO: Record<TipoAtendimento, string> = {
   protocolo: "var(--brand)",
   reclamacao: "var(--urgente)",
   denuncia: "var(--medio)",
@@ -54,7 +54,7 @@ const COR_TIPO: Record<TipoAtendimento, string> = {
 };
 
 // Plural curto para a faixa: "Reclamação", "Elogio", "Pedido de serviço".
-const TIPO_CURTO: Record<TipoAtendimento, string> = {
+export const TIPO_CURTO: Record<TipoAtendimento, string> = {
   protocolo: "Pedido de serviço",
   reclamacao: "Reclamação",
   denuncia: "Denúncia",
@@ -63,7 +63,7 @@ const TIPO_CURTO: Record<TipoAtendimento, string> = {
   informacao: "Pedido de informação",
 };
 
-function Faixa({ itens, sentido, duracao }: { itens: ItemFaixa[]; sentido: "ida" | "volta"; duracao: number }) {
+export function Faixa({ itens, sentido, duracao }: { itens: ItemFaixa[]; sentido: "ida" | "volta"; duracao: number }) {
   const dobrado = [...itens, ...itens];
   return (
     <div className="portal-faixa-janela">
