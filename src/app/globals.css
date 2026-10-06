@@ -426,7 +426,7 @@ button:active {
   background-color: #1d5bc4;
 }
 
-:where(a, button, input, select, textarea, summary):focus-visible {
+:where(a, button, summary):focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
   border-radius: 4px;
@@ -869,7 +869,7 @@ button:active {
    Dois anéis resolvem: o de dentro na cor do fundo, o de fora na marca. O
    contraste passa a existir contra qualquer superfície, inclusive sobre uma
    imagem. É a mesma ideia do anel do MarcadorSituacao, aplicada ao foco. */
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+:where(a, button, summary, [tabindex]:not(input, select, textarea)):focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--background);
@@ -1540,4 +1540,28 @@ h1.font-serif,
 @media (prefers-reduced-motion: reduce) {
   .portal-faixa { animation: none; flex-wrap: wrap; width: auto; }
   .portal-pulso { animation: none; }
+}
+
+/* ── CAMPOS DE FORMULÁRIO NÃO MUDAM AO CLICAR ──
+   O anel de foco geral (acima) trocava o arredondamento dos campos e
+   acendia um contorno duplo a cada clique; em caixa de seleção o navegador
+   trata o clique como foco de teclado, então o anel aparecia sempre.
+   Campo agora fica como está: sem anel, sem trocar de forma. Caixa de
+   seleção também não muda a cor da borda. Links e botões seguem com o anel
+   de teclado. */
+:where(input, select, textarea):focus,
+:where(input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+select:focus,
+select:focus-visible {
+  border-color: var(--border);
+}
+/* A lista aberta de uma caixa de seleção: no Windows o navegador pinta o
+   fundo de branco e herdava a letra clara do tema escuro — sigla cinza em
+   fundo branco, quase ilegível. */
+select option {
+  background-color: var(--card);
+  color: var(--foreground);
 }
