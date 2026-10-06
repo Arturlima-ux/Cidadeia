@@ -31,7 +31,6 @@ function montarGrupos(
   planosAtivos: PlanoAddon[],
   implantacaoAberta: boolean
 ): { titulo: string; itens: NavItem[] }[] {
-  const temGestao = planosAtivos.includes("gestao");
   // Enquanto a lista de implantação está aberta, ela é o primeiro item do
   // menu — é a tela que diz o que fazer para as outras passarem a existir.
   // Depois de encerrada, desce para "Conta": continua acessível, sem
@@ -41,9 +40,6 @@ function montarGrupos(
     label: "Implantação",
     icone: "configuracoes",
   };
-  const secretariasAtivas = Object.entries(NAV_ITEMS_SECRETARIA)
-    .filter(([chave]) => planosAtivos.includes(chave as PlanoAddon))
-    .map(([, item]) => item);
 
   // A gerência de unidade tem um lugar só: a ficha da unidade dela.
   if (sessao.cargo === "unidade") {
@@ -87,61 +83,63 @@ function montarGrupos(
     ];
   }
 
+  // ── O MENU É O CONTRATO ──
+  // Um grupo por módulo contratado, com o nome do módulo e o que ele libera.
+  // O prefeito lê o menu e vê o que comprou; o que não contratou não aparece
+  // (está em "Módulos", com o que cada um traria).
   const grupos: { titulo: string; itens: NavItem[] }[] = [
     {
-      titulo: "Principal",
+      titulo: "Início",
       itens: [
         ...(implantacaoAberta ? [itemImplantacao] : []),
-        ...(temGestao
-          ? [{ href: "/dashboard", label: "Visão Geral", icone: "visao-geral" as const }]
-          : []),
         { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
       ],
     },
   ];
 
-  if (planosAtivos.includes("essencial")) {
-    // Os dois lados do portal ficam juntos, e nesta ordem: o gestor publica e
-    // logo abaixo responde quem escreveu de volta. Separá-los em grupos
-    // diferentes faria parecer que são funcionalidades distintas, quando são
-    // as duas metades da mesma relação com o cidadão.
-    grupos[0].itens.push(
-      {
-        href: "/dashboard/publicacoes",
-        label: "Publicações do portal",
-        icone: "visao-geral",
-      },
-      {
-        href: "/dashboard/atendimento",
-        label: "Atendimento",
-        icone: "alertas",
-      }
-    );
-  }
+  const MENU_DO_PLANO: Record<PlanoAddon, NavItem[]> = {
+    essencial: [
+      // As duas metades do portal, nesta ordem: o gestor publica e logo
+      // abaixo responde quem escreveu de volta.
+      { href: "/dashboard/publicacoes", label: "Publicações do portal", icone: "visao-geral" },
+      { href: "/dashboard/atendimento", label: "Protocolo e ouvidoria", icone: "alertas" },
+    ],
+    gestao: [
+      { href: "/dashboard", label: "Visão do prefeito", icone: "visao-geral" },
+      // A tela que responde se o mandato está em risco; as seguintes são as
+      // frentes dela vistas de perto.
+      { href: "/dashboard/prestacao", label: "Prestação de contas", icone: "visao-geral" },
+      { href: "/dashboard/pessoal", label: "Despesa com pessoal", icone: "visao-geral" },
+      { href: "/dashboard/minimos", label: "Mínimos constitucionais", icone: "visao-geral" },
+      { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
+      { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },
+      { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
+      { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },
+      { href: "/dashboard/historico", label: "Histórico", icone: "historico" },
+      { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },
+      { href: "/dashboard/configuracoes", label: "Configurações", icone: "configuracoes" },
+    ],
+    saude: [
+      { href: "/dashboard/secretarias/saude", label: "Painel da saúde", icone: "saude" },
+      { href: "/dashboard/secretarias/saude/aps", label: "Qualidade da APS", icone: "saude" },
+      { href: "/dashboard/secretarias/saude/reposicao", label: "Reposição de insumos", icone: "saude" },
+    ],
+    educacao: [
+      { href: "/dashboard/secretarias/educacao", label: "Painel da educação", icone: "educacao" },
+      { href: "/dashboard/secretarias/educacao/busca-ativa", label: "Busca ativa escolar", icone: "educacao" },
+      { href: "/dashboard/secretarias/educacao/merenda", label: "Merenda e agricultura familiar", icone: "educacao" },
+      { href: "/dashboard/secretarias/educacao/reposicao", label: "Pedido da merenda", icone: "educacao" },
+      { href: "/dashboard/secretarias/educacao/resultado", label: "Dinheiro e resultado", icone: "educacao" },
+    ],
+    obras: [{ href: "/dashboard/secretarias/obras", label: "Painel das obras", icone: "obras" }],
+    licitacoes: [{ href: "/dashboard/secretarias/licitacoes", label: "Processos e riscos", icone: "licitacoes" }],
+  };
 
-  if (secretariasAtivas.length > 0) {
-    grupos.push({ titulo: "Secretarias", itens: secretariasAtivas });
-  }
-
-  if (temGestao) {
-    grupos.push({
-      titulo: "Gestão",
-      itens: [
-        // Primeiro item do grupo de propósito: é a tela que responde se o
-        // mandato está em risco, e as outras do grupo são as frentes dela
-        // vistas de perto.
-        { href: "/dashboard/prestacao", label: "Prestação de contas", icone: "visao-geral" },
-        { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },
-        { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
-        { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },
-        { href: "/dashboard/minimos", label: "Mínimos constitucionais", icone: "visao-geral" },
-        { href: "/dashboard/pessoal", label: "Despesa com pessoal", icone: "visao-geral" },
-        { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
-        { href: "/dashboard/historico", label: "Histórico", icone: "historico" },
-        { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },
-        { href: "/dashboard/configuracoes", label: "Configurações", icone: "configuracoes" },
-      ],
-    });
+  // Mesma ordem da página de módulos e da proposta.
+  for (const plano of ["essencial", "gestao", "saude", "educacao", "obras", "licitacoes"] as PlanoAddon[]) {
+    if (planosAtivos.includes(plano)) {
+      grupos.push({ titulo: NOME_PLANO_ADDON[plano], itens: MENU_DO_PLANO[plano] });
+    }
   }
 
   grupos.push({

@@ -42,6 +42,14 @@ export default function SidebarNav({
   grupos: { titulo: string; itens: NavItem[] }[];
 }) {
   const pathname = usePathname();
+  // Um item só aceso: o de endereço mais específico. "Saúde" e "Qualidade
+  // da APS" casam com /secretarias/saude/aps; acende só o segundo.
+  const casa = (href: string) =>
+    href === "/dashboard" ? pathname === "/dashboard" : pathname === href || pathname.startsWith(href + "/");
+  const ativoHref = grupos
+    .flatMap((g) => g.itens.map((i) => i.href))
+    .filter(casa)
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta">
@@ -52,10 +60,7 @@ export default function SidebarNav({
           </p>
           <div className="space-y-0.5">
             {grupo.itens.map((item) => {
-              const ativo =
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(item.href);
+              const ativo = item.href === ativoHref;
               const Icone = ICONES[item.icone];
               return (
                 <Link
