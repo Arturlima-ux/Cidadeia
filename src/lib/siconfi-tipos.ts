@@ -36,3 +36,22 @@ export async function consultarTipos<T>(
   if (comLinhas) return comLinhas;
   return respostas.some((r) => r === null) ? null : [];
 }
+
+// ── QUANTO TEMPO GUARDAR A RESPOSTA ──
+//
+// A resposta do Tesouro fica no cache de dados. Para período antigo, sete
+// dias não erram nada: o relatório de um ano atrás não muda. Para período
+// recente, erram feio: se o site perguntou na véspera da entrega, guardava o
+// "vazio" por uma semana e seguia dizendo "não consta publicado" depois que a
+// prefeitura já tinha entregado. Período que fechou há menos de 120 dias
+// (prazo legal mais a homologação, com folga) é perguntado de novo a cada 6 h.
+
+const SEIS_HORAS = 6 * 3600;
+const SETE_DIAS = 7 * 86_400;
+const RECENTE_MS = 120 * 86_400_000;
+
+/** Segundos de cache para um período que terminou no último dia de `mesFinal` (1–12). */
+export function cacheDoPeriodo(exercicio: number, mesFinal: number, agora: number = Date.now()): number {
+  const fim = Date.UTC(exercicio, mesFinal, 0);
+  return agora - fim < RECENTE_MS ? SEIS_HORAS : SETE_DIAS;
+}

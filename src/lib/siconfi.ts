@@ -14,7 +14,7 @@
  */
 
 import { procurarMunicipioLocal } from "@/lib/municipios";
-import { consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
+import { cacheDoPeriodo, consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
 
 const URL_SICONFI = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
@@ -231,7 +231,9 @@ async function periodoFoiEntregue(
     const resposta = await fetch(`${url}?${query}`, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(TIMEOUT_MS),
-      next: { revalidate: CACHE_TESOURO_SEGUNDOS },
+      next: {
+        revalidate: cacheDoPeriodo(Number(parametros.an_exercicio), Number(parametros.nr_periodo) * 2),
+      },
     });
     if (!resposta.ok) return null;
     const json = (await resposta.json()) as { items?: unknown[] };

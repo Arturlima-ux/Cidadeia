@@ -23,7 +23,7 @@
 // que é a direção em que o teto estoura. Por isso o campo que a tela guarda é
 // a ajustada, e é ela que a importação grava.
 
-import { consultarTipos, TIPOS_RGF } from "@/lib/siconfi-tipos";
+import { cacheDoPeriodo, consultarTipos, TIPOS_RGF } from "@/lib/siconfi-tipos";
 
 const URL_RGF ="https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf";
 const TIMEOUT_MS = 25000;
@@ -226,7 +226,7 @@ async function buscarPeriodoDoTipo(
     // Mesma razão do siconfi.ts: o cache de dados sobrevive ao deploy.
     const resposta = await fetch(`${URL_RGF}?${query}`, {
       signal: controle.signal,
-      next: { revalidate: 604800 },
+      next: { revalidate: cacheDoPeriodo(periodo.exercicio, periodo.mesReferencia) },
     });
     // null é "não consegui perguntar"; [] é "perguntei e não tem". Confundir os
     // dois faz a tela acusar a prefeitura de não publicar numa visita em que o
