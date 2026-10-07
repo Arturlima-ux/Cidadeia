@@ -1,0 +1,5585 @@
+[
+ {
+  "cod": "1501758",
+  "m": "Brejo Grande do Araguaia",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 229.74,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    10867897.1,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    10705797.1,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    24595839.24,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    229.74,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    5781130.43,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Brejo Grande do Araguaia - PA"
+   ]
+  ],
+  "bruta": [
+   26365316.29
+  ]
+ },
+ {
+  "cod": "1502772",
+  "m": "Curionópolis",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Curionópolis - PA | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": [
+   "Prefeitura Municipal de Curionópolis - PA | Relatório Resumido de Execução Orçamentária p1B HO"
+  ]
+ },
+ {
+  "cod": "1506302",
+  "m": "Salvaterra",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Salvaterra - PA | Balanço Anual (DCA) p1A HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p1B HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p2B HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p3B HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p4B HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p5B HO",
+   "Prefeitura Municipal de Salvaterra - PA | Relatório Resumido de Execução Orçamentária p6B HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "1507458",
+  "m": "São Geraldo do Araguaia",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 90.32,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    91276642.17,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    89028077.17,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    80413344.69,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    90.32,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    48075161.67,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de São Geraldo do Araguaia - PA"
+   ]
+  ],
+  "bruta": [
+   84205820.13
+  ]
+ },
+ {
+  "cod": "1600105",
+  "m": "Amapá",
+  "uf": "AP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 71.31,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    42610679.03,
+    "Prefeitura Municipal de Amapá - AP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    37484146.03,
+    "Prefeitura Municipal de Amapá - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    26728694.54,
+    "Prefeitura Municipal de Amapá - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    71.31,
+    "Prefeitura Municipal de Amapá - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    20241438.86,
+    "Prefeitura Municipal de Amapá - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Amapá - AP"
+   ]
+  ],
+  "bruta": [
+   28578614.89
+  ]
+ },
+ {
+  "cod": "1722081",
+  "m": "Wanderlândia",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 195.36,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    9547117.89,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    9338629.89,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    18244222.25,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    195.36,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    5042860.14,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Wanderlândia - TO"
+   ]
+  ],
+  "bruta": [
+   19922313.84
+  ]
+ },
+ {
+  "cod": "2408607",
+  "m": "Paraná",
+  "uf": "RN",
+  "ok": true,
+  "periodo": "2026 S1",
+  "pct": 0,
+  "causa": null,
+  "tipo": "RGF Simplificado",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    28069160.6,
+    "Prefeitura Municipal de Paraná - RN"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    28069160.6,
+    "Prefeitura Municipal de Paraná - RN"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    0.12,
+    "Prefeitura Municipal de Paraná - RN"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    15157346.72,
+    "Prefeitura Municipal de Paraná - RN"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Paraná - RN"
+   ]
+  ],
+  "bruta": [
+   0.12
+  ]
+ },
+ {
+  "cod": "2705101",
+  "m": "Matriz de Camaragibe",
+  "uf": "AL",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 146.52,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    58659627.98,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    58253028.78,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    85353830.86,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    146.52,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    31456635.54,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Matriz de Camaragibe - AL"
+   ]
+  ],
+  "bruta": [
+   91935813.88
+  ]
+ },
+ {
+  "cod": "2805802",
+  "m": "Riachão do Dantas",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.36,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    118858294.95,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    111224918.95,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    78256943.43,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.36,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    60061456.23,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Riachão do Dantas - SE"
+   ]
+  ],
+  "bruta": [
+   83726702.78
+  ]
+ },
+ {
+  "cod": "2806602",
+  "m": "Santo Amaro das Brotas",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 72.37,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    76397667.13,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    67664370.13,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    48970020.46,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.37,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    36538759.87,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santo Amaro das Brotas - SE"
+   ]
+  ],
+  "bruta": [
+   51630681.16
+  ]
+ },
+ {
+  "cod": "3117876",
+  "m": "Confins",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 271.3,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    14500157.27,
+    "Prefeitura Municipal de Confins - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    14370477.27,
+    "Prefeitura Municipal de Confins - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    38987164.91,
+    "Prefeitura Municipal de Confins - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    271.3,
+    "Prefeitura Municipal de Confins - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    7760057.73,
+    "Prefeitura Municipal de Confins - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Confins - MG"
+   ]
+  ],
+  "bruta": [
+   40153783.9
+  ]
+ },
+ {
+  "cod": "3168606",
+  "m": "Teófilo Otoni",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 179.6,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    154767369.46,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    152225641.46,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    273391376.71,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    179.6,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    82201846.39,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Teófilo Otoni - MG"
+   ]
+  ],
+  "bruta": [
+   330548884.69
+  ]
+ },
+ {
+  "cod": "3301801",
+  "m": "Engenheiro Paulo de Frontin",
+  "uf": "RJ",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 101.19,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    68346272.64,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    68346272.64,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    69157169.51,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    101.19,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    36906987.23,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Engenheiro Paulo de Frontin - RJ"
+   ]
+  ],
+  "bruta": [
+   69078520.08
+  ]
+ },
+ {
+  "cod": "3551405",
+  "m": "Serra Azul",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 103.04,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    25483783.71,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    25177147.71,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    25941535.02,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    103.04,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    13595659.76,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Serra Azul - SP"
+   ]
+  ],
+  "bruta": [
+   28313521.1
+  ]
+ },
+ {
+  "cod": "4108908",
+  "m": "Guairaçá",
+  "uf": "PR",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "5219753",
+  "m": "Santo Antônio do Descoberto",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 93.34,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    201393744.59,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    189589086.59,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    176969170.75,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    93.34,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    102378106.76,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santo Antônio do Descoberto - GO"
+   ]
+  ],
+  "bruta": [
+   198529242.32
+  ]
+ },
+ {
+  "cod": "1200393",
+  "m": "Porto Walter",
+  "uf": "AC",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.17,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    77782791.35,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    68862619.35,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    48319984.64,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.17,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    37185814.45,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Porto Walter - AC"
+   ]
+  ],
+  "bruta": [
+   48448194.96
+  ]
+ },
+ {
+  "cod": "1500206",
+  "m": "Acará",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "1502806",
+  "m": "Curralinho",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 451.74,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    32949960.72,
+    "Prefeitura Municipal de Curralinho - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    32949960.72,
+    "Prefeitura Municipal de Curralinho - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    148848319.3,
+    "Prefeitura Municipal de Curralinho - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    451.74,
+    "Prefeitura Municipal de Curralinho - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    17792978.79,
+    "Prefeitura Municipal de Curralinho - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Curralinho - PA"
+   ]
+  ],
+  "bruta": [
+   167540696.48
+  ]
+ },
+ {
+  "cod": "1504307",
+  "m": "Maracanã",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.66,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    174024790.59,
+    "Prefeitura Municipal de Maracanã - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    163677426.87,
+    "Prefeitura Municipal de Maracanã - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    115647534.11,
+    "Prefeitura Municipal de Maracanã - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.66,
+    "Prefeitura Municipal de Maracanã - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    88385810.51,
+    "Prefeitura Municipal de Maracanã - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Maracanã - PA"
+   ]
+  ],
+  "bruta": [
+   125966780.26
+  ]
+ },
+ {
+  "cod": "1506104",
+  "m": "Primavera",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 126.31,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    28466532.1,
+    "Prefeitura Municipal de Primavera - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    28345283.29,
+    "Prefeitura Municipal de Primavera - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    35802486.25,
+    "Prefeitura Municipal de Primavera - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    126.31,
+    "Prefeitura Municipal de Primavera - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    15306452.98,
+    "Prefeitura Municipal de Primavera - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Primavera - PA"
+   ]
+  ],
+  "bruta": [
+   35946210.38
+  ]
+ },
+ {
+  "cod": "1507953",
+  "m": "Tailândia",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 137.64,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    130856706.37,
+    "Prefeitura Municipal de Tailândia - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    125103868.97,
+    "Prefeitura Municipal de Tailândia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    172191342.69,
+    "Prefeitura Municipal de Tailândia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    137.64,
+    "Prefeitura Municipal de Tailândia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    67556089.24,
+    "Prefeitura Municipal de Tailândia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Tailândia - PA"
+   ]
+  ],
+  "bruta": [
+   176814720.99
+  ]
+ },
+ {
+  "cod": "1600154",
+  "m": "Pedra Branca do Amapari",
+  "uf": "AP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 397.28,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    13375559.05,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    12986519.05,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    51592451.99,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    397.28,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    7012720.29,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pedra Branca do Amapari - AP"
+   ]
+  ],
+  "bruta": [
+   58475175.59
+  ]
+ },
+ {
+  "cod": "1600501",
+  "m": "Oiapoque",
+  "uf": "AP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 408.97,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    19865040.29,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    19865040.29,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    81242991.39,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    408.97,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    10727121.76,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Oiapoque - AP"
+   ]
+  ],
+  "bruta": [
+   84675306.37
+  ]
+ },
+ {
+  "cod": "1718865",
+  "m": "Santa Fé do Araguaia",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 73.02,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    33089304.14,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    31091027.14,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    22701963.89,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    73.02,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    16789154.66,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santa Fé do Araguaia - TO"
+   ]
+  ],
+  "bruta": [
+   23383934.33
+  ]
+ },
+ {
+  "cod": "2202604",
+  "m": "Castelo do Piauí",
+  "uf": "PI",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 113.71,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    46626975.43,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    41767368.43,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    47493396.33,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    113.71,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    22554378.95,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Castelo do Piauí - PI"
+   ]
+  ],
+  "bruta": [
+   58595624.15
+  ]
+ },
+ {
+  "cod": "2203701",
+  "m": "Esperantina",
+  "uf": "PI",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 113.93,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    110579628.55,
+    "Prefeitura Municipal de Esperantina - PI"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    102653180.05,
+    "Prefeitura Municipal de Esperantina - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    116954513.35,
+    "Prefeitura Municipal de Esperantina - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    113.93,
+    "Prefeitura Municipal de Esperantina - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    55432717.23,
+    "Prefeitura Municipal de Esperantina - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Esperantina - PI"
+   ]
+  ],
+  "bruta": [
+   156968480.37
+  ]
+ },
+ {
+  "cod": "2312106",
+  "m": "Santana do Cariri",
+  "uf": "CE",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "entregue_sem_dados",
+  "e2025": [
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório de Gestão Fiscal p1Q HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório de Gestão Fiscal p2Q HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório de Gestão Fiscal p3Q HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p1B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p2B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p3B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p4B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p5B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p6B HO",
+   "Câmara de Vereadores de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Câmara de Vereadores de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p2S HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Balanço Anual (DCA) p1A HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p2S HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p1B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p2B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p3B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p4B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p5B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p6B HO"
+  ],
+  "e2026": [
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório de Gestão Fiscal p1Q HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p1B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p2B HO",
+   "CONSORCIO MUNICIPAL PARA ATERRO DE RESIDUOS SOLIDOS - UNIDADE CRATO - COMARES-UC | Relatório Resumido de Execução Orçamentária p3B HO",
+   "Câmara de Vereadores de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p1B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p2B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p3B HO",
+   "Prefeitura Municipal de Santana do Cariri - CE | Relatório Resumido de Execução Orçamentária Simplificado p4B HO"
+  ]
+ },
+ {
+  "cod": "2800209",
+  "m": "Aquidabã",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 74.03,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    125837671.92,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    115884139.92,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    85792170.03,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    74.03,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    62577435.56,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Aquidabã - SE"
+   ]
+  ],
+  "bruta": [
+   87437692.07
+  ]
+ },
+ {
+  "cod": "2805109",
+  "m": "Pedrinhas",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 78.49,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    68722003.53,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    58784120.53,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    46139405.63,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    78.49,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    31743425.09,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pedrinhas - SE"
+   ]
+  ],
+  "bruta": [
+   46759470.5
+  ]
+ },
+ {
+  "cod": "2910008",
+  "m": "Dário Meira",
+  "uf": "BA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 73.08,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    87537134.16,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    86081426.16,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    62905131.01,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    73.08,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    46483970.13,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Dário Meira - BA"
+   ]
+  ],
+  "bruta": [
+   66390216.58
+  ]
+ },
+ {
+  "cod": "3522901",
+  "m": "Itapuí",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 S1",
+  "pct": 71.93,
+  "causa": null,
+  "tipo": "RGF Simplificado",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    54300085.22,
+    "Prefeitura Municipal de Itapuí - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    54200085.22,
+    "Prefeitura Municipal de Itapuí - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    38983424.4,
+    "Prefeitura Municipal de Itapuí - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    71.93,
+    "Prefeitura Municipal de Itapuí - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    29268046.02,
+    "Prefeitura Municipal de Itapuí - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Itapuí - SP"
+   ]
+  ],
+  "bruta": [
+   38983424.4
+  ]
+ },
+ {
+  "cod": "3523701",
+  "m": "Itirapuã",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2025 Q3",
+  "pct": 76.53,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    21563284.39,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    21563284.39,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    16503342.69,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    76.53,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    11644173.57,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Itirapuã - SP"
+   ]
+  ],
+  "bruta": [
+   17049237.48
+  ]
+ },
+ {
+  "cod": "3532702",
+  "m": "Nipoã",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 314.72,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    5745105.78,
+    "Prefeitura Municipal de Nipoã - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    5745105.78,
+    "Prefeitura Municipal de Nipoã - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    18081146.94,
+    "Prefeitura Municipal de Nipoã - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    314.72,
+    "Prefeitura Municipal de Nipoã - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3102357.12,
+    "Prefeitura Municipal de Nipoã - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Nipoã - SP"
+   ]
+  ],
+  "bruta": [
+   18025452.32
+  ]
+ },
+ {
+  "cod": "3542701",
+  "m": "Restinga",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 280.62,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    8594155.75,
+    "Prefeitura Municipal de Restinga - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    8594155.75,
+    "Prefeitura Municipal de Restinga - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    24117295,
+    "Prefeitura Municipal de Restinga - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    280.62,
+    "Prefeitura Municipal de Restinga - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    4640844.11,
+    "Prefeitura Municipal de Restinga - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Restinga - SP"
+   ]
+  ],
+  "bruta": [
+   25454063.9
+  ]
+ },
+ {
+  "cod": "3545506",
+  "m": "Sandovalina",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 71.36,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    42339288.84,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    42339288.84,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    30215042.01,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    71.36,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    22863215.97,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Sandovalina - SP"
+   ]
+  ],
+  "bruta": [
+   30957383.33
+  ]
+ },
+ {
+  "cod": "5102793",
+  "m": "Carlinda",
+  "uf": "MT",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "entregue_sem_dados",
+  "e2025": [
+   "Câmara de Vereadores de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Câmara de Vereadores de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p2S HO",
+   "Prefeitura Municipal de Carlinda - MT | Balanço Anual (DCA) p1A HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p2S HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p1B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p2B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p3B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p4B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p5B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p6B RE"
+  ],
+  "e2026": [
+   "Câmara de Vereadores de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório de Gestão Fiscal Simplificado p1S HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p1B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p2B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p3B HO",
+   "Prefeitura Municipal de Carlinda - MT | Relatório Resumido de Execução Orçamentária Simplificado p4B HO"
+  ]
+ },
+ {
+  "cod": "5106273",
+  "m": "Novo Horizonte do Norte",
+  "uf": "MT",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "5108105",
+  "m": "Tesouro",
+  "uf": "MT",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 12.16,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    66749228.99,
+    "Prefeitura Municipal de Tesouro - MT"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    66749228.99,
+    "Prefeitura Municipal de Tesouro - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    8115139.6,
+    "Prefeitura Municipal de Tesouro - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    12.16,
+    "Prefeitura Municipal de Tesouro - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    36044583.65,
+    "Prefeitura Municipal de Tesouro - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Tesouro - MT"
+   ]
+  ],
+  "bruta": [
+   8316154.4
+  ]
+ },
+ {
+  "cod": "1503101",
+  "m": "Gurupá",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 70.96,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    285027379.19,
+    "Prefeitura Municipal de Gurupá - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    282618397.19,
+    "Prefeitura Municipal de Gurupá - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    200548982.44,
+    "Prefeitura Municipal de Gurupá - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.96,
+    "Prefeitura Municipal de Gurupá - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    152613934.48,
+    "Prefeitura Municipal de Gurupá - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Gurupá - PA"
+   ]
+  ],
+  "bruta": [
+   205024222.04
+  ]
+ },
+ {
+  "cod": "1504406",
+  "m": "Marapanim",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Câmara de Vereadores de Marapanim - PA | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de Marapanim - PA | Relatório de Gestão Fiscal p2Q HO",
+   "Câmara de Vereadores de Marapanim - PA | Relatório de Gestão Fiscal p3Q HO"
+  ],
+  "e2026": [
+   "Câmara de Vereadores de Marapanim - PA | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de Marapanim - PA | Relatório de Gestão Fiscal p2Q HO"
+  ]
+ },
+ {
+  "cod": "1506112",
+  "m": "Quatipuru",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Quatipuru - PA | Relatório Resumido de Execução Orçamentária p1B HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "1506401",
+  "m": "Santa Cruz do Arari",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Santa Cruz do Arari - PA | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "1700400",
+  "m": "Almas",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 206.32,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    12276486.75,
+    "Prefeitura Municipal de Almas - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    12276486.75,
+    "Prefeitura Municipal de Almas - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    25328658.75,
+    "Prefeitura Municipal de Almas - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    206.32,
+    "Prefeitura Municipal de Almas - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    6629302.85,
+    "Prefeitura Municipal de Almas - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Almas - TO"
+   ]
+  ],
+  "bruta": [
+   25328658.75
+  ]
+ },
+ {
+  "cod": "2505352",
+  "m": "Damião",
+  "uf": "PB",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 97.92,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    25885620.61,
+    "Prefeitura Municipal de Damião - PB"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    25196580.61,
+    "Prefeitura Municipal de Damião - PB"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    24672038.32,
+    "Prefeitura Municipal de Damião - PB"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    97.92,
+    "Prefeitura Municipal de Damião - PB"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    13606153.53,
+    "Prefeitura Municipal de Damião - PB"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Damião - PB"
+   ]
+  ],
+  "bruta": [
+   24866352.32
+  ]
+ },
+ {
+  "cod": "2703007",
+  "m": "Ibateguara",
+  "uf": "AL",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 75.51,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    65710148.73,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    64990424.73,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    49077203.69,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    75.51,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    35094829.35,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ibateguara - AL"
+   ]
+  ],
+  "bruta": [
+   50879420.3
+  ]
+ },
+ {
+  "cod": "2932457",
+  "m": "Umburanas",
+  "uf": "BA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 107.85,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    57491236.61,
+    "Prefeitura Municipal de Umburanas - BA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    53260280.61,
+    "Prefeitura Municipal de Umburanas - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    57441905.01,
+    "Prefeitura Municipal de Umburanas - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    107.85,
+    "Prefeitura Municipal de Umburanas - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    28760551.53,
+    "Prefeitura Municipal de Umburanas - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Umburanas - BA"
+   ]
+  ],
+  "bruta": [
+   59603249.18
+  ]
+ },
+ {
+  "cod": "3540101",
+  "m": "Pongaí",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 288.84,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    6131982.53,
+    "Prefeitura Municipal de Pongaí - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    6131982.53,
+    "Prefeitura Municipal de Pongaí - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    17711723.05,
+    "Prefeitura Municipal de Pongaí - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    288.84,
+    "Prefeitura Municipal de Pongaí - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3311270.57,
+    "Prefeitura Municipal de Pongaí - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pongaí - SP"
+   ]
+  ],
+  "bruta": [
+   17731629.93
+  ]
+ },
+ {
+  "cod": "4112207",
+  "m": "Janiópolis",
+  "uf": "PR",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 90.64,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    22794467.47,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    22404960.47,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    20306800.08,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    90.64,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    12098678.65,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Janiópolis - PR"
+   ]
+  ],
+  "bruta": [
+   28806329.95
+  ]
+ },
+ {
+  "cod": "4304358",
+  "m": "Candiota",
+  "uf": "RS",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 273.8,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    19228728.99,
+    "Prefeitura Municipal de Candiota - RS"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    19228728.99,
+    "Prefeitura Municipal de Candiota - RS"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    52648608.95,
+    "Prefeitura Municipal de Candiota - RS"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    273.8,
+    "Prefeitura Municipal de Candiota - RS"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    10383513.65,
+    "Prefeitura Municipal de Candiota - RS"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Candiota - RS"
+   ]
+  ],
+  "bruta": [
+   61206810.18
+  ]
+ },
+ {
+  "cod": "5105176",
+  "m": "Juruena",
+  "uf": "MT",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Juruena - MT | Relatório Resumido de Execução Orçamentária p1B HO"
+  ],
+  "e2026": [
+   "Prefeitura Municipal de Juruena - MT | Relatório Resumido de Execução Orçamentária p1B HO"
+  ]
+ },
+ {
+  "cod": "5218904",
+  "m": "Rubiataba",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 360.18,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    17195896.6,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    16613340.6,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    59838695.91,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    360.18,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    8971203.92,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Rubiataba - GO"
+   ]
+  ],
+  "bruta": [
+   75491157.86
+  ]
+ },
+ {
+  "cod": "5300108",
+  "m": "Brasília",
+  "uf": "DF",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": [],
+  "df_esfera_E": [
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    41899183021.71,
+    "Governo do Distrito Federal"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    16987811890.99,
+    "Governo do Distrito Federal"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    40.54,
+    "Governo do Distrito Federal"
+   ]
+  ],
+  "df_esfera_D": []
+ },
+ {
+  "cod": "1200427",
+  "m": "Rodrigues Alves",
+  "uf": "AC",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 74.08,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    109376963.24,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    100893315.65,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    74743726.41,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    74.08,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    54482390.45,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Rodrigues Alves - AC"
+   ]
+  ],
+  "bruta": [
+   79082454.63
+  ]
+ },
+ {
+  "cod": "1500958",
+  "m": "Aurora do Pará",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 342.75,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    23234011.41,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    22128489.41,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    75844951.07,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    342.75,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    11949384.28,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Aurora do Pará - PA"
+   ]
+  ],
+  "bruta": [
+   81923643.67
+  ]
+ },
+ {
+  "cod": "1507508",
+  "m": "São João do Araguaia",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 358.72,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    12580238.77,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    12243070.77,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    43917777.63,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    358.72,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    6611258.22,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de São João do Araguaia - PA"
+   ]
+  ],
+  "bruta": [
+   47159150.25
+  ]
+ },
+ {
+  "cod": "1702158",
+  "m": "Araguanã",
+  "uf": "TO",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "1710706",
+  "m": "Itaguatins",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 115.64,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    20701662.86,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    18004948.74,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    20821678.39,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    115.64,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    9722672.32,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Itaguatins - TO"
+   ]
+  ],
+  "bruta": [
+   22584322.85
+  ]
+ },
+ {
+  "cod": "1718550",
+  "m": "Riachinho",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 290.19,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    5153342.4,
+    "Prefeitura Municipal de Riachinho - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    5153342.4,
+    "Prefeitura Municipal de Riachinho - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    14954255.11,
+    "Prefeitura Municipal de Riachinho - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    290.19,
+    "Prefeitura Municipal de Riachinho - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    2782804.9,
+    "Prefeitura Municipal de Riachinho - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Riachinho - TO"
+   ]
+  ],
+  "bruta": [
+   14954255.11
+  ]
+ },
+ {
+  "cod": "2208700",
+  "m": "Redenção do Gurguéia",
+  "uf": "PI",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 326.88,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    8893746.67,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    8764066.67,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    28647778.98,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    326.88,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    4732596,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Redenção do Gurguéia - PI"
+   ]
+  ],
+  "bruta": [
+   33798323.99
+  ]
+ },
+ {
+  "cod": "2501807",
+  "m": "Bayeux",
+  "uf": "PB",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.38,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    347958101.75,
+    "Prefeitura Municipal de Bayeux - PB"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    322368155.02,
+    "Prefeitura Municipal de Bayeux - PB"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    226870554.44,
+    "Prefeitura Municipal de Bayeux - PB"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.38,
+    "Prefeitura Municipal de Bayeux - PB"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    174078803.71,
+    "Prefeitura Municipal de Bayeux - PB"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Bayeux - PB"
+   ]
+  ],
+  "bruta": [
+   269997951.19
+  ]
+ },
+ {
+  "cod": "2608602",
+  "m": "Lagoa do Ouro",
+  "uf": "PE",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 235.42,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    16496625.15,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    16269685.15,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    38302830.87,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    235.42,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    8785629.98,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Lagoa do Ouro - PE"
+   ]
+  ],
+  "bruta": [
+   51144199.05
+  ]
+ },
+ {
+  "cod": "2805307",
+  "m": "Pirambu",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 74.36,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    61500990.12,
+    "Prefeitura Municipal de Pirambu - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    60430946.12,
+    "Prefeitura Municipal de Pirambu - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    44937547.43,
+    "Prefeitura Municipal de Pirambu - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    74.36,
+    "Prefeitura Municipal de Pirambu - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    32632710.9,
+    "Prefeitura Municipal de Pirambu - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pirambu - SE"
+   ]
+  ],
+  "bruta": [
+   47341684.8
+  ]
+ },
+ {
+  "cod": "3102209",
+  "m": "Alvarenga",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 S1",
+  "pct": 78.92,
+  "causa": null,
+  "tipo": "RGF Simplificado",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    24639619.44,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    24182516.58,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    19083745.36,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    78.92,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    13058558.95,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Alvarenga - MG"
+   ]
+  ],
+  "bruta": [
+   20342754.31
+  ]
+ },
+ {
+  "cod": "3102902",
+  "m": "Antônio Carlos",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 97.91,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    31688461.54,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    30754314.44,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    30111834.12,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    97.91,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    16607329.8,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Antônio Carlos - MG"
+   ]
+  ],
+  "bruta": [
+   32396992.47
+  ]
+ },
+ {
+  "cod": "3303005",
+  "m": "Miracema",
+  "uf": "RJ",
+  "ok": true,
+  "periodo": "2025 Q2",
+  "pct": 102.44,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    32374304.89,
+    "Prefeitura Municipal de Miracema - RJ"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    32374304.89,
+    "Prefeitura Municipal de Miracema - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    33162967.72,
+    "Prefeitura Municipal de Miracema - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    102.44,
+    "Prefeitura Municipal de Miracema - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    17482124.64,
+    "Prefeitura Municipal de Miracema - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Miracema - RJ"
+   ]
+  ],
+  "bruta": [
+   42272529.47
+  ]
+ },
+ {
+  "cod": "3515400",
+  "m": "Fartura",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 223.51,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    21125952.57,
+    "Prefeitura Municipal de Fartura - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    20996272.57,
+    "Prefeitura Municipal de Fartura - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    46928135.02,
+    "Prefeitura Municipal de Fartura - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    223.51,
+    "Prefeitura Municipal de Fartura - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    11337987.19,
+    "Prefeitura Municipal de Fartura - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Fartura - SP"
+   ]
+  ],
+  "bruta": [
+   48460972.23
+  ]
+ },
+ {
+  "cod": "3517604",
+  "m": "Guapiara",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 291.88,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    17649578.64,
+    "Prefeitura Municipal de Guapiara - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    17649578.64,
+    "Prefeitura Municipal de Guapiara - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    51515011.06,
+    "Prefeitura Municipal de Guapiara - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    291.88,
+    "Prefeitura Municipal de Guapiara - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    9530772.47,
+    "Prefeitura Municipal de Guapiara - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Guapiara - SP"
+   ]
+  ],
+  "bruta": [
+   51515011.06
+  ]
+ },
+ {
+  "cod": "3545001",
+  "m": "Salesópolis",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 116.89,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    33346249.37,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    31761476.37,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    37125304.43,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    116.89,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    17151197.24,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Salesópolis - SP"
+   ]
+  ],
+  "bruta": [
+   37431985.85
+  ]
+ },
+ {
+  "cod": "4118808",
+  "m": "Peabiru",
+  "uf": "PR",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Peabiru - PR | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "4119301",
+  "m": "Pinhão",
+  "uf": "PR",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 386.91,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    28999010.84,
+    "Prefeitura Municipal de Pinhão - PR"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    28999010.84,
+    "Prefeitura Municipal de Pinhão - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    112200926.37,
+    "Prefeitura Municipal de Pinhão - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    386.91,
+    "Prefeitura Municipal de Pinhão - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    15659465.85,
+    "Prefeitura Municipal de Pinhão - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pinhão - PR"
+   ]
+  ],
+  "bruta": [
+   112987249.36
+  ]
+ },
+ {
+  "cod": "4123600",
+  "m": "Santa Inês",
+  "uf": "PR",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 228.9,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    5796752.33,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    5796752.33,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    13268861.98,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    228.9,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3130246.26,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santa Inês - PR"
+   ]
+  ],
+  "bruta": [
+   13294545.94
+  ]
+ },
+ {
+  "cod": "4219150",
+  "m": "Vargem",
+  "uf": "SC",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Vargem - SC | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "5208004",
+  "m": "Formosa",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 219.05,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    161536071.3,
+    "Prefeitura Municipal de Formosa - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    159477401.3,
+    "Prefeitura Municipal de Formosa - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    349332698.28,
+    "Prefeitura Municipal de Formosa - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    219.05,
+    "Prefeitura Municipal de Formosa - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    86117796.7,
+    "Prefeitura Municipal de Formosa - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Formosa - GO"
+   ]
+  ],
+  "bruta": [
+   451219876.54
+  ]
+ },
+ {
+  "cod": "1600600",
+  "m": "Santana",
+  "uf": "AP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 324.81,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    73637653.95,
+    "Prefeitura Municipal de Santana - AP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    71990717.95,
+    "Prefeitura Municipal de Santana - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    233834374.46,
+    "Prefeitura Municipal de Santana - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    324.81,
+    "Prefeitura Municipal de Santana - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    38874987.69,
+    "Prefeitura Municipal de Santana - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santana - AP"
+   ]
+  ],
+  "bruta": [
+   284038180.49
+  ]
+ },
+ {
+  "cod": "1701002",
+  "m": "Ananás",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 77.23,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    44521631.27,
+    "Prefeitura Municipal de Ananás - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    37984359.83,
+    "Prefeitura Municipal de Ananás - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    29334198.67,
+    "Prefeitura Municipal de Ananás - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    77.23,
+    "Prefeitura Municipal de Ananás - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    20511554.31,
+    "Prefeitura Municipal de Ananás - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ananás - TO"
+   ]
+  ],
+  "bruta": [
+   31478144.69
+  ]
+ },
+ {
+  "cod": "1717909",
+  "m": "Ponte Alta do Tocantins",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 384.62,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    7397230.96,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    7254582.96,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    27902619,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    384.62,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3917474.8,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ponte Alta do Tocantins - TO"
+   ]
+  ],
+  "bruta": [
+   29320706.3
+  ]
+ },
+ {
+  "cod": "2207355",
+  "m": "Pajeú do Piauí",
+  "uf": "PI",
+  "ok": true,
+  "periodo": "2025 Q2",
+  "pct": 235.71,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    5091125.91,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    4469746.81,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    10535755.51,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    235.71,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    2413663.28,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pajeú do Piauí - PI"
+   ]
+  ],
+  "bruta": [
+   11122152.49
+  ]
+ },
+ {
+  "cod": "2410405",
+  "m": "Pureza",
+  "uf": "RN",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 72.46,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    69928195.1,
+    "Prefeitura Municipal de Pureza - RN"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    61599973.1,
+    "Prefeitura Municipal de Pureza - RN"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    44634026.55,
+    "Prefeitura Municipal de Pureza - RN"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.46,
+    "Prefeitura Municipal de Pureza - RN"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    33263985.47,
+    "Prefeitura Municipal de Pureza - RN"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pureza - RN"
+   ]
+  ],
+  "bruta": [
+   46067619.05
+  ]
+ },
+ {
+  "cod": "2708501",
+  "m": "São Luís do Quitunde",
+  "uf": "AL",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Câmara de Vereadores de São Luís do Quitunde - AL | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de São Luís do Quitunde - AL | Relatório de Gestão Fiscal p2Q HO",
+   "Câmara de Vereadores de São Luís do Quitunde - AL | Relatório de Gestão Fiscal p3Q HO"
+  ],
+  "e2026": [
+   "Câmara de Vereadores de São Luís do Quitunde - AL | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de São Luís do Quitunde - AL | Relatório de Gestão Fiscal p2Q HO"
+  ]
+ },
+ {
+  "cod": "2805406",
+  "m": "Poço Redondo",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 80.5,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    177077302.19,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    155759008.19,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    125389872.18,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    80.5,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    84109864.42,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Poço Redondo - SE"
+   ]
+  ],
+  "bruta": [
+   127558618.54
+  ]
+ },
+ {
+  "cod": "2926806",
+  "m": "Rio do Antônio",
+  "uf": "BA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "consulta_falhou",
+  "e2025": [
+   "Câmara de Vereadores de Rio do Antônio - BA | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de Rio do Antônio - BA | Relatório de Gestão Fiscal p2Q HO",
+   "Câmara de Vereadores de Rio do Antônio - BA | Relatório de Gestão Fiscal p3Q HO",
+   "Prefeitura Municipal de Rio do Antônio - BA | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": [
+   "Câmara de Vereadores de Rio do Antônio - BA | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de Rio do Antônio - BA | Relatório de Gestão Fiscal p2Q HO"
+  ]
+ },
+ {
+  "cod": "3103751",
+  "m": "Araporã",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2025 Q1",
+  "pct": 348.69,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    15413089.9,
+    "Prefeitura Municipal de Araporã - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    15413089.9,
+    "Prefeitura Municipal de Araporã - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    53744352.73,
+    "Prefeitura Municipal de Araporã - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    348.69,
+    "Prefeitura Municipal de Araporã - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    8323068.55,
+    "Prefeitura Municipal de Araporã - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Araporã - MG"
+   ]
+  ],
+  "bruta": [
+   55693601.92
+  ]
+ },
+ {
+  "cod": "3161106",
+  "m": "São Francisco",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 105.38,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    116388740.59,
+    "Prefeitura Municipal de São Francisco - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    112510600.59,
+    "Prefeitura Municipal de São Francisco - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    118564217.05,
+    "Prefeitura Municipal de São Francisco - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    105.38,
+    "Prefeitura Municipal de São Francisco - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    60755724.32,
+    "Prefeitura Municipal de São Francisco - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de São Francisco - MG"
+   ]
+  ],
+  "bruta": [
+   151400346.38
+  ]
+ },
+ {
+  "cod": "3525607",
+  "m": "João Ramalho",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2025 Q2",
+  "pct": 78.98,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    24654355.72,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    24654355.72,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    19472328.45,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    78.98,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    13313352.09,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de João Ramalho - SP"
+   ]
+  ],
+  "bruta": [
+   19937914.1
+  ]
+ },
+ {
+  "cod": "4115903",
+  "m": "Mirador",
+  "uf": "PR",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "1713809",
+  "m": "Palmeiras do Tocantins",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 290.34,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    6698925.84,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    6471790.84,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    18790240.3,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    290.34,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3494767.05,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Palmeiras do Tocantins - TO"
+   ]
+  ],
+  "bruta": [
+   19897629.8
+  ]
+ },
+ {
+  "cod": "2605459",
+  "m": "Fernando de Noronha",
+  "uf": "PE",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "2806305",
+  "m": "Santa Luzia do Itanhy",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 71.65,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    118925676.38,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    113941121.13,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    81637506.41,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    71.65,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    61528205.41,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santa Luzia do Itanhy - SE"
+   ]
+  ],
+  "bruta": [
+   83053098.91
+  ]
+ },
+ {
+  "cod": "2917805",
+  "m": "Jaguaripe",
+  "uf": "BA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 87.13,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    40675865.17,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    38728245.42,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    33744300.55,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    87.13,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    20913252.53,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Jaguaripe - BA"
+   ]
+  ],
+  "bruta": [
+   33764982.34
+  ]
+ },
+ {
+  "cod": "3135407",
+  "m": "Jeceaba",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 S1",
+  "pct": 96.52,
+  "causa": null,
+  "tipo": "RGF Simplificado",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    93906543.92,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    90895134.72,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    87729120.53,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    96.52,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    49083372.75,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Jeceaba - MG"
+   ]
+  ],
+  "bruta": [
+   88107753.97
+  ]
+ },
+ {
+  "cod": "3170404",
+  "m": "Unaí",
+  "uf": "MG",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 308.33,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    93357056.5,
+    "Prefeitura Municipal de Unaí - MG"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    92034320.5,
+    "Prefeitura Municipal de Unaí - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    283767227.22,
+    "Prefeitura Municipal de Unaí - MG"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    308.33,
+    "Prefeitura Municipal de Unaí - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    49698533.07,
+    "Prefeitura Municipal de Unaí - MG"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Unaí - MG"
+   ]
+  ],
+  "bruta": [
+   356073059.15
+  ]
+ },
+ {
+  "cod": "3300936",
+  "m": "Carapebus",
+  "uf": "RJ",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 70.68,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    250134238.84,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    250134238.84,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    176784727.93,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.68,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    135072488.97,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Carapebus - RJ"
+   ]
+  ],
+  "bruta": [
+   172873191.79
+  ]
+ },
+ {
+  "cod": "3508702",
+  "m": "Caconde",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 280.88,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    15359190.05,
+    "Prefeitura Municipal de Caconde - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    15359190.05,
+    "Prefeitura Municipal de Caconde - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    43141461.81,
+    "Prefeitura Municipal de Caconde - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    280.88,
+    "Prefeitura Municipal de Caconde - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    8293962.63,
+    "Prefeitura Municipal de Caconde - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Caconde - SP"
+   ]
+  ],
+  "bruta": [
+   43141461.81
+  ]
+ },
+ {
+  "cod": "3513900",
+  "m": "Divinolândia",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2025 Q3",
+  "pct": 70.34,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    65172957.06,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    65172957.06,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    45841281.56,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.34,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    35193396.81,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Divinolândia - SP"
+   ]
+  ],
+  "bruta": [
+   48521792.59
+  ]
+ },
+ {
+  "cod": "5200555",
+  "m": "Alto Horizonte",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2025 Q3",
+  "pct": 112.34,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    60416602.01,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    59666602.01,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    67030536.45,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    112.34,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    32219965.09,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Alto Horizonte - GO"
+   ]
+  ],
+  "bruta": [
+   67204919.2
+  ]
+ },
+ {
+  "cod": "5215405",
+  "m": "Ouro Verde de Goiás",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 354.41,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    4862604.29,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    4862604.29,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    17233543.48,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    354.41,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    2625806.32,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ouro Verde de Goiás - GO"
+   ]
+  ],
+  "bruta": [
+   21709954.69
+  ]
+ },
+ {
+  "cod": "1501709",
+  "m": "Bragança",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.9,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    547995833.78,
+    "Prefeitura Municipal de Bragança - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    506283741.78,
+    "Prefeitura Municipal de Bragança - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    358967604.37,
+    "Prefeitura Municipal de Bragança - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.9,
+    "Prefeitura Municipal de Bragança - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    273393220.56,
+    "Prefeitura Municipal de Bragança - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Bragança - PA"
+   ]
+  ],
+  "bruta": [
+   371426494.52
+  ]
+ },
+ {
+  "cod": "1502756",
+  "m": "Concórdia do Pará",
+  "uf": "PA",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [
+   "Prefeitura Municipal de Concórdia do Pará - PA | Balanço Anual (DCA) p1A HO"
+  ],
+  "e2026": []
+ },
+ {
+  "cod": "1506609",
+  "m": "Santa Maria do Pará",
+  "uf": "PA",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 117.08,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    37088216,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    37088216,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    43421654.56,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    117.08,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    20027636.64,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santa Maria do Pará - PA"
+   ]
+  ],
+  "bruta": [
+   44208567.27
+  ]
+ },
+ {
+  "cod": "1701101",
+  "m": "Aparecida do Rio Negro",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2025 Q3",
+  "pct": 127.64,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    16785019.51,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    15021338.51,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    19172652.63,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    127.64,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    8111522.8,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Aparecida do Rio Negro - TO"
+   ]
+  ],
+  "bruta": [
+   19709520.94
+  ]
+ },
+ {
+  "cod": "1713957",
+  "m": "Muricilândia",
+  "uf": "TO",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "2108405",
+  "m": "Peri Mirim",
+  "uf": "MA",
+  "ok": true,
+  "periodo": "2025 Q3",
+  "pct": 72.95,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    69627886.08,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    69627886.08,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    50792654.48,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.95,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    37599058.48,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Peri Mirim - MA"
+   ]
+  ],
+  "bruta": [
+   52030522.9
+  ]
+ },
+ {
+  "cod": "2702603",
+  "m": "Feira Grande",
+  "uf": "AL",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "2800670",
+  "m": "Boquim",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 72.23,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    125360602.8,
+    "Prefeitura Municipal de Boquim - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    117903342.8,
+    "Prefeitura Municipal de Boquim - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    85156848.36,
+    "Prefeitura Municipal de Boquim - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.23,
+    "Prefeitura Municipal de Boquim - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    63667805.11,
+    "Prefeitura Municipal de Boquim - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Boquim - SE"
+   ]
+  ],
+  "bruta": [
+   89626632.19
+  ]
+ },
+ {
+  "cod": "2802502",
+  "m": "General Maynard",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.91,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    40389968.8,
+    "Prefeitura Municipal de General Maynard - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    37665285.24,
+    "Prefeitura Municipal de General Maynard - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    26706946.78,
+    "Prefeitura Municipal de General Maynard - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.91,
+    "Prefeitura Municipal de General Maynard - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    20339254.03,
+    "Prefeitura Municipal de General Maynard - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de General Maynard - SE"
+   ]
+  ],
+  "bruta": [
+   27204109.2
+  ]
+ },
+ {
+  "cod": "2803302",
+  "m": "Japaratuba",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 72.52,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    124465565.49,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    121947845.49,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    88430746.74,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.52,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    65851836.56,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Japaratuba - SE"
+   ]
+  ],
+  "bruta": [
+   95524740.31
+  ]
+ },
+ {
+  "cod": "2912103",
+  "m": "Ibicaraí",
+  "uf": "BA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 94.66,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    52927786.36,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    50295324.36,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    47608138.44,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    94.66,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    27159475.15,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ibicaraí - BA"
+   ]
+  ],
+  "bruta": [
+   53569351.43
+  ]
+ },
+ {
+  "cod": "2929602",
+  "m": "Sapeaçu",
+  "uf": "BA",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 77.25,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    134766345.48,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    131221417.48,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    101363952.29,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    77.25,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    70859565.44,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Sapeaçu - BA"
+   ]
+  ],
+  "bruta": [
+   103459723.11
+  ]
+ },
+ {
+  "cod": "3539707",
+  "m": "Platina",
+  "uf": "SP",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 70.68,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    29361090.74,
+    "Prefeitura Municipal de Platina - SP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    29161090.74,
+    "Prefeitura Municipal de Platina - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    20610056.2,
+    "Prefeitura Municipal de Platina - SP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.68,
+    "Prefeitura Municipal de Platina - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    15746989,
+    "Prefeitura Municipal de Platina - SP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Platina - SP"
+   ]
+  ],
+  "bruta": [
+   20610056.2
+  ]
+ },
+ {
+  "cod": "4203501",
+  "m": "Campo Erê",
+  "uf": "SC",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 158.64,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    20918096.06,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    20665220.06,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    32782971.66,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    158.64,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    11159218.83,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Campo Erê - SC"
+   ]
+  ],
+  "bruta": [
+   33841003.36
+  ]
+ },
+ {
+  "cod": "5222005",
+  "m": "Vianópolis",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 76.68,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    68667239.2,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    65821239.2,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    50473319.53,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    76.68,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    35543469.17,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Vianópolis - GO"
+   ]
+  ],
+  "bruta": [
+   62187147.86
+  ]
+ },
+ {
+  "cod": "1600055",
+  "m": "Serra do Navio",
+  "uf": "AP",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 182.65,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    26580294.07,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    12708114.7,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    23211097.82,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    182.65,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    6862381.94,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Serra do Navio - AP"
+   ]
+  ],
+  "bruta": [
+   24781545.14
+  ]
+ },
+ {
+  "cod": "1701309",
+  "m": "Aragominas",
+  "uf": "TO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 298.31,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    4633783.52,
+    "Prefeitura Municipal de Aragominas - TO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    4583783.52,
+    "Prefeitura Municipal de Aragominas - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    13674088.86,
+    "Prefeitura Municipal de Aragominas - TO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    298.31,
+    "Prefeitura Municipal de Aragominas - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    2475243.1,
+    "Prefeitura Municipal de Aragominas - TO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Aragominas - TO"
+   ]
+  ],
+  "bruta": [
+   14012593.76
+  ]
+ },
+ {
+  "cod": "2404002",
+  "m": "Frutuoso Gomes",
+  "uf": "RN",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": [
+   "Câmara de Vereadores de Frutuoso Gomes - RN | Relatório de Gestão Fiscal p1Q HO",
+   "Câmara de Vereadores de Frutuoso Gomes - RN | Relatório de Gestão Fiscal p2Q HO"
+  ]
+ },
+ {
+  "cod": "2801702",
+  "m": "Cristinápolis",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 70.06,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    113449872.85,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    110976790.49,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    77745849.31,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    70.06,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    59927466.86,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Cristinápolis - SE"
+   ]
+  ],
+  "bruta": [
+   81930590.01
+  ]
+ },
+ {
+  "cod": "2804201",
+  "m": "Monte Alegre de Sergipe",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 72.01,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    95451515.21,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    88841860.63,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    63978310.01,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    72.01,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    47974604.74,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Monte Alegre de Sergipe - SE"
+   ]
+  ],
+  "bruta": [
+   71234813.03
+  ]
+ },
+ {
+  "cod": "2804904",
+  "m": "Pacatuba",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 78.73,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    95294679.33,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    86035619.33,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    67737850.59,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    78.73,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    46459234.44,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Pacatuba - SE"
+   ]
+  ],
+  "bruta": [
+   69860809.11
+  ]
+ },
+ {
+  "cod": "2806503",
+  "m": "Santa Rosa de Lima",
+  "uf": "SE",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 71.28,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    45171169.28,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    39498772.28,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    28153900.56,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    71.28,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    21329337.03,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santa Rosa de Lima - SE"
+   ]
+  ],
+  "bruta": [
+   30019079.44
+  ]
+ },
+ {
+  "cod": "3304409",
+  "m": "Rio Claro",
+  "uf": "RJ",
+  "ok": true,
+  "periodo": "2026 Q2",
+  "pct": 83.77,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    123800355.48,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    123119535.48,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    103133242.78,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    83.77,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    66484549.16,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Rio Claro - RJ"
+   ]
+  ],
+  "bruta": [
+   135565762.21
+  ]
+ },
+ {
+  "cod": "4104451",
+  "m": "Cantagalo",
+  "uf": "PR",
+  "ok": true,
+  "periodo": "2026 S1",
+  "pct": 79.13,
+  "causa": null,
+  "tipo": "RGF Simplificado",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    67186773.66,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    65515038.66,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    51839716.86,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    79.13,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    35378120.88,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Cantagalo - PR"
+   ]
+  ],
+  "bruta": [
+   44037050.3
+  ]
+ },
+ {
+  "cod": "4107108",
+  "m": "Diamante do Norte",
+  "uf": "PR",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 89.29,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    21274376.86,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    21174363.86,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    18905631.56,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    89.29,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    11434156.48,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Diamante do Norte - PR"
+   ]
+  ],
+  "bruta": [
+   27117760.25
+  ]
+ },
+ {
+  "cod": "4121901",
+  "m": "Ribeirão do Pinhal",
+  "uf": "PR",
+  "ok": false,
+  "periodo": null,
+  "pct": null,
+  "causa": "nao_publicado",
+  "e2025": [],
+  "e2026": []
+ },
+ {
+  "cod": "5107198",
+  "m": "Ribeirãozinho",
+  "uf": "MT",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 236.95,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    6284980.14,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    5834980.14,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    13826122.5,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    236.95,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3150889.28,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Ribeirãozinho - MT"
+   ]
+  ],
+  "bruta": [
+   14051478.5
+  ]
+ },
+ {
+  "cod": "5107800",
+  "m": "Santo Antônio de Leverger",
+  "uf": "MT",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 264.27,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    16797687.98,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    16797687.98,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    44390510.37,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    264.27,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    9070751.51,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Santo Antônio do Leverger - MT"
+   ]
+  ],
+  "bruta": [
+   50734223.74
+  ]
+ },
+ {
+  "cod": "5210562",
+  "m": "Itaguari",
+  "uf": "GO",
+  "ok": true,
+  "periodo": "2026 Q1",
+  "pct": 244.6,
+  "causa": null,
+  "tipo": "RGF",
+  "linhas": [
+   [
+    "ReceitaCorrenteLiquidaLimiteLegal",
+    "Valor",
+    6495805.97,
+    "Prefeitura Municipal de Itaguari - GO"
+   ],
+   [
+    "ReceitaCorrenteLiquidaAjustada",
+    "Valor",
+    6417997.97,
+    "Prefeitura Municipal de Itaguari - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "Valor",
+    15698553.75,
+    "Prefeitura Municipal de Itaguari - GO"
+   ],
+   [
+    "DespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    244.6,
+    "Prefeitura Municipal de Itaguari - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "Valor",
+    3465718.9,
+    "Prefeitura Municipal de Itaguari - GO"
+   ],
+   [
+    "LimiteMaximoDespesaComPessoalTotal",
+    "% sobre a RCL Ajustada",
+    54,
+    "Prefeitura Municipal de Itaguari - GO"
+   ]
+  ],
+  "bruta": [
+   18918467.77
+  ]
+ }
+]
