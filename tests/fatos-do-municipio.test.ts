@@ -240,7 +240,8 @@ describe("o Tesouro fora do ar não acusa o município", () => {
   it("falha de consulta não vira acusação de não publicar", () => {
     const f = fatoDoPessoal(rgfConsultaFalhou(), HOJE);
     expect(f.ausencia).not.toMatch(/não consta publicado|consta publicado/i);
-    expect(f.ausencia).toMatch(/nossa pergunta não chegou/i);
+    expect(f.ausencia).toMatch(/Tesouro não respondeu/i);
+    expect(f.ausencia).toMatch(/não diz nada sobre o que a prefeitura/i);
   });
 
   it("as três ausências têm frases diferentes", () => {
