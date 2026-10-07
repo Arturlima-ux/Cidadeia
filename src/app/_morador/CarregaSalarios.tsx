@@ -55,6 +55,8 @@ export default async function CarregaSalarios({ codigoIbge }: { codigoIbge: stri
       ? { cor: "var(--urgente)", texto: "No limite. A prefeitura fica proibida de contratar e de dar aumento." }
       : pct >= lim.alerta
       ? { cor: "var(--medio)", texto: "Perto do limite. O Tribunal de Contas já manda um aviso." }
+      : pct >= lim.alerta - 3
+      ? { cor: "var(--brand-claro)", texto: `Dentro do limite da lei, mas perto do sinal de alerta (R$ ${lim.alerta.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}).` }
       : { cor: "var(--brand-claro)", texto: "Dentro do limite da lei, com folga." };
 
   const pintadas = Math.round(pct);
