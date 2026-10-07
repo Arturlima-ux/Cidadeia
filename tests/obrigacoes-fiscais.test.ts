@@ -29,12 +29,10 @@ describe("catálogo de obrigações", () => {
   });
 
   it("separa o que conseguimos conferir do que é só lembrete", () => {
-    // Só o RREO sai utilizável da API do Tesouro. O endpoint de RGF responde
-    // 200 e devolve zero registro para todo município testado, então tratá-lo
-    // como verificável faria a tela acusar de atraso quem cumpriu. SIOPS e
-    // SIOPE não têm consulta pública equivalente.
+    // RREO e RGF (comum ou simplificado) são conferidos no extrato de
+    // entregas do Tesouro. SIOPS e SIOPE não têm consulta pública equivalente.
     expect(obrigacaoPor("rreo")?.verificavel).toBe(true);
-    expect(obrigacaoPor("rgf")?.verificavel).toBe(false);
+    expect(obrigacaoPor("rgf")?.verificavel).toBe(true);
     expect(obrigacaoPor("siops")?.verificavel).toBe(false);
     expect(obrigacaoPor("siope")?.verificavel).toBe(false);
   });

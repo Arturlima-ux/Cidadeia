@@ -57,15 +57,13 @@ export const OBRIGACOES: Obrigacao[] = [
     artigo: "arts. 54 e 55",
     consequencia:
       "Falha de transparência apontada pelo Tribunal de Contas e impedimento de receber transferências voluntárias.",
-    // O RREO é conferível na API do Tesouro; o RGF, pelo mesmo caminho, não.
-    // O endpoint /tt/rgf responde 200 mas devolve zero registro para todos os
-    // municípios e exercícios que testamos, incluindo São Paulo — a consulta
-    // tem alguma forma que não conseguimos descobrir.
-    //
-    // Marcar como verificável assim mesmo faria a tela dizer "não entregue"
-    // para TODO município, acusando de falha quem cumpriu. Enquanto a consulta
-    // não funcionar, o RGF é lembrete de data como o SIOPS e o SIOPE.
-    verificavel: false,
+    // Por muito tempo isto foi `false`: a consulta do RGF voltava vazia para
+    // quase todo município, e marcar como verificável acusaria de atraso quem
+    // cumpriu. A causa era o RGF SIMPLIFICADO, que a maioria dos municípios
+    // entrega e que o Tesouro guarda com outro tipo (lib/siconfi-tipos.ts).
+    // A conferência agora lê o extrato de entregas do Tesouro, que registra os
+    // dois tipos (lib/vigia-fiscal.ts).
+    verificavel: true,
   },
   {
     chave: "siops",

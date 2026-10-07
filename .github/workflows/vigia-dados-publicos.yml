@@ -1,0 +1,75 @@
+name: vigia-dados-publicos
+# Toda segunda-feira: confere, nos 5.571 municípios, o que o site diz sobre a
+# despesa com pessoal, e confere o site no ar. Se algo regredir, abre um aviso
+# (issue) no repositório, que chega por e-mail. Ver scripts/vigia/.
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        parte: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx -y tsx@4 scripts/vigia/auditoria-rgf.ts ${{ matrix.parte }} 8 parte${{ matrix.parte }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parte${{ matrix.parte }}
+          path: parte${{ matrix.parte }}.json
+          retention-days: 60
+
+  verificar:
+    needs: auditoria
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          path: partes
+      - name: Regras da auditoria
+        id: regras
+        run: npx -y tsx@4 scripts/vigia/verificar.ts partes
+      - name: Site no ar
+        id: site
+        if: always()
+        run: |
+          falhas=""
+          confere() { # $1 código, $2 deve conter, $3 não pode conter, $4 nome
+            pagina=$(curl -sS -m 120 "https://cidadeia.vercel.app/?m=$1" || true)
+            echo "$pagina" | grep -q "$2" || falhas="$falhas\n- Site no ar, $4: não mostra \"$2\"."
+            if [ -n "$3" ] && echo "$pagina" | grep -q "$3"; then falhas="$falhas\n- Site no ar, $4: mostra \"$3\"."; fi
+          }
+          confere 3201001 "RGF do" "nenhum consta no Tesouro" "Boa Esperança/ES"
+          confere 5300108 "Governo do Distrito Federal" "nenhum consta no Tesouro" "Brasília/DF"
+          confere 2605459 "distrito estadual" "" "Fernando de Noronha/PE"
+          if [ -n "$falhas" ]; then printf "\n### Site no ar\n$falhas\n" >> resumo.md; exit 1; fi
+      - name: Abrir aviso
+        if: failure()
+        run: |
+          titulo="Vigia dos dados públicos encontrou problema"
+          numero=$(gh issue list --state open --search "$titulo in:title" --json number --jq '.[0].number')
+          echo "" >> resumo.md
+          echo "Execução: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> resumo.md
+          if [ -n "$numero" ]; then gh issue comment "$numero" --body-file resumo.md
+          else gh issue create --title "$titulo" --body-file resumo.md; fi
+      - name: Resumo da execução
+        if: always()
+        run: cat resumo.md >> "$GITHUB_STEP_SUMMARY" || true

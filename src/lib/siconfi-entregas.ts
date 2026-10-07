@@ -28,35 +28,63 @@ type LinhaExtrato = {
   periodicidade?: string;
 };
 
+/** Uma entrega da prefeitura, como o extrato do Tesouro registra. */
+export type EntregaRegistrada = {
+  relatorio: "rreo" | "rgf";
+  /** "B" bimestral, "Q" quadrimestral, "S" semestral. */
+  periodicidade: "B" | "Q" | "S";
+  periodo: number;
+  /** Tipo comum ou simplificado. */
+  simplificado: boolean;
+};
+
+/**
+ * RREO e RGF que a PREFEITURA entregou no ano, segundo o extrato de entregas.
+ * Null quando o extrato não respondeu: aí nada se afirma sobre entrega.
+ *
+ * Câmara, consórcio e órgãos de controle aparecem no mesmo extrato, com
+ * relatórios próprios, e não contam.
+ */
+export async function entregasDaPrefeitura(codigoIbge: string, ano: number): Promise<EntregaRegistrada[] | null> {
+  const itens = await itensDoTesouro<LinhaExtrato>(
+    `${URL_EXTRATO}?id_ente=${enteNoTesouro(codigoIbge).id}&an_referencia=${ano}`,
+    SEIS_HORAS
+  );
+  if (itens === null) return null;
+  const vistas = new Set<string>();
+  const entregas: EntregaRegistrada[] = [];
+  for (const i of itens) {
+    const nome = i.entregavel ?? "";
+    const relatorio = /^Relat[oó]rio de Gest[aã]o Fiscal/i.test(nome)
+      ? "rgf"
+      : /^Relat[oó]rio Resumido/i.test(nome)
+      ? "rreo"
+      : null;
+    if (!relatorio) continue;
+    if (/c[aâ]mara|legislativ|cons[oó]rcio|tribunal|minist[eé]rio p|defensoria/i.test(i.instituicao ?? "")) continue;
+    const periodicidade = i.periodicidade === "B" || i.periodicidade === "Q" || i.periodicidade === "S" ? i.periodicidade : null;
+    if (!periodicidade || typeof i.periodo !== "number") continue;
+    const chave = `${relatorio}${periodicidade}${i.periodo}`;
+    if (vistas.has(chave)) continue;
+    vistas.add(chave);
+    entregas.push({ relatorio, periodicidade, periodo: i.periodo, simplificado: /simplificado/i.test(nome) });
+  }
+  return entregas;
+}
+
 /**
  * Períodos de RGF que a prefeitura (não a câmara) entregou nos anos pedidos,
  * do mais recente para o mais antigo. Null quando o extrato não respondeu.
  */
 export async function rgfsEntregues(codigoIbge: string, anos: number[]): Promise<PeriodoRgf[] | null> {
-  const porAno = await Promise.all(
-    anos.map(async (ano) => ({
-      ano,
-      itens: await itensDoTesouro<LinhaExtrato>(`${URL_EXTRATO}?id_ente=${enteNoTesouro(codigoIbge).id}&an_referencia=${ano}`, SEIS_HORAS),
-    }))
-  );
-  if (porAno.some((a) => a.itens === null)) return null;
-
-  const vistos = new Set<string>();
+  const porAno = await Promise.all(anos.map(async (ano) => ({ ano, entregas: await entregasDaPrefeitura(codigoIbge, ano) })));
+  if (porAno.some((a) => a.entregas === null)) return null;
   const periodos: PeriodoRgf[] = [];
-  for (const { ano, itens } of porAno) {
-    for (const i of itens!) {
-      if (!/^Relat[oó]rio de Gest[aã]o Fiscal/i.test(i.entregavel ?? "")) continue;
-      // A câmara entrega o RGF dela, com limite próprio. O que a tela mede é o
-      // do Executivo.
-      // Consórcio intermunicipal também aparece no extrato do município, com
-      // RGF próprio, e não é a prefeitura.
-      if (/c[aâ]mara|legislativ|cons[oó]rcio|tribunal|minist[eé]rio p|defensoria/i.test(i.instituicao ?? "")) continue;
-      const periodicidade = i.periodicidade === "S" ? "S" : i.periodicidade === "Q" ? "Q" : null;
-      if (!periodicidade || typeof i.periodo !== "number") continue;
-      const chave = `${ano}${periodicidade}${i.periodo}`;
-      if (vistos.has(chave)) continue;
-      vistos.add(chave);
-      periodos.push({ exercicio: ano, periodicidade, periodo: i.periodo, mesReferencia: mesDeReferencia(periodicidade, i.periodo) });
+  for (const { ano, entregas } of porAno) {
+    for (const e of entregas!) {
+      if (e.relatorio !== "rgf" || e.periodicidade === "B") continue;
+      if (periodos.some((p) => p.exercicio === ano && p.periodicidade === e.periodicidade && p.periodo === e.periodo)) continue;
+      periodos.push({ exercicio: ano, periodicidade: e.periodicidade, periodo: e.periodo, mesReferencia: mesDeReferencia(e.periodicidade, e.periodo) });
     }
   }
   return periodos.sort((a, b) => b.exercicio - a.exercicio || b.mesReferencia - a.mesReferencia);
