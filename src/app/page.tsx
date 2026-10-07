@@ -18,6 +18,7 @@ import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
+import HomeMorador from "./_morador/HomeMorador";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -122,6 +123,21 @@ export default async function LandingPage({
   const { portais } = await listarPortaisPublicados();
   const portalVitrine = portais[0] ?? null;
 
+  // ── O MORADOR VÊ OUTRO SITE ──
+  // Outra cor (tema-morador), outro cabeçalho e outra página inteira: a
+  // cidade dele explicada em linguagem simples. Ver _morador/HomeMorador.tsx.
+  if (morador) {
+    return (
+      <div className="tema-noite tema-morador min-h-screen overflow-x-clip relative" style={{ background: "var(--background)" }}>
+        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} modo="morador" />
+        <main id="conteudo">
+          <HomeMorador municipio={municipio} dados={dados} portais={portais} linkPrefeitura={comPara("prefeitura")} />
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="tema-noite pagina-inicial min-h-screen overflow-x-clip relative">
       <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
@@ -170,29 +186,13 @@ export default async function LandingPage({
                           role="tab"
                           aria-selected={ativo}
                           className="rounded-full px-4 py-2 text-sm font-medium transition"
-                          style={
-                            ativo
-                              ? { background: para === "morador" ? "color-mix(in oklab, var(--info) 18%, transparent)" : "var(--brand-tint)", color: para === "morador" ? "var(--info)" : "var(--brand-claro)" }
-                              : { color: "var(--muted)" }
-                          }
+                          style={ativo ? { background: "var(--brand-tint)", color: "var(--brand-claro)" } : { color: "var(--muted)" }}
                         >
                           {para === "prefeitura" ? "Sou da prefeitura" : "Sou morador"}
                         </Link>
                       );
                     })}
                   </div>
-                  {morador ? (
-                    <>
-                      <p className="text-sm font-medium mb-3">Encontre o portal da sua cidade</p>
-                      <SeletorMunicipio uf={ufEscolhida} inicial={municipio} acao="/transparencia" rotuloBotao="Procurar portal" contorno />
-                      <p className="text-xs text-muted mt-4">
-                        Para onde vai o dinheiro, as obras e um canal com a prefeitura. Sem cadastro.{" "}
-                        <Link href="/transparencia/exemplo" className="inicio-sublinhado">
-                          Ver uma cidade de exemplo
-                        </Link>
-                      </p>
-                    </>
-                  ) : (
                     <>
                       <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
                       <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
@@ -201,7 +201,6 @@ export default async function LandingPage({
                         {LIMITE_DISPENSA.ano}.
                       </p>
                     </>
-                  )}
                 </div>
               </div>
 

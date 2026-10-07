@@ -110,7 +110,12 @@ const nextConfig: NextConfig = {
             : []),
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+            // geolocation=(self): o "Estou aqui" do morador pergunta ao
+            // celular onde a pessoa está para achar a cidade. Só o próprio
+            // site pode pedir (nenhum iframe de terceiro), o navegador ainda
+            // pede licença à pessoa, e a posição não sai do aparelho
+            // (components/morador/AcheSuaCidade.tsx).
+            value: "camera=(), microphone=(), geolocation=(self), payment=(), usb=()",
           },
         ],
       },

@@ -41,7 +41,14 @@ const LINKS = [
  * os portais publicados). As demais seguem estáticas e mostram "Entrar", que
  * continua correto: leva ao login, que reconhece quem já tem sessão.
  */
-export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: boolean }) {
+export default function SiteHeader({
+  sessaoAtiva = false,
+  modo = "prefeitura",
+}: {
+  sessaoAtiva?: boolean;
+  /** No modo morador, a ação do topo deixa de ser "pedir proposta". */
+  modo?: "prefeitura" | "morador";
+}) {
   const sessao = sessaoAtiva;
 
   return (
@@ -96,7 +103,12 @@ export default function SiteHeader({ sessaoAtiva = false }: { sessaoAtiva?: bool
                 Entrar
               </Link>
             )}
-            {sessao ? (
+            {modo === "morador" ? (
+              // O morador não é cliente: o topo não lhe oferece proposta, e
+              // a volta ao site da prefeitura já está na chave da página.
+              // Repetir aqui seriam dois botões para o mesmo lugar.
+              null
+            ) : sessao ? (
               <Link
                 href="/dashboard"
                 className="text-sm font-semibold rounded-full px-5 py-2.5 transition"

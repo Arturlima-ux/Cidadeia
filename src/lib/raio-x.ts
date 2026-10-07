@@ -228,6 +228,18 @@ export async function montarRaioX(
     }
   }
 
+  // Nenhum bimestre com dado e algum que não respondeu: não dá para dizer
+  // "nada publicado". Sem esta saída, a home e o morador liam "nenhum
+  // relatório consta no Tesouro" numa visita em que o Tesouro estava fora.
+  if (bimestreReferencia === null && semResposta.length > 0) {
+    void receitaOtimista.catch(() => null);
+    return {
+      ok: false,
+      erro: "O Tesouro Nacional não respondeu agora. Isso não diz nada sobre a prefeitura. Tente de novo em alguns minutos.",
+      municipioNaoEncontrado: false,
+    };
+  }
+
   let receita: number | null = null;
   if (bimestreReferencia !== null) {
     const linhasReceita =

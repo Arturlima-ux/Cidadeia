@@ -8,3 +8,8 @@ export function indiceNoMapa(codigoIbge: string): number | null {
   const i = CODIGOS.indexOf(codigoIbge);
   return i >= 0 ? i : null;
 }
+
+/** Os códigos na ordem de PONTOS: o índice i aqui é o ponto i do mapa. */
+export function codigosNaOrdemDoMapa(): string[] {
+  return CODIGOS;
+}

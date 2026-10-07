@@ -173,6 +173,28 @@
   color: var(--foreground);
 }
 
+/* ── TEMA DO MORADOR ──
+   "Sou morador" troca o site inteiro, não só o campo de busca: quem mora na
+   cidade não é cliente, é dono do dinheiro. O roxo da venda vira um verde de
+   praça, com um âmbar quente de acento, e o texto sobre o botão cheio fica
+   escuro, porque branco sobre verde claro não se lê. */
+.tema-noite.tema-morador {
+  --background: #070a09;
+  --superficie: #0b100e;
+  --card: #111714;
+  --brand: #22c58b;
+  --brand-dark: #179e6f;
+  --brand-tint: rgba(34, 197, 139, 0.15);
+  --brand-profundo: #06130e;
+  --brand-claro: #7fe6bf;
+  --brand-legivel: #7fe6bf;
+  --accent: #f0b04a;
+  --accent-tint: rgba(240, 176, 74, 0.14);
+  --accent-claro: #f6cd83;
+  --gradient-hero: linear-gradient(140deg, #06130e 0%, #0d2219 55%, #123326 100%);
+  --sobre-forte: #04110b;
+}
+
 /* ── vidro ──
    A superfície que dá profundidade. O comentário antigo dizia "sem custo de
    render" e estava errado: ela usava `backdrop-filter`, que obriga o navegador
@@ -1564,4 +1586,11 @@ select:focus-visible {
 select option {
   background-color: var(--card);
   color: var(--foreground);
+}
+
+/* A busca do morador: ao digitar, só a borda acende, para dizer onde se
+   está escrevendo. Sem anel e sem troca de forma (ver regra dos campos). */
+.campo-morador:focus,
+.campo-morador:focus-visible {
+  border-color: var(--brand);
 }
