@@ -15,12 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with:
+          node-version: 22
+          cache: npm
       - run: npm ci --ignore-scripts
       - run: npx tsx scripts/auditoria-rgf.ts ${{ matrix.parte }} 8 parte${{ matrix.parte }}.json
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: parte${{ matrix.parte }}, path: parte${{ matrix.parte }}.json }
+        with:
+          name: parte${{ matrix.parte }}
+          path: parte${{ matrix.parte }}.json
   juntar:
     needs: parte
     if: always()
@@ -28,7 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
-        with: { path: partes }
+        with:
+          path: partes
       - run: |
           mkdir -p auditoria-resultado
           node -e 'const fs=require("fs");let t=[];for(const d of fs.readdirSync("partes")){const f=`partes/${d}/${d}.json`;if(fs.existsSync(f))t=t.concat(JSON.parse(fs.readFileSync(f)))}fs.writeFileSync("auditoria-resultado/rgf.json",JSON.stringify(t));console.log(t.length)'
