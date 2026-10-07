@@ -2,12 +2,17 @@ name: auditoria-rgf-temporaria
 on:
   push:
     branches: [diag/auditoria-gha]
+permissions:
+  contents: write
 jobs:
   coletar:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
+          mkdir -p auditoria
           for i in $(seq 0 15); do
-            curl -sS -m 90 "https://cidadeia.vercel.app/auditoria-rgf/$i" > lote$i.json || echo '{"erro":true}' > lote$i.json
-            echo "=== LOTE $i"; cat lote$i.json; echo
+            curl -sS -m 90 "https://cidadeia.vercel.app/auditoria-rgf/$i" > auditoria/lote$i.json || echo '{"erro":true}' > auditoria/lote$i.json
           done
+          git config user.name "auditoria" && git config user.email "auditoria@users.noreply.github.com"
+          git add auditoria && git commit -m "resultado da auditoria [skip ci]" && git push
