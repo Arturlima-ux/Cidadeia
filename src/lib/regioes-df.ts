@@ -69,4 +69,12 @@ export function ehDistritoFederal(uf: string | null | undefined): boolean {
 export const AVISO_DF =
   "O Distrito Federal presta contas ao Tesouro como unidade da federação, e não por localidade, com limites " +
   "da Lei de Responsabilidade Fiscal próprios. Por isso o Raio-X municipal, que lê o relatório de cada " +
-  "prefeitura, não se aplica a Brasília nem às demais localidades do DF.";
+  "prefeitura, não se aplica a Brasília nem às demais localidades do DF. A despesa com pessoal do Governo " +
+  "do Distrito Federal aparece na página inicial, ao escolher Brasília.";
+
+/** O aviso da home, que mostra logo acima a despesa com pessoal do GDF. */
+export const AVISO_DF_COM_PESSOAL =
+  "O Distrito Federal presta contas ao Tesouro como unidade da federação, e não por localidade, com limites " +
+  "da Lei de Responsabilidade Fiscal próprios. Por isso a despesa com pessoal acima é a do Governo do Distrito " +
+  "Federal inteiro, e o restante do Raio-X municipal, que lê o relatório de cada prefeitura, não se aplica " +
+  "às localidades do DF.";
