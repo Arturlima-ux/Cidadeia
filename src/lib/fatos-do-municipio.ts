@@ -1,4 +1,4 @@
-import type { CausaSemRgf, PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
+import type { CausaSemRgf, ContextoRgf, NumerosInconsistentes, PeriodoRgf, ResultadoRgf } from "@/lib/siconfi-rgf";
 import { CODIGO_BRASILIA, ehRegiaoDf, regiaoPorCodigo } from "@/lib/regioes-df";
 import type { ResultadoRaioX } from "@/lib/raio-x";
 import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
@@ -109,7 +109,56 @@ const AUSENCIA_DO_PESSOAL: Record<CausaSemRgf, string> = {
   entregue_sem_dados:
     "O Tesouro registra que a prefeitura entregou o RGF, mas os números dele ainda não aparecem na consulta aberta " +
     "do Tesouro. A entrega está feita. O relatório completo pode ser visto no site do Tesouro (Siconfi) ou pedido à prefeitura.",
+  // Substituída pela frase com os números em `frasesDoInconsistente`.
+  inconsistente: "O RGF traz despesa com pessoal e receita que não fecham entre si.",
+  // Substituída pelo motivo de cada lugar (lib/siconfi-tipos.ts).
+  sem_prefeitura: "Este lugar não tem prefeitura própria, então não entrega RGF.",
 };
+
+/**
+ * A frase do RGF cujos números não fecham. Diz os números, porque são o que a
+ * prefeitura declarou, e não tira conclusão nenhuma deles.
+ */
+function frasesDoInconsistente(n: NumerosInconsistentes): string {
+  const p = (n.despesa / n.rcl) * 100;
+  return (
+    `No ${rotuloDoPeriodoRgf(n.periodo)}, a prefeitura declarou ${formatarMoeda(n.despesa)} de despesa com pessoal ` +
+    `sobre uma receita corrente líquida de ${formatarMoeda(n.rcl)} (${pct(p)}). Esses números não fecham entre si, ` +
+    `então não os usamos como resultado. O cidadão pode pedir à prefeitura a correção ou a explicação pela Lei de ` +
+    `Acesso à Informação (Lei 12.527/2011).`
+  );
+}
+
+/** Brasília presta contas como Governo do Distrito Federal, que não é prefeitura. */
+function quemDeclarou(instituicao: string | null): string {
+  return /distrito federal/i.test(instituicao ?? "") ? "o próprio Governo do Distrito Federal" : "a própria prefeitura";
+}
+
+/** "30/09/2026" */
+function dataBr(iso: string): string {
+  const [a, m, d] = iso.split("-");
+  return `${d}/${m}/${a}`;
+}
+
+/** O que precisa ser dito ao lado do número para ele não enganar. */
+function frasesDoContexto(c: ContextoRgf | undefined): string {
+  if (!c) return "";
+  const frases: string[] = [];
+  if (c.proximoVencido) {
+    const { periodo, vencimento, entregue } = c.proximoVencido;
+    if (entregue === true) {
+      frases.push(
+        `O ${rotuloDoPeriodoRgf(periodo)} consta entregue no Tesouro, mas os números dele ainda não estão na consulta aberta; por isso o número acima é do período anterior.`
+      );
+    } else if (entregue === false) {
+      frases.push(
+        `O ${rotuloDoPeriodoRgf(periodo)}, com prazo de publicação até ${dataBr(vencimento)}, ainda não consta no Tesouro; por isso o número acima é do período anterior.`
+      );
+    }
+  }
+  if (c.inconsistenteMaisRecente) frases.push(frasesDoInconsistente(c.inconsistenteMaisRecente));
+  return frases.length ? " " + frases.join(" ") : "";
+}
 
 export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   const base = {
@@ -132,7 +181,11 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
         consultadoEm: dataSemHora(consultadoEm),
       },
       ausencia:
-        rgf.causa === "entregue_sem_dados" && rgf.periodoEntregue
+        rgf.causa === "inconsistente" && rgf.numerosInconsistentes
+          ? frasesDoInconsistente(rgf.numerosInconsistentes)
+          : rgf.causa === "sem_prefeitura" && rgf.motivo
+          ? rgf.motivo
+          : rgf.causa === "entregue_sem_dados" && rgf.periodoEntregue
           ? AUSENCIA_DO_PESSOAL.entregue_sem_dados.replace(
               "entregou o RGF",
               `entregou o ${rotuloDoPeriodoRgf(rgf.periodoEntregue)}`
@@ -160,7 +213,7 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   // como dela um número que é nosso.
   const leitura =
     alerta !== null && !d.rclVeioDeReserva
-      ? `${comum} O limite de alerta que a própria prefeitura declarou no mesmo documento é ` +
+      ? `${comum} O limite de alerta que ${quemDeclarou(d.instituicao)} declarou no mesmo documento é ` +
         `${pct((alerta / d.rclAjustada) * 100)}.`
       : d.rclVeioDeReserva
       ? `${comum} O anexo não trouxe a receita corrente líquida ajustada, então este percentual ` +
@@ -172,7 +225,7 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   return {
     ...base,
     valor: pct(percentual),
-    leitura,
+    leitura: leitura + frasesDoContexto(rgf.contexto),
     ausencia: null,
     carimbo: { periodo: rotuloDoPeriodoRgf(d.periodo), consultadoEm: dataSemHora(consultadoEm) },
   };
@@ -196,7 +249,7 @@ export function fatoDaAplicacao(raioX: ResultadoRaioX, consultadoEm: string): Fa
       valor: null,
       leitura: null,
       carimbo: null,
-      ausencia: "Não foi possível ler o RREO deste município no Tesouro agora.",
+      ausencia: raioX.semPrefeitura ? raioX.erro : "Não foi possível ler o RREO deste município no Tesouro agora.",
     };
   }
 
@@ -273,7 +326,9 @@ export function fatoDosRelatorios(raioX: ResultadoRaioX, consultadoEm: string): 
       valor: null,
       leitura: null,
       carimbo: null,
-      ausencia: "Não foi possível consultar o Tesouro agora, então nada se afirma sobre entrega.",
+      ausencia: raioX.semPrefeitura
+        ? raioX.erro
+        : "Não foi possível consultar o Tesouro agora, então nada se afirma sobre entrega.",
     };
   }
 

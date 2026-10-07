@@ -68,19 +68,23 @@ export default async function DadosDoTesouro({
     return (
       <Reveal delay={100}>
         <div className="border border-border rounded-2xl p-6" style={{ background: "var(--card)" }}>
-          <h2 className="font-serif text-lg font-bold">O Tesouro não respondeu agora</h2>
+          <h2 className="font-serif text-lg font-bold">
+            {resultado && !resultado.ok && resultado.semPrefeitura ? "Sem prefeitura própria" : "O Tesouro não respondeu agora"}
+          </h2>
           <p className="text-sm text-muted mt-2 leading-relaxed max-w-[62ch]">
             {resultado && !resultado.ok
               ? resultado.erro
               : `A consulta ao SICONFI falhou nesta visita. Os números de ${nome} aparecem aqui ` +
                 "assim que o serviço responder — a página é refeita automaticamente."}
           </p>
-          <Link
-            href="/raio-x"
-            className="link-traco inline-block mt-4 text-sm font-semibold text-brand"
-          >
-            Consultar de novo agora →
-          </Link>
+          {!(resultado && !resultado.ok && resultado.semPrefeitura) && (
+            <Link
+              href="/raio-x"
+              className="link-traco inline-block mt-4 text-sm font-semibold text-brand"
+            >
+              Consultar de novo agora →
+            </Link>
+          )}
         </div>
       </Reveal>
     );

@@ -23,7 +23,7 @@
 // que é a direção em que o teto estoura. Por isso o campo que a tela guarda é
 // a ajustada, e é ela que a importação grava.
 
-import { cacheDoPeriodo, consultarTipos, TIPOS_RGF } from "@/lib/siconfi-tipos";
+import { cacheDoPeriodo, consultarTipos, enteNoTesouro, SEM_PREFEITURA, TIPOS_RGF } from "@/lib/siconfi-tipos";
 import { itensDoTesouro } from "@/lib/tesouro-http";
 import { rgfsEntregues } from "@/lib/siconfi-entregas";
 
@@ -125,10 +125,47 @@ export type ImportacaoRgf = {
  * nunca saía de `buscarRgfMaisRecente`, então a prefeitura que entregou o
  * demonstrativo vazio era acusada de não ter entregado.
  */
-export type CausaSemRgf = "nao_publicado" | "em_branco" | "consulta_falhou" | "entregue_sem_dados";
+export type CausaSemRgf =
+  | "nao_publicado"
+  | "em_branco"
+  | "consulta_falhou"
+  | "entregue_sem_dados"
+  | "inconsistente"
+  | "sem_prefeitura";
+
+/**
+ * Números que a prefeitura declarou e que não fecham entre si: despesa com
+ * pessoal acima de toda a receita corrente líquida, ou praticamente zero.
+ *
+ * A auditoria de outubro de 2026 achou 53 assim em 5.571 municípios. O caso
+ * típico: o RGF do 1º quadrimestre com a despesa de doze meses e a receita de
+ * só quatro (Curralinho/PA: R$ 148,8 mi sobre R$ 32,9 mi, "451%"). Mostrar
+ * esse percentual como veredito diria ao cidadão que a prefeitura gasta com
+ * pessoal quatro vezes o que arrecada. O documento é dela, mas a conclusão
+ * seria nossa, e errada.
+ */
+export type NumerosInconsistentes = { periodo: PeriodoRgf; despesa: number; rcl: number };
+
+/** Abaixo de 5% ou acima de 100% da RCL, os números do anexo não fecham. */
+export function numerosFecham(despesa: number, rcl: number): boolean {
+  const pct = (despesa / rcl) * 100;
+  return pct >= 5 && pct <= 100;
+}
+
+/** O que a tela precisa dizer AO LADO do número, para ele não enganar. */
+export type ContextoRgf = {
+  /** Período mais novo cujos números não fecham; o número exibido é anterior a ele. */
+  inconsistenteMaisRecente?: NumerosInconsistentes;
+  /**
+   * O período seguinte ao exibido, quando o prazo de publicação dele já
+   * passou. `entregue` vem do extrato: true é "entregue, mas sem números na
+   * consulta aberta"; false é "não consta"; null é "o extrato não respondeu".
+   */
+  proximoVencido?: { periodo: PeriodoRgf; vencimento: string; entregue: boolean | null };
+};
 
 export type ResultadoRgf =
-  | { ok: true; dados: ImportacaoRgf }
+  | { ok: true; dados: ImportacaoRgf; contexto?: ContextoRgf }
   | {
       ok: false;
       erro: string;
@@ -141,6 +178,10 @@ export type ResultadoRgf =
        * tela tem de dizer isso, nunca "não publicado".
        */
       periodoEntregue?: PeriodoRgf;
+      /** Presente em `inconsistente`. */
+      numerosInconsistentes?: NumerosInconsistentes;
+      /** Presente em `sem_prefeitura`: por que este lugar não tem RGF próprio. */
+      motivo?: string;
     };
 
 /**
@@ -181,6 +222,16 @@ export function extrairRgf(
       erro: "O RGF deste período foi publicado sem os valores de despesa com pessoal.",
       causa: "em_branco",
       periodosProcurados: 1,
+    };
+  }
+
+  if (!numerosFecham(despesaTotal, rclAjustada)) {
+    return {
+      ok: false,
+      erro: "O RGF deste período traz despesa com pessoal e receita que não fecham entre si.",
+      causa: "inconsistente",
+      periodosProcurados: 1,
+      numerosInconsistentes: { periodo, despesa: despesaTotal, rcl: rclAjustada },
     };
   }
 
@@ -256,8 +307,8 @@ async function buscarPeriodoDoTipo(
     // Poder Executivo: é da prefeitura que este sistema trata. A câmara tem
     // limite próprio (6%) e presta contas por conta dela.
     co_poder: "E",
-    co_esfera: "M",
-    id_ente: codigoIbge,
+    co_esfera: enteNoTesouro(codigoIbge).esfera,
+    id_ente: enteNoTesouro(codigoIbge).id,
   });
 
   // null é "não consegui perguntar"; [] é "perguntei e não tem". Confundir os
@@ -328,24 +379,56 @@ export async function buscarRgfMaisRecente(
   // Oito cobre o exercício corrente inteiro e ainda alcança o anterior. Cinco
   // não alcançava: uma prefeitura em dia com o RGF do ano passado, mas ainda
   // sem enviar o deste, aparecia como se nunca tivesse publicado nada.
-  tentativas = 8
+  tentativas = 8,
+  hoje: Date = new Date()
 ): Promise<ResultadoRgf> {
+  // Lugar sem prefeitura (Fernando de Noronha): não há o que cobrar.
+  const motivo = SEM_PREFEITURA[codigoIbge];
+  if (motivo) {
+    return { ok: false, erro: motivo, causa: "sem_prefeitura", periodosProcurados: 0, motivo };
+  }
+
   // Primeiro o atalho: o extrato de entregas diz qual RGF a prefeitura
   // entregou, e basta buscar esse (lib/siconfi-entregas.ts). Poupa até
   // catorze perguntas ao Tesouro, que é o que o fazia recusar consultas.
   const chave = (p: PeriodoRgf) => `${p.exercicio}${p.periodicidade}${p.periodo}`;
   const jaTentados = new Set<string>();
-  let emBrancoNoAtalho = false;
+  // A varredura lembra o que viu: um período em branco é achado diferente de
+  // nenhum período, e uma falha de rede não é achado nenhum sobre a prefeitura.
+  let viuEmBranco = false;
+  let falhouAConsulta = false;
+  let inconsistente: NumerosInconsistentes | undefined;
+
   const entregues = await rgfsEntregues(codigoIbge, [exercicioAtual, exercicioAtual - 1]);
+  const pronto = (r: ResultadoRgf & { ok: true }): ResultadoRgf => ({
+    ...r,
+    contexto: contextoDoNumero(r.dados.periodo, inconsistente, entregues, hoje),
+  });
+
+  /** Lê um período. Devolve o resultado só se for número bom. */
+  const ler = async (periodo: PeriodoRgf, contaFalha: boolean) => {
+    jaTentados.add(chave(periodo));
+    const itens = await buscarPeriodo(codigoIbge, periodo);
+    if (itens === null) {
+      if (contaFalha) falhouAConsulta = true;
+      return null;
+    }
+    if (itens.length === 0) return null;
+    const resultado = extrairRgf(itens, periodo);
+    if (resultado.ok) return resultado;
+    // Período em branco ou com números que não fecham não encerra a busca: o
+    // anterior pode estar bom, e é melhor um número de meses atrás, dito
+    // como tal, que nenhum.
+    if (resultado.causa === "em_branco") viuEmBranco = true;
+    if (resultado.causa === "inconsistente" && !inconsistente) inconsistente = resultado.numerosInconsistentes;
+    return null;
+  };
+
   for (const periodo of (entregues ?? [])
     .filter((p) => p.exercicio < exercicioAtual || p.mesReferencia <= mesAtual)
     .slice(0, 3)) {
-    jaTentados.add(chave(periodo));
-    const itens = await buscarPeriodo(codigoIbge, periodo);
-    if (!itens || itens.length === 0) continue;
-    const resultado = extrairRgf(itens, periodo);
-    if (resultado.ok) return resultado;
-    if (resultado.causa === "em_branco") emBrancoNoAtalho = true;
+    const r = await ler(periodo, false);
+    if (r) return pronto(r);
   }
 
   // Sem atalho (ou ele não levou a número), a busca completa. Só ela pode
@@ -354,29 +437,24 @@ export async function buscarRgfMaisRecente(
     .slice(0, tentativas)
     .filter((p) => !jaTentados.has(chave(p)));
 
-  // A varredura lembra o que viu: um período em branco é achado diferente de
-  // nenhum período, e uma falha de rede não é achado nenhum sobre a prefeitura.
-  let viuEmBranco = emBrancoNoAtalho;
-  let falhouAConsulta = false;
-
   for (const periodo of candidatos) {
-    const itens = await buscarPeriodo(codigoIbge, periodo);
-    if (itens === null) {
-      falhouAConsulta = true;
-      continue;
-    }
-    if (itens.length === 0) continue;
-
-    const resultado = extrairRgf(itens, periodo);
-    // Período publicado em branco não encerra a busca: o anterior pode estar
-    // completo, e é melhor um número de quatro meses atrás que nenhum.
-    if (resultado.ok) return resultado;
-    if (resultado.causa === "em_branco") viuEmBranco = true;
+    const r = await ler(periodo, true);
+    if (r) return pronto(r);
   }
 
-  // Ordem de prioridade: falha nossa antes de achado sobre o cliente. Se não
-  // conseguimos perguntar em algum período, não afirmamos que nada foi
-  // publicado — pode ter sido, e a pergunta é que não chegou.
+  const procurados = jaTentados.size;
+
+  // Números declarados que não fecham: é o achado, com os números.
+  if (inconsistente) {
+    return {
+      ok: false,
+      erro: "O RGF traz despesa com pessoal e receita que não fecham entre si.",
+      causa: "inconsistente",
+      periodosProcurados: procurados,
+      numerosInconsistentes: inconsistente,
+    };
+  }
+
   // O extrato de entregas registra RGF da prefeitura: ela ENTREGOU. Seja qual
   // for o motivo de não termos lido os números (consulta aberta ainda sem os
   // dados, anexo em outro formato, Tesouro fora do ar), dizer "não publicado"
@@ -389,19 +467,19 @@ export async function buscarRgfMaisRecente(
       ok: false,
       erro: "O RGF consta entregue no Tesouro, mas os valores não puderam ser lidos na consulta aberta.",
       causa: "entregue_sem_dados",
-      periodosProcurados: candidatos.length + jaTentados.size,
+      periodosProcurados: procurados,
       periodoEntregue: entregueMaisRecente,
     };
   }
 
-  // Sem o extrato, falta a segunda fonte para afirmar ausência: vale como
-  // consulta que não chegou.
+  // Falha nossa antes de achado sobre o cliente. Sem o extrato, falta a
+  // segunda fonte para afirmar ausência: vale como consulta que não chegou.
   if (falhouAConsulta || entregues === null) {
     return {
       ok: false,
       erro: "A consulta ao Tesouro não respondeu nesta tentativa.",
       causa: "consulta_falhou",
-      periodosProcurados: candidatos.length + jaTentados.size,
+      periodosProcurados: procurados,
     };
   }
 
@@ -410,7 +488,7 @@ export async function buscarRgfMaisRecente(
       ok: false,
       erro: "O RGF foi publicado sem os valores de despesa com pessoal.",
       causa: "em_branco",
-      periodosProcurados: candidatos.length + jaTentados.size,
+      periodosProcurados: procurados,
     };
   }
 
@@ -420,8 +498,54 @@ export async function buscarRgfMaisRecente(
       "Nenhum RGF encontrado no Tesouro para este município nos últimos períodos. " +
       "Pode ser que ainda não tenha sido publicado — informe os valores à mão abaixo.",
     causa: "nao_publicado",
-    periodosProcurados: candidatos.length + jaTentados.size,
+    periodosProcurados: procurados,
   };
+}
+
+/** O período que vem depois de `p`, na mesma periodicidade. */
+export function periodoSeguinte(p: PeriodoRgf): PeriodoRgf {
+  const ultimo = p.periodicidade === "S" ? 2 : 3;
+  const exercicio = p.periodo === ultimo ? p.exercicio + 1 : p.exercicio;
+  const periodo = p.periodo === ultimo ? 1 : p.periodo + 1;
+  return { exercicio, periodicidade: p.periodicidade, periodo, mesReferencia: mesDeReferencia(p.periodicidade, periodo) };
+}
+
+/** Prazo de publicação do RGF: 30 dias após o fim do período (LRF, art. 55, § 2º). */
+export function vencimentoDoRgf(p: PeriodoRgf): string {
+  const fim = Date.UTC(p.exercicio, p.mesReferencia, 0);
+  return new Date(fim + 30 * 86_400_000).toISOString().slice(0, 10);
+}
+
+function contextoDoNumero(
+  exibido: PeriodoRgf,
+  inconsistente: NumerosInconsistentes | undefined,
+  entregues: PeriodoRgf[] | null,
+  hoje: Date
+): ContextoRgf | undefined {
+  const contexto: ContextoRgf = {};
+  if (inconsistente) contexto.inconsistenteMaisRecente = inconsistente;
+
+  const seguinte = periodoSeguinte(exibido);
+  const vencimento = vencimentoDoRgf(seguinte);
+  // Se o seguinte foi justamente o inconsistente, a frase dele já explica.
+  const ehOInconsistente =
+    inconsistente &&
+    inconsistente.periodo.exercicio === seguinte.exercicio &&
+    inconsistente.periodo.periodicidade === seguinte.periodicidade &&
+    inconsistente.periodo.periodo === seguinte.periodo;
+  if (vencimento < hoje.toISOString().slice(0, 10) && !ehOInconsistente) {
+    contexto.proximoVencido = {
+      periodo: seguinte,
+      vencimento,
+      entregue:
+        entregues === null
+          ? null
+          : entregues.some(
+              (p) => p.exercicio === seguinte.exercicio && p.periodicidade === seguinte.periodicidade && p.periodo === seguinte.periodo
+            ),
+    };
+  }
+  return contexto.inconsistenteMaisRecente || contexto.proximoVencido ? contexto : undefined;
 }
 
 /**

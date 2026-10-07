@@ -34,12 +34,31 @@ export default async function CarregaRegua({
     ? avaliarDespesaPessoal({ rcl: resultado.dados.rclAjustada, despesa: resultado.dados.despesaTotal })
     : null;
 
+  // A régua desenha os limites dos municípios (54% / 51,3% / 48,6%). O
+  // Distrito Federal segue os dos estados, e o limite certo dele está no fato
+  // logo abaixo, declarado no próprio RGF.
+  if (resultado.ok && codigoIbge === "5300108") {
+    return (
+      <ReguaLrf
+        dado={{
+          modo: "exemplo",
+          aviso: "O Distrito Federal segue os limites dos estados, diferentes dos municipais. O número dele e o limite que ele declarou estão logo abaixo. Acima, um município de exemplo.",
+        }}
+      />
+    );
+  }
+
   if (!resultado.ok || !avaliacao) {
     return (
       <ReguaLrf
         dado={{
           modo: "exemplo",
-          aviso: `O Tesouro não devolveu a despesa com pessoal de ${municipio} agora. Acima, um município de exemplo.`,
+          aviso:
+            !resultado.ok && resultado.causa === "sem_prefeitura"
+              ? `${municipio} não tem prefeitura própria, então não há despesa com pessoal municipal. Acima, um município de exemplo.`
+              : !resultado.ok && resultado.causa === "inconsistente"
+              ? `Os números que ${municipio} declarou no RGF não fecham entre si, então não os pomos na régua. Os números estão logo abaixo. Acima, um município de exemplo.`
+              : `Não há despesa com pessoal de ${municipio} para mostrar agora; o motivo está logo abaixo. Acima, um município de exemplo.`,
         }}
       />
     );
