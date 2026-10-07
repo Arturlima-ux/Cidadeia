@@ -79,3 +79,17 @@ describe("bimestres com prazo vencido", () => {
     expect(bimestresVencidos(2026, new Date("2026-10-01T12:00:00Z"))).toContain(4);
   });
 });
+
+describe("Tesouro fora do ar no Raio-X", () => {
+  it("nenhum bimestre respondeu: é falha de consulta, nunca 'nada publicado'", async () => {
+    const { vi } = await import("vitest");
+    const { ESPERAS_TESOURO_MS } = await import("@/lib/tesouro-http");
+    ESPERAS_TESOURO_MS.fill(0);
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>erro</html>", { status: 200 })));
+    const { montarRaioX } = await import("@/lib/raio-x");
+    const r = await montarRaioX("Teresina", "PI", 2026);
+    vi.unstubAllGlobals();
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.erro).toMatch(/não respondeu/);
+  });
+});

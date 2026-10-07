@@ -141,7 +141,7 @@ function dataBr(iso: string): string {
 }
 
 /** O que precisa ser dito ao lado do número para ele não enganar. */
-function frasesDoContexto(c: ContextoRgf | undefined): string {
+export function frasesDoContexto(c: ContextoRgf | undefined): string {
   if (!c) return "";
   const frases: string[] = [];
   if (c.proximoVencido) {
