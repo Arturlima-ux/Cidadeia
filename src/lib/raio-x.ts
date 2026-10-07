@@ -1,6 +1,6 @@
 import { buscarCodigoIbge, agregarPorSecretaria, type LinhaSiconfi } from "@/lib/siconfi";
 import { periodosDoExercicio } from "@/lib/obrigacoes-fiscais";
-import { cacheDoPeriodo, consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
+import { cacheDoPeriodo, consultarTipos, enteNoTesouro, SEM_PREFEITURA, TIPOS_RREO } from "@/lib/siconfi-tipos";
 import { itensDoTesouro } from "@/lib/tesouro-http";
 
 // ── RAIO-X DO MUNICÍPIO ──
@@ -65,7 +65,13 @@ export type RaioX = {
 
 export type ResultadoRaioX =
   | { ok: true; raioX: RaioX }
-  | { ok: false; erro: string; municipioNaoEncontrado: boolean };
+  | {
+      ok: false;
+      erro: string;
+      municipioNaoEncontrado: boolean;
+      /** Lugar sem prefeitura própria (lib/siconfi-tipos.ts): `erro` traz o motivo. */
+      semPrefeitura?: boolean;
+    };
 
 /** RREO comum ou simplificado, o que o município tiver entregue (lib/siconfi-tipos.ts). */
 function buscarRreo(
@@ -86,7 +92,7 @@ async function buscarRreoDoTipo(
 ): Promise<LinhaSiconfi[] | null> {
   const url =
     `${URL_SICONFI_RREO}?an_exercicio=${exercicio}&nr_periodo=${periodo}` +
-    `&co_tipo_demonstrativo=${encodeURIComponent(tipo)}&no_anexo=${encodeURIComponent(anexo)}&id_ente=${codigoIbge}`;
+    `&co_tipo_demonstrativo=${encodeURIComponent(tipo)}&no_anexo=${encodeURIComponent(anexo)}&id_ente=${enteNoTesouro(codigoIbge).id}`;
   // Null significa "não conseguimos perguntar" e é diferente de lista vazia,
   // que significa "o Tesouro não tem". A tela precisa dos dois separados para
   // não chamar de omissão o que foi falha nossa de rede. Cache: 6 h para
@@ -171,6 +177,10 @@ export async function montarRaioX(
       erro: `Não encontramos "${municipio}" em ${uf.toUpperCase()}. Confira a grafia e a sigla do estado.`,
       municipioNaoEncontrado: true,
     };
+  }
+
+  if (SEM_PREFEITURA[codigoIbge]) {
+    return { ok: false, erro: SEM_PREFEITURA[codigoIbge], municipioNaoEncontrado: false, semPrefeitura: true };
   }
 
   // Os valores vêm de qualquer bimestre encerrado (um publicado antes do prazo

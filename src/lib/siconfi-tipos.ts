@@ -55,3 +55,26 @@ export function cacheDoPeriodo(exercicio: number, mesFinal: number, agora: numbe
   const fim = Date.UTC(exercicio, mesFinal, 0);
   return agora - fim < RECENTE_MS ? SEIS_HORAS : SETE_DIAS;
 }
+
+// ── QUEM É O "MUNICÍPIO" NO TESOURO ──
+//
+// Dois códigos do IBGE não são prefeituras para o Tesouro:
+//
+//   · Brasília (5300108): o Distrito Federal presta contas como governo
+//     distrital, no código 53 e na esfera estadual. Pela esfera municipal a
+//     consulta volta vazia, e o site dizia que Brasília não tinha RGF.
+//   · Fernando de Noronha (2605459): distrito estadual administrado pelo
+//     Governo de Pernambuco. Não tem prefeitura, câmara nem relatório próprio,
+//     e não pode ser cobrado por não entregar.
+
+export const CODIGO_FERNANDO_DE_NORONHA = "2605459";
+
+export const SEM_PREFEITURA: Record<string, string> = {
+  [CODIGO_FERNANDO_DE_NORONHA]:
+    "Fernando de Noronha é um distrito estadual administrado pelo Governo de Pernambuco. Não tem prefeitura, " +
+    "então não entrega RGF nem RREO próprios: as contas da ilha estão nas do Estado de Pernambuco.",
+};
+
+export function enteNoTesouro(codigoIbge: string): { id: string; esfera: "M" | "E" } {
+  return codigoIbge === "5300108" ? { id: "53", esfera: "E" } : { id: codigoIbge, esfera: "M" };
+}

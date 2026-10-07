@@ -1,4 +1,5 @@
 import { itensDoTesouro } from "@/lib/tesouro-http";
+import { enteNoTesouro } from "@/lib/siconfi-tipos";
 import { mesDeReferencia, type PeriodoRgf } from "@/lib/siconfi-rgf";
 
 // ── O EXTRATO DE ENTREGAS ──
@@ -35,7 +36,7 @@ export async function rgfsEntregues(codigoIbge: string, anos: number[]): Promise
   const porAno = await Promise.all(
     anos.map(async (ano) => ({
       ano,
-      itens: await itensDoTesouro<LinhaExtrato>(`${URL_EXTRATO}?id_ente=${codigoIbge}&an_referencia=${ano}`, SEIS_HORAS),
+      itens: await itensDoTesouro<LinhaExtrato>(`${URL_EXTRATO}?id_ente=${enteNoTesouro(codigoIbge).id}&an_referencia=${ano}`, SEIS_HORAS),
     }))
   );
   if (porAno.some((a) => a.itens === null)) return null;
@@ -47,7 +48,9 @@ export async function rgfsEntregues(codigoIbge: string, anos: number[]): Promise
       if (!/^Relat[oó]rio de Gest[aã]o Fiscal/i.test(i.entregavel ?? "")) continue;
       // A câmara entrega o RGF dela, com limite próprio. O que a tela mede é o
       // do Executivo.
-      if (/c[aâ]mara|legislativ/i.test(i.instituicao ?? "")) continue;
+      // Consórcio intermunicipal também aparece no extrato do município, com
+      // RGF próprio, e não é a prefeitura.
+      if (/c[aâ]mara|legislativ|cons[oó]rcio|tribunal|minist[eé]rio p|defensoria/i.test(i.instituicao ?? "")) continue;
       const periodicidade = i.periodicidade === "S" ? "S" : i.periodicidade === "Q" ? "Q" : null;
       if (!periodicidade || typeof i.periodo !== "number") continue;
       const chave = `${ano}${periodicidade}${i.periodo}`;
