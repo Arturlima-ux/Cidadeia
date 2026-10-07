@@ -24,9 +24,9 @@ function dataBr(iso: string) {
 /**
  * Conferência sob demanda, nunca ao abrir a tela.
  *
- * São seis consultas ao SICONFI, uma por bimestre encerrado, contra uma API
- * pública e gratuita. Disparar isso a cada visita seria abusar de
- * infraestrutura que o Tesouro mantém para todo mundo.
+ * A API do Tesouro é pública e gratuita. Disparar a consulta a cada visita
+ * seria abusar de infraestrutura que o Tesouro mantém para todo mundo; a
+ * rotina diária do CidadeIA já confere sozinha e gera os alertas.
  */
 export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boolean }) {
   const [pendente, iniciar] = useTransition();
@@ -96,6 +96,14 @@ export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boo
             <Contador n={resultado.entregues} rotulo="confirmadas no Tesouro" cor="var(--info)" />
           </div>
 
+          {resultado.periodicidadeDoExtrato && (
+            <p className="text-xs text-muted mt-3 leading-relaxed">
+              Pelo que a prefeitura já entregou ao Tesouro, o RGF é publicado{" "}
+              <strong className="text-foreground">{resultado.rgfSemestral ? "por semestre" : "por quadrimestre"}</strong>, e o
+              calendário cobra nessa periodicidade.
+            </p>
+          )}
+
           {pendentes.length === 0 && (
             <p className="text-sm text-muted mt-4">
               Nenhuma entrega em atraso ou perto de vencer no exercício de {resultado.exercicio}.
@@ -125,10 +133,11 @@ export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boo
       )}
 
       <p className="text-xs text-muted mt-5 pt-4 border-t border-border leading-relaxed">
-        A entrega do RREO é confirmada consultando o Tesouro, e o alerta some
-        sozinho quando a publicação aparece lá. Gestão fiscal, SIOPS e SIOPE não
-        têm consulta pública equivalente: entram como lembrete de data, e não
-        afirmamos entrega que não verificamos.
+        A entrega do RREO e do RGF, comum ou simplificado, é confirmada no extrato
+        de entregas do Tesouro, e o alerta some sozinho quando a entrega aparece
+        lá. O CidadeIA confere isso todo dia e avisa por e-mail antes do prazo.
+        SIOPS e SIOPE não têm consulta pública equivalente: entram como lembrete
+        de data, e não afirmamos entrega que não verificamos.
       </p>
     </section>
   );
