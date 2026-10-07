@@ -6,11 +6,17 @@ on:
   schedule:
     - cron: "17 9 * * 1"
   workflow_dispatch:
+    inputs:
+      so_site:
+        description: "Conferir só o site no ar (pula a auditoria dos 5.571)"
+        type: boolean
+        default: false
 permissions:
   contents: read
   issues: write
 jobs:
   auditoria:
+    if: ${{ !inputs.so_site }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:
@@ -42,11 +48,16 @@ jobs:
         with:
           node-version: 22
       - uses: actions/download-artifact@v4
+        if: ${{ !inputs.so_site }}
         with:
           path: partes
       - name: Regras da auditoria
         id: regras
+        if: ${{ !inputs.so_site }}
         run: npx -y tsx@4 scripts/vigia/verificar.ts partes
+      - name: Cabeçalho (só o site)
+        if: ${{ inputs.so_site }}
+        run: echo "## Vigia do site no ar — $(date -u +%F)" > resumo.md
       - name: Site no ar
         id: site
         if: always()

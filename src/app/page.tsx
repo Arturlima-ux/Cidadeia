@@ -23,7 +23,7 @@ import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
-import { AVISO_DF, ehDistritoFederal } from "@/lib/regioes-df";
+import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
 
 // ── A PÁGINA EM SEIS PARTES ──
@@ -229,12 +229,23 @@ export default async function LandingPage({
                 </p>
 
                 {df ? (
-                  <p
-                    className="mt-4 max-w-[72ch] rounded-2xl border px-5 py-4 text-sm leading-relaxed"
-                    style={{ borderColor: "var(--info-borda)", background: "var(--info-tint)" }}
-                  >
-                    {AVISO_DF}
-                  </p>
+                  // O DF presta contas como unidade da federação. A despesa com
+                  // pessoal do Governo do Distrito Federal é lida no RGF dele
+                  // (código 53, lib/siconfi-tipos.ts); o resto do Raio-X
+                  // municipal não se aplica.
+                  <>
+                    <div className="grid md:grid-cols-3 gap-4 mt-3">
+                      <Suspense fallback={<EsqueletoFato titulo="Despesa com pessoal" />}>
+                        <CarregaPessoal codigoIbge={dados!.codigo} />
+                      </Suspense>
+                    </div>
+                    <p
+                      className="mt-4 max-w-[72ch] rounded-2xl border px-5 py-4 text-sm leading-relaxed"
+                      style={{ borderColor: "var(--info-borda)", background: "var(--info-tint)" }}
+                    >
+                      {AVISO_DF_COM_PESSOAL}
+                    </p>
+                  </>
                 ) : (
                   <>
                 <div className="grid md:grid-cols-3 gap-4 mt-3">
