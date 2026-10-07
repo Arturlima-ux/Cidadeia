@@ -1,6 +1,6 @@
 import { buscarCodigoIbge, agregarPorSecretaria, type LinhaSiconfi } from "@/lib/siconfi";
 import { periodosDoExercicio } from "@/lib/obrigacoes-fiscais";
-import { consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
+import { cacheDoPeriodo, consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
 
 // ── RAIO-X DO MUNICÍPIO ──
 //
@@ -22,7 +22,6 @@ import { consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
 
 const URL_SICONFI_RREO = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
-const CACHE_TESOURO_SEGUNDOS = 604800; // 7 dias — ver siconfi.ts
 
 /** Coluna do RREO que representa dinheiro efetivamente aplicado. */
 const COLUNA_LIQUIDADA = "DESPESAS LIQUIDADAS ATÉ O BIMESTRE (d)";
@@ -92,9 +91,9 @@ async function buscarRreoDoTipo(
     const resposta = await fetch(url, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(TIMEOUT_MS),
-      // Sete dias no cache de dados, que não é apagado ao publicar. O dado
-      // do RREO muda por bimestre; a página diz de qual bimestre fala.
-      next: { revalidate: CACHE_TESOURO_SEGUNDOS },
+      // Cache de dados, que não é apagado ao publicar: 6 h para bimestre
+      // recente, 7 dias para os antigos (ver cacheDoPeriodo).
+      next: { revalidate: cacheDoPeriodo(exercicio, periodo * 2) },
     });
     if (!resposta.ok) return null;
     const json = (await resposta.json()) as { items?: LinhaSiconfi[] };
