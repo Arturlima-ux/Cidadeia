@@ -10,6 +10,8 @@ import type { Municipio } from "@/lib/municipios";
 import type { PortalPublicado } from "@/lib/portais";
 import CarregaSalarios from "./CarregaSalarios";
 import CarregaContas from "./CarregaContas";
+import CarregaPortalDaCidade from "./CarregaPortalDaCidade";
+import OPortal from "./OPortal";
 import { EsqueletoPergunta } from "./CartaoPergunta";
 
 // ── A HOME DO MORADOR ──
@@ -136,44 +138,31 @@ export default function HomeMorador({
             </div>
           </section>
 
-          {/* ═══ FALAR COM A PREFEITURA ═══ */}
-          {!semPrefeitura && (
-            <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20">
-              <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Fale com a prefeitura.</h2>
-              {portal ? (
-                <div
-                  className="mt-6 rounded-[28px] border p-7 sm:p-9 flex flex-wrap items-center justify-between gap-6"
-                  style={{
-                    borderColor: "color-mix(in oklab, var(--brand) 45%, var(--border))",
-                    background: "radial-gradient(70% 90% at 100% 0%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%), var(--card)",
-                  }}
+          {/* ═══ O PORTAL DA CIDADE ═══
+              Com portal: ele ao vivo, com os pedidos, as obras e o botão de
+              pedido. Sem portal: o que o morador ganharia com ele, e como
+              pedir. */}
+          {!semPrefeitura &&
+            (portal ? (
+              <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20">
+                <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Fale com a prefeitura.</h2>
+                <Suspense
+                  key={`p${portal.slug}`}
+                  fallback={<div className="mt-6 rounded-[28px] border border-border h-72 animate-pulse" style={{ background: "var(--card)" }} />}
                 >
-                  <div className="max-w-[52ch]">
-                    <p className="text-sm font-medium" style={{ color: "var(--brand-claro)" }}>
-                      ● {dados.nome} tem portal
-                    </p>
-                    <p className="text-2xl font-semibold tracking-[-0.03em] mt-2">
-                      Peça um serviço, reclame, sugira ou denuncie, e acompanhe a resposta pelo número do protocolo.
-                    </p>
-                  </div>
-                  <Link
-                    href={`/transparencia/${portal.slug}`}
-                    className="rounded-full px-7 py-4 font-semibold"
-                    style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
-                  >
-                    Abrir o portal de {dados.nome} →
-                  </Link>
-                </div>
-              ) : (
-                <div className="mt-6 rounded-[28px] border border-border p-7 sm:p-9" style={{ background: "var(--card)" }}>
-                  <p className="text-xl sm:text-2xl font-semibold tracking-[-0.03em] max-w-[50ch]">
-                    {dados.nome} ainda não tem um portal onde você fala com a prefeitura e acompanha a resposta.
-                  </p>
-                  <p className="text-muted mt-3 max-w-[60ch] leading-relaxed">
-                    Mande o pedido abaixo pelo site da prefeitura e, se quiser, peça o portal: a mensagem já vai pronta para
-                    o vereador, a prefeitura ou o grupo do bairro.
-                  </p>
-                  <div className="flex flex-wrap gap-3 mt-6">
+                  <CarregaPortalDaCidade slug={portal.slug} cidade={dados.nome} />
+                </Suspense>
+              </section>
+            ) : (
+              <OPortal
+                titulo={
+                  <>
+                    É isto que {dados.nome} <span className="text-muted">ainda não tem.</span>
+                  </>
+                }
+                subtitulo={`Quando a prefeitura contrata o portal do CidadeIA, quem mora em ${dados.nome} passa a ter, no celular:`}
+                acoes={
+                  <>
                     <a
                       href={`https://wa.me/?text=${encodeURIComponent(mensagemWhats)}`}
                       target="_blank"
@@ -184,13 +173,12 @@ export default function HomeMorador({
                       Pedir o portal pelo WhatsApp
                     </a>
                     <Link href="/transparencia/exemplo" className="rounded-full border border-border px-6 py-3.5 font-medium hover:border-brand transition">
-                      Ver como é um portal
+                      Abrir o portal de exemplo
                     </Link>
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
+                  </>
+                }
+              />
+            ))}
 
           {/* ═══ O PEDIDO PRONTO ═══ */}
           {!semPrefeitura && (
@@ -230,6 +218,34 @@ export default function HomeMorador({
             ))}
           </div>
         </section>
+      )}
+
+      {!municipio && (
+        <OPortal
+          titulo={
+            <>
+              E quando a cidade tem o <span style={{ color: "var(--brand-claro)" }}>portal do CidadeIA</span>.
+            </>
+          }
+          subtitulo="É o portal da transparência que a prefeitura põe no ar com o CidadeIA. O morador abre no celular e tem:"
+          acoes={
+            <>
+              <Link href="/transparencia/exemplo" className="rounded-full border border-border px-6 py-3.5 font-medium hover:border-brand transition">
+                Abrir o portal de exemplo →
+              </Link>
+              {portais.slice(0, 4).map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/transparencia/${p.slug}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3.5 text-sm font-medium hover:border-brand transition"
+                >
+                  <span className="w-2 h-2 rounded-full portal-pulso" style={{ background: "var(--brand)" }} />
+                  {p.municipio} · {p.estado}
+                </Link>
+              ))}
+            </>
+          }
+        />
       )}
 
       {/* ═══ O QUE É SEU POR DIREITO ═══ */}
