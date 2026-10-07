@@ -1,18 +1,12 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
-import PedidoLai from "@/components/morador/PedidoLai";
 import { DIREITOS_CIDADAO } from "@/lib/direitos-cidadao";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
-import { CODIGO_FERNANDO_DE_NORONHA } from "@/lib/siconfi-tipos";
 import type { Municipio } from "@/lib/municipios";
 import type { PortalPublicado } from "@/lib/portais";
-import CarregaSalarios from "./CarregaSalarios";
-import CarregaContas from "./CarregaContas";
-import CarregaPortalDaCidade from "./CarregaPortalDaCidade";
 import OPortal from "./OPortal";
-import { EsqueletoPergunta } from "./CartaoPergunta";
+import PortalAberto, { Chave } from "./PortalAberto";
 
 // ── A HOME DO MORADOR ──
 //
@@ -51,11 +45,18 @@ export default function HomeMorador({
       portais.find((p) => p.estado === dados.uf && normalizar(p.municipio) === normalizar(dados.nome)) ??
       null
     : null;
-  const semPrefeitura = dados?.codigo === CODIGO_FERNANDO_DE_NORONHA;
 
-  const mensagemWhats = municipio
-    ? `Oi! Sou morador de ${municipio.nome}. Queria ver pelo celular para onde vai o dinheiro da cidade, como estão as obras e poder fazer pedidos à prefeitura. Existe um portal assim, olha um exemplo: https://cidadeia.vercel.app/transparencia/exemplo. A nossa prefeitura podia ter um!`
-    : "";
+
+  // Cidade escolhida: ela abre como portal (PortalAberto.tsx).
+  if (municipio && dados) {
+    return (
+      <>
+        <PortalAberto municipio={municipio} dados={dados} portal={portal} linkPrefeitura={linkPrefeitura} />
+        <Direitos />
+        <Saida linkPrefeitura={linkPrefeitura} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -71,26 +72,6 @@ export default function HomeMorador({
 
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-8 items-center mt-8 sm:mt-12">
             <div className="min-w-0">
-              {municipio ? (
-                <>
-                  <p className="text-sm font-medium" style={{ color: "var(--brand-claro)" }}>
-                    Sua cidade
-                  </p>
-                  <h1 className="text-[clamp(2.6rem,9vw,5.6rem)] font-semibold tracking-[-0.05em] leading-[0.95] mt-3 break-words">
-                    {municipio.nome}
-                    <span className="text-muted">, {municipio.uf}</span>
-                  </h1>
-                  <p className="text-lg text-muted mt-5 max-w-[46ch] leading-relaxed">
-                    {semPrefeitura
-                      ? "A ilha não tem prefeitura: quem cuida dela é o Governo de Pernambuco."
-                      : "Três respostas sobre o dinheiro da sua cidade, tiradas do que a própria prefeitura entrega ao Tesouro Nacional."}
-                  </p>
-                  <div className="mt-8 max-w-[640px]">
-                    <p className="text-sm text-muted mb-2.5">Ver outra cidade</p>
-                    <AcheSuaCidade compacto />
-                  </div>
-                </>
-              ) : (
                 <>
                   <h1 className="text-[clamp(2.5rem,7.5vw,5.2rem)] font-semibold tracking-[-0.05em] leading-[0.98]">
                     O que a prefeitura faz com o{" "}
@@ -107,7 +88,6 @@ export default function HomeMorador({
                     Vale para as 5.571 cidades do Brasil. Os números vêm do Tesouro Nacional.
                   </p>
                 </>
-              )}
             </div>
             <div className="relative aspect-square w-full max-w-[440px] mx-auto lg:ml-auto hidden sm:block" aria-hidden>
               <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
@@ -116,87 +96,7 @@ export default function HomeMorador({
         </div>
       </section>
 
-      {municipio && dados ? (
-        <>
-          {/* ═══ AS TRÊS RESPOSTAS ═══ */}
-          <section id="sua-cidade" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-6 scroll-mt-24">
-            <div className="grid lg:grid-cols-3 gap-4">
-              <Suspense key={`s${dados.codigo}`} fallback={<EsqueletoPergunta numero={1} titulo="Quanto vai para pagar os servidores?" />}>
-                <CarregaSalarios codigoIbge={dados.codigo} />
-              </Suspense>
-              <Suspense
-                key={`c${dados.codigo}`}
-                fallback={
-                  <>
-                    <EsqueletoPergunta numero={2} titulo="Quanto foi para saúde e educação?" />
-                    <EsqueletoPergunta numero={3} titulo="A prefeitura está prestando contas?" />
-                  </>
-                }
-              >
-                <CarregaContas municipio={dados.nome} uf={dados.uf} populacao={dados.populacao} />
-              </Suspense>
-            </div>
-          </section>
-
-          {/* ═══ O PORTAL DA CIDADE ═══
-              Com portal: ele ao vivo, com os pedidos, as obras e o botão de
-              pedido. Sem portal: o que o morador ganharia com ele, e como
-              pedir. */}
-          {!semPrefeitura &&
-            (portal ? (
-              <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20">
-                <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Fale com a prefeitura.</h2>
-                <Suspense
-                  key={`p${portal.slug}`}
-                  fallback={<div className="mt-6 rounded-[28px] border border-border h-72 animate-pulse" style={{ background: "var(--card)" }} />}
-                >
-                  <CarregaPortalDaCidade slug={portal.slug} cidade={dados.nome} />
-                </Suspense>
-              </section>
-            ) : (
-              <OPortal
-                titulo={
-                  <>
-                    É isto que {dados.nome} <span className="text-muted">ainda não tem.</span>
-                  </>
-                }
-                subtitulo={`Quando a prefeitura contrata o portal do CidadeIA, quem mora em ${dados.nome} passa a ter, no celular:`}
-                acoes={
-                  <>
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(mensagemWhats)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-full border px-6 py-3.5 font-semibold transition hover:opacity-90"
-                      style={{ borderColor: "color-mix(in oklab, var(--brand) 50%, var(--border))", color: "var(--brand-claro)" }}
-                    >
-                      Pedir o portal pelo WhatsApp
-                    </a>
-                    <Link href="/transparencia/exemplo" className="rounded-full border border-border px-6 py-3.5 font-medium hover:border-brand transition">
-                      Abrir o portal de exemplo
-                    </Link>
-                  </>
-                }
-              />
-            ))}
-
-          {/* ═══ O PEDIDO PRONTO ═══ */}
-          {!semPrefeitura && (
-            <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20">
-              <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">
-                Quer saber mais? <span className="text-muted">Peça.</span>
-              </h2>
-              <p className="text-lg text-muted mt-3 max-w-[60ch] leading-relaxed">
-                Qualquer pessoa pode pedir informação pública à prefeitura de {dados.nome}, e ela tem 20 dias para
-                responder. O pedido sai pronto aqui.
-              </p>
-              <div className="mt-8">
-                <PedidoLai cidade={dados.nome} uf={dados.uf} linkPortal={portal ? `/transparencia/${portal.slug}` : null} />
-              </div>
-            </section>
-          )}
-        </>
-      ) : (
+      {!municipio && (
         /* ═══ SEM CIDADE: O QUE ELA VAI RESPONDER ═══ */
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-10">
           <div className="grid md:grid-cols-3 gap-4">
@@ -248,8 +148,15 @@ export default function HomeMorador({
         />
       )}
 
-      {/* ═══ O QUE É SEU POR DIREITO ═══ */}
-      <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20">
+      <Direitos />
+      <Saida linkPrefeitura={linkPrefeitura} />
+    </>
+  );
+}
+
+function Direitos() {
+  return (
+      <section id="direitos" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 scroll-mt-24">
         <h2 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">O que é seu por direito.</h2>
         <div className="grid md:grid-cols-3 gap-4 mt-8">
           {DIREITOS_CIDADAO.map((d) => {
@@ -267,8 +174,11 @@ export default function HomeMorador({
           })}
         </div>
       </section>
+  );
+}
 
-      {/* ═══ A SAÍDA PARA A PREFEITURA ═══ */}
+function Saida({ linkPrefeitura }: { linkPrefeitura: string }) {
+  return (
       <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20 pb-24">
         <div className="border-t border-border pt-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-muted">Trabalha na prefeitura?</p>
@@ -277,20 +187,5 @@ export default function HomeMorador({
           </Link>
         </div>
       </section>
-    </>
-  );
-}
-
-/** A chave "Sou da prefeitura / Sou morador", aqui com o morador ativo. */
-function Chave({ linkPrefeitura }: { linkPrefeitura: string }) {
-  return (
-    <div role="tablist" aria-label="Quem está olhando" className="inline-flex rounded-full border border-border p-1.5" style={{ background: "var(--card)" }}>
-      <Link role="tab" aria-selected={false} href={linkPrefeitura} className="rounded-full px-5 py-2.5 text-sm font-medium text-muted hover:text-foreground transition">
-        Sou da prefeitura
-      </Link>
-      <span role="tab" aria-selected className="rounded-full px-5 py-2.5 text-sm font-semibold" style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}>
-        Sou morador
-      </span>
-    </div>
   );
 }

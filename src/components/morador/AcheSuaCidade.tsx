@@ -131,8 +131,8 @@ export default function AcheSuaCidade({
     setAberto(false);
     setTexto(`${l[1]}, ${l[2]}`);
     router.push(destino(l[0]), { scroll: false });
-    // A página muda logo abaixo; leva o olhar até ela.
-    setTimeout(() => document.getElementById("sua-cidade")?.scrollIntoView({ behavior: "smooth", block: "start" }), 450);
+    // A cidade abre como portal, do topo.
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
   };
 
   const estouAqui = () => {
