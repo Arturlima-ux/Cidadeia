@@ -97,11 +97,15 @@ const FUNDAMENTO_PESSOAL =
  */
 const AUSENCIA_DO_PESSOAL: Record<CausaSemRgf, string> = {
   nao_publicado:
-    "Nenhum RGF deste município consta publicado no Tesouro nos períodos procurados. Sem ele não há como saber de que lado do limite a prefeitura está.",
+    "Procuramos o RGF comum e o simplificado, nos períodos dos últimos dois anos, e nenhum consta no Tesouro. " +
+    "A prefeitura pode ter publicado só no site dela. Qualquer pessoa pode pedir esse relatório à prefeitura " +
+    "pela Lei de Acesso à Informação (Lei 12.527/2011), sem precisar explicar o motivo, ou avisar o Tribunal de Contas do estado.",
   em_branco:
-    "O RGF foi publicado, mas sem os valores de despesa com pessoal. A entrega aconteceu; o conteúdo, não.",
+    "O RGF foi publicado, mas sem os valores de despesa com pessoal. A entrega aconteceu; o conteúdo, não. " +
+    "Os valores podem ser pedidos à prefeitura pela Lei de Acesso à Informação (Lei 12.527/2011).",
   consulta_falhou:
-    "Não conseguimos consultar o Tesouro nesta visita. Isso não diz nada sobre o que o município publicou — só que a nossa pergunta não chegou.",
+    "O Tesouro não respondeu agora, mesmo depois de perguntarmos de novo. Isso não diz nada sobre o que a prefeitura " +
+    "publicou. Tente de novo em alguns minutos.",
 };
 
 export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
