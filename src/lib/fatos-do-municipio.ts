@@ -129,6 +129,11 @@ function frasesDoInconsistente(n: NumerosInconsistentes): string {
   );
 }
 
+/** Brasília presta contas como Governo do Distrito Federal, que não é prefeitura. */
+function quemDeclarou(instituicao: string | null): string {
+  return /distrito federal/i.test(instituicao ?? "") ? "o próprio Governo do Distrito Federal" : "a própria prefeitura";
+}
+
 /** "30/09/2026" */
 function dataBr(iso: string): string {
   const [a, m, d] = iso.split("-");
@@ -208,7 +213,7 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
   // como dela um número que é nosso.
   const leitura =
     alerta !== null && !d.rclVeioDeReserva
-      ? `${comum} O limite de alerta que a própria prefeitura declarou no mesmo documento é ` +
+      ? `${comum} O limite de alerta que ${quemDeclarou(d.instituicao)} declarou no mesmo documento é ` +
         `${pct((alerta / d.rclAjustada) * 100)}.`
       : d.rclVeioDeReserva
       ? `${comum} O anexo não trouxe a receita corrente líquida ajustada, então este percentual ` +

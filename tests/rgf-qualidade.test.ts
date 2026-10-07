@@ -122,3 +122,22 @@ describe("lugares que não são prefeitura comum", () => {
     expect(r.causa).toBe("nao_publicado");
   });
 });
+
+describe("quem declarou", () => {
+  it("no DF é o Governo do Distrito Federal, não a prefeitura", () => {
+    const f = fatoDoPessoal(
+      {
+        ok: true,
+        dados: {
+          periodo: { exercicio: 2026, periodicidade: "Q", periodo: 2, mesReferencia: 8 },
+          instituicao: "Governo do Distrito Federal",
+          rclAjustada: 41899183021.71, rcl: 41899183021.71, despesaTotal: 16987811890.99,
+          limiteMaximo: null, limitePrudencial: null, limiteAlerta: 18477539712.57, rclVeioDeReserva: false,
+        },
+      },
+      "2026-10-07T12:00:00Z"
+    );
+    expect(f.leitura).toContain("o próprio Governo do Distrito Federal declarou");
+    expect(f.leitura).not.toMatch(/prefeitura/);
+  });
+});
