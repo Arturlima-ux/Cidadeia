@@ -125,7 +125,7 @@ export type ImportacaoRgf = {
  * nunca saía de `buscarRgfMaisRecente`, então a prefeitura que entregou o
  * demonstrativo vazio era acusada de não ter entregado.
  */
-export type CausaSemRgf = "nao_publicado" | "em_branco" | "consulta_falhou";
+export type CausaSemRgf = "nao_publicado" | "em_branco" | "consulta_falhou" | "entregue_sem_dados";
 
 export type ResultadoRgf =
   | { ok: true; dados: ImportacaoRgf }
@@ -135,6 +135,12 @@ export type ResultadoRgf =
       causa: CausaSemRgf;
       /** Quantos períodos foram procurados. É o que torna a ausência auditável. */
       periodosProcurados: number;
+      /**
+       * O RGF mais recente que o extrato de entregas do Tesouro registra como
+       * entregue. Presente em `entregue_sem_dados`: a prefeitura entregou, e a
+       * tela tem de dizer isso, nunca "não publicado".
+       */
+      periodoEntregue?: PeriodoRgf;
     };
 
 /**
@@ -199,21 +205,54 @@ export function extrairRgf(
  * maioria dos municípios pequenos entrega (ver lib/siconfi-tipos.ts). O Anexo
  * 01 do simplificado traz as mesmas contas, então `extrairRgf` lê os dois.
  */
-function buscarPeriodo(codigoIbge: string, periodo: PeriodoRgf): Promise<LinhaRgf[] | null> {
-  return consultarTipos(TIPOS_RGF, (tipo) => buscarPeriodoDoTipo(codigoIbge, periodo, tipo));
+async function buscarPeriodo(codigoIbge: string, periodo: PeriodoRgf): Promise<LinhaRgf[] | null> {
+  const anexo01 = await consultarTipos(TIPOS_RGF, (tipo) => buscarPeriodoDoTipo(codigoIbge, periodo, tipo, "RGF-Anexo 01"));
+  if (anexo01 === null || anexo01.length > 0) return anexo01;
+  // Parte dos municípios que entregam o simplificado só tem, na consulta
+  // aberta, o Anexo 06 (o próprio demonstrativo simplificado). Os mesmos
+  // números estão lá, com outros nomes de conta.
+  const anexo06 = await buscarPeriodoDoTipo(codigoIbge, periodo, "RGF Simplificado", "RGF-Anexo 06");
+  return anexo06 === null ? null : anexo06LidoComoAnexo01(anexo06);
+}
+
+/** Contas do Anexo 06 (simplificado) → contas do Anexo 01 que `extrairRgf` lê. */
+const CONTAS_DO_ANEXO_06: Record<string, string> = {
+  DespesaTotalComPessoalDemonstrativoSimplificado: CONTAS.despesaTotal,
+  ReceitaCorrenteLiquidaAjustada: CONTAS.rclAjustada,
+  ReceitaCorrenteLiquida: CONTAS.rcl,
+  LimiteMaximoDespesaComPessoalDemonstrativoSimplificado: CONTAS.limiteMaximo,
+  LimitePrudencialDespesaComPessoalDemonstrativoSimplificado: CONTAS.limitePrudencial,
+  LimiteDeAlertaDespesaComPessoalDemonstrativoSimplificado: CONTAS.limiteAlerta,
+};
+
+export function anexo06LidoComoAnexo01(itens: LinhaRgf[]): LinhaRgf[] {
+  const lidas: LinhaRgf[] = [];
+  for (const i of itens) {
+    const conta = i.cod_conta ? CONTAS_DO_ANEXO_06[i.cod_conta] : undefined;
+    // A coluna em reais começa com "VALOR" ("VALOR", "VALOR ATÉ O SEMESTRE
+    // DE REFERÊNCIA"); a de percentual começa com "%".
+    if (!conta || !/^valor/i.test(i.coluna ?? "")) continue;
+    lidas.push({ ...i, cod_conta: conta, coluna: COLUNA_VALOR });
+  }
+  const instituicao = itens.find((i) => i.instituicao)?.instituicao;
+  if (lidas.length && instituicao) lidas.push({ instituicao });
+  // Sem nenhuma conta reconhecida, devolve o que veio: `extrairRgf` vai ler
+  // como demonstrativo em branco, que é o que ele é para nós.
+  return lidas.length ? lidas : itens;
 }
 
 async function buscarPeriodoDoTipo(
   codigoIbge: string,
   periodo: PeriodoRgf,
-  tipo: string
+  tipo: string,
+  anexo: string
 ): Promise<LinhaRgf[] | null> {
   const query = new URLSearchParams({
     an_exercicio: String(periodo.exercicio),
     in_periodicidade: periodo.periodicidade,
     nr_periodo: String(periodo.periodo),
     co_tipo_demonstrativo: tipo,
-    no_anexo: "RGF-Anexo 01",
+    no_anexo: anexo,
     // Poder Executivo: é da prefeitura que este sistema trata. A câmara tem
     // limite próprio (6%) e presta contas por conta dela.
     co_poder: "E",
@@ -338,7 +377,26 @@ export async function buscarRgfMaisRecente(
   // Ordem de prioridade: falha nossa antes de achado sobre o cliente. Se não
   // conseguimos perguntar em algum período, não afirmamos que nada foi
   // publicado — pode ter sido, e a pergunta é que não chegou.
-  if (falhouAConsulta) {
+  // O extrato de entregas registra RGF da prefeitura: ela ENTREGOU. Seja qual
+  // for o motivo de não termos lido os números (consulta aberta ainda sem os
+  // dados, anexo em outro formato, Tesouro fora do ar), dizer "não publicado"
+  // aqui seria acusação falsa. Foi o caso de Caseiros/RS na auditoria.
+  const entregueMaisRecente = (entregues ?? []).find(
+    (p) => p.exercicio < exercicioAtual || p.mesReferencia <= mesAtual
+  );
+  if (entregueMaisRecente && !viuEmBranco) {
+    return {
+      ok: false,
+      erro: "O RGF consta entregue no Tesouro, mas os valores não puderam ser lidos na consulta aberta.",
+      causa: "entregue_sem_dados",
+      periodosProcurados: candidatos.length + jaTentados.size,
+      periodoEntregue: entregueMaisRecente,
+    };
+  }
+
+  // Sem o extrato, falta a segunda fonte para afirmar ausência: vale como
+  // consulta que não chegou.
+  if (falhouAConsulta || entregues === null) {
     return {
       ok: false,
       erro: "A consulta ao Tesouro não respondeu nesta tentativa.",
