@@ -17,9 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - run: npx tsx scripts/auditoria-rgf.ts ${{ matrix.parte }} 8 parte${{ matrix.parte }}.json
+      - run: npx -y tsx@4 scripts/auditoria-rgf.ts ${{ matrix.parte }} 8 parte${{ matrix.parte }}.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
