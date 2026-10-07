@@ -1,0 +1,36 @@
+name: auditoria-rgf-completa
+on:
+  push:
+    branches: [auditoria/rgf-completa]
+permissions:
+  contents: write
+jobs:
+  parte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        parte: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts
+      - run: npx tsx scripts/auditoria-rgf.ts ${{ matrix.parte }} 8 parte${{ matrix.parte }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: parte${{ matrix.parte }}, path: parte${{ matrix.parte }}.json }
+  juntar:
+    needs: parte
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: partes }
+      - run: |
+          mkdir -p auditoria-resultado
+          node -e 'const fs=require("fs");let t=[];for(const d of fs.readdirSync("partes")){const f=`partes/${d}/${d}.json`;if(fs.existsSync(f))t=t.concat(JSON.parse(fs.readFileSync(f)))}fs.writeFileSync("auditoria-resultado/rgf.json",JSON.stringify(t));console.log(t.length)'
+          git config user.name auditoria && git config user.email auditoria@users.noreply.github.com
+          git add auditoria-resultado && git commit -m "resultado da auditoria completa [skip ci]" && git push
