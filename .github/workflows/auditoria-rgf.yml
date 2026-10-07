@@ -1,0 +1,13 @@
+name: auditoria-rgf-temporaria
+on:
+  push:
+    branches: [diag/auditoria-gha]
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for i in $(seq 0 15); do
+            curl -sS -m 90 "https://cidadeia.vercel.app/auditoria-rgf/$i" > lote$i.json || echo '{"erro":true}' > lote$i.json
+            echo "=== LOTE $i"; cat lote$i.json; echo
+          done
