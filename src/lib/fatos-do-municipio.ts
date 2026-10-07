@@ -106,6 +106,9 @@ const AUSENCIA_DO_PESSOAL: Record<CausaSemRgf, string> = {
   consulta_falhou:
     "O Tesouro não respondeu agora, mesmo depois de perguntarmos de novo. Isso não diz nada sobre o que a prefeitura " +
     "publicou. Tente de novo em alguns minutos.",
+  entregue_sem_dados:
+    "O Tesouro registra que a prefeitura entregou o RGF, mas os números dele ainda não aparecem na consulta aberta " +
+    "do Tesouro. A entrega está feita. O relatório completo pode ser visto no site do Tesouro (Siconfi) ou pedido à prefeitura.",
 };
 
 export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
@@ -128,7 +131,13 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
         periodo: `${rgf.periodosProcurados} ${rgf.periodosProcurados === 1 ? "período procurado" : "períodos procurados"}`,
         consultadoEm: dataSemHora(consultadoEm),
       },
-      ausencia: AUSENCIA_DO_PESSOAL[rgf.causa],
+      ausencia:
+        rgf.causa === "entregue_sem_dados" && rgf.periodoEntregue
+          ? AUSENCIA_DO_PESSOAL.entregue_sem_dados.replace(
+              "entregou o RGF",
+              `entregou o ${rotuloDoPeriodoRgf(rgf.periodoEntregue)}`
+            )
+          : AUSENCIA_DO_PESSOAL[rgf.causa],
     };
   }
 
