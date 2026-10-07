@@ -1,6 +1,7 @@
 import { buscarCodigoIbge, agregarPorSecretaria, type LinhaSiconfi } from "@/lib/siconfi";
 import { periodosDoExercicio } from "@/lib/obrigacoes-fiscais";
 import { cacheDoPeriodo, consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
+import { itensDoTesouro } from "@/lib/tesouro-http";
 
 // ── RAIO-X DO MUNICÍPIO ──
 //
@@ -21,7 +22,6 @@ import { cacheDoPeriodo, consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos"
 // sob demanda e com limite por prefeitura.
 
 const URL_SICONFI_RREO = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
-const TIMEOUT_MS = 25000;
 
 /** Coluna do RREO que representa dinheiro efetivamente aplicado. */
 const COLUNA_LIQUIDADA = "DESPESAS LIQUIDADAS ATÉ O BIMESTRE (d)";
@@ -87,23 +87,11 @@ async function buscarRreoDoTipo(
   const url =
     `${URL_SICONFI_RREO}?an_exercicio=${exercicio}&nr_periodo=${periodo}` +
     `&co_tipo_demonstrativo=${encodeURIComponent(tipo)}&no_anexo=${encodeURIComponent(anexo)}&id_ente=${codigoIbge}`;
-  try {
-    const resposta = await fetch(url, {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      // Cache de dados, que não é apagado ao publicar: 6 h para bimestre
-      // recente, 7 dias para os antigos (ver cacheDoPeriodo).
-      next: { revalidate: cacheDoPeriodo(exercicio, periodo * 2) },
-    });
-    if (!resposta.ok) return null;
-    const json = (await resposta.json()) as { items?: LinhaSiconfi[] };
-    return json.items ?? [];
-  } catch {
-    // Null significa "não conseguimos perguntar" e é diferente de lista vazia,
-    // que significa "o Tesouro não tem". A tela precisa dos dois separados para
-    // não chamar de omissão o que foi falha nossa de rede.
-    return null;
-  }
+  // Null significa "não conseguimos perguntar" e é diferente de lista vazia,
+  // que significa "o Tesouro não tem". A tela precisa dos dois separados para
+  // não chamar de omissão o que foi falha nossa de rede. Cache: 6 h para
+  // bimestre recente, 7 dias para os antigos (ver cacheDoPeriodo).
+  return itensDoTesouro<LinhaSiconfi>(url, cacheDoPeriodo(exercicio, periodo * 2));
 }
 
 /**

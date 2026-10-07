@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
+import { ESPERAS_TESOURO_MS } from "@/lib/tesouro-http";
+// Nos testes, a nova tentativa não espera.
+ESPERAS_TESOURO_MS.fill(0);
 import {
   extrairRgf,
   mesDeReferencia,

@@ -24,9 +24,10 @@
 // a ajustada, e é ela que a importação grava.
 
 import { cacheDoPeriodo, consultarTipos, TIPOS_RGF } from "@/lib/siconfi-tipos";
+import { itensDoTesouro } from "@/lib/tesouro-http";
+import { rgfsEntregues } from "@/lib/siconfi-entregas";
 
 const URL_RGF ="https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf";
-const TIMEOUT_MS = 25000;
 
 /** A coluna em reais. O anexo repete cada conta em "Valor" e em "%". */
 const COLUNA_VALOR = "Valor";
@@ -220,25 +221,13 @@ async function buscarPeriodoDoTipo(
     id_ente: codigoIbge,
   });
 
-  const controle = new AbortController();
-  const timer = setTimeout(() => controle.abort(), TIMEOUT_MS);
-  try {
-    // Mesma razão do siconfi.ts: o cache de dados sobrevive ao deploy.
-    const resposta = await fetch(`${URL_RGF}?${query}`, {
-      signal: controle.signal,
-      next: { revalidate: cacheDoPeriodo(periodo.exercicio, periodo.mesReferencia) },
-    });
-    // null é "não consegui perguntar"; [] é "perguntei e não tem". Confundir os
-    // dois faz a tela acusar a prefeitura de não publicar numa visita em que o
-    // problema era nosso. Mesma distinção que raio-x.ts já faz.
-    if (!resposta.ok) return null;
-    const corpo = (await resposta.json()) as { items?: LinhaRgf[] };
-    return corpo.items ?? [];
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
+  // null é "não consegui perguntar"; [] é "perguntei e não tem". Confundir os
+  // dois faz a tela acusar a prefeitura de não publicar numa visita em que o
+  // problema era nosso. Mesma distinção que raio-x.ts já faz.
+  return itensDoTesouro<LinhaRgf>(
+    `${URL_RGF}?${query}`,
+    cacheDoPeriodo(periodo.exercicio, periodo.mesReferencia)
+  );
 }
 
 /**
@@ -302,11 +291,33 @@ export async function buscarRgfMaisRecente(
   // sem enviar o deste, aparecia como se nunca tivesse publicado nada.
   tentativas = 8
 ): Promise<ResultadoRgf> {
-  const candidatos = periodosParaTentar(exercicioAtual, mesAtual).slice(0, tentativas);
+  // Primeiro o atalho: o extrato de entregas diz qual RGF a prefeitura
+  // entregou, e basta buscar esse (lib/siconfi-entregas.ts). Poupa até
+  // catorze perguntas ao Tesouro, que é o que o fazia recusar consultas.
+  const chave = (p: PeriodoRgf) => `${p.exercicio}${p.periodicidade}${p.periodo}`;
+  const jaTentados = new Set<string>();
+  let emBrancoNoAtalho = false;
+  const entregues = await rgfsEntregues(codigoIbge, [exercicioAtual, exercicioAtual - 1]);
+  for (const periodo of (entregues ?? [])
+    .filter((p) => p.exercicio < exercicioAtual || p.mesReferencia <= mesAtual)
+    .slice(0, 3)) {
+    jaTentados.add(chave(periodo));
+    const itens = await buscarPeriodo(codigoIbge, periodo);
+    if (!itens || itens.length === 0) continue;
+    const resultado = extrairRgf(itens, periodo);
+    if (resultado.ok) return resultado;
+    if (resultado.causa === "em_branco") emBrancoNoAtalho = true;
+  }
+
+  // Sem atalho (ou ele não levou a número), a busca completa. Só ela pode
+  // concluir que nada foi publicado.
+  const candidatos = periodosParaTentar(exercicioAtual, mesAtual)
+    .slice(0, tentativas)
+    .filter((p) => !jaTentados.has(chave(p)));
 
   // A varredura lembra o que viu: um período em branco é achado diferente de
   // nenhum período, e uma falha de rede não é achado nenhum sobre a prefeitura.
-  let viuEmBranco = false;
+  let viuEmBranco = emBrancoNoAtalho;
   let falhouAConsulta = false;
 
   for (const periodo of candidatos) {
@@ -332,7 +343,7 @@ export async function buscarRgfMaisRecente(
       ok: false,
       erro: "A consulta ao Tesouro não respondeu nesta tentativa.",
       causa: "consulta_falhou",
-      periodosProcurados: candidatos.length,
+      periodosProcurados: candidatos.length + jaTentados.size,
     };
   }
 
@@ -341,7 +352,7 @@ export async function buscarRgfMaisRecente(
       ok: false,
       erro: "O RGF foi publicado sem os valores de despesa com pessoal.",
       causa: "em_branco",
-      periodosProcurados: candidatos.length,
+      periodosProcurados: candidatos.length + jaTentados.size,
     };
   }
 
@@ -351,7 +362,7 @@ export async function buscarRgfMaisRecente(
       "Nenhum RGF encontrado no Tesouro para este município nos últimos períodos. " +
       "Pode ser que ainda não tenha sido publicado — informe os valores à mão abaixo.",
     causa: "nao_publicado",
-    periodosProcurados: candidatos.length,
+    periodosProcurados: candidatos.length + jaTentados.size,
   };
 }
 
