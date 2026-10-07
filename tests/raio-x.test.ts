@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extrairReceita, bimestresEncerrados, proporcaoDaReceita } from "@/lib/raio-x";
+import { extrairReceita, bimestresEncerrados, bimestresVencidos, proporcaoDaReceita } from "@/lib/raio-x";
 import type { LinhaSiconfi } from "@/lib/siconfi";
 
 function linha(conta: string, coluna: string, valor: number): LinhaSiconfi {
@@ -64,5 +64,18 @@ describe("proporção da receita", () => {
     expect(proporcaoDaReceita(5_000_000, 0)).toBeNull();
     expect(proporcaoDaReceita(null, 20_000_000)).toBeNull();
     expect(proporcaoDaReceita(5_000_000, null)).toBeNull();
+  });
+});
+
+describe("bimestres com prazo vencido", () => {
+  it("o bimestre recém-encerrado ainda está no prazo e não é cobrado", () => {
+    // 4º bimestre fecha em 31/08; o prazo vai até 30/09.
+    expect(bimestresEncerrados(2026, new Date("2026-09-10T12:00:00Z"))).toContain(4);
+    expect(bimestresVencidos(2026, new Date("2026-09-10T12:00:00Z"))).not.toContain(4);
+  });
+
+  it("no dia do vencimento ainda não é atraso; no seguinte, é", () => {
+    expect(bimestresVencidos(2026, new Date("2026-09-30T12:00:00Z"))).not.toContain(4);
+    expect(bimestresVencidos(2026, new Date("2026-10-01T12:00:00Z"))).toContain(4);
   });
 });

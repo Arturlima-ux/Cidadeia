@@ -285,3 +285,57 @@ describe("a causa da ausência é estruturada, não uma frase", () => {
     expect(r.periodosProcurados).toBe(3);
   });
 });
+
+describe("o RGF simplificado (municípios pequenos)", () => {
+  // ── O DEFEITO QUE ISTO FECHA ──
+  //
+  // Boa Esperança/ES entrega o RGF SIMPLIFICADO, como pode todo município de
+  // até 50 mil habitantes (LRF, art. 63). A consulta pedia só o tipo "RGF", o
+  // Tesouro respondia vazio, e a home afirmava que nenhum RGF constava
+  // publicado — com o simplificado homologado e a despesa declarada em 47,58%.
+  //
+  // Valores reais do RGF Simplificado do 1º semestre de 2026, Anexo 01.
+  const anexoReal = [
+    { cod_conta: "ReceitaCorrenteLiquidaLimiteLegal", coluna: "Valor", valor: 114064203.2 },
+    { cod_conta: "ReceitaCorrenteLiquidaAjustada", coluna: "Valor", valor: 107608007.7 },
+    { cod_conta: "DespesaComPessoalTotal", coluna: "Valor", valor: 51198424.56 },
+    { cod_conta: "LimiteMaximoDespesaComPessoalTotal", coluna: "Valor", valor: 58108324.16 },
+    { cod_conta: "LimitePrudencialDespesaComPessoalTotal", coluna: "Valor", valor: 55202907.95 },
+    { cod_conta: "LimiteDeAlertaDespesaComPessoalTotal", coluna: "Valor", valor: 52297491.74 },
+    { cod_conta: "DespesaComPessoalTotal", coluna: "% sobre a RCL Ajustada", valor: 47.58 },
+    { instituicao: "Prefeitura Municipal de Boa Esperança - ES" },
+  ];
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("acha o RGF quando só o simplificado foi entregue", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const q = new URL(url).searchParams;
+        const tem = q.get("co_tipo_demonstrativo") === "RGF Simplificado" && q.get("in_periodicidade") === "S" && q.get("nr_periodo") === "1" && q.get("an_exercicio") === "2026";
+        return Response.json({ items: tem ? anexoReal : [] });
+      })
+    );
+    const r = await buscarRgfMaisRecente("3201001", 2026, 10);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(((r.dados.despesaTotal / r.dados.rclAjustada) * 100).toFixed(2)).toBe("47.58");
+    expect(r.dados.periodo).toMatchObject({ exercicio: 2026, periodicidade: "S", periodo: 1 });
+  });
+
+  it("falha no tipo simplificado impede dizer que não foi publicado", async () => {
+    // O relatório podia estar justamente no tipo cuja pergunta não chegou.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (new URL(url).searchParams.get("co_tipo_demonstrativo") === "RGF Simplificado") throw new Error("timeout");
+        return Response.json({ items: [] });
+      })
+    );
+    const r = await buscarRgfMaisRecente("3201001", 2026, 10);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.causa).toBe("consulta_falhou");
+  });
+});

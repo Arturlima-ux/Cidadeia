@@ -14,6 +14,7 @@
  */
 
 import { procurarMunicipioLocal } from "@/lib/municipios";
+import { consultarTipos, TIPOS_RREO } from "@/lib/siconfi-tipos";
 
 const URL_SICONFI = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo";
 const TIMEOUT_MS = 25000;
@@ -153,22 +154,29 @@ export async function buscarDespesasSiconfi(
   ano: number,
   bimestre: number
 ): Promise<ResultadoSiconfi> {
-  const url =
-    `${URL_SICONFI}?an_exercicio=${ano}&nr_periodo=${bimestre}` +
-    `&co_tipo_demonstrativo=RREO&no_anexo=RREO-Anexo%2002&co_esfera=M&id_ente=${codigoIbge}`;
-
-  let bruto: { items?: (LinhaSiconfi & { instituicao?: string })[] };
-  try {
-    bruto = (await buscarJson(url)) as typeof bruto;
-  } catch (e) {
-    console.error("[SICONFI] falha na consulta:", e);
+  // RREO comum ou simplificado (lib/siconfi-tipos.ts): o município pequeno
+  // costuma entregar o simplificado, e o tipo comum volta vazio para ele.
+  type Linha = LinhaSiconfi & { instituicao?: string };
+  const encontrados = await consultarTipos<Linha>(TIPOS_RREO, async (tipo) => {
+    const url =
+      `${URL_SICONFI}?an_exercicio=${ano}&nr_periodo=${bimestre}` +
+      `&co_tipo_demonstrativo=${encodeURIComponent(tipo)}&no_anexo=RREO-Anexo%2002&co_esfera=M&id_ente=${codigoIbge}`;
+    try {
+      const bruto = (await buscarJson(url)) as { items?: Linha[] };
+      return bruto.items ?? [];
+    } catch (e) {
+      console.error("[SICONFI] falha na consulta:", e);
+      return null;
+    }
+  });
+  if (encontrados === null) {
     return {
       ok: false,
       erro: "Não foi possível consultar o Tesouro Nacional agora. Tente novamente em instantes.",
     };
   }
 
-  const itens = bruto.items ?? [];
+  const itens = encontrados;
   if (itens.length === 0) {
     return {
       ok: false,
@@ -252,9 +260,8 @@ export type ResultadoConferenciaEntregas = {
 /**
  * Confere, no Tesouro, quais RREO do exercício já foram publicados.
  *
- * Só o RREO: o endpoint de RGF do Tesouro devolve zero registro para todos os
- * municípios testados, e uma conferência que sempre responde "não entregue"
- * acusaria de falha quem cumpriu. Ver o comentário em obrigacoes-fiscais.ts.
+ * Só o RREO. Pergunta pelo RREO comum e pelo simplificado: o município pequeno
+ * entrega o simplificado, e perguntar só pelo comum o daria como em atraso.
  */
 export async function conferirEntregasSiconfi(
   codigoIbge: string,
@@ -283,9 +290,14 @@ export async function conferirEntregasSiconfi(
     if (!primeira) await aguardar(PAUSA_SICONFI_MS);
     primeira = false;
 
-    const resultado = await periodoFoiEntregue(sondagem.url, sondagem.parametros);
-    if (resultado === true) entregues.add(sondagem.chave);
-    else if (resultado === null) inconclusivos.push(sondagem.chave);
+    // Os dois tipos: o RREO simplificado é entregue e não aparece no comum.
+    const respostas = await Promise.all(
+      TIPOS_RREO.map((tipo) =>
+        periodoFoiEntregue(sondagem.url, { ...sondagem.parametros, co_tipo_demonstrativo: tipo })
+      )
+    );
+    if (respostas.includes(true)) entregues.add(sondagem.chave);
+    else if (respostas.includes(null)) inconclusivos.push(sondagem.chave);
   }
 
   return { entregues, inconclusivos };
