@@ -116,6 +116,7 @@ export default async function AdminPedidosPage({
             <p className="text-sm text-muted mt-2">Mesa da equipe, {email}</p>
           </div>
           <nav className="flex items-center gap-5 text-sm">
+            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
             <span className="font-medium">Pedidos</span>
             <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>

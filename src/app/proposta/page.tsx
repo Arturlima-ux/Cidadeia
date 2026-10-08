@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { registrarEvento } from "@/lib/registrar-evento";
 import SiteHeader from "@/components/site/SiteHeader";
+import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
+import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
@@ -142,7 +144,7 @@ export default async function PropostaPage({
                 </p>
 
                 <Link
-                  href={`/precos`}
+                  href={`/proposta${modulos.length ? `?modulos=${modulos.join(",")}` : ""}`}
                   className="text-xs font-semibold text-white/70 hover:text-white transition mt-1"
                 >
                   ← Alterar município ou módulos
@@ -154,6 +156,16 @@ export default async function PropostaPage({
             <Reveal delay={120}>
               <FormularioProposta codigoIbge={municipio.codigo} modulos={modulos} />
             </Reveal>
+          </div>
+          <div className="mt-12 max-w-[760px]">
+            <PecaUmaLigacao
+              codigoIbge={municipio.codigo}
+              municipio={`${municipio.nome}/${municipio.uf}`}
+              origem="Página da proposta"
+              linkWhatsapp={linkWhatsappComercial(`Olá! Estou montando a proposta do CidadeIA para ${municipio.nome}/${municipio.uf} e queria conversar.`)}
+              titulo="Prefere que a equipe ligue antes?"
+              texto="Se ainda não sabe quais módulos cabem, a gente monta com você por telefone."
+            />
           </div>
         </section>
       </main>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { rodarCobranca } from "@/lib/cobranca-servidor";
 import { rodarVigiaFiscal } from "@/lib/vigia-fiscal-alertas";
+import { rodarRotinaComercial } from "@/lib/rotina-comercial";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -34,6 +35,17 @@ export async function GET(request: Request) {
   const relatorio = await rodarCobranca();
   if (relatorio.erros.length) console.error("[cobranca] erros:", relatorio.erros);
 
+  // O atendimento comercial: resumo da equipe e acompanhamentos
+  // (lib/rotina-comercial.ts). Antes da vigia, porque é rápido e é venda.
+  let atendimento: Awaited<ReturnType<typeof rodarRotinaComercial>> | { erro: string };
+  try {
+    atendimento = await rodarRotinaComercial();
+    if (atendimento.erros.length) console.error("[atendimento] erros:", atendimento.erros);
+  } catch (e) {
+    console.error("[atendimento] falhou:", e);
+    atendimento = { erro: e instanceof Error ? e.message : String(e) };
+  }
+
   let vigiaFiscal: Awaited<ReturnType<typeof rodarVigiaFiscal>> | { erro: string };
   try {
     // O que sobrar dos 60 s da função, com folga para responder.
@@ -43,5 +55,5 @@ export async function GET(request: Request) {
     console.error("[vigia-fiscal] falhou:", e);
     vigiaFiscal = { erro: e instanceof Error ? e.message : String(e) };
   }
-  return NextResponse.json({ ok: true, ...relatorio, vigiaFiscal });
+  return NextResponse.json({ ok: true, ...relatorio, atendimento, vigiaFiscal });
 }

@@ -22,6 +22,10 @@ export async function enviarEmail(params: {
   para: string;
   assunto: string;
   html: string;
+  /** Arquivos anexos (a proposta em PDF, por exemplo). */
+  anexos?: { nome: string; conteudo: Uint8Array }[];
+  /** Para onde vai a resposta do cliente, quando não é o remetente. */
+  responderPara?: string;
 }): Promise<ResultadoEnvioEmail> {
   const apiKey = process.env.RESEND_API_KEY;
   const remetente = process.env.RESEND_FROM_EMAIL;
@@ -55,6 +59,15 @@ export async function enviarEmail(params: {
         to: params.para,
         subject: params.assunto,
         html: params.html,
+        ...(params.responderPara ? { reply_to: params.responderPara } : {}),
+        ...(params.anexos?.length
+          ? {
+              attachments: params.anexos.map((a) => ({
+                filename: a.nome,
+                content: Buffer.from(a.conteudo).toString("base64"),
+              })),
+            }
+          : {}),
       }),
       // Sem limite, uma API lenta prende a requisição até o timeout da
       // função serverless e o usuário fica olhando para o botão travado.

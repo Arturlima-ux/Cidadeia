@@ -9,7 +9,11 @@ import { enviarEmail } from "@/lib/email";
 import { PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import { formatarMoeda } from "@/lib/formatadores";
 import { dataCurta, hojeEmBrasilia, rotuloCompetencia } from "@/lib/cobranca";
-import { confirmarPagamento, criarPrimeiraFatura, emailFatura, registrarPasso, rodarCobranca } from "@/lib/cobranca-servidor";
+import { confirmarPagamento, criarPrimeiraFatura, emailFatura, protocolo, registrarPasso, rodarCobranca } from "@/lib/cobranca-servidor";
+import { renderToBuffer } from "@react-pdf/renderer";
+import { empresaDoAmbiente, montarPropostaComercial } from "@/lib/proposta-comercial";
+import { PropostaComercialPDF } from "@/lib/relatorios/PropostaComercial";
+import { destinoDaEquipe } from "@/lib/contato-comercial";
 
 // ── QUEM AVANÇA O PEDIDO É A EQUIPE ──
 // Cada ação confere de novo que quem chama é admin (ADMIN_EMAILS). A tela
@@ -143,4 +147,68 @@ export async function gerarCobrancasAgora(): Promise<ResultadoAdmin> {
     ok: true,
     aviso: `${r.emitidas} fatura(s) emitida(s), ${r.avisos} aviso(s) enviado(s).${r.erros.length ? ` Erros: ${r.erros.join("; ")}` : ""}`,
   };
+}
+
+// ── A PROPOSTA EM UM CLIQUE ──
+//
+// O site promete proposta em um dia útil. Antes, a equipe baixava o PDF,
+// abria o próprio e-mail, anexava, escrevia e voltava para marcar a etapa.
+// Agora é um botão: gera o PDF, manda ao interessado com o kit de
+// contratação, e só avança a etapa se o e-mail saiu. A resposta do cliente
+// volta para a equipe (reply-to). Os lembretes seguintes saem sozinhos
+// (lib/rotina-comercial.ts).
+
+const escaparHtml = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
+
+export async function enviarPropostaAoCliente(pedidoId: string): Promise<ResultadoAdmin> {
+  const autor = await autorAdmin();
+  if (!autor) return { ok: false, erro: "Sem permissão." };
+  const [pedido] = await db.select().from(pedidosProposta).where(eq(pedidosProposta.id, pedidoId)).limit(1);
+  if (!pedido) return { ok: false, erro: "Pedido não encontrado." };
+  if (pedido.status !== "recebido" && pedido.status !== "proposta_enviada") {
+    return { ok: false, erro: "Este pedido já passou da etapa de proposta." };
+  }
+
+  const proposta = montarPropostaComercial(pedido, empresaDoAmbiente());
+  const pdf = await renderToBuffer(PropostaComercialPDF({ p: proposta }));
+  const arquivo = `proposta-cidadeia-${pedido.municipio
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9]+/g, "-")
+    .toLowerCase()}-${proposta.numero}.pdf`;
+  const base = process.env.APP_URL ?? "https://cidadeia.vercel.app";
+  const primeiro = escaparHtml(pedido.nome.split(" ")[0]);
+
+  const envio = await enviarEmail({
+    para: pedido.email,
+    responderPara: destinoDaEquipe(),
+    assunto: `Proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}`,
+    anexos: [{ nome: arquivo, conteudo: new Uint8Array(pdf) }],
+    html: [
+      `<p>Olá, ${primeiro}.</p>`,
+      `<p>Segue em anexo a proposta do CidadeIA para a Prefeitura de ${escaparHtml(pedido.municipio)}/${pedido.uf}.</p>`,
+      `<p>Para o processo de contratação, o kit já vai pronto para o setor de compras e o jurídico revisarem: termo de referência, estudo técnico preliminar, justificativa da contratação direta, minuta do contrato, acordo de tratamento de dados e nível de serviço. Tudo em <a href="${base}/kit">${base}/kit</a>.</p>`,
+      `<p>Se surgir qualquer dúvida, é só responder este e-mail. Se preferir conversar, mande um telefone e o melhor horário que a gente liga.</p>`,
+      `<p>Acompanhe o pedido em <a href="${base}/proposta/acompanhar?protocolo=${protocolo(pedido.id)}">${base}/proposta/acompanhar</a> (protocolo ${protocolo(pedido.id)}).</p>`,
+      `<p>Equipe CidadeIA</p>`,
+    ].join("\n"),
+  });
+  if (!envio.enviado) {
+    return {
+      ok: false,
+      erro:
+        envio.causa === "nao-configurado"
+          ? "O envio de e-mail não está configurado. Baixe o PDF e mande pelo seu e-mail."
+          : `O e-mail não saiu (${envio.detalhe ?? envio.motivo}). Se o domínio ainda não foi confirmado no serviço de e-mail, baixe o PDF e mande pelo seu e-mail.`,
+    };
+  }
+
+  if (pedido.status === "recebido") {
+    await db.update(pedidosProposta).set({ status: "proposta_enviada" }).where(eq(pedidosProposta.id, pedidoId));
+    await registrarPasso(pedidoId, "proposta_enviada", `Proposta ${proposta.numero} enviada por e-mail a ${pedido.email}, com o kit`, autor);
+  } else {
+    await registrarPasso(pedidoId, "proposta_reenviada", `Proposta ${proposta.numero} reenviada por e-mail a ${pedido.email}`, autor);
+  }
+  revalidar();
+  return { ok: true, aviso: `Proposta enviada a ${pedido.email}. Os lembretes saem sozinhos no 3º e no 8º dia útil.` };
 }

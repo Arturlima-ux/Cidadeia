@@ -19,6 +19,8 @@ import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import HomeMorador from "./_morador/HomeMorador";
+import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
+import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -435,6 +437,16 @@ export default async function LandingPage({
             </Link>
           </div>
           <p className="mt-6 text-sm text-muted">Sem compromisso. O kit baixa sem cadastro.</p>
+
+          {/* O caminho de quem prefere conversar: a equipe liga. */}
+          <div id="atendimento" className="mt-14 max-w-[760px] scroll-mt-24">
+            <PecaUmaLigacao
+              codigoIbge={dados && !df ? dados.codigo : null}
+              municipio={municipio && !df ? `${municipio.nome}/${municipio.uf}` : null}
+              origem="Home, fecho"
+              linkWhatsapp={linkWhatsappComercial("Olá! Vim pelo site do CidadeIA e queria conversar sobre a minha prefeitura.")}
+            />
+          </div>
         </section>
 
         {/* ═══ A PORTA DO CIDADÃO ═══

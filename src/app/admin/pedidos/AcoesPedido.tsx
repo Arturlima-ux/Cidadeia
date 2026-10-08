@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { avancarPedido, marcarPerdido, registrarContrato } from "./actions";
+import { avancarPedido, enviarPropostaAoCliente, marcarPerdido, registrarContrato } from "./actions";
 import { PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 
 // ── O QUE A EQUIPE FAZ EM CADA ETAPA ──
@@ -46,6 +46,15 @@ export default function AcoesPedido({
 
   return (
     <div className="flex flex-col gap-3 w-full md:w-[300px]">
+      {(status === "recebido" || status === "proposta_enviada") && (
+        <button
+          disabled={pendente}
+          onClick={() => rodar(() => enviarPropostaAoCliente(pedidoId))}
+          className="text-sm font-semibold bg-brand hover:bg-brand-dark text-white rounded-full px-4 py-2.5 transition disabled:opacity-50"
+        >
+          {pendente ? "Enviando…" : status === "recebido" ? "Enviar a proposta por e-mail" : "Reenviar a proposta"}
+        </button>
+      )}
       {proximo && (
         <button
           disabled={pendente}

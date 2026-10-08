@@ -68,6 +68,7 @@ export default async function AdminFinanceiroPage() {
             </p>
           </div>
           <nav className="flex items-center gap-5 text-sm">
+            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
             <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
             <span className="font-medium">Financeiro</span>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
