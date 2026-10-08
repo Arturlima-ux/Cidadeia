@@ -1,5 +1,7 @@
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
+import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
+import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
@@ -197,6 +199,31 @@ export default function ComoContratarPage() {
                 ))}
               </div>
             </Reveal>
+          </div>
+        </section>
+        {/* ── o passo seguinte ──
+            Esta página explicava como contratar e não levava a contratar. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+            <div>
+              <h2 className="titulo-secao">O processo vai pronto. Falta só o seu município.</h2>
+              <p className="text-muted mt-4 leading-relaxed max-w-[48ch]">
+                A proposta sai em um dia útil, com o termo de referência, a justificativa e a minuta já preenchidos
+                para a sua prefeitura.
+              </p>
+              <Link
+                href="/proposta"
+                className="inline-block mt-7 bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-7 py-3.5 transition"
+              >
+                Receber a proposta e o kit
+              </Link>
+            </div>
+            <PecaUmaLigacao
+              origem="Como contratar"
+              linkWhatsapp={linkWhatsappComercial("Olá! Estou vendo como contratar o CidadeIA e queria tirar dúvidas.")}
+              titulo="Dúvida sobre o processo? A equipe liga."
+              texto="Dispensa, adesão ou licitação: a gente explica qual caminho cabe na sua prefeitura, com a lei na mão."
+            />
           </div>
         </section>
       </main>

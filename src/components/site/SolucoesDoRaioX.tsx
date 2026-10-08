@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { solucoesParaORaioX, resumoDasSolucoes, type EntradaSolucoes } from "@/lib/raio-x-solucoes";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
+import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
+import { linkWhatsappComercial } from "@/lib/contato-comercial";
 
 // ── O QUE FAZER COM ISSO ──
 //
@@ -15,6 +17,7 @@ import { NOME_PLANO_ADDON } from "@/lib/planos";
 export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes }) {
   const solucoes = solucoesParaORaioX(entrada);
   const resumo = resumoDasSolucoes(entrada);
+  const modulosSugeridos = Array.from(new Set(solucoes.map((x) => x.modulo)));
 
   return (
     <section className="border-t border-border pt-10">
@@ -47,21 +50,22 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
       </ol>
 
       {/* ── a ordem em que a pessoa decide ──
-          Quem acabou de ler o Raio-X ainda não quer preço: quer saber o que
-          existe para o caso dele. Soluções vem primeiro por isso, e a
-          proposta logo atrás, já com o município preenchido. */}
+          Quem chegou até aqui leu o diagnóstico da própria prefeitura: o
+          passo seguinte é a proposta, já com o município e os módulos que os
+          achados pedem. Soluções fica ao lado, para quem quer ver por dentro
+          antes, e a ligação embaixo, para quem prefere conversar. */}
       <div className="flex flex-wrap gap-3 mt-8">
         <Link
-          href="/solucoes"
+          href={`/proposta?ibge=${entrada.codigoIbge}${modulosSugeridos.length ? `&modulos=${modulosSugeridos.join(",")}` : ""}`}
           className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated"
         >
-          Ver as soluções por dentro&nbsp;&nbsp;→
+          Receber a proposta para {entrada.municipio}&nbsp;&nbsp;→
         </Link>
         <Link
-          href={`/proposta?ibge=${entrada.codigoIbge}`}
+          href="/solucoes"
           className="border border-border font-semibold text-sm rounded-xl px-5 py-3.5 transition hover:border-brand"
         >
-          Montar proposta para {entrada.municipio}
+          Ver as soluções por dentro
         </Link>
         <Link
           href="/demo"
@@ -70,6 +74,19 @@ export default function SolucoesDoRaioX({ entrada }: { entrada: EntradaSolucoes 
           Abrir o painel de demonstração
         </Link>
       </div>
+      <p className="text-sm text-muted mt-3">Proposta em um dia útil, com o processo de contratação pronto. Sem compromisso.</p>
+
+      <div className="mt-8">
+        <PecaUmaLigacao
+          codigoIbge={entrada.codigoIbge}
+          municipio={entrada.municipio}
+          origem="Raio-X do município"
+          linkWhatsapp={linkWhatsappComercial(`Olá! Vi o Raio-X de ${entrada.municipio} no site do CidadeIA e queria conversar.`)}
+          titulo={`Prefere conversar sobre ${entrada.municipio}? A equipe liga.`}
+          texto="Quinze minutos, com os números da prefeitura na mesa: o que o painel apontaria e como seria a contratação."
+        />
+      </div>
+
       <p className="text-sm text-muted mt-4 leading-relaxed max-w-[62ch]">
         Em Soluções, cada módulo abre com o que ele entrega, a automação que roda sozinha e o que o
         cidadão consegue conferir no portal — módulo por módulo, sem promessa que a tela não cumpra.

@@ -24,6 +24,8 @@ const EXCECOES: { caminho: string; motivo: string }[] = [
   { caminho: "lib/og-imagem.tsx", motivo: "imagem de compartilhamento, renderizada fora do navegador" },
   { caminho: "lib/pedido-proposta.ts", motivo: "HTML de e-mail — cliente de e-mail não suporta variável CSS" },
   { caminho: "app/raio-x/lead-actions.ts", motivo: "HTML do e-mail de lead — cliente de e-mail não resolve variável CSS" },
+  { caminho: "lib/rotina-comercial.ts", motivo: "HTML dos e-mails de acompanhamento e do resumo da equipe — cliente de e-mail não resolve variável CSS" },
+  { caminho: "app/_atendimento/actions.ts", motivo: "HTML do aviso de pedido de ligação para a equipe — cliente de e-mail não resolve variável CSS" },
   { caminho: "lib/cobranca-servidor.ts", motivo: "HTML dos e-mails de fatura e de ativação — cliente de e-mail não resolve variável CSS" },
   // Este o teste achou, e eu não: o aviso de erro que vai por e-mail para a
   // equipe. Mesma razão dos outros, e a prova de que a varredura precisava
