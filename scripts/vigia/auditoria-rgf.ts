@@ -34,6 +34,8 @@ async function principal() {
             periodo: `${r.dados.periodo.exercicio} ${r.dados.periodo.periodicidade}${r.dados.periodo.periodo}`,
             pct: +((r.dados.despesaTotal / r.dados.rclAjustada) * 100).toFixed(2),
             aviso: !!r.contexto,
+            atrasado: r.contexto?.proximoVencido?.entregue === false,
+            inconsistente: !!r.contexto?.inconsistenteMaisRecente,
             texto: fato.leitura,
           }
         : { ...base, ok: false, causa: r.causa, texto: fato.ausencia }

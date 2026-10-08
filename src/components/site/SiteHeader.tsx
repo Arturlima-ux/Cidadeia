@@ -25,7 +25,9 @@ const LINKS = [
   // outras páginas; o lugar de um destino é a navegação.
   { href: "/demo", label: "Demonstração" },
   { href: "/como-contratar", label: "Como contratar" },
-  { href: "/diagnostico", label: "Diagnóstico" },
+  // O panorama é a prova de autoridade: o país inteiro conferido. O
+  // diagnóstico continua no rodapé e no fim do Raio-X.
+  { href: "/panorama", label: "Panorama" },
   { href: "/faq", label: "FAQ" },
 ];
 

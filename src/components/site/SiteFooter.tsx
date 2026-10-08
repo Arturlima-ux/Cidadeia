@@ -17,6 +17,15 @@ const COLUNAS = [
     ],
   },
   {
+    titulo: "Para quem",
+    links: [
+      { href: "/para/prefeito", label: "Prefeito" },
+      { href: "/para/financas", label: "Finanças e contabilidade" },
+      { href: "/para/controle", label: "Controle interno" },
+      { href: "/panorama", label: "Panorama das prefeituras" },
+    ],
+  },
+  {
     titulo: "Contratação",
     links: [
       { href: "/diagnostico", label: "Diagnóstico gratuito" },
@@ -39,7 +48,7 @@ const COLUNAS = [
   {
     titulo: "Institucional",
     links: [
-      { href: "/por-que-cidadeia", label: "Quem somos" },
+      { href: "/por-que-cidadeia", label: "Por que CidadeIA" },
       { href: "/sobre", label: "Segurança e LGPD" },
       { href: "/acessibilidade", label: "Acessibilidade" },
       { href: "/faq", label: "Dúvidas frequentes" },
@@ -52,12 +61,12 @@ export default function SiteFooter() {
   return (
     <footer className="text-white/70" style={{ background: "var(--brand-profundo)" }}>
       <div className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 pb-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 pb-8 border-b border-white/10">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 pb-8 border-b border-white/10">
           <div className="lg:col-span-1">
             <MarcaCompleta tamanho={26} cor="#5f9bf0" corAcento="#6ee7b0" corTexto="#ffffff" />
             <p className="text-sm mt-4 leading-relaxed max-w-xs">
-              Sistema de gestão pública municipal, do gabinete ao balcão de
-              atendimento.
+              Software de conformidade para prefeituras. Lê o que o município
+              envia ao Tesouro e avisa antes do Tribunal de Contas.
             </p>
             {/* Aqui havia "[RAZÃO SOCIAL]" e "CNPJ [XX.XXX.XXX/0001-XX]"
                 literalmente publicados. Num site que vende conformidade
