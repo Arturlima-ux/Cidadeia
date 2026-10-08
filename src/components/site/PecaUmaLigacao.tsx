@@ -16,6 +16,7 @@ export default function PecaUmaLigacao({
   municipio = null,
   origem,
   linkWhatsapp = null,
+  cargoInicial = "",
   titulo = "Prefere conversar? A equipe liga para você.",
   texto = "Sem compromisso e sem apresentação de vendas: a conversa é sobre a sua prefeitura, com os números dela na mesa.",
 }: {
@@ -25,6 +26,8 @@ export default function PecaUmaLigacao({
   origem: string;
   /** Só existe quando o WhatsApp comercial está configurado. */
   linkWhatsapp?: string | null;
+  /** Nas páginas de cada cargo, o campo já vem preenchido. */
+  cargoInicial?: string;
   titulo?: string;
   texto?: string;
 }) {
@@ -75,7 +78,7 @@ export default function PecaUmaLigacao({
             </label>
             <label className="grid gap-1.5 text-sm">
               Cargo
-              <select name="cargo" required defaultValue="" className={campo} style={{ background: "var(--card)" }} aria-invalid={erro?.campo === "cargo"}>
+              <select name="cargo" required defaultValue={cargoInicial} className={campo} style={{ background: "var(--card)" }} aria-invalid={erro?.campo === "cargo"}>
                 <option value="" disabled hidden>
                   Escolha
                 </option>

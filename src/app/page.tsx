@@ -28,11 +28,13 @@ import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
+import { CARGOS } from "@/lib/cargos";
+import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
 
 // ── A PÁGINA EM SEIS PARTES ──
 //
-// Herói (o que é, para quem, e a régua da LRF) → de onde vem o dado → os seis
-// módulos → como funciona → o que dá para conferir → proposta e fecho.
+// Herói (o que é, para quem, e a régua da LRF) → de onde vem o dado → o país
+// conferido e as portas por cargo → os seis módulos → como funciona → o que dá para conferir → proposta e fecho.
 //
 // O redesenho de outubro cortou o texto pela metade. Saíram "Como a decisão
 // acontece", "Um módulo por dentro" e "Como sai do papel": as três seguem
@@ -291,6 +293,62 @@ export default async function LandingPage({
               {FONTES.map((f) => (
                 <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em] text-foreground/80">
                   {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ═══ O PAÍS CONFERIDO ═══
+            A prova de autoridade de uma empresa sem logo de cliente: o RGF
+            de todas as prefeituras lido toda semana (lib/panorama.ts). Só
+            agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
+            porta de cada uma das três pessoas que assinam o RGF. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
+            <h2 className="inicio-h2 max-w-[19ch]">
+              {numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta da LRF.
+            </h2>
+            <p className="text-muted leading-relaxed max-w-[44ch]">
+              {(() => {
+                const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
+                return f ? `É ${f}. ` : "";
+              })()}
+              Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
+            </p>
+          </div>
+          <ul className="mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
+            {faixasDoPanorama(PANORAMA.brasil).map((f) => (
+              <li key={f.chave} className="border-t border-border pt-5">
+                <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
+                  {numeroBr(f.valor)}
+                </p>
+                <p className="mt-2 font-medium">{f.rotulo}</p>
+                <p className="text-sm text-muted leading-relaxed mt-1">{f.consequencia}</p>
+              </li>
+            ))}
+          </ul>
+          <Link href="/panorama" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
+            Ver o panorama por estado
+          </Link>
+
+          <div className="mt-20 border-t border-border pt-8">
+            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
+            <ul className="mt-5 grid md:grid-cols-3 gap-4">
+              {CARGOS.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/para/${c.slug}`}
+                    className="group block h-full rounded-2xl border border-border hover:border-brand p-6 transition"
+                    style={{ background: "var(--card)" }}
+                  >
+                    <p className="text-lg font-semibold tracking-[-0.02em]">{c.rotulo}</p>
+                    <p className="text-sm text-muted leading-relaxed mt-2">{c.chamada}</p>
+                    <p className="text-sm mt-4" style={{ color: "var(--brand-claro)" }}>
+                      Ver o que está em jogo{" "}
+                      <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    </p>
+                  </Link>
                 </li>
               ))}
             </ul>

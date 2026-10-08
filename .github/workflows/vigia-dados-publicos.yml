@@ -12,7 +12,7 @@ on:
         type: boolean
         default: false
 permissions:
-  contents: read
+  contents: write # o panorama semanal (src/dados/panorama-rgf.json) é publicado no main
   issues: write
 jobs:
   auditoria:
@@ -55,6 +55,17 @@ jobs:
         id: regras
         if: ${{ !inputs.so_site }}
         run: npx -y tsx@4 scripts/vigia/verificar.ts partes
+      - name: Publicar o panorama da semana
+        # Só com a auditoria aprovada: número suspeito não vai para a página pública.
+        if: ${{ !inputs.so_site && steps.regras.outcome == 'success' }}
+        run: |
+          npx -y tsx@4 scripts/vigia/panorama.ts partes src/dados/panorama-rgf.json
+          if git diff --quiet src/dados/panorama-rgf.json; then echo "Panorama sem mudança."; exit 0; fi
+          git config user.name "vigia-cidadeia"
+          git config user.email "vigia-cidadeia@users.noreply.github.com"
+          git add src/dados/panorama-rgf.json
+          git commit -m "Panorama semanal do RGF ($(date -u +%F))"
+          git pull --rebase origin main && git push origin HEAD:main
       - name: Cabeçalho (só o site)
         if: ${{ inputs.so_site }}
         run: echo "## Vigia do site no ar — $(date -u +%F)" > resumo.md
