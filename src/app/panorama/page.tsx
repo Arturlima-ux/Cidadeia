@@ -86,7 +86,7 @@ export default async function PanoramaPage() {
                 {ufs.map(([uf, c]) => (
                   <tr key={uf} className="border-t border-border">
                     <td className="px-4 py-3">
-                      <Link href={`/raio-x/${uf.toLowerCase()}`} className="hover:text-brand transition">
+                      <Link href={`/panorama/${uf.toLowerCase()}`} className="hover:text-brand transition">
                         {NOME_DOS_ESTADOS[uf as Estado]}
                       </Link>
                     </td>
@@ -103,7 +103,7 @@ export default async function PanoramaPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-muted">Clique no estado para ver o Raio-X de cada município dele.</p>
+          <p className="mt-3 text-xs text-muted">Clique no estado para ver o panorama dele e o Raio-X de cada município.</p>
         </section>
 
         <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
