@@ -1,3 +1,5 @@
+import { carregarSinais } from "@/lib/sinais-de-interesse-servidor";
+import { descreverSinal } from "@/lib/sinais-de-interesse";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { leads, pedidoEventos, pedidosProposta } from "@/db/schema";
@@ -205,6 +207,19 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
       );
     if (ligacoes.length) blocos.push(`<p><strong>Ligações pedidas, ainda não feitas (${ligacoes.length}):</strong><br/>${ligacoes.join("<br/>")}</p>`);
     if (novosOntem.length) blocos.push(`<p><strong>Interessados das últimas 24 h (${novosOntem.length}):</strong><br/>${novosOntem.join("<br/>")}</p>`);
+    // Cidades que estão estudando a compra sem ter deixado contato: só as
+    // novas para a equipe (quem já está em contato fica na outra lista).
+    try {
+      const sinais = (await carregarSinais(7, 15)).filter((x) => !x.jaEmContato).slice(0, 5);
+      if (sinais.length)
+        blocos.push(
+          `<p><strong>Cidades estudando o CidadeIA, sem contato ainda (${sinais.length}):</strong><br/>${sinais
+            .map((x) => `${escapar(x.municipio)}/${escapar(x.uf)}: ${escapar(descreverSinal(x))}`)
+            .join("<br/>")}</p>`
+        );
+    } catch (e) {
+      r.erros.push(`sinais: ${e instanceof Error ? e.message : String(e)}`);
+    }
     if (r.acompanhamentos || r.retomadas)
       blocos.push(`<p style="color:#666">Enviados hoje pela rotina: ${r.acompanhamentos} lembrete(s) de proposta, ${r.retomadas} retomada(s) de interessado.</p>`);
 

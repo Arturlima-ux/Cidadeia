@@ -116,6 +116,11 @@ export default async function LandingPage({
   const dados = municipio ? municipioParaDados(municipio) : null;
   const df = ehDistritoFederal(municipio?.uf);
   await registrarEvento({ tipo: "visita", caminho: "/" });
+  // O Raio-X aberto aqui no topo conta como o da página própria: é o sinal
+  // de interesse por cidade que a equipe vê em /admin/interessados.
+  if (municipio && !df && !morador) {
+    await registrarEvento({ tipo: "raio_x", caminho: "/", uf: municipio.uf, codigoIbge: municipio.codigo, municipio: municipio.nome });
+  }
 
   // A sessão é lida aqui e passada ao cabeçalho: ler cookie dentro dele
   // tiraria do cache todas as outras páginas que o usam. Quem tem sessão vê
