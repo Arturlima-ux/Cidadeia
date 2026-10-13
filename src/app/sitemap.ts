@@ -34,6 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Muda todo dia porque uma verificação é registrada todo dia, e o acordo
     // de nível de serviço aponta para cá em vez de prometer um percentual.
     { url: `${BASE}/disponibilidade`, changeFrequency: "daily", priority: 0.5 },
+    // Um panorama por estado, regravado toda segunda pela vigia.
+    ...ESTADOS.filter((uf) => uf !== "DF").map((uf) => ({
+      url: `${BASE}/panorama/${uf.toLowerCase()}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     ...PLANOS_ADDON.map((p) => ({
       url: `${BASE}/modulos/${p.chave}`,
       changeFrequency: "monthly" as const,
