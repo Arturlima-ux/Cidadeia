@@ -18,7 +18,7 @@ export type ResultadoEnvioEmail =
   // mensagem), para log e para o e-mail interno — nunca para a tela pública.
   | { enviado: false; causa: CausaNaoEnviado; motivo: string; detalhe?: string };
 
-export async function enviarEmail(params: {
+type ParametrosEmail = {
   para: string;
   assunto: string;
   html: string;
@@ -26,11 +26,27 @@ export async function enviarEmail(params: {
   anexos?: { nome: string; conteudo: Uint8Array }[];
   /** Para onde vai a resposta do cliente, quando não é o remetente. */
   responderPara?: string;
-}): Promise<ResultadoEnvioEmail> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const remetente = process.env.RESEND_FROM_EMAIL;
+  /** Pedido de proposta ligado ao e-mail: se ele não sair, a caixa de saída
+   *  oferece o PDF para baixar e mandar à mão. */
+  pedidoId?: string;
+};
 
-  if (!apiKey || !remetente) {
+// ── DOIS CAMINHOS, E UMA REDE EMBAIXO ──
+//
+// 1. Resend, com o domínio próprio. Sem domínio confirmado, ela só entrega
+//    para o dono da conta e recusa o resto (403).
+// 2. Gmail (SMTP com senha de app), quando SMTP_USUARIO e SMTP_SENHA estão
+//    configurados. Entra quando a Resend recusa ou não existe: é o que faz o
+//    e-mail chegar à prefeitura enquanto o domínio não sai. Com o domínio
+//    confirmado, a Resend passa a entregar e o Gmail deixa de ser usado.
+// 3. Se nenhum dos dois entregar um e-mail para fora da equipe, ele vai para
+//    a caixa de saída (lib/caixa-de-saida.ts), com o texto pronto para a
+//    equipe mandar à mão. Nenhum e-mail de cliente se perde num log.
+export async function enviarEmail(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
+  const temResend = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
+  const temSmtp = Boolean(process.env.SMTP_USUARIO?.trim() && process.env.SMTP_SENHA?.trim());
+
+  if (!temResend && !temSmtp) {
     console.log(
       `[email] RESEND_API_KEY/RESEND_FROM_EMAIL não configurados — e-mail não enviado de verdade.\n` +
         `[email] Para: ${params.para}\n[email] Assunto: ${params.assunto}\n[email] Conteúdo:\n${params.html}`
@@ -41,6 +57,82 @@ export async function enviarEmail(params: {
       motivo: "Envio de e-mail não configurado neste ambiente.",
     };
   }
+
+  const tentativas: string[] = [];
+  if (temResend) {
+    const r = await viaResend(params);
+    if (r.enviado) return r;
+    tentativas.push(r.detalhe ?? r.motivo);
+  }
+  if (temSmtp) {
+    const r = await viaSmtp(params);
+    if (r.enviado) return r;
+    tentativas.push(r.detalhe ?? r.motivo);
+  }
+
+  const detalhe = tentativas.join(" | ");
+  if (!ehDaEquipe(params.para)) {
+    try {
+      const { guardarNaCaixaDeSaida } = await import("@/lib/caixa-de-saida");
+      await guardarNaCaixaDeSaida({
+        para: params.para,
+        assunto: params.assunto,
+        html: params.html,
+        anexos: params.anexos?.map((a) => a.nome),
+        pedidoId: params.pedidoId ?? null,
+        motivo: detalhe,
+      });
+    } catch (e) {
+      console.error("[email] não guardou na caixa de saída:", e);
+    }
+  }
+  return { enviado: false, causa: "falha-no-envio", motivo: "Falha ao enviar o e-mail.", detalhe };
+}
+
+function ehDaEquipe(para: string): boolean {
+  const equipe = [process.env.PROPOSTA_DESTINO_EMAIL, process.env.ADMIN_EMAILS, "arturmlo2005@gmail.com"]
+    .join(",")
+    .toLowerCase()
+    .split(/[,;\s]+/)
+    .filter(Boolean);
+  return equipe.includes(para.trim().toLowerCase());
+}
+
+async function viaSmtp(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
+  const usuario = process.env.SMTP_USUARIO!.trim();
+  const porta = Number(process.env.SMTP_PORTA ?? 465);
+  try {
+    const nodemailer = await import("nodemailer");
+    const transporte = nodemailer.createTransport({
+      host: process.env.SMTP_HOST?.trim() || "smtp.gmail.com",
+      port: porta,
+      secure: porta === 465,
+      auth: { user: usuario, pass: process.env.SMTP_SENHA!.replace(/\s+/g, "") },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
+    });
+    await transporte.sendMail({
+      from: { name: process.env.SMTP_NOME?.trim() || "CidadeIA", address: usuario },
+      to: params.para,
+      subject: params.assunto,
+      html: params.html,
+      ...(params.responderPara ? { replyTo: params.responderPara } : {}),
+      ...(params.anexos?.length
+        ? { attachments: params.anexos.map((a) => ({ filename: a.nome, content: Buffer.from(a.conteudo) })) }
+        : {}),
+    });
+    return { enviado: true };
+  } catch (erro) {
+    const motivo = erro instanceof Error ? erro.message : String(erro);
+    console.error(`[email] Falha ao enviar pelo SMTP: ${motivo}`);
+    return { enviado: false, causa: "falha-no-envio", motivo: "Falha ao enviar o e-mail.", detalhe: `SMTP: ${motivo.slice(0, 300)}` };
+  }
+}
+
+async function viaResend(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
+  const apiKey = process.env.RESEND_API_KEY!;
+  const remetente = process.env.RESEND_FROM_EMAIL!;
 
   // A chamada de rede fica dentro de try/catch porque uma falha aqui — DNS,
   // timeout, chave revogada — não pode derrubar a tela de quem pediu a
