@@ -205,7 +205,12 @@ describe("hierarquia de chamada para ação", () => {
     expect(qualificaNoTopo).toBe(true);
     // O fecho converte pedindo a proposta — que tem página própria, não é
     // "precisa de ajuda". /suporte fica para suporte.
-    expect(destinos.some((d) => d.startsWith("/proposta"))).toBe(true);
+    //
+    // Em 12/10/2026 o fecho deixou de repetir o pedido num botão cheio logo
+    // abaixo do montador: o próprio MontadorProposta é a conversão (o botão
+    // dele leva a /proposta com município e módulos). Vale qualquer um dos
+    // dois.
+    expect(destinos.some((d) => d.startsWith("/proposta")) || /<MontadorProposta\b/.test(home)).toBe(true);
   });
 
   it("o portal do cidadão não disputa peso com a venda", () => {
