@@ -38,12 +38,21 @@ export default async function PropostaPage({
   // Penúltimo passo do funil: chegou ao montador e começou a escolher
   // módulos. A distância entre este evento e o próximo é o que diz se a
   // página de proposta converte ou trava.
-  await registrarEvento({ tipo: "proposta_aberta", caminho: "/proposta" });
-
+  //
+  // Com o município já escolhido, o evento leva o código dele: é o sinal de
+  // interesse mais forte que a equipe tem de quem não deixou contato
+  // (lib/sinais-de-interesse.ts).
   const params = await searchParams;
   const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : null);
   const codigo = texto(params.ibge);
   const municipio = ehCodigoIbge(codigo) ? await buscarMunicipioPorCodigo(codigo) : null;
+  await registrarEvento({
+    tipo: "proposta_aberta",
+    caminho: "/proposta",
+    codigoIbge: municipio?.codigo ?? null,
+    municipio: municipio?.nome ?? null,
+    uf: municipio?.uf ?? null,
+  });
   const modulos = (texto(params.modulos) ?? "")
     .split(",")
     .filter((m): m is PlanoAddon => PLANOS_ADDON.some((p) => p.chave === m));

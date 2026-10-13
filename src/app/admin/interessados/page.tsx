@@ -17,6 +17,8 @@ import {
   type SituacaoLead,
 } from "@/lib/oportunidades";
 import AcoesInteressado from "./AcoesInteressado";
+import { carregarSinais } from "@/lib/sinais-de-interesse-servidor";
+import { descreverSinal } from "@/lib/sinais-de-interesse";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +59,7 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
   const mostrarTodos = ver === "todos";
   const agora = agoraMs();
 
-  const [listaLeads, pedidos] = await Promise.all([
+  const [listaLeads, pedidos, sinais] = await Promise.all([
     db.select().from(leads).where(gte(leads.createdAt, inicioDaJanela(120))).orderBy(desc(leads.createdAt)).limit(500),
     db
       .select({
@@ -74,6 +76,7 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
       .where(inArray(pedidosProposta.status, ["recebido"]))
       .orderBy(desc(pedidosProposta.createdAt))
       .limit(200),
+    carregarSinais(7).catch(() => []),
   ]);
 
   const eventos = listaLeads.length
@@ -219,6 +222,58 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </section>
+
+        {/* ── QUEM ESTÁ OLHANDO SEM DEIXAR O NOME ──
+            Cidades cujo Raio-X ou proposta foi aberto várias vezes na semana.
+            Ninguém pediu contato: é a equipe que procura a prefeitura. Ver
+            lib/sinais-de-interesse.ts. */}
+        <section>
+          <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
+            <h2 className="text-xl font-semibold">Cidades estudando o CidadeIA (7 dias)</h2>
+            <p className="text-sm text-muted">Visitas anônimas, somadas por município. Ninguém deixou contato.</p>
+          </div>
+          {sinais.length === 0 ? (
+            <p className="text-muted rounded-2xl border border-border p-6" style={{ background: "var(--card)" }}>
+              Nenhuma cidade com visitas repetidas nesta semana.
+            </p>
+          ) : (
+            <ul className="space-y-2.5">
+              {sinais.map((x) => (
+                <li
+                  key={x.codigoIbge}
+                  className="rounded-2xl border border-border p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3"
+                  style={{ background: "var(--card)", opacity: x.jaEmContato ? 0.6 : 1 }}
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-lg">
+                      {x.uf ? (
+                        <Link href={caminhoDoRaioX({ uf: x.uf, nome: x.municipio })} className="hover:underline">
+                          {x.municipio}/{x.uf}
+                        </Link>
+                      ) : (
+                        x.municipio
+                      )}
+                      {x.jaEmContato && <span className="ml-2 text-xs font-medium text-muted">já em contato</span>}
+                    </p>
+                    <p className="text-sm text-muted mt-1">
+                      {descreverSinal(x)} · última {quando(x.ultimaVisita, agora)}
+                    </p>
+                  </div>
+                  {!x.jaEmContato && (
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(`Prefeitura de ${x.municipio} ${x.uf} secretaria de finanças telefone`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm rounded-full border border-border hover:border-brand px-4 py-2 transition"
+                    >
+                      Achar o contato da prefeitura
+                    </a>
+                  )}
+                </li>
+              ))}
             </ul>
           )}
         </section>
