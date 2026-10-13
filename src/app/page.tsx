@@ -456,7 +456,10 @@ export default async function LandingPage({
 
         {/* ═══ O VÍDEO ═══
             Trinta segundos, entre a prova e o pedido: o último empurrão, e o
-            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx. */}
+            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx.
+            A capa é um quadro do próprio vídeo (14,5 s, o painel com o aviso
+            antecipado): quem tem movimento reduzido, ou rede lenta, vê o
+            produto, e não só o logo. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8">
             <h2 className="inicio-h2 max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
@@ -467,7 +470,7 @@ export default async function LandingPage({
           <VideoExplicativo
             src="/video/cidadeia-explicativo.mp4"
             srcWebm="/video/cidadeia-explicativo.webm"
-            capa="/video/cidadeia-explicativo.jpg"
+            capa="/video/cidadeia-explicativo-capa.jpg"
             titulo="O CidadeIA em 30 segundos: o aviso antes do limite da LRF, os seis módulos e a proposta em um dia útil."
           />
         </section>
