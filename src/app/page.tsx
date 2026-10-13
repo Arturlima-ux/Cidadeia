@@ -15,6 +15,7 @@ import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
+import ReguaBrasil from "@/components/site/inicio/ReguaBrasil";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
@@ -217,7 +218,7 @@ export default async function LandingPage({
                         Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
                         {LIMITE_DISPENSA.ano}.{" "}
                         <noscript>
-                          <a href="/raio-x" className="underline">Escolher pela lista de estados</a>
+                          <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
                         </noscript>
                       </p>
                     </>
@@ -236,7 +237,8 @@ export default async function LandingPage({
                     <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
                   </Suspense>
                 ) : (
-                  <ReguaLrf />
+                  // Sem cidade escolhida, o país de verdade, e não um exemplo.
+                  <ReguaBrasil />
                 )}
               </div>
             </div>
@@ -322,13 +324,13 @@ export default async function LandingPage({
             porta de cada uma das três pessoas que assinam o RGF. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
-            <h2 className="inicio-h2 max-w-[19ch]">
-              {numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta da LRF.
-            </h2>
+            {/* O número grande já está no topo (ReguaBrasil); aqui, o que
+                cada faixa significa para quem está nela. */}
+            <h2 className="inicio-h2 max-w-[19ch]">Cada faixa da LRF tem uma consequência.</h2>
             <p className="text-muted leading-relaxed max-w-[44ch]">
               {(() => {
                 const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
-                return f ? `É ${f}. ` : "";
+                return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
               })()}
               Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
             </p>
