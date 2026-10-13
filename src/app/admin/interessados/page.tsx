@@ -34,6 +34,7 @@ const ORIGEM: Record<string, string> = {
   "raio-x": "Raio-X por e-mail",
   projecao: "Projeção de pessoal",
   ligacao: "Pediu ligação",
+  aviso: "Aviso grátis da cidade",
 };
 
 function inicioDaJanela(dias: number): string {
