@@ -91,16 +91,29 @@ const fmtPop = (n: number) =>
     : `${n} moradores`;
 
 export default function AcheSuaCidade({
-  destino = (codigo) => `/?para=morador&m=${codigo}`,
+  destino = "/?para=morador&m=",
   compacto = false,
+  placeholder = "Digite o nome da sua cidade",
+  inicial = "",
+  empilhado = false,
+  rolarAoTopo = true,
 }: {
-  destino?: (codigo: string) => string;
+  /** Endereço ao qual se soma o código IBGE. Texto, e não função: a home,
+   *  que é componente de servidor, não pode passar função a um de cliente. */
+  destino?: string;
   /** Versão menor, para trocar de cidade depois de escolhida. */
   compacto?: boolean;
+  placeholder?: string;
+  /** Texto já na caixa, quando a cidade foi escolhida ("Teresina, PI"). */
+  inicial?: string;
+  /** Campo e botão um embaixo do outro, para colunas estreitas. */
+  empilhado?: boolean;
+  /** O portal do morador abre do topo; o Raio-X da prefeitura fica onde está. */
+  rolarAoTopo?: boolean;
 }) {
   const router = useRouter();
   const [lista, setLista] = useState<Linha[] | null>(null);
-  const [texto, setTexto] = useState("");
+  const [texto, setTexto] = useState(inicial);
   const [aberto, setAberto] = useState(false);
   const [ativo, setAtivo] = useState(0);
   const [indo, setIndo] = useState<string | null>(null);
@@ -130,9 +143,9 @@ export default function AcheSuaCidade({
     setIndo(l[1]);
     setAberto(false);
     setTexto(`${l[1]}, ${l[2]}`);
-    router.push(destino(l[0]), { scroll: false });
+    router.push(`${destino}${l[0]}`, { scroll: false });
     // A cidade abre como portal, do topo.
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
+    if (rolarAoTopo) setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
   };
 
   const estouAqui = () => {
@@ -187,6 +200,37 @@ export default function AcheSuaCidade({
     }
   };
 
+  const pino = (
+    <svg aria-hidden viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 21s-7-6.1-7-11.5a7 7 0 1 1 14 0C19 14.9 12 21 12 21Z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
+  );
+  // Ao lado do campo, em coluna larga; embaixo, como atalho discreto, em
+  // coluna estreita (o topo da home da prefeitura), para a lista de
+  // sugestões abrir colada no campo.
+  const botaoLocal = empilhado ? (
+    <button
+      type="button"
+      onClick={estouAqui}
+      className="mt-3 inline-flex items-center gap-2 text-sm font-medium transition hover:opacity-80"
+      style={{ color: "var(--brand-claro)" }}
+    >
+      {pino}
+      {local?.estado === "procurando" ? "Procurando…" : "Usar a minha localização"}
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={estouAqui}
+      className={`shrink-0 inline-flex items-center justify-center gap-2.5 rounded-full border px-6 font-semibold transition hover:opacity-90 ${compacto ? "h-14" : "h-16 sm:h-[72px]"}`}
+      style={{ borderColor: "color-mix(in oklab, var(--brand) 50%, var(--border))", color: "var(--brand-claro)", background: "var(--brand-tint)" }}
+    >
+      {pino}
+      {local?.estado === "procurando" ? "Procurando…" : "Estou aqui"}
+    </button>
+  );
+
   const altura = compacto ? "h-14 text-base" : "h-16 sm:h-[72px] text-lg sm:text-xl";
 
   return (
@@ -208,10 +252,12 @@ export default function AcheSuaCidade({
             aria-controls="sugestoes-cidade"
             aria-autocomplete="list"
             value={texto}
-            placeholder="Digite o nome da sua cidade"
-            onFocus={() => {
+            placeholder={placeholder}
+            onFocus={(e) => {
               preparar();
               setAberto(true);
+              // Com a cidade já escolhida, um toque seleciona tudo para trocar.
+              if (inicial && e.target.value === inicial) e.target.select();
             }}
             onChange={(e) => {
               setTexto(e.target.value);
@@ -224,25 +270,14 @@ export default function AcheSuaCidade({
             style={{ background: "var(--card)" }}
           />
         </label>
-        <button
-          type="button"
-          onClick={estouAqui}
-          className={`shrink-0 inline-flex items-center justify-center gap-2.5 rounded-full border px-6 font-semibold transition hover:opacity-90 ${compacto ? "h-14" : "h-16 sm:h-[72px]"}`}
-          style={{ borderColor: "color-mix(in oklab, var(--brand) 50%, var(--border))", color: "var(--brand-claro)", background: "var(--brand-tint)" }}
-        >
-          <svg aria-hidden viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 21s-7-6.1-7-11.5a7 7 0 1 1 14 0C19 14.9 12 21 12 21Z" />
-            <circle cx="12" cy="9.5" r="2.5" />
-          </svg>
-          {local?.estado === "procurando" ? "Procurando…" : "Estou aqui"}
-        </button>
+        {!empilhado && botaoLocal}
       </div>
 
       {aberto && texto.trim() && (
         <ul
           id="sugestoes-cidade"
           role="listbox"
-          className="absolute z-20 left-0 right-0 sm:right-auto sm:w-[min(100%,560px)] mt-2 rounded-3xl border border-border overflow-hidden"
+          className="absolute z-30 left-0 right-0 sm:right-auto sm:w-[min(100%,560px)] mt-2 rounded-3xl border border-border overflow-hidden"
           style={{ background: "var(--card)", boxShadow: "var(--shadow-lg)" }}
         >
           {!lista && <li className="px-5 py-4 text-muted">Carregando as cidades…</li>}
@@ -267,6 +302,8 @@ export default function AcheSuaCidade({
           ))}
         </ul>
       )}
+
+      {empilhado && botaoLocal}
 
       {local?.estado === "achou" && (
         <div

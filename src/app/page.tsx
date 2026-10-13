@@ -11,7 +11,7 @@ import MontadorProposta from "@/components/site/MontadorProposta";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import VitrinePortal from "@/components/site/VitrinePortal";
 import BarraConversao from "@/components/site/BarraConversao";
-import SeletorMunicipio from "@/components/site/SeletorMunicipio";
+import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
@@ -199,10 +199,26 @@ export default async function LandingPage({
                   </div>
                     <>
                       <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
-                      <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+                      {/* ── UM CAMPO, NÃO DUAS LISTAS ──
+                          Eram duas caixas: estado, depois município. Agora a
+                          pessoa digita o nome (ou usa a localização) e a
+                          página atualiza aqui mesmo, sem rolar. Sem
+                          JavaScript, /raio-x tem a lista por estado. */}
+                      <AcheSuaCidade
+                        key={municipio?.codigo ?? "sem-cidade"}
+                        destino="/?m="
+                        compacto
+                        empilhado
+                        rolarAoTopo={false}
+                        placeholder="Digite o nome do município"
+                        inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
+                      />
                       <p className="text-xs text-muted mt-4">
                         Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
-                        {LIMITE_DISPENSA.ano}.
+                        {LIMITE_DISPENSA.ano}.{" "}
+                        <noscript>
+                          <a href="/raio-x" className="underline">Escolher pela lista de estados</a>
+                        </noscript>
                       </p>
                     </>
                 </div>
