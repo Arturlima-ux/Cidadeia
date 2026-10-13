@@ -14,6 +14,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { empresaDoAmbiente, montarPropostaComercial } from "@/lib/proposta-comercial";
 import { PropostaComercialPDF } from "@/lib/relatorios/PropostaComercial";
 import { destinoDaEquipe } from "@/lib/contato-comercial";
+import { linkRastreavel } from "@/lib/abertura-da-proposta";
 
 // ── QUEM AVANÇA O PEDIDO É A EQUIPE ──
 // Cada ação confere de novo que quem chama é admin (ADMIN_EMAILS). A tela
@@ -186,10 +187,10 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
     anexos: [{ nome: arquivo, conteudo: new Uint8Array(pdf) }],
     html: [
       `<p>Olá, ${primeiro}.</p>`,
-      `<p>Segue em anexo a proposta do CidadeIA para a Prefeitura de ${escaparHtml(pedido.municipio)}/${pedido.uf}.</p>`,
-      `<p>Para o processo de contratação, o kit já vai pronto para o setor de compras e o jurídico revisarem: termo de referência, estudo técnico preliminar, justificativa da contratação direta, minuta do contrato, acordo de tratamento de dados e nível de serviço. Tudo em <a href="${base}/kit">${base}/kit</a>.</p>`,
+      `<p>Segue em anexo a proposta do CidadeIA para a Prefeitura de ${escaparHtml(pedido.municipio)}/${pedido.uf}. Se preferir, <a href="${linkRastreavel(base, pedido.id, "proposta", protocolo(pedido.id))}">abra a proposta no navegador</a>, sem baixar.</p>`,
+      `<p>Para o processo de contratação, o kit já vai pronto para o setor de compras e o jurídico revisarem: termo de referência, estudo técnico preliminar, justificativa da contratação direta, minuta do contrato, acordo de tratamento de dados e nível de serviço. <a href="${linkRastreavel(base, pedido.id, "kit", protocolo(pedido.id))}">Abrir o kit de contratação</a>.</p>`,
       `<p>Se surgir qualquer dúvida, é só responder este e-mail. Se preferir conversar, mande um telefone e o melhor horário que a gente liga.</p>`,
-      `<p>Acompanhe o pedido em <a href="${base}/proposta/acompanhar?protocolo=${protocolo(pedido.id)}">${base}/proposta/acompanhar</a> (protocolo ${protocolo(pedido.id)}).</p>`,
+      `<p><a href="${linkRastreavel(base, pedido.id, "acompanhar", protocolo(pedido.id))}">Acompanhe o pedido</a> (protocolo ${protocolo(pedido.id)}).</p>`,
       `<p>Equipe CidadeIA</p>`,
     ].join("\n"),
   });
