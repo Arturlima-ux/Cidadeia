@@ -194,14 +194,23 @@ describe("hierarquia de chamada para ação", () => {
     // navegar. O botão cheio dele é um <button type="submit">, que este
     // detector — que lê <Link> — não enxerga. A regra continua honrada, e de
     // forma mais direta que antes; quem precisou mudar foi o detector.
+    //
+    // Em 12/10/2026 as duas listas (estado, município) viraram um campo só,
+    // digitável, com localização (AcheSuaCidade). Continua sendo o
+    // qualificador do topo.
     const QUALIFICADORES = ["/raio-x", "/diagnostico"];
     const qualificaNoTopo =
       destinos.some((d) => QUALIFICADORES.some((q) => d.startsWith(q))) ||
-      /<SeletorMunicipio\b/.test(home);
+      /<(SeletorMunicipio|AcheSuaCidade)\b/.test(home);
     expect(qualificaNoTopo).toBe(true);
     // O fecho converte pedindo a proposta — que tem página própria, não é
     // "precisa de ajuda". /suporte fica para suporte.
-    expect(destinos.some((d) => d.startsWith("/proposta"))).toBe(true);
+    //
+    // Em 12/10/2026 o fecho deixou de repetir o pedido num botão cheio logo
+    // abaixo do montador: o próprio MontadorProposta é a conversão (o botão
+    // dele leva a /proposta com município e módulos). Vale qualquer um dos
+    // dois.
+    expect(destinos.some((d) => d.startsWith("/proposta")) || /<MontadorProposta\b/.test(home)).toBe(true);
   });
 
   it("o portal do cidadão não disputa peso com a venda", () => {

@@ -11,10 +11,11 @@ import MontadorProposta from "@/components/site/MontadorProposta";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import VitrinePortal from "@/components/site/VitrinePortal";
 import BarraConversao from "@/components/site/BarraConversao";
-import SeletorMunicipio from "@/components/site/SeletorMunicipio";
+import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
+import ReguaBrasil from "@/components/site/inicio/ReguaBrasil";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
@@ -199,10 +200,26 @@ export default async function LandingPage({
                   </div>
                     <>
                       <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
-                      <SeletorMunicipio uf={ufEscolhida} inicial={municipio} />
+                      {/* ── UM CAMPO, NÃO DUAS LISTAS ──
+                          Eram duas caixas: estado, depois município. Agora a
+                          pessoa digita o nome (ou usa a localização) e a
+                          página atualiza aqui mesmo, sem rolar. Sem
+                          JavaScript, /raio-x tem a lista por estado. */}
+                      <AcheSuaCidade
+                        key={municipio?.codigo ?? "sem-cidade"}
+                        destino="/?m="
+                        compacto
+                        empilhado
+                        rolarAoTopo={false}
+                        placeholder="Digite o nome do município"
+                        inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
+                      />
                       <p className="text-xs text-muted mt-4">
                         Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
-                        {LIMITE_DISPENSA.ano}.
+                        {LIMITE_DISPENSA.ano}.{" "}
+                        <noscript>
+                          <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
+                        </noscript>
                       </p>
                     </>
                 </div>
@@ -220,7 +237,8 @@ export default async function LandingPage({
                     <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
                   </Suspense>
                 ) : (
-                  <ReguaLrf />
+                  // Sem cidade escolhida, o país de verdade, e não um exemplo.
+                  <ReguaBrasil />
                 )}
               </div>
             </div>
@@ -306,13 +324,13 @@ export default async function LandingPage({
             porta de cada uma das três pessoas que assinam o RGF. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
-            <h2 className="inicio-h2 max-w-[19ch]">
-              {numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta da LRF.
-            </h2>
+            {/* O número grande já está no topo (ReguaBrasil); aqui, o que
+                cada faixa significa para quem está nela. */}
+            <h2 className="inicio-h2 max-w-[19ch]">Cada faixa da LRF tem uma consequência.</h2>
             <p className="text-muted leading-relaxed max-w-[44ch]">
               {(() => {
                 const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
-                return f ? `É ${f}. ` : "";
+                return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
               })()}
               Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
             </p>
@@ -438,7 +456,10 @@ export default async function LandingPage({
 
         {/* ═══ O VÍDEO ═══
             Trinta segundos, entre a prova e o pedido: o último empurrão, e o
-            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx. */}
+            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx.
+            A capa é um quadro do próprio vídeo (14,5 s, o painel com o aviso
+            antecipado): quem tem movimento reduzido, ou rede lenta, vê o
+            produto, e não só o logo. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8">
             <h2 className="inicio-h2 max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
@@ -449,7 +470,7 @@ export default async function LandingPage({
           <VideoExplicativo
             src="/video/cidadeia-explicativo.mp4"
             srcWebm="/video/cidadeia-explicativo.webm"
-            capa="/video/cidadeia-explicativo.jpg"
+            capa="/video/cidadeia-explicativo-capa.jpg"
             titulo="O CidadeIA em 30 segundos: o aviso antes do limite da LRF, os seis módulos e a proposta em um dia útil."
           />
         </section>
@@ -476,36 +497,35 @@ export default async function LandingPage({
             </div>
           </div>
           <MontadorProposta />
-        </section>
 
-        {/* ═══ FECHO ═══ */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-28 sm:py-40">
-          <h2 className="inicio-titulo max-w-[15ch]" style={{ fontSize: "clamp(2.4rem, 6vw, 5rem)" }}>
-            Leve o processo pronto para a próxima reunião.
-          </h2>
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <Link
-              href="/proposta"
-              className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-8 py-4"
-            >
-              Receber proposta e kit
-            </Link>
-            <Link href="/kit" className="inicio-sublinhado text-muted">
-              Baixar só o kit de contratação
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-muted">Sem compromisso. O kit baixa sem cadastro.</p>
-
-          {/* O caminho de quem prefere conversar: a equipe liga. */}
-          <div id="atendimento" className="mt-14 max-w-[760px] scroll-mt-24">
+          {/* ═══ O FECHO ═══
+              Eram três pedidos seguidos: o montador acima, um título gigante
+              com outro botão para /proposta e, embaixo, o formulário de
+              ligação. Agora o montador é a proposta (o kit sem cadastro está
+              no botão dele), e logo abaixo fica a única alternativa:
+              conversar antes. */}
+          <div id="atendimento" className="mt-16 sm:mt-20 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16 items-start scroll-mt-24">
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">
+                Ou converse com a equipe antes.
+              </h3>
+              <p className="text-muted leading-relaxed mt-4 max-w-[42ch]">
+                Sem apresentação de vendas: a conversa é sobre a sua prefeitura, com os números dela na mesa. Você
+                escolhe o horário e a equipe liga em dia útil.
+              </p>
+            </div>
             <PecaUmaLigacao
               codigoIbge={dados && !df ? dados.codigo : null}
               municipio={municipio && !df ? `${municipio.nome}/${municipio.uf}` : null}
               origem="Home, fecho"
+              titulo="Deixe o telefone. A equipe liga."
+              texto="Nome, cargo e telefone. Nada de lista de transmissão."
               linkWhatsapp={linkWhatsappComercial("Olá! Vim pelo site do CidadeIA e queria conversar sobre a minha prefeitura.")}
             />
           </div>
         </section>
+
+        <div className="pb-24 sm:pb-32" />
 
         {/* ═══ A PORTA DO CIDADÃO ═══
             Quem compra precisa saber que o outro lado existe; o morador tem a
