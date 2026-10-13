@@ -5,6 +5,9 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { pedidosProposta, prefeituras } from "@/db/schema";
 import { limitarUso } from "@/lib/rate-limit";
+import { headers } from "next/headers";
+import { after } from "next/server";
+import { registrarAbertura } from "@/lib/abertura-da-proposta";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
 import { modulosDoPedido, STATUS_PEDIDO, linkCadastroDoPedido, type StatusPedido } from "@/lib/pedidos";
 
@@ -83,6 +86,18 @@ export async function acompanharPedido(entrada: unknown): Promise<ResultadoAcomp
 
   const p = linha.pedido;
   const status = p.status as StatusPedido;
+  // Quem consulta um pedido com proposta já enviada está com ela na mão:
+  // a equipe fica sabendo (lib/abertura-da-proposta.ts), depois da resposta.
+  if (status === "proposta_enviada") {
+    const navegador = (await headers()).get("user-agent");
+    after(async () => {
+      try {
+        await registrarAbertura(p.id, "acompanhar", navegador);
+      } catch (e) {
+        console.error("[acompanhar] não registrou a abertura:", e);
+      }
+    });
+  }
   return {
     ok: true,
     pedido: {

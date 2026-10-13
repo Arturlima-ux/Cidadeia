@@ -1,5 +1,6 @@
 import { carregarSinais } from "@/lib/sinais-de-interesse-servidor";
 import { descreverSinal } from "@/lib/sinais-de-interesse";
+import { linkRastreavel } from "@/lib/abertura-da-proposta";
 import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { leads, pedidoEventos, pedidosProposta } from "@/db/schema";
@@ -51,7 +52,7 @@ export function emailAcompanhamento(
         `<p>Passando para saber se a proposta para ${cidade} chegou bem e se ficou alguma dúvida.</p>`,
         `<p>Duas perguntas que costumam aparecer nesta hora:</p>`,
         `<ul>`,
-        `<li><strong>Dá para contratar sem licitação?</strong> Quando o valor anual cabe no limite da dispensa por valor, sim. O kit de contratação já traz a justificativa e o termo de referência prontos: <a href="${base()}/kit">${base()}/kit</a>.</li>`,
+        `<li><strong>Dá para contratar sem licitação?</strong> Quando o valor anual cabe no limite da dispensa por valor, sim. O kit de contratação já traz a justificativa e o termo de referência prontos: <a href="${linkRastreavel(base(), p.id, "kit", protocolo(p.id))}">abrir o kit</a>.</li>`,
         `<li><strong>Precisa instalar alguma coisa?</strong> Não. O painel lê o que a prefeitura já envia ao Tesouro, e funciona no navegador.</li>`,
         `</ul>`,
         `<p>Se for mais fácil conversar, responda com um telefone e o melhor horário que a gente liga.</p>`,
@@ -70,7 +71,7 @@ export function emailAcompanhamento(
       `<li>justificativa da contratação direta e da escolha do fornecedor;</li>`,
       `<li>minuta do contrato, acordo de tratamento de dados e nível de serviço.</li>`,
       `</ul>`,
-      `<p>Tudo em <a href="${base()}/kit">${base()}/kit</a>, para o setor de compras e o jurídico revisarem.</p>`,
+      `<p>Tudo no <a href="${linkRastreavel(base(), p.id, "kit", protocolo(p.id))}">kit de contratação</a>, para o setor de compras e o jurídico revisarem.</p>`,
       `<p>Esta é a última mensagem que mando sobre a proposta. Quando a prefeitura quiser seguir, é só responder.</p>`,
       `<p style="color:#888;font-size:13px">Protocolo do pedido: ${protocolo(p.id)}</p>`,
       rodape(),
