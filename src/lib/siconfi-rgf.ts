@@ -165,7 +165,14 @@ export type ContextoRgf = {
 };
 
 export type ResultadoRgf =
-  | { ok: true; dados: ImportacaoRgf; contexto?: ContextoRgf }
+  | {
+      ok: true;
+      dados: ImportacaoRgf;
+      contexto?: ContextoRgf;
+      /** O Tesouro não respondeu: este é o RGF que a vigia semanal conferiu
+       *  nesta data (lib/rgf-reserva.ts). A tela tem de dizer isso. */
+      reserva?: { conferidoEm: string };
+    }
   | {
       ok: false;
       erro: string;

@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { buscarRgfMaisRecente, type ResultadoRgf } from "@/lib/siconfi-rgf";
 import { fatoDoPessoal } from "@/lib/fatos-do-municipio";
+import { comReserva } from "@/lib/rgf-reserva";
 import { podeConsultarPelaHome, AUSENCIA_POR_LIMITE } from "./limite-do-heroi";
 import FatoDoMunicipio from "@/components/site/FatoDoMunicipio";
 
@@ -54,5 +55,5 @@ export default async function CarregaPessoal({ codigoIbge }: { codigoIbge: strin
     };
   }
 
-  return <FatoDoMunicipio fato={fatoDoPessoal(resultado, agora.toISOString())} />;
+  return <FatoDoMunicipio fato={fatoDoPessoal(comReserva(codigoIbge, resultado), agora.toISOString())} />;
 }

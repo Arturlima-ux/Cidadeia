@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { buscarRgfMaisRecente, type ResultadoRgf } from "@/lib/siconfi-rgf";
 import { avaliarDespesaPessoal } from "@/lib/despesa-pessoal";
 import { rotuloDoPeriodoRgf } from "@/lib/fatos-do-municipio";
+import { comReserva } from "@/lib/rgf-reserva";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 
 // A régua do topo com o número do município escolhido.
@@ -29,6 +30,8 @@ export default async function CarregaRegua({
   } catch {
     resultado = { ok: false, erro: "", causa: "consulta_falhou", periodosProcurados: 0 };
   }
+  // Tesouro fora do ar: o último RGF conferido pela vigia, dito como tal.
+  resultado = comReserva(codigoIbge, resultado);
 
   const avaliacao = resultado.ok
     ? avaliarDespesaPessoal({ rcl: resultado.dados.rclAjustada, despesa: resultado.dados.despesaTotal })
@@ -74,6 +77,11 @@ export default async function CarregaRegua({
         periodo: rotuloDoPeriodoRgf(resultado.dados.periodo),
         margemAtePrudencial: avaliacao.margemAtePrudencial,
         baseDeReserva: resultado.dados.rclVeioDeReserva,
+        ...(resultado.reserva
+          ? {
+              nota: `Declarado pela prefeitura no ${rotuloDoPeriodoRgf(resultado.dados.periodo)}. O Tesouro Nacional não respondeu agora; número conferido pelo CidadeIA em ${resultado.reserva.conferidoEm.split("-").reverse().join("/")}.`,
+            }
+          : {}),
       }}
     />
   );

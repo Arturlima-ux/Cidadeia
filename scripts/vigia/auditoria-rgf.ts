@@ -9,6 +9,7 @@ import { writeFileSync } from "node:fs";
 import { todosOsMunicipios } from "@/lib/municipios";
 import { buscarRgfMaisRecente } from "@/lib/siconfi-rgf";
 import { fatoDoPessoal } from "@/lib/fatos-do-municipio";
+import { compactar } from "@/lib/rgf-reserva";
 
 const [parte, partes, saida] = [Number(process.argv[2]), Number(process.argv[3]), process.argv[4]];
 const lista = todosOsMunicipios().filter((_, i) => i % partes === parte);
@@ -37,6 +38,9 @@ async function principal() {
             atrasado: r.contexto?.proximoVencido?.entregue === false,
             inconsistente: !!r.contexto?.inconsistenteMaisRecente,
             texto: fato.leitura,
+            // A linha da reserva (lib/rgf-reserva.ts), só quando o número
+            // é desta consulta e não de uma reserva anterior.
+            dados: r.reserva ? undefined : compactar(r.dados),
           }
         : { ...base, ok: false, causa: r.causa, texto: fato.ausencia }
     );
