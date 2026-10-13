@@ -31,7 +31,8 @@ export type LinhaReserva = [
   string | null,
 ];
 
-const DADOS = reserva as { geradoEm: string | null; m: Record<string, LinhaReserva> };
+// "as unknown": o TypeScript lê o JSON grande como listas soltas, não como a tupla.
+const DADOS = reserva as unknown as { geradoEm: string | null; m: Record<string, LinhaReserva> };
 
 /** O RGF em uma linha curta, para o arquivo semanal. */
 export function compactar(d: ImportacaoRgf): LinhaReserva {
