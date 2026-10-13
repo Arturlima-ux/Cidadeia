@@ -14,6 +14,7 @@ import BarraConversao from "@/components/site/BarraConversao";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
+import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import ReguaBrasil from "@/components/site/inicio/ReguaBrasil";
 import IndiceModulos from "@/components/site/inicio/IndiceModulos";
@@ -294,6 +295,11 @@ export default async function LandingPage({
                     a projeção é trabalho do software. */}
                 <div className="mt-4 max-w-2xl">
                   <PedirProjecao codigoIbge={dados!.codigo} municipio={dados!.nome} />
+                </div>
+                {/* O aviso grátis: o motivo para voltar ao CidadeIA depois de
+                    hoje (lib/aviso-da-cidade.ts). */}
+                <div className="mt-4 max-w-2xl">
+                  <AvisoDaCidade codigoIbge={dados!.codigo} municipio={dados!.nome} />
                 </div>
 
                   </>

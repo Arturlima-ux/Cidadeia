@@ -179,6 +179,8 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
       const jaRetomado = meus.some((e) => e.tipo === TIPOS_EVENTO_LEAD.acompanhamento);
       if (situacao === "novo" && !jaRetomado && l.email && l.origem !== "ligacao" && diasUteisEntre(l.createdAt, agora) >= 2) {
         if (/imprensa|cidad/i.test(l.cargo ?? "")) continue;
+        // Quem assinou o aviso da cidade já recebe e-mail quando há novidade.
+        if (l.origem === "aviso") continue;
         const msg = emailRetomadaDoLead(l);
         const envio = await enviarEmail({ para: l.email, assunto: msg.assunto, html: msg.html, responderPara: equipe });
         await db.insert(pedidoEventos).values({
