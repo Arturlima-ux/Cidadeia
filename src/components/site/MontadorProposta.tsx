@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { PORTES, type PorteMunicipio } from "@/lib/precos";
 import { IconCheck } from "@/components/icons";
-import { ESTADOS } from "@/lib/estados";
+import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
 const RESUMO_MODULO: Record<PlanoAddon, string> = {
@@ -38,7 +38,6 @@ export default function MontadorProposta({
   // sabe: nome + UF → estimativa do ano → faixa. A escolha manual continua
   // logo abaixo, para quem prefere ou para quando o IBGE não responde.
   const [municipio, setMunicipio] = useState("");
-  const [uf, setUf] = useState("");
   const [achado, setAchado] = useState<string | null>(null);
   // Código IBGE do município identificado. Enquanto existir, o porte é o
   // do IBGE e os botões ficam travados: a tela marcava "acima de 50 mil" e
@@ -50,7 +49,10 @@ export default function MontadorProposta({
   const [erroPorte, setErroPorte] = useState<string | null>(null);
   const [consultando, consultar] = useTransition();
 
+  // Muda a cada "Trocar município", para o campo de busca voltar vazio.
+  const [rodada, setRodada] = useState(0);
   function limparMunicipio() {
+    setRodada((r) => r + 1);
     setMunicipio("");
     setCodigoIbge(null);
     setAchado(null);
@@ -58,12 +60,13 @@ export default function MontadorProposta({
     setPorte(null);
   }
 
-  function descobrirPorte() {
+  function escolherMunicipio(nome: string, sigla: string) {
+    setMunicipio(nome);
     setErroPorte(null);
     setAchado(null);
     setCodigoIbge(null);
     consultar(async () => {
-      const r = await sugerirPorte({ municipio, uf });
+      const r = await sugerirPorte({ municipio: nome, uf: sigla });
       if (!r.ok) {
         setErroPorte(r.erro);
         return;
@@ -126,42 +129,18 @@ export default function MontadorProposta({
             <span className="montador-numero tabular-nums">1</span>
             <span className="text-lg font-semibold tracking-[-0.02em]">Seu município</span>
           </legend>
-          <div className="flex flex-wrap items-end gap-2 mb-1">
-            <label className="flex-1 min-w-[160px]">
-              <span className="block text-xs text-muted mb-1">Município</span>
-              <input
-                id="proposta-municipio"
-                value={municipio}
-                onChange={(e) => setMunicipio(e.target.value)}
-                placeholder="Ex.: Teresina"
-                className="montador-campo w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none"
-              />
-            </label>
-            <label className="w-24">
-              <span className="block text-xs text-muted mb-1">UF</span>
-              <select
-                id="proposta-uf"
-                value={uf}
-                onChange={(e) => setUf(e.target.value)}
-                className="montador-campo w-full rounded-xl border px-2.5 py-2.5 text-sm outline-none"
-              >
-                <option value="">—</option>
-                {ESTADOS.map((e) => (
-                  <option key={e} value={e}>
-                    {e}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="button"
-              onClick={descobrirPorte}
-              disabled={consultando || municipio.trim().length < 2 || !uf}
-              className="montador-campo text-sm font-medium rounded-full border px-4 py-2.5 hover:border-brand hover:text-brand-claro disabled:opacity-60"
-            >
-              {consultando ? "Consultando o IBGE…" : "Descobrir o porte"}
-            </button>
-          </div>
+          {/* ── O MESMO CAMPO DO TOPO DA HOME ──
+              Eram três controles: nome, UF e "Descobrir o porte". Agora a
+              pessoa digita o nome (ou usa a localização) e escolhe na lista;
+              o porte sai do IBGE na hora. */}
+          <AcheSuaCidade
+            key={rodada}
+            compacto
+            empilhado
+            placeholder="Digite o nome do município"
+            aoEscolher={(c) => escolherMunicipio(c.nome, c.uf)}
+          />
+          {consultando && <p className="text-xs text-muted">Consultando o IBGE…</p>}
           {achado && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
               {achado}{" "}
