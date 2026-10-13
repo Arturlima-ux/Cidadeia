@@ -227,8 +227,22 @@ export function fatoDoPessoal(rgf: ResultadoRgf, consultadoEm: string): Fato {
     valor: pct(percentual),
     leitura: leitura + frasesDoContexto(rgf.contexto),
     ausencia: null,
-    carimbo: { periodo: rotuloDoPeriodoRgf(d.periodo), consultadoEm: dataSemHora(consultadoEm) },
+    // Da reserva (lib/rgf-reserva.ts): o carimbo é o dia em que o número foi
+    // conferido, não agora, e a ressalva diz por quê.
+    ressalva: rgf.reserva ? avisoDeReserva(rgf.reserva.conferidoEm) : base.ressalva,
+    carimbo: {
+      periodo: rotuloDoPeriodoRgf(d.periodo),
+      consultadoEm: dataSemHora(rgf.reserva ? `${rgf.reserva.conferidoEm}T12:00:00-03:00` : consultadoEm),
+    },
   };
+}
+
+/** A frase que acompanha todo número vindo da reserva semanal. */
+export function avisoDeReserva(conferidoEm: string): string {
+  return (
+    `O Tesouro Nacional não respondeu agora. Este é o RGF mais recente que o CidadeIA conferiu lá em ${dataBr(conferidoEm)}; ` +
+    `se a prefeitura publicou outro depois disso, ele aparece aqui quando o Tesouro voltar a responder.`
+  );
 }
 
 // ── 2. APLICAÇÃO EM SAÚDE E EDUCAÇÃO ──

@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { buscarRgfMaisRecente, type ResultadoRgf } from "@/lib/siconfi-rgf";
-import { fatoDoPessoal, frasesDoContexto, rotuloDoPeriodoRgf } from "@/lib/fatos-do-municipio";
+import { comReserva } from "@/lib/rgf-reserva";
+import { avisoDeReserva, fatoDoPessoal, frasesDoContexto, rotuloDoPeriodoRgf } from "@/lib/fatos-do-municipio";
 import { podeConsultarPelaHome, AUSENCIA_POR_LIMITE } from "@/app/_heroi/limite-do-heroi";
 import CartaoPergunta from "./CartaoPergunta";
 
@@ -35,6 +36,7 @@ export default async function CarregaSalarios({ codigoIbge }: { codigoIbge: stri
   } catch {
     r = { ok: false, erro: "", causa: "consulta_falhou", periodosProcurados: 0 };
   }
+  r = comReserva(codigoIbge, r);
 
   if (!r.ok) {
     return <CartaoPergunta numero={1} titulo={titulo} ausencia={fatoDoPessoal(r, new Date().toISOString()).ausencia} />;
@@ -103,6 +105,7 @@ export default async function CarregaSalarios({ codigoIbge }: { codigoIbge: stri
         {situacao.texto}
       </p>
       {r.contexto && <p className="text-sm text-muted mt-4 leading-relaxed">{frasesDoContexto(r.contexto).trim()}</p>}
+      {r.reserva && <p className="text-sm text-muted mt-4 leading-relaxed">{avisoDeReserva(r.reserva.conferidoEm)}</p>}
     </CartaoPergunta>
   );
 }

@@ -223,6 +223,20 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
     } catch (e) {
       r.erros.push(`sinais: ${e instanceof Error ? e.message : String(e)}`);
     }
+    // E-mails para clientes que não saíram e esperam envio à mão.
+    try {
+      const { pendentesDaCaixaDeSaida } = await import("@/lib/caixa-de-saida");
+      const pendentes = await pendentesDaCaixaDeSaida(50);
+      if (pendentes.length)
+        blocos.push(
+          `<p><strong style="color:#c0392b">${pendentes.length} e-mail(s) para clientes esperando envio à mão:</strong> ${pendentes
+            .slice(0, 5)
+            .map((x) => escapar(x.assunto))
+            .join("; ")}. <a href="${base()}/admin/saida">Abrir a caixa de saída</a></p>`
+        );
+    } catch (e) {
+      r.erros.push(`caixa de saída: ${e instanceof Error ? e.message : String(e)}`);
+    }
     if (r.acompanhamentos || r.retomadas)
       blocos.push(`<p style="color:#666">Enviados hoje pela rotina: ${r.acompanhamentos} lembrete(s) de proposta, ${r.retomadas} retomada(s) de interessado.</p>`);
 

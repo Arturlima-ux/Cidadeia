@@ -97,6 +97,7 @@ export default function AcheSuaCidade({
   inicial = "",
   empilhado = false,
   rolarAoTopo = true,
+  aoEscolher,
 }: {
   /** Endereço ao qual se soma o código IBGE. Texto, e não função: a home,
    *  que é componente de servidor, não pode passar função a um de cliente. */
@@ -110,6 +111,8 @@ export default function AcheSuaCidade({
   empilhado?: boolean;
   /** O portal do morador abre do topo; o Raio-X da prefeitura fica onde está. */
   rolarAoTopo?: boolean;
+  /** Em vez de navegar, entrega a cidade escolhida (o montador da proposta). */
+  aoEscolher?: (cidade: { codigo: string; nome: string; uf: string }) => void;
 }) {
   const router = useRouter();
   const [lista, setLista] = useState<Linha[] | null>(null);
@@ -143,6 +146,11 @@ export default function AcheSuaCidade({
     setIndo(l[1]);
     setAberto(false);
     setTexto(`${l[1]}, ${l[2]}`);
+    if (aoEscolher) {
+      aoEscolher({ codigo: l[0], nome: l[1], uf: l[2] });
+      setIndo(null);
+      return;
+    }
     router.push(`${destino}${l[0]}`, { scroll: false });
     // A cidade abre como portal, do topo.
     if (rolarAoTopo) setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);

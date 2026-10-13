@@ -185,6 +185,7 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
     responderPara: destinoDaEquipe(),
     assunto: `Proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}`,
     anexos: [{ nome: arquivo, conteudo: new Uint8Array(pdf) }],
+    pedidoId: pedido.id,
     html: [
       `<p>Olá, ${primeiro}.</p>`,
       `<p>Segue em anexo a proposta do CidadeIA para a Prefeitura de ${escaparHtml(pedido.municipio)}/${pedido.uf}. Se preferir, <a href="${linkRastreavel(base, pedido.id, "proposta", protocolo(pedido.id))}">abra a proposta no navegador</a>, sem baixar.</p>`,
@@ -200,7 +201,7 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
       erro:
         envio.causa === "nao-configurado"
           ? "O envio de e-mail não está configurado. Baixe o PDF e mande pelo seu e-mail."
-          : `O e-mail não saiu (${envio.detalhe ?? envio.motivo}). Se o domínio ainda não foi confirmado no serviço de e-mail, baixe o PDF e mande pelo seu e-mail.`,
+          : `O e-mail não saiu (${envio.detalhe ?? envio.motivo}). Ele ficou na caixa de saída (/admin/saida), com o texto pronto e o PDF para baixar e mandar pelo seu e-mail.`,
     };
   }
 
