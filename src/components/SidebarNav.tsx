@@ -84,7 +84,7 @@ export default function SidebarNav({
       aria-label="Menu do painel"
       onPointerEnter={focarMenu}
       onPointerLeave={soltarMenu}
-      className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta outline-none"
+      className="menu-painel flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta"
     >
       {grupos.map((grupo) => (
         <div key={grupo.titulo}>
