@@ -9,6 +9,8 @@ import { type NavItem } from "@/components/SidebarNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import FaixaDemo from "@/components/FaixaDemo";
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { registrarAcesso } from "@/lib/saude-do-cliente-servidor";
 import { BloqueioFinanceiro, FaixaFinanceira } from "@/components/AvisosFinanceiros";
 import { painelTravado, rotaLivreNaTrava } from "@/lib/cobranca";
 import { situacaoDaPrefeitura } from "@/lib/cobranca-servidor";
@@ -198,6 +200,11 @@ export default async function DashboardLayout({
     // pode apagar e apaga.
     redirect("/sessao-encerrada");
   }
+
+  // Quem abriu o painel hoje (uma linha por pessoa por dia), depois da
+  // resposta: é o sinal mais forte de que o cliente está usando
+  // (lib/saude-do-cliente.ts).
+  after(() => registrarAcesso(sessao));
 
   const usuarioAtual = await buscarUsuarioPorId(sessao.usuarioId);
   const planosAtivos = planosContratadosDe(prefeitura.planosContratados);
