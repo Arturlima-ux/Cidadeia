@@ -515,22 +515,12 @@ export default async function LandingPage({
               ligação. Agora o montador é a proposta (o kit sem cadastro está
               no botão dele), e logo abaixo fica a única alternativa:
               conversar antes. */}
-          <div id="atendimento" className="mt-16 sm:mt-20 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16 items-start scroll-mt-24">
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">
-                Ou converse com a equipe antes.
-              </h3>
-              <p className="text-muted leading-relaxed mt-4 max-w-[42ch]">
-                Sem apresentação de vendas: a conversa é sobre a sua prefeitura, com os números dela na mesa. Você
-                escolhe o horário e a equipe liga em dia útil.
-              </p>
-            </div>
+          <div id="atendimento" className="mt-14 sm:mt-16 max-w-[920px] scroll-mt-24">
             <PecaUmaLigacao
               codigoIbge={dados && !df ? dados.codigo : null}
               municipio={municipio && !df ? `${municipio.nome}/${municipio.uf}` : null}
               origem="Home, fecho"
-              titulo="Deixe o telefone. A equipe liga."
-              texto="Nome, cargo e telefone. Nada de lista de transmissão."
+              titulo="Ou converse com a equipe antes. Complete a frase e a gente liga."
               linkWhatsapp={linkWhatsappComercial("Olá! Vim pelo site do CidadeIA e queria conversar sobre a minha prefeitura.")}
             />
           </div>
