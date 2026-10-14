@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from "react";
 import { abrirAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
 import { TIPOS, permiteAnonimo, linkWhatsApp, type TipoAtendimento } from "@/lib/atendimento";
+import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
 
 const classeInput =
   "w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition bg-card";
@@ -14,7 +15,22 @@ export default function FormularioCidadao({
   slug: string;
   whatsappNumero: string | null;
 }) {
-  const [aba, setAba] = useState<"abrir" | "consultar">("abrir");
+  // O link do e-mail traz protocolo e chave: abre direto na consulta, já
+  // preenchida e consultada. Lido no navegador, para a página continuar
+  // estática (no servidor, a busca é vazia).
+  const busca = useSyncExternalStore(
+    () => () => {},
+    () => window.location.search,
+    () => ""
+  );
+  const doLink = useMemo(() => {
+    const q = new URLSearchParams(busca);
+    const protocolo = q.get("protocolo");
+    const chave = q.get("chave");
+    return protocolo && chave ? { protocolo, chave } : null;
+  }, [busca]);
+  const [abaEscolhida, setAba] = useState<"abrir" | "consultar" | null>(null);
+  const aba = abaEscolhida ?? (doLink ? "consultar" : "abrir");
 
   return (
     <div>
@@ -46,7 +62,7 @@ export default function FormularioCidadao({
       {aba === "abrir" ? (
         <Abrir slug={slug} whatsappNumero={whatsappNumero} />
       ) : (
-        <Consultar />
+        <Consultar key={doLink?.protocolo ?? "vazio"} inicial={doLink} />
       )}
     </div>
   );
@@ -56,7 +72,7 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
   const [tipo, setTipo] = useState<TipoAtendimento>("protocolo");
   const [anonimo, setAnonimo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<{ protocolo: string; chave: string; assunto: string } | null>(null);
+  const [sucesso, setSucesso] = useState<{ protocolo: string; chave: string; assunto: string; comEmail: boolean } | null>(null);
   const [pending, startTransition] = useTransition();
 
   const aceitaAnonimo = permiteAnonimo(tipo);
@@ -64,9 +80,10 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
   function enviar(formData: FormData) {
     setErro(null);
     const assunto = String(formData.get("assunto") ?? "");
+    const comEmail = !anonimo && String(formData.get("email") ?? "").trim() !== "";
     startTransition(async () => {
       const r = await abrirAtendimento(formData);
-      if (r.ok) setSucesso({ protocolo: r.protocolo, chave: r.chave, assunto });
+      if (r.ok) setSucesso({ protocolo: r.protocolo, chave: r.chave, assunto, comEmail });
       else setErro(r.erro);
     });
   }
@@ -82,8 +99,9 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
           Manifestação registrada
         </p>
         <p className="text-sm mt-2 leading-relaxed">
-          Guarde estes dois códigos — eles são a única forma de acompanhar sua
-          manifestação. Não é possível recuperá-los depois.
+          {sucesso.comEmail
+            ? "Mandamos estes dois códigos para o seu e-mail, junto com o prazo de resposta. A resposta da prefeitura também chega por lá."
+            : "Guarde estes dois códigos — eles são a única forma de acompanhar sua manifestação. Não é possível recuperá-los depois."}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
@@ -162,6 +180,21 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
       </div>
 
       <div>
+        <label htmlFor="cid-area" className="block text-sm font-medium mb-1.5">
+          Área <span className="text-muted font-normal">(opcional)</span>
+        </label>
+        <select id="cid-area" name="secretaria" defaultValue="" className={classeInput}>
+          <option value="">Não sei, ou outra área</option>
+          {OPCOES_DE_AREA.map((o) => (
+            <option key={o.valor} value={o.valor}>
+              {o.nome}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted mt-1.5">Ajuda a manifestação a chegar direto a quem resolve.</p>
+      </div>
+
+      <div>
         <label htmlFor="cid-mensagem" className="block text-sm font-medium mb-1.5">Mensagem</label>
         <textarea
           id="cid-mensagem" name="mensagem"
@@ -233,7 +266,7 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
   );
 }
 
-function Consultar() {
+function Consultar({ inicial }: { inicial: { protocolo: string; chave: string } | null }) {
   const [resultado, setResultado] = useState<ResultadoConsulta | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -241,17 +274,25 @@ function Consultar() {
     startTransition(async () => setResultado(await consultarAtendimento(formData)));
   }
 
+  useEffect(() => {
+    if (!inicial) return;
+    const fd = new FormData();
+    fd.set("protocolo", inicial.protocolo);
+    fd.set("chave", inicial.chave);
+    startTransition(async () => setResultado(await consultarAtendimento(fd)));
+  }, [inicial]);
+
   return (
     <div className="space-y-4">
       <form action={enviar} className="arco-card bg-card border border-border p-5 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label htmlFor="cid-protocolo" className="block text-sm font-medium mb-1.5">Número do protocolo</label>
-            <input id="cid-protocolo" name="protocolo" required placeholder="202603-ABC123" className={classeInput} />
+            <input id="cid-protocolo" name="protocolo" required defaultValue={inicial?.protocolo} placeholder="202603-ABC123" className={classeInput} />
           </div>
           <div>
             <label htmlFor="cid-chave" className="block text-sm font-medium mb-1.5">Chave de consulta</label>
-            <input id="cid-chave" name="chave" required placeholder="ABCD2345" className={classeInput} />
+            <input id="cid-chave" name="chave" required defaultValue={inicial?.chave} placeholder="ABCD2345" className={classeInput} />
           </div>
         </div>
         <button

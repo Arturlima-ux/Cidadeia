@@ -13,6 +13,8 @@ type Atendimento = EntradaPrazo & {
   assunto: string;
   tipo: TipoAtendimento;
   status: StatusAtendimento;
+  /** Sem e-mail, a justificativa da prorrogação vai por telefone. */
+  semEmail?: boolean;
 };
 
 /**
@@ -137,6 +139,13 @@ function Bloco({
               <p className="text-xs text-muted mt-0.5 font-medium">
                 {NOME_SITUACAO_PRAZO[avaliacao.situacao]}
               </p>
+              {atendimento.prorrogado && (
+                <p className="text-xs text-muted mt-1.5 max-w-[15rem] ml-auto leading-relaxed">
+                  {atendimento.semEmail
+                    ? "Prorrogado. O cidadão não deixou e-mail: comunique a justificativa por telefone."
+                    : "Prorrogado. A justificativa foi ao e-mail do cidadão."}
+                </p>
+              )}
               {avaliacao.podeProrrogar && (
                 <BotaoProrrogar
                   id={atendimento.id}

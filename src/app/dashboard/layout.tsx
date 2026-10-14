@@ -79,6 +79,9 @@ function montarGrupos(
           { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
           ...(minha ? [minha] : []),
           { href: "/dashboard/alertas", label: "Alertas da secretaria", icone: "alertas" },
+          ...(planosAtivos.includes("essencial")
+            ? [{ href: "/dashboard/atendimento", label: "Ouvidoria da secretaria", icone: "alertas" } as NavItem]
+            : []),
         ],
       },
     ];

@@ -3,7 +3,10 @@
 import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
-import { atendimentos, configPublica, prefeituras } from "@/db/schema";
+import { atendimentos, configPublica, pedidoEventos, prefeituras } from "@/db/schema";
+import { gerarId } from "@/lib/id";
+import { EVENTO_PRORROGACAO, podeVerManifestacao } from "@/lib/ouvidoria-avisos";
+import { avisarProrrogacao, avisarResposta } from "@/lib/ouvidoria-avisos-servidor";
 import { and, desc, eq } from "drizzle-orm";
 import { lerSessao , ehGestor } from "@/lib/sessao";
 import { slugLivre } from "@/lib/endereco-publico";
@@ -18,11 +21,24 @@ async function exigirAcesso() {
 export async function buscarAtendimentos(prefeituraId: string) {
   const sessao = await lerSessao();
   if (!sessao || sessao.prefeituraId !== prefeituraId) return [];
-  return db
+  const lista = await db
     .select()
     .from(atendimentos)
     .where(eq(atendimentos.prefeituraId, prefeituraId))
     .orderBy(desc(atendimentos.createdAt));
+  // O secretário lê só o que é da área dele, e nunca denúncia: ela pode ser
+  // sobre a própria secretaria (lib/ouvidoria-avisos.ts).
+  return lista.filter((a) => podeVerManifestacao(sessao, a));
+}
+
+/** A manifestação, se quem pede pode mexer nela. */
+async function manifestacaoAcessivel(sessao: { prefeituraId: string; cargo: string; secretaria?: string | null }, id: string) {
+  const [m] = await db
+    .select({ tipo: atendimentos.tipo, secretaria: atendimentos.secretaria })
+    .from(atendimentos)
+    .where(and(eq(atendimentos.id, id), eq(atendimentos.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
+  return m && podeVerManifestacao(sessao, m) ? m : null;
 }
 
 export async function buscarConfigPublica(prefeituraId: string) {
@@ -36,7 +52,7 @@ export async function buscarConfigPublica(prefeituraId: string) {
   return linha ?? null;
 }
 
-export type ResultadoAcao = { ok: true } | { ok: false; erro: string };
+export type ResultadoAcao = { ok: true; aviso?: string } | { ok: false; erro: string };
 
 const schemaResposta = z.object({
   id: z.string().min(1),
@@ -61,6 +77,10 @@ export async function responderAtendimento(formData: FormData): Promise<Resultad
     return { ok: false, erro: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
 
+  if (!(await manifestacaoAcessivel(sessao, parsed.data.id))) {
+    return { ok: false, erro: "Manifestação não encontrada." };
+  }
+
   // O filtro por prefeitura impede responder manifestação de outro município.
   await db
     .update(atendimentos)
@@ -77,8 +97,14 @@ export async function responderAtendimento(formData: FormData): Promise<Resultad
     );
 
   await auditar(sessao, { acao: "responder", entidade: "atendimento", entidadeId: parsed.data.id, resumo: `status ${parsed.data.status}` });
+  const avisado = await avisarResposta(parsed.data.id);
   revalidatePath("/dashboard/atendimento");
-  return { ok: true };
+  return {
+    ok: true,
+    aviso: avisado
+      ? "Salvo. O cidadão recebeu a resposta por e-mail."
+      : "Salvo. O cidadão não deixou e-mail (ou o envio falhou): ele vê a resposta ao consultar o protocolo. Se deixou telefone, vale ligar.",
+  };
 }
 
 /**
@@ -89,22 +115,45 @@ export async function responderAtendimento(formData: FormData): Promise<Resultad
  * conceder isso sozinho — daí ser um ato do servidor, registrado, e não uma
  * tolerância automática do painel quando o prazo aperta.
  */
-export async function prorrogarPrazo(id: string): Promise<ResultadoAcao> {
+export async function prorrogarPrazo(id: string, justificativa: string): Promise<ResultadoAcao> {
   let sessao;
   try {
     sessao = await exigirAcesso();
   } catch (e) {
     return { ok: false, erro: (e as Error).message };
   }
+  // A lei não admite prorrogação sem justificativa expressa: sem ela, o
+  // painel não registra.
+  const texto = justificativa.trim();
+  if (texto.length < 20) {
+    return { ok: false, erro: "Escreva a justificativa (pelo menos 20 caracteres). Ela vai para o cidadão." };
+  }
+  if (texto.length > 2000) return { ok: false, erro: "Justificativa longa demais (até 2.000 caracteres)." };
+  if (!(await manifestacaoAcessivel(sessao, id))) return { ok: false, erro: "Manifestação não encontrada." };
 
   await db
     .update(atendimentos)
     .set({ prazoProrrogado: true })
     .where(and(eq(atendimentos.id, id), eq(atendimentos.prefeituraId, sessao.prefeituraId)));
 
-  await auditar(sessao, { acao: "alterar", entidade: "atendimento", entidadeId: id, resumo: "prazo prorrogado" });
+  // A justificativa fica registrada na linha do tempo da manifestação: é a
+  // prova de que a prorrogação foi motivada, se o Tribunal perguntar.
+  await db.insert(pedidoEventos).values({
+    id: gerarId("pev"),
+    pedidoId: id,
+    tipo: EVENTO_PRORROGACAO,
+    descricao: texto,
+    autor: sessao.nome ?? "servidor",
+  });
+  await auditar(sessao, { acao: "alterar", entidade: "atendimento", entidadeId: id, resumo: `prazo prorrogado: ${texto.slice(0, 200)}` });
+  const avisado = await avisarProrrogacao(id, texto);
   revalidatePath("/dashboard/atendimento");
-  return { ok: true };
+  return {
+    ok: true,
+    aviso: avisado
+      ? "Prazo prorrogado. O cidadão recebeu a justificativa por e-mail."
+      : "Prazo prorrogado. O cidadão não deixou e-mail: comunique a justificativa pelo telefone, como a lei exige.",
+  };
 }
 
 const schemaConfig = z.object({
