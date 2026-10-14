@@ -293,11 +293,20 @@ const NOME_SECRETARIA: Record<string, string> = {
   licitacoes: "Licitações e contratos",
 };
 
+const RODAPE: Record<"secretario" | "prefeito" | "admin", string> = {
+  secretario: "Você recebe os alertas da sua secretaria; o prefeito só recebe os urgentes.",
+  prefeito:
+    "Como prefeito, você recebe os alertas do gabinete e, das secretarias, só os urgentes: o resto vai direto ao secretário de cada área.",
+  admin: "Como administrador, você recebe os alertas de todas as áreas.",
+};
+
 export function emailDaVigia(dados: {
   municipio: string;
   novos: DeteccaoAutomatica[];
   piorados: DeteccaoAutomatica[];
   linkAlertas: string;
+  /** Em que papel a pessoa recebe: muda a explicação no rodapé. */
+  papel?: "secretario" | "prefeito" | "admin";
 }): { assunto: string; html: string } | null {
   // "info" (indicador que ninguém atualiza) não justifica e-mail: fica no painel.
   const novos = dados.novos.filter((d) => d.prioridade !== "info");
@@ -327,7 +336,7 @@ export function emailDaVigia(dados: {
     ...ordenar(novos).map((d) => bloco(d, false)),
     ...ordenar(piorados).map((d) => bloco(d, true)),
     `<p><a href="${dados.linkAlertas}">Ver e resolver no painel</a></p>`,
-    `<p style="color:#888;font-size:13px">Você recebe este e-mail só quando aparece algo novo ou quando algo piora. O alerta some do painel sozinho quando o problema deixa de existir.</p>`,
+    `<p style="color:#888;font-size:13px">${RODAPE[dados.papel ?? "admin"]} Só chega e-mail quando aparece algo novo ou quando algo piora, e o alerta some do painel sozinho quando o problema deixa de existir.</p>`,
   ].join("\n");
   return { assunto, html };
 }

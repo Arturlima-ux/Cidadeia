@@ -6,7 +6,8 @@ import { db } from "@/db";
 import { dashboardSnapshots, alertas, alertasSugeridos } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { gerarId } from "@/lib/id";
-import { lerSessao } from "@/lib/sessao";
+import { ehGestor, lerSessao } from "@/lib/sessao";
+import { podeVerAlerta } from "@/lib/alerta-por-area";
 import { revalidatePath } from "next/cache";
 import { gerarSugestoesAlertas } from "@/lib/ia";
 import { notificarAlertaUrgente } from "@/lib/notificacoes";
@@ -57,11 +58,15 @@ export async function criarAlerta(formData: FormData) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
 
+  if (!ehGestor(sessao) && sessao.cargo !== "secretario") throw new Error("Sem permissão.");
+
   const dados = schemaAlerta.parse({
     titulo: formData.get("titulo"),
     descricao: formData.get("descricao") || undefined,
     prioridade: formData.get("prioridade"),
-    secretaria: formData.get("secretaria") || undefined,
+    // O secretário registra alerta da própria área, e só dela: é assim que
+    // ele continua vendo o que criou (lib/alerta-por-area.ts).
+    secretaria: (sessao.cargo === "secretario" ? sessao.secretaria : formData.get("secretaria")) || undefined,
   });
 
   await db.insert(alertas).values({
@@ -78,6 +83,7 @@ export async function criarAlerta(formData: FormData) {
       prefeituraId: sessao.prefeituraId,
       titulo: dados.titulo,
       descricao: dados.descricao,
+      secretaria: dados.secretaria ?? null,
     });
   }
 
@@ -89,6 +95,15 @@ export async function criarAlerta(formData: FormData) {
 export async function resolverAlerta(id: string) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
+
+  const [alerta] = await db
+    .select({ secretaria: alertas.secretaria })
+    .from(alertas)
+    .where(and(eq(alertas.id, id), eq(alertas.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
+  // O secretário só fecha alerta da área dele; um id de outra área, mandado
+  // à mão, não pode fechar o aviso que o colega ainda não viu.
+  if (!alerta || !podeVerAlerta(sessao, alerta)) return;
 
   await db
     .update(alertas)
@@ -141,6 +156,8 @@ export async function gerarSugestoes(): Promise<ResultadoGerarSugestoes> {
 export async function aprovarSugestao(id: string) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
+  // As sugestões da IA são da prefeitura inteira: decisão do gabinete.
+  if (!ehGestor(sessao)) return;
 
   const linhas = await db
     .select()
@@ -164,6 +181,7 @@ export async function aprovarSugestao(id: string) {
       prefeituraId: sugestao.prefeituraId,
       titulo: sugestao.titulo,
       descricao: sugestao.descricao,
+      secretaria: sugestao.secretaria,
     });
   }
 
@@ -177,6 +195,8 @@ export async function aprovarSugestao(id: string) {
 export async function descartarSugestao(id: string) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
+  // As sugestões da IA são da prefeitura inteira: decisão do gabinete.
+  if (!ehGestor(sessao)) return;
 
   const linhas = await db
     .select({ prefeituraId: alertasSugeridos.prefeituraId })

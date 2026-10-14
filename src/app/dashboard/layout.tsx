@@ -78,6 +78,7 @@ function montarGrupos(
         itens: [
           { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
           ...(minha ? [minha] : []),
+          { href: "/dashboard/alertas", label: "Alertas da secretaria", icone: "alertas" },
         ],
       },
     ];
