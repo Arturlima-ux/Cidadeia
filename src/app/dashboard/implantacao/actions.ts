@@ -1,5 +1,8 @@
 "use server";
 
+import { after } from "next/server";
+import { importarDaPrefeitura } from "@/lib/importacao-automatica";
+
 import { auditar } from "@/lib/auditoria";
 import { db } from "@/db";
 import { prefeituras } from "@/db/schema";
@@ -70,6 +73,19 @@ export async function confirmarMunicipio(): Promise<ResultadoMunicipio> {
     .update(prefeituras)
     .set({ codigoIbge, ...(populacao !== null ? { populacao } : {}) })
     .where(eq(prefeituras.id, sessao.prefeituraId));
+
+  // Com o município reconhecido, o que é público entra na hora, sem esperar
+  // a rotina da madrugada: Tesouro, CNES e PNCP do que foi contratado. Depois
+  // da resposta, para o prefeito não ficar olhando o botão girar; o que não
+  // couber no tempo, a rotina termina amanhã cedo.
+  if (!sessao.demo) {
+    const prefeituraId = sessao.prefeituraId;
+    after(() =>
+      importarDaPrefeitura(prefeituraId, { forcar: true, ateMs: Date.now() + 50_000 }).catch((e) =>
+        console.error("[implantacao] importação inicial:", e)
+      )
+    );
+  }
 
   revalidatePath("/dashboard/implantacao");
   return { ok: true, codigoIbge, municipio: prefeitura.municipio, estado: prefeitura.estado, populacao };

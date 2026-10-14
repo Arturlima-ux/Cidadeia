@@ -10,8 +10,7 @@ import { gerarId } from "@/lib/id";
 import { revalidatePath } from "next/cache";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { buscarCodigoIbge } from "@/lib/siconfi";
-import { buscarRgfMaisRecente } from "@/lib/siconfi-rgf";
-import { LIMITE_PESSOAL } from "@/lib/despesa-pessoal";
+import { importarRgf } from "@/lib/importacoes";
 
 export type LinhaPessoal = {
   exercicio: number;
@@ -184,69 +183,10 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
       .where(eq(prefeituras.id, sessao.prefeituraId));
   }
 
-  const agora = new Date();
-  const resultado = await buscarRgfMaisRecente(
-    codigoIbge,
-    agora.getFullYear(),
-    agora.getMonth() + 1
-  );
-  if (!resultado.ok) return { ok: false, erro: resultado.erro };
-
-  const { dados } = resultado;
-
-  // Confere a nossa régua contra a do Tesouro antes de gravar. Se o limite que
-  // ele publica não representar 54% da RCL ajustada, alguma premissa mudou —
-  // e é melhor recusar do que gravar um número que a tela vai julgar por uma
-  // régua que não vale mais.
-  // Null é "o anexo não trouxe a linha", e não "o limite é zero": sem o número
-  // publicado não há o que conferir, e a importação segue com a régua da lei.
-  if (dados.limiteMaximo !== null && dados.limiteMaximo > 0) {
-    const limitePublicado = (dados.limiteMaximo / dados.rclAjustada) * 100;
-    if (Math.abs(limitePublicado - LIMITE_PESSOAL) > 0.5) {
-      return {
-        ok: false,
-        erro:
-          `O Tesouro publicou para este município um limite de ${limitePublicado.toFixed(1).replace(".", ",")}% ` +
-          `da RCL, e não os ${LIMITE_PESSOAL}% que esta tela usa. Confira com o contador antes de importar.`,
-      };
-    }
-  }
-
-  const { exercicio: exercicioRgf, mesReferencia } = dados.periodo;
-
-  const existente = await db
-    .select({ id: despesaPessoal.id })
-    .from(despesaPessoal)
-    .where(
-      and(
-        eq(despesaPessoal.prefeituraId, sessao.prefeituraId),
-        eq(despesaPessoal.exercicio, exercicioRgf),
-        eq(despesaPessoal.mesReferencia, mesReferencia)
-      )
-    )
-    .limit(1);
-
-  const valores = {
-    // Grava a AJUSTADA: é sobre ela que o art. 20, § 6º manda calcular o
-    // limite. A RCL cheia daria um percentual menor que o oficial, dizendo ao
-    // prefeito que ele tem folga que não tem.
-    rcl: dados.rclAjustada,
-    despesa: dados.despesaTotal,
-    origem: "siconfi" as const,
-    atualizadoEm: new Date().toISOString(),
-  };
-
-  if (existente[0]) {
-    await db.update(despesaPessoal).set(valores).where(eq(despesaPessoal.id, existente[0].id));
-  } else {
-    await db.insert(despesaPessoal).values({
-      id: gerarId("pessoal"),
-      prefeituraId: sessao.prefeituraId,
-      exercicio: exercicioRgf,
-      mesReferencia,
-      ...valores,
-    });
-  }
+  // A gravação é a mesma da rotina automática (lib/importacoes.ts). Aqui
+  // quem clicou pediu o número do Tesouro: sobrescreve até o lançado à mão.
+  const r = await importarRgf(sessao.prefeituraId, codigoIbge);
+  if (!r.ok) return r;
 
   await auditar(sessao, { acao: "importar", entidade: "financeiro", resumo: "RGF importado do SICONFI" });
   revalidatePath("/dashboard/pessoal");
@@ -254,9 +194,9 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
 
   return {
     ok: true,
-    exercicio: exercicioRgf,
-    mesReferencia,
-    percentual: (dados.despesaTotal / dados.rclAjustada) * 100,
-    instituicao: dados.instituicao,
+    exercicio: r.exercicio,
+    mesReferencia: r.mesReferencia,
+    percentual: r.percentual,
+    instituicao: r.instituicao,
   };
 }

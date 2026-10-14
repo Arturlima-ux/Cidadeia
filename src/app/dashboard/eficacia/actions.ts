@@ -10,11 +10,8 @@ import { lerSessao , ehGestor } from "@/lib/sessao";
 import { revalidatePath } from "next/cache";
 import { limitarUso } from "@/lib/rate-limit";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
-import {
-  buscarCodigoIbge,
-  buscarDespesasSiconfi,
-  competenciaDoBimestre,
-} from "@/lib/siconfi";
+import { importarRreo } from "@/lib/importacoes";
+import { buscarCodigoIbge } from "@/lib/siconfi";
 
 const SECRETARIAS = ["saude", "educacao", "obras", "licitacoes"] as const;
 
@@ -153,41 +150,11 @@ export async function importarDoSiconfi(formData: FormData): Promise<ResultadoIm
       .where(eq(prefeituras.id, sessao.prefeituraId));
   }
 
-  const resultado = await buscarDespesasSiconfi(codigoIbge, ano, bimestre);
-  if (!resultado.ok) return resultado;
-
-  const competencia = competenciaDoBimestre(ano, bimestre);
-
-  // Idempotência: apaga só o que este mesmo período já trouxe do SICONFI.
-  await db
-    .delete(investimentos)
-    .where(
-      and(
-        eq(investimentos.prefeituraId, sessao.prefeituraId),
-        eq(investimentos.origem, "siconfi"),
-        eq(investimentos.competencia, competencia)
-      )
-    );
-
-  await db.insert(investimentos).values(
-    resultado.despesas.map((d) => ({
-      id: gerarId("inv"),
-      prefeituraId: sessao.prefeituraId,
-      secretaria: d.secretaria,
-      valor: d.valor,
-      descricao: `SICONFI ${bimestre}º bim/${ano} — função: ${d.funcoes.join(", ")}`,
-      competencia,
-      origem: "siconfi" as const,
-    }))
-  );
+  // Mesma gravação da rotina automática (lib/importacoes.ts).
+  const r = await importarRreo(sessao.prefeituraId, codigoIbge, ano, bimestre);
+  if (!r.ok) return r;
 
   await auditar(sessao, { acao: "importar", entidade: "financeiro", resumo: `RREO ${ano}/${bimestre}º bimestre importado do SICONFI` });
   revalidatePath("/dashboard/eficacia");
-  return {
-    ok: true,
-    importados: resultado.despesas.length,
-    total: resultado.despesas.reduce((a, d) => a + d.valor, 0),
-    instituicao: resultado.instituicao,
-    periodo: `${bimestre}º bimestre de ${ano}`,
-  };
+  return r;
 }

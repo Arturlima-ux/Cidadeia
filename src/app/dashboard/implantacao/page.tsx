@@ -10,8 +10,12 @@ import {
 import { IconCheck } from "@/components/icons";
 import PassoComAcao from "./PassoComAcao";
 import BotaoConcluir from "./BotaoConcluir";
+import PainelImportacoes from "@/components/PainelImportacoes";
 
 export const metadata = { title: "Implantação" };
+// O "Confirmar no IBGE" dispara a primeira importação depois da resposta
+// (actions.ts): ela precisa do tempo inteiro da função.
+export const maxDuration = 60;
 
 // ── A PRIMEIRA TELA DE UMA PREFEITURA NOVA ──
 //
@@ -117,6 +121,8 @@ export default async function ImplantacaoPage() {
           </li>
         ))}
       </ol>
+
+      <PainelImportacoes prefeituraId={sessao.prefeituraId} planosRaw={prefeitura.planosContratados} />
 
       {podeAgir && (
         <div

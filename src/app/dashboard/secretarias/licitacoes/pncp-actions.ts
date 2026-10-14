@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { licitacoes, prefeituras } from "@/db/schema";
+import { licitacoes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { lerSessao } from "@/lib/sessao";
 import { limitarUso } from "@/lib/rate-limit";
@@ -11,12 +11,11 @@ import {
   conferirPublicacao,
   resumirConferencia,
   processosSoNoPncp,
-  paraLicitacaoLocal,
   type Conferencia,
   type ContratacaoPncp,
 } from "@/lib/pncp";
 import { temAcessoSecretaria } from "@/lib/sessao";
-import { randomUUID } from "node:crypto";
+import { importarProcessosPncp } from "@/lib/importacoes";
 
 export type ResultadoConferencia =
   | {
@@ -175,34 +174,6 @@ export async function importarDoPncp(anoBruto: number): Promise<ResultadoImporta
   if (!plano.ok) return { ok: false, erro: plano.erro };
   if (!plano.cnpj) return { ok: false, erro: "O CNPJ do município não está cadastrado." };
 
-  const consulta = await buscarContratacoesPncp(plano.cnpj, ano);
-  if (!consulta.ok) return { ok: false, erro: consulta.erro };
-
-  const locais = await db
-    .select({
-      id: licitacoes.id,
-      numero: licitacoes.numero,
-      objeto: licitacoes.objeto,
-      status: licitacoes.status,
-      // Sem estes dois o casamento cai para número+ano, que nos dados reais
-      // confunde "Dispensa 5/2026" com "Pregão 5/2026".
-      numeroControlePncp: licitacoes.numeroControlePncp,
-      modalidade: licitacoes.modalidade,
-    })
-    .from(licitacoes)
-    .where(eq(licitacoes.prefeituraId, sessao.prefeituraId));
-
-  const novos = processosSoNoPncp(locais, consulta.contratacoes);
-  if (novos.length === 0) return { ok: true, importados: 0, ignorados: 0 };
-
-  const linhas = novos
-    .map((c) => {
-      const campos = paraLicitacaoLocal(c);
-      return campos ? { id: randomUUID(), prefeituraId: sessao.prefeituraId, ...campos } : null;
-    })
-    .filter((l): l is NonNullable<typeof l> => l !== null);
-
-  if (linhas.length > 0) await db.insert(licitacoes).values(linhas);
-
-  return { ok: true, importados: linhas.length, ignorados: novos.length - linhas.length };
+  // Mesma gravação da rotina automática (lib/importacoes.ts).
+  return importarProcessosPncp(sessao.prefeituraId, plano.cnpj, ano);
 }
