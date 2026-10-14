@@ -1,13 +1,12 @@
 "use server";
 
 import { db } from "@/db";
-import { contratos, prefeituras } from "@/db/schema";
+import { contratos } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
 import { limitarUso } from "@/lib/rate-limit";
 import { exigirPlano, anoValido } from "@/lib/exigir-plano";
-import { buscarContratosPncp, type ContratoPncp } from "@/lib/contratos-pncp";
-import { randomUUID } from "node:crypto";
+import { importarContratosPncp } from "@/lib/importacoes";
 
 /**
  * Lê os contratos já guardados. Usada pela tela, que é componente de servidor.
@@ -76,58 +75,8 @@ export async function importarContratosDoPncp(
   if (!plano.ok) return { ok: false, erro: plano.erro };
   if (!plano.cnpj) return { ok: false, erro: "O CNPJ do município não está cadastrado." };
 
-  const anos = [ano, ano - 1];
-  const doPortal = new Map<string, ContratoPncp>();
-  let completa = true;
-
-  for (const a of anos) {
-    const r = await buscarContratosPncp(plano.cnpj, a);
-    if (!r.ok) return { ok: false, erro: r.erro };
-    if (!r.completa) completa = false;
-    // O mesmo contrato pode vir nas duas varreduras; a chave do portal desempata.
-    for (const c of r.contratos) doPortal.set(c.numeroControlePncp, c);
-  }
-
-  const jaTem = new Set(
-    (
-      await db
-        .select({ chave: contratos.numeroControlePncp })
-        .from(contratos)
-        .where(eq(contratos.prefeituraId, sessao.prefeituraId))
-    )
-      .map((r) => r.chave)
-      .filter((x): x is string => !!x)
-  );
-
-  const novos = [...doPortal.values()].filter((c) => !jaTem.has(c.numeroControlePncp));
-  if (novos.length === 0) return { ok: true, importados: 0, anos, completa };
-
-  await db.insert(contratos).values(
-    novos.map((c) => ({
-      id: randomUUID(),
-      prefeituraId: sessao.prefeituraId,
-      numeroControlePncp: c.numeroControlePncp,
-      numeroControlePncpCompra: c.numeroControlePncpCompra,
-      numeroContrato: c.numeroContrato,
-      processo: c.processo,
-      objeto: c.objeto,
-      fornecedorDocumento: c.fornecedorDocumento,
-      fornecedorNome: c.fornecedorNome,
-      fornecedorTipoPessoa: c.fornecedorTipoPessoa,
-      valorInicial: c.valorInicial,
-      valorGlobal: c.valorGlobal,
-      dataAssinatura: c.dataAssinatura,
-      vigenciaInicio: c.vigenciaInicio,
-      vigenciaFim: c.vigenciaFim,
-      tipoContrato: c.tipoContrato,
-      categoria: c.categoria,
-      frutoAdesao: c.frutoAdesao,
-      numeroRetificacao: c.numeroRetificacao,
-      origem: "pncp" as const,
-    }))
-  );
-
-  return { ok: true, importados: novos.length, anos, completa };
+  // Mesma gravação da rotina automática (lib/importacoes.ts).
+  return importarContratosPncp(sessao.prefeituraId, plano.cnpj, ano);
 }
 
 /** Remove um contrato do cadastro. */

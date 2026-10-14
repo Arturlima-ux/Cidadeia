@@ -136,8 +136,10 @@ describe("a importação de obras não traz contrato que não é obra", () => {
   });
 
   it("a ação de importar obras aplica o filtro", () => {
-    const acoes = arquivo("src/app/dashboard/secretarias/obras/actions.ts");
-    expect(acoes).toContain("ehObraOuEngenharia(c.categoria)");
+    // A gravação mora em lib/importacoes.ts, que a tela e a rotina diária
+    // chamam: o filtro precisa estar lá, e a ação precisa passar por ela.
+    expect(arquivo("src/lib/importacoes.ts")).toContain("ehObraOuEngenharia(c.categoria)");
+    expect(arquivo("src/app/dashboard/secretarias/obras/actions.ts")).toContain("importarObrasDosContratos(prefeituraId)");
   });
 });
 

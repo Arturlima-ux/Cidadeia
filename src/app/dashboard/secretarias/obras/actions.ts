@@ -3,13 +3,13 @@
 import { auditar } from "@/lib/auditoria";
 import { z } from "zod";
 import { db } from "@/db";
-import { obras, contratos, decisoesObra } from "@/db/schema";
+import { obras, decisoesObra } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { validarDecisao, type TipoDecisaoObra, type DecisaoObra } from "@/lib/decisao-obra";
 import { gerarId } from "@/lib/id";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 import { lerSessao, temAcessoSecretaria } from "@/lib/sessao";
-import { ehObraOuEngenharia } from "@/lib/obra-prazo";
+import { importarObrasDosContratos } from "@/lib/importacoes";
 import { exigirPlano } from "@/lib/exigir-plano";
 import { revalidatePath } from "next/cache";
 
@@ -163,76 +163,10 @@ export async function importarObrasDeContratos(
   const plano = await exigirPlano(prefeituraId, "obras");
   if (!plano.ok) return { ok: false, erro: plano.erro };
 
-  const todosContratos = await db
-    .select()
-    .from(contratos)
-    .where(eq(contratos.prefeituraId, prefeituraId));
-
-  const deObra = todosContratos.filter((c) => ehObraOuEngenharia(c.categoria));
-  if (deObra.length === 0) return { ok: true, importados: 0, atualizados: 0 };
-
-  const existentes = new Map(
-    (await db.select().from(obras).where(eq(obras.prefeituraId, prefeituraId)))
-      .filter((o) => o.numeroControlePncpContrato)
-      .map((o) => [o.numeroControlePncpContrato!, o])
-  );
-
-  let importados = 0;
-  let atualizados = 0;
-
-  for (const c of deObra) {
-    if (!c.numeroControlePncp) continue;
-    const jaTem = existentes.get(c.numeroControlePncp);
-
-    if (jaTem) {
-      // ── POR QUE ATUALIZAR, E O QUE NÃO ATUALIZAR ──
-      //
-      // Termo aditivo de prazo muda a vigência do contrato. Se a obra guardasse
-      // a data da primeira importação, o radar acusaria como vencida uma obra
-      // que foi legitimamente prorrogada — e essa é a acusação mais cara que
-      // este módulo pode fazer.
-      //
-      // O progresso NÃO é tocado: ele é medição da prefeitura, não do portal.
-      if (
-        jaTem.vigenciaInicio !== c.vigenciaInicio ||
-        jaTem.vigenciaFim !== c.vigenciaFim ||
-        jaTem.valorContrato !== c.valorGlobal
-      ) {
-        await db
-          .update(obras)
-          .set({
-            vigenciaInicio: c.vigenciaInicio,
-            vigenciaFim: c.vigenciaFim,
-            valorContrato: c.valorGlobal,
-            fornecedorNome: c.fornecedorNome,
-          })
-          .where(and(eq(obras.id, jaTem.id), eq(obras.prefeituraId, prefeituraId)));
-        atualizados++;
-      }
-      continue;
-    }
-
-    await db.insert(obras).values({
-      id: gerarId("obra"),
-      prefeituraId,
-      // O objeto do contrato é longo; a tela mostra o nome e o objeto inteiro
-      // fica no campo do contrato, que a junção alcança.
-      nome: c.objeto.slice(0, 160),
-      valorContrato: c.valorGlobal,
-      numeroControlePncpContrato: c.numeroControlePncp,
-      vigenciaInicio: c.vigenciaInicio,
-      vigenciaFim: c.vigenciaFim,
-      fornecedorNome: c.fornecedorNome,
-      origem: "pncp" as const,
-      // ── NULL, E NÃO ZERO ──
-      // Ninguém mediu esta obra ainda. Entrar com 0% afirmaria progresso zero
-      // sobre obra que pode estar em 90%, e o alerta de atraso sairia contra a
-      // prefeitura por um número que o software inventou.
-      progressoAtual: null,
-      status: "em_andamento" as const,
-    });
-    importados++;
-  }
+  // Mesma gravação da rotina automática (lib/importacoes.ts).
+  const r = await importarObrasDosContratos(prefeituraId);
+  if (!r.ok) return r;
+  const { importados, atualizados } = r;
 
   if (importados > 0 || atualizados > 0) revalidatePath("/dashboard/secretarias/obras");
   await auditar(sessao, {

@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { and, eq, desc, inArray, isNotNull, gte } from "drizzle-orm";
+import { and, eq, desc, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { unidadesSaude, ocorrenciasSaude, prefeituras, usuarios, estoqueSaude, atendimentos } from "@/db/schema";
@@ -11,7 +11,7 @@ import { validarCpfOuCnpj, normalizarDocumento } from "@/lib/documento";
 import { gerarId } from "@/lib/id";
 import { lerSessao, temAcessoSecretaria, podeVerUnidade, ehGestor } from "@/lib/sessao";
 import { auditar } from "@/lib/auditoria";
-import { buscarRedeNoCnes } from "@/lib/cnes";
+import { sincronizarCnes } from "@/lib/importacoes";
 
 // ── A REDE PELO CNES, E O QUE ACONTECE DENTRO DE CADA UNIDADE ──
 
@@ -40,63 +40,18 @@ export async function sincronizarRedeCnes(): Promise<ResultadoSincronizacao> {
     return { ok: false, erro: "Reconheça o município na Implantação antes: o CNES é consultado pelo código IBGE." };
   }
 
-  const r = await buscarRedeNoCnes(pref.codigoIbge);
+  // Mesma gravação da rotina automática (lib/importacoes.ts).
+  const r = await sincronizarCnes(sessao.prefeituraId, pref.codigoIbge);
   if (!r.ok) return r;
-
-  const existentes = await db
-    .select({ id: unidadesSaude.id, codigoCnes: unidadesSaude.codigoCnes, ativo: unidadesSaude.ativo })
-    .from(unidadesSaude)
-    .where(and(eq(unidadesSaude.prefeituraId, sessao.prefeituraId), isNotNull(unidadesSaude.codigoCnes)));
-  const porCodigo = new Map(existentes.map((e) => [e.codigoCnes!, e]));
-  const agora = new Date().toISOString();
-
-  let novas = 0;
-  let atualizadas = 0;
-  const vistos = new Set<string>();
-  for (const u of r.unidades) {
-    vistos.add(u.codigoCnes);
-    const dados = {
-      nome: u.nome,
-      tipo: u.tipo,
-      bairro: u.bairro,
-      latitude: u.latitude,
-      longitude: u.longitude,
-      codigoTipoUnidade: u.codigoTipoUnidade,
-      esfera: u.esfera,
-      endereco: u.endereco,
-      telefone: u.telefone,
-      turno: u.turno,
-      atendeSus: u.atendeSus,
-      hospitalar: u.hospitalar,
-      centroCirurgico: u.centroCirurgico,
-      centroObstetrico: u.centroObstetrico,
-      cnesAtualizadoEm: u.cnesAtualizadoEm,
-      sincronizadoEm: agora,
-      ativo: true,
-    };
-    const ex = porCodigo.get(u.codigoCnes);
-    if (ex) {
-      await db.update(unidadesSaude).set(dados).where(eq(unidadesSaude.id, ex.id));
-      atualizadas++;
-    } else {
-      await db.insert(unidadesSaude).values({ id: gerarId("us"), prefeituraId: sessao.prefeituraId, codigoCnes: u.codigoCnes, origem: "cnes", ...dados });
-      novas++;
-    }
-  }
-
-  const sumiram = existentes.filter((e) => e.ativo && !vistos.has(e.codigoCnes!)).map((e) => e.id);
-  if (sumiram.length > 0) {
-    await db.update(unidadesSaude).set({ ativo: false, sincronizadoEm: agora }).where(inArray(unidadesSaude.id, sumiram));
-  }
 
   await auditar(sessao, {
     acao: "importar",
     entidade: "unidade_saude",
-    resumo: `rede do CNES: ${novas} nova(s), ${atualizadas} atualizada(s), ${sumiram.length} desativada(s)`,
+    resumo: `rede do CNES: ${r.novas} nova(s), ${r.atualizadas} atualizada(s), ${r.desativadas} desativada(s)`,
   });
   revalidatePath("/dashboard/secretarias/saude");
   revalidatePath("/dashboard/mapa");
-  return { ok: true, novas, atualizadas, desativadas: sumiram.length, ignoradas: r.ignoradas, total: r.unidades.length };
+  return r;
 }
 
 // ── OCORRÊNCIAS ──
