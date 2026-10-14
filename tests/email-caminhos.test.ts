@@ -34,6 +34,33 @@ describe("envio de e-mail", () => {
     expect(guardados).toHaveLength(0);
   });
 
+  it("sem domínio na Resend, o Gmail vai primeiro, inclusive para a equipe", async () => {
+    process.env.RESEND_API_KEY = "re_x";
+    process.env.RESEND_FROM_EMAIL = "onboarding@resend.dev";
+    process.env.SMTP_USUARIO = "equipe@gmail.com";
+    process.env.SMTP_SENHA = "abcd";
+    let chamouResend = false;
+    vi.stubGlobal("fetch", async () => {
+      chamouResend = true;
+      return new Response("{}", { status: 200 });
+    });
+    const r = await enviarEmail({ para: "arturmlo2005@gmail.com", assunto: "Teste", html: "<p>x</p>" });
+    expect(r.enviado).toBe(true);
+    expect(enviados).toHaveLength(1);
+    expect(chamouResend).toBe(false);
+  });
+
+  it("com domínio próprio na Resend, ela vai primeiro", async () => {
+    process.env.RESEND_API_KEY = "re_x";
+    process.env.RESEND_FROM_EMAIL = "CidadeIA <contato@cidadeia.app.br>";
+    process.env.SMTP_USUARIO = "equipe@gmail.com";
+    process.env.SMTP_SENHA = "abcd";
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 200 }));
+    const r = await enviarEmail({ para: "x@picos.pi.gov.br", assunto: "Teste", html: "<p>x</p>" });
+    expect(r.enviado).toBe(true);
+    expect(enviados).toHaveLength(0);
+  });
+
   it("nenhum caminho entrega: o e-mail do cliente vai para a caixa de saída", async () => {
     process.env.RESEND_API_KEY = "re_x";
     process.env.RESEND_FROM_EMAIL = "CidadeIA <onboarding@resend.dev>";
