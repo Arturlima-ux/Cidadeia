@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import {
   IconVisaoGeral,
@@ -53,55 +53,38 @@ export default function SidebarNav({
     .sort((a, b) => b.length - a.length)[0];
 
   // ── AS SETAS DO TECLADO NO MENU ──
-  // O menu rola sozinho, separado da página. Com o cursor em cima dele (ou o
-  // foco num item), as setas para cima e para baixo rolam o MENU, e não a
-  // página do lado. Com o foco num item, elas passam de um item para o outro.
+  // O menu rola sozinho, separado da página. O navegador já rola com as
+  // setas o que estiver com o foco, de forma suave e na ordem certa. Então,
+  // quando o cursor entra no menu, o foco vai para o menu (sem pular nada
+  // na tela), e as setas passam a rolar ele, e não a página.
+  //
+  // A primeira versão rolava à mão, de 56 em 56 pixels, e pulava o foco de
+  // link em link: travava ao segurar a tecla e o foco saía da ordem. O foco
+  // só é puxado quando ninguém está digitando: um campo aberto na página
+  // nunca perde o foco por causa do cursor passando no menu.
   const menu = useRef<HTMLElement>(null);
-  const sobre = useRef(false);
-  useEffect(() => {
-    function teclas(e: KeyboardEvent) {
-      const nav = menu.current;
-      if (!nav || e.altKey || e.ctrlKey || e.metaKey) return;
-      const alvo = e.target as HTMLElement | null;
-      if (alvo?.closest("input, textarea, select, [contenteditable=true]")) return;
-      const focoNoMenu = !!alvo && nav.contains(alvo);
-      if (!sobre.current && !focoNoMenu) return;
-
-      if (focoNoMenu && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-        const links = [...nav.querySelectorAll<HTMLAnchorElement>("a[href]")];
-        const i = links.indexOf(alvo as HTMLAnchorElement);
-        const proximo = links[i + (e.key === "ArrowDown" ? 1 : -1)];
-        if (proximo) {
-          e.preventDefault();
-          proximo.focus();
-          proximo.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
-        return;
-      }
-      const passo =
-        e.key === "ArrowDown" ? 56 : e.key === "ArrowUp" ? -56 :
-        e.key === "PageDown" ? nav.clientHeight * 0.85 : e.key === "PageUp" ? -nav.clientHeight * 0.85 :
-        e.key === "Home" ? -nav.scrollHeight : e.key === "End" ? nav.scrollHeight : 0;
-      if (!passo) return;
-      e.preventDefault();
-      // Seta: passo imediato, para segurar a tecla e o menu correr junto
-      // (rolagem suave seguida se atropela e anda um passo só).
-      nav.scrollBy({ top: passo, behavior: e.key.startsWith("Arrow") ? "auto" : "smooth" });
-    }
-    window.addEventListener("keydown", teclas);
-    return () => window.removeEventListener("keydown", teclas);
-  }, []);
+  function focarMenu() {
+    const nav = menu.current;
+    const ativo = document.activeElement as HTMLElement | null;
+    if (!nav || (ativo && nav.contains(ativo))) return;
+    if (ativo?.closest("input, textarea, select, [contenteditable=true]")) return;
+    nav.focus({ preventScroll: true });
+  }
+  // Cursor saiu do menu: as setas voltam para a página, mesmo que o último
+  // clique tenha sido num item do menu.
+  function soltarMenu() {
+    const ativo = document.activeElement as HTMLElement | null;
+    if (ativo && menu.current?.contains(ativo)) ativo.blur();
+  }
 
   return (
     <nav
       ref={menu}
-      onPointerEnter={() => {
-        sobre.current = true;
-      }}
-      onPointerLeave={() => {
-        sobre.current = false;
-      }}
-      className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta"
+      tabIndex={-1}
+      aria-label="Menu do painel"
+      onPointerEnter={focarMenu}
+      onPointerLeave={soltarMenu}
+      className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta outline-none"
     >
       {grupos.map((grupo) => (
         <div key={grupo.titulo}>
