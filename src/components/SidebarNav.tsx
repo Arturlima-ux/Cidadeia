@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import {
   IconVisaoGeral,
@@ -51,8 +52,57 @@ export default function SidebarNav({
     .filter(casa)
     .sort((a, b) => b.length - a.length)[0];
 
+  // ── AS SETAS DO TECLADO NO MENU ──
+  // O menu rola sozinho, separado da página. Com o cursor em cima dele (ou o
+  // foco num item), as setas para cima e para baixo rolam o MENU, e não a
+  // página do lado. Com o foco num item, elas passam de um item para o outro.
+  const menu = useRef<HTMLElement>(null);
+  const sobre = useRef(false);
+  useEffect(() => {
+    function teclas(e: KeyboardEvent) {
+      const nav = menu.current;
+      if (!nav || e.altKey || e.ctrlKey || e.metaKey) return;
+      const alvo = e.target as HTMLElement | null;
+      if (alvo?.closest("input, textarea, select, [contenteditable=true]")) return;
+      const focoNoMenu = !!alvo && nav.contains(alvo);
+      if (!sobre.current && !focoNoMenu) return;
+
+      if (focoNoMenu && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+        const links = [...nav.querySelectorAll<HTMLAnchorElement>("a[href]")];
+        const i = links.indexOf(alvo as HTMLAnchorElement);
+        const proximo = links[i + (e.key === "ArrowDown" ? 1 : -1)];
+        if (proximo) {
+          e.preventDefault();
+          proximo.focus();
+          proximo.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+        return;
+      }
+      const passo =
+        e.key === "ArrowDown" ? 56 : e.key === "ArrowUp" ? -56 :
+        e.key === "PageDown" ? nav.clientHeight * 0.85 : e.key === "PageUp" ? -nav.clientHeight * 0.85 :
+        e.key === "Home" ? -nav.scrollHeight : e.key === "End" ? nav.scrollHeight : 0;
+      if (!passo) return;
+      e.preventDefault();
+      // Seta: passo imediato, para segurar a tecla e o menu correr junto
+      // (rolagem suave seguida se atropela e anda um passo só).
+      nav.scrollBy({ top: passo, behavior: e.key.startsWith("Arrow") ? "auto" : "smooth" });
+    }
+    window.addEventListener("keydown", teclas);
+    return () => window.removeEventListener("keydown", teclas);
+  }, []);
+
   return (
-    <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta">
+    <nav
+      ref={menu}
+      onPointerEnter={() => {
+        sobre.current = true;
+      }}
+      onPointerLeave={() => {
+        sobre.current = false;
+      }}
+      className="flex-1 px-3 py-4 space-y-5 overflow-y-auto rolagem-discreta"
+    >
       {grupos.map((grupo) => (
         <div key={grupo.titulo}>
           <p className="px-3 mb-1.5 text-xs font-semibold text-muted/80">
