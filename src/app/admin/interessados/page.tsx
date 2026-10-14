@@ -125,6 +125,7 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
             <span className="font-medium">Interessados</span>
             <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
             <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
+            <Link href="/admin/clientes" className="text-muted hover:text-foreground">Clientes</Link>
             <Link href="/admin/saida" className="text-muted hover:text-foreground">Caixa de saída</Link>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
           </nav>

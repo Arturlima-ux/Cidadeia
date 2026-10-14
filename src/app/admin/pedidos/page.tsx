@@ -119,6 +119,7 @@ export default async function AdminPedidosPage({
             <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
             <span className="font-medium">Pedidos</span>
             <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
+            <Link href="/admin/clientes" className="text-muted hover:text-foreground">Clientes</Link>
             <Link href="/admin/saida" className="text-muted hover:text-foreground">Caixa de saída</Link>
             <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
             <BotaoPainelTeste />
