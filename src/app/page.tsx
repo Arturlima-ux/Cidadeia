@@ -17,7 +17,8 @@ import PedirProjecao from "@/components/site/PedirProjecao";
 import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import ReguaBrasil from "@/components/site/inicio/ReguaBrasil";
-import IndiceModulos from "@/components/site/inicio/IndiceModulos";
+import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
+import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import HomeMorador from "./_morador/HomeMorador";
@@ -382,20 +383,23 @@ export default async function LandingPage({
           </div>
         </section>
 
-        {/* ═══ MÓDULOS ═══ */}
+        {/* ═══ MÓDULOS ═══
+            Cada módulo como o instrumento do que ele vigia, e não seis
+            cartões iguais. Ver MesaDeModulos.tsx. */}
         <section id="solucoes" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-12">
-            <h2 className="inicio-h2 max-w-[16ch]">
-              Seis áreas. Você contrata só as que usa.
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
+            <h2 className="inicio-h2 max-w-[17ch]">
+              Cada módulo vigia uma coisa que costuma virar apontamento.
             </h2>
             <p className="text-muted leading-relaxed max-w-[42ch]">
-              Cada módulo funciona sozinho. Sem pacote fechado e sem cobrança por usuário.
+              Escolha uma pergunta e veja o módulo trabalhando. Cada um funciona sozinho: a prefeitura contrata só os que usa,
+              sem pacote fechado e sem cobrança por usuário.
             </p>
           </div>
-          <IndiceModulos />
-          <Link href="/solucoes" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
-            Ver cada módulo em detalhe
-          </Link>
+          <MesaDeModulos
+            limiteDispensa={LIMITE_DISPENSA.valor}
+            modulos={modulosNaOrdemDaHome().map(({ chave, nome, detalhe }) => ({ chave, nome, capacidades: detalhe.capacidades }))}
+          />
         </section>
 
         {/* ═══ COMO FUNCIONA ═══
