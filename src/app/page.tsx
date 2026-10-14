@@ -21,8 +21,6 @@ import IndiceModulos from "@/components/site/inicio/IndiceModulos";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import HomeMorador from "./_morador/HomeMorador";
-import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
-import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -509,21 +507,11 @@ export default async function LandingPage({
           </div>
           <MontadorProposta />
 
-          {/* ═══ O FECHO ═══
-              Eram três pedidos seguidos: o montador acima, um título gigante
-              com outro botão para /proposta e, embaixo, o formulário de
-              ligação. Agora o montador é a proposta (o kit sem cadastro está
-              no botão dele), e logo abaixo fica a única alternativa:
-              conversar antes. */}
-          <div id="atendimento" className="mt-14 sm:mt-16 max-w-[920px] scroll-mt-24">
-            <PecaUmaLigacao
-              codigoIbge={dados && !df ? dados.codigo : null}
-              municipio={municipio && !df ? `${municipio.nome}/${municipio.uf}` : null}
-              origem="Home, fecho"
-              titulo="Ou converse com a equipe antes. Complete a frase e a gente liga."
-              linkWhatsapp={linkWhatsappComercial("Olá! Vim pelo site do CidadeIA e queria conversar sobre a minha prefeitura.")}
-            />
-          </div>
+          {/* ═══ O FECHO É O MONTADOR ═══
+              O pedido de ligação saiu daqui em 14/10/2026: logo acima, o
+              montador já termina no botão de pedir a proposta, e dois pedidos
+              seguidos disputavam a mesma decisão. A ligação continua nas
+              páginas por cargo, no panorama, no Raio-X e na /proposta. */}
         </section>
 
         <div className="pb-24 sm:pb-32" />
