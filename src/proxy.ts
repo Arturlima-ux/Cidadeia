@@ -11,7 +11,8 @@ const NOME_COOKIE = "cidadeia_sessao";
 // usuários), não da secretaria específica dele.
 const ROTAS_RESTRITAS_A_PREFEITO_ADMIN = [
   "/dashboard/configuracoes",
-  "/dashboard/alertas",
+  // "/dashboard/alertas" saiu daqui: o secretário vê os alertas da própria
+  // área (a página filtra; lib/alerta-por-area.ts).
   "/dashboard/historico",
   "/dashboard/auditoria",
   "/dashboard/planos",

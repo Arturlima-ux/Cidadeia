@@ -14,6 +14,7 @@ import {
   usuarios,
 } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { repartirAvisos } from "@/lib/alerta-por-area";
 import { enviarEmail } from "@/lib/email";
 import { linkApp } from "@/lib/url-app";
 import { planosContratadosDe } from "@/lib/planos";
@@ -212,21 +213,35 @@ export async function aplicarVigia(
 }
 
 async function avisar(prefeituraId: string, municipio: string, novos: AchadoComId[], piorados: AchadoComId[]) {
-  const msg = emailDaVigia({ municipio, novos, piorados, linkAlertas: linkApp("/dashboard/alertas") });
-  if (!msg) return 0;
-  const destinatarios = await db
-    .select({ email: usuarios.email })
+  if (!novos.length && !piorados.length) return 0;
+  const pessoas = await db
+    .select({ email: usuarios.email, cargo: usuarios.cargo, secretaria: usuarios.secretaria })
     .from(usuarios)
     .where(
       and(
         eq(usuarios.prefeituraId, prefeituraId),
         isNotNull(usuarios.email),
-        or(eq(usuarios.cargo, "prefeito"), eq(usuarios.cargo, "admin"))
+        or(eq(usuarios.cargo, "prefeito"), eq(usuarios.cargo, "admin"), eq(usuarios.cargo, "secretario"))
       )
     );
-  const emails = [...new Set(destinatarios.map((d) => d.email).filter((e): e is string => !!e))];
-  await Promise.all(emails.map((para) => enviarEmail({ para, assunto: msg.assunto, html: msg.html })));
-  return emails.length;
+  // Cada um recebe só a parte dele (lib/alerta-por-area.ts): o secretário, a
+  // área dele; o prefeito, o gabinete e o urgente das áreas.
+  const itens = [...novos.map((d) => ({ ...d, piorou: false })), ...piorados.map((d) => ({ ...d, piorou: true }))];
+  const reparto = repartirAvisos(itens, pessoas);
+  let enviados = 0;
+  for (const [para, { papel, alertas: deles }] of reparto) {
+    const msg = emailDaVigia({
+      municipio,
+      novos: deles.filter((d) => !d.piorou),
+      piorados: deles.filter((d) => d.piorou),
+      linkAlertas: linkApp("/dashboard/alertas"),
+      papel,
+    });
+    if (!msg) continue;
+    await enviarEmail({ para, assunto: msg.assunto, html: msg.html });
+    enviados++;
+  }
+  return enviados;
 }
 
 export type RelatorioVigiaModulos = {
