@@ -1,6 +1,8 @@
 import { and, eq, isNotNull, like, notInArray, or } from "drizzle-orm";
 import { db } from "@/db";
-import { alertas, prefeituras, usuarios } from "@/db/schema";
+import { alertas, pedidoEventos, prefeituras, usuarios } from "@/db/schema";
+import { gerarId } from "@/lib/id";
+import { EVENTO_REGRA_ENCERRADA } from "@/lib/vigia-dos-modulos";
 import { enviarEmail } from "@/lib/email";
 import { linkApp } from "@/lib/url-app";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -147,7 +149,22 @@ async function aplicarAlertas(
         ...(ids.length ? [notInArray(alertas.id, ids)] : [])
       )
     )
-    .returning({ id: alertas.id });
+    .returning({ id: alertas.id, titulo: alertas.titulo, prioridade: alertas.prioridade, createdAt: alertas.createdAt });
+
+  // A mesma linha do tempo da vigia dos módulos: o que fechou sozinho, e desde
+  // quando estava aberto. Entra na Segunda do prefeito e no "O que o CidadeIA
+  // evitou".
+  if (resolvidos.length) {
+    await db.insert(pedidoEventos).values(
+      resolvidos.map((x) => ({
+        id: gerarId("pev"),
+        pedidoId: x.id,
+        tipo: EVENTO_REGRA_ENCERRADA,
+        descricao: JSON.stringify({ prefeituraId, titulo: x.titulo, prioridade: x.prioridade, secretaria: null, desde: x.createdAt, pelaVigia: true }),
+        autor: "vigia fiscal",
+      }))
+    );
+  }
 
   return { novos, resolvidos: resolvidos.length };
 }
