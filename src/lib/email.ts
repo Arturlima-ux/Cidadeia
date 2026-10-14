@@ -36,9 +36,9 @@ type ParametrosEmail = {
 // 1. Resend, com o domínio próprio. Sem domínio confirmado, ela só entrega
 //    para o dono da conta e recusa o resto (403).
 // 2. Gmail (SMTP com senha de app), quando SMTP_USUARIO e SMTP_SENHA estão
-//    configurados. Entra quando a Resend recusa ou não existe: é o que faz o
-//    e-mail chegar à prefeitura enquanto o domínio não sai. Com o domínio
-//    confirmado, a Resend passa a entregar e o Gmail deixa de ser usado.
+//    configurados. Enquanto o remetente da Resend for o @resend.dev, o Gmail
+//    vai PRIMEIRO (é o que faz o e-mail chegar à prefeitura, com o nome
+//    "CidadeIA"); com o domínio confirmado, a Resend volta a ser o primeiro.
 // 3. Se nenhum dos dois entregar um e-mail para fora da equipe, ele vai para
 //    a caixa de saída (lib/caixa-de-saida.ts), com o texto pronto para a
 //    equipe mandar à mão. Nenhum e-mail de cliente se perde num log.
@@ -58,14 +58,20 @@ export async function enviarEmail(params: ParametrosEmail): Promise<ResultadoEnv
     };
   }
 
+  // ── QUEM VAI PRIMEIRO ──
+  // Sem domínio próprio, a Resend manda de "onboarding@resend.dev" e só
+  // entrega ao dono da conta: o Gmail, com o nome "CidadeIA", vem antes e
+  // ela fica de reserva. Com domínio próprio no remetente, a Resend volta a
+  // ser o caminho principal.
+  const resendSemDominio = /@resend\.dev\b/i.test(process.env.RESEND_FROM_EMAIL ?? "");
+  const ordem: ("resend" | "smtp")[] = [];
+  if (temSmtp && (resendSemDominio || !temResend)) ordem.push("smtp");
+  if (temResend) ordem.push("resend");
+  if (temSmtp && !ordem.includes("smtp")) ordem.push("smtp");
+
   const tentativas: string[] = [];
-  if (temResend) {
-    const r = await viaResend(params);
-    if (r.enviado) return r;
-    tentativas.push(r.detalhe ?? r.motivo);
-  }
-  if (temSmtp) {
-    const r = await viaSmtp(params);
+  for (const caminho of ordem) {
+    const r = caminho === "smtp" ? await viaSmtp(params) : await viaResend(params);
     if (r.enviado) return r;
     tentativas.push(r.detalhe ?? r.motivo);
   }
