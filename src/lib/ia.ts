@@ -12,6 +12,7 @@ import { buscarEscolas, buscarUltimoIndicadorEducacao, buscarSerieIndicadorEduca
 import { fusoDoEstado } from "@/lib/horario";
 import { buscarObras } from "@/app/dashboard/secretarias/obras/actions";
 import { buscarLicitacoes } from "@/app/dashboard/secretarias/licitacoes/actions";
+import * as direto from "@/lib/dados-prefeitura";
 import { planosContratadosDe, type PlanoAddon } from "@/lib/planos";
 // As MESMAS funções que guardam as telas. O contexto da IA tinha a própria
 // cópia da regra de acesso, e foi por isso que os cargos novos passaram.
@@ -650,6 +651,50 @@ export async function gerarDeteccoesAutomaticas(
   restricaoCargo?: { cargo: string; secretaria?: string | null }
 ): Promise<DeteccaoAutomatica[]> {
   const escopo = await escopoVisivel(prefeituraId, restricaoCargo);
+  return deteccoesNoEscopo(prefeituraId, escopo, FONTES_DA_TELA);
+}
+
+// ── AS MESMAS REGRAS, SEM NINGUÉM LOGADO ──
+//
+// As telas carregam obras, licitações e indicadores pelas funções que
+// conferem a sessão (o secretário de Obras não lê Saúde). A rotina diária
+// (lib/vigia-dos-modulos.ts) roda no servidor, sem sessão: com as mesmas
+// funções, receberia lista vazia e diria "nada a avisar" sobre tudo. Por
+// isso as fontes entram por parâmetro: a tela usa as guardadas, a rotina usa
+// as diretas, e a REGRA é uma só. O isolamento entre secretarias continua no
+// destino: quem recebe cada alerta é decidido na hora de avisar.
+type FontesDeteccao = {
+  obras: (id: string) => ReturnType<typeof buscarObras>;
+  licitacoes: (id: string) => ReturnType<typeof buscarLicitacoes>;
+  indicadorSaude: (id: string) => Promise<{ atualizadoEm: string } | null>;
+  indicadorEducacao: (id: string) => Promise<{ atualizadoEm: string } | null>;
+};
+
+const FONTES_DA_TELA: FontesDeteccao = {
+  obras: buscarObras,
+  licitacoes: buscarLicitacoes,
+  indicadorSaude: buscarUltimoIndicadorSaude,
+  indicadorEducacao: buscarUltimoIndicadorEducacao,
+};
+
+const FONTES_DA_ROTINA: FontesDeteccao = {
+  obras: direto.buscarObras,
+  licitacoes: direto.buscarLicitacoes,
+  indicadorSaude: direto.buscarUltimoIndicadorSaude,
+  indicadorEducacao: direto.buscarUltimoIndicadorEducacao,
+};
+
+/** Tudo o que as regras acham na prefeitura inteira, como o prefeito veria. Só para a rotina do servidor. */
+export async function gerarDeteccoesDaRotina(prefeituraId: string): Promise<DeteccaoAutomatica[]> {
+  const escopo = await escopoVisivel(prefeituraId, { cargo: "prefeito" });
+  return deteccoesNoEscopo(prefeituraId, escopo, FONTES_DA_ROTINA);
+}
+
+async function deteccoesNoEscopo(
+  prefeituraId: string,
+  escopo: Awaited<ReturnType<typeof escopoVisivel>>,
+  fontes: FontesDeteccao
+): Promise<DeteccaoAutomatica[]> {
   const {
     saude: mostrarSaude,
     educacao: mostrarEducacao,
@@ -659,10 +704,10 @@ export async function gerarDeteccoesAutomaticas(
   } = escopo;
 
   const [indicadorSaude, indicadorEducacao, listaObras, listaLicitacoes, snapshot] = await Promise.all([
-    mostrarSaude ? buscarUltimoIndicadorSaude(prefeituraId) : Promise.resolve(null),
-    mostrarEducacao ? buscarUltimoIndicadorEducacao(prefeituraId) : Promise.resolve(null),
-    mostrarObras ? buscarObras(prefeituraId) : Promise.resolve([]),
-    mostrarLicitacoes ? buscarLicitacoes(prefeituraId) : Promise.resolve([]),
+    mostrarSaude ? fontes.indicadorSaude(prefeituraId) : Promise.resolve(null),
+    mostrarEducacao ? fontes.indicadorEducacao(prefeituraId) : Promise.resolve(null),
+    mostrarObras ? fontes.obras(prefeituraId) : Promise.resolve([]),
+    mostrarLicitacoes ? fontes.licitacoes(prefeituraId) : Promise.resolve([]),
     mostrarFinanceiro ? buscarUltimoSnapshot(prefeituraId) : Promise.resolve(null),
   ]);
 

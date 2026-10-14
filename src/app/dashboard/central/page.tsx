@@ -41,9 +41,10 @@ export default async function CentralInteligentePage() {
             <h1 className="text-2xl font-semibold tracking-[-0.02em]">Central Inteligente</h1>
           </div>
           <p className="text-muted text-sm mt-2 max-w-xl">
-            Cruza todas as secretarias contratadas automaticamente, todo dia — sem
-            precisar clicar em nada. Combina regras automáticas (sempre confiáveis,
-            sem custo de IA) com a análise da IA procurando conexões entre módulos.
+            Toda manhã, antes do expediente, a vigia do CidadeIA roda as regras de
+            todos os módulos contratados e abre em Alertas o que achar, com e-mail
+            ao gabinete quando algo é novo ou piora. Aqui, as mesmas regras se
+            juntam à análise da IA, que procura ligações entre as secretarias.
           </p>
         </div>
         <Link
