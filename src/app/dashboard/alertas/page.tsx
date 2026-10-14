@@ -2,18 +2,29 @@ import Link from "next/link";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { buscarAlertas, buscarSugestoesAlertasPendentes } from "@/lib/dados-prefeitura";
 import { criarAlerta, resolverAlerta } from "../actions";
-import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
 import SugestoesAlertasIA from "@/components/SugestoesAlertasIA";
 import BadgePrioridade, { estiloPrioridade } from "@/components/BadgePrioridade";
 
+// Alerta aberto pela vigia (fiscal ou dos módulos), e não à mão.
+const daVigia = (id: string) => id.startsWith("regra:") || id.startsWith("fiscal:");
+
+const NOME_AREA: Record<string, string> = {
+  saude: "Saúde",
+  educacao: "Educação",
+  obras: "Obras",
+  licitacoes: "Licitações e contratos",
+};
+
 export default async function AlertasPage() {
   const ctx = await contextoDashboard();
-  if (!ctx.temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
+  // A lista vale para qualquer módulo: a vigia diária abre alerta de Saúde,
+  // Educação, Obras e Licitações também. As sugestões da IA seguem no Gestão.
+  const comGestao = ctx.temPlano("gestao");
 
   const [lista, sugestoes] = await Promise.all([
     buscarAlertas(ctx.sessao.prefeituraId),
-    buscarSugestoesAlertasPendentes(ctx.sessao.prefeituraId),
+    comGestao ? buscarSugestoesAlertasPendentes(ctx.sessao.prefeituraId) : Promise.resolve([]),
   ]);
   const abertos = lista.filter((a) => !a.resolvido);
   const resolvidos = lista.filter((a) => a.resolvido);
@@ -28,12 +39,15 @@ export default async function AlertasPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-[-0.02em]">Alertas</h1>
         <p className="text-muted text-sm mt-1.5">
-          Registre manualmente ou deixe a{" "}
+          Toda manhã a vigia do CidadeIA passa pelos módulos contratados e abre aqui
+          o que achar: prazo vencendo, obra parada, contrato sem tempo de licitar,
+          remédio em falta, aluno fora da escola, mínimo constitucional e pessoal.
+          Quando o problema deixa de existir, o alerta fecha sozinho. Você também
+          pode registrar um à mão, e a{" "}
           <Link href="/dashboard/central" className="font-semibold text-brand hover:underline">
             Central Inteligente
           </Link>{" "}
-          detectar prazo vencendo, obra parada, dado desatualizado e saldo negativo
-          automaticamente.
+          cruza tudo com a IA.
         </p>
       </div>
 
@@ -79,7 +93,7 @@ export default async function AlertasPage() {
         </button>
       </form>
 
-      <SugestoesAlertasIA sugestoes={sugestoes} />
+      {comGestao && <SugestoesAlertasIA sugestoes={sugestoes} />}
 
       <div>
         <h2 className="font-semibold text-sm text-muted mb-3">
@@ -89,7 +103,7 @@ export default async function AlertasPage() {
           <EstadoVazio
             icone="alertas"
             titulo="Nenhum alerta em aberto."
-            descricao="Use o formulário acima para registrar um alerta, ou gere sugestões com a IA logo abaixo."
+            descricao="A vigia confere os módulos de novo amanhã cedo. Se quiser, registre um alerta à mão no formulário acima."
           />
         ) : (
           <div className="space-y-2">
@@ -102,9 +116,14 @@ export default async function AlertasPage() {
                 <div>
                   <p className="font-medium">{a.titulo}</p>
                   {a.descricao && <p className="text-xs text-muted mt-0.5">{a.descricao}</p>}
-                  {a.secretaria && (
-                    <p className="text-xs text-muted mt-0.5">Secretaria: {a.secretaria}</p>
-                  )}
+                  <p className="text-xs text-muted mt-1">
+                    {daVigia(a.id) && (
+                      <span className="font-semibold" style={{ color: "var(--brand-claro)" }}>
+                        Vigia diária{a.secretaria ? " · " : ""}
+                      </span>
+                    )}
+                    {a.secretaria && <>{NOME_AREA[a.secretaria] ?? a.secretaria}</>}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
                   <BadgePrioridade prioridade={a.prioridade} />

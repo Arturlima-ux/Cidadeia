@@ -12,6 +12,14 @@ export type DeteccaoAutomatica = {
   secretaria: string | null;
   titulo: string;
   descricao: string;
+  /**
+   * O que o achado É, sem os números que mudam de um dia para o outro
+   * ("obra:Creche do Centro:parada", e não "parada há 31 dias"). É a
+   * identidade do alerta que a vigia diária grava (lib/vigia-dos-modulos.ts):
+   * o mesmo fato amanhã atualiza o alerta de hoje em vez de criar outro, e
+   * o e-mail só sai quando o fato é novo ou piorou.
+   */
+  chave?: string;
 };
 
 function diasDesde(dataIso: string): number {
@@ -42,6 +50,7 @@ export function detectarLicitacoesVencendo(
         prioridade: "urgente",
         secretaria: "licitacoes",
         titulo: `Licitação ${l.numero} com prazo vencido`,
+        chave: `licitacao:${l.numero}:vencida`,
         descricao: `${l.objeto} — o prazo final passou há ${Math.abs(dias)} dia(s) e o processo ainda está "${l.status}".`,
       });
     } else if (dias <= LIMITE_PRAZO_URGENTE_DIAS) {
@@ -50,6 +59,7 @@ export function detectarLicitacoesVencendo(
         prioridade: "urgente",
         secretaria: "licitacoes",
         titulo: `Licitação ${l.numero} vence em ${dias} dia(s)`,
+        chave: `licitacao:${l.numero}:vence`,
         descricao: `${l.objeto} — prazo final chegando, processo ainda em "${l.status}".`,
       });
     } else if (dias <= LIMITE_PRAZO_ATENCAO_DIAS) {
@@ -58,6 +68,7 @@ export function detectarLicitacoesVencendo(
         prioridade: "medio",
         secretaria: "licitacoes",
         titulo: `Licitação ${l.numero} vence em ${dias} dias`,
+        chave: `licitacao:${l.numero}:vence`,
         descricao: `${l.objeto} — vale acompanhar antes do prazo final.`,
       });
     }
@@ -85,6 +96,7 @@ export function detectarObrasParadas(
         prioridade: "urgente",
         secretaria: "obras",
         titulo: `Obra "${o.nome}" sem atualização há ${dias} dias`,
+        chave: `obra:${o.nome}:parada`,
         descricao: o.progressoAtual === null
             ? `Sem nenhuma medição registrada e mais de um mês sem registro novo.`
             : `Progresso parado em ${o.progressoAtual}% (esperado ${o.progressoEsperado}%) — mais de um mês sem registro novo.`,
@@ -95,6 +107,7 @@ export function detectarObrasParadas(
         prioridade: "medio",
         secretaria: "obras",
         titulo: `Obra "${o.nome}" sem atualização há ${dias} dias`,
+        chave: `obra:${o.nome}:parada`,
         descricao: o.progressoAtual === null
             ? `Sem medição registrada — peça um boletim à fiscalização.`
             : `Progresso em ${o.progressoAtual}% — considere atualizar ou verificar o andamento.`,
@@ -118,6 +131,7 @@ export function detectarIndicadorDesatualizado(
       prioridade: "info",
       secretaria,
       titulo: `Indicadores de ${label} desatualizados`,
+      chave: `indicador:${secretaria}:desatualizado`,
       descricao: `Último registro foi há ${dias} dias — atualize pra manter os relatórios e a IA precisos.`,
     },
   ];
@@ -133,6 +147,7 @@ export function detectarSaldoNegativo(
       prioridade: "urgente",
       secretaria: null,
       titulo: "Saldo negativo no último registro",
+      chave: "financeiro:saldo-negativo",
       descricao: `Despesas superaram a receita em ${Math.abs(snapshot.saldo).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}.`,
     },
   ];
@@ -182,6 +197,7 @@ export function detectarMinimoConstitucional(entradas: {
       // educação: é a folha da rede que precisa se mover.
       secretaria: e.area === "fundeb" ? "educacao" : e.area,
       titulo: `Mínimo em ${e.nomeArea}: ${e.percentualAtual.toFixed(1).replace(".", ",")}%`,
+      chave: `minimo:${e.area}`,
       descricao:
         `Abaixo do mínimo de ${e.exigido}% exigido por lei. Faltam ${reais} até o fim do ` +
         `exercício — aplicar menos que o mínimo é a causa mais comum de rejeição de contas.`,
@@ -234,6 +250,7 @@ export function detectarDespesaPessoal(
         prioridade: "urgente",
         secretaria: null,
         titulo: `Despesa com pessoal em ${pct} — acima do teto de 54%`,
+        chave: "pessoal:excedido",
         descricao,
       },
     ];
@@ -246,6 +263,7 @@ export function detectarDespesaPessoal(
         prioridade: "urgente",
         secretaria: null,
         titulo: `Despesa com pessoal em ${pct} — limite prudencial atingido`,
+        chave: "pessoal:prudencial",
         descricao:
           "Ainda dentro da lei, mas as vedações do art. 22 da LRF já valem: sem reajuste, " +
           "sem criar cargo, sem nomear — salvo reposição em educação, saúde e segurança — " +
@@ -260,6 +278,7 @@ export function detectarDespesaPessoal(
       prioridade: "medio",
       secretaria: null,
       titulo: `Despesa com pessoal em ${pct} — acima de 90% do limite`,
+      chave: "pessoal:alerta",
       descricao:
         "É o patamar em que o Tribunal de Contas emite alerta formal (art. 59, § 1º, II da " +
         "LRF). Ainda dá para corrigir antes de perder a caneta para nomear e reajustar, que " +
@@ -303,6 +322,7 @@ export function detectarDadoDeConformidadeVelho(
           ? `${e.rotulo}: sem atualização há ${e.mesesDecorridos} meses`
           : `${e.rotulo}: dado de ${e.mesesDecorridos} meses atrás`,
       descricao: e.descricao,
+      chave: `velho:${e.destino}:${e.rotulo}`,
     }));
 }
 
@@ -326,6 +346,7 @@ export function detectarPrazoAtendimento(resumo: {
       prioridade: "urgente",
       secretaria: null,
       titulo: `${resumo.vencidos} ${plural ? "manifestações com prazo vencido" : "manifestação com prazo vencido"}`,
+      chave: "atendimento:vencidos",
       descricao:
         "Pedido de informação tem 20 dias pela Lei de Acesso à Informação; as demais " +
         "manifestações têm 30 dias pela Lei 13.460. O prazo já passou.",
@@ -339,6 +360,7 @@ export function detectarPrazoAtendimento(resumo: {
       prioridade: "medio",
       secretaria: null,
       titulo: `${resumo.vencendo} ${plural ? "manifestações vencem" : "manifestação vence"} nos próximos dias`,
+      chave: "atendimento:vencendo",
       descricao:
         "Ainda dá para responder no prazo, ou formalizar a prorrogação prevista em lei " +
         "com justificativa comunicada ao cidadão.",

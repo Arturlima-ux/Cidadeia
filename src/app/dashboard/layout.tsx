@@ -93,6 +93,9 @@ function montarGrupos(
       itens: [
         ...(implantacaoAberta ? [itemImplantacao] : []),
         { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
+        // Fora do Gestão: a vigia diária confere todos os módulos, e o
+        // prefeito que contratou só a Saúde também recebe o que ela acha.
+        { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },
       ],
     },
   ];
@@ -114,7 +117,6 @@ function montarGrupos(
       { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
       { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },
       { href: "/dashboard/mapa", label: "Mapa da cidade", icone: "visao-geral" },
-      { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },
       { href: "/dashboard/historico", label: "Histórico", icone: "historico" },
       { href: "/dashboard/apresentacao", label: "Modo apresentação", icone: "visao-geral" },
       { href: "/dashboard/configuracoes", label: "Configurações", icone: "configuracoes" },
