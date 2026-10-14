@@ -29,6 +29,7 @@ const EXCECOES: { caminho: string; motivo: string }[] = [
   { caminho: "lib/vigia-dos-modulos.ts", motivo: "HTML do e-mail da vigia diária dos módulos — cliente de e-mail não resolve variável CSS" },
   { caminho: "lib/segunda-do-prefeito.ts", motivo: "HTML do e-mail semanal da Segunda do prefeito — cliente de e-mail não resolve variável CSS" },
   { caminho: "lib/ouvidoria-avisos.ts", motivo: "HTML dos e-mails da ouvidoria (equipe e cidadão) — cliente de e-mail não resolve variável CSS" },
+  { caminho: "lib/valor-mensal.ts", motivo: "HTML do e-mail mensal do que o CidadeIA fez — cliente de e-mail não resolve variável CSS" },
   { caminho: "app/_atendimento/aviso-actions.ts", motivo: "HTML do e-mail de confirmação do aviso da cidade — cliente de e-mail não resolve variável CSS" },
   { caminho: "app/_atendimento/actions.ts", motivo: "HTML do aviso de pedido de ligação para a equipe — cliente de e-mail não resolve variável CSS" },
   { caminho: "lib/cobranca-servidor.ts", motivo: "HTML dos e-mails de fatura e de ativação — cliente de e-mail não resolve variável CSS" },

@@ -14,6 +14,7 @@ const ROTAS_RESTRITAS_A_PREFEITO_ADMIN = [
   // "/dashboard/alertas" saiu daqui: o secretário vê os alertas da própria
   // área (a página filtra; lib/alerta-por-area.ts).
   "/dashboard/historico",
+  "/dashboard/valor",
   "/dashboard/auditoria",
   "/dashboard/planos",
   "/dashboard/modulos",

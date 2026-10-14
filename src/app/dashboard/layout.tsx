@@ -100,6 +100,7 @@ function montarGrupos(
         // Fora do Gestão: a vigia diária confere todos os módulos, e o
         // prefeito que contratou só a Saúde também recebe o que ela acha.
         { href: "/dashboard/alertas", label: "Alertas", icone: "alertas" },
+        { href: "/dashboard/valor", label: "O que o CidadeIA fez", icone: "historico" },
       ],
     },
   ];
