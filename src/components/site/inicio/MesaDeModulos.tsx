@@ -51,8 +51,11 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
   function teclas(e: React.KeyboardEvent) {
     const n = modulos.length;
     let alvo: number | null = null;
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") alvo = (ativo + 1) % n;
-    if (e.key === "ArrowUp" || e.key === "ArrowLeft") alvo = (ativo - 1 + n) % n;
+    // Só as setas de lado trocam de módulo. Para cima e para baixo continuam
+    // rolando a página, como em todo o resto do site: quem desce a página
+    // pelo teclado depois de clicar num módulo não pode ficar preso na mesa.
+    if (e.key === "ArrowRight") alvo = (ativo + 1) % n;
+    if (e.key === "ArrowLeft") alvo = (ativo - 1 + n) % n;
     if (e.key === "Home") alvo = 0;
     if (e.key === "End") alvo = n - 1;
     if (alvo === null) return;
@@ -67,7 +70,6 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
       <div
         role="tablist"
         aria-label="Módulos do CidadeIA"
-        aria-orientation="vertical"
         onKeyDown={teclas}
         className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0 pb-1 snap-x"
       >
