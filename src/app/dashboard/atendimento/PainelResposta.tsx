@@ -14,19 +14,24 @@ export default function PainelResposta({
 }) {
   const [aberto, setAberto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function enviar(formData: FormData) {
     setErro(null);
     startTransition(async () => {
       const r = await acao(formData);
-      if (r.ok) setAberto(false);
-      else setErro(r.erro);
+      if (r.ok) {
+        setAberto(false);
+        setAviso(r.aviso ?? null);
+      } else setErro(r.erro);
     });
   }
 
   if (!aberto) {
     return (
+      <>
+      {aviso && <p className="mt-3 text-xs text-muted" role="status">{aviso}</p>}
       <button
         type="button"
         onClick={() => setAberto(true)}
@@ -34,6 +39,7 @@ export default function PainelResposta({
       >
         Responder →
       </button>
+      </>
     );
   }
 
@@ -48,7 +54,7 @@ export default function PainelResposta({
           required
           rows={4}
           maxLength={5000}
-          placeholder="O cidadão verá esta resposta ao consultar o protocolo no portal."
+          placeholder="Vai por e-mail ao cidadão (quando ele deixou um) e aparece na consulta do protocolo no portal."
           className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
         />
       </div>

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import { ehGestor } from "@/lib/sessao";
+import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { garantirEnderecoPublico } from "@/lib/endereco-publico";
 import EstadoVazio from "@/components/EstadoVazio";
@@ -48,6 +50,7 @@ export default async function AtendimentoPage() {
     );
   }
 
+  const gestor = ehGestor(ctx.sessao);
   const [lista, config] = await Promise.all([
     buscarAtendimentos(ctx.sessao.prefeituraId),
     buscarConfigPublica(ctx.sessao.prefeituraId),
@@ -67,6 +70,7 @@ export default async function AtendimentoPage() {
     abertoEm: a.createdAt,
     respondidoEm: a.respondidoEm,
     prorrogado: a.prazoProrrogado,
+    semEmail: !a.email,
   }));
 
   const fuso = fusoDoEstado(ctx.prefeitura?.estado);
@@ -76,15 +80,15 @@ export default async function AtendimentoPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.02em]">Atendimento ao cidadão</h1>
         <p className="text-muted text-sm mt-2 max-w-2xl leading-relaxed">
-          Protocolo, Ouvidoria e Portal da Transparência. O cidadão abre a
-          manifestação pelo portal público do município e acompanha pelo número
-          de protocolo; você responde aqui.
+          {gestor
+            ? "Protocolo, Ouvidoria e Portal da Transparência. O cidadão abre a manifestação pelo portal público do município; quem resolve recebe um e-mail na hora, e o cidadão recebe a confirmação e, depois, a resposta no e-mail dele."
+            : "As manifestações do portal que o cidadão endereçou à sua secretaria. Você recebe um e-mail quando chega uma nova; a resposta que você escrever aqui vai por e-mail ao cidadão. Denúncias ficam com o gabinete."}
         </p>
       </div>
 
       <PainelPrazos atendimentos={paraPrazo} />
 
-      <ConfigPortal
+      {gestor && <ConfigPortal
         acao={salvarConfigPublica}
         config={
           config
@@ -98,7 +102,7 @@ export default async function AtendimentoPage() {
               }
             : null
         }
-      />
+      />}
 
       {/* EM ABERTO */}
       <div>
@@ -127,7 +131,9 @@ export default async function AtendimentoPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-xs font-semibold">{a.protocolo}</span>
                       <span className="text-[11px] text-muted">
-                        {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · {dataCurta(a.createdAt, fuso)}
+                        {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo}
+                        {OPCOES_DE_AREA.find((o) => o.valor === a.secretaria) && ` · ${OPCOES_DE_AREA.find((o) => o.valor === a.secretaria)!.nome}`}
+                        {" · "}{dataCurta(a.createdAt, fuso)}
                       </span>
                       {a.anonimo && (
                         <span className="text-xs font-semibold text-muted bg-sutil rounded-full px-2 py-0.5">
@@ -177,6 +183,16 @@ export default async function AtendimentoPage() {
                         {a.resposta}
                       </p>
                     )}
+                    {/* A resposta sai por e-mail quando o cidadão deixou um
+                        (lib/ouvidoria-avisos.ts); o que não sai fica na caixa
+                        de saída da equipe. */}
+                    <p className="text-xs text-muted mt-2">
+                      {a.email
+                        ? "Resposta enviada ao e-mail do cidadão."
+                        : a.telefone
+                          ? `Sem e-mail: o cidadão vê pelo protocolo. Telefone: ${a.telefone}.`
+                          : "Sem e-mail: o cidadão vê pelo protocolo."}
+                    </p>
                   </div>
                   <PilulaStatus
                     label={NOME_STATUS[a.status as keyof typeof NOME_STATUS] ?? a.status}

@@ -436,7 +436,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                   Pedido, reclamação ou elogio. <span style={{ color: "var(--brand-claro)" }}>Ela responde.</span>
                 </>
               }
-              texto="Você recebe um número de protocolo e acompanha a resposta por aqui. Reclamação, denúncia, sugestão e elogio podem ser feitos sem se identificar."
+              texto="Você recebe um número de protocolo e, se deixar e-mail, a resposta chega nele. Reclamação, denúncia, sugestão e elogio podem ser feitos sem se identificar."
             />
             {exemplo ? (
               <p className="rounded-2xl border border-dashed border-border p-6 text-muted">

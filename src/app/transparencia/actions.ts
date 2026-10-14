@@ -17,6 +17,9 @@ import {
   type TipoAtendimento,
 } from "@/lib/atendimento";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { areaDaManifestacao } from "@/lib/ouvidoria-avisos";
+import { avisarManifestacaoNova } from "@/lib/ouvidoria-avisos-servidor";
 
 const TIPOS_VALIDOS = [
   "protocolo",
@@ -110,8 +113,9 @@ export async function abrirAtendimento(formData: FormData): Promise<ResultadoAbe
   const protocolo = gerarProtocolo();
   const chave = gerarChaveConsulta();
 
+  const id = gerarId("atend");
   await db.insert(atendimentos).values({
-    id: gerarId("atend"),
+    id,
     prefeituraId: config.prefeituraId,
     protocolo,
     tipo: d.tipo,
@@ -119,12 +123,17 @@ export async function abrirAtendimento(formData: FormData): Promise<ResultadoAbe
     email: anonimo ? null : d.email?.trim() || null,
     telefone: anonimo ? null : d.telefone?.trim() || null,
     anonimo,
-    secretaria: d.secretaria || null,
+    // Só uma área conhecida: é ela que decide quem recebe o aviso.
+    secretaria: areaDaManifestacao(d.secretaria),
     assunto: d.assunto.trim(),
     mensagem: d.mensagem.trim(),
     chaveConsulta: chave,
     origem: "site",
   });
+
+  // Depois da resposta ao cidadão: o aviso à equipe e a confirmação no
+  // e-mail dele não podem atrasar nem derrubar o protocolo.
+  after(() => avisarManifestacaoNova(id));
 
   revalidatePath(`/transparencia/${d.slug}`);
   return { ok: true, protocolo, chave };
