@@ -898,6 +898,16 @@ button:active {
   border-radius: inherit;
 }
 
+/* O menu do painel recebe o foco quando o cursor entra nele, só para as
+   setas rolarem o menu (SidebarNav.tsx). Não é navegação por teclado, então
+   não ganha o anel: a moldura aparecia em volta do menu inteiro. Os itens
+   dentro dele continuam com o anel normal. */
+.menu-painel:focus,
+.menu-painel:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 /* ── NÚMERO É COLUNA, NÃO PALAVRA ──
    Fonte proporcional dá larguras diferentes a cada dígito, e uma coluna de
    valores fica com a vírgula dançando. Em tela que o gestor leva à câmara,
