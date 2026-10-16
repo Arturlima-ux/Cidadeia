@@ -21,6 +21,10 @@ export const metadata = {
 // Sempre recalculado: as "últimas mensagens" contam dias a partir de hoje.
 export const dynamic = "force-dynamic";
 
+// Um ponto qualquer no interior, longe de cidade de verdade: só as distâncias
+// entre os lugares de exemplo importam.
+const CENTRO = { lat: -6.5, lng: -41.0 };
+
 export default function PortalExemplo() {
   const agora = instante();
   const hoje = new Date(agora).toISOString();
@@ -43,12 +47,12 @@ export default function PortalExemplo() {
       }}
       snapshot={{ id: "exemplo", prefeituraId: "exemplo", receita: 62_400_000, despesas: 51_150_000, saldo: 11_250_000, indiceTransparencia: null, origem: "manual", atualizadoEm: hoje }}
       listaObras={[
-        ["Reforma da Unidade Básica de Saúde do Centro", "Centro", 72, 840_000, "em_andamento"],
-        ["Pavimentação da Rua das Flores", "Jardim Primavera", 100, 1_250_000, "concluida"],
-        ["Quadra coberta da Escola Municipal Aurora", "Vila Nova", 35, 690_000, "atrasada"],
-        ["Creche municipal do bairro Alto Alegre", "Alto Alegre", 54, 1_980_000, "em_andamento"],
-        ["Praça da Matriz", "Centro", 0, 320_000, "planejada"],
-      ].map(([nome, bairro, progresso, valor, status], i) => ({
+        ["Reforma da Unidade Básica de Saúde do Centro", "Centro", 72, 840_000, "em_andamento", 0.002, 0.001],
+        ["Pavimentação da Rua das Flores", "Jardim Primavera", 100, 1_250_000, "concluida", -0.01, 0.007],
+        ["Quadra coberta da Escola Municipal Aurora", "Vila Nova", 35, 690_000, "atrasada", -0.006, -0.008],
+        ["Creche municipal do bairro Alto Alegre", "Alto Alegre", 54, 1_980_000, "em_andamento", 0.019, -0.015],
+        ["Praça da Matriz", "Centro", 0, 320_000, "planejada", 0.001, -0.002],
+      ].map(([nome, bairro, progresso, valor, status, dLat, dLng], i) => ({
         ...base,
         id: `ex${i}`,
         nome: nome as string,
@@ -61,8 +65,8 @@ export default function PortalExemplo() {
         vigenciaFim: null,
         fornecedorNome: null,
         origem: "manual",
-        latitude: null,
-        longitude: null,
+        latitude: CENTRO.lat + (dLat as number),
+        longitude: CENTRO.lng + (dLng as number),
         status: status as "em_andamento",
       }))}
       listaLicitacoes={[
@@ -109,15 +113,35 @@ export default function PortalExemplo() {
         createdAt: hoje,
       }))}
       unidades={[
-        ["UBS do Centro", "ubs", "Centro", "Rua da Matriz, 45", "(00) 3333-0201", "Seg. a sex., 7h às 17h"],
-        ["UPA 24 horas Bela Aurora", "upa", "Jardim Primavera", "Av. Brasil, 1200", "(00) 3333-0192", "Todos os dias, 24 horas"],
-        ["UBS Alto Alegre", "ubs", "Alto Alegre", "Rua Sete, 310", "(00) 3333-0202", "Seg. a sex., 7h às 13h"],
-        ["Farmácia Básica Municipal", "farmacia", "Centro", "Rua da Matriz, 47", "(00) 3333-0203", "Seg. a sex., 7h às 17h"],
-      ].map(([nome, tipo, bairro, endereco, telefone, turno], i) => ({ id: `exu${i}`, nome, tipo, bairro, endereco, telefone, turno, latitude: null, longitude: null }))}
+        ["UBS do Centro", "ubs", "Centro", "Rua da Matriz, 45", "(00) 3333-0201", "Seg. a sex., 7h às 17h", 0.002, 0.001],
+        ["UPA 24 horas Bela Aurora", "upa", "Jardim Primavera", "Av. Brasil, 1200", "(00) 3333-0192", "Todos os dias, 24 horas", -0.012, 0.009],
+        ["UBS Alto Alegre", "ubs", "Alto Alegre", "Rua Sete, 310", "(00) 3333-0202", "Seg. a sex., 7h às 13h", 0.021, -0.017],
+        ["Farmácia Básica Municipal", "farmacia", "Centro", "Rua da Matriz, 47", "(00) 3333-0203", "Seg. a sex., 7h às 17h", 0.0025, 0.0012],
+      ].map(([nome, tipo, bairro, endereco, telefone, turno, dLat, dLng], i) => ({
+        id: `exu${i}`,
+        nome: nome as string,
+        tipo: tipo as string,
+        bairro: bairro as string,
+        endereco: endereco as string,
+        telefone: telefone as string,
+        turno: turno as string,
+        latitude: CENTRO.lat + (dLat as number),
+        longitude: CENTRO.lng + (dLng as number),
+      }))}
       escolas={[
-        ["Escola Municipal Aurora", "Vila Nova", "Rua das Acácias, 80", "(00) 3333-0301", "Ensino fundamental, 1º ao 9º ano"],
-        ["Creche Municipal Pequeno Príncipe", "Centro", "Rua da Matriz, 210", "(00) 3333-0302", "Creche e pré-escola"],
-      ].map(([nome, bairro, endereco, telefone, etapas], i) => ({ id: `exe${i}`, nome, bairro, endereco, telefone, etapas, latitude: null, longitude: null }))}
+        ["Escola Municipal Aurora", "Vila Nova", "Rua das Acácias, 80", "(00) 3333-0301", "Ensino fundamental, 1º ao 9º ano", -0.006, -0.008],
+        ["Creche Municipal Pequeno Príncipe", "Centro", "Rua da Matriz, 210", "(00) 3333-0302", "Creche e pré-escola", 0.003, 0.004],
+      ].map(([nome, bairro, endereco, telefone, etapas, dLat, dLng], i) => ({
+        id: `exe${i}`,
+        nome: nome as string,
+        bairro: bairro as string,
+        endereco: endereco as string,
+        telefone: telefone as string,
+        etapas: etapas as string,
+        latitude: CENTRO.lat + (dLat as number),
+        longitude: CENTRO.lng + (dLng as number),
+      }))}
+      pontoSimulado={CENTRO}
       voz={resumirVoz(mensagensDeExemplo(agora), agora)}
     />
   );

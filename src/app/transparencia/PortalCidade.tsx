@@ -10,6 +10,8 @@ import type { ItemFaixa, VozDaCidade } from "@/lib/voz-da-cidade";
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { Anel, Barra, Contador, Surgir } from "@/components/portal/Vivo";
 import PergunteACidade from "@/components/portal/PergunteACidade";
+import PertoDeVoce from "@/components/portal/PertoDeVoce";
+import type { LugarPerto, Ponto } from "@/lib/perto-de-voce";
 import { montarIndice, type DadosDoIndice } from "@/lib/pergunte-a-cidade";
 
 
@@ -121,11 +123,27 @@ export type DadosPortal = {
   /** Rede de saúde e de educação, quando o módulo está contratado: entram no "Pergunte à cidade". */
   unidades?: DadosDoIndice["unidades"];
   escolas?: DadosDoIndice["escolas"];
+  /** Na cidade de exemplo, o "usar minha localização" usa este ponto. */
+  pontoSimulado?: Ponto | null;
   /** Cidade fictícia de /transparencia/exemplo: faixa de aviso e sem formulário de verdade. */
   exemplo?: boolean;
 };
 
-export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], exemplo = false }: DadosPortal) {
+const UNIDADE_CURTA: Record<string, { rotulo: string; peso: number }> = {
+  upa: { rotulo: "UPA, pronto atendimento", peso: 10 },
+  hospital: { rotulo: "Hospital", peso: 9 },
+  ubs: { rotulo: "UBS (posto de saúde)", peso: 8 },
+  posto: { rotulo: "Posto de saúde", peso: 8 },
+  samu: { rotulo: "SAMU", peso: 7 },
+  caps: { rotulo: "CAPS, saúde mental", peso: 5 },
+  farmacia: { rotulo: "Farmácia", peso: 5 },
+  clinica: { rotulo: "Clínica", peso: 4 },
+  laboratorio: { rotulo: "Laboratório", peso: 4 },
+  vigilancia: { rotulo: "Vigilância em saúde", peso: 2 },
+  outro: { rotulo: "Unidade de saúde", peso: 3 },
+};
+
+export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, exemplo = false }: DadosPortal) {
   const fuso = fusoDoEstado(portal.estado);
   const destaque = portal.codigoIbge ? indiceNoMapa(portal.codigoIbge) : null;
 
@@ -149,8 +167,55 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
     dinheiro: portal.mostrarFinanceiro && snapshot ? { receita: snapshot.receita, despesas: snapshot.despesas, saldo: snapshot.saldo } : null,
   });
 
+  // O que tem perto do morador (lib/perto-de-voce.ts): posto, escola e obra
+  // que ainda não acabou.
+  const lugares: LugarPerto[] = [
+    ...unidades.map((u) => ({
+      id: `u:${u.id}`,
+      grupo: "saude" as const,
+      nome: u.nome,
+      rotulo: (UNIDADE_CURTA[u.tipo] ?? UNIDADE_CURTA.outro).rotulo,
+      bairro: u.bairro,
+      endereco: u.endereco,
+      telefone: u.telefone,
+      horario: u.turno,
+      lat: u.latitude,
+      lng: u.longitude,
+      peso: (UNIDADE_CURTA[u.tipo] ?? UNIDADE_CURTA.outro).peso,
+    })),
+    ...escolas.map((e) => ({
+      id: `e:${e.id}`,
+      grupo: "escola" as const,
+      nome: e.nome,
+      rotulo: e.etapas ?? "Escola municipal",
+      bairro: e.bairro,
+      endereco: e.endereco,
+      telefone: e.telefone,
+      horario: null,
+      lat: e.latitude,
+      lng: e.longitude,
+      peso: 5,
+    })),
+    ...(portal.mostrarObras ? listaObras : [])
+      .filter((o) => o.status !== "concluida")
+      .map((o) => ({
+        id: `o:${o.id}`,
+        grupo: "obra" as const,
+        nome: o.nome,
+        rotulo: `Obra · ${(OBRA[o.status] ?? OBRA.planejada).rotulo.toLowerCase()}${o.progressoAtual ? ` · ${Math.round(o.progressoAtual)}% feito` : ""}`,
+        bairro: o.bairro,
+        endereco: null,
+        telefone: null,
+        horario: o.valorContrato !== null ? `Valor: ${formatarMoeda(o.valorContrato)}` : null,
+        lat: o.latitude,
+        lng: o.longitude,
+        peso: o.status === "atrasada" || o.status === "paralisada" ? 6 : 4,
+      })),
+  ];
+
   const nav = [
     { href: "#pergunte", rotulo: "Pergunte à cidade" },
+    ...(lugares.length ? [{ href: "#perto", rotulo: "Perto de você" }] : []),
     { href: "#voz", rotulo: "A voz da cidade" },
     ...(portal.mostrarFinanceiro ? [{ href: "#dinheiro", rotulo: "Dinheiro" }] : []),
     ...(portal.mostrarObras ? [{ href: "#obras", rotulo: "Obras" }] : []),
@@ -237,6 +302,13 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
         <div id="pergunte" className="scroll-mt-6">
           <PergunteACidade municipio={portal.municipio} itens={indice} />
         </div>
+
+        {/* ═══ PERTO DE VOCÊ ═══ */}
+        {lugares.length > 0 && (
+          <div id="perto" className="pt-20 sm:pt-28 scroll-mt-6">
+            <PertoDeVoce municipio={portal.municipio} lugares={lugares} pontoSimulado={pontoSimulado} />
+          </div>
+        )}
 
         {/* ═══ A VOZ DA CIDADE ═══ */}
         <section id="voz" className="pt-20 sm:pt-28 scroll-mt-6">
