@@ -25,6 +25,8 @@ export function mensagensDeExemplo(agora: number): LinhaVoz[] {
       secretaria: areas[i % areas.length],
       createdAt: new Date(criada).toISOString(),
       respondidoEm: respondida ? new Date(criada + prazo * DIA).toISOString() : null,
+      // Nem todo mundo avalia; dos que avaliam, a maioria diz que resolveu.
+      avaliacao: !respondida || i % 4 === 1 ? null : i % 9 === 4 ? "nao" : i % 6 === 3 ? "parte" : "sim",
     });
   }
   return linhas;

@@ -2,8 +2,9 @@
 
 import { z } from "zod";
 import { db } from "@/db";
-import { atendimentos, configPublica, prefeituras } from "@/db/schema";
-import { and, eq, notInArray } from "drizzle-orm";
+import { atendimentos, configPublica, pedidoEventos, prefeituras } from "@/db/schema";
+import { EVENTO_AVALIACAO, ehNota, lerAvaliacao, type Avaliacao } from "@/lib/avaliacao-cidadao";
+import { and, desc, eq, notInArray } from "drizzle-orm";
 import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
@@ -19,7 +20,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { areaDaManifestacao } from "@/lib/ouvidoria-avisos";
-import { avisarManifestacaoNova } from "@/lib/ouvidoria-avisos-servidor";
+import { avisarAvaliacaoRuim, avisarManifestacaoNova } from "@/lib/ouvidoria-avisos-servidor";
 
 const TIPOS_VALIDOS = [
   "protocolo",
@@ -150,6 +151,10 @@ export type ResultadoConsulta =
       resposta: string | null;
       abertoEm: string;
       respondidoEm: string | null;
+      /** A avaliação que o próprio cidadão já deu, se deu. */
+      avaliacao: Avaliacao | null;
+      /** Só se avalia o que a prefeitura já respondeu. */
+      podeAvaliar: boolean;
     }
   | { ok: false; erro: string };
 
@@ -182,8 +187,17 @@ export async function consultarAtendimento(formData: FormData): Promise<Resultad
   if (!registro) return generico;
   if (!chaveConfere(chave, registro.chaveConsulta)) return generico;
 
+  const [evento] = await db
+    .select({ pedidoId: pedidoEventos.pedidoId, descricao: pedidoEventos.descricao })
+    .from(pedidoEventos)
+    .where(and(eq(pedidoEventos.pedidoId, registro.id), eq(pedidoEventos.tipo, EVENTO_AVALIACAO)))
+    .orderBy(desc(pedidoEventos.criadoEm))
+    .limit(1);
+
   return {
     ok: true,
+    avaliacao: evento ? lerAvaliacao(evento.descricao) : null,
+    podeAvaliar: registro.status === "respondido" || registro.status === "encerrado",
     protocolo: registro.protocolo,
     tipo: NOME_TIPO[registro.tipo as TipoAtendimento] ?? registro.tipo,
     status: NOME_STATUS[registro.status as keyof typeof NOME_STATUS] ?? registro.status,
@@ -193,6 +207,42 @@ export async function consultarAtendimento(formData: FormData): Promise<Resultad
     abertoEm: registro.createdAt,
     respondidoEm: registro.respondidoEm,
   };
+}
+
+export type ResultadoAvaliacao = { ok: true } | { ok: false; erro: string };
+
+/**
+ * "A resposta resolveu?" (lib/avaliacao-cidadao.ts). Exige protocolo e chave,
+ * como a consulta: só quem fez o pedido avalia. Pode mudar de ideia; vale a
+ * última. "Não resolveu" ou "em parte" avisa quem respondeu.
+ */
+export async function avaliarAtendimento(formData: FormData): Promise<ResultadoAvaliacao> {
+  const protocolo = String(formData.get("protocolo") ?? "").trim().toUpperCase();
+  const chave = String(formData.get("chave") ?? "").trim().toUpperCase();
+  const nota = String(formData.get("nota") ?? "");
+  const comentario = String(formData.get("comentario") ?? "").trim().slice(0, 500);
+  if (!protocolo || !chave || !ehNota(nota)) return { ok: false, erro: "Escolha uma das opções." };
+
+  if (!(await limitarUso(`avaliacao:${protocolo}`, 6, 10))) {
+    return { ok: false, erro: "Muitas tentativas. Aguarde alguns minutos." };
+  }
+
+  const [registro] = await db.select().from(atendimentos).where(eq(atendimentos.protocolo, protocolo)).limit(1);
+  if (!registro || !chaveConfere(chave, registro.chaveConsulta)) return { ok: false, erro: "Protocolo ou chave não confere." };
+  if (registro.status !== "respondido" && registro.status !== "encerrado") {
+    return { ok: false, erro: "Dá para avaliar depois que a prefeitura responder." };
+  }
+
+  await db.insert(pedidoEventos).values({
+    id: gerarId("pev"),
+    pedidoId: registro.id,
+    tipo: EVENTO_AVALIACAO,
+    descricao: JSON.stringify({ nota, comentario: comentario || null }),
+    autor: "cidadão",
+  });
+
+  if (nota !== "sim") after(() => avisarAvaliacaoRuim(registro.id, nota, !!comentario));
+  return { ok: true };
 }
 
 /** Dados públicos do município para o portal. Sem login, só leitura. */

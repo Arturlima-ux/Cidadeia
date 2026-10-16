@@ -12,6 +12,8 @@ import ConfigPortal from "./ConfigPortal";
 import PainelPrazos from "./PainelPrazos";
 import { fusoDoEstado, dataCurta } from "@/lib/horario";
 import { NOME_TIPO, NOME_STATUS, type TipoAtendimento } from "@/lib/atendimento";
+import { avaliacoesDaPrefeitura } from "@/lib/avaliacao-cidadao-servidor";
+import { NOTAS, resumirSatisfacao, rotuloDaNota } from "@/lib/avaliacao-cidadao";
 
 const TOM_STATUS: Record<string, TomStatus> = {
   aberto: "atencao",
@@ -51,13 +53,22 @@ export default async function AtendimentoPage() {
   }
 
   const gestor = ehGestor(ctx.sessao);
-  const [lista, config] = await Promise.all([
+  const [lista, config, avaliacoes] = await Promise.all([
     buscarAtendimentos(ctx.sessao.prefeituraId),
     buscarConfigPublica(ctx.sessao.prefeituraId),
+    avaliacoesDaPrefeitura(ctx.sessao.prefeituraId),
   ]);
 
   const abertos = lista.filter((a) => a.status === "aberto" || a.status === "em_analise");
-  const fechados = lista.filter((a) => a.status === "respondido" || a.status === "encerrado");
+  const respondidas = lista.filter((a) => a.status === "respondido" || a.status === "encerrado");
+  // "A resposta resolveu?" (lib/avaliacao-cidadao.ts): o que o cidadão disse
+  // que não resolveu sobe para o topo, com o espaço para complementar.
+  const naoResolveu = respondidas.filter((a) => {
+    const n = avaliacoes.get(a.id)?.nota;
+    return n === "nao" || n === "parte";
+  });
+  const fechados = respondidas.filter((a) => !naoResolveu.includes(a));
+  const satisfacao = resumirSatisfacao(respondidas.flatMap((a) => avaliacoes.get(a.id) ?? []));
 
   // O painel de prazos olha a lista inteira, inclusive respondidos: é assim
   // que ele sabe distinguir "cumpriu" de "ninguém abriu ainda".
@@ -165,11 +176,63 @@ export default async function AtendimentoPage() {
         )}
       </div>
 
+      {/* O CIDADÃO DISSE QUE NÃO RESOLVEU */}
+      {naoResolveu.length > 0 && (
+        <div>
+          <h2 className="font-semibold text-sm mb-1" style={{ color: "var(--urgente)" }}>
+            O cidadão disse que não resolveu ({naoResolveu.length})
+          </h2>
+          <p className="text-xs text-muted mb-3">
+            Complemente a resposta: ela vai de novo ao cidadão, que pode avaliar outra vez. A satisfação aparece no portal público.
+          </p>
+          <div className="space-y-3">
+            {naoResolveu.map((a) => {
+              const av = avaliacoes.get(a.id)!;
+              return (
+                <div key={a.id} className="bg-card border arco-card-sm p-4" style={{ borderColor: "var(--urgente-borda)" }}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-xs font-semibold">{a.protocolo}</span>
+                    <span className="text-[11px] text-muted">
+                      {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo} · respondida em {a.respondidoEm ? dataCurta(a.respondidoEm, fuso) : "—"}
+                    </span>
+                    <span
+                      className="text-xs font-semibold rounded-full px-2 py-0.5"
+                      style={{ color: NOTAS.find((n) => n.valor === av.nota)!.cor, background: av.nota === "nao" ? "var(--urgente-tint)" : "var(--medio-tint)" }}
+                    >
+                      {rotuloDaNota(av.nota)}
+                    </span>
+                  </div>
+                  <p className="font-medium text-sm mt-1.5 break-words">{a.assunto}</p>
+                  {av.comentario && (
+                    <p className="text-sm mt-2 leading-relaxed whitespace-pre-line">
+                      <span className="text-xs font-semibold text-muted block">O que faltou, nas palavras do cidadão</span>
+                      {av.comentario}
+                    </p>
+                  )}
+                  {a.resposta && (
+                    <p className="text-sm text-muted mt-2 leading-relaxed whitespace-pre-line border-l-2 border-border pl-3">
+                      {a.resposta}
+                    </p>
+                  )}
+                  <PainelResposta acao={responderAtendimento} id={a.id} statusAtual={a.status} respostaAtual={a.resposta} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* RESPONDIDOS */}
       {fechados.length > 0 && (
         <div>
           <h2 className="font-semibold text-sm text-muted mb-3">
             Respondidas ({fechados.length})
+            {satisfacao.total > 0 && (
+              <span className="font-normal">
+                {" · "}
+                {satisfacao.percentualResolveu}% dos que avaliaram disseram que resolveu ({satisfacao.total})
+              </span>
+            )}
           </h2>
           <div className="space-y-2">
             {fechados.map((a) => (
@@ -186,6 +249,11 @@ export default async function AtendimentoPage() {
                     {/* A resposta sai por e-mail quando o cidadão deixou um
                         (lib/ouvidoria-avisos.ts); o que não sai fica na caixa
                         de saída da equipe. */}
+                    {avaliacoes.get(a.id) && (
+                      <p className="text-xs font-semibold mt-2" style={{ color: "var(--info)" }}>
+                        O cidadão avaliou: {rotuloDaNota(avaliacoes.get(a.id)!.nota).toLowerCase()}
+                      </p>
+                    )}
                     <p className="text-xs text-muted mt-2">
                       {a.email
                         ? "Resposta enviada ao e-mail do cidadão."

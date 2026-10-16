@@ -148,7 +148,36 @@ export function emailRespostaParaCidadao(d: {
       `<p>${ola}</p>`,
       `<p>A Prefeitura de ${esc(d.municipio)} ${d.status === "em_analise" ? "registrou um andamento na" : "respondeu à"} manifestação de protocolo <strong>${esc(d.protocolo)}</strong>:</p>`,
       `<div style="border-left:3px solid #ccc;padding-left:12px;margin:12px 0">${paragrafos(d.resposta)}</div>`,
-      `<p><a href="${d.linkConsulta}">Ver a manifestação completa</a></p>`,
+      d.status === "em_analise"
+        ? `<p><a href="${d.linkConsulta}">Ver a manifestação completa</a></p>`
+        : `<p><strong>A resposta resolveu?</strong> Conte em um toque: <a href="${d.linkConsulta}">Resolveu, em parte ou não resolveu</a>. Sua avaliação vai direto a quem respondeu.</p>`,
+    ].join("\n"),
+  };
+}
+
+/**
+ * O cidadão disse que a resposta não resolveu (ou resolveu em parte). Vai a
+ * quem recebeu a manifestação. Como os outros e-mails da equipe, não leva o
+ * texto do cidadão: o comentário fica no painel, atrás de login.
+ */
+export function emailAvaliacaoParaEquipe(d: {
+  municipio: string;
+  protocolo: string;
+  tipo: TipoAtendimento;
+  assunto: string;
+  nota: "parte" | "nao";
+  comComentario: boolean;
+  linkPainel: string;
+}): { assunto: string; html: string } {
+  const disse = d.nota === "nao" ? "não resolveu" : "resolveu só em parte";
+  return {
+    assunto: `${d.municipio}: o cidadão disse que a resposta ${disse} (${d.protocolo})`,
+    html: [
+      `<p><strong>O cidadão avaliou a resposta da prefeitura: ${disse}.</strong></p>`,
+      `<p>${esc(NOME_TIPO[d.tipo])} · protocolo ${esc(d.protocolo)}<br>Assunto: <strong>${esc(d.assunto)}</strong></p>`,
+      `<p>${d.comComentario ? "Ele deixou um comentário explicando o que faltou." : "Ele não deixou comentário."} Vale complementar a resposta: o cidadão pode avaliar de novo, e a satisfação aparece no portal público.</p>`,
+      `<p><a href="${d.linkPainel}">Ver no painel</a></p>`,
+      `<p style="color:#888;font-size:13px">O comentário e os dados de contato do cidadão ficam só no painel, atrás de login.</p>`,
     ].join("\n"),
   };
 }

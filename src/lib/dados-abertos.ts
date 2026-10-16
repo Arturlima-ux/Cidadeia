@@ -1,3 +1,4 @@
+import { rotuloDaNota, type Nota } from "@/lib/avaliacao-cidadao";
 // ── DADOS ABERTOS DO PORTAL ──
 //
 // Nos portais de prefeitura, o dado vem em PDF ou numa tabela que não se
@@ -118,6 +119,7 @@ export const CONJUNTOS: DefinicaoConjunto[] = [
       { chave: "aberta_em", titulo: "Aberta em" },
       { chave: "respondida_em", titulo: "Respondida em" },
       { chave: "dias_para_responder", titulo: "Dias para responder" },
+      { chave: "avaliacao_do_cidadao", titulo: "A resposta resolveu? (quem pediu)" },
     ],
   },
   {
@@ -227,7 +229,7 @@ export type Fontes = {
   unidades: { nome: string; tipo: string; bairro: string | null; endereco: string | null; telefone: string | null; turno: string | null; latitude: number | null; longitude: number | null }[];
   escolas: { nome: string; etapas: string | null; bairro: string | null; endereco: string | null; telefone: string | null; latitude: number | null; longitude: number | null }[];
   servicos: { titulo: string; conteudo: string; requisitos: string | null; prazo: string | null; contato: string | null; secretaria: string | null }[];
-  manifestacoes: { tipo: string; secretaria: string | null; status: string; createdAt: string; respondidoEm: string | null }[];
+  manifestacoes: { tipo: string; secretaria: string | null; status: string; createdAt: string; respondidoEm: string | null; avaliacao?: Nota | null }[];
   dinheiro: { atualizadoEm: string; receita: number | null; despesas: number | null; saldo: number | null }[];
 };
 
@@ -283,6 +285,7 @@ export function linhasDe(conjunto: Conjunto, f: Fontes): Linha[] {
           respondida_em: respondida,
           dias_para_responder:
             aberta && respondida ? Math.max(0, Math.round((Date.parse(respondida) - Date.parse(aberta)) / 86_400_000)) : null,
+          avaliacao_do_cidadao: m.avaliacao ? rotuloDaNota(m.avaliacao) : null,
         };
       });
     case "dinheiro":

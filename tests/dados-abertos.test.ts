@@ -39,7 +39,7 @@ describe("os conjuntos", () => {
       manifestacoes: [{ tipo: "reclamacao", secretaria: "obras", status: "respondido", createdAt: "2026-10-01 10:00:00-03", respondidoEm: "2026-10-04 10:00:00-03", nome: "Maria", email: "m@x", mensagem: "texto" } as never],
     };
     const [linha] = linhasDe("manifestacoes", comTudo);
-    expect(linha).toEqual({ tipo: "Reclamação", area: "obras", situacao: "Respondida", aberta_em: "2026-10-01", respondida_em: "2026-10-04", dias_para_responder: 3 });
+    expect(linha).toEqual({ tipo: "Reclamação", area: "obras", situacao: "Respondida", aberta_em: "2026-10-01", respondida_em: "2026-10-04", dias_para_responder: 3, avaliacao_do_cidadao: null });
   });
 
   it("o JSON leva a origem, a licença e o endereço fixo", () => {

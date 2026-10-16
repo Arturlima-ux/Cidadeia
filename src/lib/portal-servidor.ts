@@ -5,6 +5,7 @@ import type { buscarPortal } from "@/app/transparencia/actions";
 import { planosContratadosDe } from "@/lib/planos";
 import { EVENTO_OK } from "@/lib/importacao-automatica";
 import { maisRecente, type Conjunto, type Fontes, type Frescor } from "@/lib/dados-abertos";
+import { EVENTO_AVALIACAO, ultimaPorManifestacao } from "@/lib/avaliacao-cidadao";
 
 // ── O QUE O PORTAL PÚBLICO CARREGA ──
 // Uma leitura só, usada pela página (/transparencia/[slug]) e pelos arquivos
@@ -18,7 +19,7 @@ export async function carregarPortal(portal: Portal) {
   const id = portal.prefeituraId;
   const umAnoAtras = new Date(Date.now() - 365 * 86_400_000).toISOString().slice(0, 10);
 
-  const [snapshots, listaObras, listaLicitacoes, listaContratos, listaPublicacoes, manifestacoes, unidades, escolasDaRede, importacoes] = await Promise.all([
+  const [snapshots, listaObras, listaLicitacoes, listaContratos, listaPublicacoes, linhasAtendimento, unidades, escolasDaRede, importacoes, avaliacoes] = await Promise.all([
     portal.mostrarFinanceiro
       ? db.select().from(dashboardSnapshots).where(eq(dashboardSnapshots.prefeituraId, id)).orderBy(desc(dashboardSnapshots.atualizadoEm)).limit(60)
       : Promise.resolve([]),
@@ -29,7 +30,7 @@ export async function carregarPortal(portal: Portal) {
     // Só as colunas que a voz da cidade e o arquivo usam: assunto, mensagem
     // e contato nem saem do banco.
     db
-      .select({ tipo: atendimentos.tipo, status: atendimentos.status, secretaria: atendimentos.secretaria, createdAt: atendimentos.createdAt, respondidoEm: atendimentos.respondidoEm })
+      .select({ id: atendimentos.id, tipo: atendimentos.tipo, status: atendimentos.status, secretaria: atendimentos.secretaria, createdAt: atendimentos.createdAt, respondidoEm: atendimentos.respondidoEm })
       .from(atendimentos)
       .where(eq(atendimentos.prefeituraId, id))
       .orderBy(desc(atendimentos.createdAt))
@@ -47,7 +48,18 @@ export async function carregarPortal(portal: Portal) {
       .where(and(like(pedidoEventos.pedidoId, `importacao:${id}:%`), inArray(pedidoEventos.tipo, [EVENTO_OK])))
       .orderBy(desc(pedidoEventos.criadoEm))
       .limit(60),
+    // "A resposta resolveu?": só a nota. O comentário do cidadão não sai do banco.
+    db
+      .select({ pedidoId: pedidoEventos.pedidoId, descricao: pedidoEventos.descricao })
+      .from(pedidoEventos)
+      .innerJoin(atendimentos, eq(atendimentos.id, pedidoEventos.pedidoId))
+      .where(and(eq(atendimentos.prefeituraId, id), eq(pedidoEventos.tipo, EVENTO_AVALIACAO)))
+      .orderBy(desc(pedidoEventos.criadoEm))
+      .limit(5000),
   ]);
+
+  const notas = ultimaPorManifestacao(avaliacoes);
+  const manifestacoes = linhasAtendimento.map(({ id: atendimentoId, ...m }) => ({ ...m, avaliacao: notas.get(atendimentoId)?.nota ?? null }));
 
   const ultimaImportacao = (fonte: string) => importacoes.find((i) => i.pedidoId === `importacao:${id}:${fonte}`)?.criadoEm ?? null;
   const publicadas = listaPublicacoes.filter((p) => p.publicado);

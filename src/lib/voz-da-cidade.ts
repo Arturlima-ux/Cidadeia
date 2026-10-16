@@ -1,4 +1,5 @@
 import type { StatusAtendimento, TipoAtendimento } from "@/lib/atendimento";
+import { resumirSatisfacao, type Nota, type Satisfacao } from "@/lib/avaliacao-cidadao";
 
 // ── A VOZ DA CIDADE ──
 //
@@ -27,7 +28,15 @@ export type LinhaVoz = {
   secretaria: string | null;
   createdAt: string;
   respondidoEm: string | null;
+  /** O que quem pediu achou da resposta (lib/avaliacao-cidadao.ts), se avaliou. */
+  avaliacao?: Nota | null;
 };
+
+/**
+ * Com menos avaliações que isto, a satisfação não aparece: "0% resolveu"
+ * com uma avaliação só é a opinião de uma pessoa, e aponta para ela.
+ */
+export const MINIMO_AVALIACOES = 3;
 
 export type ItemFaixa = {
   tipo: TipoAtendimento;
@@ -35,6 +44,7 @@ export type ItemFaixa = {
   situacao: "respondida" | "andamento";
   /** Dias até a resposta (respondida) ou desde a abertura (andamento). */
   dias: number;
+  avaliacao: Nota | null;
 };
 
 export type VozDaCidade =
@@ -48,6 +58,8 @@ export type VozDaCidade =
       elogios: number;
       porTipo: { tipo: TipoAtendimento; quantidade: number }[];
       faixa: ItemFaixa[];
+      /** Só conta a partir de MINIMO_AVALIACOES; abaixo, total fica e o resto zera. */
+      satisfacao: Satisfacao;
     };
 
 const AREA: Record<string, string> = {
@@ -92,6 +104,7 @@ export function resumirVoz(linhas: LinhaVoz[], agora: number = Date.now()): VozD
         area: nomeDaArea(l.secretaria),
         situacao: respondida ? "respondida" : "andamento",
         dias: respondida ? dias(l.createdAt, Date.parse(l.respondidoEm!)) : dias(l.createdAt, agora),
+        avaliacao: respondida ? l.avaliacao ?? null : null,
       };
     });
 
@@ -106,5 +119,8 @@ export function resumirVoz(linhas: LinhaVoz[], agora: number = Date.now()): VozD
       .map(([tipo, quantidade]) => ({ tipo, quantidade }))
       .sort((a, b) => b.quantidade - a.quantidade),
     faixa,
+    satisfacao: resumirSatisfacao(
+      respondidasLista.flatMap((l) => (l.avaliacao ? [{ nota: l.avaliacao, comentario: null }] : []))
+    ),
   };
 }

@@ -36,7 +36,7 @@ describe("voz da cidade", () => {
     const linhas = Array.from({ length: 6 }, (_, i) => ({ ...linha({ createdAt: diasAtras(i) }), assunto: "Rua da Maria, 12", nome: "Maria" }));
     const r = resumirVoz(linhas as LinhaVoz[], AGORA);
     if (!r.publica) throw new Error("devia publicar");
-    for (const item of r.faixa) expect(Object.keys(item).sort()).toEqual(["area", "dias", "situacao", "tipo"]);
+    for (const item of r.faixa) expect(Object.keys(item).sort()).toEqual(["area", "avaliacao", "dias", "situacao", "tipo"]);
     expect(JSON.stringify(r)).not.toContain("Maria");
   });
 

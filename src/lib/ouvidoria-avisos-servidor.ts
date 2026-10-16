@@ -8,6 +8,7 @@ import { PRAZOS } from "@/lib/prazo-atendimento";
 import {
   areaDaManifestacao,
   destinatariosDaManifestacao,
+  emailAvaliacaoParaEquipe,
   emailChegouParaEquipe,
   emailProrrogacaoParaCidadao,
   emailRecebidoParaCidadao,
@@ -49,16 +50,7 @@ export async function avisarManifestacaoNova(atendimentoId: string): Promise<voi
     const tipo = a.tipo as TipoAtendimento;
     const prazo = prazoDeResposta(tipo, new Date(a.createdAt));
 
-    const pessoas = await db
-      .select({ email: usuarios.email, cargo: usuarios.cargo, secretaria: usuarios.secretaria })
-      .from(usuarios)
-      .where(
-        and(
-          eq(usuarios.prefeituraId, a.prefeituraId),
-          isNotNull(usuarios.email),
-          or(eq(usuarios.cargo, "prefeito"), eq(usuarios.cargo, "admin"), eq(usuarios.cargo, "secretario"))
-        )
-      );
+    const pessoas = await equipeDaPrefeitura(a.prefeituraId);
     const equipe = emailChegouParaEquipe({
       municipio: r.municipio,
       protocolo: a.protocolo,
@@ -89,6 +81,41 @@ export async function avisarManifestacaoNova(atendimentoId: string): Promise<voi
     await Promise.all(envios);
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar manifestação nova:", e);
+  }
+}
+
+async function equipeDaPrefeitura(prefeituraId: string) {
+  return db
+    .select({ email: usuarios.email, cargo: usuarios.cargo, secretaria: usuarios.secretaria })
+    .from(usuarios)
+    .where(
+      and(
+        eq(usuarios.prefeituraId, prefeituraId),
+        isNotNull(usuarios.email),
+        or(eq(usuarios.cargo, "prefeito"), eq(usuarios.cargo, "admin"), eq(usuarios.cargo, "secretario"))
+      )
+    );
+}
+
+/** "Não resolveu" ou "em parte": avisa quem recebeu a manifestação (lib/avaliacao-cidadao.ts). */
+export async function avisarAvaliacaoRuim(atendimentoId: string, nota: "parte" | "nao", comComentario: boolean): Promise<void> {
+  try {
+    const r = await carregar(atendimentoId);
+    if (!r) return;
+    const { a } = r;
+    const msg = emailAvaliacaoParaEquipe({
+      municipio: r.municipio,
+      protocolo: a.protocolo,
+      tipo: a.tipo as TipoAtendimento,
+      assunto: a.assunto,
+      nota,
+      comComentario,
+      linkPainel: linkApp("/dashboard/atendimento"),
+    });
+    const pessoas = await equipeDaPrefeitura(a.prefeituraId);
+    await Promise.all(destinatariosDaManifestacao(a, pessoas).map((para) => enviarEmail({ para, assunto: msg.assunto, html: msg.html })));
+  } catch (e) {
+    console.error("[ouvidoria] falha ao avisar avaliação:", e);
   }
 }
 
