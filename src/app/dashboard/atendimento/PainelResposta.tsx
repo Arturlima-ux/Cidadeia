@@ -7,10 +7,13 @@ export default function PainelResposta({
   acao,
   id,
   statusAtual,
+  respostaAtual,
 }: {
   acao: (fd: FormData) => Promise<ResultadoAcao>;
   id: string;
   statusAtual: string;
+  /** Para complementar: a resposta nova substitui a anterior, então parte dela. */
+  respostaAtual?: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export default function PainelResposta({
         onClick={() => setAberto(true)}
         className="mt-3 text-xs font-semibold text-brand hover:underline"
       >
-        Responder →
+        {respostaAtual ? "Complementar a resposta →" : "Responder →"}
       </button>
       </>
     );
@@ -52,6 +55,7 @@ export default function PainelResposta({
         <textarea
           name="resposta"
           required
+          defaultValue={respostaAtual ?? undefined}
           rows={4}
           maxLength={5000}
           placeholder="Vai por e-mail ao cidadão (quando ele deixou um) e aparece na consulta do protocolo no portal."

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from "react";
-import { abrirAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
+import { abrirAtendimento, avaliarAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
+import { NOTAS, rotuloDaNota, type Avaliacao, type Nota } from "@/lib/avaliacao-cidadao";
 import { TIPOS, permiteAnonimo, linkWhatsApp, type TipoAtendimento } from "@/lib/atendimento";
 import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
 import { EVENTO_PERGUNTAR } from "@/lib/eventos-do-portal";
@@ -295,9 +296,11 @@ function Abrir({
 
 function Consultar({ inicial }: { inicial: { protocolo: string; chave: string } | null }) {
   const [resultado, setResultado] = useState<ResultadoConsulta | null>(null);
+  const [chaveUsada, setChaveUsada] = useState(inicial?.chave ?? "");
   const [pending, startTransition] = useTransition();
 
   function enviar(formData: FormData) {
+    setChaveUsada(String(formData.get("chave") ?? ""));
     startTransition(async () => setResultado(await consultarAtendimento(formData)));
   }
 
@@ -369,6 +372,14 @@ function Consultar({ inicial }: { inicial: { protocolo: string; chave: string } 
               <p className="text-sm mt-1 whitespace-pre-line leading-relaxed">
                 {resultado.resposta}
               </p>
+              {resultado.podeAvaliar && (
+                <AvaliarResposta
+                  key={resultado.protocolo}
+                  protocolo={resultado.protocolo}
+                  chave={chaveUsada}
+                  inicial={resultado.avaliacao}
+                />
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted border-t border-border pt-3">
@@ -376,6 +387,105 @@ function Consultar({ inicial }: { inicial: { protocolo: string; chave: string } 
             </p>
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── "A RESPOSTA RESOLVEU?" ── (lib/avaliacao-cidadao.ts)
+function AvaliarResposta({ protocolo, chave, inicial }: { protocolo: string; chave: string; inicial: Avaliacao | null }) {
+  const [dada, setDada] = useState<Avaliacao | null>(inicial);
+  const [escolha, setEscolha] = useState<Nota | null>(null);
+  const [comentario, setComentario] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function enviar(nota: Nota, texto: string) {
+    setErro(null);
+    const fd = new FormData();
+    fd.set("protocolo", protocolo);
+    fd.set("chave", chave);
+    fd.set("nota", nota);
+    fd.set("comentario", texto);
+    startTransition(async () => {
+      const r = await avaliarAtendimento(fd);
+      if (r.ok) {
+        setDada({ nota, comentario: texto.trim() || null });
+        setEscolha(null);
+        setComentario("");
+      } else setErro(r.erro);
+    });
+  }
+
+  if (dada && !escolha) {
+    const cor = NOTAS.find((n) => n.valor === dada.nota)!.cor;
+    return (
+      <div className="mt-4 rounded-2xl border border-border p-4" role="status">
+        <p className="text-sm">
+          Você avaliou: <strong style={{ color: cor }}>{rotuloDaNota(dada.nota)}</strong>
+        </p>
+        <p className="text-xs text-muted mt-1">
+          {dada.nota === "sim"
+            ? "Obrigado. Sua avaliação entra na satisfação pública do portal."
+            : "A equipe que respondeu já foi avisada. Sua avaliação entra na satisfação pública do portal."}
+        </p>
+        <button type="button" onClick={() => setEscolha(dada.nota)} className="text-xs font-semibold text-brand mt-2 underline-offset-2 hover:underline">
+          Mudar avaliação
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border p-4">
+      <p className="font-semibold text-sm">A resposta resolveu?</p>
+      <p className="text-xs text-muted mt-0.5">Um toque. Vai direto a quem respondeu e entra na satisfação pública do portal.</p>
+      <div className="flex flex-wrap gap-2 mt-3" role="group" aria-label="A resposta resolveu?">
+        {NOTAS.map((n) => {
+          const ativa = escolha === n.valor;
+          return (
+            <button
+              key={n.valor}
+              type="button"
+              disabled={pending}
+              aria-pressed={ativa}
+              onClick={() => (n.valor === "sim" ? enviar("sim", "") : setEscolha(n.valor))}
+              className="rounded-full border px-4 py-2 text-sm font-semibold transition disabled:opacity-60"
+              style={{ borderColor: ativa ? n.cor : "var(--border)", color: ativa ? n.cor : undefined }}
+            >
+              {n.rotulo}
+            </button>
+          );
+        })}
+      </div>
+      {escolha && escolha !== "sim" && (
+        <div className="mt-3 space-y-2">
+          <label htmlFor="cid-avaliacao" className="block text-xs font-medium">
+            O que faltou? <span className="text-muted font-normal">(opcional)</span>
+          </label>
+          <textarea
+            id="cid-avaliacao"
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+            maxLength={500}
+            rows={3}
+            className={classeInput}
+            placeholder="Ex.: o buraco continua lá, ninguém veio."
+          />
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => enviar(escolha, comentario)}
+            className="bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full px-5 py-2 transition disabled:opacity-60"
+          >
+            {pending ? "Enviando..." : "Enviar avaliação"}
+          </button>
+        </div>
+      )}
+      {erro && (
+        <p className="text-xs mt-2" style={{ color: "var(--urgente)" }} role="alert">
+          {erro}
+        </p>
       )}
     </div>
   );

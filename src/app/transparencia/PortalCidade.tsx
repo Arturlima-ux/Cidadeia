@@ -6,7 +6,8 @@ import FormularioCidadao from "./FormularioCidadao";
 import SecoesPublicadas from "./SecoesPublicadas";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
-import type { ItemFaixa, VozDaCidade } from "@/lib/voz-da-cidade";
+import { MINIMO_AVALIACOES, type ItemFaixa, type VozDaCidade } from "@/lib/voz-da-cidade";
+import { NOTAS, type Satisfacao as DadosSatisfacao } from "@/lib/avaliacao-cidadao";
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { Anel, Barra, Contador, Surgir } from "@/components/portal/Vivo";
 import PergunteACidade from "@/components/portal/PergunteACidade";
@@ -95,10 +96,57 @@ export function Faixa({ itens, sentido, duracao, compacta = false }: { itens: It
                   ? "Chegou hoje · em análise"
                   : `Em análise · há ${it.dias} ${it.dias === 1 ? "dia" : "dias"}`}
             </p>
+            {it.avaliacao && (
+              <p className={`flex items-center gap-1.5 text-muted ${compacta ? "mt-0.5" : "text-xs mt-1"}`}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: NOTAS.find((n) => n.valor === it.avaliacao)!.cor }} />
+                Quem pediu: {NOTAS.find((n) => n.valor === it.avaliacao)!.rotulo.toLowerCase()}
+              </p>
+            )}
           </li>
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * "A resposta resolveu?" em público (lib/avaliacao-cidadao.ts). Quem avalia
+ * é quem fez o pedido, com protocolo e chave; a prefeitura não escolhe quem
+ * responde à pesquisa nem mexe nas notas.
+ */
+function Satisfacao({ s }: { s: DadosSatisfacao }) {
+  return (
+    <Surgir className="mt-4" atraso={0.05}>
+      <div className="rounded-3xl border border-border p-5 sm:p-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-center" style={{ background: "var(--card)" }}>
+        <div>
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase text-muted">A resposta resolveu?</p>
+          <p className="text-5xl sm:text-7xl font-semibold tracking-[-0.05em] mt-2" style={{ color: "var(--info)" }}>
+            <Contador valor={s.percentualResolveu ?? 0} />%
+          </p>
+          <p className="text-sm text-muted mt-1 leading-snug">
+            de quem recebeu resposta disse que <strong className="text-foreground font-semibold">resolveu</strong> ({s.total} {s.total === 1 ? "avaliação" : "avaliações"})
+          </p>
+        </div>
+        <div>
+          <div className="flex h-5 rounded-full overflow-hidden gap-[3px]" role="img" aria-label={NOTAS.map((n) => `${n.rotulo}: ${s[n.valor]}`).join(", ")}>
+            {NOTAS.filter((n) => s[n.valor] > 0).map((n) => (
+              <div key={n.valor} style={{ flexGrow: s[n.valor], background: n.cor }} />
+            ))}
+          </div>
+          <ul className="flex flex-wrap gap-x-5 gap-y-2 mt-3 text-sm">
+            {NOTAS.map((n) => (
+              <li key={n.valor} className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: n.cor }} />
+                {n.rotulo} <span className="text-muted tabular-nums">{s[n.valor]}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted mt-4 leading-relaxed">
+            Só avalia quem fez o pedido, com o protocolo e a chave. A prefeitura não escolhe quem avalia nem mexe nas notas, e quem respondeu é avisado na hora quando a resposta não resolveu.
+          </p>
+        </div>
+      </div>
+    </Surgir>
   );
 }
 
@@ -363,6 +411,8 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                   </Surgir>
                 ))}
               </div>
+
+              {voz.satisfacao.total >= MINIMO_AVALIACOES && <Satisfacao s={voz.satisfacao} />}
 
               <Surgir className="mt-8" atraso={0.1}>
                 <p className="text-sm text-muted mb-3">Sobre o que a cidade mais falou</p>
