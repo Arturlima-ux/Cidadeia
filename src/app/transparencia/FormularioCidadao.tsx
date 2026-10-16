@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } fro
 import { abrirAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
 import { TIPOS, permiteAnonimo, linkWhatsApp, type TipoAtendimento } from "@/lib/atendimento";
 import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
+import { EVENTO_PERGUNTAR } from "@/lib/eventos-do-portal";
 
 const classeInput =
   "w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition bg-card";
@@ -31,6 +32,19 @@ export default function FormularioCidadao({
   }, [busca]);
   const [abaEscolhida, setAba] = useState<"abrir" | "consultar" | null>(null);
   const aba = abaEscolhida ?? (doLink ? "consultar" : "abrir");
+
+  // "Pergunte à cidade" sem resposta vira pedido de informação já
+  // preenchido (components/portal/PergunteACidade.tsx manda o evento).
+  const [preenchido, setPreenchido] = useState<{ assunto: string; vez: number } | null>(null);
+  useEffect(() => {
+    const ouvir = (e: Event) => {
+      const assunto = (e as CustomEvent<{ assunto: string }>).detail?.assunto ?? "";
+      setAba("abrir");
+      setPreenchido((p) => ({ assunto: assunto.slice(0, 200), vez: (p?.vez ?? 0) + 1 }));
+    };
+    window.addEventListener(EVENTO_PERGUNTAR, ouvir);
+    return () => window.removeEventListener(EVENTO_PERGUNTAR, ouvir);
+  }, []);
 
   return (
     <div>
@@ -60,7 +74,12 @@ export default function FormularioCidadao({
       </div>
 
       {aba === "abrir" ? (
-        <Abrir slug={slug} whatsappNumero={whatsappNumero} />
+        <Abrir
+          key={preenchido?.vez ?? 0}
+          slug={slug}
+          whatsappNumero={whatsappNumero}
+          inicial={preenchido ? { tipo: "informacao", assunto: preenchido.assunto } : null}
+        />
       ) : (
         <Consultar key={doLink?.protocolo ?? "vazio"} inicial={doLink} />
       )}
@@ -68,8 +87,16 @@ export default function FormularioCidadao({
   );
 }
 
-function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string | null }) {
-  const [tipo, setTipo] = useState<TipoAtendimento>("protocolo");
+function Abrir({
+  slug,
+  whatsappNumero,
+  inicial = null,
+}: {
+  slug: string;
+  whatsappNumero: string | null;
+  inicial?: { tipo: TipoAtendimento; assunto: string } | null;
+}) {
+  const [tipo, setTipo] = useState<TipoAtendimento>(inicial?.tipo ?? "protocolo");
   const [anonimo, setAnonimo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<{ protocolo: string; chave: string; assunto: string; comEmail: boolean } | null>(null);
@@ -176,7 +203,7 @@ function Abrir({ slug, whatsappNumero }: { slug: string; whatsappNumero: string 
 
       <div>
         <label htmlFor="cid-assunto" className="block text-sm font-medium mb-1.5">Assunto</label>
-        <input id="cid-assunto" name="assunto" required maxLength={200} placeholder="ex: Poda de árvore na Rua X" className={classeInput} />
+        <input id="cid-assunto" name="assunto" required maxLength={200} defaultValue={inicial?.assunto} placeholder="ex: Poda de árvore na Rua X" className={classeInput} />
       </div>
 
       <div>

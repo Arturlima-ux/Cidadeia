@@ -14,7 +14,7 @@ export default function SecoesPublicadas({ publicacoes }: { publicacoes: Publica
   return (
     <>
       {secoes.map((secao) => (
-        <section key={secao.tipo} className="mb-12">
+        <section key={secao.tipo} id={secao.tipo === "servico" ? "servicos" : undefined} className="mb-12 scroll-mt-6">
           <h2 className="font-serif text-2xl font-bold mb-1">{secao.titulo}</h2>
           {secao.lei && (
             <p className="text-xs font-mono text-muted mb-5">

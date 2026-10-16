@@ -9,6 +9,8 @@ import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import type { ItemFaixa, VozDaCidade } from "@/lib/voz-da-cidade";
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { Anel, Barra, Contador, Surgir } from "@/components/portal/Vivo";
+import PergunteACidade from "@/components/portal/PergunteACidade";
+import { montarIndice, type DadosDoIndice } from "@/lib/pergunte-a-cidade";
 
 
 // ── O PORTAL DA CIDADE ──
@@ -116,11 +118,14 @@ export type DadosPortal = {
   listaLicitacoes: (typeof licitacoes.$inferSelect)[];
   listaPublicacoes: (typeof publicacoes.$inferSelect)[];
   voz: VozDaCidade;
+  /** Rede de saúde e de educação, quando o módulo está contratado: entram no "Pergunte à cidade". */
+  unidades?: DadosDoIndice["unidades"];
+  escolas?: DadosDoIndice["escolas"];
   /** Cidade fictícia de /transparencia/exemplo: faixa de aviso e sem formulário de verdade. */
   exemplo?: boolean;
 };
 
-export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, exemplo = false }: DadosPortal) {
+export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], exemplo = false }: DadosPortal) {
   const fuso = fusoDoEstado(portal.estado);
   const destaque = portal.codigoIbge ? indiceNoMapa(portal.codigoIbge) : null;
 
@@ -129,7 +134,23 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
   const deCem = receita && despesas !== null && receita > 0 ? Math.round((despesas / receita) * 100) : null;
 
   const obrasProntas = listaObras.filter((o) => o.status === "concluida").length;
+
+  // O portal inteiro vira um índice que roda no celular do morador
+  // (lib/pergunte-a-cidade.ts). Só entra o que já é público nesta página.
+  const publicadas = listaPublicacoes.filter((p) => p.publicado);
+  const indice = montarIndice({
+    municipio: portal.municipio,
+    servicos: publicadas.filter((p) => p.tipo === "servico"),
+    outrasPublicacoes: publicadas.filter((p) => p.tipo !== "servico"),
+    unidades,
+    escolas,
+    obras: portal.mostrarObras ? listaObras : [],
+    compras: portal.mostrarLicitacoes ? listaLicitacoes : [],
+    dinheiro: portal.mostrarFinanceiro && snapshot ? { receita: snapshot.receita, despesas: snapshot.despesas, saldo: snapshot.saldo } : null,
+  });
+
   const nav = [
+    { href: "#pergunte", rotulo: "Pergunte à cidade" },
     { href: "#voz", rotulo: "A voz da cidade" },
     ...(portal.mostrarFinanceiro ? [{ href: "#dinheiro", rotulo: "Dinheiro" }] : []),
     ...(portal.mostrarObras ? [{ href: "#obras", rotulo: "Obras" }] : []),
@@ -212,6 +233,11 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
       </header>
 
       <main id="conteudo" className="max-w-[1200px] mx-auto px-4 sm:px-8">
+        {/* ═══ PERGUNTE À CIDADE ═══ */}
+        <div id="pergunte" className="scroll-mt-6">
+          <PergunteACidade municipio={portal.municipio} itens={indice} />
+        </div>
+
         {/* ═══ A VOZ DA CIDADE ═══ */}
         <section id="voz" className="pt-20 sm:pt-28 scroll-mt-6">
           <Titulo
@@ -419,7 +445,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
         )}
 
         {/* ═══ O QUE A PREFEITURA PUBLICOU ═══ */}
-        <div className="pt-24 sm:pt-32">
+        <div id="publicacoes" className="pt-24 sm:pt-32 scroll-mt-6">
           <SecoesPublicadas publicacoes={listaPublicacoes} />
         </div>
 
