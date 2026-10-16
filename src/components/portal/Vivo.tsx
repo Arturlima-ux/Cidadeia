@@ -43,7 +43,7 @@ export function Contador({ valor, formato = "inteiro", duracao = 1.6, className 
     return () => c.stop();
   }, [visto, reduzir, valor, duracao]);
   return (
-    <span ref={ref} className={`tabular-nums ${className}`}>
+    <span ref={ref} className={`tabular-nums ${className}`} data-valor-final={formatar(valor, formato)}>
       {formatar(reduzir ? valor : atual, formato)}
     </span>
   );

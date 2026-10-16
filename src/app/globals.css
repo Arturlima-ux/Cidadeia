@@ -1574,6 +1574,47 @@ h1.font-serif,
   .portal-pulso { animation: none; }
 }
 
+/* ── PORTAL: ACESSIBILIDADE (components/portal/Acessibilidade.tsx) ──
+   Três chaves que o morador liga no próprio portal, e que ficam ligadas na
+   próxima visita: alto contraste, sem movimento e a seção que está sendo
+   lida em voz alta. A letra maior muda o tamanho da raiz (rem). */
+.portal-alto-contraste {
+  --background: #000000;
+  --superficie: #000000;
+  --card: #000000;
+  --foreground: #ffffff;
+  --muted: #e2e4e9;
+  --border: rgba(255, 255, 255, 0.55);
+  --brand-claro: #e0d6ff;
+  --accent: #e0d6ff;
+  --info: #5ef2b4;
+  --medio: #ffd86b;
+  --urgente: #ff8a80;
+}
+.portal-alto-contraste a:not([class*="rounded-full"]) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.portal-alto-contraste [style*="radial-gradient"] {
+  background: var(--card) !important;
+}
+.portal-sem-movimento .portal-faixa {
+  animation: none;
+  flex-wrap: wrap;
+  width: auto;
+}
+.portal-sem-movimento .portal-faixa > [aria-hidden="true"] {
+  display: none;
+}
+.portal-sem-movimento .portal-pulso {
+  animation: none;
+}
+.portal-lendo {
+  outline: 3px solid var(--brand-claro);
+  outline-offset: 12px;
+  border-radius: 28px;
+}
+
 /* ── CAMPOS DE FORMULÁRIO NÃO MUDAM AO CLICAR ──
    O anel de foco geral (acima) trocava o arredondamento dos campos e
    acendia um contorno duplo a cada clique; em caixa de seleção o navegador
