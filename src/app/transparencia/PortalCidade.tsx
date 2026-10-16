@@ -11,6 +11,7 @@ import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { Anel, Barra, Contador, Surgir } from "@/components/portal/Vivo";
 import PergunteACidade from "@/components/portal/PergunteACidade";
 import PertoDeVoce from "@/components/portal/PertoDeVoce";
+import Acessibilidade from "@/components/portal/Acessibilidade";
 import type { LugarPerto, Ponto } from "@/lib/perto-de-voce";
 import { montarIndice, type DadosDoIndice } from "@/lib/pergunte-a-cidade";
 
@@ -224,7 +225,8 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
   ];
 
   return (
-    <div className="tema-noite min-h-screen bg-background overflow-x-clip">
+    <div id="portal-raiz" className="tema-noite min-h-screen bg-background overflow-x-clip">
+      <Acessibilidade />
       <a href="#conteudo" className="pular-para-conteudo">
         Pular para o conteúdo
       </a>
