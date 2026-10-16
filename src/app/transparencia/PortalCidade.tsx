@@ -13,6 +13,7 @@ import PergunteACidade from "@/components/portal/PergunteACidade";
 import PertoDeVoce from "@/components/portal/PertoDeVoce";
 import Acessibilidade from "@/components/portal/Acessibilidade";
 import type { LugarPerto, Ponto } from "@/lib/perto-de-voce";
+import { definicaoDe, descreverFrescor, type Conjunto, type Frescor } from "@/lib/dados-abertos";
 import { montarIndice, type DadosDoIndice } from "@/lib/pergunte-a-cidade";
 
 
@@ -126,6 +127,10 @@ export type DadosPortal = {
   escolas?: DadosDoIndice["escolas"];
   /** Na cidade de exemplo, o "usar minha localização" usa este ponto. */
   pontoSimulado?: Ponto | null;
+  /** Quando cada conjunto foi atualizado, e se entrou sozinho (lib/dados-abertos.ts). */
+  frescor?: Partial<Record<Conjunto, Frescor>>;
+  /** Os conjuntos de dados abertos e quantos registros cada um tem. */
+  conjuntos?: { chave: Conjunto; registros: number }[];
   /** Cidade fictícia de /transparencia/exemplo: faixa de aviso e sem formulário de verdade. */
   exemplo?: boolean;
 };
@@ -144,7 +149,18 @@ const UNIDADE_CURTA: Record<string, { rotulo: string; peso: number }> = {
   outro: { rotulo: "Unidade de saúde", peso: 3 },
 };
 
-export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, exemplo = false }: DadosPortal) {
+/** "● Atualizado sozinho há 2 dias, direto do PNCP": de quando é o dado, sempre à vista. */
+function Selo({ f }: { f: Frescor | undefined }) {
+  if (!f) return null;
+  return (
+    <p className="inline-flex items-center gap-2 text-sm -mt-6 mb-8" style={{ color: f.sozinho ? "var(--info)" : "var(--muted)" }}>
+      <span className={`w-2 h-2 rounded-full ${f.sozinho ? "portal-pulso" : ""}`} style={{ background: f.sozinho ? "var(--info)" : "var(--muted)" }} aria-hidden />
+      {descreverFrescor(f)}
+    </p>
+  );
+}
+
+export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, frescor = {}, conjuntos = [], exemplo = false }: DadosPortal) {
   const fuso = fusoDoEstado(portal.estado);
   const destaque = portal.codigoIbge ? indiceNoMapa(portal.codigoIbge) : null;
 
@@ -221,6 +237,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
     ...(portal.mostrarFinanceiro ? [{ href: "#dinheiro", rotulo: "Dinheiro" }] : []),
     ...(portal.mostrarObras ? [{ href: "#obras", rotulo: "Obras" }] : []),
     ...(portal.mostrarLicitacoes ? [{ href: "#compras", rotulo: "Compras" }] : []),
+    ...(conjuntos.some((c) => c.registros > 0) ? [{ href: "#dados", rotulo: "Dados abertos" }] : []),
     { href: "#atendimento", rotulo: "Fale com a prefeitura" },
   ];
 
@@ -404,6 +421,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
               }
               texto={snapshot ? `Números publicados pela prefeitura, atualizados em ${dataNumerica(snapshot.atualizadoEm, fuso)}.` : undefined}
             />
+            <Selo f={frescor.dinheiro} />
             {snapshot && receita !== null ? (
               <div className="rounded-3xl border border-border p-6 sm:p-10 space-y-8" style={{ background: "var(--card)" }}>
                 {[
@@ -447,6 +465,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
               }
               texto={listaObras.length > 0 ? "Cada obra com o quanto já foi feito, onde fica e quanto custa." : "Nenhuma obra publicada ainda."}
             />
+            <Selo f={frescor.obras} />
             {listaObras.length > 0 && (
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 {listaObras.map((o, i) => {
@@ -490,6 +509,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                   : "Nenhuma compra publicada ainda."
               }
             />
+            <Selo f={frescor.compras} />
             {listaLicitacoes.length > 0 && (
               <ul className="border-t border-border">
                 {listaLicitacoes.map((l, i) => {
@@ -522,6 +542,64 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
         <div id="publicacoes" className="pt-24 sm:pt-32 scroll-mt-6">
           <SecoesPublicadas publicacoes={listaPublicacoes} />
         </div>
+
+        {/* ═══ DADOS ABERTOS ═══ */}
+        {conjuntos.some((c) => c.registros > 0) && (
+          <section id="dados" className="pt-24 sm:pt-32 scroll-mt-6">
+            <Titulo
+              olho="Dados abertos"
+              titulo={
+                <>
+                  Os dados da cidade, <span style={{ color: "var(--brand-claro)" }}>para baixar.</span>
+                </>
+              }
+              texto="Em planilha (abre no Excel) ou para sistemas, com endereço fixo que não muda. Uso livre, citando a fonte. Cada conjunto diz de quando é o dado e de onde veio."
+            />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {conjuntos
+                .filter((c) => c.registros > 0)
+                .map((c, i) => {
+                  const def = definicaoDe(c.chave)!;
+                  const f = frescor[c.chave];
+                  return (
+                    <Surgir key={c.chave} atraso={(i % 3) * 0.06}>
+                      <article className="rounded-3xl border border-border p-5 sm:p-6 h-full flex flex-col" style={{ background: "var(--card)" }}>
+                        <h3 className="text-lg font-semibold tracking-[-0.02em]">{def.titulo}</h3>
+                        <p className="text-sm text-muted mt-1.5 leading-relaxed flex-1">{def.descricao}</p>
+                        <p className="text-sm mt-3">
+                          <span className="font-semibold tabular-nums">{c.registros.toLocaleString("pt-BR")}</span>{" "}
+                          <span className="text-muted">{c.registros === 1 ? "registro" : "registros"}</span>
+                        </p>
+                        {f && (
+                          <p className="text-xs mt-1" style={{ color: f.sozinho ? "var(--info)" : "var(--muted)" }}>
+                            {descreverFrescor(f)}
+                          </p>
+                        )}
+                        <div className="flex gap-2 mt-4">
+                          <a
+                            href={`/transparencia/${slug}/dados/${c.chave}.csv`}
+                            download
+                            className="rounded-full px-4 py-2 text-sm font-semibold text-white"
+                            style={{ background: "var(--brand)" }}
+                          >
+                            Planilha
+                          </a>
+                          <a
+                            href={`/transparencia/${slug}/dados/${c.chave}.json`}
+                            target="_blank"
+                            rel="noopener"
+                            className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:border-brand transition"
+                          >
+                            JSON
+                          </a>
+                        </div>
+                      </article>
+                    </Surgir>
+                  );
+                })}
+            </div>
+          </section>
+        )}
 
         {/* ═══ FALE COM A PREFEITURA ═══ */}
         <section id="atendimento" className="pt-24 sm:pt-32 pb-24 scroll-mt-6">
