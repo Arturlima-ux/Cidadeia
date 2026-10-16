@@ -1,6 +1,7 @@
 import PortalCidade from "../PortalCidade";
 import { resumirVoz } from "@/lib/voz-da-cidade";
-import { instante, mensagensDeExemplo } from "@/lib/portal-exemplo";
+import { CENTRO_DO_EXEMPLO, dadosDoExemplo, fontesDoExemplo, frescorDoExemplo, instante, mensagensDeExemplo } from "@/lib/portal-exemplo";
+import { CONJUNTOS, linhasDe } from "@/lib/dados-abertos";
 
 // ── A CIDADE DE EXEMPLO ──
 //
@@ -21,14 +22,10 @@ export const metadata = {
 // Sempre recalculado: as "últimas mensagens" contam dias a partir de hoje.
 export const dynamic = "force-dynamic";
 
-// Um ponto qualquer no interior, longe de cidade de verdade: só as distâncias
-// entre os lugares de exemplo importam.
-const CENTRO = { lat: -6.5, lng: -41.0 };
-
 export default function PortalExemplo() {
   const agora = instante();
-  const hoje = new Date(agora).toISOString();
-  const base = { prefeituraId: "exemplo", createdAt: hoje, atualizadoEm: hoje } as const;
+  const dados = dadosDoExemplo(agora);
+  const fontes = fontesDoExemplo(agora);
 
   return (
     <PortalCidade
@@ -45,104 +42,11 @@ export default function PortalExemplo() {
         mostrarObras: true,
         mostrarLicitacoes: true,
       }}
-      snapshot={{ id: "exemplo", prefeituraId: "exemplo", receita: 62_400_000, despesas: 51_150_000, saldo: 11_250_000, indiceTransparencia: null, origem: "manual", atualizadoEm: hoje }}
-      listaObras={[
-        ["Reforma da Unidade Básica de Saúde do Centro", "Centro", 72, 840_000, "em_andamento", 0.002, 0.001],
-        ["Pavimentação da Rua das Flores", "Jardim Primavera", 100, 1_250_000, "concluida", -0.01, 0.007],
-        ["Quadra coberta da Escola Municipal Aurora", "Vila Nova", 35, 690_000, "atrasada", -0.006, -0.008],
-        ["Creche municipal do bairro Alto Alegre", "Alto Alegre", 54, 1_980_000, "em_andamento", 0.019, -0.015],
-        ["Praça da Matriz", "Centro", 0, 320_000, "planejada", 0.001, -0.002],
-      ].map(([nome, bairro, progresso, valor, status, dLat, dLng], i) => ({
-        ...base,
-        id: `ex${i}`,
-        nome: nome as string,
-        bairro: bairro as string,
-        progressoAtual: progresso as number,
-        progressoEsperado: 0,
-        valorContrato: valor as number,
-        numeroControlePncpContrato: null,
-        vigenciaInicio: null,
-        vigenciaFim: null,
-        fornecedorNome: null,
-        origem: "manual",
-        latitude: CENTRO.lat + (dLat as number),
-        longitude: CENTRO.lng + (dLng as number),
-        status: status as "em_andamento",
-      }))}
-      listaLicitacoes={[
-        ["PE 012/2026", "Merenda escolar para as escolas municipais", "Pregão eletrônico", 540_000, "publicada"],
-        ["PE 009/2026", "Remédios da farmácia básica", "Pregão eletrônico", 380_000, "homologada"],
-        ["CC 003/2026", "Construção de passagem molhada no Riacho Fundo", "Concorrência", 910_000, "em_disputa"],
-        ["PE 014/2026", "Transporte escolar da zona rural", "Pregão eletrônico", 1_120_000, "planejamento"],
-      ].map(([numero, objeto, modalidade, valor, status], i) => ({
-        id: `exl${i}`,
-        prefeituraId: "exemplo",
-        numero: numero as string,
-        objeto: objeto as string,
-        modalidade: modalidade as string,
-        valorEstimado: valor as number,
-        fornecedor: null,
-        status: status as "publicada",
-        observacaoRisco: null,
-        prazoFinal: null,
-        numeroControlePncp: null,
-        createdAt: hoje,
-      }))}
-      listaPublicacoes={(
-        [
-          ["servico", "IPTU: segunda via do carnê", "Emita a segunda via do IPTU com o número da inscrição do imóvel, que está no carnê antigo ou na escritura.", "Número da inscrição do imóvel ou CPF do proprietário", "Na hora", "Setor de Tributos, Rua Principal, 100 · seg. a sex., 8h às 14h", "Finanças"],
-          ["servico", "Alvará de funcionamento", "Licença para abrir ou manter um comércio, uma oficina ou um escritório funcionando na cidade.", "CNPJ, contrato social, comprovante de endereço e vistoria dos bombeiros", "Até 15 dias úteis", "Setor de Tributos ou pelo protocolo deste portal", "Finanças"],
-          ["servico", "Matrícula na rede municipal", "Vaga em creche e escola municipal para crianças de 0 a 14 anos.", "Certidão de nascimento, cartão de vacina, comprovante de endereço e CPF do responsável", "Resultado em até 5 dias úteis", "Secretaria de Educação ou direto na escola mais próxima", "Educação"],
-          ["servico", "Coleta de entulho e poda", "A prefeitura recolhe entulho de pequena obra e galhos de poda, com agendamento.", "Endereço e o que vai ser recolhido", "Até 7 dias", "Pelo protocolo deste portal ou na Secretaria de Obras", "Obras"],
-          ["estrutura", "Secretaria Municipal de Saúde", "Responsável pelas unidades de saúde, vacinação, farmácia básica e transporte de pacientes. Telefone (00) 3333-0101 · seg. a sex., 7h às 13h.", null, null, null, "Saúde"],
-          ["faq", "Onde pego remédio de graça?", "Na Farmácia Básica, ao lado da UBS do Centro, com a receita do SUS e o cartão do SUS. Seg. a sex., 7h às 17h.", null, null, null, "Saúde"],
-        ] as const
-      ).map(([tipo, titulo, conteudo, requisitos, prazo, contato, secretaria], i) => ({
-        id: `exp${i}`,
-        prefeituraId: "exemplo",
-        tipo,
-        titulo,
-        conteudo,
-        requisitos,
-        prazo,
-        contato,
-        secretaria,
-        linkExterno: null,
-        publicado: true,
-        atualizadoEm: hoje,
-        createdAt: hoje,
-      }))}
-      unidades={[
-        ["UBS do Centro", "ubs", "Centro", "Rua da Matriz, 45", "(00) 3333-0201", "Seg. a sex., 7h às 17h", 0.002, 0.001],
-        ["UPA 24 horas Bela Aurora", "upa", "Jardim Primavera", "Av. Brasil, 1200", "(00) 3333-0192", "Todos os dias, 24 horas", -0.012, 0.009],
-        ["UBS Alto Alegre", "ubs", "Alto Alegre", "Rua Sete, 310", "(00) 3333-0202", "Seg. a sex., 7h às 13h", 0.021, -0.017],
-        ["Farmácia Básica Municipal", "farmacia", "Centro", "Rua da Matriz, 47", "(00) 3333-0203", "Seg. a sex., 7h às 17h", 0.0025, 0.0012],
-      ].map(([nome, tipo, bairro, endereco, telefone, turno, dLat, dLng], i) => ({
-        id: `exu${i}`,
-        nome: nome as string,
-        tipo: tipo as string,
-        bairro: bairro as string,
-        endereco: endereco as string,
-        telefone: telefone as string,
-        turno: turno as string,
-        latitude: CENTRO.lat + (dLat as number),
-        longitude: CENTRO.lng + (dLng as number),
-      }))}
-      escolas={[
-        ["Escola Municipal Aurora", "Vila Nova", "Rua das Acácias, 80", "(00) 3333-0301", "Ensino fundamental, 1º ao 9º ano", -0.006, -0.008],
-        ["Creche Municipal Pequeno Príncipe", "Centro", "Rua da Matriz, 210", "(00) 3333-0302", "Creche e pré-escola", 0.003, 0.004],
-      ].map(([nome, bairro, endereco, telefone, etapas, dLat, dLng], i) => ({
-        id: `exe${i}`,
-        nome: nome as string,
-        bairro: bairro as string,
-        endereco: endereco as string,
-        telefone: telefone as string,
-        etapas: etapas as string,
-        latitude: CENTRO.lat + (dLat as number),
-        longitude: CENTRO.lng + (dLng as number),
-      }))}
-      pontoSimulado={CENTRO}
+      {...dados}
+      pontoSimulado={CENTRO_DO_EXEMPLO}
       voz={resumirVoz(mensagensDeExemplo(agora), agora)}
+      conjuntos={CONJUNTOS.map((c) => ({ chave: c.chave, registros: linhasDe(c.chave, fontes).length }))}
+      frescor={frescorDoExemplo(agora)}
     />
   );
 }
