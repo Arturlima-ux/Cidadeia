@@ -1,4 +1,4 @@
-import Link from "next/link";
+import NavAdmin from "../NavAdmin";
 import { notFound, redirect } from "next/navigation";
 import { lerSessao } from "@/lib/sessao";
 import { emailDaEquipe } from "@/lib/equipe";
@@ -37,11 +37,7 @@ export default async function SaidaPage() {
               e-mail; depois marque como enviado.
             </p>
           </div>
-          <nav className="flex items-center gap-5 text-sm">
-            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
-            <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
-            <span className="font-medium">Caixa de saída</span>
-          </nav>
+          <NavAdmin atual="/admin/saida" />
         </div>
 
         <TesteDeEnvio />

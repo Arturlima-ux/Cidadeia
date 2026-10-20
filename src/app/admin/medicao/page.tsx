@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NavAdmin from "../NavAdmin";
 import { gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { eventos } from "@/db/schema";
@@ -116,13 +117,11 @@ export default async function MedicaoPage({
   const base = funil[0]?.visitantes ?? 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+    <div className="w-full min-w-0 max-w-4xl mx-auto px-4 sm:px-8 py-10 space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link href="/admin/pedidos" className="text-sm font-semibold text-brand link-traco">
-            ← Mesa de pedidos
-          </Link>
-          <h1 className="font-serif text-2xl font-bold mt-2">Medição</h1>
+        <div className="min-w-0 w-full sm:w-auto sm:flex-1">
+          <NavAdmin atual="/admin/medicao" />
+          <h1 className="font-serif text-2xl font-bold mt-5">Medição</h1>
           <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-[62ch]">
             Sem cookie, sem script de terceiro e sem IP guardado. O identificador de visitante é
             um resumo que muda à meia-noite — conta pessoa no dia, e não segue ninguém de um dia

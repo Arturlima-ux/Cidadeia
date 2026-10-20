@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BotaoPainelTeste from "@/app/admin/teste/BotaoPainelTeste";
+import NavAdmin from "../NavAdmin";
 import { notFound, redirect } from "next/navigation";
 import { asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -115,15 +115,7 @@ export default async function AdminPedidosPage({
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Do clique ao pagamento</h1>
             <p className="text-sm text-muted mt-2">Mesa da equipe, {email}</p>
           </div>
-          <nav className="flex items-center gap-5 text-sm">
-            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
-            <span className="font-medium">Pedidos</span>
-            <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
-            <Link href="/admin/clientes" className="text-muted hover:text-foreground">Clientes</Link>
-            <Link href="/admin/saida" className="text-muted hover:text-foreground">Caixa de saída</Link>
-            <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
-            <BotaoPainelTeste />
-                      </nav>
+          <NavAdmin atual="/admin/pedidos" comPainelDeTeste />
         </div>
 
         {/* O caminho inteiro, numa linha. */}
