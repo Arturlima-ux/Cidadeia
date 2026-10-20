@@ -266,3 +266,27 @@ export function montarPainelObrigacoes(avaliadas: ObrigacaoAvaliada[]): PainelOb
     total: avaliadas.length,
   };
 }
+
+/**
+ * O próximo vencimento de uma obrigação a partir de `hoje` (AAAA-MM-DD, em
+ * Brasília), e quantos dias faltam. Vira o ano sozinho: em dezembro, o
+ * próximo RREO já é o do exercício seguinte. No próprio dia do vencimento
+ * ainda conta (faltam 0 dias): o prazo vai até o fim dele.
+ */
+export function proximoVencimento(
+  chave: string,
+  hoje: string,
+  opcoes: { periodicidadeRgf?: Periodicidade } = {}
+): { periodo: PeriodoObrigacao; dias: number } | null {
+  const ano = Number(hoje.slice(0, 4));
+  for (const exercicio of [ano - 1, ano, ano + 1]) {
+    const periodo = periodosDoExercicio(exercicio, opcoes).find(
+      (p) => p.obrigacao.chave === chave && p.vencimento >= hoje
+    );
+    if (periodo) {
+      const dias = Math.round((Date.parse(periodo.vencimento) - Date.parse(hoje)) / 86_400_000);
+      return { periodo, dias };
+    }
+  }
+  return null;
+}

@@ -168,16 +168,19 @@ export default function PecaUmaLigacao({
               <>
                 {" "}de
                 <label className="sr-only" htmlFor={id("cidade")}>Município</label>
-                <input
-                  id={id("cidade")}
-                  name="municipio"
-                  value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  placeholder="qual município"
-                  style={largura(cidade || "qual município")}
-                  className={lacuna("municipio")}
-                />
-                .
+                {/* O ponto vai junto do campo: solto, ele caía sozinho na linha de baixo. */}
+                <span className="whitespace-nowrap">
+                  <input
+                    id={id("cidade")}
+                    name="municipio"
+                    value={cidade}
+                    onChange={(e) => setCidade(e.target.value)}
+                    placeholder="qual município"
+                    style={largura(cidade || "qual município")}
+                    className={lacuna("municipio")}
+                  />
+                  .
+                </span>
               </>
             )}{" "}
             Liguem para
@@ -197,6 +200,7 @@ export default function PecaUmaLigacao({
               aria-invalid={erro?.campo === "telefone"}
             />
             <label className="sr-only" htmlFor={id("hora")}>Melhor horário</label>
+            <span className="whitespace-nowrap">
             <span className="relative inline-block">
               <select
                 id={id("hora")}
@@ -217,6 +221,7 @@ export default function PecaUmaLigacao({
               </svg>
             </span>
             .
+            </span>
           </p>
 
           {erro && (

@@ -35,6 +35,12 @@ export type Cargo = {
   faz: string[];
   modulos: PlanoAddon[];
   objecoes: Objecao[];
+  /**
+   * O fechamento da página, ao lado do "peça uma ligação". Era o mesmo para
+   * os três ("Dois caminhos. Os dois sem compromisso."), e não dizia nada a
+   * ninguém. Cada cargo fecha com o que muda na rotina dele no primeiro mês.
+   */
+  fechamento: { titulo: string; texto: string };
   descricaoSeo: string;
 };
 
@@ -96,6 +102,11 @@ export const CARGOS: Cargo[] = [
         resposta: "É mensal, por módulo e sem fidelidade. A prefeitura encerra qualquer módulo com aviso de 30 dias.",
       },
     ],
+    fechamento: {
+      titulo: "No próximo prazo, o senhor já fica sabendo antes.",
+      texto:
+        "Com o Gestão ligado, o aviso de cada RREO e RGF chega por e-mail 15 dias antes do vencimento, e a despesa com pessoal passa a ser conferida todo dia na régua da LRF. O que precisa de decisão aparece no alto do painel, com o artigo ao lado.",
+    },
     descricaoSeo:
       "Despesa com pessoal, prazos do RREO e do RGF e mínimos de saúde e educação conferidos todo dia no Tesouro, com aviso ao prefeito antes do Tribunal de Contas.",
   },
@@ -153,6 +164,11 @@ export const CARGOS: Cargo[] = [
           "O prefeito e o administrador da conta, por e-mail. Cada secretário tem o próprio acesso e enxerga só a sua área.",
       },
     ],
+    fechamento: {
+      titulo: "Aposente a planilha de prazos ainda neste exercício.",
+      texto:
+        "No primeiro dia, o CidadeIA lê no Tesouro o extrato de entregas do município e monta o calendário do ano com o que já consta entregue, no tipo comum ou simplificado. O que falta fica com data, aviso por e-mail e o alerta que some sozinho quando a entrega aparece.",
+    },
     descricaoSeo:
       "Prazos do RREO e do RGF conferidos todo dia no Tesouro, comum ou simplificado, com aviso antes do vencimento e alerta quando os números do RGF não fecham.",
   },
@@ -210,6 +226,11 @@ export const CARGOS: Cargo[] = [
           "Não. Os avisos fiscais saem de regra fixa, com o artigo ao lado. A IA só sugere alertas a partir dos dados cadastrados, e nenhum vira oficial sem aprovação humana.",
       },
     ],
+    fechamento: {
+      titulo: "O próximo parecer começa com a conferência feita.",
+      texto:
+        "Entregas no Tesouro, despesa com pessoal na régua da LRF, números do RGF que não fecham e dispensas somadas por objeto: o CidadeIA confere todo dia e entrega em PDF, com o artigo ao lado de cada apontamento. Você fica com a parte que é do controle: analisar e recomendar.",
+    },
     descricaoSeo:
       "Para o controle interno municipal: entregas do RREO e do RGF, despesa com pessoal na régua da LRF, números que não fecham e dispensas somadas, com a base legal de cada aviso.",
   },

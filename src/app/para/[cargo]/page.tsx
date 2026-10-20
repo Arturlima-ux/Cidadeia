@@ -11,6 +11,8 @@ import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { PANORAMA, mesDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
 import { compartilhamento } from "@/lib/seo";
 import { registrarEvento } from "@/lib/registrar-evento";
+import { proximoVencimento } from "@/lib/obrigacoes-fiscais";
+import { hojeEmBrasilia } from "@/lib/cobranca";
 
 // ── UMA PÁGINA POR QUEM ASSINA O RGF ──
 //
@@ -71,6 +73,8 @@ export default async function CargoPage({ params }: { params: Promise<{ cargo: s
   const modulos = PLANOS_ADDON.filter((p) => c.modulos.includes(p.chave));
   const linkProposta = `/proposta?modulos=${c.modulos.join(",")}`;
   const outros = CARGOS.filter((x) => x.slug !== c.slug);
+  const hoje = hojeEmBrasilia();
+  const prazo = proximoVencimento("rreo", hoje);
 
   return (
     <div className="tema-noite min-h-screen overflow-x-clip">
@@ -184,19 +188,50 @@ export default async function CargoPage({ params }: { params: Promise<{ cargo: s
           </div>
         </section>
 
-        {/* ═══ OS DOIS CAMINHOS ═══ */}
+        {/* ═══ FECHAMENTO: O PRAZO, O QUE MUDA, A PROPOSTA OU A LIGAÇÃO ═══ */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
           <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16 items-start">
             <div>
-              <h2 className="inicio-h2 max-w-[16ch]">Dois caminhos. Os dois sem compromisso.</h2>
-              <p className="text-muted mt-5 leading-relaxed max-w-[44ch]">
-                A proposta chega em um dia útil, com valor, termo de referência e minuta de contrato, já com{" "}
-                {modulos.map((m) => m.nome).join(" e ")} marcados. Ou deixe o telefone e a equipe liga no horário
-                que você escolher.
-              </p>
-              <Link href={linkProposta} className="inicio-sublinhado inline-block mt-6">
-                Montar a proposta agora
-              </Link>
+              {prazo && (
+                <p className="flex items-baseline gap-2.5 text-sm leading-snug">
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0 translate-y-[-2px]" style={{ background: "var(--brand)" }} aria-hidden />
+                  <span>
+                    O RREO do {prazo.periodo.rotulo.replace(/ de \d{4}$/, "")} vence em{" "}
+                    {dataCurta(prazo.periodo.vencimento, hoje)}
+                    <span className="text-muted">
+                      {" "}
+                      · {prazo.dias === 0 ? "vence hoje" : prazo.dias === 1 ? "falta 1 dia" : `faltam ${prazo.dias} dias`}
+                    </span>
+                  </span>
+                </p>
+              )}
+              <h2 className="inicio-h2 max-w-[18ch] mt-6">{c.fechamento.titulo}</h2>
+              <p className="text-muted mt-5 leading-relaxed max-w-[48ch]">{c.fechamento.texto}</p>
+
+              <div className="mt-8 rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+                <p className="text-sm font-semibold">A proposta chega em um dia útil, com:</p>
+                <ul className="mt-3 grid gap-2 text-sm text-muted">
+                  <li className="flex gap-2.5">
+                    <span className="mt-[7px] w-1 h-1 rounded-full shrink-0 bg-current" aria-hidden />
+                    o valor mensal de cada módulo, com {modulos.map((m) => m.nome).join(" e ")} já marcados;
+                  </li>
+                  <li className="flex gap-2.5">
+                    <span className="mt-[7px] w-1 h-1 rounded-full shrink-0 bg-current" aria-hidden />
+                    termo de referência e minuta de contrato para a dispensa de licitação;
+                  </li>
+                  <li className="flex gap-2.5">
+                    <span className="mt-[7px] w-1 h-1 rounded-full shrink-0 bg-current" aria-hidden />
+                    acordo de tratamento de dados (LGPD) e acordo de nível de serviço.
+                  </li>
+                </ul>
+                <Link
+                  href={linkProposta}
+                  className="elevar inline-block mt-5 bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-6 py-3"
+                >
+                  Montar a proposta
+                </Link>
+              </div>
+
               <p className="mt-10 text-sm text-muted">Também na prefeitura:</p>
               <ul className="mt-2 grid gap-1.5">
                 {outros.map((o) => (
@@ -221,4 +256,11 @@ export default async function CargoPage({ params }: { params: Promise<{ cargo: s
       <SiteFooter />
     </div>
   );
+}
+
+/** "30 de novembro", com o ano só quando não é o corrente. */
+function dataCurta(iso: string, hoje: string): string {
+  const [a, m, d] = iso.split("-").map(Number);
+  const mes = new Date(Date.UTC(a, m - 1, d)).toLocaleDateString("pt-BR", { month: "long", timeZone: "UTC" });
+  return `${d} de ${mes}${iso.slice(0, 4) !== hoje.slice(0, 4) ? ` de ${a}` : ""}`;
 }
