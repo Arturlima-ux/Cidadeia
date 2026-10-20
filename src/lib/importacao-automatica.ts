@@ -14,6 +14,7 @@ import { buscarEmendasPix, gravarEmendas } from "@/lib/emendas-pix-servidor";
 import { buscarObrasFederais, gravarObrasFederais } from "@/lib/obras-federais-servidor";
 import { buscarArboviroses, gravarArboviroses } from "@/lib/arboviroses-servidor";
 import { NOME_NIVEL } from "@/lib/arboviroses";
+import { buscarSiope, gravarSiope } from "@/lib/siope-servidor";
 import {
   bimestresVencidos,
   importarContratosPncp,
@@ -50,7 +51,7 @@ import {
 // O que foi lançado à mão nunca é sobrescrito pela rotina (ver
 // importacoes.ts). Quem quiser o número do Tesouro por cima clica no botão.
 
-export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix" | "obrasgov" | "infodengue";
+export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix" | "obrasgov" | "infodengue" | "siope";
 
 export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa: "ibge" | "cnpj" | null; dias: number }[] = [
   { fonte: "rgf", nome: "Despesa com pessoal (RGF, Tesouro)", planos: ["gestao"], precisa: "ibge", dias: 7 },
@@ -64,6 +65,8 @@ export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa
   { fonte: "obrasgov", nome: "Obras federais no município (ObrasGov)", planos: ["obras", "saude", "educacao"], precisa: "ibge", dias: 7 },
   // A semana epidemiológica fecha no sábado: a cada 3 dias pega a nova sem atraso.
   { fonte: "infodengue", nome: "Dengue e chikungunya (InfoDengue, Fiocruz)", planos: ["saude"], precisa: "ibge", dias: 3 },
+  // A declaração pode chegar qualquer dia, e o atraso suspende convênio: a cada 3 dias.
+  { fonte: "siope", nome: "Declarações e mínimos da educação (SIOPE, FNDE)", planos: ["educacao", "gestao"], precisa: "ibge", dias: 3 },
 ];
 
 export const EVENTO_OK = "importacao_ok";
@@ -187,6 +190,14 @@ async function rodarFonte(
       await gravarArboviroses(p.id, f);
       const s = f.dengue[0];
       return s ? `InfoDengue: dengue em alerta ${NOME_NIVEL[s.nivel]} na semana ${String(s.se).slice(4)}` : "InfoDengue: sem dados recentes do município";
+    }
+    case "siope": {
+      const f = await buscarSiope(ibge!, hoje);
+      await gravarSiope(p.id, f);
+      const faltam = f.declaracoes.filter((d) => !d.declaradoEm && d.noEstado > 0).length;
+      return faltam
+        ? `SIOPE: ${plural(faltam, "bimestre vencido sem declaração", "bimestres vencidos sem declaração")}`
+        : `SIOPE: declarações em dia${f.fechamento?.mde != null ? `, ${f.fechamento.mde.toFixed(2).replace(".", ",")}% em educação em ${f.fechamento.ano}` : ""}`;
     }
     case "obrasgov": {
       const obras = await buscarObrasFederais(ibge!);

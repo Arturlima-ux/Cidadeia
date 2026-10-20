@@ -30,12 +30,6 @@ async function olhar(nome: string, url: string) {
   }
 }
 
-// SIOPE (FNDE, Olinda/OData): parâmetros vão como alias @Nome na URL.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SIOPE = "https://www.fnde.gov.br/olinda-ide/servico/DADOS_ABERTOS_SIOPE/versao/v1/odata";
-const siope = (recurso: string, ano: number, peri: number, uf: string, extra = "") =>
-  `${SIOPE}/${recurso}(Ano_Consulta=@Ano_Consulta,Num_Peri=@Num_Peri,Sig_UF=@Sig_UF)?@Ano_Consulta=${ano}&@Num_Peri=${peri}&@Sig_UF='${uf}'&$format=json${extra}`;
-
 async function conferirSiope() {
   // Roda o código do painel (lib/siope-servidor.ts) contra a API de verdade.
   const { buscarSiope } = await import("../../src/lib/siope-servidor");

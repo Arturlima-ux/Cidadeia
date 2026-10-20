@@ -1,4 +1,5 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
+import Siope from "@/components/Siope";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { formatarMoeda } from "@/lib/formatadores";
 import { fusoDoEstado } from "@/lib/horario";
@@ -45,7 +46,7 @@ function Envoltorio({ exemplo, children }: { exemplo: boolean; children: React.R
 }
 
 export default async function MinimosPage() {
-  const { prefeitura, temPlano } = await contextoDashboard();
+  const { prefeitura, temPlano, sessao } = await contextoDashboard();
   // Gestão vê os três; Saúde vê o seu 15%; Educação, os 25% e o FUNDEB.
   const areasDoPlano = AREAS_MINIMO.filter((a) => temPlano("gestao") || (a === "saude" ? temPlano("saude") : temPlano("educacao")));
   if (!areasDoPlano.length) return <BloqueioPlano plano="gestao" />;
@@ -122,6 +123,9 @@ export default async function MinimosPage() {
           quando o contador fecha o demonstrativo.
         </p>
       </div>
+
+      {/* O número oficial chega sozinho do FNDE; o acompanhamento abaixo é o do mês a mês. */}
+      {areasDoPlano.some((a) => a !== "saude") && <Siope prefeituraId={sessao.prefeituraId} />}
 
       <Envoltorio exemplo={semNenhumDado}>
       <div className="grid sm:grid-cols-2 gap-4">

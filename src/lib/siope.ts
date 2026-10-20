@@ -165,6 +165,9 @@ export function achadosDoSiope(f: FotografiaSiope): DeteccaoAutomatica[] {
   //    se ninguém aparece, o problema é da consulta, não da prefeitura.
   const faltando = f.declaracoes.filter((d) => !d.declaradoEm && d.noEstado > 0);
   if (faltando.length) {
+    // O mais antigo dá a dimensão do atraso; o mais recente dá a identidade do
+    // alerta (um bimestre novo perdido vira alerta novo, e e-mail).
+    const primeiro = faltando[0];
     const ultimo = faltando[faltando.length - 1];
     const porAno = new Map<number, number[]>();
     for (const d of faltando) porAno.set(d.ano, [...(porAno.get(d.ano) ?? []), d.bimestre]);
@@ -175,9 +178,9 @@ export function achadosDoSiope(f: FotografiaSiope): DeteccaoAutomatica[] {
       secretaria: "educacao",
       titulo: `SIOPE em atraso: ${lista(quais)} sem declaração`,
       descricao:
-        `A declaração ao SIOPE (FNDE) vence 30 dias depois de cada bimestre; a do ${ultimo.bimestre}º bimestre de ${ultimo.ano} venceu em ${br(ultimo.prazo)}. ` +
+        `A declaração ao SIOPE (FNDE) vence 30 dias depois de cada bimestre; ${faltando.length > 1 ? "a mais antiga em aberto, " : "a "}do ${primeiro.bimestre}º bimestre de ${primeiro.ano}, venceu em ${br(primeiro.prazo)}. ` +
         `Enquanto não for transmitida, ficam suspensas as transferências voluntárias e novas operações de crédito (Lei 14.113/2020, art. 38, § 1º). ` +
-        `No ${f.uf}, ${ultimo.noEstado} de ${f.totalNoEstado} municípios já declararam esse bimestre. Quem transmite é o contador ou o responsável pela educação no município.`,
+        `No ${f.uf}, ${primeiro.noEstado} de ${f.totalNoEstado} municípios já declararam esse bimestre. Quem transmite é o contador ou o responsável pela educação no município.`,
       chave: `siope:atraso:${ultimo.ano}-${ultimo.bimestre}`,
     });
   }

@@ -14,6 +14,8 @@ import InsightIA from "@/components/InsightIA";
 import { gerarInsightIA } from "@/app/dashboard/insight-actions";
 import { IconDownload } from "@/components/icons";
 import ImportarRedeCenso from "./ImportarRedeCenso";
+import ObrasFederais from "@/components/ObrasFederais";
+import Siope from "@/components/Siope";
 import { mencionaEscola } from "@/lib/leitura-escola";
 import { lerRedeEducacao, aQueMaisPrecisa } from "@/lib/rede-educacao";
 import { DIAS_LETIVOS_LDB } from "@/lib/ocorrencias-escola";
@@ -127,6 +129,8 @@ export default async function EducacaoPage() {
         modulo="educacao"
         inicial={await insightInicial(ctx.sessao.prefeituraId, "educacao", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
       />
+
+      <Siope prefeituraId={ctx.sessao.prefeituraId} />
 
       {/* ── a escola que mais precisa de você hoje ── */}
       {primeira && (
@@ -470,6 +474,8 @@ export default async function EducacaoPage() {
           )}
         </details>
       </div>
+
+      <ObrasFederais prefeituraId={ctx.sessao.prefeituraId} area="educacao" uf={ctx.prefeitura.estado} />
     </div>
   );
 }
