@@ -2,12 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 
-function formatar(valor: number, tipo: "moeda" | "percentual" | "numero", sufixo?: string): string {
+type Tipo = "moeda" | "moeda-curta" | "percentual" | "numero";
+
+/**
+ * "R$ 482 mil", "R$ 1,25 mi", "−R$ 84 mil". Num painel de visão geral, os
+ * centavos não dizem nada e o número inteiro ("R$ 482.000,00") não cabia ao
+ * lado do vizinho: um invadia o outro.
+ */
+export function moedaCurta(valor: number): string {
+  const sinal = valor < 0 ? "−" : "";
+  const v = Math.abs(valor);
+  const n = (x: number, casas: number) => x.toLocaleString("pt-BR", { maximumFractionDigits: casas });
+  if (v >= 1e9) return `${sinal}R$ ${n(v / 1e9, 2)} bi`;
+  if (v >= 1e6) return `${sinal}R$ ${n(v / 1e6, 2)} mi`;
+  if (v >= 1e4) return `${sinal}R$ ${n(v / 1e3, 0)} mil`;
+  return `${sinal}${v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`;
+}
+
+function formatar(valor: number, tipo: Tipo, sufixo?: string): string {
+  if (tipo === "moeda-curta") return moedaCurta(valor);
   if (tipo === "moeda") {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
   if (tipo === "percentual") {
-    return `${valor.toFixed(valor % 1 === 0 ? 0 : 1)}%`;
+    return `${valor.toLocaleString("pt-BR", { maximumFractionDigits: valor % 1 === 0 ? 0 : 1 })}%`;
   }
   const arredondado = Math.round(valor);
   return sufixo ? `${arredondado.toLocaleString("pt-BR")}${sufixo}` : arredondado.toLocaleString("pt-BR");
@@ -27,7 +45,7 @@ export default function ValorAnimado({
   className,
 }: {
   valor: number;
-  tipo: "moeda" | "percentual" | "numero";
+  tipo: Tipo;
   sufixo?: string;
   duracaoMs?: number;
   className?: string;
@@ -69,5 +87,12 @@ export default function ValorAnimado({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valor, duracaoMs]);
 
-  return <span className={className}>{formatar(exibido, tipo, sufixo)}</span>;
+  // O valor exato fica no title: o curto é para ler de relance, o exato para conferir.
+  const exato = tipo === "moeda-curta" ? valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : undefined;
+  return (
+    <span className={className} title={exato}>
+      {formatar(exibido, tipo, sufixo)}
+      {exato && <span className="sr-only"> ({exato})</span>}
+    </span>
+  );
 }

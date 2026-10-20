@@ -31,6 +31,9 @@ const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julh
 /** % de variação entre dois valores. null se não der pra calcular. */
 function calcularDelta(atual: number | null, anterior: number | null): number | null {
   if (atual === null || anterior === null || anterior === 0) return null;
+  // Saldo que trocou de sinal não tem variação percentual que se leia
+  // ("↓ 275%" para um saldo que foi de +48 mil a −84 mil): melhor nenhuma.
+  if (Math.sign(atual) !== Math.sign(anterior)) return null;
   return ((atual - anterior) / Math.abs(anterior)) * 100;
 }
 
@@ -191,11 +194,16 @@ export default async function DashboardPage() {
             não o que fazer. Cabem num painel só, e a lista de decisões acima
             fica sendo a maior coisa da página — como no material de venda. */}
         {temDadosFinanceiros ? (
+          // A largura que manda é a do CARTÃO, não a da tela: com o menu
+          // lateral aberto, uma tela de 1024px deixa só ~530px para o cartão,
+          // e os três valores ficavam um por cima do outro. Por isso consulta
+          // de contêiner (@container), e não breakpoint de tela.
           <div
-            className="arco-card border border-border p-5 sm:p-6 grid gap-6 sm:grid-cols-[1fr_auto] items-center"
+            className="@container arco-card border border-border p-5 sm:p-6"
             style={{ background: "var(--card)" }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+           <div className="grid gap-6 @4xl:grid-cols-[minmax(0,1fr)_auto] items-center">
+            <div className="grid grid-cols-1 @md:grid-cols-3 gap-5 min-w-0">
               <CardMetrica
                 label="Receita"
                 valorNumerico={snapshot!.receita}
@@ -226,7 +234,7 @@ export default async function DashboardPage() {
             </div>
 
             {snapshot!.indiceTransparencia !== null && (
-              <div className="sm:border-l border-border sm:pl-6 flex items-center gap-4">
+              <div className="border-t pt-5 @4xl:pt-0 @4xl:border-t-0 @4xl:border-l border-border @4xl:pl-6 flex items-center gap-4">
                 <GaugeEficiencia
                   valor={snapshot!.indiceTransparencia}
                   label="Eficiência da gestão"
@@ -237,10 +245,16 @@ export default async function DashboardPage() {
                     snapshot!.indiceTransparencia,
                     anterior?.indiceTransparencia ?? null
                   );
-                  return delta !== null ? <DeltaBadge percentual={delta} upEhBom /> : null;
+                  if (delta === null) return null;
+                  return Math.abs(delta) < 0.05 ? (
+                    <span className="text-xs font-semibold text-muted">estável</span>
+                  ) : (
+                    <DeltaBadge percentual={delta} upEhBom />
+                  );
                 })()}
               </div>
             )}
+           </div>
           </div>
         ) : (
           <EstadoVazio
@@ -319,14 +333,14 @@ function CardMetrica({
 }) {
   if (semCartao) {
     return (
-      <div className="border-l-2 pl-3.5" style={{ borderColor: cor }}>
+      <div className="border-l-2 pl-3.5 min-w-0" style={{ borderColor: cor }}>
         <p className="text-xs font-semibold text-muted">{label}</p>
-        <div className="flex items-baseline gap-2 mt-1">
+        <div className="flex items-baseline gap-2 mt-1 min-w-0">
           {valorNumerico !== null ? (
             <ValorAnimado
               valor={valorNumerico}
-              tipo={tipo}
-              className="text-xl font-semibold leading-tight tracking-[-0.02em]"
+              tipo={tipo === "moeda" ? "moeda-curta" : tipo}
+              className="text-xl sm:text-2xl font-semibold leading-tight tracking-[-0.02em] whitespace-nowrap tabular-nums"
             />
           ) : (
             <span className="text-xl font-semibold leading-tight text-muted tracking-[-0.02em]">—</span>
@@ -394,7 +408,7 @@ function DeltaBadge({
       style={{ color: cor }}
     >
       {!neutro && <Icone className="w-3 h-3" />}
-      {Math.abs(percentual).toFixed(1)}%
+      {Math.abs(percentual).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
     </span>
   );
 }
