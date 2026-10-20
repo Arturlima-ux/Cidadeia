@@ -1,13 +1,13 @@
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { insightInicial } from "@/lib/ia";
-import { buscarObras, criarObra, atualizarProgressoObra, excluirObra } from "./actions";
+import { buscarObras, atualizarProgressoObra, excluirObra } from "./actions";
+import FormularioNovaObra from "./FormularioNovaObra";
 import PainelObras, { type ObraNaTela } from "./PainelObras";
 import { lerObra, pedeAtencao, ehObraOuEngenharia } from "@/lib/obra-prazo";
 import { buscarDecisoes } from "./actions";
 import { resumoDaDecisao, decisaoAindaVale } from "@/lib/decisao-obra";
 import { buscarContratos } from "@/app/dashboard/secretarias/licitacoes/contratos-actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
-import { LIMITES_BRASIL } from "@/lib/coordenadas";
 
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import ObrasFederais from "@/components/ObrasFederais";
@@ -109,12 +109,26 @@ export default async function ObrasPage() {
   const obrasQuePedemDecisao = todasLidas.filter((o) => !temDecisaoValida(o));
   const obrasDecididas = todasLidas.filter(temDecisaoValida);
 
-  const atrasadas = listaObras.filter(
-    (o) =>
-      o.status !== "concluida" &&
-      o.progressoAtual !== null &&
-      o.progressoAtual < o.progressoEsperado - 10
-  );
+  // ── O ESPERADO SAI DO PRAZO ──
+  // Com início e término, quanto a obra já deveria ter andado é a fração do
+  // prazo consumida (lib/obra-prazo.ts), recalculada todo dia. O número
+  // digitado à mão (progressoEsperado) só vale para obra antiga sem datas.
+  const esperadoDe = (o: (typeof listaObras)[number]): number | null => {
+    if (o.vigenciaInicio && o.vigenciaFim) {
+      const l = lerObra(
+        { id: o.id, objeto: o.nome, fornecedorNome: o.fornecedorNome, valorInicial: o.valorContrato, valorGlobal: o.valorContrato, vigenciaInicio: o.vigenciaInicio, vigenciaFim: o.vigenciaFim, progressoInformado: o.progressoAtual, progressoAtualizadoEm: o.atualizadoEm },
+        agora
+      );
+      return l.prazoConsumido === null ? (l.situacao === "nao_comecou" ? 0 : null) : Math.round(l.prazoConsumido);
+    }
+    return o.progressoEsperado > 0 ? o.progressoEsperado : null;
+  };
+  const esperados = new Map(listaObras.map((o) => [o.id, esperadoDe(o)]));
+  const atrasadas = listaObras.filter((o) => {
+    const e = esperados.get(o.id);
+    return o.status !== "concluida" && o.progressoAtual !== null && e !== null && e !== undefined && o.progressoAtual < e - 10;
+  });
+  const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split("-").reverse().join("/") : null);
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -122,9 +136,9 @@ export default async function ObrasPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-[-0.02em]">Obras</h1>
           <p className="text-muted text-sm mt-1.5">
-            Progresso registrado manualmente por enquanto. O alerta de atraso
-            abaixo é um cálculo simples (progresso atual bem abaixo do esperado)
-            — não é uma previsão da IA.
+            As obras dos contratos entram sozinhas. Para cada obra, o painel compara o progresso
+            medido com quanto ela já deveria ter andado pelo prazo, e avisa quando ficar mais de
+            10 pontos para trás.
           </p>
         </div>
         <a
@@ -156,7 +170,7 @@ export default async function ObrasPage() {
           titulo={`${atrasadas.length} obra${atrasadas.length > 1 ? "s" : ""} com progresso abaixo do esperado`}
           itens={atrasadas.map(
             (o) =>
-              `${o.nome}: ${o.progressoAtual}% concluído (esperado: ${o.progressoEsperado}%)`
+              `${o.nome}: ${o.progressoAtual}% concluído, e pelo prazo já deveria estar em ${esperados.get(o.id)}%`
           )}
         />
       )}
@@ -188,113 +202,7 @@ export default async function ObrasPage() {
         <h2 className="font-semibold text-sm text-muted mb-3">
           Nova obra
         </h2>
-        <form
-          action={criarObra}
-          className="bg-card border border-border rounded-2xl p-4 grid sm:grid-cols-2 gap-3"
-        >
-          <div>
-            <label className="block text-xs font-medium mb-1">Nome</label>
-            <input
-              name="nome"
-              required
-              placeholder="Reforma da Praça Central"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">Bairro</label>
-            <input
-              name="bairro"
-              placeholder="Centro"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">Latitude</label>
-            <input
-              name="latitude"
-              type="number"
-              step="any"
-              min={LIMITES_BRASIL.latitude.min}
-              max={LIMITES_BRASIL.latitude.max}
-              title="Latitude no Brasil: entre -34 e 6"
-              placeholder="-3.7327"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">Longitude</label>
-            <input
-              name="longitude"
-              type="number"
-              step="any"
-              min={LIMITES_BRASIL.longitude.min}
-              max={LIMITES_BRASIL.longitude.max}
-              title="Longitude no Brasil: entre -74 e -28"
-              placeholder="-38.5267"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Progresso atual (%)
-            </label>
-            <input
-              name="progressoAtual"
-              type="number"
-              min={0}
-              max={100}
-              defaultValue={0}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Progresso esperado até hoje (%)
-            </label>
-            <input
-              name="progressoEsperado"
-              type="number"
-              min={0}
-              max={100}
-              defaultValue={0}
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Valor do contrato (R$)
-            </label>
-            <input
-              name="valorContrato"
-              type="number"
-              step="0.01"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium mb-1">Status</label>
-            <select
-              name="status"
-              defaultValue="planejada"
-              className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
-            >
-              {Object.entries(LABEL_STATUS).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="sm:col-span-2">
-            <button
-              type="submit"
-              className="bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-5 py-2 transition"
-            >
-              Adicionar obra
-            </button>
-          </div>
-        </form>
+        <FormularioNovaObra />
       </div>
 
       <div>
@@ -330,16 +238,16 @@ export default async function ObrasPage() {
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-1.5 text-xs text-muted">
                   <span>
-                    {o.progressoAtual === null
-                      ? "sem medição registrada"
-                      : `${o.progressoAtual}% concluído (esperado: ${o.progressoEsperado}%)`}
+                    {o.progressoAtual === null ? "sem medição registrada" : `${o.progressoAtual}% concluído`}
+                    {esperados.get(o.id) !== null && o.status !== "concluida" && ` · pelo prazo, ${esperados.get(o.id)}%`}
+                    {o.vigenciaFim && ` · término ${dataBr(o.vigenciaFim)}`}
                   </span>
                   {o.valorContrato !== null && <span>{formatarMoeda(o.valorContrato)}</span>}
                 </div>
 
                 <details className="mt-2">
                   <summary className="text-xs font-semibold text-brand hover:underline cursor-pointer list-none">
-                    Atualizar progresso
+                    Atualizar medição ou prazo
                   </summary>
                   <form
                     action={atualizarProgressoObra}
@@ -355,9 +263,20 @@ export default async function ObrasPage() {
                         type="number"
                         min={0}
                         max={100}
-                        defaultValue={o.progressoAtual ?? ""}
-                        className="w-24 rounded-lg border border-border px-2 py-1.5 text-sm outline-none focus:border-brand"
+                        inputMode="numeric"
+                        placeholder={o.progressoAtual === null ? "não medido" : `${o.progressoAtual}`}
+                        className="w-28 rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand"
                       />
+                    </div>
+                    {!o.vigenciaInicio && (
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Início</label>
+                        <input name="vigenciaInicio" type="date" className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-xs font-medium mb-1">{o.vigenciaFim ? "Novo término (prorrogação)" : "Término previsto"}</label>
+                      <input name="vigenciaFim" type="date" min={o.vigenciaInicio?.slice(0, 10)} className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">Status</label>
