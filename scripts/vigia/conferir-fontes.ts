@@ -36,7 +36,13 @@ async function main() {
     const f = CNPJ.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
     ben = (await olhar("Transferegov · beneficiário (formatado)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${encodeURIComponent(f)}&pagina=1&tamanho_da_pagina=5`)) as typeof ben;
   }
-  const idb = ben?.[0]?.id_beneficiario;
+  // Formato do CNPJ e busca pelo nome, para quando o CNPJ não acha.
+  const doEstado = (await olhar("Transferegov · beneficiários do PI (amostra)", `${tg}/beneficiarios-especiais?uf_beneficiario=PI&pagina=1&tamanho_da_pagina=200`)) as { id_beneficiario?: number; nome_beneficiario?: string; cnpj_beneficiario?: string }[] | null;
+  const porNome = doEstado?.find((b) => /JERUMENHA/i.test(b.nome_beneficiario ?? ""));
+  console.log(`\nJerumenha na amostra: ${porNome ? JSON.stringify(porNome) : "não"}`);
+  console.log(`Exemplos de CNPJ: ${(doEstado ?? []).slice(0, 5).map((b) => b.cnpj_beneficiario).join(" | ")}`);
+  const nome = (await olhar("Transferegov · beneficiário pelo nome", `${tg}/beneficiarios-especiais?nome_beneficiario=${encodeURIComponent("MUNICIPIO DE JERUMENHA")}&pagina=1&tamanho_da_pagina=5`)) as { id_beneficiario?: number }[] | null;
+  const idb = ben?.[0]?.id_beneficiario ?? porNome?.id_beneficiario ?? nome?.[0]?.id_beneficiario ?? doEstado?.[0]?.id_beneficiario;
   const planos = idb ? ((await olhar("Transferegov · planos de ação", `${tg}/planos-acao-especiais?id_beneficiario=${idb}&pagina=1&tamanho_da_pagina=5`)) as { id_plano_acao?: number }[] | null) : null;
   const ipa = planos?.[0]?.id_plano_acao;
   if (ipa) {
