@@ -1,6 +1,7 @@
-import { and, eq, gte, inArray, isNotNull, like, notInArray, or } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, like, notInArray, or } from "drizzle-orm";
 import { db } from "@/db";
-import { alertas, auditoria, contratos, licitacoes, pedidoEventos, prefeituras, usuarios } from "@/db/schema";
+import { alertas, auditoria, contratos, despesaPessoal, licitacoes, pedidoEventos, prefeituras, usuarios } from "@/db/schema";
+import { compararComPares, fraseDaComparacao } from "@/lib/pares";
 import { gerarId } from "@/lib/id";
 import { enviarEmail } from "@/lib/email";
 import { linkApp } from "@/lib/url-app";
@@ -24,7 +25,7 @@ const DIA = 86_400_000;
 const curto = (t: string, n = 70) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
 
 export async function dadosDaSemana(
-  p: { id: string; municipio: string; populacao: number | null; planos: string },
+  p: { id: string; municipio: string; populacao: number | null; planos: string; codigoIbge?: string | null },
   hoje: Date
 ): Promise<DadosDaSemana> {
   const planos = planosContratadosDe(p.planos);
@@ -131,7 +132,21 @@ export async function dadosDaSemana(
     for (const l of linhas) resolvidos.push({ titulo: l.titulo, secretaria: l.secretaria, sozinho: false });
   }
 
-  return { municipio: p.municipio, abertos, vencimentos, resolvidos, linkPainel: linkApp("/dashboard/alertas") };
+  let comparacao: string | null = null;
+  if (planos.includes("gestao") && p.codigoIbge) {
+    const [ultimo] = await db
+      .select({ rcl: despesaPessoal.rcl, despesa: despesaPessoal.despesa })
+      .from(despesaPessoal)
+      .where(eq(despesaPessoal.prefeituraId, p.id))
+      .orderBy(desc(despesaPessoal.exercicio), desc(despesaPessoal.mesReferencia))
+      .limit(1);
+    if (ultimo && ultimo.rcl > 0) {
+      const c = compararComPares(p.codigoIbge, (ultimo.despesa / ultimo.rcl) * 100, { hoje });
+      if (c) comparacao = fraseDaComparacao(c);
+    }
+  }
+
+  return { municipio: p.municipio, abertos, vencimentos, resolvidos, linkPainel: linkApp("/dashboard/alertas"), comparacao };
 }
 
 export type RelatorioSegunda = { prefeituras: number; emails: number; jaEnviadas: number; erros: string[] };
@@ -141,7 +156,7 @@ export async function rodarSegundaDoPrefeito(opcoes: { hoje?: Date; soPrefeitura
   const r: RelatorioSegunda = { prefeituras: 0, emails: 0, jaEnviadas: 0, erros: [] };
 
   const todas = await db
-    .select({ id: prefeituras.id, municipio: prefeituras.municipio, populacao: prefeituras.populacao, planos: prefeituras.planosContratados })
+    .select({ id: prefeituras.id, municipio: prefeituras.municipio, populacao: prefeituras.populacao, planos: prefeituras.planosContratados, codigoIbge: prefeituras.codigoIbge })
     .from(prefeituras)
     .where(opcoes.soPrefeitura ? eq(prefeituras.id, opcoes.soPrefeitura) : notInArray(prefeituras.id, PREFEITURAS_INTERNAS));
   const clientes = todas.filter((p) => planosContratadosDe(p.planos).length > 0);

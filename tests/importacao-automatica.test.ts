@@ -17,7 +17,7 @@ describe("a data do banco", () => {
 
 describe("o que importar hoje", () => {
   it("só as fontes dos módulos contratados", () => {
-    expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo"]);
+    expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix"]);
     expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["cnes", "pncp-contratos", "obras"]);
     expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual([]);
   });
@@ -27,7 +27,7 @@ describe("o que importar hoje", () => {
       rgf: { ok: "2026-10-11 05:50:00-03", falhou: null, resumo: null },
       rreo: { ok: "2026-10-07 05:52:00-03", falhou: null, resumo: null },
     };
-    expect(fontesDevidas(["gestao"], ultimas, HOJE)).toEqual(["rreo"]);
+    expect(fontesDevidas(["gestao"], ultimas, HOJE)).toEqual(["rreo", "emendas-pix"]);
   });
 
   it("um minuto a menos não empurra para a semana seguinte", () => {
@@ -44,7 +44,7 @@ describe("o que importar hoje", () => {
 
   it("forçar roda tudo do plano (ao reconhecer o município)", () => {
     const ultimas = { rgf: { ok: "2026-10-14 05:00:00-03", falhou: null, resumo: null } };
-    expect(fontesDevidas(["gestao"], ultimas, HOJE, true)).toEqual(["rgf", "rreo"]);
+    expect(fontesDevidas(["gestao"], ultimas, HOJE, true)).toEqual(["rgf", "rreo", "emendas-pix"]);
   });
 });
 
