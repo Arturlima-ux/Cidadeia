@@ -1,0 +1,63 @@
+// ── CONFERIR AS FONTES PÚBLICAS NOVAS ──
+//
+// Pergunta uma vez a cada API pública que o CidadeIA lê e imprime o formato da
+// resposta (campos e um exemplo). Serve para conferir, de um lugar com rede
+// aberta, que o endereço, os filtros e os nomes de campo continuam os que o
+// código espera. Uso: tsx scripts/vigia/conferir-fontes.ts
+const CNPJ = process.env.CNPJ_TESTE ?? "06553978000137"; // Jerumenha/PI
+const IBGE = process.env.IBGE_TESTE ?? "2205300";
+
+async function olhar(nome: string, url: string) {
+  try {
+    const r = await fetch(url, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(40_000) });
+    const texto = await r.text();
+    let corpo: unknown = null;
+    try {
+      corpo = JSON.parse(texto);
+    } catch {
+      console.log(`\n### ${nome}\nHTTP ${r.status}, não é JSON: ${texto.slice(0, 300)}`);
+      return null;
+    }
+    const lista = Array.isArray(corpo) ? corpo : (corpo as { data?: unknown[] }).data;
+    const envelope = Array.isArray(corpo) ? "lista" : Object.keys(corpo as object).join(", ");
+    console.log(`\n### ${nome}\nHTTP ${r.status} · envelope: ${envelope} · itens: ${Array.isArray(lista) ? lista.length : "?"}`);
+    if (Array.isArray(lista) && lista[0]) console.log(JSON.stringify(lista[0], null, 1).slice(0, 2500));
+    return lista ?? corpo;
+  } catch (e) {
+    console.log(`\n### ${nome}\nFALHOU: ${e instanceof Error ? e.message : e}`);
+    return null;
+  }
+}
+
+async function main() {
+  const tg = "https://api-publica.transferegov.gestao.gov.br/especiais";
+  let ben = (await olhar("Transferegov · beneficiário (só números)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${CNPJ}&pagina=1&tamanho_da_pagina=5`)) as { id_beneficiario?: number }[] | null;
+  if (!ben?.length) {
+    const f = CNPJ.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+    ben = (await olhar("Transferegov · beneficiário (formatado)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${encodeURIComponent(f)}&pagina=1&tamanho_da_pagina=5`)) as typeof ben;
+  }
+  const idb = ben?.[0]?.id_beneficiario;
+  const planos = idb ? ((await olhar("Transferegov · planos de ação", `${tg}/planos-acao-especiais?id_beneficiario=${idb}&pagina=1&tamanho_da_pagina=5`)) as { id_plano_acao?: number }[] | null) : null;
+  const ipa = planos?.[0]?.id_plano_acao;
+  if (ipa) {
+    await olhar("Transferegov · plano de trabalho", `${tg}/planos-trabalho-especiais?id_plano_acao=${ipa}&pagina=1&tamanho_da_pagina=5`);
+    await olhar("Transferegov · relatórios de gestão", `${tg}/relatorios-gestao-novos-especiais?id_plano_acao=${ipa}&pagina=1&tamanho_da_pagina=5`);
+    await olhar("Transferegov · devoluções", `${tg}/devolucao-especiais?id_plano_acao=${ipa}&pagina=1&tamanho_da_pagina=5`);
+  }
+
+  const og = "https://api-publica.obrasgov.gestao.gov.br/obras";
+  const geo = (await olhar("ObrasGov · geometrias do município", `${og}/geometria?cod_ibge=${IBGE}&pagina=1&tamanho_da_pagina=5`)) as { id_projeto_investimento?: string }[] | null;
+  const idp = geo?.[0]?.id_projeto_investimento;
+  if (idp) {
+    await olhar("ObrasGov · projeto", `${og}/projeto-investimento?id_projeto_investimento=${encodeURIComponent(idp)}&pagina=1&tamanho_da_pagina=1`);
+    await olhar("ObrasGov · execução física", `${og}/execucao-fisica?id_projeto_investimento=${encodeURIComponent(idp)}&pagina=1&tamanho_da_pagina=5`);
+    await olhar("ObrasGov · empenhos", `${og}/empenho?id_projeto_investimento=${encodeURIComponent(idp)}&pagina=1&tamanho_da_pagina=5`);
+  }
+  await olhar("ObrasGov · paralisadas no PI (contagem)", `${og}/projeto-investimento?uf_principal=PI&situacao=Paralisada&pagina=1&tamanho_da_pagina=1`);
+  await olhar("ObrasGov · histórico de paralisação", `${og}/historico-situacao-cancelada-paralisada?pagina=1&tamanho_da_pagina=1`);
+
+  const ano = new Date().getUTCFullYear();
+  await olhar("InfoDengue · alerta da cidade", `https://info.dengue.mat.br/api/alertcity?geocode=${IBGE}&disease=dengue&format=json&ew_start=1&ew_end=53&ey_start=${ano}&ey_end=${ano}`);
+}
+
+main();

@@ -1,0 +1,27 @@
+name: conferir-fontes
+# Manual: pergunta uma vez a cada API pública nova e mostra o formato da
+# resposta no log (scripts/vigia/conferir-fontes.ts).
+on:
+  workflow_dispatch:
+    inputs:
+      cnpj:
+        description: "CNPJ de prefeitura para testar"
+        default: "06553978000137"
+      ibge:
+        description: "Código IBGE do município"
+        default: "2205300"
+permissions:
+  contents: read
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx -y tsx@4 scripts/vigia/conferir-fontes.ts
+        env:
+          CNPJ_TESTE: ${{ inputs.cnpj }}
+          IBGE_TESTE: ${{ inputs.ibge }}
