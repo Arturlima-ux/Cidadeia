@@ -4,6 +4,7 @@ import { lerSessao } from "@/lib/sessao";
 import { emailDaEquipe } from "@/lib/equipe";
 import { linkRascunhoGmail, pendentesDaCaixaDeSaida } from "@/lib/caixa-de-saida";
 import { marcarEnviado } from "./actions";
+import TesteDeEnvio from "./TesteDeEnvio";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,8 @@ export default async function SaidaPage() {
             <span className="font-medium">Caixa de saída</span>
           </nav>
         </div>
+
+        <TesteDeEnvio />
 
         {pendentes.length === 0 ? (
           <p className="text-muted rounded-2xl border border-border p-6" style={{ background: "var(--card)" }}>

@@ -87,3 +87,15 @@ describe("o remetente da Resend", () => {
     expect(comNome("x@y.com", 'Prefeitura de "Picos" via CidadeIA')).toBe("Prefeitura de Picos via CidadeIA <x@y.com>");
   });
 });
+
+describe("o teste de envio explica a falha", () => {
+  it("Gmail com senha recusada aponta a senha de app da mesma conta", async () => {
+    const { explicarFalha } = await import("@/lib/email");
+    const e = explicarFalha("gmail", "SMTP: Invalid login: 535-5.7.8 Username and Password not accepted", "cidadeia1326@gmail.com");
+    expect(e).toContain("cidadeia1326@gmail.com");
+    expect(e).toContain("senha de app");
+    expect(explicarFalha("gmail", "SMTP: Connection timeout", null)).toContain("conectar");
+    expect(explicarFalha("resend", "Resend respondeu 403: You can only send testing emails to your own email address. Verify a domain", null)).toContain("domínio");
+    expect(explicarFalha("resend", "Resend respondeu 401: API key is invalid", null)).toContain("RESEND_API_KEY");
+  });
+});
