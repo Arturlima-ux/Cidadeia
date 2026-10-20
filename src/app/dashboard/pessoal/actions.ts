@@ -10,7 +10,7 @@ import { gerarId } from "@/lib/id";
 import { revalidatePath } from "next/cache";
 import { buscarPrefeitura } from "@/lib/dados-prefeitura";
 import { buscarCodigoIbge } from "@/lib/siconfi";
-import { importarRgf } from "@/lib/importacoes";
+import { completarHistoricoRgf, importarRgf } from "@/lib/importacoes";
 
 export type LinhaPessoal = {
   exercicio: number;
@@ -187,6 +187,11 @@ export async function importarRgfDoSiconfi(): Promise<ResultadoImportacao> {
   // quem clicou pediu o número do Tesouro: sobrescreve até o lançado à mão.
   const r = await importarRgf(sessao.prefeituraId, codigoIbge);
   if (!r.ok) return r;
+  // Primeira importação: traz também os anos anteriores, para o gráfico e a
+  // antecipação não começarem com um ponto só.
+  await completarHistoricoRgf(sessao.prefeituraId, codigoIbge).catch((e) => {
+    console.error("[Pessoal] histórico do RGF não veio:", e);
+  });
 
   await auditar(sessao, { acao: "importar", entidade: "financeiro", resumo: "RGF importado do SICONFI" });
   revalidatePath("/dashboard/pessoal");

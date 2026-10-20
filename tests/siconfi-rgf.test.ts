@@ -342,3 +342,33 @@ describe("o RGF simplificado (municípios pequenos)", () => {
     expect(r.causa).toBe("consulta_falhou");
   });
 });
+
+describe("histórico do RGF", () => {
+  it("anda quantos exercícios pedir, e o padrão continua sendo dois", async () => {
+    const { periodosParaTentar } = await import("@/lib/siconfi-rgf");
+    const anos = (n?: number) => [...new Set(periodosParaTentar(2026, 9, n).map((p) => p.exercicio))];
+    expect(anos()).toEqual([2026, 2025]);
+    expect(anos(4)).toEqual([2026, 2025, 2024, 2023]);
+  });
+
+  it("uma apuração por fim de período, da mais antiga para a mais nova", async () => {
+    const { consolidarSerieRgf } = await import("@/lib/siconfi-rgf");
+    const r = (exercicio: number, periodicidade: "Q" | "S", periodo: number, mesReferencia: number, despesa: number) => ({
+      periodo: { exercicio, periodicidade, periodo, mesReferencia },
+      instituicao: null,
+      rclAjustada: 100,
+      rcl: 100,
+      despesaTotal: despesa,
+      limiteMaximo: null,
+      limitePrudencial: null,
+      limiteAlerta: null,
+    });
+    const serie = consolidarSerieRgf([
+      r(2026, "Q", 2, 8, 48),
+      r(2025, "Q", 3, 12, 46),
+      r(2025, "S", 2, 12, 99), // mesmo fim de período: fica o primeiro achado
+      r(2025, "Q", 1, 4, 45),
+    ] as never);
+    expect(serie.map((x) => `${x.periodo.mesReferencia}/${x.periodo.exercicio}:${x.despesaTotal}`)).toEqual(["4/2025:45", "12/2025:46", "8/2026:48"]);
+  });
+});
