@@ -110,6 +110,28 @@ export function truncarIp(ip: string): string {
  * palavras — versão de sistema e modelo de aparelho são o que torna uma
  * impressão digital única, e não servem para decisão nenhuma aqui.
  */
+// ── O QUE NÃO É GENTE ──
+//
+// A lista de "cidades estudando o CidadeIA" contava toda página aberta. Só
+// que quem mais abre página é robô: o Google indexando os 5.570 Raio-X, os
+// robôs de IA, a prévia de link do WhatsApp, o filtro de e-mail que abre
+// tudo antes do destinatário. Um robô que entra no Raio-X de uma cidade e
+// segue o botão da proposta parecia "uma prefeitura estudando a compra".
+// Também não conta: o pré-carregamento de página que o navegador faz sozinho
+// (ninguém clicou), e quem está logado (a equipe testando, ou prefeitura que
+// já é cliente).
+const ROBO_DO_SITE =
+  /bot|crawl|spider|slurp|preview|scan|safelink|proofpoint|mimecast|barracuda|python|curl|wget|go-http|java\/|headless|okhttp|axios|node-fetch|whatsapp|facebookexternalhit|meta-external|lighthouse|pagespeed|vercel|embedly|discord|skype|monitor|uptime|httpclient|undici|libwww|feedfetcher|google-inspection|chrome-lighthouse/i;
+
+export function naoEhVisitante(d: { navegador: string | null; cabecalhos: { get(nome: string): string | null }; logado: boolean }): boolean {
+  if (d.logado) return true;
+  if (!d.navegador || ROBO_DO_SITE.test(d.navegador)) return true;
+  const c = d.cabecalhos;
+  if (c.get("next-router-prefetch") || c.get("next-router-segment-prefetch")) return true;
+  const proposito = `${c.get("purpose") ?? ""} ${c.get("sec-purpose") ?? ""} ${c.get("x-purpose") ?? ""} ${c.get("x-moz") ?? ""}`;
+  return /prefetch|preview/i.test(proposito);
+}
+
 export function dispositivoDe(navegador: string): "movel" | "computador" {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navegador) ? "movel" : "computador";
 }

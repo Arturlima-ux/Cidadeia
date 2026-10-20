@@ -1,11 +1,12 @@
 import { after, connection } from "next/server";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { db } from "@/db";
 import { eventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import {
   identificadorDoDia,
   dispositivoDe,
+  naoEhVisitante,
   origemDe,
   type TipoEvento,
 } from "@/lib/analytics";
@@ -68,6 +69,8 @@ export async function registrarEvento(dados: DadosDoEvento): Promise<void> {
     await connection();
     const h = await headers();
     const navegador = h.get("user-agent") ?? "";
+    const logado = Boolean((await cookies()).get("cidadeia_sessao")?.value);
+    if (naoEhVisitante({ navegador, cabecalhos: h, logado })) return;
     const dia = new Date().toISOString().slice(0, 10);
 
     const linha = {

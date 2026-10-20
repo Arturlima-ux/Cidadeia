@@ -3,6 +3,7 @@ import {
   identificadorDoDia,
   truncarIp,
   dispositivoDe,
+  naoEhVisitante,
   origemDe,
   montarFunil,
   maiorPerda,
@@ -259,5 +260,29 @@ describe("o cruzamento que justifica medir no próprio banco", () => {
   it("evento sem código não entra, e visita não conta", () => {
     expect(municipiosQueConverteram([e("raio_x", null, "a", "Teresina", "PI")])).toEqual([]);
     expect(municipiosQueConverteram([e("visita", "2211001", "a")])).toEqual([]);
+  });
+});
+
+describe("o que não conta como visitante", () => {
+  const cab = (h: Record<string, string> = {}) => ({ get: (n: string) => h[n] ?? null });
+  const chrome = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+  it("gente de verdade conta", () => {
+    expect(naoEhVisitante({ navegador: chrome, cabecalhos: cab(), logado: false })).toBe(false);
+  });
+  it("robôs, prévia de link e navegador sem nome não contam", () => {
+    for (const ua of [
+      "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2)",
+      "WhatsApp/2.23.20.0 A",
+      "facebookexternalhit/1.1",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0 Safari/537.36",
+      "",
+    ])
+      expect(naoEhVisitante({ navegador: ua, cabecalhos: cab(), logado: false }), ua).toBe(true);
+  });
+  it("pré-carregamento e quem está logado não contam", () => {
+    expect(naoEhVisitante({ navegador: chrome, cabecalhos: cab({ "next-router-prefetch": "1" }), logado: false })).toBe(true);
+    expect(naoEhVisitante({ navegador: chrome, cabecalhos: cab({ "sec-purpose": "prefetch;prerender" }), logado: false })).toBe(true);
+    expect(naoEhVisitante({ navegador: chrome, cabecalhos: cab(), logado: true })).toBe(true);
   });
 });
