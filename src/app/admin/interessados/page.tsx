@@ -18,7 +18,7 @@ import {
   type SituacaoLead,
 } from "@/lib/oportunidades";
 import AcoesInteressado from "./AcoesInteressado";
-import { carregarSinais } from "@/lib/sinais-de-interesse-servidor";
+import { carregarSinaisComDescarte } from "@/lib/sinais-de-interesse-servidor";
 import { descreverSinal } from "@/lib/sinais-de-interesse";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +61,7 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
   const mostrarTodos = ver === "todos";
   const agora = agoraMs();
 
-  const [listaLeads, pedidos, sinais] = await Promise.all([
+  const [listaLeads, pedidos, { sinais, descartadas, cortadoEm }] = await Promise.all([
     db.select().from(leads).where(gte(leads.createdAt, inicioDaJanela(120))).orderBy(desc(leads.createdAt)).limit(500),
     db
       .select({
@@ -78,7 +78,7 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
       .where(inArray(pedidosProposta.status, ["recebido"]))
       .orderBy(desc(pedidosProposta.createdAt))
       .limit(200),
-    carregarSinais(7).catch(() => []),
+    carregarSinaisComDescarte(7).catch(() => ({ sinais: [], descartadas: 0, cortadoEm: null })),
   ]);
 
   const eventos = listaLeads.length
@@ -230,11 +230,17 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
             <h2 className="text-xl font-semibold">Cidades estudando o CidadeIA (7 dias)</h2>
-            <p className="text-sm text-muted">Visitas anônimas, somadas por município. Ninguém deixou contato.</p>
+            <p className="text-sm text-muted">
+              Visitas anônimas de gente, somadas por município. Ninguém deixou contato. A cidade é a do Raio-X que a pessoa abriu,
+              não o lugar de onde ela acessou.
+              {descartadas > 0 && ` ${descartadas === 1 ? "1 cidade foi retirada por ter" : `${descartadas} cidades foram retiradas por terem`} só visitas com jeito de robô.`}
+              {cortadoEm &&
+                ` Contando só desde ${new Date(cortadoEm).toLocaleString("pt-BR", { timeZone: "America/Fortaleza", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}, quando o filtro de robô entrou no ar: antes disso não dava para separar robô de gente.`}
+            </p>
           </div>
           {sinais.length === 0 ? (
             <p className="text-muted rounded-2xl border border-border p-6" style={{ background: "var(--card)" }}>
-              Nenhuma cidade com visitas repetidas nesta semana.
+              Nenhuma cidade com visitas de gente repetidas nesta semana.
             </p>
           ) : (
             <ul className="space-y-2.5">
