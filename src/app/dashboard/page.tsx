@@ -202,8 +202,8 @@ export default async function DashboardPage() {
             className="@container arco-card border border-border p-5 sm:p-6"
             style={{ background: "var(--card)" }}
           >
-           <div className="grid gap-6 @4xl:grid-cols-[minmax(0,1fr)_auto] items-center">
-            <div className="grid grid-cols-1 @md:grid-cols-3 gap-5 min-w-0">
+           <div className="grid gap-6 @3xl:grid-cols-[minmax(0,1fr)_auto] items-center">
+            <div className="grid grid-cols-1 divide-y divide-border min-w-0">
               <CardMetrica
                 label="Receita"
                 valorNumerico={snapshot!.receita}
@@ -234,7 +234,7 @@ export default async function DashboardPage() {
             </div>
 
             {snapshot!.indiceTransparencia !== null && (
-              <div className="border-t pt-5 @4xl:pt-0 @4xl:border-t-0 @4xl:border-l border-border @4xl:pl-6 flex items-center gap-4">
+              <div className="border-t pt-5 @3xl:pt-0 @3xl:border-t-0 @3xl:border-l border-border @3xl:pl-6 flex items-center gap-4">
                 <GaugeEficiencia
                   valor={snapshot!.indiceTransparencia}
                   label="Eficiência da gestão"
@@ -332,24 +332,32 @@ function CardMetrica({
   semCartao?: boolean;
 }) {
   if (semCartao) {
+    // Uma linha por número, valor alinhado à direita e completo, com centavos.
+    // Em colunas lado a lado, "R$ 482.000,00" não cabia ao lado do vizinho
+    // e um invadia o outro; em linhas, o valor tem a largura inteira do bloco
+    // e os três ficam alinhados pela vírgula, como numa planilha.
     return (
-      <div className="border-l-2 pl-3.5 min-w-0" style={{ borderColor: cor }}>
-        <p className="text-xs font-semibold text-muted">{label}</p>
-        <div className="flex items-baseline gap-2 mt-1 min-w-0">
-          {valorNumerico !== null ? (
-            <ValorAnimado
-              valor={valorNumerico}
-              tipo={tipo === "moeda" ? "moeda-curta" : tipo}
-              className="text-xl sm:text-2xl font-semibold leading-tight tracking-[-0.02em] whitespace-nowrap tabular-nums"
-            />
-          ) : (
-            <span className="text-xl font-semibold leading-tight text-muted tracking-[-0.02em]">—</span>
-          )}
-        </div>
-        {delta !== null && delta !== undefined && (
-          <div className="mt-1.5">
-            <DeltaBadge percentual={delta} upEhBom={upEhBom ?? false} />
+      <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="w-0.5 self-stretch rounded-full shrink-0" style={{ background: cor }} aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{label}</p>
+            {delta !== null && delta !== undefined && (
+              <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted whitespace-nowrap">
+                <DeltaBadge percentual={delta} upEhBom={upEhBom ?? false} />
+                <span className="hidden @sm:inline">vs. anterior</span>
+              </p>
+            )}
           </div>
+        </div>
+        {valorNumerico !== null ? (
+          <ValorAnimado
+            valor={valorNumerico}
+            tipo={tipo}
+            className="text-lg @sm:text-xl font-semibold leading-tight tracking-[-0.02em] whitespace-nowrap tabular-nums text-right"
+          />
+        ) : (
+          <span className="text-lg font-semibold leading-tight text-muted">—</span>
         )}
       </div>
     );
