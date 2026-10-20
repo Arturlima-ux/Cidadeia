@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import type { ResultadoAcao } from "./actions";
+import { useRef, useState, useTransition } from "react";
+import type { ResultadoAcao, ResultadoRascunho } from "./actions";
 
 export default function PainelResposta({
   acao,
   id,
   statusAtual,
   respostaAtual,
+  sugerir,
 }: {
   acao: (fd: FormData) => Promise<ResultadoAcao>;
+  /** Rascunho da resposta (lib/rascunho-resposta.ts). */
+  sugerir?: (id: string) => Promise<ResultadoRascunho>;
   id: string;
   statusAtual: string;
   /** Para complementar: a resposta nova substitui a anterior, então parte dela. */
@@ -19,6 +22,27 @@ export default function PainelResposta({
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [rascunhando, startRascunho] = useTransition();
+  const [origem, setOrigem] = useState<string | null>(null);
+  const caixa = useRef<HTMLTextAreaElement>(null);
+
+  function rascunho() {
+    if (!sugerir) return;
+    setErro(null);
+    startRascunho(async () => {
+      const r = await sugerir(id);
+      if (!r.ok) return setErro(r.erro);
+      if (caixa.current) {
+        caixa.current.value = r.texto;
+        caixa.current.focus();
+      }
+      setOrigem(
+        r.origem === "modelo"
+          ? "Rascunho escrito pela IA a partir dos dados do portal. Confira e complete o que está entre [colchetes]."
+          : "Rascunho montado com os dados do portal. Confira e complete o que está entre [colchetes]."
+      );
+    });
+  }
 
   function enviar(formData: FormData) {
     setErro(null);
@@ -51,16 +75,30 @@ export default function PainelResposta({
       <input type="hidden" name="id" value={id} />
 
       <div>
-        <label className="block text-xs font-medium mb-1">Resposta ao cidadão</label>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <label className="block text-xs font-medium">Resposta ao cidadão</label>
+          {sugerir && (
+            <button
+              type="button"
+              onClick={rascunho}
+              disabled={rascunhando}
+              className="text-xs font-semibold text-brand hover:underline disabled:opacity-60"
+            >
+              {rascunhando ? "Escrevendo o rascunho…" : "Sugerir rascunho"}
+            </button>
+          )}
+        </div>
         <textarea
+          ref={caixa}
           name="resposta"
           required
           defaultValue={respostaAtual ?? undefined}
-          rows={4}
+          rows={origem ? 10 : 4}
           maxLength={5000}
           placeholder="Vai por e-mail ao cidadão (quando ele deixou um) e aparece na consulta do protocolo no portal."
           className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
         />
+        {origem && <p className="text-[11px] text-muted mt-1">{origem}</p>}
       </div>
 
       <div className="flex flex-wrap items-end gap-3">

@@ -33,7 +33,8 @@ import {
 //   Saúde       rede do CNES
 //   Licitações  processos e contratos do PNCP
 //   Obras       contratos do PNCP e as obras que saem deles
-//   Gestão      também as emendas Pix recebidas (Transferegov)
+//   Gestão e    as emendas Pix recebidas (Transferegov): alerta no Gestão,
+//   Essencial   repasses publicados sozinhos no portal
 //
 // Uma vez por semana cada fonte, de madrugada, antes da vigia das 6h40: a
 // vigia já acorda com o dado novo. Fonte que falhou tenta de novo no dia
@@ -52,7 +53,7 @@ export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa
   { fonte: "pncp-processos", nome: "Processos de compra (PNCP)", planos: ["licitacoes"], precisa: "cnpj", dias: 7 },
   { fonte: "pncp-contratos", nome: "Contratos (PNCP)", planos: ["licitacoes", "obras"], precisa: "cnpj", dias: 7 },
   { fonte: "obras", nome: "Obras a partir dos contratos", planos: ["obras"], precisa: null, dias: 7 },
-  { fonte: "emendas-pix", nome: "Emendas Pix (Transferegov)", planos: ["gestao"], precisa: "cnpj", dias: 7 },
+  { fonte: "emendas-pix", nome: "Emendas Pix (Transferegov)", planos: ["gestao", "essencial"], precisa: "cnpj", dias: 7 },
 ];
 
 export const EVENTO_OK = "importacao_ok";

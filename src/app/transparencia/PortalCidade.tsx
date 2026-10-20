@@ -6,6 +6,7 @@ import FormularioCidadao from "./FormularioCidadao";
 import SecoesPublicadas from "./SecoesPublicadas";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
+import { temRelatorioFinal, type Emenda } from "@/lib/emendas-pix";
 import { MINIMO_AVALIACOES, type ItemFaixa, type VozDaCidade } from "@/lib/voz-da-cidade";
 import { NOTAS, type Satisfacao as DadosSatisfacao } from "@/lib/avaliacao-cidadao";
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
@@ -179,6 +180,8 @@ export type DadosPortal = {
   frescor?: Partial<Record<Conjunto, Frescor>>;
   /** Os conjuntos de dados abertos e quantos registros cada um tem. */
   conjuntos?: { chave: Conjunto; registros: number }[];
+  /** Emendas Pix recebidas, lidas no Transferegov (lib/emendas-pix.ts). */
+  emendas?: Emenda[];
   /** Cidade fictícia de /transparencia/exemplo: faixa de aviso e sem formulário de verdade. */
   exemplo?: boolean;
 };
@@ -208,7 +211,7 @@ function Selo({ f }: { f: Frescor | undefined }) {
   );
 }
 
-export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, frescor = {}, conjuntos = [], exemplo = false }: DadosPortal) {
+export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, frescor = {}, conjuntos = [], emendas = [], exemplo = false }: DadosPortal) {
   const fuso = fusoDoEstado(portal.estado);
   const destaque = portal.codigoIbge ? indiceNoMapa(portal.codigoIbge) : null;
 
@@ -285,6 +288,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
     ...(portal.mostrarFinanceiro ? [{ href: "#dinheiro", rotulo: "Dinheiro" }] : []),
     ...(portal.mostrarObras ? [{ href: "#obras", rotulo: "Obras" }] : []),
     ...(portal.mostrarLicitacoes ? [{ href: "#compras", rotulo: "Compras" }] : []),
+    ...(emendas.length ? [{ href: "#emendas", rotulo: "Emendas" }] : []),
     ...(conjuntos.some((c) => c.registros > 0) ? [{ href: "#dados", rotulo: "Dados abertos" }] : []),
     { href: "#atendimento", rotulo: "Fale com a prefeitura" },
   ];
@@ -585,6 +589,44 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                 })}
               </ul>
             )}
+          </section>
+        )}
+
+        {/* ═══ AS EMENDAS PIX ═══ (lib/emendas-pix.ts) */}
+        {emendas.length > 0 && (
+          <section id="emendas" className="pt-24 sm:pt-32 scroll-mt-6">
+            <Titulo
+              olho="Emendas recebidas"
+              titulo={
+                <>
+                  O dinheiro que veio <span style={{ color: "var(--brand-claro)" }}>de Brasília.</span>
+                </>
+              }
+              texto="Emendas Pix: transferências de deputados e senadores que caem direto na conta da prefeitura. De quem veio, para quê, até quando a obra ou o serviço tem de ficar pronto, e se a prefeitura já prestou contas."
+            />
+            <Selo f={frescor.emendas} />
+            <ul className="border-t border-border">
+              {emendas.slice(0, 12).map((e, i) => (
+                <Surgir key={e.id} atraso={Math.min(i, 4) * 0.05}>
+                  <li className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
+                    <div className="min-w-0">
+                      <p className="text-lg font-medium tracking-[-0.01em] break-words">{e.objeto ?? "Objeto não informado"}</p>
+                      <p className="text-sm text-muted mt-1">
+                        {[e.parlamentar, e.ano ? String(e.ano) : null, e.area, e.planoTrabalho?.fim ? `execução até ${e.planoTrabalho.fim.split("-").reverse().join("/")}` : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                    <div className="sm:text-right self-center">
+                      <p className="text-lg font-semibold tabular-nums">{formatarMoeda(e.valor)}</p>
+                      <p className="text-xs mt-0.5" style={{ color: temRelatorioFinal(e) ? "var(--info)" : "var(--muted)" }}>
+                        {temRelatorioFinal(e) ? "Contas prestadas" : e.relatorios.length ? "Prestação de contas parcial" : "Prestação de contas pendente"}
+                      </p>
+                    </div>
+                  </li>
+                </Surgir>
+              ))}
+            </ul>
           </section>
         )}
 

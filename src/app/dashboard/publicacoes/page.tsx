@@ -3,7 +3,7 @@ import BloqueioPlano from "@/components/BloqueioPlano";
 import { db } from "@/db";
 import { configPublica } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { coberturaLegal } from "@/lib/publicacoes";
+import { radarDaPrefeitura } from "@/lib/radar-transparencia-servidor";
 import { listarPublicacoes } from "./actions";
 import GerenciadorPublicacoes from "./GerenciadorPublicacoes";
 
@@ -23,8 +23,9 @@ export default async function PublicacoesPage() {
       .then((r) => r[0] ?? null),
   ]);
 
-  const cobertura = coberturaLegal(publicacoes);
-  const descobertas = cobertura.filter((c) => !c.atendida);
+  const radar = await radarDaPrefeitura(sessao.prefeituraId);
+  const faltam = radar.filter((i) => i.situacao !== "ok");
+  const sozinhos = radar.filter((i) => i.sozinho).length;
 
   return (
     <div className="max-w-4xl space-y-8">
@@ -38,34 +39,36 @@ export default async function PublicacoesPage() {
         </p>
       </div>
 
-      {/* A cobertura vem antes do gerenciador de propósito: sem ela isto seria
-          um editor de textos, e o gestor não teria como saber que um inciso
-          da LAI continua descoberto até o Tribunal de Contas contar. */}
-      <section
-        className="border rounded-xl p-5"
-        style={{
-          background: descobertas.length > 0 ? "var(--medio-tint)" : "var(--info-tint)",
-          borderColor: descobertas.length > 0 ? "var(--medio-borda)" : "var(--info-borda)",
-        }}
-      >
-        <h2
-          className="font-semibold text-sm"
-          style={{ color: descobertas.length > 0 ? "var(--medio)" : "var(--info)" }}
-        >
-          {descobertas.length === 0
-            ? "As quatro exigências de conteúdo estão cobertas"
-            : `${descobertas.length} de ${cobertura.length} exigências de conteúdo ainda sem publicação`}
-        </h2>
-        <ul className="mt-3 flex flex-col gap-2">
-          {cobertura.map((c) => (
-            <li key={c.tipo} className="text-sm flex flex-wrap items-baseline gap-x-2.5">
-              <span style={{ color: c.atendida ? "var(--info)" : "var(--medio)" }}>
-                {c.atendida ? "✓" : "○"}
-              </span>
-              <span className={c.atendida ? "text-muted" : "font-medium"}>{c.nome}</span>
-              <span className="text-xs font-mono text-muted">
-                {c.lei}, {c.artigo}
-              </span>
+      {/* O radar vem antes do gerenciador de propósito: sem ele isto seria um
+          editor de textos, e o gestor não teria como saber o que o Tribunal
+          de Contas vai achar faltando (lib/radar-transparencia.ts). */}
+      <section className="bg-card border border-border rounded-xl p-5 sm:p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-semibold">Radar da transparência</h2>
+          <p className="text-xs text-muted">conferido todo dia contra o próprio portal</p>
+        </div>
+        <p className="text-sm text-muted mt-1">
+          {faltam.length === 0
+            ? `Os ${radar.length} itens que o Tribunal de Contas confere estão no portal.`
+            : `${faltam.length} de ${radar.length} itens que o Tribunal de Contas confere ainda faltam. O resto o portal já cumpre${sozinhos ? `, ${sozinhos} deles sem ninguém precisar fazer nada` : ""}.`}
+        </p>
+        <ul className="mt-4 divide-y divide-border">
+          {[...radar].sort((a, b) => Number(a.situacao === "ok") - Number(b.situacao === "ok")).map((i) => (
+            <li key={i.chave} className="py-2.5 flex gap-3 text-sm">
+              <span
+                className="mt-1.5 w-2 h-2 rounded-full shrink-0"
+                style={{ background: i.situacao === "ok" ? "var(--info)" : i.situacao === "velho" ? "var(--medio)" : "var(--urgente)" }}
+                aria-hidden
+              />
+              <div className="min-w-0">
+                <p className={i.situacao === "ok" ? "" : "font-medium"}>
+                  {i.nome}
+                  {i.sozinho && <span className="ml-2 text-[11px] font-semibold rounded-full px-2 py-0.5 bg-brand-tint text-brand">automático</span>}
+                </p>
+                <p className="text-xs text-muted mt-0.5">
+                  {i.detalhe} <span className="font-mono">({i.base})</span>
+                </p>
+              </div>
             </li>
           ))}
         </ul>

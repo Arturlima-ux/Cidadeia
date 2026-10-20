@@ -1,3 +1,4 @@
+import { emendasDeExemplo } from "@/lib/emendas-pix-exemplo";
 import type { LinhaVoz } from "@/lib/voz-da-cidade";
 import type { dashboardSnapshots, licitacoes, obras, publicacoes } from "@/db/schema";
 import type { Conjunto, Fontes, Frescor } from "@/lib/dados-abertos";
@@ -164,6 +165,7 @@ export function fontesDoExemplo(agora: number): Fontes {
     servicos: d.listaPublicacoes.filter((p) => p.tipo === "servico"),
     manifestacoes: mensagensDeExemplo(agora),
     dinheiro: [d.snapshot],
+    emendas: emendasDeExemplo(new Date(agora)),
   };
 }
 
@@ -178,5 +180,6 @@ export function frescorDoExemplo(agora: number): Partial<Record<Conjunto, Fresco
     servicos: { quando: ha(5), sozinho: false, fonte: "prefeitura" },
     manifestacoes: { quando: ha(0), sozinho: true, fonte: "próprio portal, a cada manifestação" },
     dinheiro: { quando: ha(3), sozinho: false, fonte: "prefeitura" },
+    emendas: { quando: ha(2), sozinho: true, fonte: "Transferegov" },
   };
 }

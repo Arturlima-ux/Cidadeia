@@ -47,6 +47,7 @@ export default function PortalExemplo() {
       voz={resumirVoz(mensagensDeExemplo(agora), agora)}
       conjuntos={CONJUNTOS.map((c) => ({ chave: c.chave, registros: linhasDe(c.chave, fontes).length }))}
       frescor={frescorDoExemplo(agora)}
+      emendas={fontes.emendas}
     />
   );
 }

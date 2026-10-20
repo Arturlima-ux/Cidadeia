@@ -6,6 +6,7 @@ import { planosContratadosDe } from "@/lib/planos";
 import { EVENTO_OK } from "@/lib/importacao-automatica";
 import { maisRecente, type Conjunto, type Fontes, type Frescor } from "@/lib/dados-abertos";
 import { EVENTO_AVALIACAO, ultimaPorManifestacao } from "@/lib/avaliacao-cidadao";
+import { lerEmendas } from "@/lib/emendas-pix-servidor";
 
 // ── O QUE O PORTAL PÚBLICO CARREGA ──
 // Uma leitura só, usada pela página (/transparencia/[slug]) e pelos arquivos
@@ -19,7 +20,7 @@ export async function carregarPortal(portal: Portal) {
   const id = portal.prefeituraId;
   const umAnoAtras = new Date(Date.now() - 365 * 86_400_000).toISOString().slice(0, 10);
 
-  const [snapshots, listaObras, listaLicitacoes, listaContratos, listaPublicacoes, linhasAtendimento, unidades, escolasDaRede, importacoes, avaliacoes] = await Promise.all([
+  const [snapshots, listaObras, listaLicitacoes, listaContratos, listaPublicacoes, linhasAtendimento, unidades, escolasDaRede, importacoes, avaliacoes, lidoEmendas] = await Promise.all([
     portal.mostrarFinanceiro
       ? db.select().from(dashboardSnapshots).where(eq(dashboardSnapshots.prefeituraId, id)).orderBy(desc(dashboardSnapshots.atualizadoEm)).limit(60)
       : Promise.resolve([]),
@@ -56,7 +57,11 @@ export async function carregarPortal(portal: Portal) {
       .where(and(eq(atendimentos.prefeituraId, id), eq(pedidoEventos.tipo, EVENTO_AVALIACAO)))
       .orderBy(desc(pedidoEventos.criadoEm))
       .limit(5000),
+    // Emendas Pix lidas no Transferegov (lib/emendas-pix-servidor.ts): são
+    // repasses recebidos, e a LAI (art. 8º, § 1º, II) manda publicar.
+    lerEmendas(id),
   ]);
+  const emendas = lidoEmendas?.emendas ?? [];
 
   const notas = ultimaPorManifestacao(avaliacoes);
   const manifestacoes = linhasAtendimento.map(({ id: atendimentoId, ...m }) => ({ ...m, avaliacao: notas.get(atendimentoId)?.nota ?? null }));
@@ -78,6 +83,7 @@ export async function carregarPortal(portal: Portal) {
   marcar("escolas", null, "", maisRecente(escolasDaRede.flatMap((e) => [e.sincronizadoEm, e.createdAt])));
   marcar("servicos", null, "", maisRecente(servicos.map((s) => s.atualizadoEm)));
   if (doUltimoAno.length) frescor.manifestacoes = { quando: new Date().toISOString(), sozinho: true, fonte: "próprio portal, a cada manifestação" };
+  if (lidoEmendas) frescor.emendas = { quando: lidoEmendas.conferidoEm, sozinho: true, fonte: "Transferegov" };
   const snap = snapshots[0];
   if (snap) frescor.dinheiro = { quando: snap.atualizadoEm, sozinho: snap.origem === "integracao", fonte: snap.origem === "integracao" ? "Tesouro Nacional" : "prefeitura" };
 
@@ -90,6 +96,7 @@ export async function carregarPortal(portal: Portal) {
     servicos,
     manifestacoes: doUltimoAno,
     dinheiro: snapshots,
+    emendas,
   };
 
   return {
@@ -102,5 +109,6 @@ export async function carregarPortal(portal: Portal) {
     escolas: escolasDaRede,
     fontes,
     frescor,
+    emendas,
   };
 }

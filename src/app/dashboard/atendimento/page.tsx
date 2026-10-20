@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { atendimentos, pedidoEventos } from "@/db/schema";
+import { EVENTO_AREA_AUTOMATICA } from "@/lib/classificar-manifestacao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { ehGestor } from "@/lib/sessao";
 import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
@@ -6,7 +10,7 @@ import BloqueioPlano from "@/components/BloqueioPlano";
 import { garantirEnderecoPublico } from "@/lib/endereco-publico";
 import EstadoVazio from "@/components/EstadoVazio";
 import PilulaStatus, { type TomStatus } from "@/components/PilulaStatus";
-import { buscarAtendimentos, buscarConfigPublica, responderAtendimento, salvarConfigPublica } from "./actions";
+import { buscarAtendimentos, buscarConfigPublica, responderAtendimento, salvarConfigPublica, sugerirResposta } from "./actions";
 import PainelResposta from "./PainelResposta";
 import ConfigPortal from "./ConfigPortal";
 import PainelPrazos from "./PainelPrazos";
@@ -53,10 +57,17 @@ export default async function AtendimentoPage() {
   }
 
   const gestor = ehGestor(ctx.sessao);
-  const [lista, config, avaliacoes] = await Promise.all([
+  const [lista, config, avaliacoes, classificadas] = await Promise.all([
     buscarAtendimentos(ctx.sessao.prefeituraId),
     buscarConfigPublica(ctx.sessao.prefeituraId),
     avaliacoesDaPrefeitura(ctx.sessao.prefeituraId),
+    // Área decidida pela leitura do texto (lib/classificar-manifestacao.ts).
+    db
+      .select({ id: pedidoEventos.pedidoId })
+      .from(pedidoEventos)
+      .innerJoin(atendimentos, eq(atendimentos.id, pedidoEventos.pedidoId))
+      .where(and(eq(atendimentos.prefeituraId, ctx.sessao.prefeituraId), eq(pedidoEventos.tipo, EVENTO_AREA_AUTOMATICA)))
+      .then((l) => new Set(l.map((x) => x.id))),
   ]);
 
   const abertos = lista.filter((a) => a.status === "aberto" || a.status === "em_analise");
@@ -144,6 +155,7 @@ export default async function AtendimentoPage() {
                       <span className="text-[11px] text-muted">
                         {NOME_TIPO[a.tipo as TipoAtendimento] ?? a.tipo}
                         {OPCOES_DE_AREA.find((o) => o.valor === a.secretaria) && ` · ${OPCOES_DE_AREA.find((o) => o.valor === a.secretaria)!.nome}`}
+                        {classificadas.has(a.id) && " (área definida pelo texto)"}
                         {" · "}{dataCurta(a.createdAt, fuso)}
                       </span>
                       {a.anonimo && (
@@ -169,7 +181,7 @@ export default async function AtendimentoPage() {
                   />
                 </div>
 
-                <PainelResposta acao={responderAtendimento} id={a.id} statusAtual={a.status} />
+                <PainelResposta acao={responderAtendimento} id={a.id} statusAtual={a.status} sugerir={sugerirResposta} />
               </div>
             ))}
           </div>
@@ -214,7 +226,7 @@ export default async function AtendimentoPage() {
                       {a.resposta}
                     </p>
                   )}
-                  <PainelResposta acao={responderAtendimento} id={a.id} statusAtual={a.status} respostaAtual={a.resposta} />
+                  <PainelResposta acao={responderAtendimento} id={a.id} statusAtual={a.status} respostaAtual={a.resposta} sugerir={sugerirResposta} />
                 </div>
               );
             })}
