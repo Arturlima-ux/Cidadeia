@@ -1,10 +1,11 @@
 import Link from "next/link";
 import NavAdmin from "../NavAdmin";
 import { notFound, redirect } from "next/navigation";
-import { asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { eventos, pedidoEventos, pedidosProposta, prefeituras } from "@/db/schema";
+import { pedidoEventos, pedidosProposta, prefeituras } from "@/db/schema";
 import { lerSessao } from "@/lib/sessao";
+import { visitasDeGente } from "@/lib/visitas-de-gente-servidor";
 import { emailDaEquipe } from "@/lib/equipe";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -60,12 +61,11 @@ export default async function AdminPedidosPage({
   const corte = inicioDaJanela(30);
   let site: Record<string, number> = {};
   try {
-    const linhas = await db
-      .select({ tipo: eventos.tipo, visitantes: sql<number>`count(distinct ${eventos.visitante})::int` })
-      .from(eventos)
-      .where(gte(eventos.criadoEm, corte))
-      .groupBy(eventos.tipo);
-    site = Object.fromEntries(linhas.map((l) => [l.tipo, l.visitantes]));
+    // Só gente: robô e pré-carregamento ficam de fora (lib/visitas-de-gente.ts).
+    const { gente } = await visitasDeGente(corte);
+    const porTipo = new Map<string, Set<string>>();
+    for (const e of gente) porTipo.set(e.tipo, (porTipo.get(e.tipo) ?? new Set()).add(e.visitante));
+    site = Object.fromEntries([...porTipo].map(([tipo, v]) => [tipo, v.size]));
   } catch (e) {
     console.error("[admin] funil do site:", e);
   }

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import NavAdmin from "../NavAdmin";
-import { gte, sql } from "drizzle-orm";
-import { db } from "@/db";
-import { eventos } from "@/db/schema";
 import { emailDaEquipe } from "@/lib/equipe";
+import { visitasDeGente } from "@/lib/visitas-de-gente-servidor";
 import { notFound } from "next/navigation";
 import {
   montarFunil,
@@ -70,40 +68,27 @@ export default async function MedicaoPage({
     visitante: string;
   }[] = [];
   let origens: { origem: string | null; visitantes: number }[] = [];
+  let robosDescartados = 0;
 
   try {
-    const porTipo = await db
-      .select({
-        tipo: eventos.tipo,
-        eventos: sql<number>`count(*)::int`,
-        visitantes: sql<number>`count(distinct ${eventos.visitante})::int`,
-      })
-      .from(eventos)
-      .where(gte(eventos.criadoEm, corte))
-      .groupBy(eventos.tipo);
-    contagens = porTipo as ContagemPorTipo[];
-
-    brutos = await db
-      .select({
-        tipo: eventos.tipo,
-        municipio: eventos.municipio,
-        uf: eventos.uf,
-        codigoIbge: eventos.codigoIbge,
-        visitante: eventos.visitante,
-      })
-      .from(eventos)
-      .where(gte(eventos.criadoEm, corte));
-
-    origens = await db
-      .select({
-        origem: eventos.origem,
-        visitantes: sql<number>`count(distinct ${eventos.visitante})::int`,
-      })
-      .from(eventos)
-      .where(gte(eventos.criadoEm, corte))
-      .groupBy(eventos.origem)
-      .orderBy(sql`count(distinct ${eventos.visitante}) desc`)
-      .limit(8);
+    // Só gente: robô e pré-carregamento ficam de fora (lib/visitas-de-gente.ts).
+    const { gente, robos } = await visitasDeGente(corte);
+    robosDescartados = robos.size;
+    const porTipo = new Map<string, { eventos: number; visitantes: Set<string> }>();
+    for (const e of gente) {
+      const c = porTipo.get(e.tipo) ?? { eventos: 0, visitantes: new Set<string>() };
+      c.eventos++;
+      c.visitantes.add(e.visitante);
+      porTipo.set(e.tipo, c);
+    }
+    contagens = [...porTipo].map(([tipo, c]) => ({ tipo: tipo as TipoEvento, eventos: c.eventos, visitantes: c.visitantes.size }));
+    brutos = gente.map((e) => ({ tipo: e.tipo as TipoEvento, municipio: e.municipio, uf: e.uf, codigoIbge: e.codigoIbge, visitante: e.visitante }));
+    const porOrigem = new Map<string | null, Set<string>>();
+    for (const e of gente) porOrigem.set(e.origem, (porOrigem.get(e.origem) ?? new Set()).add(e.visitante));
+    origens = [...porOrigem]
+      .map(([origem, v]) => ({ origem, visitantes: v.size }))
+      .sort((a, b) => b.visitantes - a.visitantes)
+      .slice(0, 8);
   } catch (e) {
     console.error("[medicao] leitura:", e);
   }
@@ -126,6 +111,8 @@ export default async function MedicaoPage({
             Sem cookie, sem script de terceiro e sem IP guardado. O identificador de visitante é
             um resumo que muda à meia-noite — conta pessoa no dia, e não segue ninguém de um dia
             para o outro.
+            {robosDescartados > 0 &&
+              ` Robôs e pré-carregamento ficam de fora: ${robosDescartados} ${robosDescartados === 1 ? "visitante com jeito de robô foi descartado" : "visitantes com jeito de robô foram descartados"} neste período.`}
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
