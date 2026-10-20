@@ -3,7 +3,8 @@ import type { Antecipacao } from "@/lib/antecipacao";
 import { MINIMO_LEITURAS, HORIZONTE_MESES } from "@/lib/antecipacao";
 import { LIMITE_PESSOAL } from "@/lib/despesa-pessoal";
 import type { DadosVisaoDoPrefeito } from "@/lib/visao-do-prefeito-servidor";
-import { DIAS_EM_BREVE, FRONTEIRAS, pctBr, proximaFronteira, rotuloDoMes, type PontoPessoal } from "@/lib/visao-do-prefeito";
+import { DIAS_EM_BREVE, FRONTEIRAS, pctBr, proximaFronteira, type PontoPessoal } from "@/lib/visao-do-prefeito";
+import GraficoPessoal from "@/components/GraficoPessoal";
 
 // ── O PAINEL DO VÍDEO, COM O DADO DA PREFEITURA ──
 //
@@ -11,9 +12,9 @@ import { DIAS_EM_BREVE, FRONTEIRAS, pctBr, proximaFronteira, rotuloDoMes, type P
 // mesmo desenho, com o que a prefeitura tem de verdade: três números em cima,
 // a despesa com pessoal nas linhas da LRF, e o aviso antecipado ao lado.
 //
-// Componente de servidor e gráfico em SVG puro: não carrega biblioteca de
-// gráfico nem JavaScript no navegador. A linha se desenha e o ponto respira só
-// para quem não pediu menos movimento ao sistema.
+// Componente de servidor; só o gráfico roda no navegador, para responder ao
+// dedo e ao mouse. SVG puro, sem biblioteca de gráfico. A linha se desenha e
+// o ponto respira só para quem não pediu menos movimento ao sistema.
 
 type Tom = "urgente" | "medio" | "info" | "neutro";
 
@@ -58,7 +59,7 @@ export default function VisaoDoPrefeito({
       </div>
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <GraficoPessoal serie={serie} projecao={daPessoal} />
+        <GraficoOuVazio serie={serie} projecao={daPessoal} />
         <AvisoAntecipado antecipacao={antecipacao} serie={serie} />
       </div>
     </section>
@@ -196,20 +197,17 @@ function CartaoSemModulo({ rotulo, modulo }: { rotulo: string; modulo: string })
 
 // ── O GRÁFICO ──
 //
-// O SVG estica para a largura do cartão (preserveAspectRatio="none", traço que
-// não engorda), e o que não pode esticar — rótulos e o ponto — vai por cima em
-// HTML, posicionado pela mesma conta em porcentagem.
+// Interativo, como gráfico de bolsa (components/GraficoPessoal.tsx). Aqui fica
+// só o estado vazio, que não precisa de JavaScript.
 
-const ALTURA = 220;
-
-function GraficoPessoal({ serie, projecao }: { serie: PontoPessoal[]; projecao: Antecipacao | null }) {
+function GraficoOuVazio({ serie, projecao }: { serie: PontoPessoal[]; projecao: Antecipacao | null }) {
   if (serie.length === 0) {
     return (
       <div className="rounded-2xl border border-border p-5 flex flex-col justify-center min-h-[260px]" style={{ background: "var(--superficie)" }}>
         <p className="font-medium">A série da despesa com pessoal aparece aqui.</p>
         <p className="text-sm text-muted mt-2 max-w-[48ch] leading-relaxed">
-          O RGF entra sozinho do Tesouro, toda semana, e cada apuração vira um ponto nas linhas de alerta, prudencial
-          e teto da LRF. Para conferir ou lançar à mão, abra Despesa com pessoal.
+          O RGF entra sozinho do Tesouro, com os quatro anos anteriores na primeira importação, e cada apuração vira
+          um ponto nas linhas de alerta, prudencial e teto da LRF.
         </p>
         <Link href="/dashboard/pessoal" className="mt-4 text-sm font-semibold text-brand-claro hover:underline">
           Abrir Despesa com pessoal →
@@ -217,163 +215,11 @@ function GraficoPessoal({ serie, projecao }: { serie: PontoPessoal[]; projecao: 
       </div>
     );
   }
-
-  const t = (iso: string) => Date.parse(iso);
-  const fim = projecao ? { em: projecao.travessia.em, valor: projecao.travessia.limiar } : null;
-
-  const tempos = serie.map((p) => t(p.em));
-  const t0 = tempos[0];
-  const t1 = Math.max(tempos.at(-1)!, fim ? t(fim.em) : -Infinity);
-  const valores = serie.map((p) => p.percentual);
-  const piso = Math.floor(Math.min(...valores, FRONTEIRAS[0].valor) - 4);
-  const teto = Math.max(Math.ceil(Math.max(...valores) + 1.5), LIMITE_PESSOAL + 2);
-
-  // Margens em porcentagem: à direita fica espaço para os rótulos das linhas.
-  const X0 = 3;
-  const X1 = 86;
-  const x = (ms: number) => (t1 === t0 ? (X0 + X1) / 2 : X0 + ((ms - t0) / (t1 - t0)) * (X1 - X0));
-  const y = (v: number) => 6 + ((teto - v) / (teto - piso)) * 82;
-
-  const pontos = serie.map((p) => ({ x: x(t(p.em)), y: y(p.percentual) }));
-  const ultimo = pontos.at(-1)!;
-  const caminho = pontos.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
-  const area = `${caminho} L${ultimo.x.toFixed(2)},100 L${pontos[0].x.toFixed(2)},100 Z`;
-  const pontoFim = fim ? { x: x(t(fim.em)), y: y(fim.valor) } : null;
-
-  const corFronteira = (nome: string) => (nome === "teto" ? "var(--urgente)" : "var(--medio)");
-
   return (
-    <figure className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--superficie)" }}>
-      <figcaption className="text-xs tracking-[0.06em] text-muted">
-        Despesa com pessoal · {serie.length === 1 ? "1 apuração" : `últimas ${serie.length} apurações`}
-      </figcaption>
-
-      <div className="relative mt-4" style={{ height: ALTURA }}>
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible" aria-hidden>
-          <defs>
-            <linearGradient id="vp-area" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {FRONTEIRAS.map((f) => (
-            <line
-              key={f.nome}
-              x1={0}
-              x2={X1 + 1}
-              y1={y(f.valor)}
-              y2={y(f.valor)}
-              stroke={corFronteira(f.nome)}
-              strokeOpacity={0.55}
-              strokeWidth={1}
-              strokeDasharray="4 5"
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
-          {/* A linha "se desenha" por um recorte que abre da esquerda para a
-              direita. Tracejado com pathLength não serve aqui: com o traço que
-              não engorda, o navegador mede o tracejado na tela, e a linha
-              saía picotada. */}
-          <clipPath id="vp-revela">
-            <rect
-              x={0}
-              y={-5}
-              width={100}
-              height={110}
-              className="motion-safe:animate-[preencher-barra_1.4s_cubic-bezier(.2,.7,.2,1)_both]"
-              style={{ transformBox: "fill-box", transformOrigin: "left" }}
-            />
-          </clipPath>
-          <g clipPath="url(#vp-revela)">
-            <path d={area} fill="url(#vp-area)" />
-            <path
-              d={caminho}
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth={2.25}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-            />
-          </g>
-          {pontoFim && (
-            <line
-              x1={ultimo.x}
-              y1={ultimo.y}
-              x2={pontoFim.x}
-              y2={pontoFim.y}
-              stroke="var(--medio)"
-              strokeWidth={1.75}
-              strokeDasharray="2 4"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-            />
-          )}
-        </svg>
-
-        {/* Rótulos das linhas da LRF, à direita, no tamanho do texto. */}
-        {FRONTEIRAS.map((f) => (
-          <span
-            key={f.nome}
-            className="absolute right-0 -translate-y-full pb-0.5 font-mono text-[10px] tabular-nums"
-            style={{ top: `${y(f.valor)}%`, color: corFronteira(f.nome) }}
-          >
-            {pctBr(f.valor)}%
-          </span>
-        ))}
-
-        {/* O ponto de hoje, com o brilho do vídeo. */}
-        <span
-          className="absolute w-14 h-14 -ml-7 -mt-7 rounded-full pointer-events-none motion-safe:animate-[respirar_2.6s_ease-in-out_infinite]"
-          style={{
-            left: `${ultimo.x}%`,
-            top: `${ultimo.y}%`,
-            background: "radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%)",
-          }}
-          aria-hidden
-        />
-        <span
-          className="absolute w-2.5 h-2.5 -ml-[5px] -mt-[5px] rounded-full bg-white ring-2"
-          style={{ left: `${ultimo.x}%`, top: `${ultimo.y}%`, ["--tw-ring-color" as string]: "var(--accent)" }}
-          title={`${pctBr(serie.at(-1)!.percentual)}% em ${serie.at(-1)!.rotulo}`}
-          aria-hidden
-        />
-        {pontoFim && (
-          <span
-            className="absolute w-2 h-2 -ml-1 -mt-1 rounded-full border-2"
-            style={{ left: `${pontoFim.x}%`, top: `${pontoFim.y}%`, borderColor: "var(--medio)", background: "var(--superficie)" }}
-            aria-hidden
-          />
-        )}
-      </div>
-
-      {/* Eixo do tempo: começo, último dado e, se houver, a travessia projetada. */}
-      <div className="relative mt-2 h-4 font-mono text-[10px] text-muted tabular-nums">
-        <span className="absolute" style={{ left: `${pontos[0].x}%` }}>
-          {serie[0].rotulo}
-        </span>
-        {/* O rótulo do último dado some quando a travessia cai logo ao lado:
-            os dois ficariam um por cima do outro. */}
-        {serie.length > 1 && (!pontoFim || pontoFim.x - ultimo.x > 12) && (
-          <span className="absolute -translate-x-1/2" style={{ left: `${ultimo.x}%` }}>
-            {serie.at(-1)!.rotulo}
-          </span>
-        )}
-        {pontoFim && fim && (
-          <span className="absolute -translate-x-1/2" style={{ left: `${pontoFim.x}%`, color: "var(--medio)" }}>
-            {rotuloDoMes(fim.em)}
-          </span>
-        )}
-      </div>
-
-      {/* Para leitor de tela: o que o desenho diz. */}
-      <p className="sr-only">
-        {`A despesa com pessoal foi de ${pctBr(serie[0].percentual)}% em ${serie[0].rotulo} a ${pctBr(
-          serie.at(-1)!.percentual
-        )}% em ${serie.at(-1)!.rotulo}.`}
-        {projecao ? ` No ritmo medido, chega a ${pctBr(projecao.travessia.limiar)}% por volta de ${rotuloDoMes(projecao.travessia.em)}.` : ""}
-      </p>
-    </figure>
+    <GraficoPessoal
+      serie={serie}
+      projecao={projecao ? { em: projecao.travessia.em, limiar: projecao.travessia.limiar } : null}
+    />
   );
 }
 

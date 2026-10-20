@@ -23,6 +23,7 @@ import {
   importarRgf,
   importarRreo,
   sincronizarCnes,
+  completarHistoricoRgf,
 } from "@/lib/importacoes";
 
 // ── A IMPORTAÇÃO QUE NINGUÉM PRECISA LEMBRAR DE FAZER ──
@@ -142,9 +143,13 @@ async function rodarFonte(
     case "rgf": {
       const r = await importarRgf(p.id, ibge!, { hoje, respeitarManual: true });
       if (!r.ok) throw new Error(r.erro);
-      return r.gravou
+      const frase = r.gravou
         ? `RGF de ${r.mesReferencia}/${r.exercicio} importado: ${r.percentual.toFixed(1).replace(".", ",")}% da RCL`
         : `RGF de ${r.mesReferencia}/${r.exercicio} conferido, sem mudança`;
+      // Série curta (cliente novo): traz de uma vez os quatro anos que o
+      // Tesouro já publicou. Falha aqui não desfaz o RGF de hoje.
+      const h = await completarHistoricoRgf(p.id, ibge!, { hoje }).catch(() => null);
+      return h && h.gravados > 0 ? `${frase}; histórico: ${plural(h.gravados, "apuração anterior", "apurações anteriores")}` : frase;
     }
     case "rreo": {
       // O bimestre mais recente que já deveria estar no Tesouro; se ainda não

@@ -26,6 +26,7 @@
 import { cacheDoPeriodo, consultarTipos, enteNoTesouro, SEM_PREFEITURA, TIPOS_RGF } from "@/lib/siconfi-tipos";
 import { itensDoTesouro } from "@/lib/tesouro-http";
 import { rgfsEntregues } from "@/lib/siconfi-entregas";
+import { emParalelo } from "@/lib/transferegov";
 
 const URL_RGF ="https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf";
 
@@ -341,10 +342,12 @@ async function buscarPeriodoDoTipo(
  */
 export function periodosParaTentar(
   exercicioAtual: number,
-  mesAtual: number
+  mesAtual: number,
+  /** Quantos exercícios para trás, contando o atual. */
+  anos = 2
 ): PeriodoRgf[] {
   const lista: PeriodoRgf[] = [];
-  for (const exercicio of [exercicioAtual, exercicioAtual - 1]) {
+  for (let exercicio = exercicioAtual; exercicio > exercicioAtual - anos; exercicio--) {
     for (const periodicidade of ["Q", "S"] as Periodicidade[]) {
       const maximo = periodicidade === "S" ? 2 : 3;
       for (let periodo = maximo; periodo >= 1; periodo--) {
@@ -592,4 +595,47 @@ export async function buscarSerieRgf(
       a.periodo.exercicio * 12 + a.periodo.mesReferencia -
       (b.periodo.exercicio * 12 + b.periodo.mesReferencia)
   );
+}
+
+/**
+ * Uma apuração por fim de período, da mais antiga para a mais nova.
+ *
+ * O 3º quadrimestre e o 2º semestre fecham os dois em dezembro: se o Tesouro
+ * tiver os dois para o mesmo ano (o município trocou de periodicidade, ou
+ * republicou), entra um só, o primeiro achado.
+ */
+export function consolidarSerieRgf(lista: ImportacaoRgf[]): ImportacaoRgf[] {
+  const vistos = new Set<string>();
+  const unicos: ImportacaoRgf[] = [];
+  for (const r of lista) {
+    const chave = `${r.periodo.exercicio}-${r.periodo.mesReferencia}`;
+    if (vistos.has(chave)) continue;
+    vistos.add(chave);
+    unicos.push(r);
+  }
+  return unicos.sort(
+    (a, b) => a.periodo.exercicio * 12 + a.periodo.mesReferencia - (b.periodo.exercicio * 12 + b.periodo.mesReferencia)
+  );
+}
+
+/**
+ * O histórico da despesa com pessoal: até `anos` exercícios de RGF.
+ *
+ * Existe porque a importação de rotina traz só o RGF mais recente. Um cliente
+ * novo teria UM ponto no gráfico e esperaria quatro meses pelo segundo — e a
+ * antecipação, que precisa de quatro, levaria mais de um ano para funcionar.
+ * Quatro anos de RGF já estão publicados no Tesouro; basta buscar uma vez.
+ *
+ * Em paralelo, quatro de cada vez: são até 20 períodos candidatos, e em fila
+ * a primeira importação passaria de um minuto.
+ */
+export async function buscarHistoricoRgf(codigoIbge: string, anos = 4, agora: Date = new Date()): Promise<ImportacaoRgf[]> {
+  const candidatos = periodosParaTentar(agora.getFullYear(), agora.getMonth() + 1, anos);
+  const achados = await emParalelo(candidatos, 4, async (periodo) => {
+    const itens = await buscarPeriodo(codigoIbge, periodo);
+    if (itens === null || itens.length === 0) return null;
+    const r = extrairRgf(itens, periodo);
+    return r.ok ? r.dados : null;
+  });
+  return consolidarSerieRgf(achados.filter((x): x is ImportacaoRgf => x !== null));
 }
