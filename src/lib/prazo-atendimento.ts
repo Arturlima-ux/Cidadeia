@@ -62,7 +62,7 @@ export const NOME_SITUACAO_PRAZO: Record<SituacaoPrazo, string> = {
  * resposta e ainda formalizar a prorrogação, se for o caso. Avisar em cima da
  * hora só transforma o painel em registro de fracasso.
  */
-const DIAS_PARA_AVISAR = 5;
+export const DIAS_PARA_AVISAR = 5;
 
 const MS_POR_DIA = 86_400_000;
 
