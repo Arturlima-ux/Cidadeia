@@ -37,28 +37,25 @@ const siope = (recurso: string, ano: number, peri: number, uf: string, extra = "
 
 async function conferirSiope() {
   const uf = process.env.UF_TESTE ?? "PI";
-  const servico = (await olhar("SIOPE · documento do serviço", `${SIOPE}/?$format=json`)) as { name: string }[] | null;
-  console.log(`Recursos: ${(servico ?? []).map((r) => r.name).join(", ")}`);
+  // No SIOPE o município vem com 6 dígitos (sem o verificador do IBGE).
+  const cod = IBGE.slice(0, 6);
+  const f = (expr: string) => `&$filter=${encodeURIComponent(expr)}`;
   const ano = new Date().getUTCFullYear();
-  // Amostra sem filtro: descobre nomes de campo e o bimestre mais recente com dado.
-  for (const [a, p] of [[ano, 4], [ano, 2], [ano - 1, 6], [ano - 1, 3], [ano - 2, 6]] as const) {
-    const amostra = (await olhar(`SIOPE · indicadores ${a}/${p}º bim (UF, amostra)`, siope("Indicadores_Siope", a, p, uf, "&$top=60"))) as Record<string, unknown>[] | null;
-    if (!amostra?.length) continue;
-    for (const l of amostra) console.log(JSON.stringify(l));
-    const campo = Object.keys(amostra[0]).find((k) => /COD.*MUN/i.test(k));
-    if (campo) {
-      for (const valor of [IBGE, IBGE.slice(0, 6), `'${IBGE}'`, `'${IBGE.slice(0, 6)}'`]) {
-        const r = await olhar(`SIOPE · filtro ${campo} eq ${valor}`, siope("Indicadores_Siope", a, p, uf, `&$filter=${encodeURIComponent(`${campo} eq ${valor}`)}`));
-        if (Array.isArray(r) && r.length) {
-          for (const l of r) console.log(JSON.stringify(l));
-          break;
-        }
-      }
-    }
-    await olhar(`SIOPE · dados gerais ${a}/${p}º bim (amostra)`, siope("Dados_Gerais_Siope", a, p, uf, "&$top=2"));
-    await olhar(`SIOPE · remuneração ${a}/${p}º bim (amostra)`, siope("Remuneracao_Siope", a, p, uf, "&$top=2"));
-    break;
+  const todas = async (nome: string, url: string) => {
+    const l = (await olhar(nome, url)) as Record<string, unknown>[] | null;
+    for (const x of l ?? []) console.log(JSON.stringify(x));
+    return l;
+  };
+  // Quem declarou o bimestre (a data da declaração está nos dados gerais).
+  const decl = await todas(`SIOPE · declarações ${ano}/4º bim no ${uf}`, siope("Dados_Gerais_Siope", ano, 4, uf, `${f("TIPO eq 'Municipal'")}&$select=COD_MUNI,NOM_MUNI,DAT_DECL,NUM_POPU&$top=400`));
+  console.log(`Municípios com declaração: ${decl?.length ?? 0}`);
+  const outro = String(decl?.find((d) => d.COD_MUNI !== Number(cod))?.COD_MUNI ?? "220060");
+  for (const [a, p] of [[ano, 4], [ano, 3], [ano, 2], [ano - 1, 6]] as const) {
+    await todas(`SIOPE · indicadores ${a}/${p}º bim de ${cod}`, siope("Indicadores_Siope", a, p, uf, f(`COD_MUNI eq ${cod}`)));
+    await todas(`SIOPE · indicadores ${a}/${p}º bim de ${outro} (declarou)`, siope("Indicadores_Siope", a, p, uf, f(`COD_MUNI eq ${outro}`)));
   }
+  await todas(`SIOPE · indicador 25% (cód. 40?) dos municípios ${ano - 1}/6`, siope("Indicadores_Siope", ano - 1, 6, uf, `${f("TIPO eq 'Municipal' and COD_EXIB eq '1.1'")}&$top=5`));
+  await todas(`SIOPE · dados gerais de ${cod} ${ano - 1}/6`, siope("Dados_Gerais_Siope", ano - 1, 6, uf, `${f(`COD_MUNI eq ${cod}`)}&$select=COD_MUNI,NOM_MUNI,DAT_DECL`));
 }
 
 async function main() {
