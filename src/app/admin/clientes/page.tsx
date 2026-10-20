@@ -1,4 +1,4 @@
-import Link from "next/link";
+import NavAdmin from "../NavAdmin";
 import { notFound, redirect } from "next/navigation";
 import { lerSessao } from "@/lib/sessao";
 import { emailDaEquipe } from "@/lib/equipe";
@@ -29,13 +29,7 @@ export default async function ClientesPage() {
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Clientes</h1>
             <p className="text-sm text-muted mt-2">Quem está deixando de usar, a tempo de ligar.</p>
           </div>
-          <nav className="flex items-center gap-5 text-sm flex-wrap">
-            <span className="font-medium">Clientes</span>
-            <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
-            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
-            <Link href="/admin/financeiro" className="text-muted hover:text-foreground">Financeiro</Link>
-            <Link href="/admin/saida" className="text-muted hover:text-foreground">Caixa de saída</Link>
-          </nav>
+          <NavAdmin atual="/admin/clientes" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">

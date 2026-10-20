@@ -1,5 +1,4 @@
-import Link from "next/link";
-import BotaoPainelTeste from "@/app/admin/teste/BotaoPainelTeste";
+import NavAdmin from "../NavAdmin";
 import { notFound, redirect } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -67,14 +66,7 @@ export default async function AdminFinanceiroPage() {
               Mensalidade antecipada. Carência de {CARENCIA_DIAS} dias depois do vencimento; depois disso, a conta trava até o pagamento.
             </p>
           </div>
-          <nav className="flex items-center gap-5 text-sm">
-            <Link href="/admin/interessados" className="text-muted hover:text-foreground">Interessados</Link>
-            <Link href="/admin/saida" className="text-muted hover:text-foreground">Caixa de saída</Link>
-            <Link href="/admin/pedidos" className="text-muted hover:text-foreground">Pedidos</Link>
-            <span className="font-medium">Financeiro</span>
-            <Link href="/admin/medicao" className="text-muted hover:text-foreground">Medição</Link>
-            <BotaoPainelTeste />
-          </nav>
+          <NavAdmin atual="/admin/financeiro" comPainelDeTeste />
         </div>
 
         <div className="grid sm:grid-cols-3 border border-border rounded-[22px] overflow-hidden" style={{ background: "var(--card)" }}>
