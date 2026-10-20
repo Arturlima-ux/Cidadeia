@@ -45,8 +45,27 @@ async function conferirSiope() {
   }
 }
 
+async function conferirRgf() {
+  // O histórico que a primeira importação traz (lib/siconfi-rgf.ts), contra o Tesouro de verdade.
+  const { buscarHistoricoRgf } = await import("../../src/lib/siconfi-rgf");
+  for (const ibge of [IBGE, "2211001", "2203909"]) {
+    const inicio = Date.now();
+    try {
+      const serie = await buscarHistoricoRgf(ibge, 4);
+      console.log(`\n### RGF · buscarHistoricoRgf(${ibge}) · ${serie.length} apurações em ${((Date.now() - inicio) / 1000).toFixed(1)} s`);
+      for (const r of serie) {
+        const pct = ((r.despesaTotal / r.rclAjustada) * 100).toFixed(2);
+        console.log(`- ${r.periodo.periodicidade}${r.periodo.periodo} ${r.periodo.mesReferencia}/${r.periodo.exercicio}: ${pct}% (RCL aj. ${r.rclAjustada.toFixed(0)})`);
+      }
+    } catch (e) {
+      console.log(`\n### RGF · buscarHistoricoRgf(${ibge})\nFALHOU: ${e instanceof Error ? e.stack : e}`);
+    }
+  }
+}
+
 async function main() {
   if (process.env.SO === "siope") return conferirSiope();
+  if (process.env.SO === "rgf") return conferirRgf();
   const tg = "https://api-publica.transferegov.gestao.gov.br/especiais";
   let ben = (await olhar("Transferegov · beneficiário (só números)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${CNPJ}&pagina=1&tamanho_da_pagina=5`)) as { id_beneficiario?: number }[] | null;
   if (!ben?.length) {

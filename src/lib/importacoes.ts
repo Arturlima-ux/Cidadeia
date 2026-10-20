@@ -3,7 +3,7 @@ import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { contratos, despesaPessoal, investimentos, licitacoes, obras, unidadesSaude } from "@/db/schema";
 import { gerarId } from "@/lib/id";
-import { buscarRgfMaisRecente } from "@/lib/siconfi-rgf";
+import { buscarHistoricoRgf, buscarRgfMaisRecente, type ImportacaoRgf } from "@/lib/siconfi-rgf";
 import { LIMITE_PESSOAL } from "@/lib/despesa-pessoal";
 import { buscarDespesasSiconfi, competenciaDoBimestre } from "@/lib/siconfi";
 import { buscarRedeNoCnes } from "@/lib/cnes";
@@ -41,26 +41,38 @@ export async function importarRgf(
   if (!resultado.ok) return { ok: false, erro: resultado.erro };
   const { dados } = resultado;
 
-  // Confere a nossa régua contra a do Tesouro antes de gravar. Se o limite que
-  // ele publica não representar 54% da RCL ajustada, alguma premissa mudou —
-  // e é melhor recusar do que gravar um número que a tela vai julgar por uma
-  // régua que não vale mais.
-  // Null é "o anexo não trouxe a linha", e não "o limite é zero": sem o número
-  // publicado não há o que conferir, e a importação segue com a régua da lei.
-  if (dados.limiteMaximo !== null && dados.limiteMaximo > 0) {
-    const limitePublicado = (dados.limiteMaximo / dados.rclAjustada) * 100;
-    if (Math.abs(limitePublicado - LIMITE_PESSOAL) > 0.5) {
-      return {
-        ok: false,
-        erro:
-          `O Tesouro publicou para este município um limite de ${limitePublicado.toFixed(1).replace(".", ",")}% ` +
-          `da RCL, e não os ${LIMITE_PESSOAL}% que esta tela usa. Confira com o contador antes de importar.`,
-      };
-    }
-  }
+  const regua = conferirRegua(dados);
+  if (regua) return { ok: false, erro: regua };
 
   const { exercicio, mesReferencia } = dados.periodo;
   const percentual = (dados.despesaTotal / dados.rclAjustada) * 100;
+  const gravou = await gravarPeriodoRgf(prefeituraId, dados, opcoes.respeitarManual === true);
+  return { ok: true, exercicio, mesReferencia, percentual, instituicao: dados.instituicao, gravou };
+}
+
+/**
+ * Confere a nossa régua contra a do Tesouro antes de gravar. Se o limite que
+ * ele publica não representar 54% da RCL ajustada, alguma premissa mudou — e
+ * é melhor recusar do que gravar um número que a tela vai julgar por uma
+ * régua que não vale mais. Devolve o motivo da recusa, ou null.
+ *
+ * Null no limite é "o anexo não trouxe a linha", e não "o limite é zero": sem
+ * o número publicado não há o que conferir, e a importação segue com a régua
+ * da lei.
+ */
+function conferirRegua(dados: ImportacaoRgf): string | null {
+  if (dados.limiteMaximo === null || dados.limiteMaximo <= 0) return null;
+  const limitePublicado = (dados.limiteMaximo / dados.rclAjustada) * 100;
+  if (Math.abs(limitePublicado - LIMITE_PESSOAL) <= 0.5) return null;
+  return (
+    `O Tesouro publicou para este município um limite de ${limitePublicado.toFixed(1).replace(".", ",")}% ` +
+    `da RCL, e não os ${LIMITE_PESSOAL}% que esta tela usa. Confira com o contador antes de importar.`
+  );
+}
+
+/** Grava um período do RGF. Devolve true quando escreveu algo. */
+async function gravarPeriodoRgf(prefeituraId: string, dados: ImportacaoRgf, respeitarManual: boolean): Promise<boolean> {
+  const { exercicio, mesReferencia } = dados.periodo;
   const [existente] = await db
     .select({ id: despesaPessoal.id, origem: despesaPessoal.origem, rcl: despesaPessoal.rcl, despesa: despesaPessoal.despesa })
     .from(despesaPessoal)
@@ -73,12 +85,10 @@ export async function importarRgf(
     )
     .limit(1);
 
-  if (existente && opcoes.respeitarManual && existente.origem !== "siconfi") {
-    return { ok: true, exercicio, mesReferencia, percentual, instituicao: dados.instituicao, gravou: false };
-  }
+  if (existente && respeitarManual && existente.origem !== "siconfi") return false;
   // Nada mudou desde a última importação: não toca a linha.
   if (existente && existente.origem === "siconfi" && existente.rcl === dados.rclAjustada && existente.despesa === dados.despesaTotal) {
-    return { ok: true, exercicio, mesReferencia, percentual, instituicao: dados.instituicao, gravou: false };
+    return false;
   }
 
   const valores = {
@@ -95,7 +105,38 @@ export async function importarRgf(
   } else {
     await db.insert(despesaPessoal).values({ id: gerarId("pessoal"), prefeituraId, exercicio, mesReferencia, ...valores });
   }
-  return { ok: true, exercicio, mesReferencia, percentual, instituicao: dados.instituicao, gravou: true };
+  return true;
+}
+
+/** Abaixo disto, a série é curta demais para o gráfico e para a antecipação. */
+export const APURACOES_PARA_HISTORICO = 6;
+
+/**
+ * Completa a série com até quatro anos de RGF já publicados no Tesouro.
+ *
+ * Só roda enquanto a série tem menos de APURACOES_PARA_HISTORICO apurações
+ * vindas do Tesouro: depois disso, a rotina de cada semana já basta, e buscar
+ * vinte períodos toda semana seria gastar o Tesouro à toa. Nunca sobrescreve
+ * lançamento manual — completar é acrescentar.
+ */
+export async function completarHistoricoRgf(
+  prefeituraId: string,
+  codigoIbge: string,
+  opcoes: { hoje?: Date } = {}
+): Promise<{ gravados: number; achados: number } | null> {
+  const linhas = await db
+    .select({ id: despesaPessoal.id })
+    .from(despesaPessoal)
+    .where(and(eq(despesaPessoal.prefeituraId, prefeituraId), eq(despesaPessoal.origem, "siconfi")));
+  if (linhas.length >= APURACOES_PARA_HISTORICO) return null;
+
+  const serie = await buscarHistoricoRgf(codigoIbge, 4, opcoes.hoje ?? new Date());
+  let gravados = 0;
+  for (const dados of serie) {
+    if (conferirRegua(dados)) continue;
+    if (await gravarPeriodoRgf(prefeituraId, dados, true)) gravados++;
+  }
+  return { gravados, achados: serie.length };
 }
 
 // ── despesa por função (RREO) ──
