@@ -20,6 +20,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { areaDaManifestacao } from "@/lib/ouvidoria-avisos";
+import { classificarArea, EVENTO_AREA_AUTOMATICA } from "@/lib/classificar-manifestacao";
 import { avisarAvaliacaoRuim, avisarManifestacaoNova } from "@/lib/ouvidoria-avisos-servidor";
 
 const TIPOS_VALIDOS = [
@@ -115,6 +116,10 @@ export async function abrirAtendimento(formData: FormData): Promise<ResultadoAbe
   const chave = gerarChaveConsulta();
 
   const id = gerarId("atend");
+  // Sem área escolhida, o texto decide (lib/classificar-manifestacao.ts);
+  // na dúvida, continua indo para o gabinete.
+  const escolhida = areaDaManifestacao(d.secretaria);
+  const pelaLeitura = escolhida ? null : classificarArea(d.assunto, d.mensagem, d.tipo);
   await db.insert(atendimentos).values({
     id,
     prefeituraId: config.prefeituraId,
@@ -125,12 +130,22 @@ export async function abrirAtendimento(formData: FormData): Promise<ResultadoAbe
     telefone: anonimo ? null : d.telefone?.trim() || null,
     anonimo,
     // Só uma área conhecida: é ela que decide quem recebe o aviso.
-    secretaria: areaDaManifestacao(d.secretaria),
+    secretaria: escolhida ?? pelaLeitura,
     assunto: d.assunto.trim(),
     mensagem: d.mensagem.trim(),
     chaveConsulta: chave,
     origem: "site",
   });
+
+  if (pelaLeitura) {
+    await db.insert(pedidoEventos).values({
+      id: gerarId("pev"),
+      pedidoId: id,
+      tipo: EVENTO_AREA_AUTOMATICA,
+      descricao: pelaLeitura,
+      autor: "classificação automática",
+    });
+  }
 
   // Depois da resposta ao cidadão: o aviso à equipe e a confirmação no
   // e-mail dele não podem atrasar nem derrubar o protocolo.

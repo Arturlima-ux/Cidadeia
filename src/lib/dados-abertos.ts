@@ -1,4 +1,5 @@
 import { rotuloDaNota, type Nota } from "@/lib/avaliacao-cidadao";
+import { temRelatorioFinal, type Emenda } from "@/lib/emendas-pix";
 // ── DADOS ABERTOS DO PORTAL ──
 //
 // Nos portais de prefeitura, o dado vem em PDF ou numa tabela que não se
@@ -12,7 +13,7 @@ import { rotuloDaNota, type Nota } from "@/lib/avaliacao-cidadao";
 
 import { dataDoBanco } from "@/lib/data-do-banco";
 
-export type Conjunto = "obras" | "compras" | "contratos" | "unidades-de-saude" | "escolas" | "servicos" | "manifestacoes" | "dinheiro";
+export type Conjunto = "obras" | "compras" | "contratos" | "unidades-de-saude" | "escolas" | "servicos" | "manifestacoes" | "dinheiro" | "emendas";
 
 export type Coluna = { chave: string; titulo: string };
 
@@ -120,6 +121,22 @@ export const CONJUNTOS: DefinicaoConjunto[] = [
       { chave: "respondida_em", titulo: "Respondida em" },
       { chave: "dias_para_responder", titulo: "Dias para responder" },
       { chave: "avaliacao_do_cidadao", titulo: "A resposta resolveu? (quem pediu)" },
+    ],
+  },
+  {
+    chave: "emendas",
+    titulo: "Emendas Pix recebidas",
+    descricao: "Transferências especiais de emenda parlamentar que caíram direto na conta do município, com o objeto, o prazo e o relatório de gestão.",
+    colunas: [
+      { chave: "ano", titulo: "Ano" },
+      { chave: "parlamentar", titulo: "Parlamentar" },
+      { chave: "emenda", titulo: "Emenda" },
+      { chave: "objeto", titulo: "Objeto" },
+      { chave: "area", titulo: "Área" },
+      { chave: "valor", titulo: "Valor (R$)" },
+      { chave: "situacao", titulo: "Situação" },
+      { chave: "execucao_ate", titulo: "Execução até" },
+      { chave: "relatorio_final", titulo: "Relatório de gestão final" },
     ],
   },
   {
@@ -231,6 +248,7 @@ export type Fontes = {
   servicos: { titulo: string; conteudo: string; requisitos: string | null; prazo: string | null; contato: string | null; secretaria: string | null }[];
   manifestacoes: { tipo: string; secretaria: string | null; status: string; createdAt: string; respondidoEm: string | null; avaliacao?: Nota | null }[];
   dinheiro: { atualizadoEm: string; receita: number | null; despesas: number | null; saldo: number | null }[];
+  emendas?: Emenda[];
 };
 
 export function linhasDe(conjunto: Conjunto, f: Fontes): Linha[] {
@@ -288,6 +306,18 @@ export function linhasDe(conjunto: Conjunto, f: Fontes): Linha[] {
           avaliacao_do_cidadao: m.avaliacao ? rotuloDaNota(m.avaliacao) : null,
         };
       });
+    case "emendas":
+      return (f.emendas ?? []).map((e) => ({
+        ano: e.ano,
+        parlamentar: e.parlamentar,
+        emenda: e.numeroEmenda,
+        objeto: e.objeto,
+        area: e.area,
+        valor: e.valor,
+        situacao: e.situacao,
+        execucao_ate: e.planoTrabalho?.fim ?? null,
+        relatorio_final: temRelatorioFinal(e) ? "Enviado" : "Não consta",
+      }));
     case "dinheiro":
       return f.dinheiro.map((d) => ({ data: dia(d.atualizadoEm), receita: d.receita, despesa: d.despesas, saldo: d.saldo }));
   }

@@ -35,6 +35,7 @@ export default async function PortalTransparencia({ params }: { params: Promise<
       unidades={d.unidades}
       escolas={d.escolas}
       frescor={d.frescor}
+      emendas={d.emendas}
       conjuntos={CONJUNTOS.map((c) => ({ chave: c.chave, registros: linhasDe(c.chave, d.fontes).length }))}
     />
   );

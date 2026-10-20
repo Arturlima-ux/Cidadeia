@@ -19,7 +19,7 @@ describe("o que importar hoje", () => {
   it("só as fontes dos módulos contratados", () => {
     expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix"]);
     expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["cnes", "pncp-contratos", "obras"]);
-    expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual([]);
+    expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual(["emendas-pix"]);
   });
 
   it("uma vez por semana: a que rodou há 3 dias espera, a de 7 dias roda", () => {

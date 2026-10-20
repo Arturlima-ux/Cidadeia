@@ -5,7 +5,13 @@ import { z } from "zod";
 import { db } from "@/db";
 import { atendimentos, configPublica, pedidoEventos, prefeituras } from "@/db/schema";
 import { gerarId } from "@/lib/id";
-import { EVENTO_PRORROGACAO, podeVerManifestacao } from "@/lib/ouvidoria-avisos";
+import { EVENTO_PRORROGACAO, areaDaManifestacao, podeVerManifestacao } from "@/lib/ouvidoria-avisos";
+import { limitarUso } from "@/lib/rate-limit";
+import { buscar, type ItemDaCidade } from "@/lib/pergunte-a-cidade";
+import { indiceDaPrefeitura } from "@/lib/rascunho-resposta-servidor";
+import { rascunhoDeResposta, SISTEMA_RASCUNHO } from "@/lib/rascunho-resposta";
+import { provedorIA } from "@/lib/provedor-ia";
+import type { TipoAtendimento } from "@/lib/atendimento";
 import { avisarProrrogacao, avisarResposta } from "@/lib/ouvidoria-avisos-servidor";
 import { and, desc, eq } from "drizzle-orm";
 import { lerSessao , ehGestor } from "@/lib/sessao";
@@ -235,4 +241,64 @@ export async function salvarConfigPublica(formData: FormData): Promise<Resultado
   revalidatePath("/dashboard/atendimento");
   if (slug) revalidatePath(`/transparencia/${slug}`);
   return { ok: true };
+}
+
+export type ResultadoRascunho = { ok: true; texto: string; origem: "modelo" | "regras" } | { ok: false; erro: string };
+
+/**
+ * O rascunho da resposta (lib/rascunho-resposta.ts): o que o portal já sabe
+ * sobre o assunto, no tom certo. Só preenche a caixa; quem envia é o servidor.
+ */
+export async function sugerirResposta(id: string): Promise<ResultadoRascunho> {
+  let sessao;
+  try {
+    sessao = await exigirAcesso();
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+  if (!(await manifestacaoAcessivel(sessao, id))) return { ok: false, erro: "Manifestação não encontrada." };
+  if (!(await limitarUso(`rascunho:${sessao.usuarioId}`, 30, 60))) return { ok: false, erro: "Muitos rascunhos seguidos. Tente daqui a pouco." };
+
+  const [a] = await db
+    .select({ tipo: atendimentos.tipo, nome: atendimentos.nome, anonimo: atendimentos.anonimo, assunto: atendimentos.assunto, mensagem: atendimentos.mensagem, secretaria: atendimentos.secretaria, municipio: prefeituras.municipio })
+    .from(atendimentos)
+    .innerJoin(prefeituras, eq(prefeituras.id, atendimentos.prefeituraId))
+    .where(and(eq(atendimentos.id, id), eq(atendimentos.prefeituraId, sessao.prefeituraId)))
+    .limit(1);
+  if (!a) return { ok: false, erro: "Manifestação não encontrada." };
+
+  let encontrados: ItemDaCidade[] = [];
+  try {
+    const indice = (await indiceDaPrefeitura(sessao.prefeituraId)).filter((i) => !i.id.startsWith("acao:"));
+    encontrados = buscar(indice, a.assunto, 2);
+    if (!encontrados.length) encontrados = buscar(indice, `${a.assunto} ${a.mensagem.slice(0, 240)}`, 2);
+  } catch (e) {
+    console.error("[rascunho] índice do portal:", e);
+  }
+
+  const base = rascunhoDeResposta({
+    tipo: a.tipo as TipoAtendimento,
+    nome: a.anonimo ? null : a.nome,
+    assunto: a.assunto,
+    municipio: a.municipio,
+    area: areaDaManifestacao(a.secretaria),
+    encontrados,
+  });
+
+  const provedor = provedorIA();
+  if (provedor.nome === "nenhum") return { ok: true, texto: base, origem: "regras" };
+  try {
+    const r = await provedor.conversar({
+      sistema: SISTEMA_RASCUNHO,
+      mensagens: [{ papel: "user", texto: `Manifestação do cidadão (contexto, não copie): ${a.assunto}\n${a.mensagem.slice(0, 1500)}\n\nRascunho para revisar:\n${base}` }],
+      maxTokens: 900,
+      esforco: "low",
+    });
+    // O texto da IA só vale se manteve os colchetes do rascunho.
+    const colchetes = (t: string) => (t.match(/\[[^\]]+\]/g) ?? []).length;
+    if (r.ok && r.texto.trim() && colchetes(r.texto) >= colchetes(base)) return { ok: true, texto: r.texto.trim(), origem: "modelo" };
+  } catch (e) {
+    console.error("[rascunho] IA:", e);
+  }
+  return { ok: true, texto: base, origem: "regras" };
 }

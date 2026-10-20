@@ -23,6 +23,8 @@ import { gerarDeteccoesDaRotina } from "@/lib/ia";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
+import { radarDaPrefeitura } from "@/lib/radar-transparencia-servidor";
+import { achadosDoRadar } from "@/lib/radar-transparencia";
 import { achadosDasEmendas } from "@/lib/emendas-pix";
 import {
   EVENTO_REGRA_ENCERRADA,
@@ -62,6 +64,9 @@ export async function achadosDaPrefeitura(
         return [...achadosDosContratos(cts, hoje), ...achadosDosPadroes(detectarPadroes(lista, hoje, cts))];
       })()
     );
+  }
+  if (planos.includes("essencial")) {
+    fontes.push(radarDaPrefeitura(prefeituraId, hoje).then(achadosDoRadar));
   }
   if (planos.includes("gestao")) {
     fontes.push(lerEmendas(prefeituraId).then((r) => (r ? achadosDasEmendas(r.emendas, hoje) : [])));
