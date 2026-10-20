@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { SituacaoFiscal } from "@/lib/vigia-fiscal";
+import { montarEmail, saudacao } from "@/lib/email-modelo";
 
 // ── "AVISE-ME SOBRE A MINHA CIDADE", DE GRAÇA ──
 //
@@ -117,7 +118,8 @@ export function inscritoDaChave(valor: string, segredo = process.env.AUTH_SECRET
 
 // ── o e-mail ──
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
+const TOM_DO_FATO = { vencida: "urgente", vence: "atencao", entregue: "ok" } as const;
+const ROTULO_DO_FATO = { vencida: "Prazo vencido", vence: "Vence em breve", entregue: "Entregue" } as const;
 
 export function emailDoAviso(dados: {
   nome: string;
@@ -139,22 +141,32 @@ export function emailDoAviso(dados: {
         ? `${cidade}: relatório fiscal com prazo vencido`
         : `${cidade}: relatório fiscal vence nos próximos dias`
       : `${cidade}: relatório fiscal novo no Tesouro`;
-  const primeiroNome = esc(dados.nome.split(" ")[0] ?? dados.nome);
-  const itens = dados.fatos.length
-    ? `<ul>${dados.fatos.map((f) => `<li>${esc(f.texto)}</li>`).join("")}</ul>`
-    : `<p>Nenhum prazo vencendo nos próximos ${DIAS_DE_ANTECEDENCIA} dias e nada em atraso no Tesouro Nacional.</p>`;
-  const html = [
-    `<p>Olá, ${primeiroNome}.</p>`,
-    dados.primeiro
-      ? `<p>Este é o primeiro aviso sobre ${esc(cidade)}. Daqui para a frente, você recebe um e-mail quando um relatório fiscal estiver para vencer, vencer sem entrega ou for entregue.</p>`
-      : `<p>Novidade no Tesouro Nacional sobre ${esc(cidade)}:</p>`,
-    itens,
-    `<p><a href="${dados.linkRaioX}">Ver o Raio-X de ${esc(dados.municipio)}</a></p>`,
-    `<hr/>`,
-    `<p>Este aviso é a parte gratuita. Com o módulo Gestão, o CidadeIA confere tudo isso todo dia, avisa o prefeito 15 dias antes de cada prazo, acompanha a despesa com pessoal na régua da LRF e os mínimos de saúde e educação. <a href="${dados.linkProposta}">Receber a proposta para ${esc(dados.municipio)}</a>.</p>`,
-    `<p style="color:#888;font-size:13px">Fonte: extrato de entregas do Tesouro Nacional (Siconfi). ${
-      dados.linkCancelar ? `<a href="${dados.linkCancelar}" style="color:#888">Parar de receber estes avisos</a>.` : ""
-    }</p>`,
-  ].join("\n");
+  const html = montarEmail({
+    remetente: { tipo: "cidadeia" },
+    previa: dados.fatos[0]?.texto ?? `Nenhum prazo fiscal de ${dados.municipio} vencendo nos próximos dias.`,
+    etiqueta: { texto: `Aviso da cidade · ${cidade}`, tom: urgente?.tipo === "vencida" ? "urgente" : urgente ? "atencao" : "marca" },
+    titulo: dados.primeiro ? `Os relatórios fiscais de ${dados.municipio} hoje` : `Novidade no Tesouro sobre ${dados.municipio}`,
+    saudacao: saudacao(dados.nome),
+    blocos: [
+      {
+        p: dados.primeiro
+          ? `Este é o primeiro aviso sobre ${cidade}. A partir de agora, você recebe um e-mail quando um relatório fiscal (RREO ou RGF) estiver para vencer, vencer sem entrega ou for entregue ao Tesouro Nacional.`
+          : `O extrato de entregas do Tesouro Nacional mudou para ${cidade}:`,
+      },
+      dados.fatos.length
+        ? { itens: dados.fatos.map((f) => ({ etiqueta: ROTULO_DO_FATO[f.tipo], titulo: f.texto, tom: TOM_DO_FATO[f.tipo] })) }
+        : { destaque: `Nenhum prazo vencendo nos próximos ${DIAS_DE_ANTECEDENCIA} dias e nada em atraso no Tesouro Nacional.`, tom: "ok" },
+      { botao: `Ver o Raio-X de ${dados.municipio}`, link: dados.linkRaioX },
+      { divisor: true },
+      { secao: "Quer isso todos os dias, por dentro?" },
+      {
+        p: "Este aviso é a parte gratuita. Com o módulo Gestão, o CidadeIA confere tudo todos os dias, avisa o prefeito 15 dias antes de cada prazo e acompanha a despesa com pessoal na régua da LRF e os mínimos de saúde e educação.",
+      },
+      { botao: `Receber a proposta para ${dados.municipio}`, link: dados.linkProposta },
+      { nota: "Fonte: extrato de entregas do Tesouro Nacional (Siconfi)." },
+    ],
+    motivo: `Você recebe este e-mail porque se inscreveu no aviso gratuito de ${cidade} no site do CidadeIA.`,
+    cancelar: dados.linkCancelar,
+  });
   return { assunto, html };
 }

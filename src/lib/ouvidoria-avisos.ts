@@ -1,6 +1,7 @@
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { PRAZOS } from "@/lib/prazo-atendimento";
 import { AREAS, areaDoAlerta, type Area, type Pessoa } from "@/lib/alerta-por-area";
+import { h, montarEmail, paragrafosDe, saudacao } from "@/lib/email-modelo";
 
 // ── A OUVIDORIA QUE AVISA ──
 //
@@ -70,13 +71,18 @@ export function prazoDeResposta(tipo: TipoAtendimento, abertoEm: Date, prorrogad
   return { dias, data: d.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) };
 }
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-const paragrafos = (t: string) =>
-  t
-    .replace(/\r\n?/g, "\n")
-    .split(/\n{2,}/)
-    .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
-    .join("");
+// ── OS E-MAILS ── (o modelo visual está em lib/email-modelo.ts)
+//
+// Ao cidadão, quem fala é a ouvidoria da prefeitura: a marca no topo é a dela,
+// e o remetente chega como "Prefeitura de X via CidadeIA". À equipe, o
+// CidadeIA. Os e-mails da equipe levam só tipo, assunto e prazo; nome,
+// contato e texto do cidadão ficam no painel, atrás de login.
+
+const SETOR = "Ouvidoria";
+/** O nome do remetente nos e-mails ao cidadão. */
+export const remetenteDaPrefeitura = (municipio: string) => `Prefeitura de ${municipio} via CidadeIA`;
+const daPrefeitura = (municipio: string) => ({ tipo: "prefeitura" as const, municipio, setor: SETOR });
+const tipoMinusculo = (t: TipoAtendimento) => NOME_TIPO[t].toLowerCase();
 
 export function emailChegouParaEquipe(d: {
   municipio: string;
@@ -90,16 +96,30 @@ export function emailChegouParaEquipe(d: {
 }): { assunto: string; html: string } {
   const nomeArea = OPCOES_DE_AREA.find((o) => o.valor === d.area)?.nome;
   return {
-    assunto: `${d.municipio}: ${NOME_TIPO[d.tipo].toLowerCase()} nova no portal (${d.protocolo})`,
-    html: [
-      `<p><strong>Chegou uma manifestação pelo portal de ${esc(d.municipio)}.</strong></p>`,
-      `<p>${esc(NOME_TIPO[d.tipo])}${nomeArea ? ` · ${esc(nomeArea)}` : ""}${d.anonimo ? " · anônima" : ""}<br>`,
-      `Assunto: <strong>${esc(d.assunto)}</strong><br>`,
-      `Protocolo ${esc(d.protocolo)}</p>`,
-      `<p>Prazo legal de resposta: <strong>${d.prazo.dias} dias, até ${d.prazo.data}</strong>. O CidadeIA avisa de novo se ele estiver perto de vencer.</p>`,
-      `<p><a href="${d.linkPainel}">Ler e responder no painel</a></p>`,
-      `<p style="color:#888;font-size:13px">O texto e os dados de contato do cidadão ficam só no painel, atrás de login.</p>`,
-    ].join("\n"),
+    assunto: `${d.municipio}: ${tipoMinusculo(d.tipo)} nova no portal (${d.protocolo})`,
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `${NOME_TIPO[d.tipo]} sobre "${d.assunto}". Prazo legal até ${d.prazo.data}.`,
+      etiqueta: { texto: `Ouvidoria · ${NOME_TIPO[d.tipo]}`, tom: d.tipo === "denuncia" ? "urgente" : "marca" },
+      titulo: `Nova manifestação no portal de ${d.municipio}`,
+      blocos: [
+        { p: "Um cidadão registrou uma manifestação pelo portal da prefeitura. O prazo legal começou a contar hoje." },
+        {
+          dados: [
+            ["Assunto", d.assunto],
+            ["Tipo", `${NOME_TIPO[d.tipo]}${d.anonimo ? " (anônima)" : ""}`],
+            ["Área", nomeArea ?? "Gabinete"],
+            ["Protocolo", d.protocolo],
+            ["Responder até", `${d.prazo.data} (${d.prazo.dias} dias)`],
+          ],
+        },
+        { botao: "Ler e responder no painel", link: d.linkPainel },
+        { p: "O CidadeIA avisa de novo se o prazo estiver perto de vencer sem resposta." },
+        { nota: "Por segurança, o texto da manifestação e os dados de contato do cidadão ficam só no painel, atrás de login: e-mail pode ser encaminhado." },
+      ],
+      assinatura: null,
+      motivo: "Você recebe este aviso porque responde pelas manifestações desta área no painel do CidadeIA.",
+    }),
   };
 }
 
@@ -112,18 +132,31 @@ export function emailRecebidoParaCidadao(d: {
   assunto: string;
   prazo: { dias: number; data: string };
   linkConsulta: string;
-}): { assunto: string; html: string } {
-  const ola = d.nome ? `Olá, ${esc(d.nome.split(" ")[0])}.` : "Olá.";
+}): { assunto: string; html: string; remetente: string } {
   return {
-    assunto: `Prefeitura de ${d.municipio}: recebemos sua manifestação (${d.protocolo})`,
-    html: [
-      `<p>${ola}</p>`,
-      `<p>A Prefeitura de ${esc(d.municipio)} recebeu sua manifestação: <strong>${esc(d.assunto)}</strong> (${esc(NOME_TIPO[d.tipo].toLowerCase())}).</p>`,
-      `<p>Protocolo: <strong>${esc(d.protocolo)}</strong><br>Chave de consulta: <strong>${esc(d.chave)}</strong></p>`,
-      `<p>O prazo legal de resposta é de ${d.prazo.dias} dias, até <strong>${d.prazo.data}</strong> (${esc(PRAZOS[d.tipo].lei)}). A resposta chega neste e-mail.</p>`,
-      `<p><a href="${d.linkConsulta}">Acompanhar a manifestação</a></p>`,
-      `<p style="color:#888;font-size:13px">Guarde o protocolo e a chave: com os dois, só você consulta o andamento.</p>`,
-    ].join("\n"),
+    assunto: `Recebemos sua manifestação, protocolo ${d.protocolo}`,
+    remetente: remetenteDaPrefeitura(d.municipio),
+    html: montarEmail({
+      remetente: daPrefeitura(d.municipio),
+      previa: `Protocolo ${d.protocolo}. A resposta chega até ${d.prazo.data}, neste e-mail.`,
+      etiqueta: { texto: "Manifestação registrada", tom: "ok" },
+      titulo: "Recebemos sua manifestação",
+      saudacao: saudacao(d.nome),
+      blocos: [
+        { p: h`Obrigado por falar com a Prefeitura de ${d.municipio}. Sua ${tipoMinusculo(d.tipo)} sobre “<strong>${d.assunto}</strong>” foi registrada e encaminhada à equipe responsável.` },
+        {
+          dados: [
+            ["Protocolo", d.protocolo],
+            ["Chave de consulta", d.chave],
+            ["Prazo de resposta", h`até ${d.prazo.data}`],
+          ],
+        },
+        { p: h`Pela ${PRAZOS[d.tipo].lei}, a prefeitura tem ${d.prazo.dias} dias para responder. A resposta chega neste e-mail, e você pode acompanhar o andamento a qualquer momento.` },
+        { botao: "Acompanhar minha manifestação", link: d.linkConsulta },
+        { destaque: "Guarde o protocolo e a chave de consulta. Com os dois, só você acompanha o andamento.", tom: "neutro" },
+      ],
+      motivo: "Você recebe este e-mail porque informou este endereço ao registrar uma manifestação no portal da prefeitura.",
+    }),
   };
 }
 
@@ -134,24 +167,32 @@ export function emailRespostaParaCidadao(d: {
   status: "em_analise" | "respondido" | "encerrado";
   resposta: string;
   linkConsulta: string;
-}): { assunto: string; html: string } {
-  const ola = d.nome ? `Olá, ${esc(d.nome.split(" ")[0])}.` : "Olá.";
-  const titulo =
-    d.status === "em_analise"
-      ? "sua manifestação está em análise"
-      : d.status === "encerrado"
-        ? "sua manifestação foi respondida e encerrada"
-        : "sua manifestação foi respondida";
+}): { assunto: string; html: string; remetente: string } {
+  const analise = d.status === "em_analise";
+  const titulo = analise
+    ? "Sua manifestação está em análise"
+    : d.status === "encerrado"
+      ? "Sua manifestação foi respondida e encerrada"
+      : "Sua manifestação foi respondida";
   return {
-    assunto: `Prefeitura de ${d.municipio}: ${titulo} (${d.protocolo})`,
-    html: [
-      `<p>${ola}</p>`,
-      `<p>A Prefeitura de ${esc(d.municipio)} ${d.status === "em_analise" ? "registrou um andamento na" : "respondeu à"} manifestação de protocolo <strong>${esc(d.protocolo)}</strong>:</p>`,
-      `<div style="border-left:3px solid #ccc;padding-left:12px;margin:12px 0">${paragrafos(d.resposta)}</div>`,
-      d.status === "em_analise"
-        ? `<p><a href="${d.linkConsulta}">Ver a manifestação completa</a></p>`
-        : `<p><strong>A resposta resolveu?</strong> Conte em um toque: <a href="${d.linkConsulta}">Resolveu, em parte ou não resolveu</a>. Sua avaliação vai direto a quem respondeu.</p>`,
-    ].join("\n"),
+    assunto: `${titulo}, protocolo ${d.protocolo}`,
+    remetente: remetenteDaPrefeitura(d.municipio),
+    html: montarEmail({
+      remetente: daPrefeitura(d.municipio),
+      previa: analise ? `A prefeitura registrou um andamento no protocolo ${d.protocolo}.` : `A resposta da prefeitura ao protocolo ${d.protocolo} está neste e-mail.`,
+      etiqueta: { texto: `Protocolo ${d.protocolo}`, tom: analise ? "atencao" : "ok" },
+      titulo,
+      saudacao: saudacao(d.nome),
+      blocos: [
+        { p: analise ? "A prefeitura registrou um andamento na sua manifestação:" : "A prefeitura respondeu à sua manifestação:" },
+        { citacao: paragrafosDe(d.resposta), rotulo: analise ? "Andamento" : "Resposta da prefeitura" },
+        analise
+          ? { botao: "Ver a manifestação completa", link: d.linkConsulta }
+          : { destaque: "Conte em um toque: resolveu, resolveu em parte ou não resolveu. Sua avaliação vai direto a quem respondeu e ajuda a melhorar o atendimento.", titulo: "A resposta resolveu?", tom: "marca" },
+        !analise && { botao: "Avaliar a resposta", link: d.linkConsulta },
+      ],
+      motivo: "Você recebe este e-mail porque registrou uma manifestação no portal da prefeitura e informou este endereço.",
+    }),
   };
 }
 
@@ -172,13 +213,26 @@ export function emailAvaliacaoParaEquipe(d: {
   const disse = d.nota === "nao" ? "não resolveu" : "resolveu só em parte";
   return {
     assunto: `${d.municipio}: o cidadão disse que a resposta ${disse} (${d.protocolo})`,
-    html: [
-      `<p><strong>O cidadão avaliou a resposta da prefeitura: ${disse}.</strong></p>`,
-      `<p>${esc(NOME_TIPO[d.tipo])} · protocolo ${esc(d.protocolo)}<br>Assunto: <strong>${esc(d.assunto)}</strong></p>`,
-      `<p>${d.comComentario ? "Ele deixou um comentário explicando o que faltou." : "Ele não deixou comentário."} Vale complementar a resposta: o cidadão pode avaliar de novo, e a satisfação aparece no portal público.</p>`,
-      `<p><a href="${d.linkPainel}">Ver no painel</a></p>`,
-      `<p style="color:#888;font-size:13px">O comentário e os dados de contato do cidadão ficam só no painel, atrás de login.</p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `Protocolo ${d.protocolo}: vale complementar a resposta.`,
+      etiqueta: { texto: "Avaliação do cidadão", tom: d.nota === "nao" ? "urgente" : "atencao" },
+      titulo: `O cidadão disse que a resposta ${disse}`,
+      blocos: [
+        {
+          dados: [
+            ["Assunto", d.assunto],
+            ["Tipo", NOME_TIPO[d.tipo]],
+            ["Protocolo", d.protocolo],
+          ],
+        },
+        { p: `${d.comComentario ? "Ele deixou um comentário explicando o que faltou." : "Ele não deixou comentário."} Vale complementar a resposta: o cidadão pode avaliar de novo, e a satisfação aparece no portal público.` },
+        { botao: "Ver no painel", link: d.linkPainel },
+        { nota: "O comentário e os dados de contato do cidadão ficam só no painel, atrás de login." },
+      ],
+      assinatura: null,
+      motivo: "Você recebe este aviso porque respondeu a esta manifestação no painel do CidadeIA.",
+    }),
   };
 }
 
@@ -191,16 +245,22 @@ export function emailProrrogacaoParaCidadao(d: {
   justificativa: string;
   lei: string;
   linkConsulta: string;
-}): { assunto: string; html: string } {
-  const ola = d.nome ? `Olá, ${esc(d.nome.split(" ")[0])}.` : "Olá.";
+}): { assunto: string; html: string; remetente: string } {
   return {
-    assunto: `Prefeitura de ${d.municipio}: prazo de resposta prorrogado (${d.protocolo})`,
-    html: [
-      `<p>${ola}</p>`,
-      `<p>O prazo de resposta da sua manifestação (protocolo <strong>${esc(d.protocolo)}</strong>) foi prorrogado por ${d.diasExtras} dias, até <strong>${d.novoPrazo}</strong>, como permite a ${esc(d.lei)}.</p>`,
-      `<p>Justificativa da prefeitura:</p>`,
-      `<div style="border-left:3px solid #ccc;padding-left:12px;margin:12px 0">${paragrafos(d.justificativa)}</div>`,
-      `<p><a href="${d.linkConsulta}">Acompanhar a manifestação</a></p>`,
-    ].join("\n"),
+    assunto: `Prazo de resposta prorrogado, protocolo ${d.protocolo}`,
+    remetente: remetenteDaPrefeitura(d.municipio),
+    html: montarEmail({
+      remetente: daPrefeitura(d.municipio),
+      previa: `Nova data de resposta: ${d.novoPrazo}. A justificativa está neste e-mail.`,
+      etiqueta: { texto: `Protocolo ${d.protocolo}`, tom: "atencao" },
+      titulo: "O prazo de resposta foi prorrogado",
+      saudacao: saudacao(d.nome),
+      blocos: [
+        { p: h`A prefeitura precisou de mais tempo para responder à sua manifestação. O prazo foi prorrogado por ${d.diasExtras} dias, até <strong>${d.novoPrazo}</strong>, como permite a ${d.lei}.` },
+        { citacao: paragrafosDe(d.justificativa), rotulo: "Justificativa da prefeitura" },
+        { botao: "Acompanhar minha manifestação", link: d.linkConsulta },
+      ],
+      motivo: "Você recebe este e-mail porque registrou uma manifestação no portal da prefeitura e informou este endereço.",
+    }),
   };
 }

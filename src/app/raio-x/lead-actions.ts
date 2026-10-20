@@ -9,7 +9,8 @@ import { enviarEmail } from "@/lib/email";
 import { limitarUso } from "@/lib/rate-limit";
 import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { montarRaioX } from "@/lib/raio-x";
-import { resumoDoRaioX } from "@/lib/raio-x-texto";
+import { RESSALVA_MINIMOS, resumoDoRaioX } from "@/lib/raio-x-texto";
+import { montarEmail, saudacao, type Bloco } from "@/lib/email-modelo";
 import { caminhoDoRaioX } from "@/lib/slug-municipio";
 import { CARGOS_LEAD } from "@/lib/leads";
 
@@ -36,10 +37,6 @@ const schema = z.object({
 });
 
 export type ResultadoLead = { ok: true; enviadoParaVoce: boolean } | { ok: false; erro: string; campo?: string };
-
-function escapar(t: string): string {
-  return t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-}
 
 export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLead> {
   const parsed = schema.safeParse(entrada);
@@ -77,44 +74,72 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
   }
 
   // 2) o Raio-X em texto (o mesmo que a página mostra)
-  let corpo: string;
+  let corpo: Bloco[];
+  let resumoEquipe = "";
   try {
     const r = await montarRaioX(municipio.nome, municipio.uf);
-    corpo = r.ok
-      ? resumoDoRaioX(r.raioX).map((l) => `<p>${escapar(l)}</p>`).join("\n")
-      : `<p>${escapar(r.erro)}</p>`;
+    if (r.ok) {
+      const linhas = resumoDoRaioX(r.raioX).filter((l) => l !== RESSALVA_MINIMOS);
+      corpo = [{ lista: linhas }, { nota: RESSALVA_MINIMOS }];
+      resumoEquipe = linhas.slice(1, 3).join(" ");
+    } else {
+      corpo = [{ destaque: r.erro, tom: "atencao" }];
+    }
   } catch {
-    corpo = "<p>O Tesouro Nacional não respondeu no momento do envio. Os números estão na página do município.</p>";
+    corpo = [{ destaque: "O Tesouro Nacional não respondeu no momento do envio. Os números estão na página do município, que é refeita toda semana.", tom: "atencao" }];
   }
   const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
   const link = `${base}${caminhoDoRaioX(municipio)}`;
+  const cidade = `${municipio.nome}/${municipio.uf}`;
 
   // 3) para a pessoa
   const paraVoce = await enviarEmail({
     para: dados.email,
-    assunto: `Raio-X da Prefeitura de ${municipio.nome}/${municipio.uf} — o que o Tesouro já publicou`,
-    html: [
-      `<p>Olá, ${escapar(dados.nome)}.</p>`,
-      `<p>Aqui está o Raio-X de ${escapar(municipio.nome)}/${municipio.uf}, com a leitura de cada número:</p>`,
-      corpo,
-      `<p>A página fica em <a href="${link}">${link}</a> e é refeita toda semana com o que o Tesouro publicar.</p>`,
-      `<p>O que não aparece em base pública — obra parada, prazo de ouvidoria, dispensa virando fracionamento — é o que o CidadeIA acompanha por dentro. Se quiser ver o painel funcionando: <a href="${base}/demo">${base}/demo</a>.</p>`,
-      `<p style="color:#888">CidadeIA · dado público do SICONFI e do IBGE. Os percentuais da receita são indício, não cálculo de mínimo constitucional.</p>`,
-    ].join("\n"),
+    assunto: `Raio-X da Prefeitura de ${cidade}: o que o Tesouro já publicou`,
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `A leitura de cada número que ${municipio.nome} declarou ao Tesouro Nacional.`,
+      etiqueta: { texto: `Raio-X · ${cidade}` },
+      titulo: `O Raio-X da Prefeitura de ${municipio.nome}`,
+      saudacao: saudacao(dados.nome),
+      blocos: [
+        { p: `Como pedido, aqui está o Raio-X de ${cidade}, com a leitura de cada número que a prefeitura declarou ao Tesouro Nacional:` },
+        ...corpo,
+        { botao: "Ver o Raio-X completo", link, depois: { texto: "Ver o painel funcionando", link: `${base}/demo` } },
+        { secao: "O que não aparece em base pública" },
+        { p: "Obra parada, prazo de ouvidoria vencendo, dispensa virando fracionamento, contrato perto do fim: é isso que o CidadeIA acompanha por dentro, todos os dias, e avisa antes de o Tribunal de Contas apontar." },
+        { nota: "Dados públicos do Siconfi (Tesouro Nacional) e do IBGE. A página do município é refeita toda semana com o que o Tesouro publicar." },
+      ],
+      motivo: `Você recebe este e-mail porque pediu o Raio-X de ${cidade} no site do CidadeIA.`,
+    }),
   });
 
   // 4) para a equipe — sempre, com os dados de quem pediu
   await enviarEmail({
     para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_EQUIPE_PADRAO,
-    assunto: `Lead do Raio-X — ${municipio.nome}/${municipio.uf} — ${dados.cargo}`,
-    html: [
-      `<p><strong>${escapar(dados.nome)}</strong>, ${escapar(dados.cargo)} — ${escapar(dados.email)}</p>`,
-      `<p>Município: ${escapar(municipio.nome)}/${municipio.uf} (${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab.) — <a href="${link}">página</a></p>`,
-      `<p>E-mail para a pessoa: ${paraVoce.enviado ? "enviado" : "<strong>NÃO enviado</strong> — encaminhar à mão. Motivo: " + escapar(paraVoce.detalhe ?? paraVoce.motivo)}</p>`,
-      `<hr/>`,
-      corpo,
-      gravado ? "" : `<p style="color:#b00">Não gravado no banco (tabela leads ausente?).</p>`,
-    ].join("\n"),
+    assunto: `Lead do Raio-X — ${cidade} — ${dados.cargo}`,
+    html: montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `${dados.nome}, ${dados.cargo}. ${resumoEquipe}`,
+      etiqueta: { texto: "Novo interessado · Raio-X", tom: "marca" },
+      titulo: `${dados.nome} pediu o Raio-X de ${cidade}`,
+      blocos: [
+        !paraVoce.enviado && { destaque: `O e-mail para a pessoa NÃO saiu: encaminhe à mão. Motivo: ${paraVoce.detalhe ?? paraVoce.motivo}`, tom: "urgente" },
+        !gravado && { destaque: "Não gravado no banco (tabela leads ausente?).", tom: "urgente" },
+        {
+          dados: [
+            ["Nome", dados.nome],
+            ["Cargo", dados.cargo],
+            ["E-mail", dados.email],
+            ["Município", `${cidade} · ${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab.`],
+          ],
+        },
+        ...corpo,
+        { botao: "Abrir o Raio-X", link, depois: { texto: "Ver os interessados", link: `${base}/admin/interessados` } },
+      ],
+      assinatura: null,
+      motivo: "Aviso interno de novo interessado.",
+    }),
   });
 
   if (paraVoce.enviado && gravado) {

@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { pedidosProposta } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { montarEmail, saudacao } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { montarProposta, porteDaPopulacao, PORTES } from "@/lib/precos";
@@ -37,10 +38,6 @@ export type DadosDoPedido = {
 export type ResultadoRegistro =
   | { ok: true; protocolo: string; pedidoId: string; confirmacaoEnviada: boolean; vinculadoAConta: boolean }
   | { ok: false; erro: string };
-
-function escapar(t: string): string {
-  return t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-}
 
 /**
  * Grava o pedido e envia os e-mails. Gravar vem primeiro: é o registro do
@@ -87,22 +84,45 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
   }
 
   // 2) avisa por e-mail
-  const linhas = [
-    `<p><strong>Município:</strong> ${escapar(municipio.nome)}/${municipio.uf} — ${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} habitantes (IBGE) → porte ${rotuloPorte?.rotulo ?? porte}</p>`,
-    `<p><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "(nenhum marcado)")}</p>`,
-    proposta.incompleta || proposta.anual === 0
-      ? `<p><strong>Valor:</strong> sob consulta (faixa sem tabela publicada)</p>`
-      : `<p><strong>Valor:</strong> ${formatarMoeda(proposta.mensal)}/mês — ${formatarMoeda(proposta.anual)} em 12 meses. ${
-          cabeNaDispensa(proposta.anual) ? `Cabe na dispensa (${LIMITE_DISPENSA.base}).` : "Acima do limite de dispensa — pregão."
-        }</p>`,
-    `<hr/>`,
-    `<p><strong>Solicitante:</strong> ${escapar(dados.nome)}${dados.cargo ? `, ${escapar(dados.cargo)}` : ""}</p>`,
-    `<p><strong>E-mail:</strong> ${escapar(dados.email)}${dados.telefone ? ` · <strong>Telefone:</strong> ${escapar(dados.telefone)}` : ""}</p>`,
-    dados.observacao ? `<p><strong>Observação:</strong> ${escapar(dados.observacao)}</p>` : "",
-    prefeituraId ? `<p><strong>Conta:</strong> pedido feito de dentro do painel — já vinculado à prefeitura ${prefeituraId}.</p>` : `<p><strong>Conta:</strong> ainda não tem. O cliente recebe o link para criar; se precisar, ele é /cadastro?proposta=${id}.</p>`,
-    `<p><a href="${process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app"}/admin/pedidos">Abrir a mesa de pedidos</a></p>`,
-    `<p style="color:#888">Protocolo ${protocolo}${gravado ? "" : " — ATENÇÃO: não foi gravado no banco (tabela pedidos_proposta ausente?)"}</p>`,
-  ].join("\n");
+  const appBase = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
+  const linhas = montarEmail({
+    remetente: { tipo: "equipe" },
+    previa: `${dados.nome}${dados.cargo ? `, ${dados.cargo}` : ""}. Proposta em até 1 dia útil.`,
+    etiqueta: { texto: "Pedido de proposta", tom: "marca" },
+    titulo: `${municipio.nome}/${municipio.uf} pediu uma proposta`,
+    blocos: [
+      !gravado && { destaque: "O pedido NÃO foi gravado no banco (tabela pedidos_proposta ausente?). Registre à mão.", tom: "urgente" },
+      {
+        dados: [
+          ["Município", `${municipio.nome}/${municipio.uf}`],
+          ["População (IBGE)", `${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab. · porte ${rotuloPorte?.rotulo ?? porte}`],
+          ["Módulos", nomesModulos.join(", ") || "nenhum marcado"],
+          [
+            "Valor",
+            proposta.incompleta || proposta.anual === 0
+              ? "sob consulta (faixa sem tabela)"
+              : `${formatarMoeda(proposta.mensal)}/mês · ${formatarMoeda(proposta.anual)}/ano`,
+          ],
+          ["Contratação", proposta.incompleta || proposta.anual === 0 ? "a definir" : cabeNaDispensa(proposta.anual) ? `cabe na dispensa (${LIMITE_DISPENSA.base})` : "acima da dispensa: pregão"],
+          ["Protocolo", protocolo],
+        ],
+      },
+      { secao: "Quem pediu" },
+      {
+        dados: [
+          ["Nome", `${dados.nome}${dados.cargo ? `, ${dados.cargo}` : ""}`],
+          ["E-mail", dados.email],
+          ...(dados.telefone ? ([["Telefone", dados.telefone]] as [string, string][]) : []),
+          ["Conta", prefeituraId ? `já vinculada (${prefeituraId})` : "ainda não tem"],
+        ],
+      },
+      dados.observacao ? { citacao: dados.observacao, rotulo: "Observação" } : null,
+      !prefeituraId && { nota: `O cliente recebe o link para criar a conta: /cadastro?proposta=${id}` },
+      { botao: "Abrir a mesa de pedidos", link: `${appBase}/admin/pedidos` },
+    ],
+    assinatura: null,
+    motivo: "Aviso interno: a proposta deve sair em até 1 dia útil.",
+  });
 
   const envio = await enviarEmail({
     para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_PADRAO,
@@ -121,15 +141,34 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
   const confirmacao = await enviarEmail({
     para: dados.email,
     assunto: `Pedido recebido — proposta do CidadeIA para ${municipio.nome}/${municipio.uf} (protocolo ${protocolo})`,
-    html: [
-      `<p>Olá, ${escapar(dados.nome)}.</p>`,
-      `<p>Recebemos o seu pedido de proposta para a Prefeitura de ${escapar(municipio.nome)}/${municipio.uf}.</p>`,
-      `<p><strong>Protocolo:</strong> ${protocolo}<br/><strong>Módulos:</strong> ${escapar(nomesModulos.join(", ") || "a definir")}</p>`,
-      `<p>A proposta e o termo de referência, prontos para o jurídico, chegam neste e-mail em até um dia útil.</p>`,
-      `<p>Acompanhe o andamento quando quiser: <a href="${base}/proposta/acompanhar?protocolo=${protocolo}">${base}/proposta/acompanhar</a> (protocolo + este e-mail).</p>`,
-      `<p>Se quiser adiantar, crie a conta da prefeitura — é nela que os módulos são ativados quando o pagamento da primeira fatura for confirmado: <a href="${base}/cadastro?proposta=${id}">criar a conta</a>.</p>`,
-      `<p style="color:#888">CidadeIA · dado público do SICONFI e do IBGE.</p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `Protocolo ${protocolo}. A proposta chega neste e-mail em até um dia útil.`,
+      etiqueta: { texto: "Pedido recebido", tom: "ok" },
+      titulo: `Recebemos o pedido de proposta para ${municipio.nome}`,
+      saudacao: saudacao(dados.nome),
+      blocos: [
+        { p: `Obrigado pelo interesse no CidadeIA. Recebemos o pedido de proposta para a Prefeitura de ${municipio.nome}/${municipio.uf}.` },
+        {
+          dados: [
+            ["Protocolo", protocolo],
+            ["Módulos", nomesModulos.join(", ") || "a definir"],
+            ["Prazo", "até 1 dia útil"],
+          ],
+        },
+        { secao: "O que acontece agora" },
+        {
+          itens: [
+            { titulo: "A proposta chega neste e-mail", detalhe: "Em até um dia útil, com o valor, o escopo e o termo de referência prontos para o jurídico.", tom: "marca" },
+            { titulo: "O kit de contratação vai junto", detalhe: "Estudo técnico, justificativa da contratação, minuta do contrato e acordo de tratamento de dados.", tom: "marca" },
+            { titulo: "Os módulos ligam com o primeiro pagamento", detalhe: "Se quiser adiantar, crie desde já a conta da prefeitura: é nela que os módulos são ativados.", tom: "marca" },
+          ],
+        },
+        { botao: "Acompanhar o pedido", link: `${base}/proposta/acompanhar?protocolo=${protocolo}`, depois: { texto: "Criar a conta da prefeitura", link: `${base}/cadastro?proposta=${id}` } },
+        { p: "Para acompanhar, use o protocolo e este e-mail. Qualquer dúvida, é só responder." },
+      ],
+      motivo: `Você recebe este e-mail porque pediu uma proposta do CidadeIA para ${municipio.nome}/${municipio.uf}.`,
+    }),
   });
   if (!confirmacao.enviado) {
     console.error(`[proposta] confirmação ao solicitante não saiu: ${confirmacao.detalhe ?? confirmacao.motivo}`);

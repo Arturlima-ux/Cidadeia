@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { alertas, pedidoEventos, prefeituras, usuarios } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { EVENTO_REGRA_ENCERRADA } from "@/lib/vigia-dos-modulos";
+import { montarEmail } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { linkApp } from "@/lib/url-app";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -186,11 +187,19 @@ async function avisarPorEmail(prefeituraId: string, municipio: string, novos: Al
     urgentes > 0
       ? `${municipio}: ${urgentes === 1 ? "1 pendência fiscal" : `${urgentes} pendências fiscais`} no Tesouro`
       : `${municipio}: prazo fiscal chegando`;
-  const html = `
-    <p><strong>A vigia fiscal do CidadeIA conferiu o Tesouro Nacional hoje.</strong></p>
-    ${novos.map((a) => `<p><strong>${a.titulo}</strong><br>${a.descricao}</p>`).join("")}
-    <p><a href="${linkApp("/dashboard/alertas")}">Ver os alertas no painel</a></p>
-  `;
+  const html = montarEmail({
+    remetente: { tipo: "cidadeia" },
+    previa: `${novos[0].titulo}${novos.length > 1 ? ` e mais ${novos.length - 1}` : ""}.`,
+    etiqueta: { texto: `Vigia fiscal · ${municipio}`, tom: urgentes ? "urgente" : "atencao" },
+    titulo: urgentes ? `${urgentes === 1 ? "1 pendência fiscal" : `${urgentes} pendências fiscais`} no Tesouro` : "Prazo fiscal chegando",
+    blocos: [
+      { p: `A vigia fiscal do CidadeIA conferiu hoje o que ${municipio} entregou ao Tesouro Nacional.` },
+      { itens: novos.map((a) => ({ etiqueta: a.prioridade === "urgente" ? "Urgente" : "Atenção", titulo: a.titulo, detalhe: a.descricao, tom: a.prioridade === "urgente" ? ("urgente" as const) : ("atencao" as const) })) },
+      { botao: "Ver os alertas no painel", link: linkApp("/dashboard/alertas") },
+    ],
+    assinatura: null,
+    motivo: "Você recebe os avisos fiscais como prefeito ou administrador da conta. Só chega e-mail quando aparece algo novo.",
+  });
   await Promise.all(
     destinatarios
       .filter((d): d is { email: string } => !!d.email)

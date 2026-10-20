@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { faturas, pedidosProposta } from "@/db/schema";
 import { emailDaEquipe } from "@/lib/equipe";
+import { h, montarEmail, saudacao } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -159,7 +160,6 @@ export async function gerarCobrancasAgora(): Promise<ResultadoAdmin> {
 // volta para a equipe (reply-to). Os lembretes seguintes saem sozinhos
 // (lib/rotina-comercial.ts).
 
-const escaparHtml = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
 export async function enviarPropostaAoCliente(pedidoId: string): Promise<ResultadoAdmin> {
   const autor = await autorAdmin();
@@ -178,7 +178,6 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
     .replace(/[^A-Za-z0-9]+/g, "-")
     .toLowerCase()}-${proposta.numero}.pdf`;
   const base = process.env.APP_URL ?? "https://cidadeia.vercel.app";
-  const primeiro = escaparHtml(pedido.nome.split(" ")[0]);
 
   const envio = await enviarEmail({
     para: pedido.email,
@@ -186,14 +185,34 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
     assunto: `Proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}`,
     anexos: [{ nome: arquivo, conteudo: new Uint8Array(pdf) }],
     pedidoId: pedido.id,
-    html: [
-      `<p>Olá, ${primeiro}.</p>`,
-      `<p>Segue em anexo a proposta do CidadeIA para a Prefeitura de ${escaparHtml(pedido.municipio)}/${pedido.uf}. Se preferir, <a href="${linkRastreavel(base, pedido.id, "proposta", protocolo(pedido.id))}">abra a proposta no navegador</a>, sem baixar.</p>`,
-      `<p>Para o processo de contratação, o kit já vai pronto para o setor de compras e o jurídico revisarem: termo de referência, estudo técnico preliminar, justificativa da contratação direta, minuta do contrato, acordo de tratamento de dados e nível de serviço. <a href="${linkRastreavel(base, pedido.id, "kit", protocolo(pedido.id))}">Abrir o kit de contratação</a>.</p>`,
-      `<p>Se surgir qualquer dúvida, é só responder este e-mail. Se preferir conversar, mande um telefone e o melhor horário que a gente liga.</p>`,
-      `<p><a href="${linkRastreavel(base, pedido.id, "acompanhar", protocolo(pedido.id))}">Acompanhe o pedido</a> (protocolo ${protocolo(pedido.id)}).</p>`,
-      `<p>Equipe CidadeIA</p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `A proposta ${proposta.numero} segue em anexo, com o kit de contratação pronto para o jurídico.`,
+      etiqueta: { texto: `Proposta ${proposta.numero}` },
+      titulo: `Proposta do CidadeIA para ${pedido.municipio}`,
+      saudacao: saudacao(pedido.nome),
+      blocos: [
+        { p: `Obrigado pelo interesse. Segue em anexo a proposta do CidadeIA para a Prefeitura de ${pedido.municipio}/${pedido.uf}. Se preferir, ela também abre direto no navegador, sem baixar.` },
+        { botao: "Abrir a proposta", link: linkRastreavel(base, pedido.id, "proposta", protocolo(pedido.id)), depois: { texto: "Abrir o kit de contratação", link: linkRastreavel(base, pedido.id, "kit", protocolo(pedido.id)) } },
+        { secao: "O processo de contratação já vai pronto" },
+        { p: "Para o setor de compras e o jurídico revisarem, o kit traz:" },
+        {
+          lista: [
+            "termo de referência e estudo técnico preliminar;",
+            "justificativa da contratação direta e da escolha do fornecedor;",
+            "minuta do contrato, acordo de tratamento de dados e nível de serviço.",
+          ],
+        },
+        { p: "Se surgir qualquer dúvida, é só responder este e-mail. Se preferir conversar, mande um telefone e o melhor horário que a gente liga." },
+        {
+          dados: [
+            ["Protocolo", protocolo(pedido.id)],
+            ["Acompanhar", h`<a href="${linkRastreavel(base, pedido.id, "acompanhar", protocolo(pedido.id))}">ver o andamento do pedido</a>`],
+          ],
+        },
+      ],
+      motivo: `Você recebe este e-mail porque pediu uma proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}.`,
+    }),
   });
   if (!envio.enviado) {
     return {

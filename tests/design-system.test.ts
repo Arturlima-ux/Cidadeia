@@ -22,21 +22,9 @@ const EXCECOES: { caminho: string; motivo: string }[] = [
   { caminho: "lib/relatorios/", motivo: "PDF — o renderizador não tem o CSS do documento" },
   { caminho: "app/api/kit/", motivo: "documento gerado, fora do navegador" },
   { caminho: "lib/og-imagem.tsx", motivo: "imagem de compartilhamento, renderizada fora do navegador" },
-  { caminho: "lib/pedido-proposta.ts", motivo: "HTML de e-mail — cliente de e-mail não suporta variável CSS" },
-  { caminho: "app/raio-x/lead-actions.ts", motivo: "HTML do e-mail de lead — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/rotina-comercial.ts", motivo: "HTML dos e-mails de acompanhamento e do resumo da equipe — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/aviso-da-cidade.ts", motivo: "HTML do e-mail do aviso gratuito da cidade — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/vigia-dos-modulos.ts", motivo: "HTML do e-mail da vigia diária dos módulos — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/segunda-do-prefeito.ts", motivo: "HTML do e-mail semanal da Segunda do prefeito — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/ouvidoria-avisos.ts", motivo: "HTML dos e-mails da ouvidoria (equipe e cidadão) — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/valor-mensal.ts", motivo: "HTML do e-mail mensal do que o CidadeIA fez — cliente de e-mail não resolve variável CSS" },
-  { caminho: "app/_atendimento/aviso-actions.ts", motivo: "HTML do e-mail de confirmação do aviso da cidade — cliente de e-mail não resolve variável CSS" },
-  { caminho: "app/_atendimento/actions.ts", motivo: "HTML do aviso de pedido de ligação para a equipe — cliente de e-mail não resolve variável CSS" },
-  { caminho: "lib/cobranca-servidor.ts", motivo: "HTML dos e-mails de fatura e de ativação — cliente de e-mail não resolve variável CSS" },
-  // Este o teste achou, e eu não: o aviso de erro que vai por e-mail para a
-  // equipe. Mesma razão dos outros, e a prova de que a varredura precisava
-  // existir em vez de uma auditoria feita uma vez à mão.
-  { caminho: "instrumentation.ts", motivo: "HTML do e-mail de erro da aplicação — cliente de e-mail não resolve variável CSS" },
+  // Todo e-mail sai de um modelo só (lib/email-modelo.ts): as cores literais
+  // que estavam espalhadas por onze arquivos de e-mail moram ali agora.
+  { caminho: "lib/email-modelo.ts", motivo: "HTML dos e-mails — cliente de e-mail não resolve variável CSS; o modelo único guarda todas as cores" },
   { caminho: "app/global-error.tsx", motivo: "substitui o layout raiz; a folha de estilo pode não ter carregado" },
   { caminho: "components/site/SiteFooter.tsx", motivo: "a marca sobre o rodapé, escuro nos dois temas" },
   { caminho: "components/FaixaDemo.tsx", motivo: "o selo de demonstração é âmbar fixo de propósito — precisa destoar do tema" },

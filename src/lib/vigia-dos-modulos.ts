@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { montarEmail, type Item } from "@/lib/email-modelo";
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import { lerVigencia, type ContratoParaVigencia } from "@/lib/vigencia";
 import type { PadraoLicitacao } from "@/lib/padroes-licitacoes";
@@ -313,7 +314,6 @@ export function planejar(existentes: AlertaExistente[], achados: AchadoComId[]):
 
 // ── o e-mail ──
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
 const NOME_SECRETARIA: Record<string, string> = {
   saude: "Saúde",
@@ -349,23 +349,33 @@ export function emailDaVigia(dados: {
       ? `${dados.municipio}: ${urgentes === 1 ? "1 ponto urgente" : `${urgentes} pontos urgentes`} para hoje`
       : `${dados.municipio}: ${todos.length === 1 ? "1 ponto pede atenção" : `${todos.length} pontos pedem atenção`}`;
 
-  const bloco = (d: DeteccaoAutomatica, piorou: boolean) => {
+  const item = (d: DeteccaoAutomatica, piorou: boolean): Item => {
     const area = d.secretaria ? NOME_SECRETARIA[d.secretaria] ?? d.secretaria : "Gabinete";
-    const selo = d.prioridade === "urgente" ? "URGENTE" : "Atenção";
-    return (
-      `<p style="margin:0 0 14px"><span style="font-size:12px;color:${d.prioridade === "urgente" ? "#b42318" : "#8a6100"}">` +
-      `<strong>${selo}</strong> · ${esc(area)}${piorou ? " · piorou desde o último aviso" : ""}</span><br>` +
-      `<strong>${esc(d.titulo)}</strong><br>${esc(d.descricao)}</p>`
-    );
+    return {
+      etiqueta: `${d.prioridade === "urgente" ? "Urgente" : "Atenção"} · ${area}${piorou ? " · piorou desde o último aviso" : ""}`,
+      titulo: d.titulo,
+      detalhe: d.descricao,
+      tom: d.prioridade === "urgente" ? "urgente" : "atencao",
+    };
   };
   const ordenar = (ls: DeteccaoAutomatica[]) => [...ls].sort((a, b) => PESO[b.prioridade] - PESO[a.prioridade]);
+  const ordenados = [...ordenar(novos).map((d) => item(d, false)), ...ordenar(piorados).map((d) => item(d, true))];
 
-  const html = [
-    `<p><strong>A vigia do CidadeIA passou pelos módulos de ${esc(dados.municipio)} hoje de manhã.</strong></p>`,
-    ...ordenar(novos).map((d) => bloco(d, false)),
-    ...ordenar(piorados).map((d) => bloco(d, true)),
-    `<p><a href="${dados.linkAlertas}">Ver e resolver no painel</a></p>`,
-    `<p style="color:#888;font-size:13px">${RODAPE[dados.papel ?? "admin"]} Só chega e-mail quando aparece algo novo ou quando algo piora, e o alerta some do painel sozinho quando o problema deixa de existir.</p>`,
-  ].join("\n");
+  const html = montarEmail({
+    remetente: { tipo: "cidadeia" },
+    previa: `${todos[0].titulo}${todos.length > 1 ? ` e mais ${todos.length - 1}` : ""}.`,
+    etiqueta: { texto: `Vigia diária · ${dados.municipio}`, tom: urgentes ? "urgente" : "atencao" },
+    titulo: urgentes > 0
+      ? `${urgentes === 1 ? "1 ponto urgente" : `${urgentes} pontos urgentes`} para hoje`
+      : `${todos.length === 1 ? "1 ponto pede" : `${todos.length} pontos pedem`} atenção`,
+    blocos: [
+      { p: `A vigia do CidadeIA passou pelos módulos de ${dados.municipio} hoje de manhã e encontrou o seguinte:` },
+      { itens: ordenados },
+      { botao: "Ver e resolver no painel", link: dados.linkAlertas },
+      { nota: "Só chega e-mail quando aparece algo novo ou quando algo piora. O alerta some do painel sozinho quando o problema deixa de existir." },
+    ],
+    assinatura: null,
+    motivo: RODAPE[dados.papel ?? "admin"],
+  });
   return { assunto, html };
 }

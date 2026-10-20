@@ -35,18 +35,32 @@ export const onRequestError: Instrumentation.onRequestError = async (err, reques
 
   try {
     const { enviarEmail } = await import("@/lib/email");
-    const escapar = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
+    const { h, montarEmail } = await import("@/lib/email-modelo");
     const pilha = err instanceof Error && err.stack ? err.stack.split("\n").slice(0, 8).join("\n") : "";
     await enviarEmail({
       para: destino,
       assunto: `[CidadeIA] erro no servidor — ${request.method} ${request.path}`,
-      html: [
-        `<p><strong>${escapar(mensagem)}</strong></p>`,
-        `<p>Rota: <code>${escapar(request.method)} ${escapar(request.path)}</code> · tipo: ${escapar(context.routeType)} · fase: ${escapar(context.renderSource ?? "-")}${digest ? ` · digest: <code>${escapar(digest)}</code>` : ""}</p>`,
-        `<p>Quando: ${new Date(agora).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" })} (Fortaleza)</p>`,
-        pilha ? `<pre style="font-size:12px;white-space:pre-wrap">${escapar(pilha)}</pre>` : "",
-        `<p style="color:#888">Este erro só avisa de novo daqui a uma hora, se continuar. Detalhe completo nos logs da Vercel.</p>`,
-      ].join("\n"),
+      html: montarEmail({
+        remetente: { tipo: "equipe" },
+        previa: mensagem,
+        etiqueta: { texto: "Erro no servidor", tom: "urgente" },
+        titulo: mensagem.length > 120 ? `${mensagem.slice(0, 117)}…` : mensagem,
+        blocos: [
+          {
+            dados: [
+              ["Rota", `${request.method} ${request.path}`],
+              ["Tipo", context.routeType],
+              ["Fase", context.renderSource ?? "-"],
+              ...(digest ? ([["Digest", digest]] as [string, string][]) : []),
+              ["Quando", `${new Date(agora).toLocaleString("pt-BR", { timeZone: "America/Fortaleza" })} (Fortaleza)`],
+            ],
+          },
+          pilha ? { citacao: h`<pre style="margin:0;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word">${pilha}</pre>`, rotulo: "Pilha" } : null,
+          { nota: "Este erro só avisa de novo daqui a uma hora, se continuar. O detalhe completo está nos logs da Vercel." },
+        ],
+        assinatura: null,
+        motivo: "Aviso automático de erro no servidor.",
+      }),
     });
   } catch (e) {
     console.error("[erro-servidor] não foi possível avisar por e-mail:", e);

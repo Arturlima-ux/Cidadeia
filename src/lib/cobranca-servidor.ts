@@ -2,6 +2,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { faturas, pedidoEventos, pedidosProposta, prefeituras, auditoria } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { h, montarEmail, paragrafosDe, saudacao } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { formatarMoeda } from "@/lib/formatadores";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
@@ -175,13 +176,33 @@ export async function confirmarPagamento(
   const envio = await enviarEmail({
     para: pedido.email,
     assunto: `CidadeIA: pagamento confirmado, módulos ativos para ${pedido.municipio}/${pedido.uf}`,
-    html: [
-      `<p>Olá, ${pedido.nome}.</p>`,
-      `<p>Recebemos o pagamento de ${rotuloCompetencia(fat.competencia)}. Os módulos <strong>${nomes.join(", ")}</strong> estão ativos na conta da ${pref.nome}.</p>`,
-      `<p>Entre em <a href="${BASE()}/login">${BASE()}/login</a>. A Implantação, no painel, mostra o que cadastrar primeiro.</p>`,
-      `<p>As próximas mensalidades vencem todo dia ${pedido.diaVencimento}. A fatura chega por e-mail e fica em Financeiro, no painel.</p>`,
-      `<p style="color:#888">Protocolo ${protocolo(pedido.id)}.</p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `Os módulos ${nomes.join(", ")} já estão ativos na conta da prefeitura.`,
+      etiqueta: { texto: "Pagamento confirmado", tom: "ok" },
+      titulo: `Bem-vindos ao CidadeIA, ${pedido.municipio}`,
+      saudacao: saudacao(pedido.nome),
+      blocos: [
+        { p: h`Recebemos o pagamento de ${rotuloCompetencia(fat.competencia)}. Obrigado pela confiança. Os módulos <strong>${nomes.join(", ")}</strong> já estão ativos na conta da ${pref.nome}.` },
+        { secao: "Primeiros passos" },
+        {
+          itens: [
+            { titulo: "Entre no painel", detalhe: "Use o CPF ou CNPJ e a senha cadastrados na criação da conta.", tom: "marca" },
+            { titulo: "Siga a Implantação", detalhe: "A tela de Implantação mostra, em ordem, o que cadastrar primeiro: equipe, secretarias e dados de cada módulo.", tom: "marca" },
+            { titulo: "Cadastre os secretários", detalhe: "Em Configurações, cada secretário ganha o próprio acesso e passa a receber os alertas da área dele; o prefeito recebe o que é urgente e a Segunda do prefeito.", tom: "marca" },
+          ],
+        },
+        { botao: "Entrar no painel", link: `${BASE()}/login` },
+        {
+          dados: [
+            ["Protocolo", protocolo(pedido.id)],
+            ["Próximas mensalidades", `todo dia ${pedido.diaVencimento}`],
+          ],
+        },
+        { p: "A fatura de cada mês chega por e-mail e fica disponível em Financeiro, no painel. Qualquer dúvida na implantação, é só responder este e-mail." },
+      ],
+      motivo: `Você recebe este e-mail como responsável pela contratação do CidadeIA para ${pedido.municipio}/${pedido.uf}.`,
+    }),
   });
 
   return envio.enviado
@@ -201,17 +222,39 @@ export type RelatorioCobranca = { emitidas: number; avisos: number; erros: strin
 
 function emailFatura(pedido: typeof pedidosProposta.$inferSelect, f: typeof faturas.$inferSelect, motivo: string) {
   const instrucoes = instrucoesDePagamento();
+  const atraso = motivo === "fatura em atraso";
+  const suspenso = motivo === "acesso suspenso";
   return {
     para: pedido.email,
     assunto: `CidadeIA: ${motivo}, ${rotuloCompetencia(f.competencia)}, ${pedido.municipio}/${pedido.uf}`,
-    html: [
-      `<p>Olá, ${pedido.nome}.</p>`,
-      `<p>Fatura de <strong>${rotuloCompetencia(f.competencia)}</strong>: ${formatarMoeda(f.valor)}, vencimento em ${dataCurta(f.vencimento)}.</p>`,
-      `<p>${motivo === "fatura em atraso" ? "Sem o pagamento, o acesso ao painel é suspenso ao fim da carência prevista em contrato." : motivo === "acesso suspenso" ? "O acesso ao painel está suspenso até a confirmação do pagamento. A exportação dos dados continua disponível." : "Pagamento antecipado, conforme o contrato."}</p>`,
-      instrucoes ? `<p><strong>Como pagar</strong><br>${instrucoes.replace(/\n/g, "<br>")}</p>` : "",
-      `<p>Depois de pagar, responda este e-mail com o comprovante. Os detalhes ficam em Financeiro, no painel: <a href="${BASE()}/dashboard/financeiro">${BASE()}/dashboard/financeiro</a>.</p>`,
-      `<p style="color:#888">Protocolo ${protocolo(pedido.id)}.</p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `${formatarMoeda(f.valor)}, vencimento em ${dataCurta(f.vencimento)}.`,
+      etiqueta: { texto: `Fatura · ${rotuloCompetencia(f.competencia)}`, tom: suspenso ? "urgente" : atraso ? "atencao" : "marca" },
+      titulo: suspenso ? "O acesso ao painel está suspenso" : atraso ? "A fatura está em atraso" : "Sua fatura está disponível",
+      saudacao: saudacao(pedido.nome),
+      blocos: [
+        {
+          p: suspenso
+            ? "O acesso ao painel foi suspenso até a confirmação do pagamento. A exportação dos dados da prefeitura continua disponível."
+            : atraso
+              ? "Ainda não identificamos o pagamento da fatura abaixo. Sem ele, o acesso ao painel é suspenso ao fim da carência prevista em contrato."
+              : `A fatura de ${rotuloCompetencia(f.competencia)} do CidadeIA para a Prefeitura de ${pedido.municipio} está disponível.`,
+        },
+        {
+          dados: [
+            ["Referência", rotuloCompetencia(f.competencia)],
+            ["Valor", formatarMoeda(f.valor)],
+            ["Vencimento", dataCurta(f.vencimento)],
+            ["Protocolo", protocolo(pedido.id)],
+          ],
+        },
+        instrucoes ? { destaque: paragrafosDe(instrucoes), titulo: "Como pagar", tom: "neutro" } : null,
+        { p: "Depois de pagar, responda este e-mail com o comprovante. Se o pagamento já foi feito, desconsidere esta mensagem." },
+        { botao: "Ver em Financeiro, no painel", link: `${BASE()}/dashboard/financeiro` },
+      ],
+      motivo: `Você recebe este e-mail como responsável financeiro pelo contrato do CidadeIA com ${pedido.municipio}/${pedido.uf}.`,
+    }),
   };
 }
 

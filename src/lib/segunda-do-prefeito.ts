@@ -1,4 +1,5 @@
 import { areaDoAlerta, type Area } from "@/lib/alerta-por-area";
+import { montarEmail, type Bloco } from "@/lib/email-modelo";
 
 // ── A SEGUNDA DO PREFEITO ──
 //
@@ -68,7 +69,6 @@ export function quando(dataIso: string, hoje: Date): string {
   return `${DIA_DA_SEMANA[d.getUTCDay()]} (${dia}/${m})`;
 }
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 const area = (s: string | null) => {
   const a = areaDoAlerta(s);
   return a ? NOME_AREA[a] : "Gabinete";
@@ -103,65 +103,77 @@ export function emailDaSegunda(
       ? `${titulo} · ${quem}: ${vencimentos.length === 1 ? "1 prazo" : `${vencimentos.length} prazos`} nesta semana`
       : `${titulo} · ${quem}: semana sem pendência urgente`;
 
-  const h2 = (t: string) => `<h3 style="margin:22px 0 8px;font-size:15px">${t}</h3>`;
-  const partes: string[] = [`<p>Bom dia. O resumo da semana de ${esc(quem)}, conferido pela vigia do CidadeIA hoje cedo.</p>`];
+  const blocos: Bloco[] = [{ p: `Bom dia. Este é o resumo da semana de ${quem}, conferido pela vigia do CidadeIA hoje cedo.` }];
 
   if (urgentes.length) {
-    partes.push(h2(papel === "secretario" ? "Precisa de ação" : "Precisa da sua decisão"));
-    partes.push(
-      `<ul>${urgentes
-        .slice(0, 8)
-        .map((a) => `<li style="margin-bottom:8px"><strong>${esc(a.titulo)}</strong> <span style="color:#666">· ${area(a.secretaria)}</span>${a.descricao ? `<br><span style="color:#444">${esc(a.descricao)}</span>` : ""}</li>`)
-        .join("")}</ul>`
-    );
-    if (urgentes.length > 8) partes.push(`<p>E mais ${urgentes.length - 8} no painel.</p>`);
+    blocos.push({ secao: papel === "secretario" ? "Precisa de ação" : "Precisa da sua decisão", tom: "urgente" });
+    blocos.push({
+      itens: urgentes.slice(0, 8).map((a) => ({ etiqueta: `Urgente · ${area(a.secretaria)}`, titulo: a.titulo, detalhe: a.descricao, tom: "urgente" as const })),
+    });
+    if (urgentes.length > 8) blocos.push({ p: `E mais ${urgentes.length - 8} no painel.` });
   } else {
-    partes.push(h2("Nada urgente"));
-    partes.push(`<p>Nenhum alerta urgente em aberto${soArea ? ` em ${NOME_AREA[soArea]}` : ""}.</p>`);
+    blocos.push({ destaque: `Nenhum alerta urgente em aberto${soArea ? ` em ${NOME_AREA[soArea]}` : ""}. A vigia conferiu tudo e segue de olho.`, titulo: "Nada urgente", tom: "ok" });
   }
 
   if (vencimentos.length) {
-    partes.push(h2("Vence nos próximos sete dias"));
-    partes.push(`<ul>${vencimentos.map((v) => `<li><strong>${quando(v.data, hoje)}</strong>: ${esc(v.texto)}</li>`).join("")}</ul>`);
+    blocos.push({ secao: "Vence nos próximos sete dias", tom: "atencao" });
+    blocos.push({ itens: vencimentos.map((v) => ({ etiqueta: quando(v.data, hoje), titulo: v.texto, tom: "atencao" as const })) });
   }
 
   if (medios.length) {
     const porArea = new Map<string, number>();
     for (const a of medios) porArea.set(area(a.secretaria), (porArea.get(area(a.secretaria)) ?? 0) + 1);
-    partes.push(h2("Em acompanhamento"));
-    partes.push(
-      `<p>${medios.length === 1 ? "1 alerta pede atenção" : `${medios.length} alertas pedem atenção`}, sem urgência: ${[...porArea]
-        .map(([nome, n]) => `${nome} ${n}`)
-        .join(" · ")}.</p>`
-    );
+    blocos.push({ secao: "Em acompanhamento" });
+    blocos.push({
+      p: `${medios.length === 1 ? "1 alerta pede atenção" : `${medios.length} alertas pedem atenção`}, sem urgência: ${[...porArea].map(([nome, n]) => `${nome} ${n}`).join(" · ")}.`,
+    });
   }
 
   if (d.resolvidos.length) {
     const sozinhos = d.resolvidos.filter((r) => r.sozinho).length;
     const equipe = d.resolvidos.length - sozinhos;
-    partes.push(h2("Resolvido na semana passada"));
+    blocos.push({ secao: "Resolvido na semana passada", tom: "ok" });
     const frase = [
       sozinhos ? `${sozinhos === 1 ? "1 problema deixou" : `${sozinhos} problemas deixaram`} de existir e o alerta fechou sozinho` : "",
       equipe ? `${equipe === 1 ? "1 alerta foi fechado" : `${equipe} alertas foram fechados`} pela equipe` : "",
     ]
       .filter(Boolean)
       .join("; ");
-    partes.push(`<p>${frase}.</p>`);
-    partes.push(`<ul>${d.resolvidos.slice(0, 6).map((r) => `<li style="color:#444">${esc(r.titulo)}</li>`).join("")}</ul>`);
+    blocos.push({ p: `${frase}.` });
+    blocos.push({ lista: d.resolvidos.slice(0, 6).map((r) => r.titulo) });
   }
 
   if (dados.comparacao && !soArea && papel !== "secretario") {
-    partes.push(h2("Entre as cidades parecidas"));
-    partes.push(`<p>${esc(dados.comparacao)}</p>`);
+    blocos.push({ secao: "Entre as cidades parecidas" });
+    blocos.push({ p: dados.comparacao });
   }
 
-  partes.push(`<p style="margin-top:22px"><a href="${d.linkPainel}">Abrir o painel</a></p>`);
-  partes.push(
-    `<p style="color:#888;font-size:13px">${
+  blocos.push({ botao: "Abrir o painel", link: d.linkPainel });
+
+  const html = montarEmail({
+    remetente: { tipo: "cidadeia" },
+    previa: urgentes.length
+      ? `${urgentes[0].titulo}${urgentes.length > 1 ? ` e mais ${urgentes.length - 1}` : ""}.`
+      : vencimentos.length
+        ? `${quando(vencimentos[0].data, hoje)}: ${vencimentos[0].texto}`
+        : "Semana sem pendência urgente. A vigia conferiu tudo.",
+    etiqueta: { texto: `${titulo} · ${hojeCurto(hoje)}`, tom: urgentes.length ? "urgente" : "marca" },
+    titulo: urgentes.length
+      ? `${urgentes.length === 1 ? "1 decisão" : `${urgentes.length} decisões`} para esta semana`
+      : vencimentos.length
+        ? `${vencimentos.length === 1 ? "1 prazo" : `${vencimentos.length} prazos`} nesta semana`
+        : "Semana sem pendência urgente",
+    blocos,
+    assinatura: null,
+    motivo:
       papel === "secretario"
         ? "Toda segunda, quando há o que dizer sobre a sua secretaria. Os alertas do dia a dia continuam chegando na hora."
-        : "Toda segunda cedo. Os alertas do dia a dia continuam chegando na hora em que aparecem."
-    }</p>`
-  );
-  return { assunto, html: partes.join("\n") };
+        : "Toda segunda cedo. Os alertas do dia a dia continuam chegando na hora em que aparecem.",
+  });
+  return { assunto, html };
+}
+
+function hojeCurto(hoje: Date): string {
+  const [, m, d] = hoje.toISOString().slice(0, 10).split("-");
+  return `${d}/${m}`;
 }

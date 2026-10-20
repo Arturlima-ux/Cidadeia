@@ -2,6 +2,7 @@ import { and, desc, eq, inArray, isNotNull, like, lt, notInArray, sql } from "dr
 import { db } from "@/db";
 import { alertas, atendimentos, pedidoEventos, pedidosProposta, prefeituras, usuarios } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { h, montarEmail } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { destinoDaEquipe } from "@/lib/contato-comercial";
 import { planosContratadosDe } from "@/lib/planos";
@@ -148,7 +149,6 @@ export async function saudeDosClientes(hoje: Date = new Date()): Promise<SaudeDo
   return saida.sort((a, b) => ordem[a.risco] - ordem[b.risco] || b.sinais.length - a.sinais.length);
 }
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
 /** Toda segunda, junto da Segunda do prefeito: a lista de quem pede ligação. Só sai se alguém estiver em risco. */
 export async function avisarEquipeDoRisco(hoje: Date = new Date()): Promise<{ emRisco: number; enviado: boolean }> {
@@ -160,14 +160,25 @@ export async function avisarEquipeDoRisco(hoje: Date = new Date()): Promise<{ em
   if (!lista.length) return { emRisco: 0, enviado: false };
   const base = process.env.APP_URL ?? "https://cidadeia.vercel.app";
   const altos = lista.filter((c) => c.risco === "alto").length;
-  const html = [
-    `<p><strong>Clientes que pedem uma ligação esta semana.</strong></p>`,
-    ...lista.map(
-      (c) =>
-        `<p><strong>${esc(c.municipio)}/${c.uf}</strong> · risco ${c.risco === "alto" ? "ALTO" : "médio"}<br>${c.sinais.map((s) => `– ${esc(s.texto)}`).join("<br>")}</p>`
-    ),
-    `<p><a href="${base}/admin/clientes">Ver todos os clientes</a></p>`,
-  ].join("\n");
+  const html = montarEmail({
+    remetente: { tipo: "equipe" },
+    previa: lista.map((c) => `${c.municipio}/${c.uf}`).join(", "),
+    etiqueta: { texto: "Saúde dos clientes", tom: altos ? "urgente" : "atencao" },
+    titulo: "Clientes que pedem uma ligação esta semana",
+    blocos: [
+      {
+        itens: lista.map((c) => ({
+          etiqueta: `Risco ${c.risco === "alto" ? "alto" : "médio"}`,
+          titulo: `${c.municipio}/${c.uf}`,
+          detalhe: h`${c.sinais.map((s, i) => h`${i ? h`<br>` : ""}– ${s.texto}`)}`,
+          tom: c.risco === "alto" ? ("urgente" as const) : ("atencao" as const),
+        })),
+      },
+      { botao: "Ver todos os clientes", link: `${base}/admin/clientes` },
+    ],
+    assinatura: null,
+    motivo: "Aviso interno de toda segunda, só quando algum cliente está em risco.",
+  });
   const envio = await enviarEmail({
     para: destinoDaEquipe(),
     assunto: `Risco de cancelamento: ${altos ? `${altos} alto${altos > 1 ? "s" : ""}, ` : ""}${lista.length} no total`,
