@@ -30,18 +30,44 @@ export async function buscarObras(prefeituraId: string) {
     .orderBy(desc(obras.createdAt));
 }
 
-const schemaObra = z.object({
-  nome: z.string().min(2, "Informe o nome da obra."),
-  bairro: z.string().optional(),
-  progressoAtual: z.coerce.number().min(0).max(100).default(0),
-  progressoEsperado: z.coerce.number().min(0).max(100).default(0),
-  valorContrato: z.coerce.number().optional(),
-  // Caixa do Brasil, não o mundo: pega latitude e longitude trocadas, que
-  // antes passavam e caíam no oceano (src/lib/coordenadas.ts).
-  latitude: z.coerce.number().min(LIMITES_BRASIL.latitude.min).max(LIMITES_BRASIL.latitude.max).optional(),
-  longitude: z.coerce.number().min(LIMITES_BRASIL.longitude.min).max(LIMITES_BRASIL.longitude.max).optional(),
-  status: z.enum(["planejada", "em_andamento", "atrasada", "concluida", "paralisada"]),
-});
+const dataIso = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida.")
+  .optional();
+
+/** "1.250.000,50", "1250000.50" ou "1250000" → 1250000.5. Vazio → undefined. */
+function valorEmReais(texto: FormDataEntryValue | null): number | undefined {
+  const t = String(texto ?? "").replace(/[R$\s]/g, "");
+  if (!t) return undefined;
+  const normal = t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t;
+  const n = Number(normal);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
+
+const schemaObra = z
+  .object({
+    nome: z.string().trim().min(2, "Informe o nome da obra."),
+    bairro: z.string().trim().optional(),
+    fornecedorNome: z.string().trim().optional(),
+    // Vazio é "ainda não medido" (null), e não 0%: zero afirma que a obra está parada.
+    progressoAtual: z.coerce.number().min(0).max(100).nullable(),
+    valorContrato: z.number().optional(),
+    vigenciaInicio: dataIso,
+    vigenciaFim: dataIso,
+    // Caixa do Brasil, não o mundo: pega latitude e longitude trocadas, que
+    // antes passavam e caíam no oceano (src/lib/coordenadas.ts).
+    latitude: z.coerce.number().min(LIMITES_BRASIL.latitude.min).max(LIMITES_BRASIL.latitude.max).optional(),
+    longitude: z.coerce.number().min(LIMITES_BRASIL.longitude.min).max(LIMITES_BRASIL.longitude.max).optional(),
+    status: z.enum(["planejada", "em_andamento", "atrasada", "concluida", "paralisada"]),
+  })
+  .refine((d) => !d.vigenciaInicio || !d.vigenciaFim || d.vigenciaFim >= d.vigenciaInicio, {
+    message: "O término previsto não pode ser antes do início.",
+  });
+
+const texto = (v: FormDataEntryValue | null) => {
+  const t = String(v ?? "").trim();
+  return t ? t : undefined;
+};
 
 export async function criarObra(formData: FormData) {
   const sessao = await lerSessao();
@@ -50,36 +76,51 @@ export async function criarObra(formData: FormData) {
 
   const dados = schemaObra.parse({
     nome: formData.get("nome"),
-    bairro: formData.get("bairro") || undefined,
-    progressoAtual: formData.get("progressoAtual") || 0,
-    progressoEsperado: formData.get("progressoEsperado") || 0,
-    valorContrato: formData.get("valorContrato") || undefined,
-    latitude: formData.get("latitude") || undefined,
-    longitude: formData.get("longitude") || undefined,
+    bairro: texto(formData.get("bairro")),
+    fornecedorNome: texto(formData.get("fornecedorNome")),
+    progressoAtual: texto(formData.get("progressoAtual")) ?? null,
+    valorContrato: valorEmReais(formData.get("valorContrato")),
+    vigenciaInicio: texto(formData.get("vigenciaInicio")),
+    vigenciaFim: texto(formData.get("vigenciaFim")),
+    latitude: texto(formData.get("latitude")),
+    longitude: texto(formData.get("longitude")),
     status: formData.get("status"),
   });
+  // Uma coordenada sozinha não marca lugar nenhum.
+  const temLocal = dados.latitude !== undefined && dados.longitude !== undefined;
 
   await db.insert(obras).values({
     id: gerarId("obra"),
     prefeituraId: sessao.prefeituraId,
     nome: dados.nome,
     bairro: dados.bairro ?? null,
+    fornecedorNome: dados.fornecedorNome ?? null,
     progressoAtual: dados.progressoAtual,
-    progressoEsperado: dados.progressoEsperado,
+    // Obsoleto: o esperado sai das datas (lib/obra-prazo.ts).
+    progressoEsperado: 0,
     valorContrato: dados.valorContrato ?? null,
-    latitude: dados.latitude ?? null,
-    longitude: dados.longitude ?? null,
+    vigenciaInicio: dados.vigenciaInicio ?? null,
+    vigenciaFim: dados.vigenciaFim ?? null,
+    latitude: temLocal ? dados.latitude! : null,
+    longitude: temLocal ? dados.longitude! : null,
     status: dados.status,
   });
 
-  await auditar(sessao, { acao: "criar", entidade: "obra", resumo: `"${dados.nome}" — ${dados.progressoAtual}% executado, ${dados.status}` });
+  await auditar(sessao, {
+    acao: "criar",
+    entidade: "obra",
+    resumo: `"${dados.nome}" — ${dados.progressoAtual === null ? "sem medição" : `${dados.progressoAtual}% executado`}, ${dados.status}${dados.vigenciaFim ? `, término previsto ${dados.vigenciaFim}` : ""}`,
+  });
   revalidatePath("/dashboard/secretarias/obras");
 }
 
 const schemaAtualizarProgresso = z.object({
   id: z.string(),
-  progressoAtual: z.coerce.number().min(0).max(100),
+  // Vazio mantém a medição anterior (não vira 0%).
+  progressoAtual: z.coerce.number().min(0).max(100).optional(),
   status: z.enum(["planejada", "em_andamento", "atrasada", "concluida", "paralisada"]),
+  vigenciaInicio: dataIso,
+  vigenciaFim: dataIso,
 });
 
 export async function atualizarProgressoObra(formData: FormData) {
@@ -89,20 +130,39 @@ export async function atualizarProgressoObra(formData: FormData) {
 
   const dados = schemaAtualizarProgresso.parse({
     id: formData.get("id"),
-    progressoAtual: formData.get("progressoAtual"),
+    progressoAtual: texto(formData.get("progressoAtual")),
     status: formData.get("status"),
+    vigenciaInicio: texto(formData.get("vigenciaInicio")),
+    vigenciaFim: texto(formData.get("vigenciaFim")),
   });
+  if (dados.vigenciaInicio && dados.vigenciaFim && dados.vigenciaFim < dados.vigenciaInicio) {
+    throw new Error("O término previsto não pode ser antes do início.");
+  }
 
   await db
     .update(obras)
     .set({
-      progressoAtual: dados.progressoAtual,
+      // atualizadoEm é a data da última medição (lib/obra-prazo.ts, "sem notícia"):
+      // só muda quando há medição nova.
+      ...(dados.progressoAtual !== undefined ? { progressoAtual: dados.progressoAtual, atualizadoEm: new Date().toISOString() } : {}),
+      ...(dados.vigenciaInicio ? { vigenciaInicio: dados.vigenciaInicio } : {}),
+      ...(dados.vigenciaFim ? { vigenciaFim: dados.vigenciaFim } : {}),
       status: dados.status,
-      atualizadoEm: new Date().toISOString(),
     })
     .where(and(eq(obras.id, dados.id), eq(obras.prefeituraId, sessao.prefeituraId)));
 
-  await auditar(sessao, { acao: "alterar", entidade: "obra", entidadeId: dados.id, resumo: `progresso ${dados.progressoAtual}%, status ${dados.status}` });
+  await auditar(sessao, {
+    acao: "alterar",
+    entidade: "obra",
+    entidadeId: dados.id,
+    resumo: [
+      dados.progressoAtual !== undefined ? `progresso ${dados.progressoAtual}%` : null,
+      `status ${dados.status}`,
+      dados.vigenciaFim ? `término previsto ${dados.vigenciaFim}` : null,
+    ]
+      .filter(Boolean)
+      .join(", "),
+  });
   revalidatePath("/dashboard/secretarias/obras");
 }
 
