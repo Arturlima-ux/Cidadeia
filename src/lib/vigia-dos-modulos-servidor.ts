@@ -27,6 +27,8 @@ import { lerObrasFederais } from "@/lib/obras-federais-servidor";
 import { lerArboviroses } from "@/lib/arboviroses-servidor";
 import { achadosDosMinimosAutomaticos } from "@/lib/minimos-automaticos";
 import { achadosDasArboviroses } from "@/lib/arboviroses";
+import { lerSiope } from "@/lib/siope-servidor";
+import { achadosDoSiope } from "@/lib/siope";
 import { achadosDasObrasFederais } from "@/lib/obras-federais";
 import { ehObraOuEngenharia } from "@/lib/obra-prazo";
 import { radarDaPrefeitura } from "@/lib/radar-transparencia-servidor";
@@ -102,6 +104,10 @@ export async function achadosDaPrefeitura(
   const areasDosMinimos = (["saude", "educacao"] as const).filter((a) => planos.includes(a) || planos.includes("gestao"));
   if (areasDosMinimos.length) {
     fontes.push(achadosDosMinimosAutomaticos(prefeituraId, [...areasDosMinimos], hoje.getUTCFullYear()));
+  }
+  // SIOPE em atraso trava convênio da prefeitura inteira: Educação e Gestão veem.
+  if (planos.includes("educacao") || planos.includes("gestao")) {
+    fontes.push(lerSiope(prefeituraId).then((r) => (r ? achadosDoSiope(r.foto) : [])));
   }
   if (planos.includes("saude")) {
     fontes.push(lerArboviroses(prefeituraId).then((r) => (r ? achadosDasArboviroses(r.foto) : [])));

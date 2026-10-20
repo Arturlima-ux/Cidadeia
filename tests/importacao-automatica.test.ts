@@ -17,10 +17,10 @@ describe("a data do banco", () => {
 
 describe("o que importar hoje", () => {
   it("só as fontes dos módulos contratados", () => {
-    expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix"]);
+    expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix", "siope"]);
     expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["rreo", "cnes", "pncp-contratos", "obras", "obrasgov", "infodengue"]);
-    // Educação também lê o RREO (mínimo de 25%) e as obras federais de escola.
-    expect(fontesDevidas(["educacao"], {}, HOJE)).toEqual(["rreo", "obrasgov"]);
+    // Educação também lê o RREO (mínimo de 25%), as obras federais de escola e o SIOPE.
+    expect(fontesDevidas(["educacao"], {}, HOJE)).toEqual(["rreo", "obrasgov", "siope"]);
     expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual(["emendas-pix"]);
   });
 
@@ -29,7 +29,7 @@ describe("o que importar hoje", () => {
       rgf: { ok: "2026-10-11 05:50:00-03", falhou: null, resumo: null },
       rreo: { ok: "2026-10-07 05:52:00-03", falhou: null, resumo: null },
     };
-    expect(fontesDevidas(["gestao"], ultimas, HOJE)).toEqual(["rreo", "emendas-pix"]);
+    expect(fontesDevidas(["gestao"], ultimas, HOJE)).toEqual(["rreo", "emendas-pix", "siope"]);
   });
 
   it("um minuto a menos não empurra para a semana seguinte", () => {
@@ -46,7 +46,7 @@ describe("o que importar hoje", () => {
 
   it("forçar roda tudo do plano (ao reconhecer o município)", () => {
     const ultimas = { rgf: { ok: "2026-10-14 05:00:00-03", falhou: null, resumo: null } };
-    expect(fontesDevidas(["gestao"], ultimas, HOJE, true)).toEqual(["rgf", "rreo", "emendas-pix"]);
+    expect(fontesDevidas(["gestao"], ultimas, HOJE, true)).toEqual(["rgf", "rreo", "emendas-pix", "siope"]);
   });
 });
 

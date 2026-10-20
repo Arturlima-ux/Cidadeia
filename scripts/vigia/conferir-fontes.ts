@@ -18,7 +18,8 @@ async function olhar(nome: string, url: string) {
       console.log(`\n### ${nome}\nHTTP ${r.status}, não é JSON: ${texto.slice(0, 300)}`);
       return null;
     }
-    const lista = Array.isArray(corpo) ? corpo : (corpo as { data?: unknown[] }).data;
+    // Transferegov/ObrasGov: { data }; OData do FNDE: { value }.
+    const lista = Array.isArray(corpo) ? corpo : ((corpo as { data?: unknown[] }).data ?? (corpo as { value?: unknown[] }).value);
     const envelope = Array.isArray(corpo) ? "lista" : Object.keys(corpo as object).join(", ");
     console.log(`\n### ${nome}\nHTTP ${r.status} · envelope: ${envelope} · itens: ${Array.isArray(lista) ? lista.length : "?"}`);
     if (Array.isArray(lista) && lista[0]) console.log(JSON.stringify(lista[0], null, 1).slice(0, 2500));
@@ -29,7 +30,23 @@ async function olhar(nome: string, url: string) {
   }
 }
 
+async function conferirSiope() {
+  // Roda o código do painel (lib/siope-servidor.ts) contra a API de verdade.
+  const { buscarSiope } = await import("../../src/lib/siope-servidor");
+  const { achadosDoSiope } = await import("../../src/lib/siope");
+  for (const ibge of [IBGE, "2200608", "2211001"]) {
+    try {
+      const f = await buscarSiope(ibge);
+      console.log(`\n### SIOPE · buscarSiope(${ibge})\n${JSON.stringify(f, null, 1)}`);
+      for (const a of achadosDoSiope(f)) console.log(`- [${a.prioridade}] ${a.titulo}\n  ${a.descricao}\n  chave=${a.chave}`);
+    } catch (e) {
+      console.log(`\n### SIOPE · buscarSiope(${ibge})\nFALHOU: ${e instanceof Error ? e.stack : e}`);
+    }
+  }
+}
+
 async function main() {
+  if (process.env.SO === "siope") return conferirSiope();
   const tg = "https://api-publica.transferegov.gestao.gov.br/especiais";
   let ben = (await olhar("Transferegov · beneficiário (só números)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${CNPJ}&pagina=1&tamanho_da_pagina=5`)) as { id_beneficiario?: number }[] | null;
   if (!ben?.length) {
