@@ -12,6 +12,8 @@ import { exigirPlano } from "@/lib/exigir-plano";
 import { buscarCodigoIbge, competenciaDoBimestre } from "@/lib/siconfi";
 import { buscarEmendasPix, gravarEmendas } from "@/lib/emendas-pix-servidor";
 import { buscarObrasFederais, gravarObrasFederais } from "@/lib/obras-federais-servidor";
+import { buscarArboviroses, gravarArboviroses } from "@/lib/arboviroses-servidor";
+import { NOME_NIVEL } from "@/lib/arboviroses";
 import {
   bimestresVencidos,
   importarContratosPncp,
@@ -48,17 +50,20 @@ import {
 // O que foi lançado à mão nunca é sobrescrito pela rotina (ver
 // importacoes.ts). Quem quiser o número do Tesouro por cima clica no botão.
 
-export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix" | "obrasgov";
+export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix" | "obrasgov" | "infodengue";
 
 export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa: "ibge" | "cnpj" | null; dias: number }[] = [
   { fonte: "rgf", nome: "Despesa com pessoal (RGF, Tesouro)", planos: ["gestao"], precisa: "ibge", dias: 7 },
-  { fonte: "rreo", nome: "Despesa por função (RREO, Tesouro)", planos: ["gestao"], precisa: "ibge", dias: 7 },
+  // Saúde e Educação também: é o RREO que mantém o "aplicado" dos mínimos (15% e 25%) em dia.
+  { fonte: "rreo", nome: "Despesa por função (RREO, Tesouro)", planos: ["gestao", "saude", "educacao"], precisa: "ibge", dias: 7 },
   { fonte: "cnes", nome: "Rede de saúde (CNES)", planos: ["saude"], precisa: "ibge", dias: 7 },
   { fonte: "pncp-processos", nome: "Processos de compra (PNCP)", planos: ["licitacoes"], precisa: "cnpj", dias: 7 },
   { fonte: "pncp-contratos", nome: "Contratos (PNCP)", planos: ["licitacoes", "obras"], precisa: "cnpj", dias: 7 },
   { fonte: "obras", nome: "Obras a partir dos contratos", planos: ["obras"], precisa: null, dias: 7 },
   { fonte: "emendas-pix", nome: "Emendas Pix (Transferegov)", planos: ["gestao", "essencial"], precisa: "cnpj", dias: 7 },
   { fonte: "obrasgov", nome: "Obras federais no município (ObrasGov)", planos: ["obras", "saude", "educacao"], precisa: "ibge", dias: 7 },
+  // A semana epidemiológica fecha no sábado: a cada 3 dias pega a nova sem atraso.
+  { fonte: "infodengue", nome: "Dengue e chikungunya (InfoDengue, Fiocruz)", planos: ["saude"], precisa: "ibge", dias: 3 },
 ];
 
 export const EVENTO_OK = "importacao_ok";
@@ -176,6 +181,12 @@ async function rodarFonte(
       return emendas.length
         ? `Transferegov: ${plural(emendas.length, "emenda Pix", "emendas Pix")} nos últimos anos`
         : "Transferegov: nenhuma emenda Pix para o CNPJ da prefeitura";
+    }
+    case "infodengue": {
+      const f = await buscarArboviroses(ibge!, hoje);
+      await gravarArboviroses(p.id, f);
+      const s = f.dengue[0];
+      return s ? `InfoDengue: dengue em alerta ${NOME_NIVEL[s.nivel]} na semana ${String(s.se).slice(4)}` : "InfoDengue: sem dados recentes do município";
     }
     case "obrasgov": {
       const obras = await buscarObrasFederais(ibge!);

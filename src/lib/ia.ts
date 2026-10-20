@@ -721,7 +721,12 @@ async function deteccoesNoEscopo(
   // contra um serviço que limita requisição com facilidade, e esta função roda
   // a cada abertura da Central. Fica sob demanda, na tela de Licitações.
   const [minimos, prazos, pessoal] = await Promise.all([
-    mostrarFinanceiro ? detectarMinimosDoExercicio(prefeituraId) : Promise.resolve([]),
+    // Com Gestão, todos; com Saúde ou Educação, o mínimo da própria área.
+    mostrarFinanceiro || mostrarSaude || mostrarEducacao
+      ? detectarMinimosDoExercicio(prefeituraId).then((l) =>
+          mostrarFinanceiro ? l : l.filter((d) => (d.secretaria === "saude" && mostrarSaude) || (d.secretaria === "educacao" && mostrarEducacao))
+        )
+      : Promise.resolve([]),
     escopo.essencial ? detectarPrazosDoAtendimento(prefeituraId) : Promise.resolve([]),
     mostrarFinanceiro ? detectarPessoalDoPeriodo(prefeituraId) : Promise.resolve([]),
   ]);

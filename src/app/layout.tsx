@@ -50,6 +50,8 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`h-full antialiased ${geist.variable}`}
+      // O script abaixo acrescenta "com-js" antes de o React assumir: diferença esperada.
+      suppressHydrationWarning
     >
       <head>
         {/* ── MARCA QUE O JAVASCRIPT EXISTE ──

@@ -46,7 +46,9 @@ function Envoltorio({ exemplo, children }: { exemplo: boolean; children: React.R
 
 export default async function MinimosPage() {
   const { prefeitura, temPlano } = await contextoDashboard();
-  if (!temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
+  // Gestão vê os três; Saúde vê o seu 15%; Educação, os 25% e o FUNDEB.
+  const areasDoPlano = AREAS_MINIMO.filter((a) => temPlano("gestao") || (a === "saude" ? temPlano("saude") : temPlano("educacao")));
+  if (!areasDoPlano.length) return <BloqueioPlano plano="gestao" />;
 
   // O exercício é o ano no fuso do município, não no do servidor: virar o ano
   // em UTC três horas antes faria a página abrir o exercício seguinte com a
@@ -62,7 +64,7 @@ export default async function MinimosPage() {
 
   const bases = await buscarBases(exercicio);
   const lancados = await Promise.all(
-    AREAS_MINIMO.map(async (area) => ({ area, ...(await somarAplicadoLancado(exercicio, area)) }))
+    areasDoPlano.map(async (area) => ({ area, ...(await somarAplicadoLancado(exercicio, area)) }))
   );
 
   // Tudo ou nada: o exemplo só aparece com a tela inteiramente vazia. Um
@@ -70,7 +72,7 @@ export default async function MinimosPage() {
   // levar o errado para uma reunião.
   const semNenhumDado = bases.length === 0;
 
-  const painel = AREAS_MINIMO.map((area) => {
+  const painel = areasDoPlano.map((area) => {
     const salvo = semNenhumDado
       ? { ...EXEMPLO_MINIMOS[area], origemAplicado: "manual" as const, area }
       : (bases.find((b) => b.area === area) ?? null);
