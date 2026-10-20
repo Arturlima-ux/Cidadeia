@@ -40,6 +40,7 @@ export type PlanoAcaoCru = {
   valor_custeio_plano_acao: number | null;
   valor_investimento_plano_acao: number | null;
   nome_objeto: string | null;
+  detalhamento_objeto?: string | null;
   codigo_descricao_areas_politicas_publicas_plano_acao: string | null;
 };
 
@@ -109,15 +110,15 @@ const texto = (t: string | null | undefined) => {
 const dia = (t: string | null | undefined) => (t && /^\d{4}-\d{2}-\d{2}/.test(t) ? t.slice(0, 10) : null);
 const verdadeiro = (v: unknown) => v === true || v === 1 || (typeof v === "string" && /^(s|sim|true|1)$/i.test(v.trim()));
 
-/** As áreas vêm como "10 - Saúde; 12 - Educação": fica só o nome. */
-function areaDe(t: string | null): string | null {
+/** As áreas vêm como "25-Energia / 752-Energia Elétrica" (conferido no serviço): fica só o nome. */
+export function areaDe(t: string | null): string | null {
   const v = texto(t);
   if (!v) return null;
-  return v
-    .split(/[;|]/)
+  const nomes = v
+    .split(/[;|/]/)
     .map((p) => p.replace(/^\s*\d+\s*[-–]\s*/, "").trim())
-    .filter(Boolean)
-    .join(", ");
+    .filter(Boolean);
+  return [...new Set(nomes)].join(", ") || null;
 }
 
 export function montarEmendas(
@@ -146,7 +147,9 @@ export function montarEmendas(
         ano: p.ano_plano_acao ?? null,
         parlamentar: texto(p.nome_parlamentar_emenda_plano_acao),
         numeroEmenda: texto(p.codigo_emenda_parlamentar_formatado_plano_acao),
-        objeto: texto(p.nome_objeto),
+        // O objeto costuma vir vazio nas emendas antigas (conferido): o
+        // detalhamento é a segunda tentativa; a tela cai na área depois.
+        objeto: texto(p.nome_objeto) ?? texto(p.detalhamento_objeto),
         area: areaDe(p.codigo_descricao_areas_politicas_publicas_plano_acao),
         valor: (p.valor_custeio_plano_acao ?? 0) + (p.valor_investimento_plano_acao ?? 0),
         situacao: texto(p.situacao_plano_acao),

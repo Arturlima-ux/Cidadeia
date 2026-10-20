@@ -65,3 +65,12 @@ describe("emendas Pix", () => {
     expect(cnpjFormatado("06554729000196")).toBe("06.554.729/0001-96");
   });
 });
+
+import { areaDe } from "@/lib/emendas-pix";
+describe("formato real do Transferegov", () => {
+  it("área com barra e objeto vazio", () => {
+    expect(areaDe("25-Energia / 752-Energia Elétrica")).toBe("Energia, Energia Elétrica");
+    const [e] = montarEmendas([{ ...plano(1), nome_objeto: null, detalhamento_objeto: "Rede de energia solar" }], [], [], []);
+    expect(e.objeto).toBe("Rede de energia solar");
+  });
+});

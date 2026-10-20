@@ -1,6 +1,6 @@
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import type { Area } from "@/lib/alerta-por-area";
-import { classificarArea } from "@/lib/classificar-manifestacao";
+import { pontuar } from "@/lib/classificar-manifestacao";
 import panorama from "@/dados/panorama-obras.json";
 
 // ── AS OBRAS COM DINHEIRO FEDERAL NO MUNICÍPIO ──
@@ -29,6 +29,8 @@ export type GeometriaCru = { id_projeto_investimento: string; cod_ibge?: number 
 export type ProjetoCru = {
   id_projeto_investimento: string;
   desc_nome?: string | null;
+  desc_projeto?: string | null;
+  desc_meta_global?: string | null;
   situacao?: string | null;
   especie_intervencao?: string | null;
   natureza_intervencao?: string | null;
@@ -80,6 +82,18 @@ const numero = (v: unknown) => {
   return Number.isFinite(n) ? n : null;
 };
 
+/**
+ * Toda obra é "obra": aqui só se pergunta se ela é de escola ou de saúde,
+ * para o alerta ir também a essa secretaria. Palavras de construção não
+ * contam (empatariam tudo com Obras).
+ */
+export function areaDaObra(texto: string): Area {
+  const p = pontuar(texto);
+  if (p.educacao >= 3 && p.educacao > p.saude) return "educacao";
+  if (p.saude >= 3 && p.saude > p.educacao) return "saude";
+  return "obras";
+}
+
 /** As que já acabaram ou foram canceladas não precisam de detalhe nem de alerta. */
 export const encerrada = (situacao: string | null | undefined) => /conclu|cancel/i.test(situacao ?? "");
 
@@ -119,7 +133,8 @@ export function montarObrasFederais(
         id: p.id_projeto_investimento,
         nome,
         situacao: texto(p.situacao),
-        area: classificarArea(nome, [p.especie_intervencao, p.natureza_intervencao].filter(Boolean).join(" ")) ?? "obras",
+        // "U.E. José Teixeira Filho" só vira escola pela meta ("Escola 4 salas"): o texto todo entra.
+        area: areaDaObra(`${nome} ${nome} ${[p.desc_meta_global, p.desc_projeto, p.especie_intervencao].filter(Boolean).join(" ")}`),
         responsavel: texto(p.organizacao_resp),
         inicioPrevisto: dia(p.dt_inicial_prevista),
         fimPrevisto: dia(p.dt_final_prevista),
@@ -165,6 +180,9 @@ export function achadosDasObrasFederais(obras: ObraFederal[], hoje: Date = new D
       });
       continue;
     }
+    // Atraso e medição só valem para o que está em execução: "Cadastrada" com
+    // data de 2021 é projeto que nunca começou (há muitos, conferido), não obra atrasada.
+    if (!/execu/i.test(o.situacao ?? "")) continue;
     if (o.fimPrevisto && diasDesde(o.fimPrevisto, hoje) > 0 && !(o.percentual !== null && o.percentual >= 100)) {
       achados.push({
         categoria: "prazo",
