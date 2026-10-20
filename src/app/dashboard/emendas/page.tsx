@@ -26,7 +26,7 @@ function Linha({ e, hoje }: { e: Emenda; hoje: Date }) {
             {e.parlamentar ? ` · ${e.parlamentar}` : ""}
             {e.area ? ` · ${e.area}` : ""}
           </p>
-          <p className="font-medium text-sm mt-1 break-words">{e.objeto ?? "Objeto não informado no Transferegov"}</p>
+          <p className="font-medium text-sm mt-1 break-words">{e.objeto ?? (e.area ? `Emenda para ${e.area}` : "Objeto não informado no Transferegov")}</p>
         </div>
         <p className="text-lg font-semibold tabular-nums whitespace-nowrap">{formatarMoeda(e.valor)}</p>
       </div>

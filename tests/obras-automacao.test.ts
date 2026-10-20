@@ -81,3 +81,19 @@ describe("aditivos na vigia", () => {
     expect(a[0].descricao).toContain("Art. 125");
   });
 });
+
+describe("com o formato real dos serviços (conferido em out/2026)", () => {
+  it("projeto só cadastrado, com data antiga, não vira atraso; escola pela meta", () => {
+    const [dnit, escola] = montarObrasFederais(
+      [
+        { id_projeto_investimento: "428.22-51", desc_nome: "Manutenção rodoviária na malha federal sob administração do DNIT no estado do PI.", situacao: "Cadastrada", dt_final_prevista: "2021-12-31" },
+        { id_projeto_investimento: "83048.22-38", desc_nome: "U.E. JOSE TEIXEIRA FILHO - Miguel Alves - PI", desc_meta_global: "Escola 4 Salas", situacao: "Paralisada", especie_intervencao: "Reforma", natureza_intervencao: "Obra" },
+      ],
+      [],
+      [],
+      []
+    ).sort((a, b) => a.id.localeCompare(b.id));
+    expect(achadosDasObrasFederais([dnit], hoje)).toEqual([]);
+    expect(escola.area).toBe("educacao");
+  });
+});

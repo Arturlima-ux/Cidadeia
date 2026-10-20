@@ -610,7 +610,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                 <Surgir key={e.id} atraso={Math.min(i, 4) * 0.05}>
                   <li className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
                     <div className="min-w-0">
-                      <p className="text-lg font-medium tracking-[-0.01em] break-words">{e.objeto ?? "Objeto não informado"}</p>
+                      <p className="text-lg font-medium tracking-[-0.01em] break-words">{e.objeto ?? (e.area ? `Emenda para ${e.area}` : "Objeto não informado")}</p>
                       <p className="text-sm text-muted mt-1">
                         {[e.parlamentar, e.ano ? String(e.ano) : null, e.area, e.planoTrabalho?.fim ? `execução até ${e.planoTrabalho.fim.split("-").reverse().join("/")}` : null]
                           .filter(Boolean)
