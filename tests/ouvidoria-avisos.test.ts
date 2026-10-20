@@ -94,8 +94,11 @@ describe("os e-mails", () => {
 
   it("a resposta vai escapada e com os parágrafos", () => {
     const m = emailRespostaParaCidadao({ municipio: "Picos", nome: null, protocolo: "P", status: "respondido", resposta: "Linha 1\n\n<b>Linha 2</b>", linkConsulta: "x" });
-    expect(m.assunto).toBe("Prefeitura de Picos: sua manifestação foi respondida (P)");
-    expect(m.html).toContain("<p>Linha 1</p><p>&lt;b&gt;Linha 2&lt;/b&gt;</p>");
+    expect(m.assunto).toBe("Sua manifestação foi respondida, protocolo P");
+    // A prefeitura aparece no remetente ("Prefeitura de Picos via CidadeIA") e no topo.
+    expect(m.remetente).toBe("Prefeitura de Picos via CidadeIA");
+    expect(m.html).toMatch(/<p[^>]*>Linha 1<\/p><p[^>]*>&lt;b&gt;Linha 2&lt;\/b&gt;<\/p>/);
+    expect(m.html).not.toContain("<b>Linha 2");
   });
 
   it("a prorrogação leva a justificativa", () => {

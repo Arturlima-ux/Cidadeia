@@ -76,7 +76,7 @@ export async function avisarManifestacaoNova(atendimentoId: string): Promise<voi
         prazo,
         linkConsulta: linkConsulta(r.slug, a.protocolo, a.chaveConsulta),
       });
-      envios.push(enviarEmail({ para: a.email, assunto: msg.assunto, html: msg.html }));
+      envios.push(enviarEmail({ para: a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente }));
     }
     await Promise.all(envios);
   } catch (e) {
@@ -133,7 +133,7 @@ export async function avisarResposta(atendimentoId: string): Promise<boolean> {
       resposta: r.a.resposta,
       linkConsulta: linkConsulta(r.slug, r.a.protocolo, r.a.chaveConsulta),
     });
-    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html });
+    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente });
     return envio.enviado;
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar resposta:", e);
@@ -157,7 +157,7 @@ export async function avisarProrrogacao(atendimentoId: string, justificativa: st
       lei: `${PRAZOS[tipo].lei}, ${PRAZOS[tipo].artigo}`,
       linkConsulta: linkConsulta(r.slug, r.a.protocolo, r.a.chaveConsulta),
     });
-    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html });
+    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente });
     return envio.enviado;
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar prorrogação:", e);

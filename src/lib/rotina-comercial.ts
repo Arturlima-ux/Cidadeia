@@ -5,6 +5,7 @@ import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { leads, pedidoEventos, pedidosProposta } from "@/db/schema";
 import { enviarEmail } from "@/lib/email";
+import { h, montarEmail, saudacao, type Bloco, type Html } from "@/lib/email-modelo";
 import { gerarId } from "@/lib/id";
 import { protocolo } from "@/lib/cobranca-servidor";
 import { destinoDaEquipe } from "@/lib/contato-comercial";
@@ -31,51 +32,72 @@ import {
 // Cada envio vira um evento na linha do tempo (pedido_eventos), e é por ele
 // que a rotina sabe o que já mandou: rodar duas vezes não manda duas vezes.
 
-const escapar = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 const base = () => process.env.APP_URL ?? "https://cidadeia.vercel.app";
 
-function rodape(): string {
-  return `<p style="color:#888;font-size:13px">Equipe CidadeIA · responda este e-mail para falar com a gente, ou peça uma ligação em <a href="${base()}/#atendimento">${base()}</a>.</p>`;
-}
+const RESPONDER = "É só responder este e-mail para falar com a gente. Se preferir conversar por telefone, mande um número e o melhor horário que a gente liga.";
 
 export function emailAcompanhamento(
   chave: "acompanhamento_1" | "acompanhamento_2",
   p: { nome: string; municipio: string; uf: string; id: string }
 ): { assunto: string; html: string } {
-  const primeiro = escapar(p.nome.split(" ")[0]);
-  const cidade = `${escapar(p.municipio)}/${p.uf}`;
+  const cidade = `${p.municipio}/${p.uf}`;
+  const kit = linkRastreavel(base(), p.id, "kit", protocolo(p.id));
+  const motivo = `Você recebe este e-mail porque pediu uma proposta do CidadeIA para ${cidade} (protocolo ${protocolo(p.id)}).`;
   if (chave === "acompanhamento_1") {
     return {
       assunto: `Proposta do CidadeIA para ${p.municipio}: ficou alguma dúvida?`,
-      html: [
-        `<p>Olá, ${primeiro}.</p>`,
-        `<p>Passando para saber se a proposta para ${cidade} chegou bem e se ficou alguma dúvida.</p>`,
-        `<p>Duas perguntas que costumam aparecer nesta hora:</p>`,
-        `<ul>`,
-        `<li><strong>Dá para contratar sem licitação?</strong> Quando o valor anual cabe no limite da dispensa por valor, sim. O kit de contratação já traz a justificativa e o termo de referência prontos: <a href="${linkRastreavel(base(), p.id, "kit", protocolo(p.id))}">abrir o kit</a>.</li>`,
-        `<li><strong>Precisa instalar alguma coisa?</strong> Não. O painel lê o que a prefeitura já envia ao Tesouro, e funciona no navegador.</li>`,
-        `</ul>`,
-        `<p>Se for mais fácil conversar, responda com um telefone e o melhor horário que a gente liga.</p>`,
-        `<p style="color:#888;font-size:13px">Protocolo do pedido: ${protocolo(p.id)}</p>`,
-        rodape(),
-      ].join("\n"),
+      html: montarEmail({
+        remetente: { tipo: "cidadeia" },
+        previa: "Duas perguntas que costumam aparecer nesta hora, já respondidas.",
+        etiqueta: { texto: `Proposta · ${cidade}` },
+        titulo: "A proposta chegou bem?",
+        saudacao: saudacao(p.nome),
+        blocos: [
+          { p: `Passando para saber se a proposta para ${cidade} chegou bem e se ficou alguma dúvida. Duas perguntas costumam aparecer nesta hora:` },
+          {
+            itens: [
+              {
+                titulo: "Dá para contratar sem licitação?",
+                detalhe: "Quando o valor anual cabe no limite da dispensa por valor, sim. O kit de contratação já traz a justificativa e o termo de referência prontos.",
+                tom: "marca",
+              },
+              {
+                titulo: "Precisa instalar alguma coisa?",
+                detalhe: "Não. O painel lê o que a prefeitura já envia ao Tesouro e funciona no navegador, no computador ou no celular.",
+                tom: "marca",
+              },
+            ],
+          },
+          { botao: "Abrir o kit de contratação", link: kit },
+          { p: RESPONDER },
+        ],
+        motivo,
+      }),
     };
   }
   return {
     assunto: `${p.municipio}: o processo de contratação já vai pronto`,
-    html: [
-      `<p>Olá, ${primeiro}.</p>`,
-      `<p>Montar o processo de contratação costuma dar mais trabalho que decidir. Por isso o CidadeIA entrega o processo pronto para ${cidade}:</p>`,
-      `<ul>`,
-      `<li>termo de referência e estudo técnico preliminar;</li>`,
-      `<li>justificativa da contratação direta e da escolha do fornecedor;</li>`,
-      `<li>minuta do contrato, acordo de tratamento de dados e nível de serviço.</li>`,
-      `</ul>`,
-      `<p>Tudo no <a href="${linkRastreavel(base(), p.id, "kit", protocolo(p.id))}">kit de contratação</a>, para o setor de compras e o jurídico revisarem.</p>`,
-      `<p>Esta é a última mensagem que mando sobre a proposta. Quando a prefeitura quiser seguir, é só responder.</p>`,
-      `<p style="color:#888;font-size:13px">Protocolo do pedido: ${protocolo(p.id)}</p>`,
-      rodape(),
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: "Termo de referência, estudo técnico, justificativa e minuta do contrato, prontos para o jurídico.",
+      etiqueta: { texto: `Proposta · ${cidade}` },
+      titulo: "O processo de contratação já vai pronto",
+      saudacao: saudacao(p.nome),
+      blocos: [
+        { p: `Montar o processo de contratação costuma dar mais trabalho do que decidir. Por isso o CidadeIA entrega o processo pronto para ${cidade}:` },
+        {
+          lista: [
+            "termo de referência e estudo técnico preliminar;",
+            "justificativa da contratação direta e da escolha do fornecedor;",
+            "minuta do contrato, acordo de tratamento de dados e nível de serviço.",
+          ],
+        },
+        { p: "Está tudo no kit de contratação, para o setor de compras e o jurídico revisarem." },
+        { botao: "Abrir o kit de contratação", link: kit },
+        { p: "Esta é a última mensagem sobre a proposta. Quando a prefeitura quiser seguir, é só responder este e-mail." },
+      ],
+      motivo,
+    }),
   };
 }
 
@@ -83,19 +105,33 @@ export function emailRetomadaDoLead(l: { nome: string; municipio: string | null;
   assunto: string;
   html: string;
 } {
-  const primeiro = escapar(l.nome.split(" ")[0]);
-  const cidade = l.municipio ? `${escapar(l.municipio)}${l.uf ? `/${l.uf}` : ""}` : "o seu município";
+  const cidade = l.municipio ? `${l.municipio}${l.uf ? `/${l.uf}` : ""}` : "o seu município";
   const linkProposta = `${base()}/proposta${l.codigoIbge ? `?ibge=${l.codigoIbge}` : ""}`;
+  const consulta = l.origem === "projecao" ? "a projeção da despesa com pessoal" : "o Raio-X";
   return {
     assunto: `${l.municipio ?? "Seu município"}: o que o painel mostraria por dentro`,
-    html: [
-      `<p>Olá, ${primeiro}.</p>`,
-      `<p>Você consultou ${l.origem === "projecao" ? "a projeção da despesa com pessoal" : "o Raio-X"} de ${cidade}. Ele mostra o que já é público. O CidadeIA acompanha o resto, por dentro: os prazos de cada relatório, o limite de pessoal mês a mês, a obra que passou do prazo, e avisa antes de o Tribunal de Contas apontar.</p>`,
-      `<p>A proposta para ${cidade} sai em um dia útil, com o kit de contratação pronto: <a href="${linkProposta}">${linkProposta}</a>.</p>`,
-      `<p>Se preferir conversar, responda com um telefone que a gente liga.</p>`,
-      `<p style="color:#888;font-size:13px">Não vamos mandar outras mensagens sobre isto.</p>`,
-      rodape(),
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `O Raio-X mostra o que já é público. O painel acompanha o resto, por dentro.`,
+      etiqueta: l.municipio ? { texto: cidade } : null,
+      titulo: "O que o painel mostraria por dentro",
+      saudacao: saudacao(l.nome),
+      blocos: [
+        { p: `Você consultou ${consulta} de ${cidade}. Ele mostra o que já é público. O CidadeIA acompanha o resto, por dentro, e avisa antes de o Tribunal de Contas apontar:` },
+        {
+          lista: [
+            "o prazo de cada relatório fiscal, com 15 dias de antecedência;",
+            "o limite da despesa com pessoal, mês a mês, na régua da LRF;",
+            "a obra que passou do prazo, o contrato que vai vencer, a manifestação sem resposta.",
+          ],
+        },
+        { p: `A proposta para ${cidade} sai em um dia útil, com o kit de contratação pronto.` },
+        { botao: "Pedir a proposta", link: linkProposta },
+        { p: "Se preferir conversar, responda com um telefone que a gente liga." },
+        { nota: "Esta é a única mensagem que mandamos sobre isso." },
+      ],
+      motivo: `Você recebe este e-mail porque consultou ${consulta} no site do CidadeIA e deixou este endereço.`,
+    }),
   };
 }
 
@@ -165,15 +201,15 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
           .where(inArray(pedidoEventos.pedidoId, listaLeads.map((l) => l.id)))
       : [];
 
-    const novosOntem: string[] = [];
-    const ligacoes: string[] = [];
+    const novosOntem: Html[] = [];
+    const ligacoes: Html[] = [];
     for (const l of listaLeads) {
       const meus = evsLeads.filter((e) => e.pedidoId === l.id);
       const situacao = situacaoDoLead(meus);
       const tel = telefoneDoLead(meus);
       const cidade = l.municipio ? `${l.municipio}${l.uf ? `/${l.uf}` : ""}` : "município não informado";
-      if (situacao === "novo" && tel) ligacoes.push(`${escapar(l.nome)} (${escapar(l.cargo ?? "")}), ${escapar(cidade)}: <a href="tel:+55${tel.telefone.replace(/\D/g, "")}">${tel.telefone}</a>${tel.horario ? `, ${escapar(tel.horario)}` : ""}`);
-      if (agora - Date.parse(l.createdAt) < 86_400_000) novosOntem.push(`${escapar(l.nome)} (${escapar(l.cargo ?? "")}), ${escapar(cidade)}, ${escapar(l.origem)}`);
+      if (situacao === "novo" && tel) ligacoes.push(h`<strong>${l.nome}</strong> (${l.cargo ?? ""}), ${cidade}: <a href="tel:+55${tel.telefone.replace(/\D/g, "")}">${tel.telefone}</a>${tel.horario ? `, ${tel.horario}` : ""}`);
+      if (agora - Date.parse(l.createdAt) < 86_400_000) novosOntem.push(h`<strong>${l.nome}</strong> (${l.cargo ?? ""}), ${cidade} · ${l.origem}`);
 
       // Retomada única: Raio-X ou projeção, com e-mail, sem contato em 2 dias úteis.
       const jaRetomado = meus.some((e) => e.tipo === TIPOS_EVENTO_LEAD.acompanhamento);
@@ -195,31 +231,34 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
     }
 
     const agenda = agendaComercial(recebidos, agora);
-    const blocos: string[] = [];
-    if (agenda.propostasAtrasadas.length)
-      blocos.push(
-        `<p><strong style="color:#c0392b">Propostas fora do prazo de 1 dia útil (${agenda.propostasAtrasadas.length}):</strong><br/>${agenda.propostasAtrasadas
-          .map((p) => `${escapar(p.municipio)}/${p.uf}, ${escapar(p.nome)}, protocolo ${protocolo(p.id)}`)
-          .join("<br/>")}</p>`
-      );
-    if (agenda.propostasVencendoHoje.length)
-      blocos.push(
-        `<p><strong>Propostas que vencem hoje (${agenda.propostasVencendoHoje.length}):</strong><br/>${agenda.propostasVencendoHoje
-          .map((p) => `${escapar(p.municipio)}/${p.uf}, ${escapar(p.nome)}`)
-          .join("<br/>")}</p>`
-      );
-    if (ligacoes.length) blocos.push(`<p><strong>Ligações pedidas, ainda não feitas (${ligacoes.length}):</strong><br/>${ligacoes.join("<br/>")}</p>`);
-    if (novosOntem.length) blocos.push(`<p><strong>Interessados das últimas 24 h (${novosOntem.length}):</strong><br/>${novosOntem.join("<br/>")}</p>`);
+    const blocos: Bloco[] = [];
+    const cidadeDe = (p: { municipio: string; uf: string }) => `${p.municipio}/${p.uf}`;
+    if (agenda.propostasAtrasadas.length) {
+      blocos.push({ secao: `Propostas fora do prazo de 1 dia útil (${agenda.propostasAtrasadas.length})`, tom: "urgente" });
+      blocos.push({
+        itens: agenda.propostasAtrasadas.map((p) => ({ titulo: cidadeDe(p), detalhe: `${p.nome} · protocolo ${protocolo(p.id)}`, tom: "urgente" as const })),
+      });
+    }
+    if (agenda.propostasVencendoHoje.length) {
+      blocos.push({ secao: `Propostas que vencem hoje (${agenda.propostasVencendoHoje.length})`, tom: "atencao" });
+      blocos.push({ itens: agenda.propostasVencendoHoje.map((p) => ({ titulo: cidadeDe(p), detalhe: p.nome, tom: "atencao" as const })) });
+    }
+    if (ligacoes.length) {
+      blocos.push({ secao: `Ligações pedidas, ainda não feitas (${ligacoes.length})`, tom: "urgente" });
+      blocos.push({ lista: ligacoes });
+    }
+    if (novosOntem.length) {
+      blocos.push({ secao: `Interessados das últimas 24 horas (${novosOntem.length})`, tom: "marca" });
+      blocos.push({ lista: novosOntem });
+    }
     // Cidades que estão estudando a compra sem ter deixado contato: só as
     // novas para a equipe (quem já está em contato fica na outra lista).
     try {
       const sinais = (await carregarSinais(7, 15)).filter((x) => !x.jaEmContato).slice(0, 5);
-      if (sinais.length)
-        blocos.push(
-          `<p><strong>Cidades estudando o CidadeIA, sem contato ainda (${sinais.length}):</strong><br/>${sinais
-            .map((x) => `${escapar(x.municipio)}/${escapar(x.uf)}: ${escapar(descreverSinal(x))}`)
-            .join("<br/>")}</p>`
-        );
+      if (sinais.length) {
+        blocos.push({ secao: `Cidades estudando o CidadeIA, sem contato ainda (${sinais.length})` });
+        blocos.push({ itens: sinais.map((x) => ({ titulo: `${x.municipio}/${x.uf}`, detalhe: descreverSinal(x), tom: "marca" as const })) });
+      }
     } catch (e) {
       r.erros.push(`sinais: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -228,24 +267,32 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
       const { pendentesDaCaixaDeSaida } = await import("@/lib/caixa-de-saida");
       const pendentes = await pendentesDaCaixaDeSaida(50);
       if (pendentes.length)
-        blocos.push(
-          `<p><strong style="color:#c0392b">${pendentes.length} e-mail(s) para clientes esperando envio à mão:</strong> ${pendentes
-            .slice(0, 5)
-            .map((x) => escapar(x.assunto))
-            .join("; ")}. <a href="${base()}/admin/saida">Abrir a caixa de saída</a></p>`
-        );
+        blocos.push({
+          destaque: h`${pendentes.slice(0, 5).map((x) => x.assunto).join("; ")}. <a href="${base()}/admin/saida">Abrir a caixa de saída</a>`,
+          titulo: `${pendentes.length} e-mail(s) para clientes esperando envio à mão`,
+          tom: "urgente",
+        });
     } catch (e) {
       r.erros.push(`caixa de saída: ${e instanceof Error ? e.message : String(e)}`);
     }
     if (r.acompanhamentos || r.retomadas)
-      blocos.push(`<p style="color:#666">Enviados hoje pela rotina: ${r.acompanhamentos} lembrete(s) de proposta, ${r.retomadas} retomada(s) de interessado.</p>`);
+      blocos.push({ nota: `Enviados hoje pela rotina: ${r.acompanhamentos} lembrete(s) de proposta, ${r.retomadas} retomada(s) de interessado.` });
 
     if (blocos.length) {
       const atrasos = agenda.propostasAtrasadas.length + ligacoes.length;
+      const hoje = new Date(agora).toLocaleDateString("pt-BR", { timeZone: "America/Fortaleza", weekday: "long", day: "2-digit", month: "2-digit" });
       const envio = await enviarEmail({
         para: equipe,
         assunto: atrasos ? `Atendimento: ${atrasos} pendência(s) para hoje` : "Atendimento: resumo do dia",
-        html: [...blocos, `<p><a href="${base()}/admin/interessados">Abrir os interessados</a> · <a href="${base()}/admin/pedidos">Abrir a mesa de pedidos</a></p>`].join("\n"),
+        html: montarEmail({
+          remetente: { tipo: "equipe" },
+          previa: atrasos ? `${atrasos} pendência(s) pedem ação hoje.` : "O que entrou e o que acompanhar hoje.",
+          etiqueta: { texto: `Resumo do atendimento · ${hoje}`, tom: atrasos ? "urgente" : "marca" },
+          titulo: atrasos ? `${atrasos === 1 ? "1 pendência" : `${atrasos} pendências`} para hoje` : "Resumo do dia",
+          blocos: [...blocos, { botao: "Abrir os interessados", link: `${base()}/admin/interessados`, depois: { texto: "Abrir a mesa de pedidos", link: `${base()}/admin/pedidos` } }],
+          assinatura: null,
+          motivo: "Resumo diário do atendimento comercial, enviado só quando há algo a fazer.",
+        }),
       });
       r.resumoEnviado = envio.enviado;
     }

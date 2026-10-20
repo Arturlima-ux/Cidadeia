@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { leads, pedidoEventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { enviarEmail } from "@/lib/email";
+import { h, montarEmail } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
 import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { CARGOS_LIGACAO, HORARIOS_LIGACAO, destinoDaEquipe, telefoneValido } from "@/lib/contato-comercial";
@@ -29,7 +30,6 @@ const schema = z.object({
 
 export type ResultadoLigacao = { ok: true } | { ok: false; erro: string; campo?: string };
 
-const escapar = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
 export async function pedirLigacao(entrada: unknown): Promise<ResultadoLigacao> {
   const parsed = schema.safeParse(entrada);
@@ -75,19 +75,32 @@ export async function pedirLigacao(entrada: unknown): Promise<ResultadoLigacao> 
   const aviso = await enviarEmail({
     para: destinoDaEquipe(),
     assunto: `LIGAR: ${d.nome}, ${d.cargo}${municipio ? ` — ${municipio.nome}/${municipio.uf}` : d.municipioTexto ? ` — ${d.municipioTexto}` : ""}`,
-    html: [
-      `<p><strong>Pedido de ligação pelo site.</strong> Quem pede ligação espera ser atendido no mesmo dia.</p>`,
-      `<p><strong>${escapar(d.nome)}</strong>, ${escapar(d.cargo)}<br/>`,
-      `Telefone: <a href="${linkTel}">${telefone}</a> · ${escapar(d.horario)}<br/>`,
-      municipio
-        ? `Município: ${escapar(municipio.nome)}/${municipio.uf} (${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab.) · <a href="${base}${caminhoDoRaioX(municipio)}">Raio-X</a>`
-        : d.municipioTexto
-        ? `Município informado: ${escapar(d.municipioTexto)}`
-        : "Município não informado",
-      `</p>`,
-      d.origem ? `<p style="color:#888">Página: ${escapar(d.origem)}</p>` : "",
-      `<p><a href="${base}/admin/interessados">Ver todos os interessados</a></p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `${telefone} · ${d.horario}. Quem pede ligação espera ser atendido no mesmo dia.`,
+      etiqueta: { texto: "Pedido de ligação", tom: "urgente" },
+      titulo: `Ligar para ${d.nome}`,
+      blocos: [
+        { p: "Pedido de ligação pelo site. Quem pede ligação espera ser atendido no mesmo dia." },
+        {
+          dados: [
+            ["Nome", `${d.nome}, ${d.cargo}`],
+            ["Telefone", h`<a href="${linkTel}">${telefone}</a>`],
+            ["Melhor horário", d.horario],
+            [
+              "Município",
+              municipio
+                ? h`${municipio.nome}/${municipio.uf} (${new Intl.NumberFormat("pt-BR").format(municipio.populacao)} hab.) · <a href="${base}${caminhoDoRaioX(municipio)}">Raio-X</a>`
+                : d.municipioTexto ?? "não informado",
+            ],
+            ...(d.origem ? ([["Página", d.origem]] as [string, string][]) : []),
+          ],
+        },
+        { botao: `Ligar agora: ${telefone}`, link: linkTel, depois: { texto: "Ver todos os interessados", link: `${base}/admin/interessados` } },
+      ],
+      assinatura: null,
+      motivo: "Aviso interno de pedido de ligação.",
+    }),
   });
   if (!aviso.enviado) console.error("[ligacao] aviso à equipe não saiu:", aviso.motivo, aviso.detalhe);
 

@@ -88,6 +88,7 @@ export async function rodarAvisosDaCidade(opcoes: { orcamentoMs?: number; hoje?:
         // só quando há o que contar.
         if (!primeiro && novos.length === 0) continue;
         const chave = chaveDoAviso(l.id);
+        const cancelar = chave ? `${base()}/aviso/cancelar/${chave}` : null;
         const msg = emailDoAviso({
           nome: l.nome,
           municipio: m.nome,
@@ -96,9 +97,9 @@ export async function rodarAvisosDaCidade(opcoes: { orcamentoMs?: number; hoje?:
           primeiro,
           linkRaioX: `${base()}${caminhoDoRaioX(m)}`,
           linkProposta: `${base()}/proposta?ibge=${m.codigo}&modulos=gestao`,
-          linkCancelar: chave ? `${base()}/aviso/cancelar/${chave}` : null,
+          linkCancelar: cancelar,
         });
-        const envio = await enviarEmail({ para: l.email, assunto: msg.assunto, html: msg.html });
+        const envio = await enviarEmail({ para: l.email, assunto: msg.assunto, html: msg.html, cancelar });
         if (!envio.enviado) {
           r.erros.push(`${m.nome}: e-mail para inscrito não saiu (${envio.motivo})`);
           continue;

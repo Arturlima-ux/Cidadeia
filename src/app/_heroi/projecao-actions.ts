@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { leads } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { enviarEmail } from "@/lib/email";
+import { montarEmail, saudacao, type Bloco } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
 import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { buscarSerieRgf } from "@/lib/siconfi-rgf";
@@ -38,10 +39,6 @@ const schema = z.object({
 export type ResultadoProjecao =
   | { ok: true; enviadoParaVoce: boolean }
   | { ok: false; erro: string; campo?: string };
-
-function escapar(t: string): string {
-  return t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-}
 
 export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProjecao> {
   const parsed = schema.safeParse(entrada);
@@ -81,7 +78,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
   }
 
   // 2) monta a projeção com a série que o Tesouro tiver.
-  let corpo: string;
+  let corpo: Bloco[];
   let resumoEquipe = "sem série suficiente";
   try {
     const projecao = montarProjecao(await buscarSerieRgf(municipio.codigo));
@@ -112,37 +109,58 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
       resumoEquipe = `${projecao.percentualAtual.toFixed(2)}% · ${projecao.situacaoAtual ?? "-"}`;
     }
 
-    corpo = linhas.map((l) => `<p>${escapar(l)}</p>`).join("\n");
+    corpo = linhas.map((l) => ({ p: l }));
   } catch (e) {
     console.error("[projecao] falha ao montar:", e);
-    corpo = "<p>O Tesouro não respondeu no momento do envio. Refazemos a consulta e mandamos.</p>";
+    corpo = [{ destaque: "O Tesouro não respondeu no momento do envio. Refazemos a consulta e mandamos.", tom: "atencao" }];
   }
 
   const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
 
+  const cidade = `${municipio.nome}/${municipio.uf}`;
   const paraVoce = await enviarEmail({
     para: dados.email,
-    assunto: `Projeção da despesa com pessoal — ${municipio.nome}/${municipio.uf}`,
-    html: [
-      `<p>Olá, ${escapar(dados.nome)}.</p>`,
-      `<p>Projeção do exercício para ${escapar(municipio.nome)}/${municipio.uf}, sobre o que a própria prefeitura declarou ao Tesouro:</p>`,
-      corpo,
-      `<p>O painel funcionando, com uma prefeitura fictícia: <a href="${base}/demo">${base}/demo</a>.</p>`,
-      `<p>O CidadeIA não substitui o parecer da contabilidade interna nem a assessoria jurídica do município.</p>`,
-    ].join("\n"),
+    assunto: `Projeção da despesa com pessoal — ${cidade}`,
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `Para onde vai a despesa com pessoal de ${municipio.nome} até o fim do exercício.`,
+      etiqueta: { texto: `Projeção · ${cidade}` },
+      titulo: `A despesa com pessoal de ${municipio.nome} até o fim do ano`,
+      saudacao: saudacao(dados.nome),
+      blocos: [
+        { p: `Como pedido, esta é a projeção do exercício para ${cidade}, calculada sobre o que a própria prefeitura declarou ao Tesouro Nacional no RGF:` },
+        ...corpo,
+        { botao: "Ver o painel funcionando", link: `${base}/demo` },
+        { nota: "O CidadeIA não substitui o parecer da contabilidade nem a assessoria jurídica do município. Dados públicos do Siconfi (Tesouro Nacional)." },
+      ],
+      motivo: `Você recebe este e-mail porque pediu a projeção de ${cidade} no site do CidadeIA.`,
+    }),
   });
 
   const paraEquipe = await enviarEmail({
     para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_EQUIPE_PADRAO,
-    assunto: `Projeção pedida — ${municipio.nome}/${municipio.uf} — ${dados.cargo}`,
-    html: [
-      `<p><strong>${escapar(dados.nome)}</strong> · ${escapar(dados.cargo)} · ${escapar(dados.email)}</p>`,
-      `<p>${escapar(municipio.nome)}/${municipio.uf} · ${resumoEquipe}</p>`,
-      paraVoce.enviado
-        ? "<p>E-mail para a pessoa: enviado.</p>"
-        : `<p><strong>O e-mail para a pessoa NÃO saiu — encaminhe à mão.</strong> Motivo: ${escapar(paraVoce.detalhe ?? paraVoce.motivo)}</p>`,
-      corpo,
-    ].join("\n"),
+    assunto: `Projeção pedida — ${cidade} — ${dados.cargo}`,
+    html: montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `${dados.nome}, ${dados.cargo} · ${resumoEquipe}`,
+      etiqueta: { texto: "Novo interessado · Projeção", tom: "marca" },
+      titulo: `${dados.nome} pediu a projeção de ${cidade}`,
+      blocos: [
+        !paraVoce.enviado && { destaque: `O e-mail para a pessoa NÃO saiu: encaminhe à mão. Motivo: ${paraVoce.detalhe ?? paraVoce.motivo}`, tom: "urgente" },
+        {
+          dados: [
+            ["Nome", dados.nome],
+            ["Cargo", dados.cargo],
+            ["E-mail", dados.email],
+            ["Situação", resumoEquipe],
+          ],
+        },
+        ...corpo,
+        { botao: "Ver os interessados", link: `${base}/admin/interessados` },
+      ],
+      assinatura: null,
+      motivo: "Aviso interno de novo interessado.",
+    }),
   });
 
   // Nada gravado E nenhum aviso à equipe significa que o pedido não existe em

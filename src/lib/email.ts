@@ -1,3 +1,5 @@
+import { textoDoHtml } from "@/lib/email-modelo";
+
 // Envio de e-mail via API REST da Resend (sem SDK — evita mais uma
 // dependência de node_modules). Sem RESEND_API_KEY configurada, cai para
 // log no console (mesmo padrão de degradação graciosa usado em ia.ts para
@@ -22,6 +24,15 @@ type ParametrosEmail = {
   para: string;
   assunto: string;
   html: string;
+  /** Versão em texto puro. Ausente, sai do próprio HTML (lib/email-modelo.ts). */
+  texto?: string;
+  /**
+   * O nome que aparece como remetente. Padrão "CidadeIA". A ouvidoria usa
+   * "Prefeitura de X via CidadeIA": quem fala é a prefeitura, pela plataforma.
+   */
+  nomeRemetente?: string;
+  /** Link para parar de receber: vira o cabeçalho List-Unsubscribe. */
+  cancelar?: string | null;
   /** Arquivos anexos (a proposta em PDF, por exemplo). */
   anexos?: { nome: string; conteudo: Uint8Array }[];
   /** Para onde vai a resposta do cliente, quando não é o remetente. */
@@ -42,7 +53,8 @@ type ParametrosEmail = {
 // 3. Se nenhum dos dois entregar um e-mail para fora da equipe, ele vai para
 //    a caixa de saída (lib/caixa-de-saida.ts), com o texto pronto para a
 //    equipe mandar à mão. Nenhum e-mail de cliente se perde num log.
-export async function enviarEmail(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
+export async function enviarEmail(entrada: ParametrosEmail): Promise<ResultadoEnvioEmail> {
+  const params: ParametrosEmail = { ...entrada, texto: entrada.texto ?? textoDoHtml(entrada.html) };
   const temResend = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
   const temSmtp = Boolean(process.env.SMTP_USUARIO?.trim() && process.env.SMTP_SENHA?.trim());
 
@@ -119,10 +131,12 @@ async function viaSmtp(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
       socketTimeout: 15_000,
     });
     await transporte.sendMail({
-      from: { name: process.env.SMTP_NOME?.trim() || "CidadeIA", address: usuario },
+      from: { name: params.nomeRemetente ?? (process.env.SMTP_NOME?.trim() || "CidadeIA"), address: usuario },
       to: params.para,
       subject: params.assunto,
       html: params.html,
+      text: params.texto,
+      ...(params.cancelar ? { list: { unsubscribe: params.cancelar } } : {}),
       ...(params.responderPara ? { replyTo: params.responderPara } : {}),
       ...(params.anexos?.length
         ? { attachments: params.anexos.map((a) => ({ filename: a.nome, content: Buffer.from(a.conteudo) })) }
@@ -134,6 +148,17 @@ async function viaSmtp(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
     console.error(`[email] Falha ao enviar pelo SMTP: ${motivo}`);
     return { enviado: false, causa: "falha-no-envio", motivo: "Falha ao enviar o e-mail.", detalhe: `SMTP: ${motivo.slice(0, 300)}` };
   }
+}
+
+/**
+ * "onboarding@resend.dev" chegava na caixa de entrada como "onboarding". Com
+ * o nome na frente, chega como "CidadeIA". Se a variável já traz um nome
+ * ("Fulano <x@y>"), ele é respeitado.
+ */
+export function comNome(endereco: string, nome: string): string {
+  const e = endereco.trim();
+  if (e.includes("<")) return e;
+  return `${nome.replace(/["<>]/g, "")} <${e}>`;
 }
 
 async function viaResend(params: ParametrosEmail): Promise<ResultadoEnvioEmail> {
@@ -153,10 +178,12 @@ async function viaResend(params: ParametrosEmail): Promise<ResultadoEnvioEmail> 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: remetente,
+        from: comNome(remetente, params.nomeRemetente ?? "CidadeIA"),
         to: params.para,
         subject: params.assunto,
         html: params.html,
+        text: params.texto,
+        ...(params.cancelar ? { headers: { "List-Unsubscribe": `<${params.cancelar}>` } } : {}),
         ...(params.responderPara ? { reply_to: params.responderPara } : {}),
         ...(params.anexos?.length
           ? {

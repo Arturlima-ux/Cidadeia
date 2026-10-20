@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { usuarios } from "@/db/schema";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { enviarEmail } from "./email";
+import { montarEmail } from "@/lib/email-modelo";
 import { linkApp } from "@/lib/url-app";
 import { repartirAvisos } from "@/lib/alerta-por-area";
 
@@ -31,12 +32,19 @@ export async function notificarAlertaUrgente(params: {
     ];
     if (destinatarios.length === 0) return;
 
-    const html = `
-      <p><strong>Novo alerta urgente registrado na CidadeIA.</strong></p>
-      <p>${params.titulo}</p>
-      ${params.descricao ? `<p>${params.descricao}</p>` : ""}
-      <p><a href="${linkApp("/dashboard/alertas")}">Ver na plataforma</a></p>
-    `;
+    const html = montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: params.descricao ?? params.titulo,
+      etiqueta: { texto: "Alerta urgente", tom: "urgente" },
+      titulo: params.titulo,
+      blocos: [
+        params.descricao ? { destaque: params.descricao, tom: "urgente" } : null,
+        { p: "Este alerta foi registrado agora no painel e pede uma decisão." },
+        { botao: "Ver o alerta no painel", link: linkApp("/dashboard/alertas") },
+      ],
+      assinatura: null,
+      motivo: "Você recebe os alertas urgentes da sua área no painel do CidadeIA.",
+    });
 
     await Promise.all(
       destinatarios.map((para) => enviarEmail({ para, assunto: `Alerta urgente — ${params.titulo}`, html }))

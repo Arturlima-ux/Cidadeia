@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { pedidoEventos, pedidosProposta } from "@/db/schema";
+import { h, montarEmail } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { destinoDaEquipe } from "@/lib/contato-comercial";
 import { registrarPasso } from "@/lib/cobranca-servidor";
@@ -105,17 +106,31 @@ export async function registrarAbertura(pedidoId: string, destino: DestinoRastre
 
   if (ultimaAbertura && agora - Date.parse(ultimaAbertura) < 12 * 3_600_000) return;
   const cidade = `${pedido.municipio}/${pedido.uf}`;
-  const tel = pedido.telefone ? `<a href="tel:+55${pedido.telefone.replace(/\D/g, "")}">${pedido.telefone}</a>` : "sem telefone no pedido";
+  const linkTel = pedido.telefone ? `tel:+55${pedido.telefone.replace(/\D/g, "")}` : null;
   const base = process.env.APP_URL ?? "https://cidadeia.vercel.app";
-  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
   await enviarEmail({
     para: destinoDaEquipe(),
     assunto: `${primeiraVez ? "ABRIU" : "VOLTOU À"} A PROPOSTA: ${cidade}. Hora de ligar`,
-    html: [
-      `<p><strong>${esc(cidade)}</strong> ${ROTULO_DESTINO[destino]} ${primeiraVez ? "pela primeira vez" : "de novo"}, agora.</p>`,
-      `<p>${esc(pedido.nome)}${pedido.cargo ? `, ${esc(pedido.cargo)}` : ""}: ${tel} · <a href="mailto:${esc(pedido.email)}">${esc(pedido.email)}</a></p>`,
-      `<p>A proposta está na mesa de alguém neste momento. Uma ligação curta agora ("chegou certinho? posso ajudar com o processo?") vale mais que qualquer lembrete.</p>`,
-      `<p><a href="${base}/admin/pedidos">Abrir a mesa de pedidos</a></p>`,
-    ].join("\n"),
+    html: montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `${pedido.nome} ${ROTULO_DESTINO[destino]} agora. Uma ligação curta vale mais que qualquer lembrete.`,
+      etiqueta: { texto: primeiraVez ? "Abriu a proposta" : "Voltou à proposta", tom: "urgente" },
+      titulo: `${cidade} ${ROTULO_DESTINO[destino]} ${primeiraVez ? "pela primeira vez" : "de novo"}`,
+      blocos: [
+        { p: "A proposta está na mesa de alguém neste momento. Uma ligação curta agora (\"chegou certinho? posso ajudar com o processo?\") vale mais que qualquer lembrete." },
+        {
+          dados: [
+            ["Contato", `${pedido.nome}${pedido.cargo ? `, ${pedido.cargo}` : ""}`],
+            ["Telefone", linkTel ? h`<a href="${linkTel}">${pedido.telefone}</a>` : "sem telefone no pedido"],
+            ["E-mail", h`<a href="mailto:${pedido.email}">${pedido.email}</a>`],
+          ],
+        },
+        linkTel
+          ? { botao: `Ligar agora: ${pedido.telefone}`, link: linkTel, depois: { texto: "Abrir a mesa de pedidos", link: `${base}/admin/pedidos` } }
+          : { botao: "Abrir a mesa de pedidos", link: `${base}/admin/pedidos` },
+      ],
+      assinatura: null,
+      motivo: "Aviso interno: no máximo um por pedido a cada 12 horas.",
+    }),
   });
 }

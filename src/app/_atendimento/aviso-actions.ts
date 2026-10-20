@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { leads, pedidoEventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { enviarEmail } from "@/lib/email";
+import { montarEmail, saudacao } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
 import { municipioPorCodigo } from "@/lib/municipios";
 import { CARGOS_LEAD } from "@/lib/leads";
@@ -26,7 +27,6 @@ const schema = z.object({
 
 export type ResultadoAviso = { ok: true; jaInscrito: boolean } | { ok: false; erro: string; campo?: string };
 
-const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 const base = () => process.env.APP_URL ?? "https://cidadeia.vercel.app";
 
 /** Grava a inscrição (sem duplicar) e manda a confirmação. Exportada para o Raio-X. */
@@ -70,23 +70,46 @@ export async function inscreverAvisoDaCidade(entrada: unknown): Promise<Resultad
   });
 
   const chave = chaveDoAviso(id);
+  const cancelar = chave ? `${base()}/aviso/cancelar/${chave}` : null;
+  const cidade = `${m.nome}/${m.uf}`;
   const confirmacao = await enviarEmail({
     para: d.email,
     responderPara: destinoDaEquipe(),
-    assunto: `Aviso de ${m.nome}/${m.uf} ativado`,
-    html: [
-      `<p>Olá, ${esc(d.nome.split(" ")[0])}.</p>`,
-      `<p>Pronto: você vai receber um e-mail quando um relatório fiscal de ${esc(m.nome)}/${m.uf} (RREO ou RGF) estiver a 7 dias do prazo sem entrega, vencer sem entrega ou for entregue no Tesouro Nacional.</p>`,
-      `<p>O primeiro aviso, com a situação de hoje, chega amanhã de manhã.</p>`,
-      chave ? `<p style="color:#888;font-size:13px"><a href="${base()}/aviso/cancelar/${chave}" style="color:#888">Parar de receber estes avisos</a>.</p>` : "",
-    ].join("\n"),
+    assunto: `Aviso de ${cidade} ativado`,
+    cancelar,
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: `O primeiro aviso, com a situação de hoje, chega amanhã de manhã.`,
+      etiqueta: { texto: "Inscrição confirmada", tom: "ok" },
+      titulo: `Pronto: você vai acompanhar ${m.nome}`,
+      saudacao: saudacao(d.nome),
+      blocos: [
+        { p: `Sua inscrição no aviso gratuito de ${cidade} está confirmada. Você recebe um e-mail quando um relatório fiscal (RREO ou RGF):` },
+        { lista: ["estiver a 7 dias do prazo sem entrega;", "vencer sem entrega;", "for entregue ao Tesouro Nacional."] },
+        { destaque: "O primeiro aviso, com a situação de hoje, chega amanhã de manhã.", tom: "marca" },
+        { p: "Quer falar com a gente? É só responder este e-mail." },
+      ],
+      motivo: `Você recebe este e-mail porque se inscreveu no aviso gratuito de ${cidade} no site do CidadeIA.`,
+      cancelar,
+    }),
   });
   if (confirmacao.enviado) await db.update(leads).set({ emailEnviado: true }).where(eq(leads.id, id));
 
   await enviarEmail({
     para: destinoDaEquipe(),
-    assunto: `Aviso da cidade: ${m.nome}/${m.uf} — ${d.cargo}`,
-    html: `<p><strong>${esc(d.nome)}</strong>, ${esc(d.cargo)} — ${esc(d.email)}</p><p>Inscreveu-se no aviso gratuito de ${esc(m.nome)}/${m.uf}. Está em <a href="${base()}/admin/interessados">Interessados</a>.</p>`,
+    assunto: `Aviso da cidade: ${cidade} — ${d.cargo}`,
+    html: montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `${d.nome}, ${d.cargo}, se inscreveu no aviso gratuito.`,
+      etiqueta: { texto: "Novo interessado · Aviso da cidade", tom: "marca" },
+      titulo: `${d.nome} passou a acompanhar ${cidade}`,
+      blocos: [
+        { dados: [["Nome", d.nome], ["Cargo", d.cargo], ["E-mail", d.email], ["Município", cidade]] },
+        { botao: "Ver os interessados", link: `${base()}/admin/interessados` },
+      ],
+      assinatura: null,
+      motivo: "Aviso interno de novo interessado.",
+    }),
   });
   return { ok: true, jaInscrito: false };
 }

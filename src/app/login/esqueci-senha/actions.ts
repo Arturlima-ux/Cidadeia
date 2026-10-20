@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { normalizarDocumento } from "@/lib/documento";
 import { linkApp } from "@/lib/url-app";
 import { enviarEmail, type CausaNaoEnviado } from "@/lib/email";
+import { montarEmail, saudacao } from "@/lib/email-modelo";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
 
@@ -55,7 +56,7 @@ async function processarRecuperacao(documento: string): Promise<ResultadoSolicit
   }
 
   const [usuario] = await db
-    .select({ id: usuarios.id, email: usuarios.email })
+    .select({ id: usuarios.id, email: usuarios.email, nome: usuarios.nome })
     .from(usuarios)
     .where(eq(usuarios.cpfCnpj, documento))
     .limit(1);
@@ -80,8 +81,21 @@ async function processarRecuperacao(documento: string): Promise<ResultadoSolicit
 
   const resultado = await enviarEmail({
     para: usuario.email,
-    assunto: "Redefinir sua senha — CidadeIA",
-    html: `<p>Recebemos um pedido para redefinir sua senha.</p><p><a href="${link}">Clique aqui para criar uma nova senha</a></p><p>Este link expira em 1 hora. Se você não pediu isso, ignore este e-mail.</p>`,
+    assunto: "Redefinir sua senha do CidadeIA",
+    html: montarEmail({
+      remetente: { tipo: "cidadeia" },
+      previa: "O link para criar uma nova senha vale por 1 hora.",
+      etiqueta: { texto: "Segurança da conta" },
+      titulo: "Redefinir sua senha",
+      saudacao: saudacao(usuario.nome),
+      blocos: [
+        { p: "Recebemos um pedido para redefinir a senha da sua conta no CidadeIA. Para criar uma nova senha, use o botão abaixo." },
+        { botao: "Criar uma nova senha", link },
+        { destaque: "Este link vale por 1 hora e só pode ser usado uma vez. Se você não pediu a troca de senha, ignore este e-mail: sua senha atual continua valendo.", tom: "neutro" },
+        { nota: "Por segurança, a equipe do CidadeIA nunca pede sua senha por e-mail, telefone ou mensagem." },
+      ],
+      motivo: "Você recebe este e-mail porque alguém pediu a redefinição de senha da sua conta no CidadeIA.",
+    }),
   });
 
   if (!resultado.enviado) {
