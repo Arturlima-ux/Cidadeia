@@ -24,7 +24,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npx -y tsx@4 scripts/vigia/conferir-fontes.ts | tee saida.txt
+      # A conferência de uma fonte só roda o código do painel: precisa das dependências.
+      - if: ${{ inputs.so != '' }}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx -y tsx@4 scripts/vigia/conferir-fontes.ts 2>&1 | tee saida.txt
         env:
           CNPJ_TESTE: ${{ inputs.cnpj }}
           IBGE_TESTE: ${{ inputs.ibge }}

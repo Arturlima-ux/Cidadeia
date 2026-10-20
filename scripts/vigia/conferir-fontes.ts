@@ -31,31 +31,24 @@ async function olhar(nome: string, url: string) {
 }
 
 // SIOPE (FNDE, Olinda/OData): parâmetros vão como alias @Nome na URL.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SIOPE = "https://www.fnde.gov.br/olinda-ide/servico/DADOS_ABERTOS_SIOPE/versao/v1/odata";
 const siope = (recurso: string, ano: number, peri: number, uf: string, extra = "") =>
   `${SIOPE}/${recurso}(Ano_Consulta=@Ano_Consulta,Num_Peri=@Num_Peri,Sig_UF=@Sig_UF)?@Ano_Consulta=${ano}&@Num_Peri=${peri}&@Sig_UF='${uf}'&$format=json${extra}`;
 
 async function conferirSiope() {
-  const uf = process.env.UF_TESTE ?? "PI";
-  // No SIOPE o município vem com 6 dígitos (sem o verificador do IBGE).
-  const cod = IBGE.slice(0, 6);
-  const f = (expr: string) => `&$filter=${encodeURIComponent(expr)}`;
-  const ano = new Date().getUTCFullYear();
-  const todas = async (nome: string, url: string) => {
-    const l = (await olhar(nome, url)) as Record<string, unknown>[] | null;
-    for (const x of l ?? []) console.log(JSON.stringify(x));
-    return l;
-  };
-  // Quem declarou o bimestre (a data da declaração está nos dados gerais).
-  const decl = await todas(`SIOPE · declarações ${ano}/4º bim no ${uf}`, siope("Dados_Gerais_Siope", ano, 4, uf, `${f("TIPO eq 'Municipal'")}&$select=COD_MUNI,NOM_MUNI,DAT_DECL,NUM_POPU&$top=400`));
-  console.log(`Municípios com declaração: ${decl?.length ?? 0}`);
-  const outro = String(decl?.find((d) => d.COD_MUNI !== Number(cod))?.COD_MUNI ?? "220060");
-  for (const [a, p] of [[ano, 4], [ano, 3], [ano, 2], [ano - 1, 6]] as const) {
-    await todas(`SIOPE · indicadores ${a}/${p}º bim de ${cod}`, siope("Indicadores_Siope", a, p, uf, f(`COD_MUNI eq ${cod}`)));
-    await todas(`SIOPE · indicadores ${a}/${p}º bim de ${outro} (declarou)`, siope("Indicadores_Siope", a, p, uf, f(`COD_MUNI eq ${outro}`)));
+  // Roda o código do painel (lib/siope-servidor.ts) contra a API de verdade.
+  const { buscarSiope } = await import("../../src/lib/siope-servidor");
+  const { achadosDoSiope } = await import("../../src/lib/siope");
+  for (const ibge of [IBGE, "2200608", "2211001"]) {
+    try {
+      const f = await buscarSiope(ibge);
+      console.log(`\n### SIOPE · buscarSiope(${ibge})\n${JSON.stringify(f, null, 1)}`);
+      for (const a of achadosDoSiope(f)) console.log(`- [${a.prioridade}] ${a.titulo}\n  ${a.descricao}\n  chave=${a.chave}`);
+    } catch (e) {
+      console.log(`\n### SIOPE · buscarSiope(${ibge})\nFALHOU: ${e instanceof Error ? e.stack : e}`);
+    }
   }
-  await todas(`SIOPE · indicador 25% (cód. 40?) dos municípios ${ano - 1}/6`, siope("Indicadores_Siope", ano - 1, 6, uf, `${f("TIPO eq 'Municipal' and COD_EXIB eq '1.1'")}&$top=5`));
-  await todas(`SIOPE · dados gerais de ${cod} ${ano - 1}/6`, siope("Dados_Gerais_Siope", ano - 1, 6, uf, `${f(`COD_MUNI eq ${cod}`)}&$select=COD_MUNI,NOM_MUNI,DAT_DECL`));
 }
 
 async function main() {
