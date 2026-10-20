@@ -11,7 +11,7 @@ on:
         description: "Código IBGE do município"
         default: "2205300"
 permissions:
-  contents: read
+  contents: write # a saída vai para o ramo "conferencia-fontes", legível pela API
 jobs:
   conferir:
     runs-on: ubuntu-latest
@@ -21,7 +21,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npx -y tsx@4 scripts/vigia/conferir-fontes.ts
+      - run: npx -y tsx@4 scripts/vigia/conferir-fontes.ts | tee saida.txt
         env:
           CNPJ_TESTE: ${{ inputs.cnpj }}
           IBGE_TESTE: ${{ inputs.ibge }}
+      - name: Guardar a saída no ramo conferencia-fontes
+        run: |
+          git config user.name "vigia-cidadeia"
+          git config user.email "vigia-cidadeia@users.noreply.github.com"
+          git checkout --orphan conferencia-fontes
+          git rm -rq --cached .
+          git add saida.txt
+          git commit -qm "Conferência das fontes ($(date -u +%F' '%T))"
+          git push -f origin conferencia-fontes
