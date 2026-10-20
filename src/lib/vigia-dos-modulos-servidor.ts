@@ -24,6 +24,9 @@ import { detectarPadroes } from "@/lib/padroes-licitacoes";
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
 import { lerObrasFederais } from "@/lib/obras-federais-servidor";
+import { lerArboviroses } from "@/lib/arboviroses-servidor";
+import { achadosDosMinimosAutomaticos } from "@/lib/minimos-automaticos";
+import { achadosDasArboviroses } from "@/lib/arboviroses";
 import { achadosDasObrasFederais } from "@/lib/obras-federais";
 import { ehObraOuEngenharia } from "@/lib/obra-prazo";
 import { radarDaPrefeitura } from "@/lib/radar-transparencia-servidor";
@@ -96,7 +99,12 @@ export async function achadosDaPrefeitura(
   if (planos.includes("gestao")) {
     fontes.push(lerEmendas(prefeituraId).then((r) => (r ? achadosDasEmendas(r.emendas, hoje) : [])));
   }
+  const areasDosMinimos = (["saude", "educacao"] as const).filter((a) => planos.includes(a) || planos.includes("gestao"));
+  if (areasDosMinimos.length) {
+    fontes.push(achadosDosMinimosAutomaticos(prefeituraId, [...areasDosMinimos], hoje.getUTCFullYear()));
+  }
   if (planos.includes("saude")) {
+    fontes.push(lerArboviroses(prefeituraId).then((r) => (r ? achadosDasArboviroses(r.foto) : [])));
     fontes.push(
       (async () => {
         const linhas = await db

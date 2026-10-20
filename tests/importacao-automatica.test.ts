@@ -18,7 +18,9 @@ describe("a data do banco", () => {
 describe("o que importar hoje", () => {
   it("só as fontes dos módulos contratados", () => {
     expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix"]);
-    expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["cnes", "pncp-contratos", "obras", "obrasgov"]);
+    expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["rreo", "cnes", "pncp-contratos", "obras", "obrasgov", "infodengue"]);
+    // Educação também lê o RREO (mínimo de 25%) e as obras federais de escola.
+    expect(fontesDevidas(["educacao"], {}, HOJE)).toEqual(["rreo", "obrasgov"]);
     expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual(["emendas-pix"]);
   });
 

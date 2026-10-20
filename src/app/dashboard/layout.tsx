@@ -133,12 +133,14 @@ function montarGrupos(
       { href: "/dashboard/secretarias/saude", label: "Painel da saúde", icone: "saude" },
       { href: "/dashboard/secretarias/saude/aps", label: "Qualidade da APS", icone: "saude" },
       { href: "/dashboard/secretarias/saude/reposicao", label: "Reposição de insumos", icone: "saude" },
+      { href: "/dashboard/minimos", label: "Mínimo de 15%", icone: "saude" },
     ],
     educacao: [
       { href: "/dashboard/secretarias/educacao", label: "Painel da educação", icone: "educacao" },
       { href: "/dashboard/secretarias/educacao/busca-ativa", label: "Busca ativa escolar", icone: "educacao" },
       { href: "/dashboard/secretarias/educacao/merenda", label: "Merenda e agricultura familiar", icone: "educacao" },
       { href: "/dashboard/secretarias/educacao/reposicao", label: "Pedido da merenda", icone: "educacao" },
+      { href: "/dashboard/minimos", label: "Mínimos de 25% e FUNDEB", icone: "educacao" },
       { href: "/dashboard/secretarias/educacao/resultado", label: "Dinheiro e resultado", icone: "educacao" },
     ],
     obras: [{ href: "/dashboard/secretarias/obras", label: "Painel das obras", icone: "obras" }],
@@ -146,9 +148,14 @@ function montarGrupos(
   };
 
   // Mesma ordem da página de módulos e da proposta.
+  // A mesma tela em dois planos (os mínimos, no Gestão e na Saúde) aparece
+  // uma vez só, no primeiro grupo.
+  const vistos = new Set(grupos.flatMap((g) => g.itens.map((i) => i.href)));
   for (const plano of ["essencial", "gestao", "saude", "educacao", "obras", "licitacoes"] as PlanoAddon[]) {
     if (planosAtivos.includes(plano)) {
-      grupos.push({ titulo: NOME_PLANO_ADDON[plano], itens: MENU_DO_PLANO[plano] });
+      const itens = MENU_DO_PLANO[plano].filter((i) => !vistos.has(i.href));
+      itens.forEach((i) => vistos.add(i.href));
+      if (itens.length) grupos.push({ titulo: NOME_PLANO_ADDON[plano], itens });
     }
   }
 

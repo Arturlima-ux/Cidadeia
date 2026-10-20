@@ -9,6 +9,7 @@ import { lerSessao , ehGestor } from "@/lib/sessao";
 import { gerarId } from "@/lib/id";
 import type { AreaMinimo } from "@/lib/minimos-constitucionais";
 import { revalidatePath } from "next/cache";
+import { aplicadoDoSiconfi } from "@/lib/minimos-automaticos";
 
 export type LinhaBase = {
   area: AreaMinimo;
@@ -81,9 +82,13 @@ export async function somarAplicadoLancado(
       )
     );
 
+  // O RREO é acumulado no ano ("liquidadas ATÉ o bimestre"): do SICONFI vale
+  // só o bimestre mais recente. Somar os bimestres contaria janeiro seis vezes.
+  const manuais = linhas.filter((l) => l.origem !== "siconfi").reduce((s, l) => s + (l.valor ?? 0), 0);
+  const doSiconfi = area === "saude" || area === "educacao" ? await aplicadoDoSiconfi(sessao.prefeituraId, exercicio, area) : null;
   return {
-    total: linhas.reduce((s, l) => s + (l.valor ?? 0), 0),
-    temSiconfi: linhas.some((l) => l.origem === "siconfi"),
+    total: manuais + (doSiconfi?.valor ?? 0),
+    temSiconfi: !!doSiconfi,
   };
 }
 

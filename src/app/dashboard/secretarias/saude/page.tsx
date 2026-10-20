@@ -25,6 +25,8 @@ import { lerUnidade, mencionaUnidade } from "@/lib/leitura-unidade";
 import { montarPedidoReposicao } from "@/lib/estoque-saude";
 import { diasSemAtualizarNoCnes, DIAS_CNES_DESATUALIZADO } from "@/lib/cnes";
 import { NOME_TIPO_UNIDADE } from "@/lib/cnes";
+import Arboviroses from "@/components/Arboviroses";
+import ObrasFederais from "@/components/ObrasFederais";
 
 // Os rótulos vêm de lib/cnes.ts, a mesma fonte da importação.
 const LABEL_TIPO: Record<string, string> = NOME_TIPO_UNIDADE;
@@ -93,6 +95,8 @@ export default async function SaudePage() {
         modulo="saude"
         inicial={await insightInicial(ctx.sessao.prefeituraId, "saude", { cargo: ctx.sessao.cargo, secretaria: ctx.sessao.secretaria })}
       />
+
+      <Arboviroses prefeituraId={ctx.sessao.prefeituraId} />
 
       {/* Indicadores */}
       <div>
@@ -349,6 +353,8 @@ export default async function SaudePage() {
           )}
         </details>
       </div>
+
+      <ObrasFederais prefeituraId={ctx.sessao.prefeituraId} area="saude" uf={ctx.prefeitura.estado} />
     </div>
   );
 }
