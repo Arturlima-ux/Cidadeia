@@ -222,3 +222,83 @@ async function viaResend(params: ParametrosEmail): Promise<ResultadoEnvioEmail> 
 
   return { enviado: true };
 }
+
+// ── O TESTE DOS DOIS CAMINHOS ──
+//
+// Quando um e-mail sai pela Resend com o remetente "onboarding", é porque o
+// Gmail falhou antes, e em silêncio: o envio deu certo, então ninguém olha o
+// porquê. O teste tenta cada caminho sozinho, para a equipe, e devolve o erro
+// de cada um em português. O erro do provedor nunca traz a senha.
+
+export type ResultadoDoCaminho = {
+  caminho: "gmail" | "resend";
+  configurado: boolean;
+  /** O endereço que aparece como remetente (não é segredo). */
+  remetente: string | null;
+  enviado: boolean;
+  erro: string | null;
+  /** O que fazer, em português. */
+  explicacao: string | null;
+};
+
+/** Traduz a resposta do provedor no que a equipe precisa fazer. Pura. */
+export function explicarFalha(caminho: "gmail" | "resend", detalhe: string, remetente: string | null): string {
+  const d = detalhe.toLowerCase();
+  if (caminho === "gmail") {
+    if (/535|534|username and password not accepted|invalid login|badcredentials|auth/.test(d))
+      return `O Gmail recusou o login de ${remetente ?? "SMTP_USUARIO"}. Confira na Vercel: SMTP_USUARIO deve ser exatamente esse endereço, e SMTP_SENHA deve ser uma senha de app (16 letras, gerada em myaccount.google.com/apppasswords) DESSA mesma conta, com a verificação em duas etapas ligada. A senha normal da conta não funciona.`;
+    if (/etimedout|econnrefused|econnreset|greeting|connection|timeout|enotfound/.test(d))
+      return "Não conseguiu conectar ao servidor do Gmail. Confira SMTP_HOST (vazio ou smtp.gmail.com) e SMTP_PORTA (vazio ou 465).";
+    if (/daily|limit|quota|5\.4\.5/.test(d)) return "O Gmail atingiu o limite diário de envios desta conta. Volta a funcionar em até 24 horas.";
+    return "O Gmail recusou o envio. O erro exato está acima.";
+  }
+  if (/403/.test(d) && /domain|domínio|verify|testing|own email/.test(d))
+    return "A Resend está sem domínio próprio verificado: nesse modo ela só entrega para o dono da conta. Com o Gmail funcionando, isso deixa de importar; com domínio próprio, a Resend passa a entregar para todos.";
+  if (/401|api key|unauthorized/.test(d)) return "A chave da Resend (RESEND_API_KEY) está errada ou foi revogada.";
+  return "A Resend recusou o envio. O erro exato está acima.";
+}
+
+export async function testarCaminhos(para: string): Promise<ResultadoDoCaminho[]> {
+  const { montarEmail } = await import("@/lib/email-modelo");
+  const agora = new Date().toLocaleString("pt-BR", { timeZone: "America/Fortaleza" });
+  const msg = (caminho: string): ParametrosEmail => {
+    const html = montarEmail({
+      remetente: { tipo: "equipe" },
+      previa: `Envio de teste pelo caminho ${caminho}.`,
+      etiqueta: { texto: "Teste de envio", tom: "ok" },
+      titulo: `O envio pelo ${caminho} funciona`,
+      blocos: [{ p: `Se você está lendo isto, o caminho ${caminho} entregou este e-mail em ${agora}.` }],
+      assinatura: null,
+      motivo: "Teste pedido na caixa de saída do admin.",
+    });
+    return { para, assunto: `Teste de envio pelo ${caminho} (${agora})`, html, texto: textoDoHtml(html) };
+  };
+
+  const usuario = process.env.SMTP_USUARIO?.trim() || null;
+  const temSmtp = Boolean(usuario && process.env.SMTP_SENHA?.trim());
+  const remetenteResend = process.env.RESEND_FROM_EMAIL?.trim() || null;
+  const temResend = Boolean(process.env.RESEND_API_KEY && remetenteResend);
+
+  const gmail: ResultadoDoCaminho = { caminho: "gmail", configurado: temSmtp, remetente: usuario, enviado: false, erro: null, explicacao: null };
+  if (!temSmtp) gmail.explicacao = "Faltam SMTP_USUARIO ou SMTP_SENHA na Vercel (ambiente Production).";
+  else {
+    const r = await viaSmtp(msg("Gmail"));
+    gmail.enviado = r.enviado;
+    if (!r.enviado) {
+      gmail.erro = r.detalhe ?? r.motivo;
+      gmail.explicacao = explicarFalha("gmail", gmail.erro, usuario);
+    }
+  }
+
+  const resend: ResultadoDoCaminho = { caminho: "resend", configurado: temResend, remetente: remetenteResend, enviado: false, erro: null, explicacao: null };
+  if (!temResend) resend.explicacao = "Faltam RESEND_API_KEY ou RESEND_FROM_EMAIL na Vercel.";
+  else {
+    const r = await viaResend(msg("Resend"));
+    resend.enviado = r.enviado;
+    if (!r.enviado) {
+      resend.erro = r.detalhe ?? r.motivo;
+      resend.explicacao = explicarFalha("resend", resend.erro, remetenteResend);
+    }
+  }
+  return [gmail, resend];
+}
