@@ -17,11 +17,8 @@ import PainelAtencao from "@/components/PainelAtencao";
 import PainelAntecipacao from "@/components/PainelAntecipacao";
 import { antecipacoesDaPrefeitura } from "@/lib/antecipacoes-da-prefeitura";
 import { gerarDeteccoesAutomaticas } from "@/lib/ia";
-import ReguaLrf from "@/components/site/inicio/ReguaLrf";
-import { avaliarDespesaPessoal } from "@/lib/despesa-pessoal";
-import { buscarPeriodos } from "@/app/dashboard/pessoal/actions";
-
-const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+import VisaoDoPrefeito from "@/components/VisaoDoPrefeito";
+import { carregarVisaoDoPrefeito } from "@/lib/visao-do-prefeito-servidor";
 
 // A saudação e a data saem de lib/horario.ts, no fuso do estado da
 // prefeitura. Calcular aqui com `new Date().getHours()` devolvia a hora do
@@ -69,12 +66,15 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  // A régua da LRF, a mesma do site, com o último período que a prefeitura
-  // apurou. Sem período lançado, ela não aparece: régua de exemplo dentro do
-  // painel de um cliente seria número inventado na tela dele.
-  const periodosPessoal = await buscarPeriodos(1).catch(() => []);
-  const ultimoPessoal = periodosPessoal[0] ?? null;
-  const avaliacaoPessoal = ultimoPessoal ? avaliarDespesaPessoal(ultimoPessoal) : null;
+  // O painel do vídeo da home, com o dado da prefeitura. Falha aqui não
+  // derruba o resto: sem ele, a tela continua com a lista de decisões.
+  const visao = await carregarVisaoDoPrefeito(sessao.prefeituraId, {
+    essencial: ctx.temPlano("essencial"),
+    obras: ctx.temPlano("obras"),
+  }).catch((e) => {
+    console.error("[Painel] falha na visão do prefeito:", e);
+    return null;
+  });
   const snapshot = historico[historico.length - 1] ?? null;
   const anterior = historico.length > 1 ? historico[historico.length - 2] : null;
 
@@ -118,32 +118,16 @@ export default async function DashboardPage() {
         </a>
       </div>
 
-      {/* A lista do que exige decisão abre o painel. Antes a tela começava por
-          receita e despesas — números que dizem como ESTÁ, não o que fazer —, e
-          o que precisava de ação ficava numa tela separada que ninguém abria. */}
+      {/* O painel do vídeo da home: três números, a despesa com pessoal nas
+          linhas da LRF e o aviso antecipado, com o dado desta prefeitura. A
+          régua da LRF que ficava aqui virou o gráfico; o primeiro aviso
+          antecipado vai no cartão ao lado, e os demais seguem na lista. */}
+      {visao && <VisaoDoPrefeito dados={visao} antecipacao={antecipacoes[0] ?? null} />}
+
+      {/* A lista do que exige decisão vem logo depois: é o que pede ação hoje. */}
       <PainelAtencao achados={achados} />
 
-      {/* Logo depois do que exige decisão hoje, e antes do financeiro: o que
-          ainda não aconteceu vale mais que o retrato de como está, e menos que
-          o que já está pedindo decisão. */}
-      {ultimoPessoal && avaliacaoPessoal && (
-        <ReguaLrf
-          dado={{
-            modo: "real",
-            municipio: prefeitura?.municipio ?? "sua prefeitura",
-            percentual: avaliacaoPessoal.percentual,
-            situacao: avaliacaoPessoal.situacao,
-            periodo: `${MESES[ultimoPessoal.mesReferencia - 1]} de ${ultimoPessoal.exercicio}`,
-            margemAtePrudencial: avaliacaoPessoal.margemAtePrudencial,
-            baseDeReserva: false,
-            nota: `Doze meses até ${MESES[ultimoPessoal.mesReferencia - 1]} de ${ultimoPessoal.exercicio}, ${
-              ultimoPessoal.origem === "siconfi" ? "importados do RGF no SICONFI" : "lançados pela equipe da prefeitura"
-            }. Série completa em Despesa com pessoal.`,
-          }}
-        />
-      )}
-
-      <PainelAntecipacao antecipacoes={antecipacoes} />
+      <PainelAntecipacao antecipacoes={visao ? antecipacoes.slice(1) : antecipacoes} />
 
       {/* A lista acima é o que se decide HOJE. O que o Tribunal de Contas
           julga no fim do exercício é outra pergunta, e ela tem tela própria —
