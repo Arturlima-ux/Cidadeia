@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { animate, motion, useInView, useReducedMotion } from "motion/react";
+import { m, useInView, useReducedMotion } from "motion/react";
+import { animarNumero } from "@/components/movimento/animarNumero";
 
 // ── O QUE SE MEXE NO PORTAL ──
 //
@@ -11,10 +12,22 @@ import { animate, motion, useInView, useReducedMotion } from "motion/react";
 
 const SAIDA = [0.22, 1, 0.36, 1] as const;
 
-export function Surgir({ children, atraso = 0, className = "" }: { children: React.ReactNode; atraso?: number; className?: string }) {
+export function Surgir({
+  children,
+  atraso = 0,
+  className = "",
+  como = "div",
+}: {
+  children: React.ReactNode;
+  atraso?: number;
+  className?: string;
+  /** "li" quando o bloco é item de lista: uma div entre o <ul> e o <li> quebra a lista para leitor de tela. */
+  como?: "div" | "li";
+}) {
   const reduzir = useReducedMotion();
+  const Elemento = como === "li" ? m.li : m.div;
   return (
-    <motion.div
+    <Elemento
       className={className}
       initial={reduzir ? false : { opacity: 0, y: 28, filter: "blur(6px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -22,7 +35,7 @@ export function Surgir({ children, atraso = 0, className = "" }: { children: Rea
       transition={{ duration: 0.9, delay: atraso, ease: SAIDA }}
     >
       {children}
-    </motion.div>
+    </Elemento>
   );
 }
 
@@ -39,8 +52,8 @@ export function Contador({ valor, formato = "inteiro", duracao = 1.6, className 
   const [atual, setAtual] = useState(reduzir ? valor : 0);
   useEffect(() => {
     if (!visto || reduzir) return;
-    const c = animate(0, valor, { duration: duracao, ease: SAIDA, onUpdate: setAtual });
-    return () => c.stop();
+    const c = animarNumero(0, valor, { duracao, aoMudar: setAtual });
+    return () => c.parar();
   }, [visto, reduzir, valor, duracao]);
   return (
     <span ref={ref} className={`tabular-nums ${className}`} data-valor-final={formatar(valor, formato)}>
@@ -53,7 +66,7 @@ export function Barra({ pct, cor, atraso = 0, altura = 12 }: { pct: number; cor:
   const reduzir = useReducedMotion();
   return (
     <div className="w-full rounded-full overflow-hidden" style={{ height: altura, background: "var(--sutil)" }}>
-      <motion.div
+      <m.div
         className="h-full rounded-full"
         style={{ background: cor, boxShadow: `0 0 18px -2px ${cor}` }}
         initial={reduzir ? false : { width: "0%" }}
@@ -75,7 +88,7 @@ export function Anel({ pct, cor, tamanho = 76, atraso = 0, children }: { pct: nu
       <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="-rotate-90">
         <circle cx={tamanho / 2} cy={tamanho / 2} r={r} fill="none" stroke="var(--sutil)" strokeWidth={5} />
         {pct !== null && (
-          <motion.circle
+          <m.circle
             cx={tamanho / 2}
             cy={tamanho / 2}
             r={r}

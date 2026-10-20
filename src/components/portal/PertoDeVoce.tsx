@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 import {
   bairrosDosLugares,
   descreverDistancia,
@@ -179,7 +179,7 @@ export default function PertoDeVoce({
 
       <div aria-live="polite">
         {resultado && (
-          <motion.div
+          <m.div
             key={modo?.tipo === "bairro" ? modo.bairro : "local"}
             initial={reduzir ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -212,7 +212,7 @@ export default function PertoDeVoce({
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </div>
     </section>

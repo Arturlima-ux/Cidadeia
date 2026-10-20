@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useMotionValueEvent,
-  useReducedMotion,
-  useTransform,
-} from "motion/react";
+import { m, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "motion/react";
+import { animarNumero } from "@/components/movimento/animarNumero";
 import {
   LIMITE_ALERTA,
   LIMITE_PESSOAL,
@@ -112,12 +106,12 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
       return;
     }
     valor.set(inicio);
-    const controle = animate(valor, alvo, {
-      duration: 2.4,
-      delay: dado.modo === "real" ? 0.2 : 0.7,
-      ease: [0.16, 1, 0.3, 1],
+    const controle = animarNumero(valor.get(), alvo, {
+      duracao: 2.4,
+      atraso: dado.modo === "real" ? 0.2 : 0.7,
+      aoMudar: (v) => valor.set(v),
     });
-    return () => controle.stop();
+    return () => controle.parar();
   }, [alvo, inicio, reduzir, valor, dado.modo]);
 
   const carregando = dado.modo === "carregando";
@@ -148,13 +142,13 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
         {carregando ? (
           <span className="h-10 sm:h-12 w-28 rounded-lg animate-pulse" style={{ background: "var(--sutil)" }} />
         ) : (
-          <motion.span
+          <m.span
             className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.04em] transition-colors duration-500"
             style={{ color: corDoValor }}
             aria-hidden
           >
             {texto}
-          </motion.span>
+          </m.span>
         )}
       </div>
 
@@ -175,11 +169,11 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
         />
         {!carregando && (
           <>
-            <motion.div
+            <m.div
               className="absolute inset-y-0 left-0 rounded-full"
               style={{ width: largura, background: "var(--foreground)" }}
             />
-            <motion.div
+            <m.div
               className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 rounded-full border-[3px]"
               style={{ left: largura, background: "var(--card)", borderColor: "var(--foreground)" }}
             />
@@ -225,7 +219,7 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
           Lendo o último relatório fiscal de {dado.municipio} no Tesouro Nacional.
         </p>
       ) : (
-        <motion.p
+        <m.p
           className="mt-5 pt-5 border-t border-border text-sm leading-relaxed"
           initial={false}
           animate={{ opacity: chegou ? 1 : 0, y: chegou ? 0 : 6 }}
@@ -238,7 +232,7 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
             {explicacao(situacaoFinal, dado.modo === "real" ? dado.margemAtePrudencial : null)}
             {dado.modo === "exemplo" && " O CidadeIA avisa quando o número começa a subir."}
           </span>
-        </motion.p>
+        </m.p>
       )}
 
       <p className="mt-3 text-xs text-muted leading-relaxed">

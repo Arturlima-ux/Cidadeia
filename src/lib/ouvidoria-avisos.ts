@@ -2,6 +2,7 @@ import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
 import { PRAZOS } from "@/lib/prazo-atendimento";
 import { AREAS, areaDoAlerta, type Area, type Pessoa } from "@/lib/alerta-por-area";
 import { h, montarEmail, paragrafosDe, saudacao } from "@/lib/email-modelo";
+import { OPCOES_DE_AREA } from "@/lib/areas-da-ouvidoria";
 
 // ── A OUVIDORIA QUE AVISA ──
 //
@@ -26,12 +27,7 @@ import { h, montarEmail, paragrafosDe, saudacao } from "@/lib/email-modelo";
 // O e-mail da equipe leva só o tipo, o assunto e o prazo. Nome, contato e o
 // texto do cidadão ficam no painel, atrás de login: e-mail se encaminha.
 
-export const OPCOES_DE_AREA: { valor: Area; nome: string }[] = [
-  { valor: "saude", nome: "Saúde" },
-  { valor: "educacao", nome: "Educação" },
-  { valor: "obras", nome: "Obras e serviços urbanos" },
-  { valor: "licitacoes", nome: "Compras e contratos" },
-];
+export { OPCOES_DE_AREA };
 
 export const EVENTO_PRORROGACAO = "prazo_prorrogado";
 

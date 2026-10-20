@@ -129,7 +129,9 @@
   --muted: #8b8f98;
   --border: rgba(243, 244, 246, 0.13);
 
-  --brand: #7c5cff;
+  /* #7252f6, e não #7c5cff: branco sobre o roxo cheio (botão, faixa) dava
+     4,34:1, abaixo dos 4,5:1 da WCAG AA (medido pelo Lighthouse). Agora 4,94. */
+  --brand: #7252f6;
   --brand-dark: #6344e0;
   --brand-tint: rgba(124, 92, 255, 0.15);
   --brand-profundo: #0c0a18;
@@ -444,8 +446,14 @@ button:active {
 .tema-noite .bg-brand {
   background-color: var(--brand-dark);
 }
+/* Link e texto na cor da marca, sobre o fundo escuro: o roxo de botão
+   (--brand) dá 3,7–4,0:1 contra o preto; o tom de leitura dá mais de 7:1. */
+.tema-noite .text-brand {
+  color: var(--brand-legivel);
+}
 .tema-noite .hover\:bg-brand-dark:hover {
-  background-color: #1d5bc4;
+  /* Era #1d5bc4, um azul da paleta antiga: o botão roxo ficava azul no hover. */
+  background-color: #5236c4;
 }
 
 :where(a, button, summary):focus-visible {

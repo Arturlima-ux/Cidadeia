@@ -1,5 +1,3 @@
-import { randomBytes } from "crypto";
-
 export type TipoAtendimento =
   | "protocolo"
   | "denuncia"
@@ -72,8 +70,13 @@ export function permiteAnonimo(tipo: TipoAtendimento): boolean {
 
 const ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I,O,0,1 — confundem quem anota à mão
 
+// Web Crypto (globalThis.crypto), e não o "crypto" do Node: este arquivo também
+// vai para o navegador (o formulário do cidadão usa os tipos daqui), e importar
+// o módulo do Node fazia o pacote levar um Node de mentira junto (stream,
+// buffer, events). O sorteio é o mesmo, criptográfico, nos dois lados.
 function sortear(tamanho: number): string {
-  const bytes = randomBytes(tamanho);
+  const bytes = new Uint8Array(tamanho);
+  globalThis.crypto.getRandomValues(bytes);
   let saida = "";
   for (let i = 0; i < tamanho; i++) {
     saida += ALFABETO[bytes[i] % ALFABETO.length];

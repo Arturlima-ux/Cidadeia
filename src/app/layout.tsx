@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import MovimentoLeve from "@/components/movimento/MovimentoLeve";
 import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
 // Geist, a família do site inteiro, servida do próprio projeto (licença OFL
@@ -77,7 +78,7 @@ export default function RootLayout({
         <JsonLdScript dados={ldOrganizacao()} />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
+        <MovimentoLeve>{children}</MovimentoLeve>
         {/* Medição de visitas sem cookie e sem identificar pessoa (Vercel
             Web Analytics). Só liga em produção; precisa estar ativado no
             painel da Vercel (aba Analytics) para começar a contar. */}

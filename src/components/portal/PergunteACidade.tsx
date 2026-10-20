@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useId, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { ROTULO_TIPO, SUGESTOES, buscar, type ItemDaCidade, type TipoItem } from "@/lib/pergunte-a-cidade";
 import { EVENTO_PERGUNTAR } from "@/lib/eventos-do-portal";
 
@@ -135,7 +135,7 @@ export default function PergunteACidade({ municipio, itens }: { municipio: strin
           <AnimatePresence mode="popLayout" initial={false}>
             {temPergunta &&
               resultados.map((r, i) => (
-                <motion.article
+                <m.article
                   key={r.id}
                   layout={!reduzir}
                   initial={reduzir ? false : { opacity: 0, y: 12 }}
@@ -170,7 +170,7 @@ export default function PergunteACidade({ municipio, itens }: { municipio: strin
                       </a>
                     )}
                   </div>
-                </motion.article>
+                </m.article>
               ))}
           </AnimatePresence>
 

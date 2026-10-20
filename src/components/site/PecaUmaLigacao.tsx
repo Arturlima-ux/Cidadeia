@@ -145,7 +145,7 @@ export default function PecaUmaLigacao({
                 value={cargo}
                 onChange={(e) => setCargo(e.target.value)}
                 required
-                className={`${lacuna("cargo")} appearance-none pr-6 cursor-pointer ${cargo ? "" : "text-muted/70"}`}
+                className={`${lacuna("cargo")} appearance-none pr-6 cursor-pointer ${cargo ? "" : "text-muted"}`}
                 style={{ background: "transparent", ...largura(cargo ? CARGO_NA_FRASE[cargo as (typeof CARGOS_LIGACAO)[number]] : "seu cargo", 1.75) }}
                 aria-invalid={erro?.campo === "cargo"}
               >

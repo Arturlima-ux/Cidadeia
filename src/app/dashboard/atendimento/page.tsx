@@ -5,7 +5,7 @@ import { atendimentos, pedidoEventos } from "@/db/schema";
 import { EVENTO_AREA_AUTOMATICA } from "@/lib/classificar-manifestacao";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { ehGestor } from "@/lib/sessao";
-import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
+import { OPCOES_DE_AREA } from "@/lib/areas-da-ouvidoria";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { garantirEnderecoPublico } from "@/lib/endereco-publico";
 import EstadoVazio from "@/components/EstadoVazio";

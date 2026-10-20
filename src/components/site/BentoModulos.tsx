@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { m as anima, AnimatePresence, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import type { PlanoAddon } from "@/lib/planos";
 
@@ -71,7 +71,7 @@ export default function BentoModulos({ modulos }: { modulos: ModuloBento[] }) {
               {/* O realce viaja entre as abas porque as duas compartilham o
                   mesmo layoutId. É o único motivo de a biblioteca estar aqui. */}
               {selecionado && (
-                <motion.span
+                <anima.span
                   layoutId="aba-ativa"
                   className="absolute inset-0 rounded-full"
                   style={{ background: `var(--serie-${m.serie})` }}
@@ -91,7 +91,7 @@ export default function BentoModulos({ modulos }: { modulos: ModuloBento[] }) {
       {/* ── O DETALHE DA ABA ABERTA ── */}
       <AnimatePresence mode="wait" initial={false}>
         {aberto && (
-          <motion.div
+          <anima.div
             key={aberto.chave}
             initial={semMovimento ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,7 +118,7 @@ export default function BentoModulos({ modulos }: { modulos: ModuloBento[] }) {
                 <span className="font-semibold">Roda sozinho:</span> {aberto.automacao}
               </p>
             )}
-          </motion.div>
+          </anima.div>
         )}
       </AnimatePresence>
 

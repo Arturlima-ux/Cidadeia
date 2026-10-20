@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 
 // ── A MESA DE INSTRUMENTOS ──
 //
@@ -182,7 +182,7 @@ function Protocolo() {
           </div>
           <div className="flex gap-[3px]" aria-hidden>
             {Array.from({ length: dias }, (_, i) => (
-              <motion.span
+              <m.span
                 key={i}
                 className="h-3 flex-1 rounded-[3px]"
                 initial={reduzir ? false : { opacity: 0, scaleY: 0.3 }}
@@ -227,14 +227,14 @@ function Ponteiro() {
           <path d={arco(ini, 48.6)} fill="none" stroke="var(--sutil)" strokeWidth="14" />
           <path d={arco(48.6, 51.3)} fill="none" stroke="var(--medio)" strokeOpacity="0.55" strokeWidth="14" />
           <path d={arco(51.3, fim)} fill="none" stroke="var(--urgente)" strokeOpacity="0.55" strokeWidth="14" />
-          <motion.g
+          <m.g
             initial={reduzir ? false : { rotate: ang(ini) }}
             animate={{ rotate: ang(valor) }}
             transition={{ duration: reduzir ? 0 : 1.4, ease }}
             style={{ transformOrigin: "100px 100px", transformBox: "view-box" }}
           >
             <line x1="100" y1="100" x2="100" y2="32" stroke="var(--foreground)" strokeWidth="3" strokeLinecap="round" />
-          </motion.g>
+          </m.g>
           <circle cx="100" cy="100" r="6" fill="var(--foreground)" />
         </svg>
         <p className="text-3xl font-semibold tabular-nums tracking-[-0.03em] -mt-1">47,8%</p>
@@ -273,7 +273,7 @@ function Rede() {
       <Rotulo>Exemplo: a rede trazida do CNES, cada unidade com a sua situação</Rotulo>
       <ul className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
         {unidades.map((u, i) => (
-          <motion.li
+          <m.li
             key={u.n}
             initial={reduzir ? false : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -283,7 +283,7 @@ function Rede() {
           >
             <span className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle" style={{ background: cor[u.s] }} />
             {u.n}
-          </motion.li>
+          </m.li>
         ))}
       </ul>
       <div className="mt-5 rounded-2xl border p-4" style={{ borderColor: "var(--urgente-borda)" }}>
@@ -307,7 +307,7 @@ function Calendario() {
       <Rotulo>Exemplo: o calendário da rede, contra os 200 dias da LDB</Rotulo>
       <div className="mt-4 grid gap-[3px]" style={{ gridTemplateColumns: "repeat(25, minmax(0, 1fr))" }} aria-hidden>
         {Array.from({ length: 200 }, (_, i) => (
-          <motion.span
+          <m.span
             key={i}
             className="aspect-square rounded-[2px]"
             initial={reduzir ? false : { opacity: 0 }}
@@ -348,7 +348,7 @@ function PrazoContraObra() {
         <span className="font-semibold tabular-nums">{pct}%</span>
       </div>
       <div className="h-4 rounded-full overflow-hidden" style={{ background: "var(--sutil)" }}>
-        <motion.div
+        <m.div
           className="h-full rounded-full"
           initial={reduzir ? false : { width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -396,7 +396,7 @@ function Dispensas({ limite }: { limite: number }) {
           {compras.map((c, i) => {
             acumulado += c.valor;
             return (
-              <motion.div
+              <m.div
                 key={c.quando}
                 className="h-full flex items-end justify-center pb-1 text-[11px] font-medium"
                 initial={reduzir ? false : { width: 0 }}
@@ -405,7 +405,7 @@ function Dispensas({ limite }: { limite: number }) {
                 style={{ background: acumulado / limite > 0.85 ? "var(--medio)" : "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 {c.quando}
-              </motion.div>
+              </m.div>
             );
           })}
         </div>
