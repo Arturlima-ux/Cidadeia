@@ -15,6 +15,27 @@ permissions:
   contents: write # o panorama semanal (src/dados/panorama-rgf.json) é publicado no main
   issues: write
 jobs:
+  # As obras federais por estado (ObrasGov): independente da auditoria do RGF.
+  panorama-obras:
+    if: ${{ !inputs.so_site }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Contar as obras federais por situação em cada estado
+        run: npx -y tsx@4 scripts/vigia/panorama-obras.ts src/dados/panorama-obras.json
+      - name: Publicar
+        run: |
+          if git diff --quiet src/dados/panorama-obras.json; then echo "Sem mudança."; exit 0; fi
+          git config user.name "vigia-cidadeia"
+          git config user.email "vigia-cidadeia@users.noreply.github.com"
+          git add src/dados/panorama-obras.json
+          git commit -m "Panorama semanal das obras federais ($(date -u +%F))"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 10; done
+
   auditoria:
     if: ${{ !inputs.so_site }}
     runs-on: ubuntu-latest

@@ -3,6 +3,8 @@ import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import { lerVigencia, type ContratoParaVigencia } from "@/lib/vigencia";
 import type { PadraoLicitacao } from "@/lib/padroes-licitacoes";
 import { contagemVelha, situacaoDoItem, NOME_CATEGORIA, type CategoriaEstoque } from "@/lib/estoque-saude";
+import { lerAditivo, BASE_LEGAL_ALTERACAO } from "@/lib/aditivos";
+import { ehObraOuEngenharia } from "@/lib/obra-prazo";
 import { DIAS_PARA_CONSELHO, diasSemAparecer, emAndamento, situacaoDaFrequencia } from "@/lib/busca-ativa";
 
 // ── A VIGIA DIÁRIA DOS MÓDULOS ──
@@ -95,6 +97,33 @@ export function achadosDosContratos(
       const { peso, ...resto } = d;
       void peso;
       return resto;
+    });
+}
+
+/**
+ * O contrato que cresceu além do limite do art. 125 SE a diferença for
+ * acréscimo (lib/aditivos.ts). Só estava na tela de Licitações; agora a vigia
+ * avisa. A leitura não acusa: reajuste entra na diferença e não conta.
+ */
+export function achadosDosAditivos(
+  lista: { id: string; numeroContrato: string | null; objeto: string; fornecedorNome: string | null; categoria: string | null; valorInicial: number | null; valorGlobal: number | null; numeroRetificacao: number | null }[]
+): DeteccaoAutomatica[] {
+  return lista
+    .map((c) => ({ c, l: lerAditivo(c) }))
+    .filter(({ l }) => l.situacao === "acima_se_for_acrescimo")
+    .sort((a, b) => b.l.peso - a.l.peso)
+    .slice(0, 8)
+    .map(({ c, l }) => {
+      const nome = c.numeroContrato ? `Contrato ${c.numeroContrato}` : "Contrato";
+      const objeto = c.objeto.length > 80 ? `${c.objeto.slice(0, 77)}…` : c.objeto;
+      return {
+        categoria: "financeiro" as const,
+        prioridade: "medio" as const,
+        secretaria: ehObraOuEngenharia(c.categoria) ? "obras" : "licitacoes",
+        titulo: `${nome} cresceu além de ${l.limite}% do valor inicial`,
+        descricao: `${objeto}${c.fornecedorNome ? ` (${c.fornecedorNome})` : ""}. ${l.texto} ${l.acao} (${BASE_LEGAL_ALTERACAO})`,
+        chave: `aditivo:${c.id}:${l.limite}`,
+      };
     });
 }
 

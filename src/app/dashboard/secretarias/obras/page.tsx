@@ -10,6 +10,7 @@ import BotaoExcluir from "@/components/BotaoExcluir";
 import { LIMITES_BRASIL } from "@/lib/coordenadas";
 
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
+import ObrasFederais from "@/components/ObrasFederais";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
 import Aviso from "@/components/Aviso";
@@ -159,6 +160,8 @@ export default async function ObrasPage() {
           )}
         />
       )}
+
+      <ObrasFederais prefeituraId={ctx.sessao.prefeituraId} uf={ctx.prefeitura.estado} />
 
       <div>
         <h2 className="font-semibold text-sm text-muted mb-3">

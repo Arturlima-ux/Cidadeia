@@ -18,7 +18,7 @@ describe("a data do banco", () => {
 describe("o que importar hoje", () => {
   it("só as fontes dos módulos contratados", () => {
     expect(fontesDevidas(["gestao"], {}, HOJE)).toEqual(["rgf", "rreo", "emendas-pix"]);
-    expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["cnes", "pncp-contratos", "obras"]);
+    expect(fontesDevidas(["saude", "obras"], {}, HOJE)).toEqual(["cnes", "pncp-contratos", "obras", "obrasgov"]);
     expect(fontesDevidas(["essencial"], {}, HOJE)).toEqual(["emendas-pix"]);
   });
 
