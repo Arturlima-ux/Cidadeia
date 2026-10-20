@@ -22,6 +22,8 @@ import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
 import { gerarDeteccoesDaRotina } from "@/lib/ia";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
+import { lerEmendas } from "@/lib/emendas-pix-servidor";
+import { achadosDasEmendas } from "@/lib/emendas-pix";
 import {
   EVENTO_REGRA_ENCERRADA,
   achadosDaBuscaAtiva,
@@ -60,6 +62,9 @@ export async function achadosDaPrefeitura(
         return [...achadosDosContratos(cts, hoje), ...achadosDosPadroes(detectarPadroes(lista, hoje, cts))];
       })()
     );
+  }
+  if (planos.includes("gestao")) {
+    fontes.push(lerEmendas(prefeituraId).then((r) => (r ? achadosDasEmendas(r.emendas, hoje) : [])));
   }
   if (planos.includes("saude")) {
     fontes.push(

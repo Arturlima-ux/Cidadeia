@@ -45,6 +45,8 @@ export type DadosDaSemana = {
   vencimentos: Vencimento[];
   resolvidos: Resolvido[];
   linkPainel: string;
+  /** A despesa com pessoal entre as cidades parecidas (lib/pares.ts), só com Gestão. */
+  comparacao?: string | null;
 };
 
 const NOME_AREA: Record<Area, string> = {
@@ -146,6 +148,11 @@ export function emailDaSegunda(
       .join("; ");
     partes.push(`<p>${frase}.</p>`);
     partes.push(`<ul>${d.resolvidos.slice(0, 6).map((r) => `<li style="color:#444">${esc(r.titulo)}</li>`).join("")}</ul>`);
+  }
+
+  if (dados.comparacao && !soArea && papel !== "secretario") {
+    partes.push(h2("Entre as cidades parecidas"));
+    partes.push(`<p>${esc(dados.comparacao)}</p>`);
   }
 
   partes.push(`<p style="margin-top:22px"><a href="${d.linkPainel}">Abrir o painel</a></p>`);

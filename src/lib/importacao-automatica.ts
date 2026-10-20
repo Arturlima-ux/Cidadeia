@@ -10,6 +10,7 @@ import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
 import { ID_PREFEITURA_DEMO } from "@/lib/demo/prefeitura-demo";
 import { exigirPlano } from "@/lib/exigir-plano";
 import { buscarCodigoIbge, competenciaDoBimestre } from "@/lib/siconfi";
+import { buscarEmendasPix, gravarEmendas } from "@/lib/emendas-pix-servidor";
 import {
   bimestresVencidos,
   importarContratosPncp,
@@ -32,6 +33,7 @@ import {
 //   Saúde       rede do CNES
 //   Licitações  processos e contratos do PNCP
 //   Obras       contratos do PNCP e as obras que saem deles
+//   Gestão      também as emendas Pix recebidas (Transferegov)
 //
 // Uma vez por semana cada fonte, de madrugada, antes da vigia das 6h40: a
 // vigia já acorda com o dado novo. Fonte que falhou tenta de novo no dia
@@ -41,7 +43,7 @@ import {
 // O que foi lançado à mão nunca é sobrescrito pela rotina (ver
 // importacoes.ts). Quem quiser o número do Tesouro por cima clica no botão.
 
-export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras";
+export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix";
 
 export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa: "ibge" | "cnpj" | null; dias: number }[] = [
   { fonte: "rgf", nome: "Despesa com pessoal (RGF, Tesouro)", planos: ["gestao"], precisa: "ibge", dias: 7 },
@@ -50,6 +52,7 @@ export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa
   { fonte: "pncp-processos", nome: "Processos de compra (PNCP)", planos: ["licitacoes"], precisa: "cnpj", dias: 7 },
   { fonte: "pncp-contratos", nome: "Contratos (PNCP)", planos: ["licitacoes", "obras"], precisa: "cnpj", dias: 7 },
   { fonte: "obras", nome: "Obras a partir dos contratos", planos: ["obras"], precisa: null, dias: 7 },
+  { fonte: "emendas-pix", nome: "Emendas Pix (Transferegov)", planos: ["gestao"], precisa: "cnpj", dias: 7 },
 ];
 
 export const EVENTO_OK = "importacao_ok";
@@ -160,6 +163,13 @@ async function rodarFonte(
       const r = await importarContratosPncp(p.id, cnpj!, hoje.getUTCFullYear());
       if (!r.ok) throw new Error(r.erro);
       return `PNCP: ${plural(r.importados, "contrato novo", "contratos novos")}${r.completa ? "" : " (varredura parcial)"}`;
+    }
+    case "emendas-pix": {
+      const emendas = await buscarEmendasPix(cnpj!, hoje);
+      await gravarEmendas(p.id, emendas);
+      return emendas.length
+        ? `Transferegov: ${plural(emendas.length, "emenda Pix", "emendas Pix")} nos últimos anos`
+        : "Transferegov: nenhuma emenda Pix para o CNPJ da prefeitura";
     }
     case "obras": {
       const r = await importarObrasDosContratos(p.id);

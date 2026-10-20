@@ -120,6 +120,7 @@ function montarGrupos(
       // frentes dela vistas de perto.
       { href: "/dashboard/prestacao", label: "Prestação de contas", icone: "visao-geral" },
       { href: "/dashboard/pessoal", label: "Despesa com pessoal", icone: "visao-geral" },
+      { href: "/dashboard/emendas", label: "Emendas Pix", icone: "visao-geral" },
       { href: "/dashboard/minimos", label: "Mínimos constitucionais", icone: "visao-geral" },
       { href: "/dashboard/eficacia", label: "Investimento × Resultado", icone: "visao-geral" },
       { href: "/dashboard/central", label: "Central Inteligente", icone: "central" },

@@ -25,6 +25,7 @@ import { podeOptarPorSemestral } from "@/lib/obrigacoes-fiscais";
 import FaixaExemplo from "@/components/FaixaExemplo";
 import { EXEMPLO_PESSOAL, MUNICIPIO_EXEMPLO } from "@/lib/exemplos-conformidade";
 import { buscarPeriodos } from "./actions";
+import { compararComPares } from "@/lib/pares";
 import FormularioPessoal from "./FormularioPessoal";
 import BotaoImportar from "./BotaoImportar";
 
@@ -79,6 +80,11 @@ export default async function PessoalPage() {
   const atual = periodos[0] ?? null;
   const avaliacao = atual ? avaliarDespesaPessoal(atual) : null;
   const reconducao = avaliarReconducao(periodos);
+  // Comparação só com número real: o exemplo não tem cidade para comparar.
+  const comparacao =
+    avaliacao && !semNenhumDado && prefeitura.codigoIbge
+      ? compararComPares(prefeitura.codigoIbge, avaliacao.percentual)
+      : null;
 
   // Município com menos de 50 mil habitantes publica o RGF semestralmente, e
   // cobrar dele o ritmo quadrimestral seria acusá-lo de atraso por seguir a
@@ -251,6 +257,47 @@ export default async function PessoalPage() {
             sozinho; se o Tesouro ainda não tiver o RGF deste período, informe a
             Receita Corrente Líquida e a despesa com pessoal dos doze meses no
             formulário abaixo.
+          </p>
+        </section>
+      )}
+
+      {/* ── Entre cidades parecidas (lib/pares.ts) ── */}
+      {comparacao && (
+        <section className="bg-card border border-border rounded-xl p-5 sm:p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-[-0.02em]">Entre cidades parecidas</h2>
+            <p className="text-sm text-muted mt-1 leading-relaxed">
+              As {comparacao.de} cidades {comparacao.recorte === "uf" ? `do ${comparacao.uf}` : "do Brasil"}{" "}
+              {comparacao.faixa}, pelo último RGF de cada uma no Tesouro
+              {comparacao.conferidoEm ? ` (conferido em ${comparacao.conferidoEm.split("-").reverse().join("/")})` : ""}.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div className="rounded-lg bg-sutil p-4">
+              <p className="text-2xl font-semibold tabular-nums">{comparacao.posicao}ª</p>
+              <p className="text-xs text-muted mt-1">menor despesa, de {comparacao.de}</p>
+            </div>
+            <div className="rounded-lg bg-sutil p-4">
+              <p className="text-2xl font-semibold tabular-nums">{pct(comparacao.mediana)}</p>
+              <p className="text-xs text-muted mt-1">a metade do grupo gasta até isto</p>
+            </div>
+            <div className="rounded-lg bg-sutil p-4">
+              <p className="text-2xl font-semibold tabular-nums">{comparacao.acimaDoPrudencial}</p>
+              <p className="text-xs text-muted mt-1">já passaram do limite prudencial</p>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed">
+            {comparacao.percentual <= comparacao.mediana
+              ? "A prefeitura gasta menos com pessoal que a maioria das cidades parecidas: a folga é real."
+              : "A maioria das cidades parecidas gasta menos com pessoal com a mesma realidade de receita: há onde mexer."}{" "}
+            Quem menos gasta no grupo:{" "}
+            {comparacao.melhores.map((m, i) => (
+              <span key={m.codigo}>
+                {i ? ", " : ""}
+                {m.nome} ({pct(m.percentual)})
+              </span>
+            ))}
+            .
           </p>
         </section>
       )}
