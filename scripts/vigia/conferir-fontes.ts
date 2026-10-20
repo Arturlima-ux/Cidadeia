@@ -18,7 +18,8 @@ async function olhar(nome: string, url: string) {
       console.log(`\n### ${nome}\nHTTP ${r.status}, não é JSON: ${texto.slice(0, 300)}`);
       return null;
     }
-    const lista = Array.isArray(corpo) ? corpo : (corpo as { data?: unknown[] }).data;
+    // Transferegov/ObrasGov: { data }; OData do FNDE: { value }.
+    const lista = Array.isArray(corpo) ? corpo : ((corpo as { data?: unknown[] }).data ?? (corpo as { value?: unknown[] }).value);
     const envelope = Array.isArray(corpo) ? "lista" : Object.keys(corpo as object).join(", ");
     console.log(`\n### ${nome}\nHTTP ${r.status} · envelope: ${envelope} · itens: ${Array.isArray(lista) ? lista.length : "?"}`);
     if (Array.isArray(lista) && lista[0]) console.log(JSON.stringify(lista[0], null, 1).slice(0, 2500));
@@ -29,7 +30,33 @@ async function olhar(nome: string, url: string) {
   }
 }
 
+// SIOPE (FNDE, Olinda/OData): parâmetros vão como alias @Nome na URL.
+const SIOPE = "https://www.fnde.gov.br/olinda-ide/servico/DADOS_ABERTOS_SIOPE/versao/v1/odata";
+const siope = (recurso: string, ano: number, peri: number, uf: string, extra = "") =>
+  `${SIOPE}/${recurso}(Ano_Consulta=@Ano_Consulta,Num_Peri=@Num_Peri,Sig_UF=@Sig_UF)?@Ano_Consulta=${ano}&@Num_Peri=${peri}&@Sig_UF='${uf}'&$format=json${extra}`;
+
+async function conferirSiope() {
+  const uf = process.env.UF_TESTE ?? "PI";
+  const filtro = `&$filter=${encodeURIComponent(`COD_MUNI eq ${IBGE}`)}`;
+  await olhar("SIOPE · documento do serviço", `${SIOPE}/?$format=json`);
+  const ano = new Date().getUTCFullYear();
+  // Qual o bimestre mais recente com dado? Do mais novo para trás.
+  for (const [a, p] of [[ano, 5], [ano, 4], [ano, 3], [ano, 2], [ano - 1, 6]] as const) {
+    const ind = (await olhar(`SIOPE · indicadores ${a}/${p}º bim (município)`, siope("Indicadores_Siope", a, p, uf, filtro))) as Record<string, unknown>[] | null;
+    if (ind?.length) {
+      console.log(`\nTodas as linhas (${ind.length}):`);
+      for (const l of ind) console.log(JSON.stringify(l));
+      const todos = (await olhar(`SIOPE · indicadores ${a}/${p}º bim (UF, amostra)`, siope("Indicadores_Siope", a, p, uf, "&$top=40"))) as Record<string, unknown>[] | null;
+      for (const l of todos ?? []) console.log(JSON.stringify(l));
+      await olhar(`SIOPE · dados gerais ${a}/${p}º bim`, siope("Dados_Gerais_Siope", a, p, uf, filtro));
+      await olhar(`SIOPE · remuneração ${a}/${p}º bim`, siope("Remuneracao_Siope", a, p, uf, `${filtro}&$top=3`));
+      break;
+    }
+  }
+}
+
 async function main() {
+  if (process.env.SO === "siope") return conferirSiope();
   const tg = "https://api-publica.transferegov.gestao.gov.br/especiais";
   let ben = (await olhar("Transferegov · beneficiário (só números)", `${tg}/beneficiarios-especiais?cnpj_beneficiario=${CNPJ}&pagina=1&tamanho_da_pagina=5`)) as { id_beneficiario?: number }[] | null;
   if (!ben?.length) {
