@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 // ── DO DADO À DECISÃO, EM TRÊS CARTÕES ──
 //
@@ -84,7 +84,7 @@ function VisualFontes() {
     >
       <ul className="flex flex-col gap-3">
         {FONTES.map((f, i) => (
-          <motion.li
+          <m.li
             key={f}
             initial={{ opacity: 0, x: -12 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -93,7 +93,7 @@ function VisualFontes() {
             className="rounded-full border border-border px-3 py-1.5 text-xs font-medium whitespace-nowrap"
           >
             {f}
-          </motion.li>
+          </m.li>
         ))}
       </ul>
 
@@ -141,7 +141,7 @@ function VisualConferencia() {
       <p className="text-xs text-muted">Conferência do exercício · Município de exemplo</p>
       <ul className="mt-3 flex flex-col">
         {CONFERENCIA.map((c, i) => (
-          <motion.li
+          <m.li
             key={c.item}
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ function VisualConferencia() {
             >
               {ROTULO_ESTADO[c.estado]}
             </span>
-          </motion.li>
+          </m.li>
         ))}
       </ul>
     </div>
@@ -171,7 +171,7 @@ function VisualConferencia() {
 function VisualAviso() {
   return (
     <div className="h-full min-h-[320px] rounded-[24px] border border-border p-5 flex flex-col justify-center gap-4 overflow-hidden" style={{ background: "var(--card)" }}>
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -28, scale: 0.98 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         viewport={{ once: true }}
@@ -190,9 +190,9 @@ function VisualAviso() {
           Vedado criar cargo e conceder aumento (LRF, art. 22). Ação sugerida:
           suspender novas nomeações até o próximo RGF.
         </p>
-      </motion.div>
+      </m.div>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -212,9 +212,9 @@ function VisualAviso() {
             Alerta urgente: despesa com pessoal acima do prudencial
           </span>
         </span>
-      </motion.div>
+      </m.div>
 
-      <motion.p
+      <m.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -222,7 +222,7 @@ function VisualAviso() {
         className="text-xs text-muted"
       >
         Município de exemplo. O RGF oficial só sai no fim do quadrimestre.
-      </motion.p>
+      </m.p>
     </div>
   );
 }

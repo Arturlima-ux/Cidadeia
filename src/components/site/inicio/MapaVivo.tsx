@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { animate, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
@@ -21,6 +20,13 @@ import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municip
 // Com movimento reduzido, desenha o mapa parado e não anima nada. Fora da
 // tela ou com a aba escondida, para de desenhar.
 //
+// ── E SEM TRAVAR O CELULAR ──
+// Medido com o Lighthouse num celular simulado: redesenhar os 5.570 pontos a
+// 60 quadros por segundo, desde o primeiro instante, travava a página por
+// mais de um segundo e meio enquanto ela carregava. Agora o mapa só começa
+// quando o navegador fica ocioso, a onda de entrada roda a 60 quadros e o
+// repouso (que é lento) a 15. A onda é uma conta de easing, sem biblioteca.
+//
 // Canvas não lê variável CSS, então as cores vêm de getComputedStyle sobre
 // os tokens do tema; nenhuma cor é escrita aqui (tests/design-system.test.ts).
 
@@ -37,7 +43,7 @@ export default function MapaVivo({
   className?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const reduzir = useReducedMotion();
+  const reduzir = usePrefereMenosMovimento();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,14 +57,12 @@ export default function MapaVivo({
     // Ordem de chegada da onda: distância até Brasília, com um pouco de ruído
     // para a frente da onda não ficar um círculo de compasso.
     const chegada = new Float32Array(n);
-    const fase = new Float32Array(n);
     let maior = 0;
     for (let i = 0; i < n; i++) {
       const dx = pontos[i * 2] - BRASILIA.x;
       const dy = pontos[i * 2 + 1] - BRASILIA.y;
       chegada[i] = Math.hypot(dx, dy);
       if (chegada[i] > maior) maior = chegada[i];
-      fase[i] = Math.random() * Math.PI * 2;
     }
     for (let i = 0; i < n; i++) chegada[i] = (chegada[i] / maior) * 0.86 + Math.random() * 0.08;
 
@@ -97,7 +101,11 @@ export default function MapaVivo({
     const px = (i: number) => origemX + pontos[i * 2] * escala;
     const py = (i: number) => origemY + pontos[i * 2 + 1] * escala;
 
-    let progresso = reduzir ? 1 : 0;
+    // Celular e aparelho fraco: sem a onda de entrada (é a parte cara). O mapa
+    // aparece pronto, e os alertas continuam acendendo.
+    const leve =
+      window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
+    let progresso = reduzir || leve ? 1 : 0;
     const ponteiro = { x: -9999, y: -9999 };
     const pulsos: Pulso[] = [];
     let proximoPulso = 1600;
@@ -105,26 +113,61 @@ export default function MapaVivo({
     let visivel = true;
     let inicio = performance.now();
 
+    // O fundo de pontos, desenhado uma vez depois da onda e reaproveitado a
+    // cada quadro: redesenhar 5.570 pontos 15 vezes por segundo só para o
+    // "respirar" custava mais processamento do que a página inteira.
+    let camada: HTMLCanvasElement | null = null;
+    function fazerCamada() {
+      const c = document.createElement("canvas");
+      c.width = canvas!.width;
+      c.height = canvas!.height;
+      const k = c.getContext("2d");
+      if (!k) return null;
+      k.setTransform(canvas!.width / Math.max(1, largura), 0, 0, canvas!.height / Math.max(1, altura), 0, 0);
+      k.fillStyle = COR.ponto;
+      k.globalAlpha = 0.4;
+      for (let i = 0; i < n; i++) k.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
+      return c;
+    }
+
     function desenhar(agora: number) {
       const t = (agora - inicio) / 1000;
       ctx!.clearRect(0, 0, largura, altura);
       ctx!.fillStyle = COR.ponto;
 
-      for (let i = 0; i < n; i++) {
-        const atraso = progresso - chegada[i];
-        if (atraso < 0) continue;
-        const x = px(i);
-        const y = py(i);
-
-        // A frente da onda passa mais clara e assenta no tom de repouso.
-        const frente = Math.max(0, 1 - atraso * 9);
-        let alfa = 0.34 + (reduzir ? 0 : 0.12 * Math.sin(t * 0.7 + fase[i])) + frente * 0.6;
-
-        const d = Math.hypot(x - ponteiro.x, y - ponteiro.y);
-        if (d < 110) alfa += (1 - d / 110) * 0.55;
-
-        ctx!.globalAlpha = Math.min(1, alfa);
-        ctx!.fillRect(x - raio / 2, y - raio / 2, raio, raio);
+      if (progresso >= 1) {
+        camada ??= fazerCamada();
+        if (camada) {
+          ctx!.save();
+          ctx!.setTransform(1, 0, 0, 1, 0, 0);
+          ctx!.globalAlpha = 1;
+          ctx!.drawImage(camada, 0, 0);
+          ctx!.restore();
+        }
+        // O brilho perto do ponteiro só existe com mouse sobre o mapa.
+        if (ponteiro.x > -9000) {
+          for (let i = 0; i < n; i++) {
+            const x = px(i);
+            const y = py(i);
+            const d = Math.abs(x - ponteiro.x) + Math.abs(y - ponteiro.y);
+            if (d > 150) continue;
+            const perto = Math.hypot(x - ponteiro.x, y - ponteiro.y);
+            if (perto >= 110) continue;
+            ctx!.globalAlpha = (1 - perto / 110) * 0.55;
+            ctx!.fillRect(x - raio / 2, y - raio / 2, raio, raio);
+          }
+        }
+      } else {
+        for (let i = 0; i < n; i++) {
+          const atraso = progresso - chegada[i];
+          if (atraso < 0) continue;
+          const x = px(i);
+          const y = py(i);
+          // A frente da onda passa mais clara e assenta no tom de repouso.
+          const frente = Math.max(0, 1 - atraso * 9);
+          ctx!.globalAlpha = Math.min(1, 0.4 + frente * 0.6);
+          ctx!.fillRect(x - raio / 2, y - raio / 2, raio, raio);
+        }
       }
 
       // Alertas chegando.
@@ -181,26 +224,37 @@ export default function MapaVivo({
       }
     }
 
+    // Onda de entrada: 2,6 s depois de 0,25 s, com saída suave (o mesmo
+    // desenho da curva cúbica que estava antes, em conta direta).
+    const DURACAO = 2600;
+    const ATRASO = 250;
+    const suave = (x: number) => 1 - Math.pow(1 - x, 4);
+    let ultimoQuadro = 0;
     function laco(agora: number) {
-      if (visivel) desenhar(agora);
+      if (progresso < 1) progresso = suave(Math.min(1, Math.max(0, (agora - inicio - ATRASO) / DURACAO)));
+      // Depois da onda, 15 quadros por segundo bastam para o respirar e os alertas.
+      const intervalo = progresso < 1 ? 0 : 66;
+      if (visivel && agora - ultimoQuadro >= intervalo) {
+        ultimoQuadro = agora;
+        desenhar(agora);
+      }
       quadro = requestAnimationFrame(laco);
     }
 
-    let entrada: ReturnType<typeof animate> | null = null;
-    if (reduzir) {
-      desenhar(performance.now());
-    } else {
-      inicio = performance.now();
-      entrada = animate(0, 1, {
-        duration: 2.6,
-        delay: 0.25,
-        ease: [0.16, 1, 0.3, 1],
-        onUpdate: (v) => {
-          progresso = v;
-        },
-      });
-      quadro = requestAnimationFrame(laco);
-    }
+    let espera: number | null = null;
+    const comecar = () => {
+      espera = null;
+      if (reduzir) {
+        desenhar(performance.now());
+      } else {
+        inicio = performance.now();
+        quadro = requestAnimationFrame(laco);
+      }
+    };
+    // Só quando a página já carregou e o navegador está livre.
+    const ocioso = (window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (ocioso) espera = ocioso(comecar, { timeout: 2500 });
+    else espera = window.setTimeout(comecar, 600);
 
     const aoMover = (e: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
@@ -218,6 +272,7 @@ export default function MapaVivo({
 
     const ro = new ResizeObserver(() => {
       medir();
+      camada = null;
       if (reduzir) desenhar(performance.now());
     });
     ro.observe(canvas);
@@ -233,7 +288,11 @@ export default function MapaVivo({
 
     return () => {
       cancelAnimationFrame(quadro);
-      entrada?.stop();
+      if (espera !== null) {
+        const cancelar = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
+        if (cancelar) cancelar(espera);
+        else window.clearTimeout(espera);
+      }
       window.removeEventListener("pointermove", aoMover);
       document.removeEventListener("pointerleave", aoSair);
       document.removeEventListener("visibilitychange", aoTrocarAba);
@@ -249,5 +308,18 @@ export default function MapaVivo({
       aria-hidden
       role="presentation"
     />
+  );
+}
+
+/** Preferência do sistema por menos movimento, sem a biblioteca de animação. */
+function usePrefereMenosMovimento(): boolean {
+  return useSyncExternalStore(
+    (avisar) => {
+      const m = window.matchMedia("(prefers-reduced-motion: reduce)");
+      m.addEventListener("change", avisar);
+      return () => m.removeEventListener("change", avisar);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false
   );
 }

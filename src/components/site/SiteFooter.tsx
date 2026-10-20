@@ -128,7 +128,7 @@ export default function SiteFooter() {
         {/* Ressalva obrigatória: a página cita limite de contratação pública,
             que é reajustado por decreto todo ano. Sem isto o site parece
             afirmar um valor eterno. */}
-        <p className="text-xs leading-relaxed text-white/45 mt-5 max-w-4xl">
+        <p className="text-xs leading-relaxed text-white/55 mt-5 max-w-4xl">
           O CidadeIA é ferramenta de apoio à gestão; as informações publicadas no
           portal de transparência são de responsabilidade do município. Os limites
           de contratação citados seguem a Lei 14.133/2021, atualizados pelo{" "}

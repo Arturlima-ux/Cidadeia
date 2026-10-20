@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } fro
 import { abrirAtendimento, avaliarAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
 import { NOTAS, rotuloDaNota, type Avaliacao, type Nota } from "@/lib/avaliacao-cidadao";
 import { TIPOS, permiteAnonimo, linkWhatsApp, type TipoAtendimento } from "@/lib/atendimento";
-import { OPCOES_DE_AREA } from "@/lib/ouvidoria-avisos";
+import { OPCOES_DE_AREA } from "@/lib/areas-da-ouvidoria";
 import { EVENTO_PERGUNTAR } from "@/lib/eventos-do-portal";
 
 const classeInput =

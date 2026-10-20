@@ -569,8 +569,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                 {listaLicitacoes.map((l, i) => {
                   const st = COMPRA[l.status] ?? COMPRA.planejamento;
                   return (
-                    <Surgir key={l.id} atraso={Math.min(i, 4) * 0.05}>
-                      <li className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
+                    <Surgir key={l.id} como="li" atraso={Math.min(i, 4) * 0.05} className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
                         <div className="min-w-0">
                           <p className="text-lg font-medium tracking-[-0.01em] break-words">{l.objeto}</p>
                           <p className="text-sm text-muted mt-1">
@@ -583,7 +582,6 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                           <span className="w-2 h-2 rounded-full" style={{ background: st.cor }} />
                           {st.rotulo}
                         </p>
-                      </li>
                     </Surgir>
                   );
                 })}
@@ -607,8 +605,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
             <Selo f={frescor.emendas} />
             <ul className="border-t border-border">
               {emendas.slice(0, 12).map((e, i) => (
-                <Surgir key={e.id} atraso={Math.min(i, 4) * 0.05}>
-                  <li className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
+                <Surgir key={e.id} como="li" atraso={Math.min(i, 4) * 0.05} className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
                     <div className="min-w-0">
                       <p className="text-lg font-medium tracking-[-0.01em] break-words">{e.objeto ?? (e.area ? `Emenda para ${e.area}` : "Objeto não informado")}</p>
                       <p className="text-sm text-muted mt-1">
@@ -623,7 +620,6 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                         {temRelatorioFinal(e) ? "Contas prestadas" : e.relatorios.length ? "Prestação de contas parcial" : "Prestação de contas pendente"}
                       </p>
                     </div>
-                  </li>
                 </Surgir>
               ))}
             </ul>
