@@ -38,6 +38,9 @@ jobs:
           git config user.email "vigia-cidadeia@users.noreply.github.com"
           git checkout --orphan conferencia-fontes
           git rm -rq --cached .
-          git add saida.txt
+          # O ramo só guarda o texto: sem isto a Vercel tenta publicá-lo como site,
+          # falha (não há app) e manda e-mail de deploy com erro a cada conferência.
+          echo '{ "git": { "deploymentEnabled": false } }' > vercel.json
+          git add saida.txt vercel.json
           git commit -qm "Conferência das fontes ($(date -u +%F' '%T))"
           git push -f origin conferencia-fontes
