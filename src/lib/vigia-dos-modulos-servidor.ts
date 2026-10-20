@@ -23,6 +23,9 @@ import { gerarDeteccoesDaRotina } from "@/lib/ia";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
 import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
+import { lerObrasFederais } from "@/lib/obras-federais-servidor";
+import { achadosDasObrasFederais } from "@/lib/obras-federais";
+import { ehObraOuEngenharia } from "@/lib/obra-prazo";
 import { radarDaPrefeitura } from "@/lib/radar-transparencia-servidor";
 import { achadosDoRadar } from "@/lib/radar-transparencia";
 import { achadosDasEmendas } from "@/lib/emendas-pix";
@@ -30,6 +33,7 @@ import {
   EVENTO_REGRA_ENCERRADA,
   achadosDaBuscaAtiva,
   achadosDoEstoque,
+  achadosDosAditivos,
   achadosDosContratos,
   achadosDosPadroes,
   chaveDoAchado,
@@ -61,8 +65,29 @@ export async function achadosDaPrefeitura(
           db.select().from(licitacoes).where(eq(licitacoes.prefeituraId, prefeituraId)),
           db.select().from(contratos).where(eq(contratos.prefeituraId, prefeituraId)),
         ]);
-        return [...achadosDosContratos(cts, hoje), ...achadosDosPadroes(detectarPadroes(lista, hoje, cts))];
+        return [...achadosDosContratos(cts, hoje), ...achadosDosPadroes(detectarPadroes(lista, hoje, cts)), ...achadosDosAditivos(cts)];
       })()
+    );
+  } else if (planos.includes("obras")) {
+    // Sem Licitações, a vigia de aditivos olha só os contratos de obra.
+    fontes.push(
+      db
+        .select()
+        .from(contratos)
+        .where(eq(contratos.prefeituraId, prefeituraId))
+        .then((cts) => achadosDosAditivos(cts.filter((c) => ehObraOuEngenharia(c.categoria))))
+    );
+  }
+  // Obras federais do ObrasGov (lib/obras-federais.ts): cada plano vê as da sua área.
+  if (planos.includes("obras") || planos.includes("saude") || planos.includes("educacao")) {
+    fontes.push(
+      lerObrasFederais(prefeituraId).then((r) =>
+        r
+          ? achadosDasObrasFederais(r.obras, hoje).filter(
+              (a) => planos.includes("obras") || (a.secretaria !== null && planos.includes(a.secretaria as "saude" | "educacao"))
+            )
+          : []
+      )
     );
   }
   if (planos.includes("essencial")) {

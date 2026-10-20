@@ -11,6 +11,7 @@ import { ID_PREFEITURA_DEMO } from "@/lib/demo/prefeitura-demo";
 import { exigirPlano } from "@/lib/exigir-plano";
 import { buscarCodigoIbge, competenciaDoBimestre } from "@/lib/siconfi";
 import { buscarEmendasPix, gravarEmendas } from "@/lib/emendas-pix-servidor";
+import { buscarObrasFederais, gravarObrasFederais } from "@/lib/obras-federais-servidor";
 import {
   bimestresVencidos,
   importarContratosPncp,
@@ -33,6 +34,9 @@ import {
 //   Saúde       rede do CNES
 //   Licitações  processos e contratos do PNCP
 //   Obras       contratos do PNCP e as obras que saem deles
+//   Obras,      as obras com dinheiro federal no município (ObrasGov)
+//   Saúde e
+//   Educação
 //   Gestão e    as emendas Pix recebidas (Transferegov): alerta no Gestão,
 //   Essencial   repasses publicados sozinhos no portal
 //
@@ -44,7 +48,7 @@ import {
 // O que foi lançado à mão nunca é sobrescrito pela rotina (ver
 // importacoes.ts). Quem quiser o número do Tesouro por cima clica no botão.
 
-export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix";
+export type Fonte = "rgf" | "rreo" | "cnes" | "pncp-processos" | "pncp-contratos" | "obras" | "emendas-pix" | "obrasgov";
 
 export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa: "ibge" | "cnpj" | null; dias: number }[] = [
   { fonte: "rgf", nome: "Despesa com pessoal (RGF, Tesouro)", planos: ["gestao"], precisa: "ibge", dias: 7 },
@@ -54,6 +58,7 @@ export const FONTES: { fonte: Fonte; nome: string; planos: PlanoAddon[]; precisa
   { fonte: "pncp-contratos", nome: "Contratos (PNCP)", planos: ["licitacoes", "obras"], precisa: "cnpj", dias: 7 },
   { fonte: "obras", nome: "Obras a partir dos contratos", planos: ["obras"], precisa: null, dias: 7 },
   { fonte: "emendas-pix", nome: "Emendas Pix (Transferegov)", planos: ["gestao", "essencial"], precisa: "cnpj", dias: 7 },
+  { fonte: "obrasgov", nome: "Obras federais no município (ObrasGov)", planos: ["obras", "saude", "educacao"], precisa: "ibge", dias: 7 },
 ];
 
 export const EVENTO_OK = "importacao_ok";
@@ -171,6 +176,11 @@ async function rodarFonte(
       return emendas.length
         ? `Transferegov: ${plural(emendas.length, "emenda Pix", "emendas Pix")} nos últimos anos`
         : "Transferegov: nenhuma emenda Pix para o CNPJ da prefeitura";
+    }
+    case "obrasgov": {
+      const obras = await buscarObrasFederais(ibge!);
+      await gravarObrasFederais(p.id, obras);
+      return obras.length ? `ObrasGov: ${plural(obras.length, "obra federal", "obras federais")} no município` : "ObrasGov: nenhuma obra federal cadastrada no município";
     }
     case "obras": {
       const r = await importarObrasDosContratos(p.id);
