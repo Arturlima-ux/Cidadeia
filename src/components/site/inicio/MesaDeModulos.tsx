@@ -18,7 +18,10 @@ import { m, useReducedMotion } from "motion/react";
 // do instrumento são de exemplo, e a tela diz isso.
 //
 // Movimento só quando a pessoa escolhe um módulo, e nenhum com movimento
-// reduzido.
+// reduzido. O ponto de partida (initial) é o mesmo para todos: o servidor
+// não sabe da preferência, e um `initial={false}` só no navegador fazia o
+// React descartar e refazer a página inteira na hidratação. Para quem pediu
+// menos movimento, a transição dura zero.
 
 export type ModuloDaMesa = {
   chave: "essencial" | "gestao" | "saude" | "educacao" | "obras" | "licitacoes";
@@ -185,9 +188,9 @@ function Protocolo() {
               <m.span
                 key={i}
                 className="h-3 flex-1 rounded-[3px]"
-                initial={reduzir ? false : { opacity: 0, scaleY: 0.3 }}
+                initial={{ opacity: 0, scaleY: 0.3 }}
                 animate={{ opacity: 1, scaleY: 1 }}
-                transition={{ delay: reduzir ? 0 : i * 0.025, duration: 0.3, ease }}
+                transition={reduzir ? { duration: 0 } : { delay: i * 0.025, duration: 0.3, ease }}
                 style={{
                   background: i < passados ? (i >= dias - 6 ? "var(--medio)" : "var(--brand)") : "var(--sutil)",
                 }}
@@ -228,9 +231,9 @@ function Ponteiro() {
           <path d={arco(48.6, 51.3)} fill="none" stroke="var(--medio)" strokeOpacity="0.55" strokeWidth="14" />
           <path d={arco(51.3, fim)} fill="none" stroke="var(--urgente)" strokeOpacity="0.55" strokeWidth="14" />
           <m.g
-            initial={reduzir ? false : { rotate: ang(ini) }}
+            initial={{ rotate: ang(ini) }}
             animate={{ rotate: ang(valor) }}
-            transition={{ duration: reduzir ? 0 : 1.4, ease }}
+            transition={reduzir ? { duration: 0 } : { duration: 1.4, ease }}
             style={{ transformOrigin: "100px 100px", transformBox: "view-box" }}
           >
             <line x1="100" y1="100" x2="100" y2="32" stroke="var(--foreground)" strokeWidth="3" strokeLinecap="round" />
@@ -275,9 +278,9 @@ function Rede() {
         {unidades.map((u, i) => (
           <m.li
             key={u.n}
-            initial={reduzir ? false : { opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: reduzir ? 0 : i * 0.04, duration: 0.35, ease }}
+            transition={reduzir ? { duration: 0 } : { delay: i * 0.04, duration: 0.35, ease }}
             className="rounded-xl border px-2.5 py-2 text-xs leading-tight"
             style={{ borderColor: u.s === 2 ? "var(--urgente-borda)" : "var(--border)", background: u.s === 2 ? "var(--urgente-tint)" : "transparent" }}
           >
@@ -310,9 +313,9 @@ function Calendario() {
           <m.span
             key={i}
             className="aspect-square rounded-[2px]"
-            initial={reduzir ? false : { opacity: 0 }}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: reduzir ? 0 : Math.min(i, dados) * 0.004, duration: 0.2 }}
+            transition={reduzir ? { duration: 0 } : { delay: Math.min(i, dados) * 0.004, duration: 0.2 }}
             style={{
               background: perdidos.has(i) ? "var(--urgente)" : i < dados ? "var(--brand)" : "var(--sutil)",
             }}
@@ -350,9 +353,9 @@ function PrazoContraObra() {
       <div className="h-4 rounded-full overflow-hidden" style={{ background: "var(--sutil)" }}>
         <m.div
           className="h-full rounded-full"
-          initial={reduzir ? false : { width: 0 }}
+          initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={{ duration: reduzir ? 0 : 1.1, delay: atraso, ease }}
+          transition={reduzir ? { duration: 0 } : { duration: 1.1, delay: atraso, ease }}
           style={{ background: cor }}
         />
       </div>
@@ -399,9 +402,9 @@ function Dispensas({ limite }: { limite: number }) {
               <m.div
                 key={c.quando}
                 className="h-full flex items-end justify-center pb-1 text-[11px] font-medium"
-                initial={reduzir ? false : { width: 0 }}
+                initial={{ width: 0 }}
                 animate={{ width: `${(c.valor / limite) * 100}%` }}
-                transition={{ duration: reduzir ? 0 : 0.5, delay: reduzir ? 0 : i * 0.18, ease }}
+                transition={reduzir ? { duration: 0 } : { duration: 0.5, delay: i * 0.18, ease }}
                 style={{ background: acumulado / limite > 0.85 ? "var(--medio)" : "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 {c.quando}

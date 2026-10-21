@@ -1,35 +1,13 @@
 import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import MenuMobile from "@/components/site/MenuMobile";
+import { MENU_DO_SITE } from "@/lib/menu-do-site";
 
-// ── CINCO ITENS, NA ORDEM EM QUE O PREFEITO PERGUNTA ──
-// Eram oito, e em tela de 1366px três deles quebravam em duas linhas — o
-// menu ficava serrilhado, e o cabeçalho inteiro somava 13 coisas clicáveis.
-// Saíram: "Conformidade" (é o assunto do herói logo abaixo — link para a
-// seção que já está na tela) e "Quem somos". Os dois continuam no rodapé.
-const LINKS = [
-  // ── POR QUE O RAIO-X OCUPA O PRIMEIRO LUGAR, E NÃO "SOLUÇÕES" ──
-  //
-  // Menu é ordem de conversa, não índice. Quem chega ao site não quer ver
-  // catálogo de módulo: quer saber o que está acontecendo na prefeitura
-  // dele. O Raio-X responde isso sem pedir nada além do nome do município.
-  //
-  // "Soluções" saiu do menu de propósito. A página continua existindo e
-  // continua sendo a melhor do site — mas agora se chega nela pelo fim do
-  // Raio-X, com o diagnóstico daquela cidade já lido, em vez de frio pelo
-  // topo. Quem já conhece o produto acha em "Como contratar" e no rodapé.
-  { href: "/raio-x", label: "Ver Raio-X do meu município" },
-  // A demonstração era o quarto botão de uma fileira de quatro, e a fileira
-  // inteira virava ruído: Cadastrar, Entrar, Ver demo, Receber proposta —
-  // com "Entrar" repetido na barra de cima. Ela é um destino, como as
-  // outras páginas; o lugar de um destino é a navegação.
-  { href: "/demo", label: "Demonstração" },
-  { href: "/como-contratar", label: "Como contratar" },
-  // O panorama é a prova de autoridade: o país inteiro conferido. O
-  // diagnóstico continua no rodapé e no fim do Raio-X.
-  { href: "/panorama", label: "Panorama" },
-  { href: "/faq", label: "FAQ" },
-];
+// ── O MENU ──
+// Os sete itens de site institucional (lib/menu-do-site.ts). O que era o
+// menu de vendas — Raio-X, Demonstração, Como contratar, Panorama, FAQ —
+// mora no submenu de Produtos.
+const LINKS = MENU_DO_SITE;
 
 /**
  * `sessaoAtiva` chega por propriedade, e não de `lerSessao()` aqui dentro.
@@ -81,12 +59,50 @@ export default function SiteHeader({
             <MarcaCompleta tamanho={30} />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-5 text-sm font-medium text-muted">
-            {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="whitespace-nowrap hover:text-foreground transition">
-                {l.label}
-              </Link>
-            ))}
+          {/* Sete itens mais "Entrar" e o botão só cabem em linha a partir de
+              1280px; abaixo disso, o menu do celular. */}
+          <nav aria-label="Principal" className="hidden xl:flex items-center gap-5 text-sm font-medium text-muted">
+            {LINKS.map((l) =>
+              l.filhos ? (
+                // Submenu sem JavaScript: abre ao passar o mouse e ao chegar
+                // pelo Tab (focus-within), e o item continua sendo um link.
+                <div key={l.href} className="relative group">
+                  <Link
+                    href={l.href}
+                    aria-haspopup="true"
+                    className="whitespace-nowrap hover:text-foreground transition inline-flex items-center gap-1 py-6"
+                  >
+                    {l.label}
+                    <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180">
+                      <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </Link>
+                  <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 transition absolute left-1/2 -translate-x-1/2 top-full pt-1 z-40">
+                    <div className="w-[560px] rounded-2xl border border-border shadow-elevated p-5 grid grid-cols-[1.4fr_1fr] gap-6" style={{ background: "var(--card)" }}>
+                      {l.filhos.map((g) => (
+                        <div key={g.titulo}>
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted mb-2">{g.titulo}</p>
+                          <ul className="grid gap-0.5">
+                            {g.links.map((f) => (
+                              <li key={f.href}>
+                                <Link href={f.href} className="block rounded-lg px-2.5 py-2 -mx-2.5 hover:bg-[color:var(--superficie)] transition">
+                                  <span className="block text-sm font-medium text-foreground">{f.label}</span>
+                                  {f.nota && <span className="block text-xs text-muted mt-0.5">{f.nota}</span>}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link key={l.href} href={l.href} className="whitespace-nowrap hover:text-foreground transition">
+                  {l.label}
+                </Link>
+              )
+            )}
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">

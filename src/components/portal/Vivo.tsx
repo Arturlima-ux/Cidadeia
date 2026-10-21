@@ -29,10 +29,10 @@ export function Surgir({
   return (
     <Elemento
       className={className}
-      initial={reduzir ? false : { opacity: 0, y: 28, filter: "blur(6px)" }}
+      initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.9, delay: atraso, ease: SAIDA }}
+      transition={reduzir ? { duration: 0 } : { duration: 0.9, delay: atraso, ease: SAIDA }}
     >
       {children}
     </Elemento>
@@ -69,10 +69,10 @@ export function Barra({ pct, cor, atraso = 0, altura = 12 }: { pct: number; cor:
       <m.div
         className="h-full rounded-full"
         style={{ background: cor, boxShadow: `0 0 18px -2px ${cor}` }}
-        initial={reduzir ? false : { width: "0%" }}
+        initial={{ width: "0%" }}
         whileInView={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
         viewport={{ once: true }}
-        transition={{ duration: 1.4, delay: atraso, ease: SAIDA }}
+        transition={reduzir ? { duration: 0 } : { duration: 1.4, delay: atraso, ease: SAIDA }}
       />
     </div>
   );
@@ -97,10 +97,10 @@ export function Anel({ pct, cor, tamanho = 76, atraso = 0, children }: { pct: nu
             strokeWidth={5}
             strokeLinecap="round"
             strokeDasharray={c}
-            initial={reduzir ? false : { strokeDashoffset: c }}
+            initial={{ strokeDashoffset: c }}
             whileInView={{ strokeDashoffset: alvo }}
             viewport={{ once: true }}
-            transition={{ duration: 1.6, delay: atraso, ease: SAIDA }}
+            transition={reduzir ? { duration: 0 } : { duration: 1.6, delay: atraso, ease: SAIDA }}
             style={{ filter: `drop-shadow(0 0 6px ${cor})` }}
           />
         )}

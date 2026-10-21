@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { ItemMenu } from "@/lib/menu-do-site";
 
 // ── A NAVEGAÇÃO NO CELULAR ──
 //
-// Abaixo de 1024px a barra de links simplesmente sumia: quem abria o site
+// Abaixo de 1280px (eram 1024px antes dos sete itens) a barra de links sumia: quem abria o site
 // no celular — e é assim que secretário e vereador abrem — via só a marca e
 // dois botões. Os itens do menu — hoje Raio-X, Demonstração, Como
 // contratar, Diagnóstico e FAQ — não existiam para essa pessoa. Aqui eles
 // voltam, atrás de um botão, na mesma ordem do desktop (a lista chega por
 // propriedade, de SiteHeader: uma fonte só para os dois).
 
-export type LinkMenu = { href: string; label: string };
-
-export default function MenuMobile({ links, sessao }: { links: LinkMenu[]; sessao: boolean }) {
+export default function MenuMobile({ links, sessao }: { links: ItemMenu[]; sessao: boolean }) {
   const [aberto, setAberto] = useState(false);
 
   // Fechar com Esc e travar a rolagem do fundo enquanto o painel está aberto.
@@ -31,7 +30,7 @@ export default function MenuMobile({ links, sessao }: { links: LinkMenu[]; sessa
   }, [aberto]);
 
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         onClick={() => setAberto((v) => !v)}
@@ -59,16 +58,48 @@ export default function MenuMobile({ links, sessao }: { links: LinkMenu[]; sessa
             style={{ background: "var(--background)" }}
           >
             <nav className="max-w-[1200px] mx-auto px-4 sm:px-8 py-4 flex flex-col">
-              {links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setAberto(false)}
-                  className="py-3 border-b border-border text-base font-medium hover:text-brand transition"
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {links.map((l) =>
+                l.filhos ? (
+                  // Produtos abre no lugar, com os módulos e o "conheça".
+                  <details key={l.href} className="group border-b border-border">
+                    <summary className="py-3 text-base font-medium flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                      {l.label}
+                      <svg width="12" height="12" viewBox="0 0 10 10" aria-hidden className="transition-transform group-open:rotate-180">
+                        <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </summary>
+                    <div className="pb-3 grid gap-4">
+                      {l.filhos.map((g) => (
+                        <div key={g.titulo}>
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-muted mb-1">{g.titulo}</p>
+                          {g.links.map((f) => (
+                            <Link
+                              key={f.href}
+                              href={f.href}
+                              onClick={() => setAberto(false)}
+                              className="block py-2 pl-3 text-sm hover:text-brand transition"
+                            >
+                              {f.label}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                      <Link href={l.href} onClick={() => setAberto(false)} className="pl-3 text-sm font-semibold text-brand-claro">
+                        Ver todos os produtos →
+                      </Link>
+                    </div>
+                  </details>
+                ) : (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setAberto(false)}
+                    className="py-3 border-b border-border text-base font-medium hover:text-brand transition"
+                  >
+                    {l.label}
+                  </Link>
+                )
+              )}
               <Link
                 href={sessao ? "/dashboard" : "/login"}
                 onClick={() => setAberto(false)}
