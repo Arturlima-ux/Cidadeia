@@ -52,10 +52,10 @@ export const CARGOS: Cargo[] = [
     rotulo: "Prefeito",
     publico: "Prefeitos e prefeitas",
     cargoLigacao: "Prefeito(a)",
-    titulo: "O RGF leva a sua assinatura. Saiba o que ele diz antes do Tribunal.",
+    titulo: "A prefeitura inteira na sua tela, e o RGF conferido antes de assinar.",
     lead:
-      "O CidadeIA lê o que a prefeitura já envia ao Tesouro Nacional e avisa antes de um limite da lei estourar, de um prazo vencer ou de um número não fechar. O senhor fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
-    chamada: "A despesa com pessoal, os prazos e os mínimos que pesam no seu CPF.",
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, alimentado sozinho pelas bases oficiais. E o que a lei fiscal exige, conferido todo dia: o senhor fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
+    chamada: "A prefeitura inteira numa tela, e as contas que pesam no seu CPF conferidas todo dia.",
     riscos: [
       {
         texto:
@@ -79,11 +79,12 @@ export const CARGOS: Cargo[] = [
       },
     ],
     faz: [
+      "Mostra a prefeitura inteira numa tela: despesa com pessoal, protocolos abertos, obras no prazo e o mapa da cidade com obras, escolas e unidades de saúde.",
       "Confere todo dia no Tesouro se cada RREO e RGF foi entregue e avisa o senhor por e-mail 15 dias antes do prazo e no dia em que atrasar.",
       "Mostra a despesa com pessoal na régua da LRF, com as vedações que valem em cada faixa e o cronograma de recondução quando passa do limite.",
       "Calcula quanto falta aplicar em saúde e educação para fechar o ano dentro dos mínimos, e quanto o ritmo mensal precisa subir.",
       "Avisa quando os números do RGF entregue não fecham, antes de o Tribunal de Contas apontar.",
-      "Reúne os alertas de todas as secretarias numa lista só, com relatório executivo em PDF para a reunião.",
+      "Toda segunda, o resumo da semana por e-mail, e o relatório executivo em PDF para a reunião ou a sessão da câmara.",
     ],
     modulos: ["gestao", "essencial"],
     objecoes: [
@@ -115,10 +116,10 @@ export const CARGOS: Cargo[] = [
     rotulo: "Finanças e contabilidade",
     publico: "Secretários de finanças e contadores",
     cargoLigacao: "Secretário(a) de Finanças / Fazenda",
-    titulo: "Nenhum relatório fiscal vence sem você saber.",
+    titulo: "Os números do município num lugar só, e nenhum relatório vencido.",
     lead:
-      "Quem responde pela administração financeira assina o RGF junto com o prefeito. O CidadeIA confere no Tesouro, todo dia, o que já consta entregue, no tipo comum ou simplificado, e avisa antes do prazo e no dia do atraso. A planilha de controle de prazos pode se aposentar.",
-    chamada: "Os prazos do RREO e do RGF e os números que precisam fechar.",
+      "Receita, despesa e saldo do município consolidados num painel, a despesa por função lida sozinha do RREO e a despesa com pessoal do RGF. E, como quem responde pelas finanças assina o RGF junto com o prefeito, o CidadeIA confere no Tesouro todo dia o que já consta entregue e avisa antes do prazo. A planilha pode se aposentar.",
+    chamada: "Receita, despesa e relatórios fiscais num lugar só, conferidos todo dia.",
     riscos: [
       {
         texto:

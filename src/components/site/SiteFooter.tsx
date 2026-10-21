@@ -69,8 +69,9 @@ export default function SiteFooter() {
           <div className="lg:col-span-1">
             <MarcaCompleta tamanho={26} cor="#5f9bf0" corAcento="#6ee7b0" corTexto="#ffffff" />
             <p className="text-sm mt-4 leading-relaxed max-w-xs">
-              Software de conformidade para prefeituras. Lê o que o município
-              envia ao Tesouro e avisa antes do Tribunal de Contas.
+              A gestão municipal inteira, num lugar só: atendimento ao cidadão,
+              secretarias, obras, saúde, educação e finanças, alimentados pelas
+              bases oficiais.
             </p>
             {/* Aqui havia "[RAZÃO SOCIAL]" e "CNPJ [XX.XXX.XXX/0001-XX]"
                 literalmente publicados. Num site que vende conformidade

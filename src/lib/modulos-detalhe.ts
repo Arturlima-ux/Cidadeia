@@ -59,16 +59,16 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     chave: "gestao",
     resumo: "A visão do prefeito sobre a prefeitura inteira, numa tela só.",
     capacidades: [
+      "Receita, despesa, investimento e saldo consolidados do município",
+      "Mapa único da cidade com obras, escolas e unidades de saúde, e a obra atrasada em destaque",
+      "Modo apresentação em tela cheia para o gabinete ou a sessão da câmara",
+      "Administração de usuários: cada secretário só enxerga a própria área",
+      "Relatório executivo em PDF, sem limite de geração",
       "Acompanhamento dos mínimos de 25% em educação e 15% em saúde, durante o exercício",
       "Calendário das obrigações fiscais do ano — RREO, gestão fiscal, SIOPS e SIOPE",
       "Vigia fiscal diária: confere no Tesouro se cada RREO e RGF foi entregue, e avisa por e-mail antes do prazo e no atraso",
       "Aviso quando os números do RGF entregue não fecham, antes de o Tribunal de Contas apontar",
-      "Mapa único da cidade com obras, escolas e unidades de saúde, e a obra atrasada em destaque",
-      "Modo apresentação em tela cheia para o gabinete ou a sessão da câmara",
-      "Receita, despesa, investimento e saldo consolidados do município",
-      "Alertas de todas as secretarias reunidos numa lista única",
-      "Relatório executivo em PDF, sem limite de geração",
-      "Administração de usuários: cada secretário só enxerga a própria área",
+      "O que pede decisão em todas as secretarias, reunido numa lista única",
     ],
     automacao:
       "Calcula quanto falta aplicar para fechar o ano dentro dos mínimos constitucionais, e quantas vezes o ritmo mensal precisa subir para chegar lá. Confere todo dia no Tesouro se o RREO e o RGF, comum ou simplificado, foram entregues, e avisa o prefeito por e-mail 15 dias antes do prazo e no dia em que atrasar; o alerta some sozinho quando a entrega aparece lá. Avisa quando a despesa com pessoal declarada no RGF não fecha com a receita. Aponta saldo negativo assim que surge.",
@@ -117,7 +117,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "obras",
-    resumo: "O prazo do contrato como régua, e a obra que passou dele sem acabar.",
+    resumo: "Todas as obras da prefeitura num lugar só: contrato, medição, mapa e as obras federais do município.",
     capacidades: [
       "Obras trazidas do contrato publicado no PNCP, com objeto, contratado, valor e prazo",
       "Fração do prazo do contrato já consumida, ao lado do progresso medido pela prefeitura",
@@ -133,7 +133,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "licitacoes",
-    resumo: "Os processos e os contratos vindos do portal nacional, e os prazos que ninguém pode perder.",
+    resumo: "As compras e os contratos do município num lugar só, vindos do portal nacional sem digitação.",
     capacidades: [
       "Processos e contratos trazidos do Portal Nacional de Contratações Públicas, sem digitação",
       "Conferência de quais processos constam lá — a divulgação é condição de eficácia do contrato",

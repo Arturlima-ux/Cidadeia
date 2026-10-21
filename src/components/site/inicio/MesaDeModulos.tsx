@@ -30,12 +30,12 @@ export type ModuloDaMesa = {
 };
 
 const PERGUNTA: Record<ModuloDaMesa["chave"], string> = {
-  essencial: "O cidadão foi respondido no prazo?",
-  gestao: "Quanto falta para o limite e para o próximo prazo?",
+  essencial: "Todo pedido do cidadão tem número e resposta?",
+  gestao: "Como está a prefeitura inteira hoje?",
   saude: "Qual unidade precisa de você hoje?",
   educacao: "Os 200 dias letivos vão fechar?",
-  obras: "A obra acompanha o prazo do contrato?",
-  licitacoes: "As dispensas do ano ainda cabem no limite?",
+  obras: "Cada obra está andando como deveria?",
+  licitacoes: "O que a prefeitura já comprou e contratou no ano?",
 };
 
 export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: ModuloDaMesa[]; limiteDispensa: number }) {

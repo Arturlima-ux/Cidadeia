@@ -11,7 +11,8 @@ export function animarNumero(
   let inicio: number | null = null;
   const passo = (agora: number) => {
     if (inicio === null) inicio = agora + (o.atraso ?? 0) * 1000;
-    const x = Math.min(1, Math.max(0, (agora - inicio) / (o.duracao * 1000)));
+    // Duração zero (movimento reduzido) vai direto ao fim: 0/0 daria NaN na tela.
+    const x = o.duracao <= 0 ? 1 : Math.min(1, Math.max(0, (agora - inicio) / (o.duracao * 1000)));
     o.aoMudar(de + (para - de) * suave(x));
     if (x < 1) quadro = requestAnimationFrame(passo);
   };

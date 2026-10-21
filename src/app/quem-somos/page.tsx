@@ -15,7 +15,7 @@ import { todosOsMunicipios, ANO_ESTIMATIVA_POPULACAO } from "@/lib/municipios";
 export const metadata = compartilhamento({
   titulo: "Quem somos",
   descricao:
-    "O CidadeIA nasceu para automatizar a prefeitura brasileira: o que é repetitivo vira sistema, e a equipe volta para o que só gente faz — decidir e atender o cidadão.",
+    "O CidadeIA nasceu para automatizar a prefeitura brasileira e reunir a gestão municipal inteira num lugar só: atendimento ao cidadão, secretarias, obras, saúde, educação e finanças.",
   caminho: "/quem-somos",
 });
 
@@ -96,7 +96,7 @@ export default async function QuemSomosPage() {
       quando: "2026",
       titulo: "Nascemos para automatizar a prefeitura",
       texto:
-        "O CidadeIA começa com uma decisão clara: tudo o que é repetitivo vira sistema. Ler o Tesouro, contar prazo, somar limite, avisar quem precisa resolver. Todo dia, sem ninguém precisar lembrar. Não para substituir quem trabalha na prefeitura, e sim para devolver a essa gente o tempo de decidir e de atender.",
+        "O CidadeIA começa com uma decisão clara: reunir a gestão da prefeitura num lugar só e transformar em sistema tudo o que é repetitivo. O protocolo do cidadão, o painel de cada secretaria, as unidades de saúde, as escolas, as obras, as compras e as contas do município, alimentados sozinhos pelas bases oficiais. Não para substituir quem trabalha na prefeitura, e sim para devolver a essa gente o tempo de decidir e de atender.",
     },
     {
       quando: "Outubro de 2026",
@@ -142,8 +142,9 @@ export default async function QuemSomosPage() {
           <div className="mt-7 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16">
             <div>
               <p className="text-lg text-muted leading-relaxed max-w-[58ch]">
-                O que é repetitivo vira sistema: ler o Tesouro, contar prazo, somar limite, avisar quem precisa. A equipe da
-                prefeitura volta para o que só gente faz, que é decidir e atender o cidadão.
+                Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num lugar só, alimentado sozinho
+                pelas bases oficiais. O que é repetitivo vira sistema, e a equipe volta para o que só gente faz: decidir e
+                atender o cidadão.
               </p>
               {/* Sem "Receber a proposta" aqui: quem abre "Quem somos" está
                   conhecendo a empresa, e a primeira ação da página é conhecer
@@ -168,8 +169,8 @@ export default async function QuemSomosPage() {
                 <dd className="order-1 text-3xl sm:text-4xl font-semibold tabular-nums tracking-[-0.04em]">{pctPequenas}%</dd>
               </div>
               <div className="flex flex-col">
-                <dt className="order-2 text-sm text-muted leading-snug">prefeituras já passaram do alerta da LRF</dt>
-                <dd className="order-1 text-3xl sm:text-4xl font-semibold tabular-nums tracking-[-0.04em]">{numeroBr(passaram)}</dd>
+                <dt className="order-2 text-sm text-muted leading-snug">áreas da prefeitura num sistema só</dt>
+                <dd className="order-1 text-3xl sm:text-4xl font-semibold tabular-nums tracking-[-0.04em]">6</dd>
               </div>
               <div className="flex flex-col">
                 <dt className="order-2 text-sm text-muted leading-snug">programas para instalar na prefeitura</dt>
@@ -276,7 +277,8 @@ export default async function QuemSomosPage() {
                   Missão
                 </p>
                 <p className="mt-3 text-2xl font-semibold tracking-[-0.025em] leading-snug">
-                  Automatizar o que é repetitivo na prefeitura, para que a equipe cuide de decidir e de atender o cidadão.
+                  Reunir a gestão municipal num lugar só e automatizar o que é repetitivo, para que a equipe cuide de decidir
+                  e de atender o cidadão.
                 </p>
               </div>
               <div className="rounded-[24px] border border-border p-7 sm:p-9" style={{ background: "var(--card)" }}>
@@ -284,7 +286,8 @@ export default async function QuemSomosPage() {
                   Visão
                 </p>
                 <p className="mt-3 text-2xl font-semibold tracking-[-0.025em] leading-snug">
-                  Que nenhuma prefeitura brasileira descubra pelo Tribunal de Contas o que o próprio dado já mostrava.
+                  Que toda prefeitura brasileira, de qualquer tamanho, tenha a gestão inteira na mão e o tempo da equipe
+                  voltado para a cidade.
                 </p>
               </div>
             </div>

@@ -21,18 +21,18 @@ const geist = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(URL_BASE),
   title: {
-    default: "CidadeIA — gestão municipal com dado público",
+    default: "CidadeIA — a gestão municipal inteira, num lugar só",
     template: "%s — CidadeIA",
   },
   description:
-    "Protocolo, ouvidoria, transparência e os painéis de cada secretaria, com a base legal de cada número e o dado que a prefeitura já publicou no Tesouro Nacional.",
+    "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, alimentado sozinho pelas bases oficiais: portal da transparência, protocolo, ouvidoria, painel de cada secretaria e as contas da LRF conferidas todo dia.",
   openGraph: {
     type: "website",
     siteName: NOME_DO_SITE,
     locale: "pt_BR",
-    title: "CidadeIA — gestão municipal com dado público",
+    title: "CidadeIA — a gestão municipal inteira, num lugar só",
     description:
-      "Protocolo, ouvidoria, transparência e os painéis de cada secretaria, com a base legal de cada número.",
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, alimentado sozinho pelas bases oficiais.",
   },
   twitter: { card: "summary_large_image" },
   // Search Console: a tag de verificação vem da Vercel (GOOGLE_SITE_VERIFICATION).
