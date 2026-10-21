@@ -76,8 +76,12 @@ export async function limitarUso(
     .limit(1);
 
   const agora = Date.now();
+  // ">=" e não ">": a janela tem a duração pedida, e no instante exato em que
+  // ela completa já acabou. Com ">", duas chamadas no mesmo milissegundo
+  // ficavam "dentro" de uma janela de zero minutos — o teste que confere isso
+  // falhava de vez em quando, conforme a velocidade do banco.
   const janelaExpirada =
-    !linha || agora - new Date(linha.janelaInicio).getTime() > janelaMinutos * 60000;
+    !linha || agora - new Date(linha.janelaInicio).getTime() >= janelaMinutos * 60000;
 
   if (janelaExpirada) {
     await db

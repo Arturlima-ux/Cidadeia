@@ -53,9 +53,12 @@ export default function ComoFunciona() {
   return (
     <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
       <h2 className="inicio-h2 max-w-[18ch]">Do dado público à decisão.</h2>
-      <ol className="mt-12 grid lg:grid-cols-3 gap-5">
+      {/* grid-cols-1 e min-w-0 não são enfeite: sem eles, a coluna única do
+          celular crescia até o conteúdo mais largo (os nomes das bases, que
+          não quebram linha), e os três cartões saíam 90 px para fora da tela. */}
+      <ol className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-5">
         {PASSOS.map((p, i) => (
-          <li key={p.titulo} className="flex flex-col">
+          <li key={p.titulo} className="flex flex-col min-w-0">
             <span className="block text-4xl font-light tabular-nums tracking-[-0.05em] text-brand-claro">{i + 1}</span>
             <h3 className="mt-3 text-xl font-semibold tracking-[-0.025em]">{p.titulo}</h3>
             <p className="mt-2 text-muted leading-relaxed max-w-[38ch]">{p.texto}</p>
