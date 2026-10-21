@@ -2,7 +2,9 @@ import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
-import BarrasPanorama from "@/components/site/BarrasPanorama";
+import BarraConversao from "@/components/site/BarraConversao";
+import FormularioRaioX from "@/app/raio-x/FormularioRaioX";
+import { registrarEvento } from "@/lib/registrar-evento";
 import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
 import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { CARGOS } from "@/lib/cargos";
@@ -26,6 +28,14 @@ export const metadata = compartilhamento({
 // (dados/panorama-rgf.json) e se atualizam sozinhos toda semana.
 //
 // O fundador não aparece por nome: decisão dele. A empresa fala por si.
+//
+// ── E A PÁGINA VENDE ──
+// Quem abre "Quem somos" está decidindo se confia. Então a história leva a
+// uma ação em cada ponto em que a confiança sobe: proposta e Raio-X já na
+// abertura, o Raio-X da própria cidade logo depois do capítulo em que o país
+// inteiro foi conferido, o que torna a contratação segura, as dúvidas que
+// travam a compra e, no fim, proposta ou ligação. A barra de proposta da home
+// volta quando a pessoa rola.
 
 const FONTES = [
   "Tesouro Nacional",
@@ -90,7 +100,50 @@ const VALORES = [
   },
 ];
 
-export default function QuemSomosPage() {
+const SEGURO = [
+  {
+    titulo: "Cabe na dispensa de licitação",
+    texto: "O processo vai pronto para o jurídico: termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço.",
+  },
+  {
+    titulo: "Mensal, por módulo, sem fidelidade",
+    texto: "A prefeitura contrata só o que precisa e encerra qualquer módulo com aviso de 30 dias.",
+  },
+  {
+    titulo: "Nada para instalar",
+    texto: "Funciona no navegador e não pede acesso ao sistema contábil: lê o dado público que o município já enviou.",
+  },
+  {
+    titulo: "Proposta em um dia útil",
+    texto: "Com o valor de cada módulo e o processo de contratação. Sem reunião obrigatória e sem apresentação de vendas.",
+  },
+];
+
+const DUVIDAS = [
+  {
+    pergunta: "Já temos contador e sistema de contabilidade.",
+    resposta:
+      "O CidadeIA não substitui nenhum dos dois. Ele confere o que o sistema contábil já enviou ao Tesouro: prazo, limite e coerência dos números, todo dia, sem depender de alguém lembrar.",
+  },
+  {
+    pergunta: "Uma empresa nova é segura para a prefeitura?",
+    resposta:
+      "Tudo o que o site promete pode ser conferido antes de contratar: o Raio-X da sua cidade, a demonstração completa e o panorama do país, sem cadastro. E o contrato é mensal, sem fidelidade.",
+  },
+  {
+    pergunta: "O alerta vai direto para o Tribunal de Contas?",
+    resposta:
+      "Não. O CidadeIA avisa a prefeitura, e só ela. Nada é publicado nem enviado a órgão de controle; a decisão continua com quem tem a competência.",
+  },
+  {
+    pergunta: "Não temos equipe de TI.",
+    resposta:
+      "Não precisa. Os dados entram sozinhos das bases oficiais, e cada secretário tem o próprio acesso, só à sua área.",
+  },
+];
+
+export default async function QuemSomosPage() {
+  await registrarEvento({ tipo: "visita", caminho: "/quem-somos" });
   const b = PANORAMA.brasil;
   const mes = mesDoPanorama();
   const passaram = passaramDoAlerta(b);
@@ -160,20 +213,42 @@ export default function QuemSomosPage() {
     <div className="tema-noite min-h-screen overflow-x-clip">
       <SiteHeader />
       <main id="conteudo">
-        {/* ═══ ABERTURA ═══ */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-24 pb-16">
+        {/* ═══ ABERTURA ═══
+            As ações ficam ao lado do texto, e não embaixo das fontes: num
+            notebook com zoom, embaixo era a segunda tela, e a primeira
+            terminava sem nenhum botão. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-10 sm:pt-14 pb-16">
           <Olho>Quem somos</Olho>
-          <h1 className="titulo-pagina mt-5 max-w-[22ch]">
+          <h1 className="titulo-pagina mt-4 max-w-[24ch]">
             Nascemos de uma pergunta: por que a prefeitura só descobre o problema quando o Tribunal aponta?
           </h1>
-          <div className="mt-10 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16">
-            <p className="text-lg text-muted leading-relaxed max-w-[60ch]">
-              O CidadeIA é uma empresa brasileira de tecnologia para a gestão municipal. Lemos o que cada prefeitura já
-              declara ao Tesouro Nacional e às bases oficiais e avisamos antes do limite, do prazo e do apontamento, com o
-              artigo de lei ao lado. Não substituímos a contabilidade nem a assessoria jurídica: somos o aviso que chega
-              antes.
-            </p>
-            <div className="lg:border-l border-border lg:pl-10">
+          <div className="mt-7 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16">
+            <div>
+              <p className="text-lg text-muted leading-relaxed max-w-[60ch]">
+                Somos uma empresa brasileira de tecnologia para a gestão municipal. Lemos o que cada prefeitura já declara
+                ao Tesouro Nacional e avisamos antes do limite, do prazo e do apontamento, com o artigo de lei ao lado.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
+                <Link
+                  href="/proposta"
+                  className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-7 py-3.5"
+                >
+                  Receber a proposta
+                </Link>
+                <a href="#raio-x" className="inicio-sublinhado text-muted">
+                  Ver o que o Tesouro mostra da minha cidade
+                </a>
+              </div>
+              <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+                {["Proposta em um dia útil", "Cabe na dispensa de licitação", "Mensal, sem fidelidade", "Nada para instalar"].map((t) => (
+                  <li key={t} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--info)" }} aria-hidden />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="lg:border-l border-border lg:pl-10 self-start">
               <p className="text-sm text-muted">Lemos direto de</p>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {FONTES.map((f) => (
@@ -227,8 +302,29 @@ export default function QuemSomosPage() {
           </div>
         </section>
 
+        {/* ═══ E A SUA CIDADE? ═══
+            O capítulo de outubro termina com o país inteiro conferido. A
+            pergunta seguinte é a do visitante, e a resposta sai aqui mesmo,
+            sem trocar de página: o Raio-X da cidade dele, com o pedido de
+            contato e as soluções que o próprio resultado sugere. */}
+        <section id="raio-x" className="scroll-mt-24 max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
+          <div className="grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 lg:gap-16 items-start">
+            <div>
+              <h2 className="inicio-h2 max-w-[14ch]">E a sua cidade?</h2>
+              <p className="text-muted mt-4 leading-relaxed max-w-[40ch]">
+                Veja agora o que a sua prefeitura já publicou no Tesouro: receita, aplicação em saúde, educação e obras,
+                e os relatórios que faltam. Sem cadastro, em alguns segundos.
+              </p>
+            </div>
+            <div className="min-w-0">
+              <FormularioRaioX />
+            </div>
+          </div>
+        </section>
+
         {/* ═══ EM NÚMEROS ═══ */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
+        <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
+         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <h2 className="inicio-h2 max-w-[18ch]">Em números.</h2>
           <p className="text-muted mt-4 max-w-[60ch] leading-relaxed">
             Nenhum número de vitrine: cada um vem do Tesouro Nacional e se confere no panorama, com data e fonte.
@@ -241,8 +337,67 @@ export default function QuemSomosPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-14">
-            <BarrasPanorama />
+          <Link href="/panorama" className="inicio-sublinhado inline-block mt-10 text-sm">
+            Ver o panorama completo, por estado
+          </Link>
+         </div>
+        </section>
+
+        {/* ═══ O QUE MUDA ═══ */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
+          <h2 className="inicio-h2 max-w-[20ch]">O que muda na prefeitura.</h2>
+          <div className="mt-10 rounded-[28px] border border-border overflow-hidden">
+            <div className="hidden md:grid grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,4fr)] text-sm text-muted" style={{ background: "var(--superficie)" }}>
+              <p className="px-6 py-4">Onde</p>
+              <p className="px-6 py-4">Sem aviso</p>
+              <p className="px-6 py-4" style={{ color: "var(--brand-claro)" }}>
+                Com o CidadeIA
+              </p>
+            </div>
+            {ANTES_E_DEPOIS.map((l) => (
+              <div
+                key={l.tema}
+                className="grid md:grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,4fr)] border-t border-border first:border-t-0 md:first:border-t"
+              >
+                <p className="px-6 pt-5 md:py-5 font-semibold tracking-[-0.01em]">{l.tema}</p>
+                <p className="px-6 pt-2 md:py-5 text-muted leading-relaxed">
+                  <span className="md:hidden text-xs uppercase tracking-wide block mb-1">Sem aviso</span>
+                  {l.sem}
+                </p>
+                <p className="px-6 pt-3 pb-5 md:py-5 leading-relaxed">
+                  <span className="md:hidden text-xs uppercase tracking-wide block mb-1" style={{ color: "var(--brand-claro)" }}>
+                    Com o CidadeIA
+                  </span>
+                  {l.com}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══ POR QUE É SEGURO COMEÇAR ═══ */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-16 sm:pb-24">
+          <div className="rounded-[28px] border border-border p-6 sm:p-10" style={{ background: "var(--card)" }}>
+            <h2 className="inicio-h2 max-w-[20ch]">Por que é seguro começar.</h2>
+            <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
+              {SEGURO.map((x) => (
+                <li key={x.titulo} className="border-t border-border pt-5">
+                  <p className="font-semibold tracking-[-0.01em]">{x.titulo}</p>
+                  <p className="text-sm text-muted leading-relaxed mt-2">{x.texto}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <Link
+                href="/proposta"
+                className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-7 py-3.5"
+              >
+                Receber a proposta
+              </Link>
+              <Link href="/kit" className="inicio-sublinhado text-muted">
+                Ver o kit de contratação
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -282,36 +437,20 @@ export default function QuemSomosPage() {
           </div>
         </section>
 
-        {/* ═══ O QUE MUDA ═══ */}
+        {/* ═══ DÚVIDAS QUE TRAVAM A COMPRA ═══ */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <h2 className="inicio-h2 max-w-[20ch]">O que muda na prefeitura.</h2>
-          <div className="mt-10 rounded-[28px] border border-border overflow-hidden">
-            <div className="hidden md:grid grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,4fr)] text-sm text-muted" style={{ background: "var(--superficie)" }}>
-              <p className="px-6 py-4">Onde</p>
-              <p className="px-6 py-4">Sem aviso</p>
-              <p className="px-6 py-4" style={{ color: "var(--brand-claro)" }}>
-                Com o CidadeIA
-              </p>
-            </div>
-            {ANTES_E_DEPOIS.map((l) => (
-              <div
-                key={l.tema}
-                className="grid md:grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,4fr)] border-t border-border first:border-t-0 md:first:border-t"
-              >
-                <p className="px-6 pt-5 md:py-5 font-semibold tracking-[-0.01em]">{l.tema}</p>
-                <p className="px-6 pt-2 md:py-5 text-muted leading-relaxed">
-                  <span className="md:hidden text-xs uppercase tracking-wide block mb-1">Sem aviso</span>
-                  {l.sem}
-                </p>
-                <p className="px-6 pt-3 pb-5 md:py-5 leading-relaxed">
-                  <span className="md:hidden text-xs uppercase tracking-wide block mb-1" style={{ color: "var(--brand-claro)" }}>
-                    Com o CidadeIA
-                  </span>
-                  {l.com}
-                </p>
+          <h2 className="inicio-h2 max-w-[18ch]">O que costumam perguntar.</h2>
+          <dl className="mt-10 grid md:grid-cols-2 gap-x-10 gap-y-8">
+            {DUVIDAS.map((d) => (
+              <div key={d.pergunta} className="border-t border-border pt-5">
+                <dt className="font-semibold tracking-[-0.01em]">{d.pergunta}</dt>
+                <dd className="text-muted leading-relaxed mt-2">{d.resposta}</dd>
               </div>
             ))}
-          </div>
+          </dl>
+          <Link href="/faq" className="inicio-sublinhado inline-block mt-10 text-sm">
+            Todas as perguntas frequentes
+          </Link>
         </section>
 
         {/* ═══ PARA QUEM ═══ */}
@@ -369,6 +508,7 @@ export default function QuemSomosPage() {
             </div>
           </div>
         </section>
+        <BarraConversao atalho={{ href: "#raio-x", rotulo: "Raio-X da minha cidade" }} />
       </main>
       <SiteFooter />
     </div>
