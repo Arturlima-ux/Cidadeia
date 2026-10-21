@@ -23,12 +23,12 @@ const PASSOS = [
     texto: "O que já é público entra sozinho. Não há nada para instalar na prefeitura.",
   },
   {
-    titulo: "O sistema confere",
-    texto: "Cada exigência é conferida contra a lei, e cada desvio sai com o artigo que ele fere.",
+    titulo: "Tudo entra organizado",
+    texto: "Cada secretaria recebe o seu dado arrumado, e cada exigência da lei é conferida com o artigo ao lado.",
   },
   {
-    titulo: "Quem decide é avisado",
-    texto: "O aviso chega antes do relatório oficial, no painel e por e-mail, com o que fazer.",
+    titulo: "Cada um trabalha na sua tela",
+    texto: "Prefeito, secretários e cidadão veem o que é seu, e o que pede decisão chega no painel e por e-mail.",
   },
 ];
 

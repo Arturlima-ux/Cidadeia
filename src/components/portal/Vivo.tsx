@@ -49,15 +49,20 @@ export function Contador({ valor, formato = "inteiro", duracao = 1.6, className 
   const ref = useRef<HTMLSpanElement>(null);
   const visto = useInView(ref, { once: true, margin: "-40px" });
   const reduzir = useReducedMotion();
-  const [atual, setAtual] = useState(reduzir ? valor : 0);
+  // Começa em zero no servidor e no navegador: a preferência de movimento só
+  // existe no navegador, e ler `reduzir` aqui fazia o servidor mostrar 0 e o
+  // navegador o número final — o React descartava e refazia a página. Para
+  // quem pediu menos movimento, a contagem tem duração zero e não espera o
+  // número entrar na tela.
+  const [atual, setAtual] = useState(0);
   useEffect(() => {
-    if (!visto || reduzir) return;
-    const c = animarNumero(0, valor, { duracao, aoMudar: setAtual });
+    if (!visto && !reduzir) return;
+    const c = animarNumero(0, valor, { duracao: reduzir ? 0 : duracao, aoMudar: setAtual });
     return () => c.parar();
   }, [visto, reduzir, valor, duracao]);
   return (
     <span ref={ref} className={`tabular-nums ${className}`} data-valor-final={formatar(valor, formato)}>
-      {formatar(reduzir ? valor : atual, formato)}
+      {formatar(atual, formato)}
     </span>
   );
 }

@@ -28,11 +28,11 @@ export const MENU_DO_SITE: ItemMenu[] = [
         titulo: "Módulos",
         links: [
           { href: "/modulos/essencial", label: "Essencial", nota: "Portal, protocolo e ouvidoria" },
-          { href: "/modulos/gestao", label: "Gestão", nota: "LRF, prazos e despesa com pessoal" },
-          { href: "/modulos/saude", label: "Saúde", nota: "Mínimo de 15%, unidades e dengue" },
-          { href: "/modulos/educacao", label: "Educação", nota: "Mínimo de 25%, FUNDEB e SIOPE" },
-          { href: "/modulos/obras", label: "Obras", nota: "Prazo, medição e obras federais" },
-          { href: "/modulos/licitacoes", label: "Licitações", nota: "Dispensas, contratos e PNCP" },
+          { href: "/modulos/gestao", label: "Gestão", nota: "Gabinete, finanças e mapa da cidade" },
+          { href: "/modulos/saude", label: "Saúde", nota: "Unidades, estoque e indicadores" },
+          { href: "/modulos/educacao", label: "Educação", nota: "Escolas, merenda e FUNDEB" },
+          { href: "/modulos/obras", label: "Obras", nota: "Contratos, medição e obras federais" },
+          { href: "/modulos/licitacoes", label: "Licitações", nota: "Compras e contratos do PNCP" },
         ],
       },
       {

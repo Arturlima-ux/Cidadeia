@@ -49,13 +49,13 @@ export const PLANOS_ADDON: { chave: PlanoAddon; nome: string; descricao: string 
   {
     chave: "obras",
     nome: "Obras",
-    descricao: "O prazo do contrato como régua, e a obra que passou dele sem acabar.",
+    descricao: "Todas as obras da prefeitura num lugar só: contrato, medição, mapa e as obras federais do município.",
   },
   {
     chave: "licitacoes",
     nome: "Licitações",
     descricao:
-      "Os processos e os contratos vindos do portal nacional, e os prazos que ninguém pode perder.",
+      "As compras e os contratos do município num lugar só, vindos do portal nacional sem digitação.",
   },
   {
     chave: "gestao",

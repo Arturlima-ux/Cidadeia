@@ -16,11 +16,11 @@ import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
-import ReguaBrasil from "@/components/site/inicio/ReguaBrasil";
 import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
+import NumLugarSo from "@/components/site/inicio/NumLugarSo";
 import HomeMorador from "./_morador/HomeMorador";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
@@ -34,8 +34,13 @@ import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta,
 
 // ── A PÁGINA EM SEIS PARTES ──
 //
-// Herói (o que é, para quem, e a régua da LRF) → de onde vem o dado → o país
-// conferido e as portas por cargo → os seis módulos → como funciona → o que dá para conferir → proposta e fecho.
+// Herói (a gestão municipal inteira, num lugar só) → de onde vem o dado → os
+// seis módulos → como funciona → o portal do cidadão → as contas do país
+// conferidas e as portas por cargo → vídeo → proposta e fecho.
+//
+// Até outubro de 2026 a página abria pela régua da LRF ("saiba o que o
+// Tribunal vai apontar"), e o site inteiro parecia um sistema de alerta
+// fiscal. O produto é a gestão inteira; a conformidade é uma parte dela.
 //
 // O redesenho de outubro cortou o texto pela metade. Saíram "Como a decisão
 // acontece", "Um módulo por dentro" e "Como sai do papel": as três seguem
@@ -165,19 +170,19 @@ export default async function LandingPage({
           </div>
 
           <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 pb-16 sm:pb-24">
-            <h1 className="inicio-titulo max-w-[13ch]">
-              <span className="linha"><span style={{ "--i": 0 } as React.CSSProperties}>Saiba o que o</span></span>
-              <span className="linha"><span style={{ "--i": 1 } as React.CSSProperties}>Tribunal de Contas</span></span>
-              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>vai apontar</span></span>
-              <span className="linha"><span style={{ "--i": 3 } as React.CSSProperties}>antes dele.</span></span>
+            <h1 className="inicio-titulo max-w-[14ch]">
+              <span className="linha"><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal</span></span>
+              <span className="linha"><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>
+              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
             </h1>
 
             <div className="mt-12 sm:mt-16 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
               <div className="inicio-aparece" style={{ "--d": "420ms" } as React.CSSProperties}>
                 <p className="inicio-lead text-muted max-w-[40ch]">
-                  <span className="text-foreground">Software de conformidade para prefeituras.</span>{" "}
-                  Ele lê o que o município já envia ao Tesouro e avisa antes de
-                  um limite da lei estourar.
+                  <span className="text-foreground">
+                    Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema,
+                  </span>{" "}
+                  alimentado sozinho pelas bases oficiais.
                 </p>
 
                 <div className="mt-9">
@@ -242,8 +247,9 @@ export default async function LandingPage({
                     <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
                   </Suspense>
                 ) : (
-                  // Sem cidade escolhida, o país de verdade, e não um exemplo.
-                  <ReguaBrasil />
+                  // Sem cidade escolhida, o produto: a prefeitura inteira num
+                  // sistema só. A régua do país foi para o panorama, abaixo.
+                  <NumLugarSo />
                 )}
               </div>
             </div>
@@ -327,70 +333,12 @@ export default async function LandingPage({
           </div>
         </section>
 
-        {/* ═══ O PAÍS CONFERIDO ═══
-            A prova de autoridade de uma empresa sem logo de cliente: o RGF
-            de todas as prefeituras lido toda semana (lib/panorama.ts). Só
-            agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
-            porta de cada uma das três pessoas que assinam o RGF. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
-            {/* O número grande já está no topo (ReguaBrasil); aqui, o que
-                cada faixa significa para quem está nela. */}
-            <h2 className="inicio-h2 max-w-[19ch]">Cada faixa da LRF tem uma consequência.</h2>
-            <p className="text-muted leading-relaxed max-w-[44ch]">
-              {(() => {
-                const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
-                return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
-              })()}
-              Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
-            </p>
-          </div>
-          <ul className="mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
-            {faixasDoPanorama(PANORAMA.brasil).map((f) => (
-              <li key={f.chave} className="border-t border-border pt-5">
-                <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
-                  {numeroBr(f.valor)}
-                </p>
-                <p className="mt-2 font-medium">{f.rotulo}</p>
-                <p className="text-sm text-muted leading-relaxed mt-1">{f.consequencia}</p>
-              </li>
-            ))}
-          </ul>
-          <Link href="/panorama" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
-            Ver o panorama por estado
-          </Link>
-
-          <div className="mt-20 border-t border-border pt-8">
-            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
-            <ul className="mt-5 grid md:grid-cols-3 gap-4">
-              {CARGOS.map((c) => (
-                <li key={c.slug}>
-                  <Link
-                    href={`/para/${c.slug}`}
-                    className="group block h-full rounded-2xl border border-border hover:border-brand p-6 transition"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <p className="text-lg font-semibold tracking-[-0.02em]">{c.rotulo}</p>
-                    <p className="text-sm text-muted leading-relaxed mt-2">{c.chamada}</p>
-                    <p className="text-sm mt-4" style={{ color: "var(--brand-claro)" }}>
-                      Ver o que está em jogo{" "}
-                      <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
         {/* ═══ MÓDULOS ═══
-            Cada módulo como o instrumento do que ele vigia, e não seis
-            cartões iguais. Ver MesaDeModulos.tsx. */}
+            Cada módulo como o instrumento da parte da prefeitura que ele
+            cuida, e não seis cartões iguais. Ver MesaDeModulos.tsx. */}
         <section id="solucoes" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
-            <h2 className="inicio-h2 max-w-[17ch]">
-              Cada módulo vigia uma coisa que costuma virar apontamento.
-            </h2>
+            <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
             <p className="text-muted leading-relaxed max-w-[42ch]">
               Escolha uma pergunta e veja o módulo trabalhando. Cada um funciona sozinho: a prefeitura contrata só os que usa,
               sem pacote fechado e sem cobrança por usuário.
@@ -467,6 +415,63 @@ export default async function LandingPage({
 
         </section>
 
+        {/* ═══ O PAÍS CONFERIDO ═══
+            A prova de autoridade de uma empresa sem logo de cliente: o RGF
+            de todas as prefeituras lido toda semana (lib/panorama.ts). Só
+            agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
+            porta de cada uma das três pessoas que assinam o RGF. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
+            {/* Desceu do topo: as contas públicas são uma parte do produto, e
+                não o produto inteiro. Aqui, a prova de que a parte fiscal é
+                séria: o país inteiro conferido toda semana. */}
+            <h2 className="inicio-h2 max-w-[19ch]">E as contas públicas, conferidas no país inteiro.</h2>
+            <p className="text-muted leading-relaxed max-w-[44ch]">
+              {(() => {
+                const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
+                return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
+              })()}
+              Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
+            </p>
+          </div>
+          <ul className="mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
+            {faixasDoPanorama(PANORAMA.brasil).map((f) => (
+              <li key={f.chave} className="border-t border-border pt-5">
+                <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
+                  {numeroBr(f.valor)}
+                </p>
+                <p className="mt-2 font-medium">{f.rotulo}</p>
+                <p className="text-sm text-muted leading-relaxed mt-1">{f.consequencia}</p>
+              </li>
+            ))}
+          </ul>
+          <Link href="/panorama" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
+            Ver o panorama por estado
+          </Link>
+
+          <div className="mt-20 border-t border-border pt-8">
+            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
+            <ul className="mt-5 grid md:grid-cols-3 gap-4">
+              {CARGOS.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/para/${c.slug}`}
+                    className="group block h-full rounded-2xl border border-border hover:border-brand p-6 transition"
+                    style={{ background: "var(--card)" }}
+                  >
+                    <p className="text-lg font-semibold tracking-[-0.02em]">{c.rotulo}</p>
+                    <p className="text-sm text-muted leading-relaxed mt-2">{c.chamada}</p>
+                    <p className="text-sm mt-4" style={{ color: "var(--brand-claro)" }}>
+                      Ver o que muda para você{" "}
+                      <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         {/* ═══ O VÍDEO ═══
             Trinta segundos, entre a prova e o pedido: o último empurrão, e o
             que o secretário manda para o prefeito. Ver VideoExplicativo.tsx.
@@ -484,7 +489,7 @@ export default async function LandingPage({
             src="/video/cidadeia-explicativo.mp4"
             srcWebm="/video/cidadeia-explicativo.webm"
             capa="/video/cidadeia-explicativo-capa.jpg"
-            titulo="O CidadeIA em 30 segundos: o aviso antes do limite da LRF, os seis módulos e a proposta em um dia útil."
+            titulo="O CidadeIA em 30 segundos: a gestão municipal num lugar só, os seis módulos e a proposta em um dia útil."
           />
         </section>
 
