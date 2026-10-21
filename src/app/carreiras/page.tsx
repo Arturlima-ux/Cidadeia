@@ -90,7 +90,7 @@ export default function CarreirasPage() {
               >
                 Enviar meu contato
               </Link>
-              <Link href="/por-que-cidadeia" className="inicio-sublinhado text-muted self-center">
+              <Link href="/quem-somos" className="inicio-sublinhado text-muted self-center">
                 Conhecer a empresa
               </Link>
             </div>
