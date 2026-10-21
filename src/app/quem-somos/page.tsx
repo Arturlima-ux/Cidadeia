@@ -186,8 +186,8 @@ export default async function QuemSomosPage() {
               <div className="lg:sticky lg:top-28 self-start">
                 <h2 className="inicio-h2 max-w-[14ch]">Nossa história.</h2>
                 <p className="text-muted mt-4 leading-relaxed max-w-[40ch]">
-                  Uma empresa nova, com um objetivo antigo de quem trabalha na prefeitura: parar de fazer à mão o que uma
-                  máquina faz melhor.
+                  Uma empresa nova, com um objetivo antigo de quem sempre esteve por dentro da prefeitura: parar de fazer à
+                  mão o que uma máquina faz melhor.
                 </p>
                 <p className="mt-6 text-sm text-muted">Lemos direto de</p>
                 <ul className="mt-3 flex flex-wrap gap-2 max-w-[360px]">
