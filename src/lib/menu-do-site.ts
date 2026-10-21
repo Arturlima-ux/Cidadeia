@@ -12,6 +12,8 @@
 export type ItemMenu = {
   href: string;
   label: string;
+  /** Rótulo para a faixa de 1024 a 1279px, onde os sete itens mal cabem. */
+  curto?: string;
   /** Submenu. O item principal continua clicável e leva à página dele. */
   filhos?: { titulo: string; links: { href: string; label: string; nota?: string }[] }[];
 };
@@ -49,5 +51,5 @@ export const MENU_DO_SITE: ItemMenu[] = [
   { href: "/governanca", label: "Governança" },
   { href: "/fale-conosco", label: "Fale conosco" },
   { href: "/carreiras", label: "Carreiras" },
-  { href: "/transparencia", label: "Portal da transparência" },
+  { href: "/transparencia", label: "Portal da transparência", curto: "Transparência" },
 ];

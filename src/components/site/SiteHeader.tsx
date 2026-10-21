@@ -54,14 +54,16 @@ export default function SiteHeader({
           inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
           90% de opacidade o desfoque quase não aparecia; pagava-se caro à toa. */}
       <div className="border-b border-border bg-background">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-6">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-4 xl:gap-6">
           <Link href="/" aria-label="CidadeIA — início">
             <MarcaCompleta tamanho={30} />
           </Link>
 
-          {/* Sete itens mais "Entrar" e o botão só cabem em linha a partir de
-              1280px; abaixo disso, o menu do celular. */}
-          <nav aria-label="Principal" className="hidden xl:flex items-center gap-5 text-sm font-medium text-muted">
+          {/* Em linha a partir de 1024px. Entre 1024 e 1279 (um notebook de
+              1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
+              letra de 13px e rótulo curto. Só com 1280px ou mais ele aparecia,
+              e no notebook com zoom a barra ficava vazia, só com o logo. */}
+          <nav aria-label="Principal" className="hidden lg:flex items-center gap-3 xl:gap-5 text-[13px] xl:text-sm font-medium text-muted">
             {LINKS.map((l) =>
               l.filhos ? (
                 // Submenu sem JavaScript: abre ao passar o mouse e ao chegar
@@ -99,13 +101,20 @@ export default function SiteHeader({
                 </div>
               ) : (
                 <Link key={l.href} href={l.href} className="whitespace-nowrap hover:text-foreground transition">
-                  {l.label}
+                  {l.curto ? (
+                    <>
+                      <span className="xl:hidden">{l.curto}</span>
+                      <span className="hidden xl:inline">{l.label}</span>
+                    </>
+                  ) : (
+                    l.label
+                  )}
                 </Link>
               )
             )}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-2 xl:gap-3 shrink-0">
             {/* Uma ação, e só uma, com peso: pedir a proposta. Entrar mora na
                 barra de cima; a demonstração, na navegação; e o cadastro
                 nasce do próprio pedido (/cadastro?proposta=…), não de um
