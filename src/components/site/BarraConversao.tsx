@@ -13,7 +13,12 @@ import { MarcaCompleta } from "@/components/site/MarcaQuadra";
  *
  * No topo em telas largas, no rodapé no celular — onde o polegar alcança.
  */
-export default function BarraConversao() {
+export default function BarraConversao({
+  atalho = { href: "#proposta", rotulo: "Montar proposta" },
+}: {
+  /** O link de texto antes do botão. Na home monta a proposta na própria página. */
+  atalho?: { href: string; rotulo: string };
+} = {}) {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
@@ -61,10 +66,10 @@ export default function BarraConversao() {
               empenho. Preço e kit continuam a um clique, como links. */}
           <div className="flex items-center gap-5">
             <Link
-              href="#proposta"
+              href={atalho.href}
               className="hidden lg:inline text-sm font-semibold text-muted hover:text-foreground transition"
             >
-              Montar proposta
+              {atalho.rotulo}
             </Link>
             <Link
               href="/kit"
