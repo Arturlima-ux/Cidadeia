@@ -48,7 +48,7 @@ const COLUNAS = [
   {
     titulo: "Institucional",
     links: [
-      { href: "/por-que-cidadeia", label: "Quem somos" },
+      { href: "/quem-somos", label: "Quem somos" },
       { href: "/noticias", label: "Notícias" },
       { href: "/governanca", label: "Governança" },
       { href: "/carreiras", label: "Carreiras" },

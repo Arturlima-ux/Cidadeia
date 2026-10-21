@@ -25,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/sobre`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/acessibilidade`, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${BASE}/por-que-cidadeia`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/quem-somos`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/noticias`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/governanca`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE}/fale-conosco`, changeFrequency: "yearly", priority: 0.5 },

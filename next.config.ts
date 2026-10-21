@@ -25,7 +25,11 @@ const nextConfig: NextConfig = {
   // "Preços" prometia número que ela não mostra. O endereço antigo pode
   // estar em e-mail, favorito ou resultado de busca — redireciona para
   // sempre, com o mesmo parâmetro (?demo=indisponivel).
-  redirects: async () => [{ source: "/precos", destination: "/solucoes", permanent: true }],
+  redirects: async () => [
+    { source: "/precos", destination: "/solucoes", permanent: true },
+    // "Por que CidadeIA" virou "Quem somos", com a história da empresa.
+    { source: "/por-que-cidadeia", destination: "/quem-somos", permanent: true },
+  ],
   // Headers de segurança
   headers: async () => {
     // CSP com 'unsafe-inline' em script/style: o app usa muito style inline

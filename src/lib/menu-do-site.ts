@@ -19,7 +19,7 @@ export type ItemMenu = {
 };
 
 export const MENU_DO_SITE: ItemMenu[] = [
-  { href: "/por-que-cidadeia", label: "Quem somos" },
+  { href: "/quem-somos", label: "Quem somos" },
   {
     href: "/solucoes",
     label: "Produtos",
