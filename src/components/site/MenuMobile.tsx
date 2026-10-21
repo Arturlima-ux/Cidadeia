@@ -6,7 +6,7 @@ import type { ItemMenu } from "@/lib/menu-do-site";
 
 // ── A NAVEGAÇÃO NO CELULAR ──
 //
-// Abaixo de 1280px (eram 1024px antes dos sete itens) a barra de links sumia: quem abria o site
+// Abaixo de 1024px a barra de links simplesmente sumia: quem abria o site
 // no celular — e é assim que secretário e vereador abrem — via só a marca e
 // dois botões. Os itens do menu — hoje Raio-X, Demonstração, Como
 // contratar, Diagnóstico e FAQ — não existiam para essa pessoa. Aqui eles
@@ -30,7 +30,7 @@ export default function MenuMobile({ links, sessao }: { links: ItemMenu[]; sessa
   }, [aberto]);
 
   return (
-    <div className="xl:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         onClick={() => setAberto((v) => !v)}
