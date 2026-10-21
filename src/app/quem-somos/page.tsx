@@ -3,7 +3,6 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
 import BarraConversao from "@/components/site/BarraConversao";
-import FormularioRaioX from "@/app/raio-x/FormularioRaioX";
 import QuemVoceE from "@/components/site/quem-somos/QuemVoceE";
 import TempoQueVolta from "@/components/site/quem-somos/TempoQueVolta";
 import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
@@ -26,7 +25,8 @@ export const metadata = compartilhamento({
 // serviços da prefeitura. O centro dela são as pessoas — a equipe pequena que
 // faz tudo à mão e o morador que espera do outro lado do balcão —, e a página
 // conversa com quem lê: escolha quem você é e veja o seu dia; faça a conta do
-// tempo da sua equipe; veja agora a sua cidade.
+// tempo da sua equipe. O Raio-X da cidade saiu daqui: é ferramenta de
+// produto, tem página própria, e no meio da história só interrompia.
 //
 // Tudo o que é número vem de dado público (IBGE, Tesouro) e se recalcula
 // sozinho. As cenas descrevem o que o sistema já faz hoje. O fundador não
@@ -127,7 +127,7 @@ export default async function QuemSomosPage() {
       titulo: "O próximo capítulo é o da sua prefeitura",
       texto:
         "Cada prefeitura que entra muda o produto: é assim que os avisos ficam mais certeiros e as telas, mais simples. A próxima pode ser a sua.",
-      link: { href: "#raio-x", rotulo: "Ver o que o Tesouro mostra da minha cidade" },
+      link: { href: "#quem-e-voce", rotulo: "Ver como fica o seu dia" },
     },
   ];
 
@@ -244,22 +244,6 @@ export default async function QuemSomosPage() {
           </div>
         </section>
 
-        {/* ═══ E A SUA CIDADE? ═══ */}
-        <section id="raio-x" className="scroll-mt-24 border-t border-border" style={{ background: "var(--superficie)" }}>
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24 grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 lg:gap-16 items-start">
-            <div>
-              <h2 className="inicio-h2 max-w-[14ch]">E a sua cidade?</h2>
-              <p className="text-muted mt-4 leading-relaxed max-w-[40ch]">
-                Veja agora o que a sua prefeitura já publicou no Tesouro: receita, saúde, educação, obras e os relatórios
-                que faltam. Sem cadastro, em alguns segundos.
-              </p>
-            </div>
-            <div className="min-w-0">
-              <FormularioRaioX />
-            </div>
-          </div>
-        </section>
-
         {/* ═══ POR QUE É SEGURO COMEÇAR ═══ */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <div className="rounded-[28px] border border-border p-6 sm:p-10" style={{ background: "var(--card)" }}>
@@ -361,7 +345,7 @@ export default async function QuemSomosPage() {
             </div>
           </div>
         </section>
-        <BarraConversao atalho={{ href: "#raio-x", rotulo: "Raio-X da minha cidade" }} />
+        <BarraConversao atalho={{ href: "#quem-e-voce", rotulo: "Ver como fica o seu dia" }} />
       </main>
       <SiteFooter />
     </div>
