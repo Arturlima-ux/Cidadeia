@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IlustracaoArea from "@/components/site/IlustracaoArea";
 
 // ── A GESTÃO MUNICIPAL INTEIRA, NUM LUGAR SÓ ──
 //
@@ -32,10 +33,10 @@ export default function NumLugarSo() {
           <li key={p.chave}>
             <Link
               href={`/modulos/${p.chave}`}
-              className="group flex items-start gap-3 rounded-2xl border border-border hover:border-brand px-4 py-3.5 transition h-full"
+              className="group flex items-center gap-3 rounded-2xl border border-border hover:border-brand px-3 py-3 transition h-full"
               style={{ background: "var(--superficie)" }}
             >
-              <span className="mt-1.5 w-2 h-2 rounded-full shrink-0" style={{ background: p.cor }} aria-hidden />
+              <IlustracaoArea area={p.chave} className="w-[88px] h-[55px] shrink-0 rounded-lg" />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold">
                   {p.nome}

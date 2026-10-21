@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IlustracaoArea from "@/components/site/IlustracaoArea";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -183,14 +184,15 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
         <section className="border-t border-border">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-12">
             <p className="text-xs text-muted mb-4 font-medium">Outros módulos</p>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {outros.map((o) => (
                 <Link
                   key={o.chave}
                   href={`/modulos/${o.chave}`}
-                  className="text-sm font-semibold rounded-full border border-border px-4 py-2 hover:border-brand hover:text-brand-claro transition"
+                  className="group rounded-2xl border border-border p-2 hover:border-brand transition"
                 >
-                  {o.nome} →
+                  <IlustracaoArea area={o.chave} className="w-full h-auto rounded-xl" />
+                  <span className="block text-sm font-semibold px-1.5 pt-2.5 pb-1 group-hover:text-brand-claro transition">{o.nome} →</span>
                 </Link>
               ))}
             </div>

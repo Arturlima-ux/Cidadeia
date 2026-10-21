@@ -1,4 +1,5 @@
 import Link from "next/link";
+import IlustracaoArea from "@/components/site/IlustracaoArea";
 import { registrarEvento } from "@/lib/registrar-evento";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -84,6 +85,7 @@ export default async function SolucoesPage({
                   className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6 lg:gap-16 py-10 border-b border-border"
                 >
                   <div>
+                    <IlustracaoArea area={p.chave} className="w-full max-w-[360px] h-auto rounded-2xl border border-border mb-6" />
                     <div className="flex items-center gap-3">
                       <Icone className="w-5 h-5 shrink-0" style={{ color: "var(--brand-claro)" }} />
                       <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em]">{p.nome}</h2>
