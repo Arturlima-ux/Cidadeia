@@ -127,7 +127,7 @@ export default async function QuemSomosPage() {
       titulo: "O próximo capítulo é o da sua prefeitura",
       texto:
         "Cada prefeitura que entra muda o produto: é assim que os avisos ficam mais certeiros e as telas, mais simples. A próxima pode ser a sua.",
-      link: { href: "/proposta", rotulo: "Receber a proposta" },
+      link: { href: "#raio-x", rotulo: "Ver o que o Tesouro mostra da minha cidade" },
     },
   ];
 
@@ -145,25 +145,21 @@ export default async function QuemSomosPage() {
                 O que é repetitivo vira sistema: ler o Tesouro, contar prazo, somar limite, avisar quem precisa. A equipe da
                 prefeitura volta para o que só gente faz, que é decidir e atender o cidadão.
               </p>
+              {/* Sem "Receber a proposta" aqui: quem abre "Quem somos" está
+                  conhecendo a empresa, e a primeira ação da página é conhecer
+                  mais — o próprio dia, depois a história. O pedido de proposta
+                  vem depois da calculadora, nas garantias e no fecho. */}
               <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
-                <Link
-                  href="/proposta"
+                <a
+                  href="#quem-e-voce"
                   className="elevar inline-block bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-7 py-3.5"
                 >
-                  Receber a proposta
-                </Link>
-                <a href="#quem-e-voce" className="inicio-sublinhado text-muted">
                   Ver como fica o seu dia
                 </a>
+                <a href="#historia" className="inicio-sublinhado text-muted">
+                  Conhecer a nossa história
+                </a>
               </div>
-              <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
-                {["Proposta em um dia útil", "Cabe na dispensa de licitação", "Mensal, sem fidelidade", "Nada para instalar"].map((t) => (
-                  <li key={t} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--info)" }} aria-hidden />
-                    {t}
-                  </li>
-                ))}
-              </ul>
             </div>
             {/* O retrato do país que justifica a empresa, em três números. */}
             <dl className="lg:border-l border-border lg:pl-10 self-start grid grid-cols-3 lg:grid-cols-1 gap-6">
@@ -184,7 +180,7 @@ export default async function QuemSomosPage() {
         </section>
 
         {/* ═══ NOSSA HISTÓRIA ═══ */}
-        <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
+        <section id="historia" className="scroll-mt-20 border-t border-border" style={{ background: "var(--superficie)" }}>
           <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
             <div className="grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 lg:gap-16">
               <div className="lg:sticky lg:top-28 self-start">
