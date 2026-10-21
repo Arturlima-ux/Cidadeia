@@ -26,6 +26,10 @@ const ASSUNTOS: Record<string, { assunto: string; nota: string }> = {
     assunto: "Dúvida sobre o kit de contratação",
     nota: "Dúvida do setor jurídico sobre termo de referência, minuta ou base legal.",
   },
+  carreiras: {
+    assunto: "Carreiras — quero trabalhar no CidadeIA",
+    nota: "Conte o que você faz e onde trabalhou com gestão pública, e mande o link do seu currículo ou LinkedIn.",
+  },
   suporte: {
     assunto: "Suporte — conta ou acesso",
     nota: "Descreva o que aconteceu e o CPF/CNPJ da conta, para agilizar.",

@@ -48,7 +48,11 @@ const COLUNAS = [
   {
     titulo: "Institucional",
     links: [
-      { href: "/por-que-cidadeia", label: "Por que CidadeIA" },
+      { href: "/por-que-cidadeia", label: "Quem somos" },
+      { href: "/noticias", label: "Notícias" },
+      { href: "/governanca", label: "Governança" },
+      { href: "/carreiras", label: "Carreiras" },
+      { href: "/fale-conosco", label: "Fale conosco" },
       { href: "/sobre", label: "Segurança e LGPD" },
       { href: "/acessibilidade", label: "Acessibilidade" },
       { href: "/faq", label: "Dúvidas frequentes" },
