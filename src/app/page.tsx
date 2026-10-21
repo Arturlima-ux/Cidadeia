@@ -486,10 +486,10 @@ export default async function LandingPage({
             </p>
           </div>
           <VideoExplicativo
-            src="/video/cidadeia-explicativo.mp4"
-            srcWebm="/video/cidadeia-explicativo.webm"
-            capa="/video/cidadeia-explicativo-capa.jpg"
-            titulo="O CidadeIA em 30 segundos: a gestão municipal num lugar só, os seis módulos e a proposta em um dia útil."
+            src="/video/cidadeia-gestao.mp4"
+            srcWebm="/video/cidadeia-gestao.webm"
+            capa="/video/cidadeia-gestao-capa.jpg"
+            titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
           />
         </section>
 
