@@ -1653,3 +1653,41 @@ select option {
 .campo-morador:focus-visible {
   border-color: var(--brand);
 }
+
+/* ── O LOGO QUE SE MONTA ── (components/site/LogoAnimado.tsx)
+   As três quadras se afastam e se encaixam de volta; o "ia" acende. Roda ao
+   tocar (classe .logo-tocado, reiniciada a cada toque) e ao passar o mouse. */
+.logo-anima rect {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logo-tocado .logo-q1,
+  .logo-anima:hover .logo-q1 { animation: logo-q1 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.25); }
+  .logo-tocado .logo-q2,
+  .logo-anima:hover .logo-q2 { animation: logo-q2 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.25) 0.05s; }
+  .logo-tocado .logo-q3,
+  .logo-anima:hover .logo-q3 { animation: logo-q3 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.25) 0.1s; }
+  .logo-ia.logo-tocado,
+  .logo-anima:hover .logo-ia { animation: logo-ia 0.8s ease-out 0.2s; display: inline-block; }
+}
+@keyframes logo-q1 {
+  0% { transform: none; }
+  35% { transform: translate(0, -22%) scale(0.92); }
+  100% { transform: none; }
+}
+@keyframes logo-q2 {
+  0% { transform: none; }
+  35% { transform: translate(-22%, 0) scale(0.92); }
+  100% { transform: none; }
+}
+@keyframes logo-q3 {
+  0% { transform: none; }
+  35% { transform: translate(14%, 30%) rotate(-8deg) scale(0.92); }
+  100% { transform: none; }
+}
+@keyframes logo-ia {
+  0% { transform: none; filter: none; }
+  40% { transform: translateY(-12%) scale(1.12); filter: brightness(1.5); }
+  100% { transform: none; filter: none; }
+}

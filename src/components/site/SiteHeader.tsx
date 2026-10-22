@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { MarcaCompleta } from "@/components/site/MarcaQuadra";
-import MenuMobile from "@/components/site/MenuMobile";
+import LogoAnimado from "@/components/site/LogoAnimado";
 import { MENU_DO_SITE } from "@/lib/menu-do-site";
 
 // ── O MENU ──
@@ -54,16 +53,37 @@ export default function SiteHeader({
           inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
           90% de opacidade o desfoque quase não aparecia; pagava-se caro à toa. */}
       <div className="border-b border-border bg-background">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-4 xl:gap-6">
-          <Link href="/" aria-label="CidadeIA — início">
-            <MarcaCompleta tamanho={30} />
-          </Link>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-3 sm:gap-4 xl:gap-6">
+          <LogoAnimado tamanho={30} />
+
+          {/* ── O MENU NA MESMA LINHA, NO CELULAR ──
+              Abaixo de 1024px os sete itens não cabem em fila, e o ícone de
+              menu escondia todos: a barra parecia vazia. Agora eles ficam na
+              mesma linha, como no computador, entre o logo e o botão, e se
+              arrastam para o lado. As pontas esmaecem para mostrar que tem mais. */}
+          <div className="lg:hidden relative flex-1 min-w-0 self-stretch flex items-center">
+            <nav
+              aria-label="Principal"
+              className="rolagem-discreta overflow-x-auto w-full"
+              style={{ maskImage: "linear-gradient(to right, transparent, black 10px, black calc(100% - 28px), transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10px, black calc(100% - 28px), transparent)" }}
+            >
+              <ul className="flex items-center w-max pr-6">
+                {[...LINKS, ...(sessao ? [] : [{ href: "/login", label: "Entrar", curto: undefined }])].map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="block whitespace-nowrap px-2.5 py-2 text-[13px] sm:text-sm font-medium text-muted hover:text-foreground active:text-foreground transition">
+                      {l.curto ?? l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
 
           {/* Em linha a partir de 1024px. Entre 1024 e 1279 (um notebook de
               1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
               letra de 13px e rótulo curto. Só com 1280px ou mais ele aparecia,
               e no notebook com zoom a barra ficava vazia, só com o logo. */}
-          <nav aria-label="Principal" className="hidden lg:flex items-center gap-3 xl:gap-5 text-[13px] xl:text-sm font-medium text-muted">
+          <nav aria-label="Principal no computador" className="hidden lg:flex items-center gap-3 xl:gap-5 text-[13px] xl:text-sm font-medium text-muted">
             {LINKS.map((l) =>
               l.filhos ? (
                 // Submenu sem JavaScript: abre ao passar o mouse e ao chegar
@@ -125,7 +145,7 @@ export default function SiteHeader({
             {!sessao && (
               <Link
                 href="/login"
-                className="hidden sm:inline text-sm font-medium text-muted hover:text-foreground transition px-2"
+                className="hidden lg:inline text-sm font-medium text-muted hover:text-foreground transition px-2"
               >
                 Entrar
               </Link>
@@ -138,10 +158,11 @@ export default function SiteHeader({
             ) : sessao ? (
               <Link
                 href="/dashboard"
-                className="text-sm font-semibold rounded-full px-5 py-2.5 transition"
+                className="whitespace-nowrap text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
-                Ir para o painel
+                <span className="sm:hidden">Painel</span>
+                <span className="hidden sm:inline">Ir para o painel</span>
               </Link>
             ) : (
               /* Pílula, não retângulo: é a forma dos botões em todas as
@@ -149,13 +170,13 @@ export default function SiteHeader({
                  cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="text-sm font-semibold rounded-full px-5 py-2.5 transition"
+                className="whitespace-nowrap text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
-                Receber proposta
+                <span className="sm:hidden">Proposta</span>
+                <span className="hidden sm:inline">Receber proposta</span>
               </Link>
             )}
-            <MenuMobile links={LINKS} sessao={sessao} />
           </div>
         </div>
       </div>
