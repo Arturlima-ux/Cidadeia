@@ -59,3 +59,6 @@ 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
 # Playwright
 /test-results/
 /playwright-report/
+.playwright-mcp/
+.taste-skill/
+.impeccable/

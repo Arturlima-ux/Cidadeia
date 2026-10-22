@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Skills de design de terceiros (Impeccable, Taste, Emil Kowalski): código
+    // deles, com as licenças deles, mantido como veio.
+    ".claude/**",
   ]),
 ]);
 

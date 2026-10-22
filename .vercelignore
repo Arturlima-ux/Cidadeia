@@ -1,0 +1,4 @@
+# Skills de design e o Playwright MCP só servem a quem desenvolve.
+.claude/
+.mcp.json
+scripts/playwright-mcp.mjs
