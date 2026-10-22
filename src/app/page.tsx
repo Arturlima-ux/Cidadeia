@@ -169,7 +169,7 @@ export default async function LandingPage({
             <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
           </div>
 
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-10 sm:pt-28 lg:pt-20 pb-16 sm:pb-24">
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-16 sm:pb-24">
             {/* Duas linhas a partir de 1024px ("…inteira," / "num lugar só."),
                 três no celular. Em duas, o título baixa e a busca cabe inteira
                 num notebook de 1366×768 (avaliação Impeccable, outubro de 2026).
