@@ -17,6 +17,8 @@ import Acessibilidade from "@/components/portal/Acessibilidade";
 import type { LugarPerto, Ponto } from "@/lib/perto-de-voce";
 import { definicaoDe, descreverFrescor, type Conjunto, type Frescor } from "@/lib/dados-abertos";
 import { montarIndice, type DadosDoIndice } from "@/lib/pergunte-a-cidade";
+import ObrasParadas from "@/components/portal/ObrasParadas";
+import type { ObraParadaPublica } from "@/lib/obra-parada-publica";
 
 
 // ── O PORTAL DA CIDADE ──
@@ -182,6 +184,8 @@ export type DadosPortal = {
   conjuntos?: { chave: Conjunto; registros: number }[];
   /** Emendas Pix recebidas, lidas no Transferegov (lib/emendas-pix.ts). */
   emendas?: Emenda[];
+  /** Avisos de obra paralisada, montados sozinhos (lib/obra-parada-publica.ts). */
+  obrasParadas?: ObraParadaPublica[];
   /** Cidade fictícia de /transparencia/exemplo: faixa de aviso e sem formulário de verdade. */
   exemplo?: boolean;
 };
@@ -211,7 +215,7 @@ function Selo({ f }: { f: Frescor | undefined }) {
   );
 }
 
-export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, frescor = {}, conjuntos = [], emendas = [], exemplo = false }: DadosPortal) {
+export default function PortalCidade({ portal, slug, snapshot, listaObras, listaLicitacoes, listaPublicacoes, voz, unidades = [], escolas = [], pontoSimulado = null, frescor = {}, conjuntos = [], emendas = [], obrasParadas = [], exemplo = false }: DadosPortal) {
   const fuso = fusoDoEstado(portal.estado);
   const destaque = portal.codigoIbge ? indiceNoMapa(portal.codigoIbge) : null;
 
@@ -517,7 +521,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                   "As obras da cidade aparecem aqui."
                 )
               }
-              texto={listaObras.length > 0 ? "Cada obra com o quanto já foi feito, onde fica e quanto custa." : "Nenhuma obra publicada ainda."}
+              texto={listaObras.length > 0 ? "Cada obra com o quanto já foi feito, onde fica e quanto custa." : obrasParadas.length > 0 ? "As obras com dinheiro federal entram sozinhas, direto do ObrasGov." : "Nenhuma obra publicada ainda."}
             />
             <Selo f={frescor.obras} />
             {listaObras.length > 0 && (
@@ -548,6 +552,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                 })}
               </div>
             )}
+            <ObrasParadas obras={obrasParadas} slug={slug} />
           </section>
         )}
 

@@ -11,6 +11,7 @@ import BotaoExcluir from "@/components/BotaoExcluir";
 
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import ObrasFederais from "@/components/ObrasFederais";
+import ObrasParadasNoPortal from "@/components/ObrasParadasNoPortal";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import EstadoVazio from "@/components/EstadoVazio";
 import Aviso from "@/components/Aviso";
@@ -174,6 +175,8 @@ export default async function ObrasPage() {
           )}
         />
       )}
+
+      <ObrasParadasNoPortal prefeituraId={ctx.sessao.prefeituraId} obras={listaObras} decisoes={decisoes} />
 
       <ObrasFederais prefeituraId={ctx.sessao.prefeituraId} uf={ctx.prefeitura.estado} />
 
