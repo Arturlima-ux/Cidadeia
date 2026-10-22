@@ -23,9 +23,9 @@ import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municip
 // ── E SEM TRAVAR O CELULAR ──
 // Medido com o Lighthouse num celular simulado: redesenhar os 5.570 pontos a
 // 60 quadros por segundo, desde o primeiro instante, travava a página por
-// mais de um segundo e meio enquanto ela carregava. Agora o mapa só começa
-// quando o navegador fica ocioso, a onda de entrada roda a 60 quadros e o
-// repouso (que é lento) a 15. A onda é uma conta de easing, sem biblioteca.
+// mais de um segundo e meio enquanto ela carregava. Agora os pontos são
+// desenhados uma vez só numa camada; a onda de entrada apenas revela essa
+// camada (60 quadros, barata em qualquer aparelho) e o repouso roda a 15.
 //
 // Canvas não lê variável CSS, então as cores vêm de getComputedStyle sobre
 // os tokens do tema; nenhuma cor é escrita aqui (tests/design-system.test.ts).
@@ -53,18 +53,6 @@ export default function MapaVivo({
 
     const pontos = decodificarPontos();
     const n = pontos.length / 2;
-
-    // Ordem de chegada da onda: distância até Brasília, com um pouco de ruído
-    // para a frente da onda não ficar um círculo de compasso.
-    const chegada = new Float32Array(n);
-    let maior = 0;
-    for (let i = 0; i < n; i++) {
-      const dx = pontos[i * 2] - BRASILIA.x;
-      const dy = pontos[i * 2 + 1] - BRASILIA.y;
-      chegada[i] = Math.hypot(dx, dy);
-      if (chegada[i] > maior) maior = chegada[i];
-    }
-    for (let i = 0; i < n; i++) chegada[i] = (chegada[i] / maior) * 0.86 + Math.random() * 0.08;
 
     const estilo = getComputedStyle(canvas);
     const token = (nome: string) => estilo.getPropertyValue(nome).trim();
@@ -101,11 +89,13 @@ export default function MapaVivo({
     const px = (i: number) => origemX + pontos[i * 2] * escala;
     const py = (i: number) => origemY + pontos[i * 2 + 1] * escala;
 
-    // Celular e aparelho fraco: sem a onda de entrada (é a parte cara). O mapa
-    // aparece pronto, e os alertas continuam acendendo.
-    const leve =
-      window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
-    let progresso = reduzir || leve ? 1 : 0;
+    // A onda de entrada roda em todo aparelho. Antes ela redesenhava os 5.570
+    // pontos a cada quadro e por isso era desligada no celular e em
+    // computador de até 4 núcleos — onde o mapa aparecia de uma vez. Agora o
+    // mapa é desenhado UMA vez (a camada abaixo) e a onda só revela essa
+    // imagem num círculo que cresce de Brasília: duas cópias de imagem por
+    // quadro, custo de nada.
+    let progresso = reduzir ? 1 : 0;
     const ponteiro = { x: -9999, y: -9999 };
     const pulsos: Pulso[] = [];
     let proximoPulso = 1600;
@@ -158,15 +148,41 @@ export default function MapaVivo({
           }
         }
       } else {
-        for (let i = 0; i < n; i++) {
-          const atraso = progresso - chegada[i];
-          if (atraso < 0) continue;
-          const x = px(i);
-          const y = py(i);
-          // A frente da onda passa mais clara e assenta no tom de repouso.
-          const frente = Math.max(0, 1 - atraso * 9);
-          ctx!.globalAlpha = Math.min(1, 0.4 + frente * 0.6);
-          ctx!.fillRect(x - raio / 2, y - raio / 2, raio, raio);
+        camada ??= fazerCamada();
+        if (camada) {
+          // Do ponto de Brasília até o canto mais longe do mapa.
+          const bx = origemX + BRASILIA.x * escala;
+          const by = origemY + BRASILIA.y * escala;
+          const longe = Math.max(
+            Math.hypot(bx - origemX, by - origemY),
+            Math.hypot(origemX + MAPA_LARGURA * escala - bx, by - origemY),
+            Math.hypot(bx - origemX, origemY + MAPA_ALTURA * escala - by),
+            Math.hypot(origemX + MAPA_LARGURA * escala - bx, origemY + MAPA_ALTURA * escala - by)
+          );
+          const r = progresso * longe;
+          const faixa = Math.max(18, longe * 0.07);
+          const dpr = canvas!.width / Math.max(1, largura);
+          // O país já alcançado pela onda, no tom de repouso.
+          ctx!.save();
+          ctx!.beginPath();
+          ctx!.arc(bx, by, r, 0, Math.PI * 2);
+          ctx!.clip();
+          ctx!.setTransform(1, 0, 0, 1, 0, 0);
+          ctx!.drawImage(camada, 0, 0);
+          ctx!.restore();
+          // A frente da onda: um anel em que os pontos passam mais claros.
+          ctx!.save();
+          ctx!.beginPath();
+          ctx!.arc(bx, by, r, 0, Math.PI * 2);
+          ctx!.arc(bx, by, Math.max(0, r - faixa), 0, Math.PI * 2, true);
+          ctx!.clip();
+          ctx!.setTransform(1, 0, 0, 1, 0, 0);
+          ctx!.globalCompositeOperation = "lighter";
+          ctx!.globalAlpha = 1 - progresso * 0.6;
+          ctx!.drawImage(camada, 0, 0);
+          ctx!.drawImage(camada, 0, 0);
+          ctx!.restore();
+          ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
       }
 
@@ -224,11 +240,12 @@ export default function MapaVivo({
       }
     }
 
-    // Onda de entrada: 2,6 s depois de 0,25 s, com saída suave (o mesmo
-    // desenho da curva cúbica que estava antes, em conta direta).
-    const DURACAO = 2600;
-    const ATRASO = 250;
-    const suave = (x: number) => 1 - Math.pow(1 - x, 4);
+    // Onda de entrada: 3 s depois de 0,15 s, junto com o título.
+    const DURACAO = 3000;
+    const ATRASO = 150;
+    // Entra e sai devagar: com a curva de saída forte de antes, o círculo
+    // cobria metade do país no primeiro quinto do tempo e parecia um piscar.
+    const suave = (x: number) => (1 - Math.cos(Math.PI * x)) / 2;
     let ultimoQuadro = 0;
     function laco(agora: number) {
       if (progresso < 1) progresso = suave(Math.min(1, Math.max(0, (agora - inicio - ATRASO) / DURACAO)));
@@ -253,8 +270,9 @@ export default function MapaVivo({
     };
     // Só quando a página já carregou e o navegador está livre.
     const ocioso = (window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-    if (ocioso) espera = ocioso(comecar, { timeout: 2500 });
-    else espera = window.setTimeout(comecar, 600);
+    // Prazo curto: a onda acompanha o título, que começa a subir logo de cara.
+    if (ocioso) espera = ocioso(comecar, { timeout: 400 });
+    else espera = window.setTimeout(comecar, 150);
 
     const aoMover = (e: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
