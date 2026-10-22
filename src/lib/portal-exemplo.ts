@@ -1,4 +1,6 @@
 import { emendasDeExemplo } from "@/lib/emendas-pix-exemplo";
+import { obrasParadasParaPublicar } from "@/lib/obra-parada-publica";
+import type { ObraFederal } from "@/lib/obras-federais";
 import type { LinhaVoz } from "@/lib/voz-da-cidade";
 import type { dashboardSnapshots, licitacoes, obras, publicacoes } from "@/db/schema";
 import type { Conjunto, Fontes, Frescor } from "@/lib/dados-abertos";
@@ -61,6 +63,7 @@ export function dadosDoExemplo(agora: number) {
         ["Quadra coberta da Escola Municipal Aurora", "Vila Nova", 35, 690_000, "atrasada", -0.006, -0.008],
         ["Creche municipal do bairro Alto Alegre", "Alto Alegre", 54, 1_980_000, "em_andamento", 0.019, -0.015],
         ["Praça da Matriz", "Centro", 0, 320_000, "planejada", 0.001, -0.002],
+        ["Mercado público do Centro", "Centro", 41, 760_000, "paralisada", 0.004, 0.006],
       ].map(([nome, bairro, progresso, valor, status, dLat, dLng], i) => ({
         ...base,
         id: `ex${i}`,
@@ -72,7 +75,8 @@ export function dadosDoExemplo(agora: number) {
         numeroControlePncpContrato: null,
         vigenciaInicio: null,
         vigenciaFim: null,
-        fornecedorNome: null,
+        fornecedorNome: status === "paralisada" ? "Construtora Exemplo Ltda. (fictícia)" : null,
+        ...(status === "paralisada" ? { atualizadoEm: new Date(agora - 96 * DIA).toISOString() } : {}),
         origem: "manual",
         latitude: CENTRO.lat + (dLat as number),
         longitude: CENTRO.lng + (dLng as number),
@@ -182,4 +186,40 @@ export function frescorDoExemplo(agora: number): Partial<Record<Conjunto, Fresco
     dinheiro: { quando: ha(3), sozinho: false, fonte: "prefeitura" },
     emendas: { quando: ha(2), sozinho: true, fonte: "Transferegov" },
   };
+}
+
+/**
+ * Os avisos de obra paralisada da cidade de exemplo: uma obra da prefeitura
+ * (com a decisão que o gestor registrou) e uma federal, como viriam do
+ * ObrasGov. Passam pela mesma regra do portal de verdade.
+ */
+export function obrasParadasDoExemplo(agora: number) {
+  const dia = (n: number) => new Date(agora - n * DIA).toISOString().slice(0, 10);
+  const federais: ObraFederal[] = [
+    {
+      id: "exemplo-ubs",
+      nome: "Unidade Básica de Saúde Porte I do bairro Vila Nova",
+      situacao: "Paralisada",
+      area: "saude",
+      responsavel: "Prefeitura Municipal de Bela Aurora",
+      inicioPrevisto: dia(900),
+      fimPrevisto: dia(400),
+      percentual: 38,
+      execucaoAtualizadaEm: dia(420),
+      empenhado: 1_200_000,
+      pago: 910_000,
+      paralisadaEm: dia(410),
+      justificativa: "Rescisão do contrato: a empresa deixou o canteiro sem concluir a estrutura.",
+    },
+  ];
+  const decisoes = [
+    {
+      obraId: "ex5",
+      tipo: "mora_do_contratado",
+      justificativa: "A construtora parou a obra sem aviso. Foi notificada e responde a processo de sanção; a prefeitura prepara nova licitação para concluir.",
+      novaPrevisao: dia(-75),
+      decididoEm: dia(60),
+    },
+  ];
+  return obrasParadasParaPublicar(dadosDoExemplo(agora).listaObras, decisoes, federais, new Date(agora));
 }

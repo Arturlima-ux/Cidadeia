@@ -1,6 +1,6 @@
 import PortalCidade from "../PortalCidade";
 import { resumirVoz } from "@/lib/voz-da-cidade";
-import { CENTRO_DO_EXEMPLO, dadosDoExemplo, fontesDoExemplo, frescorDoExemplo, instante, mensagensDeExemplo } from "@/lib/portal-exemplo";
+import { CENTRO_DO_EXEMPLO, dadosDoExemplo, fontesDoExemplo, frescorDoExemplo, instante, mensagensDeExemplo, obrasParadasDoExemplo } from "@/lib/portal-exemplo";
 import { CONJUNTOS, linhasDe } from "@/lib/dados-abertos";
 
 // ── A CIDADE DE EXEMPLO ──
@@ -48,6 +48,7 @@ export default function PortalExemplo() {
       conjuntos={CONJUNTOS.map((c) => ({ chave: c.chave, registros: linhasDe(c.chave, fontes).length }))}
       frescor={frescorDoExemplo(agora)}
       emendas={fontes.emendas}
+      obrasParadas={obrasParadasDoExemplo(agora)}
     />
   );
 }

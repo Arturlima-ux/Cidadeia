@@ -7,7 +7,7 @@ import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { buscarCasoBuscaAtiva } from "../../../busca-ativa-actions";
 import { textoOficioConselhoTutelar, numeroDoOficio, etapas } from "@/lib/busca-ativa";
-import BotaoImprimir from "./BotaoImprimir";
+import BotaoImprimir from "@/components/BotaoImprimir";
 
 // ── O OFÍCIO AO CONSELHO TUTELAR ──
 //

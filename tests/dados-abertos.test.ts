@@ -48,7 +48,7 @@ describe("os conjuntos", () => {
     expect(json.origem).toBe("importado automaticamente do PNCP");
     expect(json.atualizado_em).toBe("2026-10-15T08:50:00.000Z");
     expect(json.licenca).toContain("Uso livre");
-    expect(json.registros.length).toBe(5);
+    expect(json.registros.length).toBe(6);
   });
 });
 

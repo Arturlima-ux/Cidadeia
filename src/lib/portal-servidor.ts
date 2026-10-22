@@ -1,12 +1,14 @@
 import { and, desc, eq, inArray, like } from "drizzle-orm";
 import { db } from "@/db";
-import { atendimentos, contratos, dashboardSnapshots, escolas, licitacoes, obras, pedidoEventos, publicacoes, unidadesSaude } from "@/db/schema";
+import { atendimentos, contratos, dashboardSnapshots, decisoesObra, escolas, licitacoes, obras, pedidoEventos, publicacoes, unidadesSaude } from "@/db/schema";
 import type { buscarPortal } from "@/app/transparencia/actions";
 import { planosContratadosDe } from "@/lib/planos";
 import { EVENTO_OK } from "@/lib/importacao-automatica";
 import { maisRecente, type Conjunto, type Fontes, type Frescor } from "@/lib/dados-abertos";
 import { EVENTO_AVALIACAO, ultimaPorManifestacao } from "@/lib/avaliacao-cidadao";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
+import { lerObrasFederais } from "@/lib/obras-federais-servidor";
+import { obrasParadasParaPublicar } from "@/lib/obra-parada-publica";
 
 // ── O QUE O PORTAL PÚBLICO CARREGA ──
 // Uma leitura só, usada pela página (/transparencia/[slug]) e pelos arquivos
@@ -63,6 +65,19 @@ export async function carregarPortal(portal: Portal) {
   ]);
   const emendas = lidoEmendas?.emendas ?? [];
 
+  // Aviso público de obra paralisada (lib/obra-parada-publica.ts): sai sozinho
+  // das obras da prefeitura e das federais do ObrasGov, sem ninguém publicar.
+  const [federais, decisoes] = portal.mostrarObras
+    ? await Promise.all([
+        lerObrasFederais(id),
+        db
+          .select({ obraId: decisoesObra.obraId, tipo: decisoesObra.tipo, justificativa: decisoesObra.justificativa, novaPrevisao: decisoesObra.novaPrevisao, decididoEm: decisoesObra.decididoEm })
+          .from(decisoesObra)
+          .where(eq(decisoesObra.prefeituraId, id)),
+      ])
+    : [null, []];
+  const obrasParadas = portal.mostrarObras ? obrasParadasParaPublicar(listaObras, decisoes, federais?.obras ?? []) : [];
+
   const notas = ultimaPorManifestacao(avaliacoes);
   const manifestacoes = linhasAtendimento.map(({ id: atendimentoId, ...m }) => ({ ...m, avaliacao: notas.get(atendimentoId)?.nota ?? null }));
 
@@ -110,5 +125,6 @@ export async function carregarPortal(portal: Portal) {
     fontes,
     frescor,
     emendas,
+    obrasParadas,
   };
 }
