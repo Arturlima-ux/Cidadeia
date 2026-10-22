@@ -14,8 +14,8 @@ import Link from "next/link";
 // não só na primeira vez. Quem pediu menos movimento no sistema não vê nada
 // se mexer (globals.css, .logo-anima).
 //
-// Abaixo de 640px aparece só o símbolo: a linha do topo do celular divide o
-// espaço com o menu e com o botão.
+// O nome aparece em todas as larguras: no celular o menu fica na grade
+// abaixo da linha do logo, e sobra espaço para ele.
 
 export default function LogoAnimado({ tamanho = 30 }: { tamanho?: number }) {
   const [vez, setVez] = useState(0);
@@ -32,7 +32,7 @@ export default function LogoAnimado({ tamanho = 30 }: { tamanho?: number }) {
         <rect className="logo-q3" x="48" y="86" width="72" height="34" rx="6" fill="var(--accent)" />
       </svg>
       <span
-        className="hidden sm:inline font-serif font-semibold tracking-[-0.045em] leading-none"
+        className="inline font-serif font-semibold tracking-[-0.045em] leading-none"
         style={{ fontSize: tamanho * 0.72, color: "var(--foreground)" }}
       >
         cidade
