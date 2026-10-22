@@ -1702,3 +1702,26 @@ select option {
   40% { transform: translateY(-12%) scale(1.12); filter: brightness(1.5); }
   100% { transform: none; filter: none; }
 }
+
+/* ── A BARRA DE CIMA E O FUNDO LISO ── (aprovados no Figma, outubro de 2026)
+   No topo, o cabeçalho é parte do fundo da página: sem cor própria e sem
+   linha. Ao rolar (CabecalhoAoRolar.tsx marca data-rolou), ganha o fundo
+   opaco e a linha, para o conteúdo que passa por trás não brigar com o
+   menu. */
+.cabecalho-site {
+  background: transparent;
+  border-color: transparent;
+  transition: background-color 200ms ease-out, border-color 200ms ease-out;
+}
+[data-rolou] .cabecalho-site {
+  background: var(--background);
+  border-color: var(--border);
+}
+
+/* Fundo liso da página inicial: escuro, com um único degradê roxo suave
+   descendo do alto à esquerda, no lugar das manchas de várias cores. */
+.fundo-liso {
+  background:
+    radial-gradient(78rem 52rem at 20% -12rem, color-mix(in oklab, var(--brand) 46%, transparent) 0%, color-mix(in oklab, var(--brand) 16%, transparent) 44%, transparent 74%),
+    var(--background);
+}
