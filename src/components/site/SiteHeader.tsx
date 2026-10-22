@@ -31,7 +31,7 @@ export default function SiteHeader({
   const sessao = sessaoAtiva;
 
   return (
-    <header className="sticky top-0 z-30">
+    <header className="relative lg:sticky top-0 z-30">
       {/* ── PULAR PARA O CONTEÚDO ──
           Quem navega por teclado ou leitor de tela passava por barra
           utilitária, marca, seis links e botões antes de chegar ao texto —
@@ -56,28 +56,7 @@ export default function SiteHeader({
         <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-3 sm:gap-4 xl:gap-6">
           <LogoAnimado tamanho={30} />
 
-          {/* ── O MENU NA MESMA LINHA, NO CELULAR ──
-              Abaixo de 1024px os sete itens não cabem em fila, e o ícone de
-              menu escondia todos: a barra parecia vazia. Agora eles ficam na
-              mesma linha, como no computador, entre o logo e o botão, e se
-              arrastam para o lado. As pontas esmaecem para mostrar que tem mais. */}
-          <div className="lg:hidden relative flex-1 min-w-0 self-stretch flex items-center">
-            <nav
-              aria-label="Principal"
-              className="rolagem-discreta overflow-x-auto w-full"
-              style={{ maskImage: "linear-gradient(to right, transparent, black 10px, black calc(100% - 28px), transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10px, black calc(100% - 28px), transparent)" }}
-            >
-              <ul className="flex items-center w-max pr-6">
-                {[...LINKS, ...(sessao ? [] : [{ href: "/login", label: "Entrar", curto: undefined }])].map((l) => (
-                  <li key={l.href}>
-                    <Link href={l.href} className="flex min-h-11 items-center whitespace-nowrap px-2.5 text-[13px] sm:text-sm font-medium text-muted hover:text-foreground active:text-foreground transition">
-                      {l.curto ?? l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
+          <div className="flex-1 lg:hidden" aria-hidden />
 
           {/* Em linha a partir de 1024px. Entre 1024 e 1279 (um notebook de
               1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
@@ -161,8 +140,7 @@ export default function SiteHeader({
                 className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
-                <span className="sm:hidden">Painel</span>
-                <span className="hidden sm:inline">Ir para o painel</span>
+                Ir para o painel
               </Link>
             ) : (
               /* Pílula, não retângulo: é a forma dos botões em todas as
@@ -173,12 +151,27 @@ export default function SiteHeader({
                 className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
-                <span className="sm:hidden">Proposta</span>
-                <span className="hidden sm:inline">Receber proposta</span>
+                Receber proposta
               </Link>
             )}
           </div>
         </div>
+        {/* ── O MENU INTEIRO À VISTA, NO CELULAR ──
+            Os cinco itens e o Entrar não cabem numa linha de 390px ao lado do
+            logo e do botão. Em vez de esconder (ícone de menu) ou de cortar
+            (faixa que se arrasta), ficam todos à vista numa grade de 3 por 2,
+            com toque de 44px, logo abaixo da linha do logo. */}
+        <nav aria-label="Principal" className="lg:hidden border-t border-border">
+          <ul className="grid grid-cols-3 px-2">
+            {[...LINKS, ...(sessao ? [] : [{ href: "/login", label: "Entrar", curto: undefined }])].map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="flex min-h-11 items-center justify-center text-center whitespace-nowrap px-1 text-[13px] sm:text-sm font-medium text-muted hover:text-foreground active:text-foreground transition">
+                  {l.curto ?? l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </header>
   );
