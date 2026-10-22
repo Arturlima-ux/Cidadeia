@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { decodificarPontos } from "@/lib/mapa-municipios";
+import { anunciarLocalizacao, localizarComPrecisao, paraMapa, textoDaMargem } from "@/lib/localizacao";
 
 // ── ACHE SUA CIDADE ──
 //
@@ -65,7 +66,6 @@ export function sugerir(lista: readonly Linha[], digitado: string, quantas = 6):
 
 // Mapa da home: projeção equirretangular calibrada nas sedes de dez capitais
 // (erro abaixo de 1 unidade, uns 4 km). Ver lib/mapa-municipios.ts.
-const paraMapa = (lat: number, lon: number) => ({ x: 24.0686 * lon + 1780.593, y: -24.8884 * lat + 137.0145 });
 
 /** O município cuja sede está mais perto da posição. Exportada para teste. */
 export function maisProximo(lat: number, lon: number, pontos: Float32Array): { indice: number; distanciaKm: number } {
@@ -122,7 +122,7 @@ export default function AcheSuaCidade({
   const [indo, setIndo] = useState<string | null>(null);
   const [local, setLocal] = useState<
     | { estado: "procurando" }
-    | { estado: "achou"; linha: Linha }
+    | { estado: "achou"; linha: Linha; precisaoM: number }
     | { estado: "erro"; texto: string }
     | null
   >(null);
@@ -163,31 +163,34 @@ export default function AcheSuaCidade({
     }
     setLocal({ estado: "procurando" });
     preparar();
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+    // Alta precisão e alguns segundos de refino (lib/localizacao.ts): a
+    // margem de erro que o aparelho informa vai junto, para o mapa e o texto
+    // não mostrarem estimativa como certeza.
+    localizarComPrecisao().then(
+      async (leitura) => {
         try {
           const todas = lista ?? (await carregarLista());
           setLista(todas);
-          const { indice, distanciaKm } = maisProximo(pos.coords.latitude, pos.coords.longitude, decodificarPontos());
+          const { indice, distanciaKm } = maisProximo(leitura.lat, leitura.lng, decodificarPontos());
           // Fora do Brasil (ou bem longe de qualquer sede): melhor perguntar.
           if (distanciaKm > 80) {
             setLocal({ estado: "erro", texto: "Parece que você está fora do Brasil agora. Digite o nome da cidade." });
             return;
           }
-          setLocal({ estado: "achou", linha: todas[indice] });
+          anunciarLocalizacao(leitura);
+          setLocal({ estado: "achou", linha: todas[indice], precisaoM: leitura.precisaoM });
         } catch {
           setLocal({ estado: "erro", texto: "Não deu para carregar a lista de cidades. Tente de novo." });
         }
       },
-      (erro) =>
+      (erro: GeolocationPositionError | Error) =>
         setLocal({
           estado: "erro",
           texto:
-            erro.code === erro.PERMISSION_DENIED
+            "code" in erro && erro.code === 1
               ? "Sem permissão para ver a localização. Tudo bem: digite o nome da cidade."
               : "Não deu para achar a localização agora. Digite o nome da cidade.",
-        }),
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 600_000 }
+        })
     );
   };
 
@@ -221,10 +224,10 @@ export default function AcheSuaCidade({
     <button
       type="button"
       onClick={estouAqui}
-      className="mt-3 inline-flex items-center gap-2 text-sm font-medium transition hover:opacity-80"
+      className="mt-1 inline-flex min-h-11 items-center gap-2 text-[15px] font-medium transition hover:opacity-80"
       style={{ color: "var(--brand-claro)" }}
     >
-      {pino}
+      <span style={{ color: "var(--localizacao)" }}>{pino}</span>
       {local?.estado === "procurando" ? "Procurando…" : "Usar a minha localização"}
     </button>
   ) : (
@@ -318,8 +321,12 @@ export default function AcheSuaCidade({
           className="mt-3 rounded-3xl border p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3"
           style={{ borderColor: "color-mix(in oklab, var(--brand) 45%, var(--border))", background: "var(--brand-tint)" }}
         >
-          <p className="text-lg">
-            Você está em <strong>{local.linha[1]}, {local.linha[2]}</strong>?
+          <p className="text-lg flex items-start gap-2.5">
+            <span aria-hidden className="mt-2.5 w-2.5 h-2.5 rounded-full shrink-0" style={{ background: "var(--localizacao)", boxShadow: "0 0 0 4px color-mix(in oklab, var(--localizacao) 25%, transparent)" }} />
+            <span>
+              Você está em <strong>{local.linha[1]}, {local.linha[2]}</strong>?{" "}
+              <span className="text-sm text-muted">({textoDaMargem(local.precisaoM)})</span>
+            </span>
           </p>
           <div className="flex gap-2">
             <button

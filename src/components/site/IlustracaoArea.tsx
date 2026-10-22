@@ -45,10 +45,9 @@ export default function IlustracaoArea({
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {/* chão e brilho comuns a todas */}
+      {/* chão comum a todas (o círculo de brilho a 7% saiu: virava mancha cinza) */}
       <rect x="0" y="0" width="240" height="150" rx="16" fill={FUNDO} />
       <ellipse cx="120" cy="128" rx="96" ry="10" fill={cor} fillOpacity="0.10" />
-      <circle cx="196" cy="34" r="40" fill={cor} fillOpacity="0.07" />
       {area === "essencial" && <Atendimento cor={cor} />}
       {area === "gestao" && <Gabinete cor={cor} />}
       {area === "saude" && <Ubs cor={cor} />}

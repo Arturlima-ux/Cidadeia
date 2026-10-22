@@ -22,38 +22,36 @@ const PARTES = [
 ] as const;
 
 export default function NumLugarSo() {
-  // Compacto e um pouco translúcido: no computador ele fica abaixo do mapa
-  // do Brasil, à direita, e não cobre o desenho (o mapa ocupa o alto da
-  // coluna). O texto de cada módulo vai no title e na página do módulo.
+  // Compacto e um pouco translúcido: no computador fica abaixo do mapa do
+  // Brasil, à direita, sem cobrir o desenho. Cada cartão mostra a descrição
+  // embaixo do nome (antes ela só existia no title, que o toque não mostra),
+  // e o rodapé de 11px saiu: a faixa das fontes vem logo abaixo na página.
   return (
     <div
-      className="lg:mt-32 xl:mt-24 lg:ml-auto lg:max-w-[500px] rounded-3xl border border-border p-4 sm:p-5 backdrop-blur-md"
+      className="lg:mt-32 xl:mt-24 lg:ml-auto lg:max-w-[500px] rounded-3xl border border-border p-4 sm:p-5"
       style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}
     >
-      <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <p className="text-sm font-semibold tracking-[-0.01em]">Um sistema para a prefeitura inteira</p>
-        <p className="text-xs text-muted">um acesso por pessoa</p>
+      <div>
+        <p className="text-[19px] font-semibold tracking-[-0.015em] leading-tight">Um sistema para a prefeitura inteira</p>
+        <p className="text-[13px] text-muted mt-1">cada área com o seu acesso</p>
       </div>
-      <ul className="mt-3.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <ul className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
         {PARTES.map((p) => (
           <li key={p.chave}>
             <Link
               href={`/modulos/${p.chave}`}
-              title={p.texto}
               className="group block rounded-xl border border-border hover:border-brand p-1.5 transition h-full"
               style={{ background: "var(--superficie)" }}
             >
               <IlustracaoArea area={p.chave} className="w-full h-auto rounded-lg" />
-              <span className="block px-1 pt-1.5 pb-0.5 text-[13px] font-semibold leading-tight group-hover:text-brand-claro transition">
+              <span className="block px-1 pt-1.5 text-[13px] font-semibold leading-tight group-hover:text-brand-claro transition">
                 {p.nome}
               </span>
+              <span className="block px-1 pt-1 pb-1 text-xs text-muted leading-snug">{p.texto}</span>
             </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[11px] text-muted leading-relaxed">
-        Alimentado sozinho pelo Tesouro, IBGE, PNCP, DataSUS e INEP.
-      </p>
     </div>
   );
 }

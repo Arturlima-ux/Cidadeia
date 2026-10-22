@@ -24,7 +24,7 @@ export default function LogoAnimado({ tamanho = 30 }: { tamanho?: number }) {
       href="/"
       aria-label="CidadeIA — início"
       onClick={() => setVez((v) => v + 1)}
-      className="logo-anima group inline-flex items-center gap-2.5 shrink-0"
+      className="logo-anima group inline-flex min-h-11 items-center gap-2.5 shrink-0"
     >
       <svg key={vez} viewBox="0 0 120 120" width={tamanho} height={tamanho} fill="none" aria-hidden="true" className={vez ? "logo-tocado" : undefined}>
         <rect className="logo-q1" x="0" y="0" width="120" height="34" rx="6" fill="var(--brand)" />
