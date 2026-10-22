@@ -22,34 +22,37 @@ const PARTES = [
 ] as const;
 
 export default function NumLugarSo() {
+  // Compacto e um pouco translúcido: no computador ele fica abaixo do mapa
+  // do Brasil, à direita, e não cobre o desenho (o mapa ocupa o alto da
+  // coluna). O texto de cada módulo vai no title e na página do módulo.
   return (
-    <div className="rounded-[28px] border border-border p-5 sm:p-6" style={{ background: "var(--card)" }}>
-      <div className="flex items-baseline justify-between gap-4 flex-wrap">
-        <p className="font-semibold tracking-[-0.01em]">Um sistema para a prefeitura inteira</p>
-        <p className="text-xs text-muted">um acesso por pessoa, cada uma na sua área</p>
+    <div
+      className="lg:mt-32 xl:mt-24 lg:ml-auto lg:max-w-[500px] rounded-3xl border border-border p-4 sm:p-5 backdrop-blur-md"
+      style={{ background: "color-mix(in srgb, var(--card) 72%, transparent)" }}
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <p className="text-sm font-semibold tracking-[-0.01em]">Um sistema para a prefeitura inteira</p>
+        <p className="text-xs text-muted">um acesso por pessoa</p>
       </div>
-      <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <ul className="mt-3.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
         {PARTES.map((p) => (
           <li key={p.chave}>
             <Link
               href={`/modulos/${p.chave}`}
-              className="group flex items-center gap-3 rounded-2xl border border-border hover:border-brand px-3 py-3 transition h-full"
+              title={p.texto}
+              className="group block rounded-xl border border-border hover:border-brand p-1.5 transition h-full"
               style={{ background: "var(--superficie)" }}
             >
-              <IlustracaoArea area={p.chave} className="w-[88px] h-[55px] shrink-0 rounded-lg" />
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold">
-                  {p.nome}
-                  {p.nome !== p.modulo && <span className="font-normal text-muted"> · {p.modulo}</span>}
-                </span>
-                <span className="block text-sm text-muted mt-0.5 leading-snug">{p.texto}</span>
+              <IlustracaoArea area={p.chave} className="w-full h-auto rounded-lg" />
+              <span className="block px-1 pt-1.5 pb-0.5 text-[13px] font-semibold leading-tight group-hover:text-brand-claro transition">
+                {p.nome}
               </span>
             </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-xs text-muted leading-relaxed">
-        Alimentado sozinho pelo Tesouro Nacional, IBGE, PNCP, DataSUS e INEP. Nada para instalar.
+      <p className="mt-3 text-[11px] text-muted leading-relaxed">
+        Alimentado sozinho pelo Tesouro, IBGE, PNCP, DataSUS e INEP.
       </p>
     </div>
   );
