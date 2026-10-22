@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
+import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
 //
@@ -62,6 +63,7 @@ export default function MapaVivo({
       medio: token("--medio"),
       urgente: token("--urgente"),
       info: token("--info"),
+      voce: token("--localizacao"),
     };
 
     let largura = 0;
@@ -228,6 +230,34 @@ export default function MapaVivo({
         ctx!.stroke();
       }
 
+      // Você está aqui: o ponto azul, com um anel do tamanho da margem de erro
+      // que o aparelho informou (lib/localizacao.ts). No zoom do país, poucos
+      // metros não aparecem; o anel tem um mínimo visível e o texto da busca
+      // diz a margem em metros.
+      if (voce) {
+        const x = origemX + voce.x * escala;
+        const y = origemY + voce.y * escala;
+        const resp = reduzir ? 0.5 : (Math.sin(t * 2.4) + 1) / 2;
+        const anel = Math.max(9, voce.raio * escala) + resp * 4;
+        ctx!.globalAlpha = 0.16;
+        ctx!.fillStyle = COR.voce;
+        ctx!.beginPath();
+        ctx!.arc(x, y, anel, 0, Math.PI * 2);
+        ctx!.fill();
+        ctx!.globalAlpha = 0.55;
+        ctx!.strokeStyle = COR.voce;
+        ctx!.lineWidth = 1;
+        ctx!.stroke();
+        ctx!.globalAlpha = 1;
+        ctx!.fillStyle = COR.voce;
+        ctx!.beginPath();
+        ctx!.arc(x, y, 4, 0, Math.PI * 2);
+        ctx!.fill();
+        ctx!.strokeStyle = COR.ponto;
+        ctx!.lineWidth = 1.5;
+        ctx!.stroke();
+      }
+
       ctx!.globalAlpha = 1;
 
       if (!reduzir && progresso >= 1 && agora - inicio > proximoPulso) {
@@ -274,6 +304,15 @@ export default function MapaVivo({
     if (ocioso) espera = ocioso(comecar, { timeout: 400 });
     else espera = window.setTimeout(comecar, 150);
 
+    let voce: { x: number; y: number; raio: number } | null = null;
+    const aoLocalizar = (e: Event) => {
+      const l = (e as CustomEvent<Leitura>).detail;
+      const { x, y } = paraMapa(l.lat, l.lng);
+      voce = { x, y, raio: l.precisaoM / 1000 / KM_POR_UNIDADE };
+      if (reduzir) desenhar(performance.now());
+    };
+    window.addEventListener(EVENTO_LOCALIZACAO, aoLocalizar);
+
     const aoMover = (e: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
       ponteiro.x = e.clientX - r.left;
@@ -312,6 +351,7 @@ export default function MapaVivo({
         else window.clearTimeout(espera);
       }
       window.removeEventListener("pointermove", aoMover);
+      window.removeEventListener(EVENTO_LOCALIZACAO, aoLocalizar);
       document.removeEventListener("pointerleave", aoSair);
       document.removeEventListener("visibilitychange", aoTrocarAba);
       ro.disconnect();

@@ -70,7 +70,7 @@ export default function SiteHeader({
               <ul className="flex items-center w-max pr-6">
                 {[...LINKS, ...(sessao ? [] : [{ href: "/login", label: "Entrar", curto: undefined }])].map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="block whitespace-nowrap px-2.5 py-2 text-[13px] sm:text-sm font-medium text-muted hover:text-foreground active:text-foreground transition">
+                    <Link href={l.href} className="flex min-h-11 items-center whitespace-nowrap px-2.5 text-[13px] sm:text-sm font-medium text-muted hover:text-foreground active:text-foreground transition">
                       {l.curto ?? l.label}
                     </Link>
                   </li>
@@ -158,7 +158,7 @@ export default function SiteHeader({
             ) : sessao ? (
               <Link
                 href="/dashboard"
-                className="whitespace-nowrap text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Painel</span>
@@ -170,7 +170,7 @@ export default function SiteHeader({
                  cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="whitespace-nowrap text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Proposta</span>

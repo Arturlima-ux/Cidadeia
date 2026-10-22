@@ -169,69 +169,61 @@ export default async function LandingPage({
             <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
           </div>
 
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 pb-16 sm:pb-24">
-            <h1 className="inicio-titulo max-w-[14ch]">
-              <span className="linha"><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal</span></span>
-              <span className="linha"><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>
-              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-16 sm:pb-24">
+            {/* Duas linhas a partir de 1024px ("…inteira," / "num lugar só."),
+                três no celular. Em duas, o título baixa e a busca cabe inteira
+                num notebook de 1366×768 (avaliação Impeccable, outubro de 2026).
+                O aria-label dá o texto com espaços ao leitor de tela, que lia
+                as linhas coladas ("municipalinteira,"). */}
+            <h1 className="inicio-titulo max-w-[14ch] lg:max-w-none" aria-label="A gestão municipal inteira, num lugar só.">
+              <span className="linha" aria-hidden><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal<span className="hidden lg:inline"> inteira,</span></span></span>
+              <span className="linha linha-celular" aria-hidden><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>
+              <span className="linha" aria-hidden><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
             </h1>
 
-            <div className="mt-12 sm:mt-16 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
+            <div className="mt-12 sm:mt-16 lg:mt-10 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
               <div className="inicio-aparece" style={{ "--d": "420ms" } as React.CSSProperties}>
-                <p className="inicio-lead text-muted max-w-[40ch]">
-                  <span className="text-foreground">
-                    Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema,
-                  </span>{" "}
+                {/* A chamada inteira em branco: o diferencial ("alimentado
+                    sozinho") estava no cinza apagado. */}
+                <p className="inicio-lead max-w-[40ch]">
+                  Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema,
                   alimentado sozinho pelas bases oficiais.
                 </p>
 
-                <div className="mt-9">
-                  {/* ── A CHAVE DOS DOIS PÚBLICOS ──
-                      Mesma busca, dois destinos: a prefeitura vê o Raio-X
-                      aqui mesmo; o morador vai ao portal da cidade dele.
-                      É link (?para=morador), funciona sem JavaScript. */}
-                  <div role="tablist" aria-label="Quem está procurando" className="inline-flex rounded-full border border-border p-1 mb-5" style={{ background: "var(--card)" }}>
-                    {(["prefeitura", "morador"] as const).map((para) => {
-                      const ativo = (para === "morador") === morador;
-                      return (
-                        <Link
-                          key={para}
-                          href={comPara(para)}
-                          scroll={false}
-                          role="tab"
-                          aria-selected={ativo}
-                          className="rounded-full px-4 py-2 text-sm font-medium transition"
-                          style={ativo ? { background: "var(--brand-tint)", color: "var(--brand-claro)" } : { color: "var(--muted)" }}
-                        >
-                          {para === "prefeitura" ? "Sou da prefeitura" : "Sou morador"}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                    <>
-                      <p className="text-sm font-medium mb-3">Veja o Raio-X do seu município</p>
-                      {/* ── UM CAMPO, NÃO DUAS LISTAS ──
-                          Eram duas caixas: estado, depois município. Agora a
-                          pessoa digita o nome (ou usa a localização) e a
-                          página atualiza aqui mesmo, sem rolar. Sem
-                          JavaScript, /raio-x tem a lista por estado. */}
-                      <AcheSuaCidade
-                        key={municipio?.codigo ?? "sem-cidade"}
-                        destino="/?m="
-                        compacto
-                        empilhado
-                        rolarAoTopo={false}
-                        placeholder="Digite o nome do município"
-                        inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
-                      />
-                      <p className="text-xs text-muted mt-4">
-                        Sem cadastro. Dado público do Tesouro Nacional, exercício de{" "}
-                        {LIMITE_DISPENSA.ano}.{" "}
-                        <noscript>
-                          <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
-                        </noscript>
-                      </p>
-                    </>
+                {/* ── A AÇÃO, NA ORDEM EM QUE A PESSOA PENSA ──
+                    O rótulo diz o que ela vai ver, a busca, a localização, a
+                    garantia. A chave "Sou da prefeitura / Sou morador" pedia
+                    que a pessoa dissesse quem é antes de ver qualquer coisa;
+                    o morador agora tem um link no fim (?para=morador). */}
+                <div className="mt-7">
+                  <p className="text-[15px] font-medium mb-3">Digite o município e veja agora os números dele</p>
+                  {/* ── UM CAMPO, NÃO DUAS LISTAS ──
+                      A pessoa digita o nome (ou usa a localização) e a página
+                      atualiza aqui mesmo, sem rolar. Sem JavaScript, /raio-x
+                      tem a lista por estado. */}
+                  <AcheSuaCidade
+                    key={municipio?.codigo ?? "sem-cidade"}
+                    destino="/?m="
+                    compacto
+                    empilhado
+                    rolarAoTopo={false}
+                    placeholder="Digite o nome do município"
+                    inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
+                  />
+                  <p className="text-[13px] mt-2" style={{ color: "color-mix(in oklab, var(--foreground) 70%, transparent)" }}>
+                    Sem cadastro. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
+                    <noscript>
+                      <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
+                    </noscript>
+                  </p>
+                  <Link
+                    href={comPara("morador")}
+                    scroll={false}
+                    className="mt-3 inline-flex min-h-11 items-center text-[15px] font-medium hover:opacity-80 transition"
+                    style={{ color: "var(--brand-claro)" }}
+                  >
+                    É morador? Veja o portal da sua cidade →
+                  </Link>
                 </div>
               </div>
 

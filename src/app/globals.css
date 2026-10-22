@@ -34,6 +34,8 @@
   --medio-tint: #f9f4e2;
   --medio-borda: #e4dbae;
   --info: #2f6d4f;
+  /* o ponto azul "Você está aqui" (lib/localizacao.ts) */
+  --localizacao: #2563eb;
   --info-tint: #e7eee9;
   --info-borda: #c5dbcd;
 
@@ -146,6 +148,7 @@
   --medio-tint: rgba(232, 185, 73, 0.12);
   --medio-borda: rgba(232, 185, 73, 0.32);
   --info: #2fbf87;
+  --localizacao: #4d8ae8;
   --info-tint: rgba(47, 191, 135, 0.12);
   --info-borda: rgba(47, 191, 135, 0.3);
 
@@ -1186,6 +1189,14 @@ h1.font-serif,
   font-size: clamp(2.55rem, 7.4vw, 6.4rem);
   line-height: 0.95;
   letter-spacing: -0.048em;
+}
+/* A partir de 1024px o título vai em duas linhas, mais largas: o tamanho
+   segue a largura E a altura da tela, para a busca caber inteira num
+   notebook de 1366×768. */
+@media (min-width: 1024px) {
+  .inicio-titulo { font-size: clamp(2.55rem, min(6.8vw, 11vh), 6.2rem); }
+  /* "inteira," sobe para a primeira linha (span lg:inline em page.tsx) */
+  .inicio-titulo .linha.linha-celular { display: none; }
 }
 .inicio-titulo .linha {
   display: block;
