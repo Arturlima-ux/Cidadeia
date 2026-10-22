@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LogoAnimado from "@/components/site/LogoAnimado";
+import CabecalhoAoRolar from "@/components/site/CabecalhoAoRolar";
 import { MENU_DO_SITE } from "@/lib/menu-do-site";
 
 // ── O MENU ──
@@ -52,8 +53,11 @@ export default function SiteHeader({
           todo: com desfoque de fundo, o navegador reamostra e reborra a página
           inteira atrás dele a cada quadro da rolagem — em TODAS as páginas. A
           90% de opacidade o desfoque quase não aparecia; pagava-se caro à toa. */}
-      <div className="border-b border-border bg-background">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-3 sm:gap-4 xl:gap-6">
+      <CabecalhoAoRolar />
+      {/* Sem fundo e sem linha no topo da página; ao rolar, ganha os dois
+          (.cabecalho-site em globals.css, atributo data-rolou). */}
+      <div className="cabecalho-site border-b">
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between gap-3 sm:gap-4 xl:gap-6">
           <LogoAnimado tamanho={30} />
 
           {/* ── O MENU NA MESMA LINHA, NO CELULAR ──
@@ -83,7 +87,7 @@ export default function SiteHeader({
               1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
               letra de 13px e rótulo curto. Só com 1280px ou mais ele aparecia,
               e no notebook com zoom a barra ficava vazia, só com o logo. */}
-          <nav aria-label="Principal no computador" className="hidden lg:flex items-center gap-3 xl:gap-5 text-[13px] xl:text-sm font-medium text-muted">
+          <nav aria-label="Principal no computador" className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-5 xl:gap-7 text-[13px] font-medium" style={{ color: "color-mix(in oklab, var(--foreground) 72%, transparent)" }}>
             {LINKS.map((l) =>
               l.filhos ? (
                 // Submenu sem JavaScript: abre ao passar o mouse e ao chegar
@@ -145,7 +149,8 @@ export default function SiteHeader({
             {!sessao && (
               <Link
                 href="/login"
-                className="hidden lg:inline text-sm font-medium text-muted hover:text-foreground transition px-2"
+                className="hidden lg:inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-[color:var(--sutil)] transition"
+                style={{ borderColor: "color-mix(in oklab, var(--foreground) 22%, transparent)" }}
               >
                 Entrar
               </Link>
@@ -158,7 +163,7 @@ export default function SiteHeader({
             ) : sessao ? (
               <Link
                 href="/dashboard"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Painel</span>
@@ -170,7 +175,7 @@ export default function SiteHeader({
                  cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Proposta</span>

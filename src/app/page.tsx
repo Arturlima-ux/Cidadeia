@@ -154,7 +154,7 @@ export default async function LandingPage({
   }
 
   return (
-    <div className="tema-noite pagina-inicial min-h-screen overflow-x-clip relative">
+    <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
       <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
 
       <main id="conteudo">
