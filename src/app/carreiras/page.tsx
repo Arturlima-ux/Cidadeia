@@ -4,11 +4,17 @@ import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
 import { compartilhamento } from "@/lib/seo";
 
-export const metadata = compartilhamento({
-  titulo: "Carreiras",
-  descricao: "Trabalhar no CidadeIA: o que a empresa faz, que tipo de gente procura e como deixar o seu contato.",
-  caminho: "/carreiras",
-});
+// Sem vaga aberta a página é quase vazia: fica no ar para quem tem o link,
+// fora do índice e do mapa do site (lib/mapa-do-site.ts). Quando houver vaga,
+// basta tirar o `robots`.
+export const metadata = {
+  ...compartilhamento({
+    titulo: "Carreiras",
+    descricao: "Trabalhar no CidadeIA: o que a empresa faz, que tipo de gente procura e como deixar o seu contato.",
+    caminho: "/carreiras",
+  }),
+  robots: { index: false, follow: true },
+};
 
 // ── CARREIRAS, SEM VAGA INVENTADA ──
 //

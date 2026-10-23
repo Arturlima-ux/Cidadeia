@@ -12,6 +12,7 @@ import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { compartilhamento } from "@/lib/seo";
 import { PANORAMA, mesDoPanorama, numeroBr, passaramDoAlerta } from "@/lib/panorama";
 import { todosOsMunicipios, ANO_ESTIMATIVA_POPULACAO } from "@/lib/municipios";
+import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 
 export const metadata = compartilhamento({
   titulo: "Quem somos",
@@ -195,8 +196,10 @@ export default async function QuemSomosPage() {
                 <p className="mt-6 text-sm text-muted">Lemos direto de</p>
                 <ul className="mt-3 flex flex-wrap gap-2 max-w-[360px]">
                   {FONTES.map((f) => (
-                    <li key={f} className="rounded-full border border-border px-3 py-1 text-xs">
-                      {f}
+                    <li key={f} className="rounded-full border border-border text-xs">
+                      <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="block px-3 py-1 hover:text-foreground">
+                        {f}
+                      </a>
                     </li>
                   ))}
                 </ul>

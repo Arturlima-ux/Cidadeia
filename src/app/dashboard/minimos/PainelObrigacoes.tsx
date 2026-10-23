@@ -72,8 +72,8 @@ export default function PainelObrigacoes({ podeSemestral }: { podeSemestral: boo
           />
           <span className="text-muted leading-relaxed">
             O município optou por publicar o Relatório de Gestão Fiscal{" "}
-            <strong className="text-foreground">semestralmente</strong> — faculdade do art. 63, I,
-            &ldquo;b&rdquo; da LRF para municípios de até 50 mil habitantes. Sem marcar, o
+            <strong className="text-foreground">semestralmente</strong> — faculdade do art. 63, II,
+            &ldquo;b&rdquo; da LRF para municípios com menos de 50 mil habitantes. Sem marcar, o
             calendário cobra as três entregas quadrimestrais da regra geral.
           </span>
         </label>

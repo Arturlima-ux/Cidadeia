@@ -211,6 +211,47 @@ export function ldDadosDoMunicipio(m: {
   };
 }
 
+/** Guia (app/guias): artigo assinado pela organização, com data de revisão. */
+export function ldGuia(g: { titulo: string; descricao: string; caminho: string; revisadoEm: string }): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: g.titulo,
+    description: g.descricao,
+    url: `${URL_BASE}${g.caminho}`,
+    mainEntityOfPage: `${URL_BASE}${g.caminho}`,
+    inLanguage: "pt-BR",
+    datePublished: g.revisadoEm,
+    dateModified: g.revisadoEm,
+    image: `${URL_BASE}/opengraph-image`,
+    author: { "@id": `${URL_BASE}/#organizacao` },
+    publisher: { "@id": `${URL_BASE}/#organizacao` },
+  };
+}
+
+/** /noticias: a lista, com cada notícia como BlogPosting datado. */
+export function ldNoticias(itens: { titulo: string; resumo: string; data: string; ancora: string }[]): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "O que mudou no CidadeIA",
+    itemListElement: itens.map((n, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "BlogPosting",
+        headline: n.titulo.length > 110 ? `${n.titulo.slice(0, 107)}...` : n.titulo,
+        description: n.resumo,
+        datePublished: n.data,
+        url: `${URL_BASE}/noticias#${n.ancora}`,
+        inLanguage: "pt-BR",
+        author: { "@id": `${URL_BASE}/#organizacao` },
+        publisher: { "@id": `${URL_BASE}/#organizacao` },
+      },
+    })),
+  };
+}
+
 /** O <script> que carrega o JSON-LD. Conteúdo é gerado por nós, nunca entrada de usuário. */
 export function JsonLdScript({ dados }: { dados: JsonLd | JsonLd[] }) {
   const lista = Array.isArray(dados) ? dados : [dados];

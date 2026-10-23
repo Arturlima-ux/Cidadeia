@@ -33,6 +33,7 @@ import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municip
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
 import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
+import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 
 // ── A PÁGINA EM SEIS PARTES ──
 //
@@ -303,7 +304,10 @@ export default async function LandingPage({
             <ul className="flex flex-wrap gap-x-10 gap-y-3">
               {FONTES.map((f) => (
                 <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em] text-foreground/80">
-                  {f}
+                  {/* Cada base leva ao próprio site: é onde conferir. */}
+                  <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                    {f}
+                  </a>
                 </li>
               ))}
             </ul>

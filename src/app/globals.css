@@ -1869,3 +1869,60 @@ select option {
     radial-gradient(78rem 52rem at 20% -12rem, color-mix(in oklab, var(--brand) 46%, transparent) 0%, color-mix(in oklab, var(--brand) 16%, transparent) 44%, transparent 74%),
     var(--background);
 }
+
+/* ── TEXTO CORRIDO DOS GUIAS (app/guias) ──
+   Coluna de leitura: parágrafo com respiro, h2 de seção, lista e tabela
+   simples. Cores só por token. */
+.guia-texto {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.guia-texto > * + * {
+  margin-top: 1.1em;
+}
+.guia-texto h2 {
+  font-family: var(--font-titulo);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-top: 2.2em;
+}
+.guia-texto h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.6em;
+}
+.guia-texto ul,
+.guia-texto ol {
+  padding-left: 1.25em;
+}
+.guia-texto ul { list-style: disc; }
+.guia-texto ol { list-style: decimal; }
+.guia-texto li + li { margin-top: 0.4em; }
+.guia-texto p,
+.guia-texto li {
+  color: var(--muted);
+}
+.guia-texto strong { color: var(--foreground); font-weight: 600; }
+.guia-texto a {
+  color: var(--brand-claro);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.guia-texto table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.guia-texto th,
+.guia-texto td {
+  text-align: left;
+  padding: 0.6em 0.75em;
+  border-bottom: 1px solid var(--border);
+}
+.guia-texto th { color: var(--foreground); font-weight: 600; }
+.guia-texto td { color: var(--muted); }
+.guia-tabela {
+  overflow-x: auto;
+}

@@ -2,8 +2,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
-import { NOTICIAS, dataDaNoticia } from "@/lib/noticias";
-import { compartilhamento } from "@/lib/seo";
+import { NOTICIAS, ancoraDaNoticia, dataDaNoticia } from "@/lib/noticias";
+import { compartilhamento, JsonLdScript, ldNoticias } from "@/lib/seo";
 
 export const metadata = compartilhamento({
   titulo: "Notícias",
@@ -22,6 +22,13 @@ export default function NoticiasPage() {
 
   return (
     <div className="tema-noite min-h-screen overflow-x-clip">
+      <JsonLdScript
+        dados={ldNoticias(
+          [...NOTICIAS]
+            .sort((a, b) => b.data.localeCompare(a.data))
+            .map((n) => ({ titulo: n.titulo, resumo: n.resumo, data: n.data, ancora: ancoraDaNoticia(n) }))
+        )}
+      />
       <SiteHeader />
       <main id="conteudo">
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-24 pb-10">
@@ -38,7 +45,7 @@ export default function NoticiasPage() {
               <h2 className="text-sm font-medium text-muted first-letter:uppercase">{mes}</h2>
               <ol className="mt-4 grid gap-4">
                 {lista.map((n) => (
-                  <li key={n.titulo}>
+                  <li key={n.titulo} id={ancoraDaNoticia(n)} className="scroll-mt-28">
                     <article
                       className="rounded-2xl border border-border p-5 sm:p-7 grid gap-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-8"
                       style={{ background: "var(--card)" }}
@@ -50,7 +57,11 @@ export default function NoticiasPage() {
                         <span style={{ color: "var(--brand-claro)" }}>{n.categoria}</span>
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-lg sm:text-xl font-semibold tracking-[-0.02em] leading-snug">{n.titulo}</h3>
+                        <h3 className="text-lg sm:text-xl font-semibold tracking-[-0.02em] leading-snug">
+                          <a href={`#${ancoraDaNoticia(n)}`} className="hover:underline decoration-[color:var(--border)] underline-offset-4">
+                            {n.titulo}
+                          </a>
+                        </h3>
                         <p className="mt-2 text-muted leading-relaxed max-w-[70ch]">{n.resumo}</p>
                         {n.link && (
                           <Link href={n.link.href} className="inicio-sublinhado inline-block mt-4 text-sm">

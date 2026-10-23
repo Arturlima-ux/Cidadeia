@@ -191,3 +191,61 @@ describe("mapa do site dividido por estado", async () => {
     for (const uf of UFS_DO_MAPA) expect(paginasDoEstado(uf).length).toBeLessThan(50_000);
   });
 });
+
+describe("conteúdo: fontes, guias, prazos e notícias", async () => {
+  const { LINK_DA_FONTE, LEIS } = await import("@/lib/links-oficiais");
+  const { FONTES_OFICIAIS } = await import("@/lib/fontes-oficiais");
+  const { GUIAS } = await import("@/lib/guias");
+  const { NOTICIAS, ancoraDaNoticia } = await import("@/lib/noticias");
+  const { paginasFixas } = await import("@/lib/mapa-do-site");
+  const { default: PrazosDoMunicipio } = await import("@/components/site/PrazosDoMunicipio");
+  const { existsSync } = await import("node:fs");
+
+  it("toda base e toda lei citadas apontam para o endereço do próprio órgão", () => {
+    for (const f of FONTES_OFICIAIS) expect(LINK_DA_FONTE[f]).toMatch(/^https:\/\/[^/]*(gov\.br|dengue\.mat\.br)/);
+    for (const l of Object.values(LEIS)) expect(l.url).toMatch(/^https:\/\/www\.planalto\.gov\.br\//);
+  });
+
+  it("as páginas que citam a fonte agora ligam para ela", () => {
+    expect(ler("src/app/raio-x/[uf]/[slug]/page.tsx")).toContain("<LinkOficial href={SICONFI}>");
+    expect(ler("src/components/site/inicio/ReguaLrf.tsx")).toContain("<LinkOficial href={SICONFI}>");
+    expect(ler("src/app/page.tsx")).toContain("LINK_DA_FONTE[f]");
+    expect(ler("src/app/conformidade/page.tsx")).toContain("LEIS.lai.url");
+  });
+
+  it("cada guia cadastrado tem página, título curto e entra no mapa do site", () => {
+    const urls = paginasFixas().map((p) => p.url);
+    for (const g of GUIAS) {
+      expect(existsSync(path.join(__dirname, "..", `src/app/guias/${g.slug}/page.tsx`))).toBe(true);
+      expect(g.titulo.length + SUFIXO).toBeLessThanOrEqual(65);
+      expect(g.descricao.length).toBeLessThanOrEqual(158);
+      expect(urls.some((u) => u.endsWith(`/guias/${g.slug}`))).toBe(true);
+    }
+  });
+
+  it("carreiras sai do mapa (sem vaga, a página é quase vazia)", () => {
+    expect(paginasFixas().some((p) => p.url.endsWith("/carreiras"))).toBe(false);
+    expect(ler("src/app/carreiras/page.tsx")).toContain("robots: { index: false, follow: true }");
+  });
+
+  it("os prazos da página de município são daquele município", () => {
+    const html = renderToStaticMarkup(
+      createElement(PrazosDoMunicipio, { nome: "Serra da Saudade", uf: "MG", populacao: 857, hoje: "2026-10-23" })
+    );
+    expect(html).toContain("Os próximos prazos da prefeitura de Serra da Saudade");
+    expect(html).toContain("5º bimestre de 2026");
+    expect(html).toContain("30 de novembro de 2026");
+    // Menos de 50 mil habitantes: aparece a opção do RGF semestral.
+    expect(html).toContain("semestral");
+    const capital = renderToStaticMarkup(
+      createElement(PrazosDoMunicipio, { nome: "Belo Horizonte", uf: "MG", populacao: 2_400_000, hoje: "2026-10-23" })
+    );
+    expect(capital).not.toContain("semestral");
+  });
+
+  it("cada notícia tem âncora própria e única", () => {
+    const ancoras = NOTICIAS.map(ancoraDaNoticia);
+    expect(new Set(ancoras).size).toBe(ancoras.length);
+    for (const a of ancoras) expect(a).toMatch(/^[a-z0-9-]{8,60}$/);
+  });
+});
