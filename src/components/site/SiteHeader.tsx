@@ -87,7 +87,7 @@ export default function SiteHeader({
               1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
               letra de 13px e rótulo curto. Só com 1280px ou mais ele aparecia,
               e no notebook com zoom a barra ficava vazia, só com o logo. */}
-          <nav aria-label="Principal no computador" className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-5 xl:gap-7 text-[13px] font-medium" style={{ color: "color-mix(in oklab, var(--foreground) 72%, transparent)" }}>
+          <nav aria-label="Principal no computador" className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 xl:gap-1.5 text-[13px] font-medium" style={{ color: "color-mix(in oklab, var(--foreground) 72%, transparent)" }}>
             {LINKS.map((l) =>
               l.filhos ? (
                 // Submenu sem JavaScript: abre ao passar o mouse e ao chegar
@@ -96,15 +96,17 @@ export default function SiteHeader({
                   <Link
                     href={l.href}
                     aria-haspopup="true"
-                    className="whitespace-nowrap hover:text-foreground transition inline-flex items-center gap-1 py-6"
+                    className="whitespace-nowrap hover:text-foreground inline-flex items-center py-5"
                   >
-                    {l.label}
-                    <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180">
-                      <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
+                    <span className="link-menu inline-flex items-center gap-1 px-3 py-1.5">
+                      {l.label}
+                      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden className="transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180">
+                        <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </span>
                   </Link>
-                  <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 transition absolute left-1/2 -translate-x-1/2 top-full pt-1 z-40">
-                    <div className="w-[560px] rounded-2xl border border-border shadow-elevated p-5 grid grid-cols-[1.4fr_1fr] gap-6" style={{ background: "var(--card)" }}>
+                  <div className="invisible opacity-0 translate-y-1 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 transition duration-200 [transition-timing-function:var(--saida)] absolute left-1/2 -translate-x-1/2 top-full pt-1 z-40">
+                    <div className="vidro vidro-forte w-[560px] rounded-2xl p-5 grid grid-cols-[1.4fr_1fr] gap-6">
                       {l.filhos.map((g) => (
                         <div key={g.titulo}>
                           <p className="text-[11px] uppercase tracking-[0.14em] text-muted mb-2">{g.titulo}</p>
@@ -124,7 +126,7 @@ export default function SiteHeader({
                   </div>
                 </div>
               ) : (
-                <Link key={l.href} href={l.href} className="whitespace-nowrap hover:text-foreground transition">
+                <Link key={l.href} href={l.href} className="link-menu whitespace-nowrap hover:text-foreground px-3 py-1.5">
                   {l.curto ? (
                     <>
                       <span className="xl:hidden">{l.curto}</span>
@@ -149,7 +151,7 @@ export default function SiteHeader({
             {!sessao && (
               <Link
                 href="/login"
-                className="hidden lg:inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-[color:var(--sutil)] transition"
+                className="hidden lg:inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-[color:var(--sutil)] pressiona"
                 style={{ borderColor: "color-mix(in oklab, var(--foreground) 22%, transparent)" }}
               >
                 Entrar
@@ -163,7 +165,7 @@ export default function SiteHeader({
             ) : sessao ? (
               <Link
                 href="/dashboard"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Painel</span>
@@ -175,7 +177,7 @@ export default function SiteHeader({
                  cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 transition"
+                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
                 {/* Um texto só, "Receber proposta". No celular o "Receber" fica

@@ -242,7 +242,7 @@ export default async function DashboardLayout({
     // tentativa anterior fez a coluna do meio rolar por dentro; parecia
     // igual, mas o Next reposicionava depois e a tela seguinte abria no
     // meio. No celular nada disso vale: lá o menu é uma gaveta.
-    <div className="tema-noite min-h-screen flex">
+    <div className="tema-noite painel-vidro min-h-screen flex">
       <DashboardSidebar
         grupos={montarGrupos(
           sessao,
@@ -259,7 +259,7 @@ export default async function DashboardLayout({
         {sessao.demo && <FaixaDemo />}
         {sessao.prefeituraId === PREFEITURA_TESTE_ID && <FaixaPainelTeste />}
         {!sessao.demo && <FaixaFinanceira situacao={situacaoFinanceira} />}
-        <header className="md:sticky md:top-0 relative z-10 border-b border-border bg-card pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
+        <header className="md:sticky md:top-0 relative z-10 border-b border-border cabecalho-painel pl-16 pr-4 sm:pl-8 sm:pr-8 py-3.5 flex items-center justify-between gap-3">
           <Link href="/dashboard/conta" className="flex items-center gap-3 min-w-0 group">
             <div
               className="w-9 h-9 rounded-full text-white flex items-center justify-center text-xs font-bold shrink-0 bg-cover bg-center"

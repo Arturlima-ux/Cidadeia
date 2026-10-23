@@ -314,9 +314,13 @@ body {
       box-shadow 0.2s var(--saida),
       border-color 0.2s ease;
   }
-  .card-interactive:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+  /* A elevação só com mouse: no toque o :hover dispara ao tocar e o cartão
+     fica "levantado" depois do toque. */
+  @media (hover: hover) and (pointer: fine) {
+    .card-interactive:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
   }
   .shadow-elevated {
     box-shadow: var(--shadow-sm);
@@ -1727,6 +1731,131 @@ select option {
 [data-rolou] .cabecalho-site {
   background: var(--background);
   border-color: var(--border);
+}
+
+/* ── VIDRO ──
+   Pedido do fundador a partir de referências de interface "glass" (outubro
+   de 2026). Duas regras para não pagar caro por ele:
+   1. O desfoque (backdrop-filter) só onde a área é pequena e fica parada: o
+      cabeçalho e o cartão do login. Desfocar dezenas de cartões no painel
+      faria o navegador reamostrar a página a cada rolagem, e computador de
+      prefeitura é fraco. No painel o vidro é só preenchimento translúcido,
+      borda clara e um fio de luz no topo, sem filtro.
+   2. Sem suporte a backdrop-filter, ou com "reduzir transparência" ligado no
+      sistema, tudo volta a ser opaco: translúcido sem desfoque é só sujeira
+      atrás do texto. */
+.vidro {
+  background: var(--card);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
+    0 24px 60px -24px rgba(0, 0, 0, 0.6);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-rolou] .cabecalho-site {
+    background: color-mix(in oklab, var(--background) 70%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+  .vidro {
+    background: color-mix(in oklab, var(--card) 62%, transparent);
+    -webkit-backdrop-filter: saturate(160%) blur(18px);
+    backdrop-filter: saturate(160%) blur(18px);
+  }  /* Menu que abre por cima de texto: quase opaco, para o texto de trás não
+     competir com o do menu. */
+  .vidro.vidro-forte { background: color-mix(in oklab, var(--card) 90%, transparent); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  [data-rolou] .cabecalho-site { background: var(--background); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .vidro { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Cabeçalho do painel: o mesmo vidro do site, por ser pequeno e fixo. */
+.cabecalho-painel { background: var(--card); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cabecalho-painel {
+    background: color-mix(in oklab, var(--card) 72%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cabecalho-painel { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Painel: fundo com uma luz roxa no alto e cartões de vidro sem filtro. */
+.painel-vidro {
+  background:
+    radial-gradient(70rem 40rem at 30% -14rem, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
+    var(--background);
+}
+.painel-vidro main .bg-card {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--foreground) 4%, transparent), transparent 40%),
+    color-mix(in oklab, var(--card) 86%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+/* ── MICROINTERAÇÕES DO CABEÇALHO ──
+   Links do menu: a cor muda e um fundo suave aparece atrás, só com mouse
+   (dezenas de vezes por dia: rápido e discreto). Botões em pílula afundam um
+   pouco ao apertar, que é a confirmação de que o clique chegou. */
+.link-menu {
+  border-radius: 9999px;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-menu:hover { background-color: color-mix(in oklab, var(--foreground) 7%, transparent); }
+}
+.pressiona {
+  transition: transform 140ms var(--saida), background-color 150ms ease, opacity 150ms ease;
+}
+.pressiona:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) {
+  .pressiona:active { transform: none; }
+}
+
+/* ── CAMPO DE LOGIN ──
+   Foco com brilho da marca: anel por box-shadow, que não mexe no layout. */
+.campo-vidro {
+  background: color-mix(in oklab, var(--background) 55%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.campo-vidro:focus {
+  outline: none;
+  border-color: var(--brand-claro);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 28%, transparent), 0 0 24px -4px color-mix(in oklab, var(--brand) 55%, transparent);
+}
+
+/* ── CHAVE EM CAIXAS (components/portal/CampoChave.tsx) ──
+   Uma caixa por caractere. A ativa ganha o brilho; preenchida, a borda
+   firma; certa, verde; errada, vermelha. Só cor, borda e sombra mudam (com
+   transição), e o "certo" entra com um leve crescer de 0.96 a 1. */
+.caixa-chave {
+  border: 1.5px solid color-mix(in oklab, var(--foreground) 14%, transparent);
+  background: color-mix(in oklab, var(--background) 50%, var(--card));
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.caixa-chave[data-cheia="1"] { border-color: color-mix(in oklab, var(--foreground) 32%, transparent); }
+.caixa-chave:focus {
+  outline: none;
+  border-color: var(--brand-claro);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 30%, transparent), 0 0 22px -4px color-mix(in oklab, var(--brand) 60%, transparent);
+}
+[data-estado="certo"] .caixa-chave {
+  border-color: var(--info);
+  box-shadow: 0 0 18px -6px color-mix(in oklab, var(--info) 70%, transparent);
+  animation: chave-certa 260ms var(--saida) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+[data-estado="errado"] .caixa-chave { border-color: var(--urgente); }
+@keyframes chave-certa {
+  from { transform: scale(0.96); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-estado="certo"] .caixa-chave { animation: none; }
 }
 
 /* Fundo liso da página inicial: escuro, com um único degradê roxo suave
