@@ -55,17 +55,15 @@ function varrerFontes(dir: string): string[] {
 const home = semComentarios(readFileSync("src/app/page.tsx", "utf8"));
 
 describe("prova social não promete portal que não existe", () => {
-  it("a afirmação de portal no ar é condicional", () => {
-    // Se voltar a ser texto solto, o site volta a mentir para quem confere.
+  it("a afirmação de portal no ar nunca é texto solto", () => {
+    // A lista de provas saiu da home (revisão de outubro de 2026, página mais
+    // curta). Se a frase voltar, tem de voltar dentro de função que recebe o
+    // estado real, e não como texto fixo.
     const posicao = home.indexOf("O portal já está no ar");
-    expect(posicao).toBeGreaterThan(-1);
-
-    // A afirmação precisa viver dentro da função que recebe o estado real.
+    if (posicao === -1) return;
     const inicioDaFuncao = home.indexOf("function autoridadeVerificavel");
-    const fimDaFuncao = home.indexOf("\n}", inicioDaFuncao);
     expect(inicioDaFuncao).toBeGreaterThan(-1);
     expect(posicao).toBeGreaterThan(inicioDaFuncao);
-    expect(posicao).toBeLessThan(fimDaFuncao);
   });
 
   it("nenhum link do site aponta para /transparencia sem checar se há portal", () => {
@@ -77,10 +75,10 @@ describe("prova social não promete portal que não existe", () => {
     }
   });
 
-  it("o texto de reserva convida ao Raio-X, que responde de verdade", () => {
-    // A substituição não pode ser uma promessa vaga: precisa apontar para algo
-    // que o cético abre e confere hoje, sobre a prefeitura dele.
-    expect(home).toContain("Ver o Raio-X do seu município");
+  it("sem portal no ar, a página mostra a cidade de exemplo, que existe de verdade", () => {
+    // O Raio-X agora é o próprio topo da home; a reserva da seção do portal é
+    // a cidade de exemplo, que qualquer um abre e confere.
+    expect(home).toContain("/transparencia/exemplo");
   });
 });
 

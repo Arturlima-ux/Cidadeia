@@ -131,10 +131,10 @@ export default function RaioXResultado({
         </p>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mt-5">
           <Link
-            href="/diagnostico"
+            href="/raio-x#conferencia"
             className="bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-6 py-3.5 transition shadow-elevated"
           >
-            Fazer o diagnóstico de conformidade&nbsp;&nbsp;→
+            Conferir o que não está no Tesouro&nbsp;&nbsp;→
           </Link>
           <Link
             href="/proposta"

@@ -14,22 +14,25 @@ import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 // Cada visual mostra o que o produto faz de verdade:
 // 1. as bases públicas que ele lê (as mesmas da faixa "Lê direto de");
 // 2. a conferência por exigência, cada uma com o artigo de lei;
-// 3. o aviso chegando no painel e por e-mail ao prefeito, que é o que
-//    lib/notificacoes.ts faz com alerta urgente. WhatsApp não aparece porque
-//    o produto não envia por lá.
+// 3. o trabalho que sai pronto, sem ninguém montar.
 
+// ── AUTOMAÇÃO, E NÃO AVISO ──
+// O terceiro passo era "avisa quem decide", e a seção inteira vendia alerta,
+// o produto que o fundador deixou para trás: o CidadeIA faz o trabalho, não
+// lembra alguém de fazê-lo (revisão de outubro de 2026). Os três passos agora
+// são o que o sistema faz sozinho, e o terceiro mostra o trabalho pronto.
 const PASSOS = [
   {
-    titulo: "Escolha o município",
-    texto: "O que já é público entra sozinho. Não há nada para instalar na prefeitura.",
+    titulo: "Os dados entram sozinhos",
+    texto: "O que já é público vem das bases oficiais toda semana, sem digitar e sem instalar nada na prefeitura.",
   },
   {
-    titulo: "Tudo entra organizado",
-    texto: "Cada secretaria recebe o seu dado arrumado, e cada exigência da lei é conferida com o artigo ao lado.",
+    titulo: "A lei é conferida sozinha",
+    texto: "Cada prazo e cada limite é conferido pelo sistema, com o artigo ao lado, sem planilha e sem ninguém precisar lembrar.",
   },
   {
-    titulo: "Avisa quem decide, publica o que a lei manda",
-    texto: "O que pede decisão chega ao prefeito no painel e por e-mail. O aviso que a lei manda publicar sai pronto, com o que a prefeitura já registrou.",
+    titulo: "O trabalho sai pronto",
+    texto: "Pedido de reposição, ofício, aviso público e relatório saem montados. A equipe confere e assina.",
   },
 ];
 
@@ -59,7 +62,7 @@ const ROTULO_ESTADO = { ok: "Em dia", atencao: "Atenção", falha: "Urgente" };
 export default function ComoFunciona() {
   return (
     <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-      <h2 className="inicio-h2 max-w-[18ch]">Do dado público à decisão.</h2>
+      <h2 className="inicio-h2 max-w-[18ch]">Do dado público ao trabalho feito.</h2>
       {/* grid-cols-1 e min-w-0 não são enfeite: sem eles, a coluna única do
           celular crescia até o conteúdo mais largo (os nomes das bases, que
           não quebram linha), e os três cartões saíam 90 px para fora da tela. */}
@@ -82,7 +85,7 @@ export default function ComoFunciona() {
 function Visual({ passo }: { passo: number }) {
   if (passo === 0) return <VisualFontes />;
   if (passo === 1) return <VisualConferencia />;
-  return <VisualAviso />;
+  return <VisualPronto />;
 }
 
 // ── 1. As bases entrando ──
@@ -178,90 +181,51 @@ function VisualConferencia() {
   );
 }
 
-// ── 3. O aviso chegando ──
-function VisualAviso() {
+// ── 3. O trabalho pronto ──
+// Cada linha é uma rotina que existe no código, e não promessa:
+// lib/estoque-saude (pedido de reposição em CSV), busca ativa (ofício ao
+// Conselho Tutelar), lib/obra-parada-publica (aviso de obra paralisada,
+// quando a decisão está completa), relatórios em PDF e o rascunho do plano
+// de contratações (Licitações).
+const PRONTOS = [
+  { doc: "Pedido de reposição da farmácia", de: "Saúde · tudo abaixo de 15 dias de cobertura", formato: "CSV" },
+  { doc: "Ofício ao Conselho Tutelar", de: "Educação · aluno há 15 dias fora da sala", formato: "para assinar" },
+  { doc: "Aviso de obra paralisada", de: "Obras · motivo, responsável e reinício", formato: "no portal" },
+  { doc: "Plano de contratações do ano seguinte", de: "Licitações · montado do histórico do PNCP", formato: "rascunho" },
+  { doc: "Relatório executivo do mês", de: "Gestão · para a reunião ou a câmara", formato: "PDF" },
+];
+
+function VisualPronto() {
   return (
-    <div className="h-full min-h-[320px] rounded-[24px] border border-border p-5 flex flex-col justify-center gap-4 overflow-hidden" style={{ background: "var(--card)" }}>
-      <m.div
-        initial={{ opacity: 0, y: -28, scale: 0.98 }}
-        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="rounded-2xl border p-4"
-        style={{ borderColor: "var(--urgente-borda)", background: "var(--urgente-tint)" }}
-      >
-        <div className="flex items-center justify-between gap-4 text-xs">
-          <span className="font-semibold" style={{ color: "var(--urgente)" }}>Urgente · no painel</span>
-          <span className="text-muted">agora</span>
-        </div>
-        <p className="mt-2 font-semibold tracking-[-0.02em] leading-snug">
-          Despesa com pessoal passou do prudencial: 52,4%.
-        </p>
-        <p className="mt-2 text-sm text-muted leading-relaxed">
-          Vedado criar cargo e conceder aumento (LRF, art. 22). Ação sugerida:
-          suspender novas nomeações até o próximo RGF.
-        </p>
-      </m.div>
-
-      <m.div
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.55, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="rounded-2xl border border-border p-4 flex items-center gap-3"
-      >
-        <span
-          className="w-10 h-10 rounded-full grid place-items-center text-sm font-semibold shrink-0"
-          style={{ background: "var(--brand-tint)", color: "var(--brand-claro)" }}
-          aria-hidden
-        >
-          @
-        </span>
-        <span className="min-w-0">
-          <span className="block text-sm font-medium">E-mail enviado à prefeita</span>
-          <span className="block text-xs text-muted mt-0.5 truncate">
-            Alerta urgente: despesa com pessoal acima do prudencial
-          </span>
-        </span>
-      </m.div>
-
-      {/* Um trabalho que o sistema faz sozinho, e não só avisa (revisão de
-          outubro de 2026): o aviso de obra paralisada que a Lei 14.133 manda
-          publicar vai ao portal sozinho quando a decisão registrada pela
-          prefeitura está completa (lib/obra-parada-publica.ts). */}
-      <m.div
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.75, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="rounded-2xl border border-border p-4 flex items-center gap-3"
-      >
-        <span
-          className="w-10 h-10 rounded-full grid place-items-center shrink-0"
-          style={{ background: "var(--accent-tint)", color: "var(--accent-claro)" }}
-          aria-hidden
-        >
-          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 10.5l4 4 8-9" />
-          </svg>
-        </span>
-        <span className="min-w-0">
-          <span className="block text-sm font-medium">Publicado sozinho no portal</span>
-          <span className="block text-xs text-muted mt-0.5">
-            Aviso de obra paralisada, assim que a prefeitura registra motivo, responsável e reinício (Lei 14.133, art. 115, § 6º)
-          </span>
-        </span>
-      </m.div>
-
-      <m.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 1.05, duration: 0.6 }}
-        className="text-xs text-muted"
-      >
-        Município de exemplo. O RGF oficial só sai no fim do quadrimestre.
-      </m.p>
+    <div className="h-full min-h-[320px] rounded-[24px] border border-border p-5" style={{ background: "var(--card)" }}>
+      <p className="text-xs text-muted">Saiu pronto esta semana · Município de exemplo</p>
+      <ul className="mt-3 flex flex-col">
+        {PRONTOS.map((p, i) => (
+          <m.li
+            key={p.doc}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 + i * 0.12, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center gap-3 py-2.5 border-b border-border last:border-b-0"
+          >
+            <span
+              className="w-6 h-6 rounded-full grid place-items-center shrink-0"
+              style={{ background: "var(--accent-tint)", color: "var(--accent-claro)" }}
+              aria-hidden
+            >
+              <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 10.5l4 4 8-9" />
+              </svg>
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-medium leading-snug">{p.doc}</span>
+              <span className="block text-xs text-muted mt-0.5">{p.de}</span>
+            </span>
+            <span className="text-[11px] font-medium rounded-full border border-border px-2 py-0.5 shrink-0 text-muted">{p.formato}</span>
+          </m.li>
+        ))}
+      </ul>
     </div>
   );
 }

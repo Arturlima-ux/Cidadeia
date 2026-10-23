@@ -103,7 +103,7 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
               ? "sob consulta (faixa sem tabela)"
               : `${formatarMoeda(proposta.mensal)}/mês · ${formatarMoeda(proposta.anual)}/ano`,
           ],
-          ["Contratação", proposta.incompleta || proposta.anual === 0 ? "a definir" : cabeNaDispensa(proposta.anual) ? `cabe na dispensa (${LIMITE_DISPENSA.base}), somado ao que a prefeitura já contratou em software no ano` : "acima da dispensa: pregão"],
+          ["Contratação", proposta.incompleta || proposta.anual === 0 ? "a definir" : cabeNaDispensa(proposta.anual) ? `dentro do limite da dispensa (${LIMITE_DISPENSA.base}), somado ao que a prefeitura já contratou em software no ano, com justificativa e pesquisa de preço (art. 72)` : "acima da dispensa: pregão"],
           ["Protocolo", protocolo],
         ],
       },

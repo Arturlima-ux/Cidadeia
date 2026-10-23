@@ -230,7 +230,7 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
           </span>{" "}
           <span className="text-muted">
             {explicacao(situacaoFinal, dado.modo === "real" ? dado.margemAtePrudencial : null)}
-            {dado.modo === "exemplo" && " O CidadeIA avisa quando o número começa a subir."}
+            {dado.modo === "exemplo" && " O CidadeIA confere cada RGF que sai e mostra quando o número começa a subir."}
           </span>
         </m.p>
       )}

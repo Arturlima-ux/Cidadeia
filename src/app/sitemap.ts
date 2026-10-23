@@ -17,7 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/solucoes`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/raio-x`, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${BASE}/diagnostico`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/como-contratar`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/conformidade`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/kit`, changeFrequency: "monthly", priority: 0.6 },

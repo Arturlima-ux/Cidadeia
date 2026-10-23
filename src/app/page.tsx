@@ -9,7 +9,6 @@ import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MontadorProposta from "@/components/site/MontadorProposta";
-import VideoExplicativo from "@/components/site/VideoExplicativo";
 import VitrinePortal from "@/components/site/VitrinePortal";
 import BarraConversao from "@/components/site/BarraConversao";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
@@ -29,7 +28,6 @@ import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
-import { CARGOS } from "@/lib/cargos";
 import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
 
 // ── A PÁGINA EM SEIS PARTES ──
@@ -47,43 +45,6 @@ import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta,
 // inteiras em /solucoes, /modulos e /como-contratar, e a home aponta para lá.
 // Saiu também a entrada animada de cada seção. Sobra um único momento de
 // movimento, no topo.
-
-// ── O QUE O VISITANTE CONSEGUE CONFERIR ──
-//
-// Cada linha aponta para algo que o visitante abre sozinho. É função, e não
-// lista fixa, porque a primeira afirmação só pode aparecer quando houver
-// portal publicado de verdade (tests/promessas-da-home.test.ts).
-function autoridadeVerificavel(temPortalNoAr: boolean) {
-  // O portal da transparência que o módulo Essencial põe no ar, dito como o
-  // cidadão vê: sem sigla e sem nome técnico. Cada linha é uma parte que
-  // existe de verdade em /transparencia/[slug].
-  return [
-    ...(temPortalNoAr
-      ? [
-          {
-            titulo: "O portal já está no ar",
-            texto: "Já tem cidade usando. Abra e veja funcionando, sem cadastro.",
-          },
-        ]
-      : []),
-    {
-      titulo: "Para onde vai o dinheiro",
-      texto: "Quanto a prefeitura recebeu e quanto gastou, com os números que ela já manda ao governo federal.",
-    },
-    {
-      titulo: "Obras e compras à vista",
-      texto: "Cada obra com o andamento, e cada licitação aberta para qualquer pessoa conferir.",
-    },
-    {
-      titulo: "Pedido com número de protocolo",
-      texto: "O morador pede um serviço, reclama, sugere ou denuncia (até sem se identificar) e acompanha a resposta pelo número.",
-    },
-    {
-      titulo: "No celular, sem cadastro",
-      texto: "Qualquer pessoa abre e entende. E a prefeitura mostra, na prática, que não tem nada a esconder.",
-    },
-  ];
-}
 
 // Bases que o produto de fato lê, cada uma com o arquivo que a consome em
 // lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
@@ -134,9 +95,8 @@ export default async function LandingPage({
   const sessao = await lerSessao();
 
   // Prova verificável no lugar de muro de logos: portais que qualquer um
-  // abre agora. Sem portal, a página convida ao Raio-X.
+  // abre agora. Sem portal, a página mostra a cidade de exemplo.
   const { portais } = await listarPortaisPublicados();
-  const portalVitrine = portais[0] ?? null;
 
   // ── O MORADOR VÊ OUTRO SITE ──
   // Outra cor (tema-morador), outro cabeçalho e outra página inteira: a
@@ -193,8 +153,9 @@ export default async function LandingPage({
                     medição de obra são digitados pela equipe; só o que já é
                     público entra sem ninguém digitar. */}
                 <p className="inicio-lead max-w-[40ch]">
-                  Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema. O que
-                  já é público entra sozinho das bases oficiais.
+                  Atendimento, secretarias, obras, saúde, educação e finanças num sistema que faz sozinho o que
+                  hoje é feito à mão: lê as bases oficiais, conta os prazos e deixa prontos pedidos, ofícios e
+                  relatórios.
                 </p>
 
                 {/* ── A AÇÃO, NA ORDEM EM QUE A PESSOA PENSA ──
@@ -213,6 +174,7 @@ export default async function LandingPage({
                     destino="/?m="
                     compacto
                     empilhado
+                    localNoCampo
                     rolarAoTopo={false}
                     placeholder="Digite o nome do município"
                     inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
@@ -223,14 +185,9 @@ export default async function LandingPage({
                       <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
                     </noscript>
                   </p>
-                  <Link
-                    href={comPara("morador")}
-                    scroll={false}
-                    className="mt-3 inline-flex min-h-11 items-center text-[15px] font-medium hover:opacity-80 transition"
-                    style={{ color: "var(--brand-claro)" }}
-                  >
-                    É morador? Veja o portal da sua cidade →
-                  </Link>
+                  {/* "É morador?" saiu daqui: a home é do gestor, e o topo tem
+                      uma ação só (revisão de outubro de 2026). O morador entra
+                      pelo rodapé, em "Portal da sua cidade". */}
                 </div>
               </div>
 
@@ -395,9 +352,6 @@ export default async function LandingPage({
                     >
                       Ver como é o portal
                     </Link>
-                    <Link href="/raio-x" className="inicio-sublinhado text-sm text-muted">
-                      Ver o Raio-X do seu município
-                    </Link>
                   </>
                 )}
               </div>
@@ -406,14 +360,6 @@ export default async function LandingPage({
 
           <VitrinePortal />
 
-          <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6 mt-10">
-            {autoridadeVerificavel(Boolean(portalVitrine)).filter((a) => a.titulo !== "O portal já está no ar").map((a) => (
-              <li key={a.titulo} className="border-t border-border pt-5">
-                <p className="font-semibold tracking-[-0.01em]">{a.titulo}</p>
-                <p className="text-sm text-muted leading-relaxed mt-1.5">{a.texto}</p>
-              </li>
-            ))}
-          </ul>
 
         </section>
 
@@ -451,52 +397,14 @@ export default async function LandingPage({
             Ver o panorama por estado
           </Link>
 
-          <div className="mt-20 border-t border-border pt-8">
-            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
-            <ul className="mt-5 grid md:grid-cols-3 gap-4">
-              {CARGOS.map((c) => (
-                <li key={c.slug}>
-                  <Link
-                    href={`/para/${c.slug}`}
-                    className="group block h-full rounded-2xl border border-border hover:border-brand p-6 transition"
-                    style={{ background: "var(--card)" }}
-                  >
-                    <p className="text-lg font-semibold tracking-[-0.02em]">{c.rotulo}</p>
-                    <p className="text-sm text-muted leading-relaxed mt-2">{c.chamada}</p>
-                    <p className="text-sm mt-4" style={{ color: "var(--brand-claro)" }}>
-                      Ver o que muda para você{" "}
-                      <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </section>
 
-        {/* ═══ O VÍDEO ═══
-            Trinta segundos, entre a prova e o pedido: o último empurrão, e o
-            que o secretário manda para o prefeito. Ver VideoExplicativo.tsx.
-            A capa é um quadro do próprio vídeo (14,5 s, o painel com o aviso
-            antecipado): quem tem movimento reduzido, ou rede lenta, vê o
-            produto, e não só o logo. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8">
-            <h2 className="inicio-h2 max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
-            <p className="text-muted leading-relaxed max-w-[40ch]">
-              Para assistir agora, ou mandar para quem decide.
-            </p>
-          </div>
-          <VideoExplicativo
-            src="/video/cidadeia-gestao.mp4"
-            srcWebm="/video/cidadeia-gestao.webm"
-            capa="/video/cidadeia-gestao-capa.jpg"
-            titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
-          />
-        </section>
 
         {/* ═══ PROPOSTA ═══ */}
+        {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
+            uma seção igual às outras (revisão de outubro de 2026). */}
         <section id="proposta" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+          <div className="rounded-[32px] border border-border px-5 py-10 sm:px-12 sm:py-14" style={{ background: "var(--superficie)" }}>
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16 items-end mb-12">
             <div>
               <h2 className="inicio-h2 max-w-[16ch]">Proposta pronta em um dia útil.</h2>
@@ -506,7 +414,7 @@ export default async function LandingPage({
               </p>
             </div>
             <div className="lg:border-l border-border lg:pl-10">
-              <p className="text-sm text-muted">Cabe na dispensa de licitação até</p>
+              <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
               <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
                 {formatarMoedaExata(LIMITE_DISPENSA.valor)}
               </p>
@@ -517,9 +425,17 @@ export default async function LandingPage({
               <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
                 {AVISO_FRACIONAMENTO.curto} {AVISO_FRACIONAMENTO.base}.
               </p>
+              {/* "Cabe na dispensa" dizia só metade: o valor abre a porta, mas
+                  a dispensa ainda pede justificativa do preço e pesquisa com
+                  outros fornecedores (art. 72), e o kit traz o modelo. */}
+              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
+                O valor não basta: a dispensa pede estimativa de despesa, pesquisa de preço e justificativa da escolha
+                (art. 72). O <Link href="/kit" className="underline underline-offset-2">kit de contratação</Link> traz o modelo.
+              </p>
             </div>
           </div>
-          <MontadorProposta />
+          <MontadorProposta municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+          </div>
 
           {/* ═══ O FECHO É O MONTADOR ═══
               O pedido de ligação saiu daqui em 14/10/2026: logo acima, o

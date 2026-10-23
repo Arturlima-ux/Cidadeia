@@ -98,7 +98,7 @@ export const CARGOS: Cargo[] = [
       {
         pergunta: "Contratar software na prefeitura demora.",
         resposta:
-          "Cabe na dispensa de licitação, e o processo vai pronto para o jurídico conferir: termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço.",
+          "O valor anual fica dentro do limite da dispensa de licitação, e o processo vai pronto para o jurídico conferir, com a pesquisa de preço que o art. 72 pede: termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço.",
       },
       {
         pergunta: "E se não servir para nós?",

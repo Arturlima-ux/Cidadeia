@@ -1,22 +1,17 @@
 import Link from "next/link";
-import SiteHeader from "@/components/site/SiteHeader";
-import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Diagnostico from "@/components/site/Diagnostico";
 import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
 
-export const metadata = {
-  title: "Diagnóstico de conformidade",
-  description:
-    "Treze exigências da LAI, da Lei 13.460, da LRF e da LGPD. Responda e veja onde o município está exposto, com o artigo de cada uma.",
-};
-
-export default function DiagnosticoPage() {
+// ── A SEGUNDA PARTE DO RAIO-X ──
+//
+// Era uma página à parte, o "Diagnóstico gratuito", e para quem chegava ela
+// parecia o mesmo que o Raio-X (revisão de outubro de 2026). Agora é a parte
+// 2 dele: o Raio-X lê o que está no Tesouro; esta conferência pergunta o que
+// não está em base pública. /diagnostico redireciona para cá.
+export default function ConferenciaConformidade() {
   return (
-    <div className="tema-noite min-h-screen">
-      <SiteHeader />
-      <main id="conteudo">
-
+    <div id="conferencia" className="scroll-mt-24 border-t border-border">
       <section className="max-w-3xl mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-10">
         <Reveal>
           <span
@@ -24,17 +19,19 @@ export default function DiagnosticoPage() {
             style={{ color: "var(--brand-claro)" }}
           >
             <span className="block w-6 h-px" style={{ background: "currentColor" }} />
-            Gratuito · sem cadastro
+            Parte 2 do Raio-X · sem cadastro
           </span>
 
-          <h1 className="titulo-pagina mt-6">
-            O que o seu município já descumpre?
-          </h1>
+          <h2 className="titulo-pagina mt-6">
+            O que os números públicos não mostram.
+          </h2>
 
           <p className="text-muted text-base sm:text-lg leading-relaxed mt-6 max-w-[54ch]">
-            {EXIGENCIAS.length} exigências da LAI, da Lei 13.460, da Lei de
-            Responsabilidade Fiscal e da LGPD. Responda em dois minutos e saia
-            com a lista do que falta — cada uma com o artigo que a cria.
+            O Tesouro mostra as contas. Ouvidoria, portal e proteção de dados não
+            estão em base pública: são {EXIGENCIAS.length} exigências da LAI, da
+            Lei 13.460, da Lei de Responsabilidade Fiscal e da LGPD. Responda em
+            dois minutos e saia com a lista do que falta, cada uma com o artigo
+            que a cria.
           </p>
 
           <div className="flex flex-wrap gap-x-6 gap-y-2 mt-7">
@@ -64,7 +61,7 @@ export default function DiagnosticoPage() {
       <section className="max-w-3xl mx-auto px-4 sm:px-8 pb-20 sm:pb-28">
         <Reveal>
           <div className="border border-border rounded-2xl p-6 sm:p-7" style={{ background: "var(--card)" }}>
-            <h2 className="font-serif text-lg font-bold">O que este diagnóstico não é</h2>
+            <h3 className="font-serif text-lg font-bold">O que esta conferência não é</h3>
             <ul className="flex flex-col gap-3 mt-4 text-sm text-muted leading-relaxed">
               <li>
                 <strong className="text-foreground font-semibold">
@@ -108,9 +105,6 @@ export default function DiagnosticoPage() {
         </Reveal>
       </section>
 
-      </main>
-
-      <SiteFooter />
     </div>
   );
 }
