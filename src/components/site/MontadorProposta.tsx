@@ -21,6 +21,8 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
   licitacoes: "Compras e contratos do PNCP",
 };
 
+const VOLTAR_PARA_PROPOSTA = "cidadeia:voltar-para-proposta";
+
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
   municipioInicial,
@@ -97,12 +99,35 @@ export default function MontadorProposta({
 
   // Com o município vindo do topo da página, a faixa é buscada uma vez, ao
   // abrir: o estado já nasceu com o nome, só falta a população do IBGE.
+  //
+  // ── E QUEM SUBIU DAQUI VOLTA PARA CÁ ──
+  // "Escolher o município no topo" fazia a pessoa subir, escolher e descer
+  // de novo procurando a proposta (revisão de outubro de 2026). Agora o
+  // clique deixa uma marca na aba; escolhido o município, a página volta
+  // sozinha até a proposta. Sem armazenamento disponível, só não volta.
   const jaBuscou = useRef(false);
   useEffect(() => {
     if (!municipioInicial || jaBuscou.current) return;
     jaBuscou.current = true;
     buscarPorte(municipioInicial.nome, municipioInicial.uf);
+    try {
+      if (sessionStorage.getItem(VOLTAR_PARA_PROPOSTA)) {
+        sessionStorage.removeItem(VOLTAR_PARA_PROPOSTA);
+        requestAnimationFrame(() => document.getElementById("proposta")?.scrollIntoView({ block: "start" }));
+      }
+    } catch {
+      // armazenamento bloqueado: a pessoa rola sozinha
+    }
   }, [municipioInicial]);
+
+  function irAoTopo() {
+    try {
+      sessionStorage.setItem(VOLTAR_PARA_PROPOSTA, "1");
+    } catch {
+      // segue sem a volta automática
+    }
+    setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400);
+  }
 
   // O pedido de proposta leva porte e módulos na URL — validados do outro
   // lado contra a tabela, nunca interpolados como texto — para o formulário
@@ -164,7 +189,7 @@ export default function MontadorProposta({
             !achado && !consultando && (
               <a
                 href="#municipio-topo"
-                onClick={() => setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400)}
+                onClick={irAoTopo}
                 className="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-medium hover:border-brand transition"
               >
                 Escolher o município no topo da página&nbsp;↑
@@ -180,22 +205,21 @@ export default function MontadorProposta({
             />
           )}
           {consultando && <p className="text-xs text-muted">Consultando o IBGE…</p>}
-          {achado && (
+          {achado && campoNoTopo && porte && (
+            <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-lg font-semibold tracking-[-0.02em]">{achado.split(":")[0].replace("/", ", ")}</span>
+              <span className="text-sm text-muted">· {PORTES.find((p) => p.chave === porte)?.rotulo} hab.</span>
+              <a href="#municipio-topo" onClick={irAoTopo} className="text-sm underline hover:no-underline" style={{ color: "var(--brand-claro)" }}>
+                trocar
+              </a>
+            </p>
+          )}
+          {achado && !campoNoTopo && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
               {achado}{" "}
-              {campoNoTopo ? (
-                <a
-                  href="#municipio-topo"
-                  onClick={() => setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400)}
-                  className="underline hover:no-underline"
-                >
-                  Trocar município
-                </a>
-              ) : (
-                <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
-                  Trocar município
-                </button>
-              )}
+              <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
+                Trocar município
+              </button>
             </p>
           )}
           {erroPorte && (
@@ -205,7 +229,7 @@ export default function MontadorProposta({
           )}
           {/* O porte é resultado, não escolha. Aparece só depois de o
               município ser identificado, e não tem clique. */}
-          {identificado ? (
+          {identificado && campoNoTopo ? null : identificado ? (
             <div className="rounded-xl border-[1.5px] border-brand bg-brand-tint px-4 py-3.5 flex items-center justify-between gap-3">
               <div>
                 <span className="block text-xs text-muted">Porte pela população do IBGE</span>

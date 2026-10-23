@@ -405,17 +405,20 @@ export default async function LandingPage({
               comprador se reconhecia (revisão de outubro de 2026). */}
           <div className="mt-14 border-t border-border pt-6 grid md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-4 md:gap-10 items-baseline">
             <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
-            <ul className="grid sm:grid-cols-3 gap-2">
+            <ul className="grid sm:grid-cols-3 gap-3">
               {CARGOS.map((c) => (
                 <li key={c.slug}>
                   <Link
                     href={`/para/${c.slug}`}
-                    className="group flex min-h-11 items-center justify-between gap-3 rounded-full border border-border hover:border-brand px-5 py-2.5 text-sm font-medium transition"
+                    className="group block h-full rounded-2xl border border-border hover:border-brand px-5 py-4 transition"
                   >
-                    {c.rotulo}
-                    <span className="inline-block transition-transform group-hover:translate-x-1" style={{ color: "var(--brand-claro)" }}>
-                      →
+                    <span className="flex items-center justify-between gap-3 font-semibold">
+                      {c.rotulo}
+                      <span className="inline-block transition-transform group-hover:translate-x-1" style={{ color: "var(--brand-claro)" }}>
+                        →
+                      </span>
                     </span>
+                    <span className="block text-sm text-muted leading-snug mt-1.5">{c.gancho}</span>
                   </Link>
                 </li>
               ))}

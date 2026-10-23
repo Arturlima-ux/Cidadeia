@@ -31,6 +31,8 @@ export type Cargo = {
   lead: string;
   /** Uma linha que resume a dor, para o cartão da home. */
   chamada: string;
+  /** Uma linha, para o cartão da home: o que faz a pessoa se reconhecer. */
+  gancho: string;
   riscos: Risco[];
   faz: string[];
   modulos: PlanoAddon[];
@@ -60,6 +62,7 @@ export const CARGOS: Cargo[] = [
     lead:
       "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, com o que é público lido sozinho das bases oficiais. E o que a lei fiscal exige, conferido a cada relatório, com cada prazo acompanhado: você fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
     chamada: "A prefeitura inteira numa tela, e as contas que pesam no seu CPF conferidas a cada relatório.",
+    gancho: "As contas que pesam no seu CPF, conferidas a cada relatório.",
     riscos: [
       {
         texto:
@@ -122,6 +125,7 @@ export const CARGOS: Cargo[] = [
     lead:
       "Receita, despesa e saldo do município consolidados num painel, a despesa por função lida sozinha do RREO e a despesa com pessoal do RGF. E, como quem responde pelas finanças assina o RGF junto com o prefeito, o CidadeIA confere no Tesouro todo dia o que já consta entregue e avisa antes do prazo. A planilha pode se aposentar.",
     chamada: "Receita, despesa e relatórios fiscais num lugar só, conferidos a cada publicação.",
+    gancho: "Os números do município num lugar só, e nenhum relatório vencido.",
     riscos: [
       {
         texto:
@@ -184,6 +188,7 @@ export const CARGOS: Cargo[] = [
     lead:
       "O responsável pelo controle interno que toma conhecimento de irregularidade tem de dar ciência ao Tribunal de Contas, sob pena de responsabilidade solidária. O CidadeIA põe o desvio na sua mesa enquanto ainda dá para corrigir dentro de casa.",
     chamada: "O desvio na sua mesa enquanto ainda dá para corrigir.",
+    gancho: "O desvio na sua mesa enquanto ainda dá para corrigir.",
     riscos: [
       {
         texto:
