@@ -24,12 +24,16 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
   municipioInicial,
+  campoNoTopo = false,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
   /** O município que a pessoa já escolheu no topo da home: não se pergunta
    *  de novo (revisão de outubro de 2026). */
   municipioInicial?: { nome: string; uf: string };
+  /** Na home, o município se escolhe só no campo do topo: um campo por
+   *  página. Aqui fica o nome escolhido, ou o caminho até o campo. */
+  campoNoTopo?: boolean;
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -154,20 +158,44 @@ export default function MontadorProposta({
               Eram três controles: nome, UF e "Descobrir o porte". Agora a
               pessoa digita o nome (ou usa a localização) e escolhe na lista;
               o porte sai do IBGE na hora. */}
-          <AcheSuaCidade
-            key={rodada}
-            compacto
-            empilhado
-            placeholder="Digite o nome do município"
-            aoEscolher={(c) => escolherMunicipio(c.nome, c.uf)}
-          />
+          {campoNoTopo ? (
+            // Um campo de município por página (revisão de outubro de 2026):
+            // na home ele mora no topo, e daqui se volta até ele.
+            !achado && !consultando && (
+              <a
+                href="#municipio-topo"
+                onClick={() => setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400)}
+                className="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-medium hover:border-brand transition"
+              >
+                Escolher o município no topo da página&nbsp;↑
+              </a>
+            )
+          ) : (
+            <AcheSuaCidade
+              key={rodada}
+              compacto
+              empilhado
+              placeholder="Digite o nome do município"
+              aoEscolher={(c) => escolherMunicipio(c.nome, c.uf)}
+            />
+          )}
           {consultando && <p className="text-xs text-muted">Consultando o IBGE…</p>}
           {achado && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
               {achado}{" "}
-              <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
-                Trocar município
-              </button>
+              {campoNoTopo ? (
+                <a
+                  href="#municipio-topo"
+                  onClick={() => setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400)}
+                  className="underline hover:no-underline"
+                >
+                  Trocar município
+                </a>
+              ) : (
+                <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
+                  Trocar município
+                </button>
+              )}
             </p>
           )}
           {erroPorte && (
