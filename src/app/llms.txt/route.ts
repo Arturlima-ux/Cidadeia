@@ -2,6 +2,7 @@ import { URL_BASE } from "@/lib/seo";
 import { FONTES_OFICIAIS, fontesPorExtenso, MUNICIPIOS_COM_PREFEITURA } from "@/lib/fontes-oficiais";
 import { MODULOS_DETALHE } from "@/lib/modulos-detalhe";
 import { PLANOS_ADDON } from "@/lib/planos";
+import { GUIAS } from "@/lib/guias";
 
 // ── /llms.txt ──
 // Um mapa curto, em texto, para assistentes de IA acharem o que importa sem
@@ -34,6 +35,9 @@ ${modulos}
 - [Como contratar](${u("/como-contratar")}): dispensa por valor, pregão e adesão a ata, com a base legal
 - [Kit de contratação](${u("/kit")}): termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço
 - [Conformidade legal](${u("/conformidade")}): o que a LAI, a Lei 13.460, a LRF e a LGPD exigem e o que o sistema entrega
+
+## Guias
+${GUIAS.map((g) => `- [${g.chamada}](${u(`/guias/${g.slug}`)}): ${g.descricao}`).join("\n")}
 
 ## Sobre
 - [Perguntas frequentes](${u("/faq")})

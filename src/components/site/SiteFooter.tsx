@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { linhaIdentificacao } from "@/lib/empresa";
+import LinkOficial from "@/components/site/LinkOficial";
+import { LEIS } from "@/lib/links-oficiais";
 
 const COLUNAS = [
   {
@@ -33,6 +35,7 @@ const COLUNAS = [
       { href: "/kit", label: "Kit de contratação" },
       { href: "/proposta/acompanhar", label: "Acompanhar pedido" },
       { href: "/conformidade", label: "Conformidade legal" },
+      { href: "/guias", label: "Guias de LRF, LAI e contratação" },
       { href: "/solucoes", label: "Todos os produtos" },
     ],
   },
@@ -140,7 +143,8 @@ export default function SiteFooter() {
         <p className="text-xs leading-relaxed text-white/55 mt-5 max-w-4xl">
           O CidadeIA é ferramenta de apoio à gestão; as informações publicadas no
           portal de transparência são de responsabilidade do município. Os limites
-          de contratação citados seguem a Lei 14.133/2021, atualizados pelo{" "}
+          de contratação citados seguem a{" "}
+          <LinkOficial href={LEIS.lei14133.url} className="decoration-white/30">Lei 14.133/2021</LinkOficial>, atualizados pelo{" "}
           {LIMITE_DISPENSA.atualizadoPor} e reajustados anualmente — confirme o
           valor vigente com a assessoria jurídica da prefeitura.
         </p>

@@ -10,6 +10,8 @@ import {
   type SituacaoPessoal,
 } from "@/lib/despesa-pessoal";
 import { formatarMoeda } from "@/lib/formatadores";
+import LinkOficial from "@/components/site/LinkOficial";
+import { SICONFI } from "@/lib/links-oficiais";
 
 // A régua da LRF é o objeto mais reconhecível do mundo de quem compra: todo
 // secretário de fazenda conhece os patamares do art. 59. Sem município
@@ -242,10 +244,14 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
         {dado.modo === "real" && dado.nota
           ? dado.nota
           : dado.modo === "real"
-          ? `Declarado pela prefeitura no ${dado.periodo}. Fonte: Tesouro Nacional, SICONFI.` +
-            (dado.baseDeReserva
-              ? " O anexo não trouxe a receita ajustada; o percentual usa a base de reserva do mesmo documento."
-              : "")
+          ? (
+              <>
+                Declarado pela prefeitura no {dado.periodo}. Fonte:{" "}
+                <LinkOficial href={SICONFI}>Tesouro Nacional, SICONFI</LinkOficial>.
+                {dado.baseDeReserva &&
+                  " O anexo não trouxe a receita ajustada; o percentual usa a base de reserva do mesmo documento."}
+              </>
+            )
           : dado.modo === "exemplo"
             ? (dado.aviso ?? "Município de exemplo. Escolha o seu para ver o número real.")
             : "Dado público, sem cadastro."}

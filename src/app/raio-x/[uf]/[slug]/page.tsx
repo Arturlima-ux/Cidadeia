@@ -3,6 +3,8 @@ import { registrarEvento } from "@/lib/registrar-evento";
 import Link from "next/link";
 import DadosDoTesouro from "./DadosDoTesouro";
 import EsqueletoRaioX from "@/components/site/EsqueletoRaioX";
+import LinkOficial from "@/components/site/LinkOficial";
+import { LINK_DA_FONTE, SICONFI } from "@/lib/links-oficiais";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -17,6 +19,7 @@ import { montarRaioX } from "@/lib/raio-x";
 import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { hojeEmBrasilia } from "@/lib/cobranca";
+import PrazosDoMunicipio from "@/components/site/PrazosDoMunicipio";
 import { compartilhamento, JsonLdScript, ldBreadcrumb, ldDadosDoMunicipio } from "@/lib/seo";
 import { NOME_DOS_ESTADOS } from "@/lib/estados";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
@@ -201,6 +204,14 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
           </div>
         </section>
 
+        {m.uf !== "DF" && (
+          <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-12">
+            <div className="max-w-4xl">
+              <PrazosDoMunicipio nome={m.nome} uf={m.uf} populacao={m.populacao} hoje={hojeEmBrasilia()} />
+            </div>
+          </section>
+        )}
+
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-12">
           <div className="max-w-4xl">
             <CapturaLeadRaioX codigoIbge={m.codigo} municipio={m.nome} />
@@ -242,7 +253,8 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             Todas as prefeituras {doEstado(m.uf as Estado)}
           </Link>
           <p className="text-xs text-muted mt-6 leading-relaxed max-w-[62ch]">
-            Fonte: API pública do SICONFI, Tesouro Nacional, e estimativa de população do IBGE.
+            Fonte: API pública do <LinkOficial href={SICONFI}>SICONFI, Tesouro Nacional</LinkOficial>, e
+            estimativa de população do <LinkOficial href={LINK_DA_FONTE.IBGE}>IBGE</LinkOficial>.
             Os percentuais da receita são indício, não cálculo de mínimo constitucional — a base
             legal do mínimo não é a receita total.
           </p>

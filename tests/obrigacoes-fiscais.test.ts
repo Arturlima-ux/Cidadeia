@@ -43,10 +43,12 @@ describe("catálogo de obrigações", () => {
 });
 
 describe("periodicidade do RGF por porte", () => {
-  it("permite semestral só até 50 mil habitantes", () => {
-    // Art. 63, I, "b" da LRF.
+  it("permite semestral só abaixo de 50 mil habitantes", () => {
+    // Art. 63, II, "b" da LRF: "população inferior a cinquenta mil". Com
+    // exatamente 50 mil o município já não pode optar.
     expect(podeOptarPorSemestral(8_000)).toBe(true);
-    expect(podeOptarPorSemestral(50_000)).toBe(true);
+    expect(podeOptarPorSemestral(49_999)).toBe(true);
+    expect(podeOptarPorSemestral(50_000)).toBe(false);
     expect(podeOptarPorSemestral(50_001)).toBe(false);
     expect(podeOptarPorSemestral(null)).toBe(false);
   });

@@ -6,6 +6,7 @@ import { ESTADOS } from "@/lib/estados";
 import { PANORAMA } from "@/lib/panorama";
 import { NOTICIAS } from "@/lib/noticias";
 import { URL_BASE } from "@/lib/seo";
+import { GUIAS } from "@/lib/guias";
 
 // ── O MAPA DO SITE, UM ARQUIVO POR ESTADO ──
 //
@@ -25,6 +26,8 @@ import { URL_BASE } from "@/lib/seo";
 // ── FORA DO MAPA ──
 // Brasília: o DF não tem prefeitura (lib/fontes-oficiais.ts), e a página
 // mostra um município de exemplo. A página do DF no Raio-X também sai.
+// Carreiras: sem vaga aberta, a página é quase vazia; saiu do rodapé na
+// revisão de outubro e sai daqui também (fica no ar, com noindex).
 
 export const ID_PAGINAS = "paginas";
 const SEM_PREFEITURA = "DF";
@@ -56,6 +59,13 @@ export function paginasFixas(hoje: Date = new Date()): MetadataRoute.Sitemap {
     { url: u("/quem-somos"), changeFrequency: "monthly", priority: 0.7 },
     { url: u("/kit"), changeFrequency: "monthly", priority: 0.6 },
     { url: u("/faq"), changeFrequency: "monthly", priority: 0.6 },
+    { url: u("/guias"), changeFrequency: "monthly", priority: 0.6 },
+    ...GUIAS.map((g) => ({
+      url: u(`/guias/${g.slug}`),
+      lastModified: new Date(`${g.revisadoEm}T12:00:00-03:00`),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
     { url: u("/noticias"), lastModified: ultimaNoticia, changeFrequency: "weekly", priority: 0.6 },
     { url: u("/governanca"), changeFrequency: "monthly", priority: 0.5 },
     { url: u("/fale-conosco"), changeFrequency: "yearly", priority: 0.5 },
@@ -63,7 +73,6 @@ export function paginasFixas(hoje: Date = new Date()): MetadataRoute.Sitemap {
     { url: u("/disponibilidade"), lastModified: hoje, changeFrequency: "daily", priority: 0.5 },
     { url: u("/seguranca"), changeFrequency: "yearly", priority: 0.4 },
     { url: u("/acessibilidade"), changeFrequency: "yearly", priority: 0.4 },
-    { url: u("/carreiras"), changeFrequency: "monthly", priority: 0.3 },
     { url: u("/proposta/acompanhar"), changeFrequency: "yearly", priority: 0.3 },
     { url: u("/privacidade"), changeFrequency: "yearly", priority: 0.2 },
     { url: u("/termos"), changeFrequency: "yearly", priority: 0.2 },

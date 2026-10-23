@@ -96,8 +96,9 @@ export function obrigacaoPor(chave: string): Obrigacao | undefined {
 /**
  * Periodicidade do RGF conforme o porte do município.
  *
- * A regra geral é quadrimestral, mas o art. 63, I, "b" da LRF faculta a
- * município com até 50 mil habitantes divulgar semestralmente. Como a
+ * A regra geral é quadrimestral, mas o art. 63, II, "b" da LRF faculta a
+ * município com população INFERIOR a 50 mil habitantes divulgar
+ * semestralmente (com exatamente 50 mil, não pode). Como a
  * população já está cadastrada, o calendário se ajusta sozinho em vez de
  * cobrar de uma prefeitura pequena três entregas que a lei não exige dela.
  *
@@ -106,12 +107,12 @@ export function obrigacaoPor(chave: string): Obrigacao | undefined {
  * esconderia uma entrega que talvez seja devida.
  */
 export function periodicidadeRgf(populacao: number | null | undefined, optouSemestral = false): Periodicidade {
-  const podeOptar = typeof populacao === "number" && populacao > 0 && populacao <= 50_000;
+  const podeOptar = podeOptarPorSemestral(populacao);
   return podeOptar && optouSemestral ? "semestral" : "quadrimestral";
 }
 
 export function podeOptarPorSemestral(populacao: number | null | undefined): boolean {
-  return typeof populacao === "number" && populacao > 0 && populacao <= 50_000;
+  return typeof populacao === "number" && populacao > 0 && populacao < 50_000;
 }
 
 export type PeriodoObrigacao = {

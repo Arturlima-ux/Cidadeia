@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { proporcaoDaReceita } from "@/lib/raio-x-calculo";
 import type { RaioX, NumeroComFonte } from "@/lib/raio-x";
+import LinkOficial from "@/components/site/LinkOficial";
+import { LINK_DA_FONTE, SICONFI } from "@/lib/links-oficiais";
 
 // ── O RESULTADO DO RAIO-X, RENDERIZÁVEL PELO SERVIDOR ──
 //
@@ -146,8 +148,8 @@ export default function RaioXResultado({
       </div>
 
       <p className="text-xs text-muted leading-relaxed">
-        Fonte: API pública do SICONFI, Tesouro Nacional, e base de municípios do
-        IBGE. Consultado em{" "}
+        Fonte: API pública do <LinkOficial href={SICONFI}>SICONFI, Tesouro Nacional</LinkOficial>, e
+        base de municípios do <LinkOficial href={LINK_DA_FONTE.IBGE}>IBGE</LinkOficial>. Consultado em{" "}
         {new Date(raioX.consultadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}.
         Os percentuais da receita são indício, não cálculo de mínimo
         constitucional — a base legal do mínimo não é a receita total.

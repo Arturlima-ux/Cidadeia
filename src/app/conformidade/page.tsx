@@ -4,6 +4,8 @@ import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
+import LinkOficial from "@/components/site/LinkOficial";
+import { LEIS } from "@/lib/links-oficiais";
 import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
 import { CONFORMIDADE, OBJECOES } from "@/lib/textos-contratacao";
 
@@ -38,7 +40,10 @@ export default function ConformidadePage() {
                   {EXIGENCIAS.length} exigências. Cada uma com o artigo que a cria.
                 </p>
                 <p className="text-muted leading-relaxed mt-5 max-w-[50ch]">
-                  LAI, Lei 13.460, LRF e LGPD, em quatro blocos. O diagnóstico
+                  <LinkOficial href={LEIS.lai.url}>LAI</LinkOficial>,{" "}
+                  <LinkOficial href={LEIS.lei13460.url}>Lei 13.460</LinkOficial>,{" "}
+                  <LinkOficial href={LEIS.lrf.url}>LRF</LinkOficial> e{" "}
+                  <LinkOficial href={LEIS.lgpd.url}>LGPD</LinkOficial>, em quatro blocos. O diagnóstico
                   gratuito confere as {EXIGENCIAS.length} contra a situação do seu
                   município — sem cadastro, sem enviar nada.
                 </p>

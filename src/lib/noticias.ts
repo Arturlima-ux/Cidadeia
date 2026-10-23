@@ -109,3 +109,20 @@ export function dataDaNoticia(iso: string): string {
   const [a, m, d] = iso.split("-").map(Number);
   return `${d} de ${MESES[m - 1]} de ${a}`;
 }
+
+/**
+ * Âncora de cada notícia em /noticias (#a-visao-do-prefeito-ganha-...).
+ * Notícia não ganha página própria: o texto é um parágrafo, e uma página só
+ * com ele seria conteúdo raso aos olhos do Google. A âncora dá o endereço
+ * para compartilhar e citar; o schema da lista diz o que é cada uma.
+ */
+export function ancoraDaNoticia(n: Pick<Noticia, "titulo">): string {
+  const slug = n.titulo
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (slug.length <= 60) return slug;
+  return slug.slice(0, 60).replace(/-[^-]*$/, "");
+}

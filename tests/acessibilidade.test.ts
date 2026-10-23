@@ -28,8 +28,9 @@ describe("acessibilidade", () => {
     for (const p of paginasPublicas()) {
       const s = readFileSync(p, "utf8");
       const temMain = /<main[^>]*id="conteudo"/.test(s);
-      // PortalCidade traz o <main id="conteudo"> do portal (real e exemplo); PlacaObraParada, o da placa.
-      const usaTemplate = /PaginaLegal|FormularioCadastro|<PortalCidade|<PlacaObraParada/.test(s);
+      // PortalCidade traz o <main id="conteudo"> do portal (real e exemplo); PlacaObraParada, o da placa;
+      // GuiaArtigo, o dos guias.
+      const usaTemplate = /PaginaLegal|FormularioCadastro|<PortalCidade|<PlacaObraParada|<GuiaArtigo/.test(s);
       if (!temMain && !usaTemplate) semMain.push(p);
     }
     expect(semMain).toEqual([]);

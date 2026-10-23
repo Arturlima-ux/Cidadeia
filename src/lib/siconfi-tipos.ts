@@ -1,6 +1,6 @@
 // ── O RELATÓRIO SIMPLIFICADO ──
 //
-// O município com até 50 mil habitantes pode entregar o RREO e o RGF na versão
+// O município com menos de 50 mil habitantes pode entregar o RREO e o RGF na versão
 // SIMPLIFICADA (LRF, art. 63). É a maioria dos municípios do país. O Tesouro
 // guarda essa versão com outro tipo de demonstrativo, "RREO Simplificado" e
 // "RGF Simplificado", e a consulta pelo tipo comum volta vazia para eles.

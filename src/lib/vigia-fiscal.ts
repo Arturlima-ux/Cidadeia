@@ -39,7 +39,7 @@ export type SituacaoFiscal = {
 /**
  * A periodicidade do RGF que a prefeitura de fato usa.
  *
- * Município de até 50 mil habitantes pode optar pelo semestral (LRF, art. 63),
+ * Município com menos de 50 mil habitantes pode optar pelo semestral (LRF, art. 63),
  * e o cadastro nem sempre sabe se optou. O extrato sabe: o que ela entregou
  * neste ano, ou no anterior, diz a escolha.
  */
