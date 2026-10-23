@@ -144,3 +144,19 @@ export function gerarSlug(municipio: string, estado: string): string {
     .replace(/^-+|-+$/g, "");
   return base || "municipio";
 }
+
+/**
+ * O que a fila vazia diz. O secretário não vê o cartão do portal (só o
+ * gestor o configura), então mandá-lo "ativar o portal acima" apontava para
+ * um botão que não existe na tela dele.
+ */
+export function textoFilaVazia(gestor: boolean, portalAtivo: boolean): string {
+  if (!gestor) {
+    return portalAtivo
+      ? "Quando um cidadão endereçar uma manifestação à sua secretaria pelo portal, ela aparece aqui."
+      : "O portal público do município está desativado; quem ativa é o gabinete do prefeito. Enquanto isso, nenhuma manifestação chega por ele.";
+  }
+  return portalAtivo
+    ? "Quando um cidadão abrir uma manifestação no portal, ela aparece aqui."
+    : "Ative o portal público acima para começar a receber manifestações.";
+}
