@@ -24,6 +24,31 @@ import { encerrada } from "@/lib/obras-federais";
 // e largada é exatamente a prática que a transparência desmonta. Mostramos
 // os dois números lado a lado, sem adjetivo: o fato fala.
 //
+// ── SOZINHO, MAS SÓ QUANDO O AVISO ESTÁ COMPLETO ──
+//
+// A revisão de outubro de 2026 apontou: motivo, responsável e data de
+// reinício são coisas que só a prefeitura sabe, e um aviso legal publicado
+// com "motivo não informado" é um ato em nome do município que ninguém
+// assinou. Decisão do fundador: o sistema publica sozinho QUANDO o aviso está
+// completo, e o completo nasce do que a própria prefeitura já registrou na
+// decisão sobre a obra (art. 111). Faltando algum dos três, o aviso espera
+// pronto no painel, dizendo o que falta. É a pessoa no circuito, sem um
+// botão a mais: quem registra a decisão já decidiu.
+//
+// O responsável sai do tipo de decisão, que é a própria lei:
+//   · mora do contratado (art. 111, parágrafo único, I) → a contratada;
+//   · prorrogação automática (art. 111, caput) → a Administração, porque a
+//     prorrogação só é automática quando a culpa não é da contratada.
+// Nos outros tipos a lei não diz quem responde, e o aviso fica pendente.
+//
+// Obra federal (ObrasGov) é outra coisa: o registro é do governo federal, e
+// não traz data de reinício. Ela aparece no portal como dado público do
+// ObrasGov, com a fonte, e não como o aviso oficial do município.
+//
+// O § 6º manda divulgar em "sítio eletrônico oficial". O portal do cidadão
+// complementa o site oficial da prefeitura; a placa e o texto do aviso saem
+// prontos para serem replicados lá.
+//
 // Esta é a parte pura. A leitura está em lib/portal-servidor.ts.
 
 export const DIAS_PARA_AVISO = 30;
@@ -49,6 +74,10 @@ export type ObraParadaPublica = {
   pagoPct: number | null;
   pagamentoAFrente: boolean;
   fonte: string;
+  /** "completo": municipal com motivo, responsável e reinício; vai ao portal sozinho. */
+  aviso: "completo" | "pendente" | "federal";
+  /** O que falta para o aviso municipal sair, em palavras do gestor. */
+  falta: string[];
 };
 
 type ObraMunicipal = {
@@ -81,6 +110,18 @@ function pagamento(executado: number | null, valorBase: number | null, pago: num
   return { pagoPct, pagamentoAFrente };
 }
 
+/** Quem responde pela paralisação, pelo tipo de decisão (art. 111). */
+export function responsavelPelaDecisao(tipo: string | undefined, fornecedor: string | null): string | null {
+  if (tipo === "mora_do_contratado") return fornecedor?.trim() ? `Contratada: ${fornecedor.trim()}` : null;
+  if (tipo === "prorrogacao_automatica") return "A prefeitura (prorrogação sem culpa da contratada, art. 111 da Lei 14.133/2021)";
+  return null;
+}
+
+/** O que vai ao portal: só aviso municipal completo e o registro federal. */
+export function paraOPortal(lista: ObraParadaPublica[]): ObraParadaPublica[] {
+  return lista.filter((o) => o.aviso !== "pendente");
+}
+
 export function obrasParadasParaPublicar(
   municipais: ObraMunicipal[],
   decisoes: DecisaoMunicipal[],
@@ -100,6 +141,14 @@ export function obrasParadasParaPublicar(
     const d = ultimaDecisao.get(o.id);
     const desde = dia(o.atualizadoEm);
     const executado = o.progressoAtual;
+    const motivo = d?.justificativa?.trim() || null;
+    const retomadaPrevista = dia(d?.novaPrevisao);
+    const responsavel = responsavelPelaDecisao(d?.tipo, o.fornecedorNome);
+    const falta = [
+      motivo ? null : "o motivo",
+      responsavel ? null : "o responsável",
+      retomadaPrevista ? null : "a data prevista de reinício",
+    ].filter((x): x is string => x !== null);
     lista.push({
       id: `m-${o.id}`,
       origem: "municipal",
@@ -110,14 +159,16 @@ export function obrasParadasParaPublicar(
       diasParada: diasDesde(desde, hoje),
       // A justificativa registrada na decisão sobre a obra é o motivo que o
       // gestor já escreveu para o Tribunal: o mesmo texto serve ao morador.
-      motivo: d?.justificativa?.trim() || null,
-      responsavel: o.fornecedorNome,
-      retomadaPrevista: dia(d?.novaPrevisao),
+      motivo,
+      responsavel,
+      retomadaPrevista,
       executado,
       valorBase: o.valorContrato,
       pago: null,
       ...pagamento(executado, o.valorContrato, null),
       fonte: "Prefeitura",
+      aviso: falta.length ? "pendente" : "completo",
+      falta,
     });
   }
 
@@ -142,6 +193,8 @@ export function obrasParadasParaPublicar(
       pago: o.pago,
       ...pagamento(o.percentual, o.empenhado, o.pago),
       fonte: "ObrasGov",
+      aviso: "federal",
+      falta: [],
     });
   }
 

@@ -214,7 +214,7 @@ export const CARGOS: Cargo[] = [
       {
         pergunta: "O alerta vai direto para o Tribunal de Contas?",
         resposta:
-          "Não. O CidadeIA avisa a prefeitura, e só ela. Nada é publicado nem enviado a órgão de controle; a decisão do que fazer continua com quem tem a competência.",
+          "Não. O alerta vai só para a prefeitura, e nunca a órgão de controle. O que vai ao portal do cidadão é só o que a própria prefeitura registrou e a lei manda publicar, como o aviso de obra paralisada com o motivo e a data de reinício que o gestor escreveu. A decisão do que fazer continua com quem tem a competência.",
       },
       {
         pergunta: "Já fazemos essa conferência à mão.",

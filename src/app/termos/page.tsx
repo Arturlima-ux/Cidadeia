@@ -1,11 +1,13 @@
+import { compartilhamento } from "@/lib/seo";
 import PaginaLegal from "@/components/site/PaginaLegal";
 import { TERMOS_DE_USO } from "@/lib/documentos-legais";
 
-export const metadata = {
-  title: "Termos de uso",
-  description:
-    "O que o CidadeIA é, o que ele não é, e as regras de uso do sistema e do site.",
-};
+export const metadata = compartilhamento({
+  titulo: "Termos de uso",
+  descricao:
+    "O que o CidadeIA é e não é, as regras da conta, da contratação e do encerramento.",
+  caminho: "/termos",
+});
 
 export default function TermosPage() {
   return (

@@ -1,88 +1,131 @@
+import { EMPRESA, type DadosEmpresa } from "@/lib/empresa";
+import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
+
 // ── POLÍTICA DE PRIVACIDADE E TERMOS DE USO ──
 //
-// O rodapé linkava os dois para /sobre, que é "Segurança & LGPD" — uma página
-// que explica COMO os dados são protegidos, não um documento que diz o que é
-// coletado, com que base legal e por quanto tempo. Não é a mesma coisa, e o
-// setor jurídico de uma prefeitura sabe disso: é a primeira pasta que ele abre
-// antes de autorizar a contratação.
+// O rodapé linkava os dois para /sobre (hoje /seguranca), que explica COMO os
+// dados são protegidos, e não o que é coletado, com que base legal e por
+// quanto tempo. O jurídico da prefeitura abre esta pasta antes de autorizar.
 //
-// O texto é curto de propósito. Política longa e genérica é a que ninguém lê e
-// que descreve um produto que não é este — fala de rastreadores de terceiros,
-// perfis publicitários e transferência internacional que aqui não existem.
-// Cada afirmação abaixo corresponde a algo verificável no código:
+// Cada afirmação corresponde a algo verificável no código. A revisão de
+// outubro de 2026 achou a versão de setembro desatualizada: dizia que não
+// havia formulário (há o pedido de proposta e o de ligação), não nomeava
+// controlador nem encarregado, não falava de transferência internacional nem
+// do provedor de inteligência artificial, e calava sobre os dados de saúde e
+// de crianças e adolescentes que os módulos novos tratam. O que mudou:
 //
-//   - o contato do site é um `mailto:` (ContatoEmail.tsx), então nenhum
-//     formulário de contato grava dado em servidor nosso;
-//   - o diagnóstico roda inteiro no navegador — a pasta app/diagnostico tem
-//     só page.tsx, sem action nem rota de escrita;
-//   - a sessão é um cookie httpOnly assinado (lib/sessao.ts);
-//   - a exclusão em cascata está declarada em 20 tabelas (db/schema.ts), o que
-//     é o que torna verdadeira a promessa de apagar tudo junto com a conta;
-//   - as consultas externas vão a SICONFI, PNCP e IBGE, todas públicas, e a
-//     nenhuma delas se envia dado de usuário.
+//   - formulários: pedido de proposta (pedidos_proposta: nome, cargo, e-mail,
+//     telefone, município, módulos, observação), pedido de ligação (nome,
+//     cargo, telefone, horário) e aviso do Raio-X (leads: nome, cargo,
+//     e-mail, município);
+//   - visitas: contadas sem cookie, com identificador diário embaralhado
+//     (lib/registrar-evento.ts, lib/analytics.ts);
+//   - conta: nome, CPF/CNPJ, e-mail, celular e foto de perfil opcionais
+//     (usuarios.celular, usuarios.foto_url);
+//   - hospedagem: Vercel na região gru1 e banco Supabase em sa-east-1 (São
+//     Paulo), mas empresas estrangeiras; e-mail por Gmail ou Resend;
+//     inteligência artificial pela Anthropic, nos Estados Unidos;
+//   - a IA recebe dados de gestão e, das manifestações, só tipo, situação e
+//     datas (lib/ia.ts), nunca texto, nome ou contato do cidadão.
 //
 // SE ALGUMA DESSAS COISAS MUDAR, ESTE ARQUIVO MUDA JUNTO. Documento legal que
-// descreve um sistema que não existe mais é pior que documento nenhum: vira
-// declaração falsa assinada.
+// descreve um sistema que não existe mais vira declaração falsa assinada.
 
 /** Data da última revisão, mostrada nas duas páginas. */
-export const VIGENCIA_DOCUMENTOS = "9 de setembro de 2026";
+export const VIGENCIA_DOCUMENTOS = "23 de outubro de 2026";
 
 export type SecaoLegal = { titulo: string; paragrafos: string[] };
 
-export const POLITICA_PRIVACIDADE: SecaoLegal[] = [
-  {
-    titulo: "Quem é responsável pelos dados",
-    paragrafos: [
-      "Há dois papéis diferentes aqui, e confundi-los é o erro mais comum. Sobre os dados de quem VISITA ou usa este site, o CidadeIA é o controlador. Sobre os dados que uma prefeitura cliente cadastra no sistema — inclusive manifestações de cidadãos e informações de saúde e educação —, o controlador é o município, e o CidadeIA atua como operador, tratando apenas o que o município determina.",
-      "Isso não é formalidade: significa que um cidadão que queira exercer direitos sobre dados que estão no sistema de uma prefeitura deve procurar aquela prefeitura, que é quem decide sobre eles. O acordo de tratamento de dados que rege essa relação vai anexo ao contrato e está disponível no kit de contratação, sem cadastro.",
-    ],
-  },
-  {
-    titulo: "O que este site coleta de quem apenas navega",
-    paragrafos: [
-      "Praticamente nada, e isso é verificável. O canal de contato é um endereço de e-mail comum: ao clicar, abre o seu próprio programa de e-mail, e a mensagem vai direto para nós sem passar por formulário nosso. O diagnóstico de conformidade roda inteiro no seu navegador — as respostas não são enviadas nem armazenadas em servidor algum, e fechar a aba as apaga.",
-      "Não usamos rastreadores de publicidade, não montamos perfil de navegação e não vendemos nem compartilhamos dado com terceiros para fins comerciais.",
-    ],
-  },
-  {
-    titulo: "O que é coletado de quem cria conta",
-    paragrafos: [
-      "No cadastro: nome, CPF ou CNPJ, e-mail, telefone quando informado, e os dados da prefeitura — município, estado, CNPJ, população e cargo do usuário. A finalidade é identificar quem entra, separar o acesso por cargo e emitir a proposta de contratação. A base legal é a execução do contrato, ou os procedimentos preliminares a ele, nos termos do art. 7º, V da LGPD.",
-      "A senha nunca é guardada em texto legível: fica apenas o resultado de uma função de hash (bcrypt), que não permite recuperar a senha original. A sessão é um cookie assinado e inacessível por JavaScript, usado só para manter você conectado.",
-      "Durante o uso, o sistema registra o que você mesmo cadastra — indicadores, obras, licitações, publicações do portal e manifestações recebidas. Esses dados pertencem ao município.",
-    ],
-  },
-  {
-    titulo: "Com quem os dados são compartilhados",
-    paragrafos: [
-      "Com os prestadores necessários para o serviço funcionar, e nada além disso: a hospedagem da aplicação, o banco de dados e o serviço de envio de e-mails transacionais — como a recuperação de senha. Todos tratam os dados sob nossa instrução e para as finalidades descritas aqui.",
-      "As consultas que o sistema faz a bases externas — SICONFI do Tesouro Nacional, PNCP e IBGE — são de leitura e usam apenas identificadores públicos do município, como o código IBGE. Nenhum dado pessoal é enviado a elas.",
-      "Quando a funcionalidade de inteligência artificial estiver ativa, o texto enviado para análise contém dados de gestão do município e é processado por um provedor contratado, sob acordo que veda o uso desse conteúdo para treinar modelos.",
-    ],
-  },
-  {
-    titulo: "Por quanto tempo ficam guardados",
-    paragrafos: [
-      "Enquanto a conta existir. Encerrada a relação, os dados da prefeitura e de seus usuários são apagados a pedido, e a exclusão é em cascata — apagar a prefeitura apaga junto tudo o que estava vinculado a ela, sem sobras em tabelas soltas.",
-      "Antes de sair, o município pode exportar tudo em CSV e JSON, a qualquer momento, sem custo e sem precisar de autorização nossa. A saída é um direito escrito no contrato, não um favor.",
-    ],
-  },
-  {
-    titulo: "Seus direitos",
-    paragrafos: [
-      "A LGPD garante confirmação da existência de tratamento, acesso, correção, anonimização, portabilidade, informação sobre compartilhamento e revogação do consentimento quando ele for a base legal. Para dados de conta e cadastro, fale conosco pelo canal de contato do site.",
-      "Para dados que estão no sistema de uma prefeitura — um protocolo de ouvidoria, por exemplo —, o pedido deve ser dirigido àquele município, que é o controlador. Se recebermos um pedido desses, encaminhamos ao município e informamos você.",
-    ],
-  },
-];
+/** Quem é o controlador, com o nome jurídico quando já está preenchido na Vercel. */
+function quemSomos(e: DadosEmpresa): string {
+  const id = [e.razaoSocial, e.cnpj ? `CNPJ ${e.cnpj}` : null, e.endereco].filter(Boolean).join(", ");
+  return id ? `o CidadeIA (${id})` : "o CidadeIA";
+}
+
+function encarregado(e: DadosEmpresa): string {
+  const email = e.encarregadoEmail ?? CONTATO_PUBLICO;
+  return e.encarregadoNome
+    ? `O encarregado pelo tratamento de dados pessoais (LGPD, art. 41) é ${e.encarregadoNome}, pelo e-mail ${email}.`
+    : `O canal do encarregado pelo tratamento de dados pessoais (LGPD, art. 41) é o e-mail ${email}.`;
+}
+
+export function politicaDePrivacidade(e: DadosEmpresa = EMPRESA): SecaoLegal[] {
+  return [
+    {
+      titulo: "Quem é responsável pelos dados",
+      paragrafos: [
+        `Há dois papéis diferentes, e confundi-los é o erro mais comum. Sobre os dados de quem visita este site, pede proposta ou cria conta, o controlador é ${quemSomos(e)}. Sobre os dados que uma prefeitura cliente trata no sistema, inclusive as manifestações de cidadãos e as informações de saúde e educação, o controlador é o município, e o CidadeIA atua como operador, tratando apenas o que o município determina.`,
+        "Por isso, quem quiser exercer direitos sobre dados que estão no sistema de uma prefeitura deve procurar aquela prefeitura. O acordo de tratamento de dados que rege essa relação vai anexo ao contrato e está no kit de contratação, sem cadastro.",
+        encarregado(e),
+      ],
+    },
+    {
+      titulo: "O que o site coleta de quem navega",
+      paragrafos: [
+        "As visitas são contadas sem cookie: o servidor guarda a página aberta, o tipo de aparelho, o site de origem e um identificador que muda todo dia e não permite saber quem é a pessoa. Não usamos rastreador de publicidade, não montamos perfil de navegação e não vendemos nem compartilhamos dado para fins comerciais.",
+        "O diagnóstico de conformidade roda inteiro no navegador: as respostas não são enviadas a servidor algum. A busca de município e o botão de localização também: a posição do aparelho só vira o ponto no mapa e o nome da cidade mais próxima, calculados no próprio navegador.",
+      ],
+    },
+    {
+      titulo: "O que os formulários coletam",
+      paragrafos: [
+        "Pedido de proposta: nome, cargo, e-mail, telefone quando informado, município, módulos escolhidos e a observação que a pessoa escrever. Pedido de ligação: nome, cargo, telefone e o melhor horário. Aviso do Raio-X: nome, cargo, e-mail e município. A finalidade é responder ao pedido e conduzir a contratação, com base nos procedimentos preliminares a um contrato (LGPD, art. 7º, V) e no legítimo interesse de responder a quem nos procurou (art. 7º, IX).",
+        "Esses dados ficam guardados enquanto houver conversa comercial e são apagados a pedido, pelo canal do encarregado.",
+      ],
+    },
+    {
+      titulo: "O que é coletado de quem tem conta",
+      paragrafos: [
+        "Nome, CPF ou CNPJ, e-mail, cargo e, se a pessoa quiser, celular e foto de perfil, além dos dados da prefeitura. A finalidade é identificar quem entra, separar o acesso por cargo e executar o contrato (LGPD, art. 7º, V).",
+        "A senha nunca é guardada em texto legível: fica só o resultado de uma função de hash (bcrypt). A sessão é um cookie assinado e inacessível por JavaScript, usado só para manter a pessoa conectada.",
+      ],
+    },
+    {
+      titulo: "Dados de saúde e de crianças e adolescentes",
+      paragrafos: [
+        "Os módulos Saúde e Educação permitem que a prefeitura registre ocorrências nas unidades de saúde e acompanhe a busca ativa de alunos, inclusive com ofício ao Conselho Tutelar. Isso pode envolver dados pessoais sensíveis (LGPD, art. 11) e dados de crianças e adolescentes, que devem ser tratados no seu melhor interesse (art. 14).",
+        "Nesses casos o controlador é o município, que trata os dados para executar políticas públicas e cumprir obrigações legais (art. 11, II, a e b). O sistema pede só o necessário: as ocorrências de saúde são sobre a unidade (falta de médico, de insumo, equipamento quebrado) e não têm campo para identificar paciente; a busca ativa guarda nome, turma, idade e frequência do aluno e só é vista pela escola dele, pela secretaria de educação, pelo prefeito e por quem administra a conta da prefeitura. O CidadeIA fornece ao município as informações sobre o sistema de que ele precisa para o relatório de impacto à proteção de dados (art. 38).",
+      ],
+    },
+    {
+      titulo: "Com quem os dados são compartilhados",
+      paragrafos: [
+        "Só com os prestadores necessários para o serviço funcionar, que tratam os dados sob nossa instrução: a hospedagem da aplicação (Vercel), o banco de dados (Supabase), o envio de e-mails (Google e Resend) e, quando a função de inteligência artificial é usada, o provedor do modelo (Anthropic).",
+        "A inteligência artificial recebe dados de gestão do município, e das manifestações de cidadãos só o tipo, a situação e as datas, nunca o texto, o nome ou o contato de quem escreveu. O provedor trata esse conteúdo sob acordo que veda o seu uso para treinar modelos.",
+        "As consultas a bases públicas (Tesouro Nacional, IBGE, PNCP, DataSUS, INEP, FNDE, Fiocruz, ObrasGov e Transferegov) são de leitura e usam só identificadores públicos do município, como o código IBGE e o CNPJ. Nenhum dado pessoal é enviado a elas.",
+      ],
+    },
+    {
+      titulo: "Transferência internacional",
+      paragrafos: [
+        "A aplicação e o banco de dados rodam em servidores em São Paulo. Mas os prestadores acima são empresas com sede no exterior, e o provedor de inteligência artificial processa os dados nos Estados Unidos, o que configura transferência internacional de dados pessoais (LGPD, art. 33). Ela se dá nos termos do art. 33 da LGPD e dos contratos com esses prestadores, que exigem medidas de segurança e proíbem uso dos dados para outra finalidade.",
+      ],
+    },
+    {
+      titulo: "Por quanto tempo ficam guardados",
+      paragrafos: [
+        "Os dados de conta e da prefeitura ficam enquanto o contrato existir. Encerrada a relação, são apagados a pedido, e a exclusão é em cascata: apagar a prefeitura apaga junto tudo o que estava vinculado a ela.",
+        "Antes de sair, o município pode exportar tudo em CSV e JSON, a qualquer momento, sem custo e sem precisar de autorização nossa.",
+      ],
+    },
+    {
+      titulo: "Seus direitos",
+      paragrafos: [
+        "A LGPD garante confirmação da existência de tratamento, acesso, correção, anonimização, portabilidade, eliminação, informação sobre compartilhamento e revogação do consentimento quando ele for a base legal (art. 18). Para dados de visita, formulário ou conta, use o canal do encarregado.",
+        "Para dados que estão no sistema de uma prefeitura, como um protocolo de ouvidoria, o pedido deve ir àquele município, que é o controlador. Se recebermos um pedido desses, encaminhamos ao município e avisamos você.",
+      ],
+    },
+  ];
+}
+
+export const POLITICA_PRIVACIDADE: SecaoLegal[] = politicaDePrivacidade();
 
 export const TERMOS_DE_USO: SecaoLegal[] = [
   {
     titulo: "O que é este serviço",
     paragrafos: [
-      "O CidadeIA é um sistema de acompanhamento de gestão municipal, contratado por módulos. Ele organiza dados que a própria prefeitura cadastra, aplica regras públicas sobre eles e avisa quando algo exige decisão.",
-      "As áreas do site abertas sem login — home, preços, Raio-X, diagnóstico, kit de contratação e portais de transparência publicados — podem ser usadas por qualquer pessoa. As áreas internas exigem conta e vínculo com uma prefeitura.",
+      "O CidadeIA é um sistema de gestão municipal contratado por módulos. Ele importa o que já é público nas bases oficiais (Tesouro Nacional, CNES, INEP, PNCP, ObrasGov e outras), recebe o que só a prefeitura sabe e os servidores lançam nas telas, aplica regras públicas sobre esses dados e avisa quando algo exige decisão.",
+      "As áreas do site abertas sem login (página inicial, produtos, Raio-X, panorama, diagnóstico, kit de contratação e portais do cidadão publicados) podem ser usadas por qualquer pessoa. As áreas internas exigem conta e vínculo com uma prefeitura.",
     ],
   },
   {
@@ -96,7 +139,7 @@ export const TERMOS_DE_USO: SecaoLegal[] = [
   {
     titulo: "Conta e responsabilidade de acesso",
     paragrafos: [
-      "Criar conta é gratuito. A conta nasce sem módulo ativo: ela reserva o acesso, e os módulos são liberados com a contratação.",
+      "Criar conta é gratuito. A conta nasce sem módulo ativo e sem portal público: os módulos e o endereço do portal do cidadão só são liberados depois que a equipe confere o contrato com a prefeitura, o que comprova o vínculo de quem criou a conta.",
       "Quem cria a conta responde pelo uso das credenciais e por quem cadastra dentro dela. Cada cargo enxerga o que lhe cabe — secretário vê a própria secretaria, o financeiro consolidado e a administração de usuários ficam com o prefeito. Comunicar imediatamente qualquer acesso indevido é obrigação do titular da conta.",
       "É vedado usar o sistema para inserir dado que você não tem autoridade para tratar, tentar acessar dados de outro município, ou explorar falhas de segurança. Encontrou uma, avise: a comunicação responsável é bem-vinda e não gera retaliação.",
     ],
@@ -104,7 +147,7 @@ export const TERMOS_DE_USO: SecaoLegal[] = [
   {
     titulo: "Contratação, pagamento e encerramento",
     paragrafos: [
-      "A contratação por órgão público segue a Lei 14.133/2021 e é formalizada por processo administrativo — dispensa por valor, adesão a ata ou pregão, conforme o caso. Os preços de cada módulo estão publicados no site, por porte de município, e a proposta formal acompanha o termo de referência.",
+      "A contratação por órgão público segue a Lei 14.133/2021 e é formalizada por processo administrativo: dispensa por valor ou pregão, conforme o caso. O valor de cada módulo vem na proposta formal, calculado pelo porte do município, junto do termo de referência. Contratar, acrescentar ou retirar módulo depende de processo e de termo aditivo, como em qualquer contrato público.",
       "O contrato é da prefeitura, não da gestão: mudança de prefeito não o encerra automaticamente nem transfere os dados a quem sai. Encerrada a relação, o município leva os dados em formato aberto, e a exclusão é feita a pedido.",
     ],
   },

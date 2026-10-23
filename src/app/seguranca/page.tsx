@@ -1,11 +1,15 @@
+import { compartilhamento } from "@/lib/seo";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import { IconCheck } from "@/components/icons";
 
-export const metadata = {
-  title: "Segurança & LGPD",
-};
+export const metadata = compartilhamento({
+  titulo: "Segurança e LGPD",
+  descricao:
+    "Como o CidadeIA protege os dados da prefeitura e do cidadão: senha com hash, isolamento entre prefeituras, acesso por cargo e limites da inteligência artificial.",
+  caminho: "/seguranca",
+});
 
 const SEGURANCA = [
   {
@@ -81,7 +85,7 @@ export default function SobrePage() {
               você pedir.
             </p>
             <p>
-              Você pode a qualquer momento editar seus dados em "Minha Conta", ou
+              Você pode a qualquer momento editar seus dados em “Minha conta”, ou
               solicitar exportação/exclusão dos seus dados falando com o nosso
               suporte.
             </p>

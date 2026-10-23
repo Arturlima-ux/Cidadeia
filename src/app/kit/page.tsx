@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import { AVISO_FRACIONAMENTO } from "@/lib/contratacao";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -12,11 +13,12 @@ import {
 import { COMPROMISSOS, CONDICIONAIS, POR_CONTRATO } from "@/lib/compromissos";
 import { IconDownload, IconCheck, IconAlertas } from "@/components/icons";
 
-export const metadata = {
-  title: "Kit de contratação",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Kit de contratação",
+  descricao:
     "Termo de referência, minuta de contrato, acordo de tratamento de dados e acordo de nível de serviço, prontos para instruir o processo.",
-};
+  caminho: "/kit",
+});
 
 function RenderBloco({ bloco }: { bloco: Bloco }) {
   if (bloco.tipo === "paragrafo") {

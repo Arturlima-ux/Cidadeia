@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { obrasParadasParaPublicar, textosDoAviso } from "@/lib/obra-parada-publica";
+import { obrasParadasParaPublicar, paraOPortal, textosDoAviso } from "@/lib/obra-parada-publica";
 import type { ObraFederal } from "@/lib/obras-federais";
 
 const hoje = new Date("2026-10-22T12:00:00Z");
@@ -66,7 +66,40 @@ describe("obra parada publicada sozinha (art. 115, § 6º, Lei 14.133)", () => {
     );
     expect(o.motivo).toBe("Construtora parou sem aviso");
     expect(o.retomadaPrevista).toBe("2027-02-01");
-    expect(o.responsavel).toBe("Construtora X");
+    expect(o.responsavel).toBe("Contratada: Construtora X");
+    expect(o.aviso).toBe("completo");
+  });
+
+  it("sem motivo, responsável ou reinício, o aviso municipal espera no painel e não vai ao portal", () => {
+    const semDecisao = obrasParadasParaPublicar([municipal()], [], [], hoje);
+    expect(semDecisao[0].aviso).toBe("pendente");
+    expect(semDecisao[0].falta).toEqual(["o motivo", "o responsável", "a data prevista de reinício"]);
+    expect(paraOPortal(semDecisao)).toHaveLength(0);
+
+    const semData = obrasParadasParaPublicar(
+      [municipal()],
+      [{ obraId: "m1", tipo: "mora_do_contratado", justificativa: "Parou", novaPrevisao: null, decididoEm: "2026-09-01" }],
+      [],
+      hoje
+    );
+    expect(semData[0].falta).toEqual(["a data prevista de reinício"]);
+  });
+
+  it("prorrogação automática põe a responsabilidade na prefeitura (art. 111)", () => {
+    const [o] = obrasParadasParaPublicar(
+      [municipal()],
+      [{ obraId: "m1", tipo: "prorrogacao_automatica", justificativa: "Chuvas", novaPrevisao: "2027-01-10", decididoEm: "2026-09-01" }],
+      [],
+      hoje
+    );
+    expect(o.responsavel).toMatch(/A prefeitura/);
+    expect(o.aviso).toBe("completo");
+  });
+
+  it("obra federal vai ao portal como registro do ObrasGov, não como aviso do município", () => {
+    const l = paraOPortal(obrasParadasParaPublicar([], [], [federal({})], hoje));
+    expect(l).toHaveLength(1);
+    expect(l[0].aviso).toBe("federal");
   });
 
   it("espera um mês de paralisação, como manda a lei", () => {

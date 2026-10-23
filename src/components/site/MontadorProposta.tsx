@@ -8,13 +8,17 @@ import { IconCheck } from "@/components/icons";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import { sugerirPorte } from "@/app/solucoes/actions";
 
+// Cada linha diz o mesmo que a página do módulo (lib/modulos-detalhe.ts),
+// em poucas palavras. Educação dizia "notas e frequência" e Licitações
+// "processos e riscos", que nenhuma das duas páginas promete (revisão de
+// outubro de 2026).
 const RESUMO_MODULO: Record<PlanoAddon, string> = {
-  essencial: "Protocolo, ouvidoria e portal",
-  gestao: "Visão geral do prefeito",
-  saude: "UBS, indicadores e mapa",
-  educacao: "Escolas, notas e frequência",
-  obras: "Progresso e mapa das obras",
-  licitacoes: "Processos e riscos",
+  essencial: "Portal do cidadão, protocolo e ouvidoria",
+  gestao: "Visão do prefeito e prazos da LRF",
+  saude: "Rede do CNES, unidades e estoque",
+  educacao: "Rede do INEP, dias letivos e busca ativa",
+  obras: "Contratos, medição e obras federais",
+  licitacoes: "Compras e contratos do PNCP",
 };
 
 export default function MontadorProposta({

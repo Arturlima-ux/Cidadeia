@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
@@ -10,11 +11,12 @@ import { DOCUMENTOS } from "@/lib/kit-contratacao";
 import { IMPLANTACAO, VERSUS } from "@/lib/textos-contratacao";
 import { IconDownload } from "@/components/icons";
 
-export const metadata = {
-  title: "Como contratar",
-  description:
-    "Os três caminhos legais para a prefeitura contratar o CidadeIA, o processo pronto para o jurídico conferir e o que acontece da assinatura ao portal no ar.",
-};
+export const metadata = compartilhamento({
+  titulo: "Como contratar",
+  descricao:
+    "Os caminhos legais para a prefeitura contratar o CidadeIA, o processo pronto para o jurídico conferir e o que acontece da assinatura ao portal no ar.",
+  caminho: "/como-contratar",
+});
 
 // ── ERA UMA SEÇÃO DA HOME ──
 //
@@ -228,7 +230,7 @@ export default function ComoContratarPage() {
               origem="Como contratar"
               linkWhatsapp={linkWhatsappComercial("Olá! Estou vendo como contratar o CidadeIA e queria tirar dúvidas.")}
               titulo="Dúvida sobre o processo? A equipe liga."
-              texto="Dispensa, adesão ou licitação: a gente explica qual caminho cabe na sua prefeitura, com a lei na mão."
+              texto="Dispensa ou pregão: explicamos qual caminho cabe na sua prefeitura, com a lei na mão."
             />
           </div>
         </section>

@@ -14,7 +14,8 @@ export default async function PlacaDaObra({ params }: { params: Promise<{ slug: 
   const portal = await buscarPortal(slug);
   if (!portal || modoDoPortal(portal.planosContratados) === "minimo") notFound();
   const { obrasParadas } = await carregarPortal(portal);
-  const obra = obrasParadas.find((o) => o.id === id);
+  // Placa só de aviso completo da prefeitura: o registro federal não é ato do município.
+  const obra = obrasParadas.find((o) => o.id === id && o.aviso === "completo");
   if (!obra) notFound();
   const base = (process.env.APP_URL ?? "https://cidadeia.vercel.app").replace(/\/$/, "");
   return <PlacaObraParada obra={obra} municipio={portal.municipio} estado={portal.estado} endereco={`${base}/transparencia/${slug}#obras`} />;
