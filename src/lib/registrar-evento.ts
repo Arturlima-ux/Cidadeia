@@ -49,6 +49,11 @@ export type DadosDoEvento = {
   codigoIbge?: string | null;
   municipio?: string | null;
   detalhe?: string | null;
+  /** De onde a pessoa veio, quando quem registra não é a própria página.
+   *  A home estática conta a visita por um aviso do navegador
+   *  (app/api/visita): o cabeçalho referer desse aviso é a própria home, e a
+   *  origem verdadeira chega aqui, lida de document.referrer. */
+  referer?: string | null;
 };
 
 /**
@@ -82,7 +87,7 @@ export async function registrarEvento(dados: DadosDoEvento): Promise<void> {
       municipio: dados.municipio ?? null,
       detalhe: dados.detalhe?.slice(0, 120) ?? null,
       visitante: identificadorDoDia(enderecoDe(h), navegador, dia, chave),
-      origem: origemDe(h.get("referer")),
+      origem: origemDe(dados.referer !== undefined ? dados.referer : h.get("referer")),
       dispositivo: dispositivoDe(navegador),
       criadoEm: new Date().toISOString(),
     };

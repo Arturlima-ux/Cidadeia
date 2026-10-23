@@ -21,22 +21,16 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
   licitacoes: "Compras e contratos do PNCP",
 };
 
-const VOLTAR_PARA_PROPOSTA = "cidadeia:voltar-para-proposta";
-
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
   municipioInicial,
-  campoNoTopo = false,
   nivelDoResumo = 3,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
-  /** O município que a pessoa já escolheu no topo da home: não se pergunta
-   *  de novo (revisão de outubro de 2026). */
+  /** O município que a pessoa já escolheu no topo da home: o campo já vem
+   *  preenchido e o porte é buscado ao abrir (revisão de outubro de 2026). */
   municipioInicial?: { nome: string; uf: string };
-  /** Na home, o município se escolhe só no campo do topo: um campo por
-   *  página. Aqui fica o nome escolhido, ou o caminho até o campo. */
-  campoNoTopo?: boolean;
   /** Nível do título "Sua proposta": 3 dentro de uma seção com h2 (home,
    *  soluções); 2 em /proposta, onde vem logo depois do h1. Pular de h1
    *  para h3 confunde leitor de tela e quem extrai a estrutura da página. */
@@ -105,34 +99,16 @@ export default function MontadorProposta({
   // Com o município vindo do topo da página, a faixa é buscada uma vez, ao
   // abrir: o estado já nasceu com o nome, só falta a população do IBGE.
   //
-  // ── E QUEM SUBIU DAQUI VOLTA PARA CÁ ──
-  // "Escolher o município no topo" fazia a pessoa subir, escolher e descer
-  // de novo procurando a proposta (revisão de outubro de 2026). Agora o
-  // clique deixa uma marca na aba; escolhido o município, a página volta
-  // sozinha até a proposta. Sem armazenamento disponível, só não volta.
+  // Na home o montador tinha só um link "Escolher o município no topo da
+  // página ↑" e uma volta automática até aqui depois da escolha. O campo
+  // voltou para dentro do montador (revisão de novembro de 2026), e a volta
+  // deixou de ser necessária.
   const jaBuscou = useRef(false);
   useEffect(() => {
     if (!municipioInicial || jaBuscou.current) return;
     jaBuscou.current = true;
     buscarPorte(municipioInicial.nome, municipioInicial.uf);
-    try {
-      if (sessionStorage.getItem(VOLTAR_PARA_PROPOSTA)) {
-        sessionStorage.removeItem(VOLTAR_PARA_PROPOSTA);
-        requestAnimationFrame(() => document.getElementById("proposta")?.scrollIntoView({ block: "start" }));
-      }
-    } catch {
-      // armazenamento bloqueado: a pessoa rola sozinha
-    }
   }, [municipioInicial]);
-
-  function irAoTopo() {
-    try {
-      sessionStorage.setItem(VOLTAR_PARA_PROPOSTA, "1");
-    } catch {
-      // segue sem a volta automática
-    }
-    setTimeout(() => document.getElementById("municipio-topo")?.focus(), 400);
-  }
 
   // O pedido de proposta leva porte e módulos na URL — validados do outro
   // lado contra a tabela, nunca interpolados como texto — para o formulário
@@ -188,38 +164,18 @@ export default function MontadorProposta({
               Eram três controles: nome, UF e "Descobrir o porte". Agora a
               pessoa digita o nome (ou usa a localização) e escolhe na lista;
               o porte sai do IBGE na hora. */}
-          {campoNoTopo ? (
-            // Um campo de município por página (revisão de outubro de 2026):
-            // na home ele mora no topo, e daqui se volta até ele.
-            !achado && !consultando && (
-              <a
-                href="#municipio-topo"
-                onClick={irAoTopo}
-                className="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-medium hover:border-brand transition"
-              >
-                Escolher o município no topo da página&nbsp;↑
-              </a>
-            )
-          ) : (
-            <AcheSuaCidade
-              key={rodada}
-              compacto
-              empilhado
-              placeholder="Digite o nome do município"
-              aoEscolher={(c) => escolherMunicipio(c.nome, c.uf)}
-            />
-          )}
+          <AcheSuaCidade
+            key={rodada}
+            compacto
+            empilhado
+            placeholder="Nome do município"
+            // Na primeira rodada, o município escolhido no topo da home já
+            // aparece escrito; "Trocar município" limpa o campo.
+            inicial={rodada === 0 && municipioInicial ? `${municipioInicial.nome}, ${municipioInicial.uf}` : ""}
+            aoEscolher={(c) => escolherMunicipio(c.nome, c.uf)}
+          />
           {consultando && <p className="text-xs text-muted">Consultando o IBGE…</p>}
-          {achado && campoNoTopo && porte && (
-            <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span className="text-lg font-semibold tracking-[-0.02em]">{achado.split(":")[0].replace("/", ", ")}</span>
-              <span className="text-sm text-muted">· {PORTES.find((p) => p.chave === porte)?.rotulo} hab.</span>
-              <a href="#municipio-topo" onClick={irAoTopo} className="text-sm underline hover:no-underline" style={{ color: "var(--brand-claro)" }}>
-                trocar
-              </a>
-            </p>
-          )}
-          {achado && !campoNoTopo && (
+          {achado && (
             <p className="text-xs leading-relaxed" style={{ color: "var(--accent-claro)" }}>
               {achado}{" "}
               <button type="button" onClick={limparMunicipio} className="underline hover:no-underline">
@@ -234,7 +190,7 @@ export default function MontadorProposta({
           )}
           {/* O porte é resultado, não escolha. Aparece só depois de o
               município ser identificado, e não tem clique. */}
-          {identificado && campoNoTopo ? null : identificado ? (
+          {identificado ? (
             <div className="rounded-xl border-[1.5px] border-brand bg-brand-tint px-4 py-3.5 flex items-center justify-between gap-3">
               <div>
                 <span className="block text-xs text-muted">Porte pela população do IBGE</span>

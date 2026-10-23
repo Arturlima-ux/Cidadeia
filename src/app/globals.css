@@ -1332,6 +1332,89 @@ h1.font-serif,
   }
 }
 
+/* ── HOME, REVISÃO DE NOVEMBRO DE 2026 ──
+   As bases oficiais como créditos: o nome em tinta cheia a 80%, e o
+   sublinhado chega ao passar o mouse, só onde há mouse. */
+.inicio-fonte {
+  color: color-mix(in oklab, var(--foreground) 80%, transparent);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.24em;
+  text-decoration-thickness: 1px;
+  transition: color var(--t-micro) var(--saida), text-decoration-color var(--t-micro) var(--saida);
+}
+.inicio-fonte:focus-visible {
+  color: var(--foreground);
+  text-decoration-color: var(--brand-claro);
+}
+@media (hover: hover) and (pointer: fine) {
+  .inicio-fonte:hover {
+    color: var(--foreground);
+    text-decoration-color: var(--brand-claro);
+  }
+}
+
+/* As portas por cargo: uma linha que acende (passo de tom, sem contorno) e
+   uma seta que anda 4 px. Só transform e cor de fundo. */
+.inicio-porta {
+  transition: background-color 180ms var(--saida);
+}
+.inicio-porta-seta {
+  display: inline-block;
+  transition: transform 180ms var(--saida);
+}
+.inicio-porta:focus-visible {
+  background-color: var(--sutil);
+}
+@media (hover: hover) and (pointer: fine) {
+  .inicio-porta:hover {
+    background-color: var(--sutil);
+  }
+  .inicio-porta:hover .inicio-porta-seta {
+    transform: translateX(4px);
+  }
+}
+.inicio-porta:active {
+  background-color: var(--sutil);
+}
+
+/* O fecho: o único campo de cor da página, o roxo da marca bem baixo sobre o
+   fundo. Sem contorno e sem sombra; o montador dentro dele tem a própria
+   moldura. */
+.inicio-fecho {
+  background: color-mix(in oklab, var(--brand) 13%, var(--background));
+}
+
+/* ── O QUE CHEGA AO ROLAR ──
+   Títulos e blocos abaixo da dobra sobem 24 px e ganham opacidade enquanto
+   entram na tela, presos à própria rolagem (animation-timeline: view()). É
+   CSS puro: nada roda na linha principal, nenhum JavaScript espera a página.
+   Partem de 0,35, nunca de zero (nada surge do nada), e acabam quando o
+   topo do elemento sobe 180 px da borda de baixo. Navegador sem suporte, ou quem pediu
+   menos movimento, vê tudo parado e pronto. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .surge {
+      animation: surge-ao-rolar linear both;
+      animation-timeline: view();
+      /* Em pixels, e não em porcentagem do elemento: num bloco alto como o
+         montador, "metade da entrada" deixava o topo dele apagado no meio
+         da tela. Assim tudo está pronto quando sobe 180 px da borda. */
+      animation-range: entry 0px entry 180px;
+    }
+  }
+}
+@keyframes surge-ao-rolar {
+  from {
+    opacity: 0.35;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ── O MONTADOR DE PROPOSTA ACENDE ──
    O quadro chega apagado (as cores certas, sem luz) e acende quando entra
    na tela, logo depois do subtítulo: halo em volta, como lâmpada ligando,
@@ -1925,4 +2008,22 @@ select option {
 .guia-texto td { color: var(--muted); }
 .guia-tabela {
   overflow-x: auto;
+}
+
+/* As perguntas da mesa de módulos (MesaDeModulos.tsx). */
+.mesa-aba {
+  background: var(--sutil);
+  transition: background-color 180ms var(--saida), transform 120ms var(--saida);
+}
+.mesa-aba[data-sel] {
+  background: var(--brand-tint);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mesa-aba:not([data-sel]):hover {
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+}
+.mesa-aba:active {
+  transform: scale(0.99);
 }
