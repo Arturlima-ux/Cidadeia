@@ -160,3 +160,34 @@ describe("/llms.txt", () => {
     for (const m of MODULOS_DETALHE) expect(texto).toContain(m.descricaoBusca);
   });
 });
+
+describe("mapa do site dividido por estado", async () => {
+  const { idsDoMapa, paginasDoEstado, paginasFixas, UFS_DO_MAPA } = await import("@/lib/mapa-do-site");
+  const { todosOsMunicipios } = await import("@/lib/municipios");
+
+  it("um arquivo de páginas fixas e um por estado, sem o DF", () => {
+    expect(idsDoMapa()[0]).toBe("paginas");
+    expect(UFS_DO_MAPA).toHaveLength(26);
+    expect(idsDoMapa()).not.toContain("df");
+  });
+
+  it("todas as prefeituras entram uma vez, e Brasília não", () => {
+    const urls = UFS_DO_MAPA.flatMap((uf) => paginasDoEstado(uf).map((p) => p.url));
+    const municipais = urls.filter((u) => /\/raio-x\/[a-z]{2}\/.+/.test(u));
+    expect(new Set(municipais).size).toBe(municipais.length);
+    expect(municipais).toHaveLength(todosOsMunicipios().filter((m) => m.uf !== "DF").length);
+    expect(urls.some((u) => u.includes("/raio-x/df"))).toBe(false);
+  });
+
+  it("páginas de dado têm data; institucionais não inventam uma", () => {
+    expect(paginasDoEstado("pi").every((p) => p.lastModified)).toBe(true);
+    const fixas = paginasFixas();
+    expect(fixas.find((p) => p.url.endsWith("/panorama"))?.lastModified).toBeTruthy();
+    expect(fixas.find((p) => p.url.endsWith("/quem-somos"))?.lastModified).toBeUndefined();
+    expect(new Set(fixas.map((p) => p.url)).size).toBe(fixas.length);
+  });
+
+  it("cada arquivo fica bem abaixo do limite de 50 mil endereços", () => {
+    for (const uf of UFS_DO_MAPA) expect(paginasDoEstado(uf).length).toBeLessThan(50_000);
+  });
+});

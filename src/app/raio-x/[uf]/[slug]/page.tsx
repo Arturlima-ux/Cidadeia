@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   if (!m) return { title: "Município não encontrado" };
   const pop = new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0);
   const ano = Number(hojeEmBrasilia().slice(0, 4));
-  return compartilhamento({
+  const meta = compartilhamento({
     // Era "Raio-X da Prefeitura de X/UF — receita, saúde, educação e RREO no
     // Tesouro — CidadeIA": 91 caracteres, cortado no Google, e sem o dado
     // que mais se procura. Agora ~60, com despesa com pessoal e LRF.
@@ -98,6 +98,9 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
     caminho: caminhoDoRaioX(m),
     imagemPropria: true,
   });
+  // O DF não tem prefeitura: a página mostra um município de exemplo e fica
+  // fora do índice e do mapa do site (lib/mapa-do-site.ts).
+  return m.uf === "DF" ? { ...meta, robots: { index: false, follow: true } } : meta;
 }
 
 export default async function RaioXMunicipioPage({ params }: { params: Promise<{ uf: string; slug: string }> }) {
