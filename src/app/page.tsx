@@ -20,6 +20,8 @@ import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
+import VideoExplicativo from "@/components/site/VideoExplicativo";
+import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
@@ -175,6 +177,7 @@ export default async function LandingPage({
                     compacto
                     empilhado
                     localNoCampo
+                    idCampo="municipio-topo"
                     rolarAoTopo={false}
                     placeholder="Digite o nome do município"
                     inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
@@ -397,10 +400,53 @@ export default async function LandingPage({
             Ver o panorama por estado
           </Link>
 
+          {/* ── QUEM ASSINA O RGF ──
+              Voltou, mais compacta: era o único ponto da home em que cada
+              comprador se reconhecia (revisão de outubro de 2026). */}
+          <div className="mt-14 border-t border-border pt-6 grid md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-4 md:gap-10 items-baseline">
+            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
+            <ul className="grid sm:grid-cols-3 gap-2">
+              {CARGOS.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/para/${c.slug}`}
+                    className="group flex min-h-11 items-center justify-between gap-3 rounded-full border border-border hover:border-brand px-5 py-2.5 text-sm font-medium transition"
+                  >
+                    {c.rotulo}
+                    <span className="inline-block transition-transform group-hover:translate-x-1" style={{ color: "var(--brand-claro)" }}>
+                      →
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
         </section>
 
 
         {/* ═══ PROPOSTA ═══ */}
+        {/* ═══ O VÍDEO, PARA REPASSAR ═══
+            Voltou em formato menor: em prefeitura quem acha o site quase
+            nunca é quem decide, e o vídeo é o que se manda adiante
+            (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
+          <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-8 lg:gap-14 items-center">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
+              <p className="text-muted leading-relaxed mt-3 max-w-[40ch]">
+                Para assistir agora, ou mandar para quem decide na prefeitura.
+              </p>
+            </div>
+            <VideoExplicativo
+              src="/video/cidadeia-gestao.mp4"
+              srcWebm="/video/cidadeia-gestao.webm"
+              capa="/video/cidadeia-gestao-capa.jpg"
+              titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
+            />
+          </div>
+        </section>
+
         {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
             uma seção igual às outras (revisão de outubro de 2026). */}
         <section id="proposta" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
@@ -434,7 +480,7 @@ export default async function LandingPage({
               </p>
             </div>
           </div>
-          <MontadorProposta municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+          <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
           </div>
 
           {/* ═══ O FECHO É O MONTADOR ═══

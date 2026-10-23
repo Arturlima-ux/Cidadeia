@@ -97,6 +97,7 @@ export default function AcheSuaCidade({
   inicial = "",
   empilhado = false,
   localNoCampo = false,
+  idCampo,
   rolarAoTopo = true,
   aoEscolher,
 }: {
@@ -113,6 +114,8 @@ export default function AcheSuaCidade({
   /** A localização vira um botão de ícone dentro do campo: uma ação só na
    *  tela (o topo da home do gestor, revisão de outubro de 2026). */
   localNoCampo?: boolean;
+  /** id do campo, para outro ponto da página levar o foco até ele. */
+  idCampo?: string;
   /** O portal do morador abre do topo; o Raio-X da prefeitura fica onde está. */
   rolarAoTopo?: boolean;
   /** Em vez de navegar, entrega a cidade escolhida (o montador da proposta). */
@@ -258,6 +261,7 @@ export default function AcheSuaCidade({
             <path d="m20 20-3.5-3.5" strokeLinecap="round" />
           </svg>
           <input
+            id={idCampo}
             type="text"
             inputMode="search"
             autoComplete="off"
@@ -281,7 +285,7 @@ export default function AcheSuaCidade({
               preparar();
             }}
             onKeyDown={teclas}
-            className={`campo-morador w-full rounded-full border border-border pl-14 ${localNoCampo ? "pr-16" : "pr-5"} font-medium placeholder:text-muted ${altura}`}
+            className={`campo-morador scroll-mt-32 w-full rounded-full border border-border pl-14 ${localNoCampo ? "pr-16" : "pr-5"} font-medium placeholder:text-muted ${altura}`}
             style={{ background: "var(--card)" }}
           />
         </label>
