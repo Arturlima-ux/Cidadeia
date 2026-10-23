@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import Link from "next/link";
 import { listarPortaisPublicados } from "@/lib/portais";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -29,11 +30,12 @@ import { Surgir } from "@/components/portal/Vivo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Portal do cidadão",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Portal do cidadão",
+  descricao:
     "Encontre o portal do cidadão da sua cidade: para onde vai o dinheiro, as obras e um canal para falar com a prefeitura. Sem cadastro.",
-};
+  caminho: "/transparencia",
+});
 
 const normalizar = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 

@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { medicoesBanco } from "@/db/schema";
@@ -22,12 +23,13 @@ import Reveal from "@/components/site/Reveal";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Disponibilidade",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Disponibilidade",
+  descricao:
     "Verificação diária automática do banco de dados da CidadeIA, com o histórico aberto. " +
     "A cláusula de nível de serviço aponta para esta página em vez de prometer um percentual.",
-};
+  caminho: "/disponibilidade",
+});
 
 /** Um ano de verificações é o bastante para a frase do contrato. */
 const LIMITE_DE_LINHAS = 400;

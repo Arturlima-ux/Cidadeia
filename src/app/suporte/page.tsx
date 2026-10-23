@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import { Suspense } from "react";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -9,9 +10,12 @@ import { ehCodigoIbge } from "@/lib/populacao-ibge";
 import { redirect } from "next/navigation";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 
-export const metadata = {
-  title: "Suporte",
-};
+export const metadata = compartilhamento({
+  titulo: "Suporte",
+  descricao:
+    "Dúvida de uso, problema de acesso ou pedido para a conta da prefeitura: escreva para a equipe que faz o CidadeIA. Antes, veja as perguntas frequentes.",
+  caminho: "/suporte",
+});
 
 export default async function SuportePage({
   searchParams,

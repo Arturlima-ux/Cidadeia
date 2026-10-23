@@ -94,7 +94,6 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
 
   const valor = useMotionValue(reduzir && alvo !== null ? alvo : inicio);
   const largura = useTransform(valor, (v) => `${posicao(v)}%`);
-  const texto = useTransform(valor, pct);
   const [atual, setAtual] = useState(reduzir && alvo !== null ? alvo : inicio);
 
   useMotionValueEvent(valor, "change", (v) => setAtual(v));
@@ -115,10 +114,17 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
   }, [alvo, inicio, reduzir, valor, dado.modo]);
 
   const carregando = dado.modo === "carregando";
-  const chegou = alvo !== null && Math.abs(atual - alvo) < 0.05;
   const situacaoFinal =
     dado.modo === "real" ? dado.situacao : alvo !== null ? situacaoDe(alvo) : "confortavel";
-  const corDoValor = situacaoDe(atual) === "confortavel" ? "var(--foreground)" : COR[situacaoDe(atual)];
+  // ── O NÚMERO NÃO ANIMA, SÓ A BARRA ──
+  // O número contava de 30% até o valor real no navegador. No HTML, então,
+  // ficava o ponto de partida: "Despesa com pessoal de Teresina 30,0%",
+  // seguido de "declarado pela prefeitura no RGF", em todas as 5.570 páginas
+  // de município. Buscador que não roda script, robô de IA e prévia de link
+  // no WhatsApp liam um número falso atribuído à prefeitura. Agora o
+  // servidor já escreve o número do RGF; quem corre até ele é a barra.
+  const valorFixo = alvo !== null ? pct(alvo) : null;
+  const corDoValor = situacaoFinal === "confortavel" ? "var(--foreground)" : COR[situacaoFinal];
 
   const legenda =
     dado.modo === "exemplo"
@@ -142,13 +148,13 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
         {carregando ? (
           <span className="h-10 sm:h-12 w-28 rounded-lg animate-pulse" style={{ background: "var(--sutil)" }} />
         ) : (
-          <m.span
-            className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.04em] transition-colors duration-500"
+          <span
+            className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.04em]"
             style={{ color: corDoValor }}
             aria-hidden
           >
-            {texto}
-          </m.span>
+            {valorFixo}
+          </span>
         )}
       </div>
 
@@ -219,12 +225,9 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
           Lendo o último relatório fiscal de {dado.municipio} no Tesouro Nacional.
         </p>
       ) : (
-        <m.p
-          className="mt-5 pt-5 border-t border-border text-sm leading-relaxed"
-          initial={false}
-          animate={{ opacity: chegou ? 1 : 0, y: chegou ? 0 : 6 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        // Visível desde o HTML: a leitura do número não pode depender de a
+        // animação terminar (sem script ela nunca terminava).
+        <p className="mt-5 pt-5 border-t border-border text-sm leading-relaxed">
           <span className="font-semibold" style={{ color: COR[situacaoFinal] }}>
             {TITULO[situacaoFinal]}
           </span>{" "}
@@ -232,7 +235,7 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
             {explicacao(situacaoFinal, dado.modo === "real" ? dado.margemAtePrudencial : null)}
             {dado.modo === "exemplo" && " O CidadeIA confere cada RGF que sai e mostra quando o número começa a subir."}
           </span>
-        </m.p>
+        </p>
       )}
 
       <p className="mt-3 text-xs text-muted leading-relaxed">

@@ -112,14 +112,44 @@ export function ldBreadcrumb(itens: { nome: string; caminho: string }[]): JsonLd
   };
 }
 
-export function ldPrefeitura(m: { nome: string; uf: string; populacao: number | null; caminho: string }): JsonLd {
+// ── O MUNICÍPIO COMO CONJUNTO DE DADOS, NÃO COMO PREFEITURA ──
+// Antes era GovernmentOrganization "Prefeitura Municipal de X" com a URL do
+// CidadeIA: dizia ao Google que o site da prefeitura era esta página, o que é
+// falso e parecia que falávamos em nome dela. O que a página é de fato: os
+// dados que a prefeitura declarou ao Tesouro, reunidos e datados. Isso é um
+// Dataset, com o Tesouro como autor e o município como cobertura.
+export function ldDadosDoMunicipio(m: {
+  nome: string;
+  uf: string;
+  nomeDoEstado: string;
+  codigoIbge: string;
+  populacao: number | null;
+  caminho: string;
+  ano: number;
+}): JsonLd {
+  const pop = m.populacao ? `${new Intl.NumberFormat("pt-BR").format(m.populacao)} habitantes pela estimativa do IBGE. ` : "";
   return {
     "@context": "https://schema.org",
-    "@type": "GovernmentOrganization",
-    name: `Prefeitura Municipal de ${m.nome}`,
-    address: { "@type": "PostalAddress", addressLocality: m.nome, addressRegion: m.uf, addressCountry: "BR" },
+    "@type": "Dataset",
+    name: `Dados fiscais de ${m.nome} (${m.uf}) no Tesouro Nacional, ${m.ano}`,
+    description:
+      `Despesa com pessoal na régua da LRF, receita realizada, aplicação em saúde e em educação e situação de entrega do RREO e do RGF ` +
+      `que a prefeitura de ${m.nome} declarou ao Tesouro Nacional (SICONFI) no exercício de ${m.ano}. ${pop}` +
+      `Os percentuais sobre a receita são indício, não cálculo de mínimo constitucional.`,
     url: `${URL_BASE}${m.caminho}`,
-    ...(m.populacao ? { description: `${new Intl.NumberFormat("pt-BR").format(m.populacao)} habitantes pela estimativa do IBGE.` } : {}),
+    identifier: `IBGE ${m.codigoIbge}`,
+    keywords: ["LRF", "despesa com pessoal", "RGF", "RREO", "SICONFI", m.nome, m.nomeDoEstado],
+    inLanguage: "pt-BR",
+    isAccessibleForFree: true,
+    temporalCoverage: String(m.ano),
+    spatialCoverage: {
+      "@type": "Place",
+      name: `${m.nome}, ${m.nomeDoEstado}, Brasil`,
+      address: { "@type": "PostalAddress", addressLocality: m.nome, addressRegion: m.uf, addressCountry: "BR" },
+    },
+    creator: { "@type": "GovernmentOrganization", name: "Tesouro Nacional", url: "https://siconfi.tesouro.gov.br" },
+    isBasedOn: "https://apidatalake.tesouro.gov.br/docs/siconfi/",
+    publisher: { "@type": "Organization", name: NOME_DO_SITE, url: URL_BASE },
   };
 }
 

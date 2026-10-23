@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -6,11 +7,12 @@ import Olho from "@/components/site/Olho";
 import { EXIGENCIAS, BLOCOS, NOME_BLOCO, exigenciasDoBloco } from "@/lib/diagnostico";
 import { CONFORMIDADE, OBJECOES } from "@/lib/textos-contratacao";
 
-export const metadata = {
-  title: "Conformidade legal",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Conformidade legal",
+  descricao:
     "O que a LAI, a Lei 13.460, a LRF e a LGPD exigem da prefeitura, o que o CidadeIA entrega para cada exigência, e as perguntas que o jurídico sempre faz antes de assinar.",
-};
+  caminho: "/conformidade",
+});
 
 // ── ERA UMA SEÇÃO DA HOME ──
 //
