@@ -15,14 +15,23 @@ import { useRef, useState } from "react";
 // não existe no alfabeto é ignorado, e "0" e "O" viram nada em vez de um
 // caractere errado.
 
+//
+// O mesmo componente serve ao código de acesso do login (6 dígitos):
+// `tamanho`, `padrao` e `numerico` mudam, o comportamento é o mesmo.
+
 const ALFABETO = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]$/;
-const TAMANHO = 8;
 
 export default function CampoChave({
   nome = "chave",
   inicial = "",
   estado = "neutro",
   rotuloId,
+  tamanho: TAMANHO = 8,
+  padrao = ALFABETO,
+  numerico = false,
+  aoCompletar,
+  aoMudar,
+  autoFocar = false,
 }: {
   nome?: string;
   inicial?: string;
@@ -30,12 +39,21 @@ export default function CampoChave({
   estado?: "neutro" | "certo" | "errado";
   /** id do rótulo visível do grupo. */
   rotuloId: string;
+  tamanho?: number;
+  /** Um caractere aceito. */
+  padrao?: RegExp;
+  numerico?: boolean;
+  /** Chamado quando a última caixa é preenchida. */
+  aoCompletar?: (valor: string) => void;
+  /** Qualquer mudança: serve para tirar o vermelho do "errado" ao corrigir. */
+  aoMudar?: () => void;
+  autoFocar?: boolean;
 }) {
   const limpo = (t: string) =>
     t
       .toUpperCase()
       .split("")
-      .filter((c) => ALFABETO.test(c))
+      .filter((c) => padrao.test(c))
       .join("")
       .slice(0, TAMANHO);
   const [valor, setValor] = useState(() => limpo(inicial));
@@ -54,7 +72,9 @@ export default function CampoChave({
     for (let k = 0; k < novos.length && i + k < TAMANHO; k++) letras[i + k] = novos[k];
     const final = letras.join("").replace(/\s+$/, "");
     setValor(final);
+    aoMudar?.();
     focar(i + novos.length);
+    if (aoCompletar && final.length === TAMANHO && !final.includes(" ")) aoCompletar(final);
   }
 
   function apagar(i: number) {
@@ -62,11 +82,13 @@ export default function CampoChave({
     if (letras[i] && letras[i] !== " ") {
       letras[i] = " ";
       setValor(letras.join("").replace(/\s+$/, ""));
+      aoMudar?.();
       return;
     }
     if (i > 0) {
       letras[i - 1] = " ";
       setValor(letras.join("").replace(/\s+$/, ""));
+      aoMudar?.();
       focar(i - 1);
     }
   }
@@ -74,7 +96,7 @@ export default function CampoChave({
   return (
     <div role="group" aria-labelledby={rotuloId} data-estado={estado}>
       <input type="hidden" name={nome} value={valor.replace(/\s/g, "")} />
-      <div className="grid grid-cols-8 gap-1.5 sm:gap-2 max-w-[440px]">
+      <div className="grid gap-1.5 sm:gap-2" style={{ gridTemplateColumns: `repeat(${TAMANHO}, minmax(0, 1fr))`, maxWidth: TAMANHO * 55 }}>
         {Array.from({ length: TAMANHO }, (_, i) => {
           const c = valor[i] && valor[i] !== " " ? valor[i] : "";
           return (
@@ -84,8 +106,9 @@ export default function CampoChave({
                 caixas.current[i] = el;
               }}
               value={c}
-              inputMode="text"
-              autoCapitalize="characters"
+              inputMode={numerico ? "numeric" : "text"}
+              autoCapitalize={numerico ? "off" : "characters"}
+              autoFocus={autoFocar && i === 0}
               autoComplete={i === 0 ? "one-time-code" : "off"}
               spellCheck={false}
               maxLength={TAMANHO}

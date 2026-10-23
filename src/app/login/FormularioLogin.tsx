@@ -3,7 +3,8 @@
 import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { fazerLogin } from "./actions";
+import { confirmarCodigo, fazerLogin, reenviarCodigo } from "./actions";
+import CampoChave from "@/components/portal/CampoChave";
 
 export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: boolean }) {
   const [documento, setDocumento] = useState("");
@@ -11,6 +12,12 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
   const [erro, setErro] = useState<string | null>(null);
   const [verSenha, setVerSenha] = useState(false);
   const [pending, startTransition] = useTransition();
+  // Segunda etapa (lib/codigo-login.ts): o e-mail mascarado para onde foi o
+  // código. Null enquanto está na etapa da senha.
+  const [emailDoCodigo, setEmailDoCodigo] = useState<string | null>(null);
+  const [estadoCodigo, setEstadoCodigo] = useState<"neutro" | "certo" | "errado">("neutro");
+  const [rodadaCodigo, setRodadaCodigo] = useState(0);
+  const [aviso, setAviso] = useState<string | null>(null);
 
   function aoEnviar(e: React.FormEvent) {
     e.preventDefault();
@@ -19,6 +26,36 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
       const resultado = await fazerLogin({ documento, senha });
       if (!resultado.ok) {
         setErro(resultado.erro);
+      } else if ("etapa" in resultado) {
+        setEmailDoCodigo(resultado.email);
+        setEstadoCodigo("neutro");
+      }
+    });
+  }
+
+  function confirmar(codigo: string) {
+    setErro(null);
+    setAviso(null);
+    startTransition(async () => {
+      const r = await confirmarCodigo(codigo);
+      if (!r.ok) {
+        setErro(r.erro);
+        setEstadoCodigo("errado");
+        if (/venceu|Entre de novo/.test(r.erro)) setEmailDoCodigo(null);
+      } else setEstadoCodigo("certo");
+    });
+  }
+
+  function reenviar() {
+    setErro(null);
+    setAviso(null);
+    startTransition(async () => {
+      const r = await reenviarCodigo();
+      if (!r.ok) setErro(r.erro);
+      else {
+        setAviso("Mandamos um código novo. O anterior deixou de valer.");
+        setEstadoCodigo("neutro");
+        setRodadaCodigo((n) => n + 1);
       }
     });
   }
@@ -66,6 +103,71 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
 
         {/* Cartão de vidro sobre as duas luzes do fundo (globals.css,
             .vidro): o desfoque só aqui, numa área pequena e parada. */}
+        {emailDoCodigo ? (
+          // ── A ETAPA DO CÓDIGO ──
+          // O mesmo cartão de vidro; seis caixas que confirmam sozinhas ao
+          // preencher a última. Entra com o mesmo movimento do cartão
+          // anterior (animate-fade-in-up), só na troca de etapa.
+          <form
+            key="codigo"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const v = new FormData(e.currentTarget).get("codigo");
+              confirmar(String(v ?? ""));
+            }}
+            className="vidro rounded-3xl p-6 sm:p-7 space-y-4 animate-fade-in-up"
+          >
+            <div>
+              <p id="rotulo-codigo" className="text-sm font-medium">Código de acesso</p>
+              <p className="text-sm text-muted mt-1 leading-relaxed">
+                Mandamos 6 números para {emailDoCodigo}. Vale por 10 minutos.
+              </p>
+            </div>
+            <CampoChave
+              key={rodadaCodigo}
+              nome="codigo"
+              rotuloId="rotulo-codigo"
+              tamanho={6}
+              padrao={/^\d$/}
+              numerico
+              autoFocar
+              estado={estadoCodigo}
+              aoCompletar={confirmar}
+              aoMudar={() => estadoCodigo === "errado" && setEstadoCodigo("neutro")}
+            />
+            {erro && (
+              <p role="alert" className="text-sm rounded-lg px-3 py-2 border" style={{ color: "var(--urgente)", background: "var(--urgente-tint)", borderColor: "var(--urgente-borda)" }}>
+                {erro}
+              </p>
+            )}
+            {aviso && !erro && (
+              <p role="status" className="text-sm text-muted">{aviso}</p>
+            )}
+            <button
+              type="submit"
+              disabled={pending}
+              className="pressiona w-full bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full py-3 disabled:opacity-60"
+            >
+              {pending ? "Conferindo..." : estadoCodigo === "certo" ? "Entrando..." : "Confirmar"}
+            </button>
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <button type="button" onClick={reenviar} disabled={pending} className="text-muted hover:text-brand-claro min-h-9">
+                Mandar outro código
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmailDoCodigo(null);
+                  setErro(null);
+                  setAviso(null);
+                }}
+                className="text-muted hover:text-foreground min-h-9"
+              >
+                Voltar
+              </button>
+            </div>
+          </form>
+        ) : (
         <form
           onSubmit={aoEnviar}
           className="vidro rounded-3xl p-6 sm:p-7 space-y-4"
@@ -157,6 +259,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
             </Link>
           </div>
         </form>
+        )}
 
         <div className="mt-6 text-center border-t border-border pt-6">
           <p className="text-sm text-muted mb-3">Primeiro acesso?</p>
