@@ -83,3 +83,44 @@ describe("formulários do painel", () => {
     expect(soltos).toEqual([]);
   });
 });
+
+describe("Central Inteligente", () => {
+  it("o achado sem secretaria leva a etiqueta da área certa, não sempre 'Financeiro'", async () => {
+    const { moduloDoAchado } = await import("@/lib/deteccao-automatica");
+    expect(moduloDoAchado({ secretaria: null, categoria: "prazo", chave: "atendimento:vencendo" })).toBe("Ouvidoria");
+    expect(moduloDoAchado({ secretaria: null, categoria: "prazo", chave: "atendimento:vencidos" })).toBe("Ouvidoria");
+    expect(moduloDoAchado({ secretaria: null, categoria: "pessoal", chave: "pessoal:prudencial" })).toBe("Pessoal");
+    expect(moduloDoAchado({ secretaria: null, categoria: "financeiro", chave: "financeiro:saldo-negativo" })).toBe("Financeiro");
+    expect(moduloDoAchado({ secretaria: "licitacoes", categoria: "prazo", chave: "licitacao:x" })).toBe("Licitações");
+  });
+
+  it("o resumo concorda em número", async () => {
+    const { resumoDosAchados } = await import("@/lib/deteccao-automatica");
+    expect(resumoDosAchados(1)).toBe("1 ponto detectado automaticamente que merece atenção.");
+    expect(resumoDosAchados(6)).toBe("6 pontos detectados automaticamente que merecem atenção.");
+    expect(resumoDosAchados(0)).toContain("Nenhum ponto crítico");
+    expect(resumoDosAchados(6)).not.toContain("(s)");
+  });
+});
+
+describe("CNPJ nas Configurações", () => {
+  it("sai com a máscara oficial; o que não tem 14 dígitos sai como veio", async () => {
+    const { formatarCnpj } = await import("@/lib/formatadores");
+    expect(formatarCnpj("12345678000190")).toBe("12.345.678/0001-90");
+    expect(formatarCnpj("12.345.678/0001-90")).toBe("12.345.678/0001-90");
+    expect(formatarCnpj("123")).toBe("123");
+    expect(formatarCnpj(null)).toBeNull();
+  });
+});
+
+describe("eixo dos gráficos do histórico", () => {
+  it("valores em reais cabem no eixo de 44–56px", async () => {
+    const { formatarCompacto: bruto } = await import("@/lib/formatadores");
+    // O Intl separa "600" de "mil" com espaço não separável.
+    const formatarCompacto = (v: number) => bruto(v).replace(/\s/g, " ");
+    expect(formatarCompacto(600000)).toBe("600 mil");
+    expect(formatarCompacto(-50000)).toBe("-50 mil");
+    expect(formatarCompacto(1200000)).toBe("1,2 mi");
+    for (const v of [600000, -150000, 1250000]) expect(formatarCompacto(v).length).toBeLessThanOrEqual(8);
+  });
+});

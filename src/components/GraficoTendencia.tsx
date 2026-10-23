@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { projetarProximoPeriodo, MINIMO_PARA_PROJECAO } from "@/lib/projecao";
+import { formatarCompacto, formatarMoeda, formatarNumero } from "@/lib/formatadores";
 
 export type PontoSerie = { data: string; valor: number | null };
 
@@ -33,12 +34,16 @@ export default function GraficoTendencia({
   serie,
   cor = "var(--serie-1)",
   sufixo = "",
+  moeda = false,
 }: {
   titulo: string;
   serie: PontoSerie[];
   cor?: string;
   sufixo?: string;
+  /** Valores em reais: eixo compacto ("600 mil") e dica com R$. */
+  moeda?: boolean;
 }) {
+  const rotuloValor = (v: number) => (moeda ? formatarMoeda(v) : `${formatarNumero(v)}${sufixo}`);
   const pontosValidos = serie.filter((p) => p.valor !== null);
 
   if (pontosValidos.length < 2) {
@@ -88,10 +93,15 @@ export default function GraficoTendencia({
           <LineChart data={dadosFormatados} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--sutil)" />
             <XAxis dataKey="data" tick={{ fontSize: 11 }} stroke="var(--muted)" />
-            <YAxis tick={{ fontSize: 11 }} stroke="var(--muted)" width={44} />
+            <YAxis
+              tick={{ fontSize: 11 }}
+              stroke="var(--muted)"
+              width={moeda ? 56 : 44}
+              tickFormatter={(v: number) => formatarCompacto(v)}
+            />
             <Tooltip
               formatter={(v, nome) => [
-                `${v}${sufixo}`,
+                typeof v === "number" ? rotuloValor(v) : `${v}${sufixo}`,
                 nome === "projetado" ? "Projeção" : "Real",
               ]}
               contentStyle={{ fontSize: 12, borderRadius: 8 }}

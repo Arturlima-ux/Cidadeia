@@ -6,6 +6,7 @@ import FormularioUsuario from "./FormularioUsuario";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import PilulaStatus from "@/components/PilulaStatus";
 import { NOME_PLANO_ADDON, PLANOS_ADDON } from "@/lib/planos";
+import { formatarCnpj } from "@/lib/formatadores";
 
 const LABEL_SISTEMA: Record<string, string> = {
   portal_transparencia: "Portal do Cidadão",
@@ -59,7 +60,7 @@ export default async function ConfiguracoesPage() {
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <Item label="Nome" valor={prefeitura?.nome} />
           <Item label="Município" valor={prefeitura?.estado === "--" ? (prefeitura?.municipio ?? "") : `${prefeitura?.municipio} / ${prefeitura?.estado}`} />
-          <Item label="CNPJ" valor={prefeitura?.cnpj} />
+          <Item label="CNPJ" valor={formatarCnpj(prefeitura?.cnpj)} />
           <Item label="Prefeito(a)" valor={prefeitura?.prefeito} />
           <Item label="População" valor={prefeitura?.populacao?.toLocaleString("pt-BR")} />
         </dl>

@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { centralInteligente } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { montarContexto, gerarDeteccoesAutomaticas } from "@/lib/ia";
-import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
+import { moduloDoAchado, resumoDosAchados, type DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 
 const HORAS_VALIDADE_CACHE = 24;
 
@@ -26,19 +26,12 @@ export type RespostaCentral =
   | { ok: true; central: ConteudoCentral; deCache: boolean }
   | { ok: false; erro: string };
 
-const LABEL_SECRETARIA: Record<string, string> = {
-  saude: "Saúde",
-  educacao: "Educação",
-  obras: "Obras",
-  licitacoes: "Licitações",
-};
-
 function deteccaoParaItem(d: DeteccaoAutomatica): ItemCentral {
   return {
     titulo: d.titulo,
     texto: d.descricao,
     prioridade: d.prioridade,
-    modulos: d.secretaria ? [LABEL_SECRETARIA[d.secretaria] ?? d.secretaria] : ["Financeiro"],
+    modulos: [moduloDoAchado(d)],
     automatico: true,
   };
 }
@@ -184,10 +177,7 @@ export async function obterCentralInteligente(
 
   const central: ConteudoCentral = {
     resumo:
-      viaIA?.resumo ??
-      (deteccoes.length > 0
-        ? `${deteccoes.length} ponto(s) detectado(s) automaticamente que merecem atenção.`
-        : "Nenhum ponto crítico detectado nos dados registrados até agora."),
+      viaIA?.resumo ?? resumoDosAchados(deteccoes.length),
     itens: [...deteccoes.map(deteccaoParaItem), ...(viaIA?.itens ?? [])],
     geradoEm: new Date().toISOString(),
   };

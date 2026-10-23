@@ -33,3 +33,25 @@ export function formatarNumero(valor: number, casasMax = 1): string {
 export function formatarPercentual(valor: number, casasMax = 1): string {
   return `${formatarNumero(valor, casasMax)}%`;
 }
+
+/**
+ * CNPJ com a máscara oficial (00.000.000/0000-00). O cadastro guarda só os
+ * dígitos; as Configurações mostravam "12345678000190", que ninguém confere
+ * de relance contra o cartão do CNPJ. O que não tiver 14 dígitos sai como
+ * veio, para não esconder um cadastro errado atrás de uma máscara.
+ */
+export function formatarCnpj(cnpj: string | null | undefined): string | null {
+  if (!cnpj) return null;
+  const d = cnpj.replace(/\D/g, "");
+  if (d.length !== 14) return cnpj;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+}
+
+/**
+ * Número curto para eixo de gráfico: "600 mil", "1,2 mi", "-50 mil". O eixo
+ * do histórico financeiro tem 44px; "600000" não cabia e saía cortado como
+ * "0000" ao lado da linha.
+ */
+export function formatarCompacto(valor: number): string {
+  return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(valor);
+}

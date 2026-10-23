@@ -287,7 +287,7 @@ export function eficaciaEducacao(
     resultado:
       sinais.length === 0
         ? "Indicadores estáveis ou melhorando em relação ao registro anterior."
-        : `${sinais.length} ponto(s) de atenção identificado(s).`,
+        : sinais.length === 1 ? "1 ponto de atenção identificado." : `${sinais.length} pontos de atenção identificados.`,
   };
 }
 

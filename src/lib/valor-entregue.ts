@@ -69,12 +69,28 @@ const nomeArea = (s: string | null, fiscal = false) => {
   return a ? NOME_AREA[a] : fiscal ? "Tesouro" : "Gabinete";
 };
 
-/** Dias inteiros entre duas datas do banco (ou ISO). */
-export function diasEntreDatas(de: string, ate: string): number | null {
+/**
+ * Dias de calendário entre duas datas do banco (ou ISO), no fuso em que a
+ * tela as escreve.
+ *
+ * Era a diferença em blocos de 24h, arredondada: a tela mostrava
+ * "14 de out → 20 de out · 5 dias até resolver" (o aviso das 23h e a
+ * solução das 8h), e um alerta aberto às 23h e fechado às 8h do dia
+ * seguinte aparecia como "resolvido no mesmo dia" ao lado de duas datas
+ * diferentes. Quem lê conta pelo calendário; a conta agora também.
+ */
+export function diasEntreDatas(de: string, ate: string, fuso = "America/Sao_Paulo"): number | null {
   const a = dataDoBanco(de);
   const b = dataDoBanco(ate);
   if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
-  return Math.max(0, Math.round((b.getTime() - a.getTime()) / 86_400_000));
+  const dia = (d: Date) => {
+    const [ano, mes, diaDoMes] = new Intl.DateTimeFormat("en-CA", { timeZone: fuso, year: "numeric", month: "2-digit", day: "2-digit" })
+      .format(d)
+      .split("-")
+      .map(Number);
+    return Date.UTC(ano, mes - 1, diaDoMes) / 86_400_000;
+  };
+  return Math.max(0, dia(b) - dia(a));
 }
 
 export function montarValor(entrada: {

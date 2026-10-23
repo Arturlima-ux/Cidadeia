@@ -183,7 +183,7 @@ export default async function SaudePage() {
           <p className="text-lg font-semibold mt-1 tracking-[-0.02em]">{primeira.u.nome}</p>
           <p className="text-sm mt-1 leading-relaxed">{primeira.leitura.resumo}</p>
           {primeira.leitura.achados.length > 1 && (
-            <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} outro(s) ponto(s) na ficha →</p>
+            <p className="text-xs text-muted mt-1">+ {primeira.leitura.achados.length - 1} {primeira.leitura.achados.length - 1 === 1 ? "outro ponto" : "outros pontos"} na ficha →</p>
           )}
         </Link>
       )}
