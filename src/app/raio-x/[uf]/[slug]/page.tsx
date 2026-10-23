@@ -16,7 +16,8 @@ import { municipiosDaUf } from "@/lib/municipios";
 import { montarRaioX } from "@/lib/raio-x";
 import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { ESTADOS, doEstado, type Estado } from "@/lib/estados";
-import { compartilhamento, JsonLdScript, ldBreadcrumb, ldPrefeitura } from "@/lib/seo";
+import { hojeEmBrasilia } from "@/lib/cobranca";
+import { compartilhamento, JsonLdScript, ldBreadcrumb, ldDadosDoMunicipio } from "@/lib/seo";
 import { NOME_DOS_ESTADOS } from "@/lib/estados";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
@@ -128,7 +129,15 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
             { nome: NOME_DOS_ESTADOS[m.uf as Estado], caminho: `/raio-x/${m.uf.toLowerCase()}` },
             { nome: m.nome, caminho: caminhoDoRaioX(m) },
           ]),
-          ldPrefeitura({ nome: m.nome, uf: m.uf, populacao: m.populacao, caminho: caminhoDoRaioX(m) }),
+          ldDadosDoMunicipio({
+            nome: m.nome,
+            uf: m.uf,
+            nomeDoEstado: NOME_DOS_ESTADOS[m.uf as Estado],
+            codigoIbge: String(m.codigo),
+            populacao: m.populacao,
+            caminho: caminhoDoRaioX(m),
+            ano: Number(hojeEmBrasilia().slice(0, 4)),
+          }),
         ]}
       />
       <SiteHeader />

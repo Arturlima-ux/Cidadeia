@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { compartilhamento } from "@/lib/seo";
 import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
@@ -52,6 +54,21 @@ import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta,
 // lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
 const FONTES = FONTES_OFICIAIS;
 
+
+// ── A CANÔNICA DA HOME ──
+// O seletor de cidade leva a /?m=<código IBGE>: são 5.570 endereços com o
+// mesmo título e a mesma descrição. Sem canônica, cada um concorria com a
+// home quando compartilhado ou rastreado. Todos apontam para "/".
+const TITULO_HOME = "CidadeIA — a gestão municipal inteira, num lugar só";
+export const metadata: Metadata = {
+  ...compartilhamento({
+    titulo: TITULO_HOME,
+    descricao:
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, com o que é público lido sozinho das bases oficiais.",
+    caminho: "/",
+  }),
+  title: { absolute: TITULO_HOME },
+};
 
 export default async function LandingPage({
   searchParams,

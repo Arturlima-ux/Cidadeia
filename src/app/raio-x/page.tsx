@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
@@ -6,11 +7,12 @@ import Link from "next/link";
 import ConferenciaConformidade from "@/components/site/ConferenciaConformidade";
 import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 
-export const metadata = {
-  title: "Raio-X do município",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Raio-X do município",
+  descricao:
     "Digite o nome da cidade e veja os números reais dela, puxados na hora do Tesouro Nacional, e confira as exigências da LAI, da Lei 13.460 e da LGPD que não estão em base pública. Sem cadastro.",
-};
+  caminho: "/raio-x",
+});
 
 // ── O TOPO NO PADRÃO DA HOME ──
 // Título grande e o formulário à esquerda; à direita, o país com um ponto por
