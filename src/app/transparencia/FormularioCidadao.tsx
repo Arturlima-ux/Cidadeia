@@ -1,5 +1,6 @@
 "use client";
 
+import CampoChave from "@/components/portal/CampoChave";
 import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from "react";
 import { abrirAtendimento, avaliarAtendimento, consultarAtendimento, type ResultadoConsulta } from "./actions";
 import { NOTAS, rotuloDaNota, type Avaliacao, type Nota } from "@/lib/avaliacao-cidadao";
@@ -315,14 +316,19 @@ function Consultar({ inicial }: { inicial: { protocolo: string; chave: string } 
   return (
     <div className="space-y-4">
       <form action={enviar} className="arco-card bg-card border border-border p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
+        <div className="space-y-4">
+          <div className="max-w-sm">
             <label htmlFor="cid-protocolo" className="block text-sm font-medium mb-1.5">Número do protocolo</label>
             <input id="cid-protocolo" name="protocolo" required defaultValue={inicial?.protocolo} placeholder="202603-ABC123" className={classeInput} />
           </div>
           <div>
-            <label htmlFor="cid-chave" className="block text-sm font-medium mb-1.5">Chave de consulta</label>
-            <input id="cid-chave" name="chave" required defaultValue={inicial?.chave} placeholder="ABCD2345" className={classeInput} />
+            <p id="cid-chave-rotulo" className="block text-sm font-medium mb-1.5">Chave de consulta</p>
+            <CampoChave
+              rotuloId="cid-chave-rotulo"
+              inicial={inicial?.chave}
+              estado={resultado ? (resultado.ok ? "certo" : "errado") : "neutro"}
+            />
+            <p className="text-xs text-muted mt-1.5">Os 8 caracteres que vieram com o protocolo. Dá para colar a chave inteira.</p>
           </div>
         </div>
         <button

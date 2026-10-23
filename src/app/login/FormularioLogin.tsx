@@ -9,6 +9,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
   const [documento, setDocumento] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [verSenha, setVerSenha] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function aoEnviar(e: React.FormEvent) {
@@ -63,9 +64,11 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
           </p>
         </div>
 
+        {/* Cartão de vidro sobre as duas luzes do fundo (globals.css,
+            .vidro): o desfoque só aqui, numa área pequena e parada. */}
         <form
           onSubmit={aoEnviar}
-          className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4"
+          className="vidro rounded-3xl p-6 sm:p-7 space-y-4"
         >
           <div>
             <label className="block text-sm font-medium mb-1.5" htmlFor="documento">
@@ -78,7 +81,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
               value={documento}
               onChange={(e) => setDocumento(e.target.value)}
               placeholder="000.000.000-00"
-              className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition"
+              className="campo-vidro w-full rounded-xl px-4 py-3 text-sm"
               required
             />
           </div>
@@ -87,17 +90,30 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
             <label className="block text-sm font-medium mb-1.5" htmlFor="senha">
               Senha
             </label>
-            <input
-              id="senha"
-              name="senha"
-              type="password"
-              autoComplete="current-password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand transition"
-              required
-            />
+            <div className="relative">
+              <input
+                id="senha"
+                name="senha"
+                type={verSenha ? "text" : "password"}
+                autoComplete="current-password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
+                className="campo-vidro w-full rounded-xl pl-4 pr-20 py-3 text-sm"
+                required
+              />
+              {/* Mostrar a senha: no balcão da prefeitura, digita-se a senha
+                  com pressa e sem ver; conferir antes de errar três vezes. */}
+              <button
+                type="button"
+                onClick={() => setVerSenha((v) => !v)}
+                aria-pressed={verSenha}
+                aria-controls="senha"
+                className="pressiona absolute right-1.5 top-1/2 -translate-y-1/2 min-h-9 rounded-lg px-3 text-xs font-medium text-muted hover:text-foreground"
+              >
+                {verSenha ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
           </div>
 
           {/* Quem chega de /sessao-encerrada foi devolvido porque a prefeitura
@@ -127,7 +143,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
           <button
             type="submit"
             disabled={pending}
-            className="w-full bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full py-2.5 transition disabled:opacity-60"
+            className="pressiona w-full bg-brand hover:bg-brand-dark text-white font-semibold text-sm rounded-full py-3 disabled:opacity-60"
           >
             {pending ? "Entrando..." : "Entrar"}
           </button>
@@ -146,7 +162,7 @@ export default function FormularioLogin({ sessaoExpirada }: { sessaoExpirada: bo
           <p className="text-sm text-muted mb-3">Primeiro acesso?</p>
           <Link
             href="/cadastro"
-            className="inline-block w-full rounded-full border border-brand text-brand font-semibold text-sm py-2.5 hover:bg-brand-tint transition"
+            className="pressiona inline-block w-full rounded-full border border-brand text-brand-claro font-semibold text-sm py-3 hover:bg-brand-tint"
           >
             Cadastrar Prefeitura
           </Link>
