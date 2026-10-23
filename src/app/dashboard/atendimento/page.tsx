@@ -15,7 +15,7 @@ import PainelResposta from "./PainelResposta";
 import ConfigPortal from "./ConfigPortal";
 import PainelPrazos from "./PainelPrazos";
 import { fusoDoEstado, dataCurta } from "@/lib/horario";
-import { NOME_TIPO, NOME_STATUS, type TipoAtendimento } from "@/lib/atendimento";
+import { NOME_TIPO, NOME_STATUS, textoFilaVazia, type TipoAtendimento } from "@/lib/atendimento";
 import { avaliacoesDaPrefeitura } from "@/lib/avaliacao-cidadao-servidor";
 import { NOTAS, resumirSatisfacao, rotuloDaNota } from "@/lib/avaliacao-cidadao";
 
@@ -138,11 +138,7 @@ export default async function AtendimentoPage() {
           <EstadoVazio
             icone="alertas"
             titulo="Nenhuma manifestação aguardando."
-            descricao={
-              config?.portalAtivo
-                ? "Quando um cidadão abrir uma manifestação no portal, ela aparece aqui."
-                : "Ative o portal público acima para começar a receber manifestações."
-            }
+            descricao={textoFilaVazia(gestor, Boolean(config?.portalAtivo))}
           />
         ) : (
           <div className="space-y-3">
@@ -286,7 +282,9 @@ export default async function AtendimentoPage() {
         </div>
       )}
 
-      <Link
+      {/* A Central cruza a prefeitura inteira: o proxy a barra para o
+          secretário, e o link o devolveria à própria secretaria. */}
+      {gestor && <Link
         href="/dashboard/central"
         className="group inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark transition"
       >
@@ -294,7 +292,7 @@ export default async function AtendimentoPage() {
         <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
           →
         </span>
-      </Link>
+      </Link>}
     </div>
   );
 }

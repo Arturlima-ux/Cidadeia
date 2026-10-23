@@ -3,29 +3,9 @@ import { verificarTokenSessao } from "@/lib/sessao";
 import { deveForcarHttps } from "@/lib/forcar-https";
 import { deveCorrigirCaminho } from "@/lib/url-colada";
 import { decidirNaDemo, ROTAS_DE_DOWNLOAD } from "@/lib/demo/regras";
+import { redirecionarSecretario } from "@/lib/acesso-rotas";
 
 const NOME_COOKIE = "cidadeia_sessao";
-
-// Rotas que um usuário com cargo "secretario" NÃO pode acessar — são
-// visões da prefeitura inteira (financeiro, outras secretarias, gestão de
-// usuários), não da secretaria específica dele.
-const ROTAS_RESTRITAS_A_PREFEITO_ADMIN = [
-  "/dashboard/configuracoes",
-  // "/dashboard/alertas" saiu daqui: o secretário vê os alertas da própria
-  // área (a página filtra; lib/alerta-por-area.ts).
-  "/dashboard/historico",
-  "/dashboard/valor",
-  "/dashboard/auditoria",
-  "/dashboard/planos",
-  "/dashboard/modulos",
-  "/dashboard/central",
-  "/dashboard/eficacia",
-  // A prestação de contas cruza educação, saúde, FUNDEB, folha e portal: é a
-  // prefeitura inteira numa tela, não a secretaria de quem entrou.
-  "/dashboard/prestacao",
-];
-
-const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -116,28 +96,15 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  // O secretário só abre o que está na lista dele (lib/acesso-rotas.ts); o
+  // resto — visão da prefeitura inteira, outras secretarias — volta para a
+  // secretaria dele.
   if (sessao.cargo === "secretario") {
-    const minhaSecretaria =
-      sessao.secretaria && SECRETARIAS_VALIDAS.includes(sessao.secretaria)
-        ? sessao.secretaria
-        : null;
-    const destinoPadrao = minhaSecretaria
-      ? `/dashboard/secretarias/${minhaSecretaria}`
-      : "/dashboard";
-
-    const acessandoOutraSecretaria =
-      pathname.startsWith("/dashboard/secretarias/") &&
-      !pathname.startsWith(`/dashboard/secretarias/${minhaSecretaria}`);
-
-    const acessandoRotaRestrita = ROTAS_RESTRITAS_A_PREFEITO_ADMIN.some((r) =>
-      pathname.startsWith(r)
-    );
-
-    const acessandoVisaoGeral = pathname === "/dashboard";
-
-    if (acessandoOutraSecretaria || acessandoRotaRestrita || acessandoVisaoGeral) {
+    const destino = redirecionarSecretario(pathname, sessao.secretaria);
+    if (destino) {
       const url = request.nextUrl.clone();
-      url.pathname = destinoPadrao;
+      url.pathname = destino;
+      url.search = "";
       return NextResponse.redirect(url);
     }
   }
