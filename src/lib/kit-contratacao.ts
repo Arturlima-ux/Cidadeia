@@ -1,6 +1,8 @@
 import { CARENCIA_DIAS } from "@/lib/cobranca";
 
 import { preencherCompromissos } from "@/lib/compromissos";
+import { MODULOS_DETALHE } from "@/lib/modulos-detalhe";
+import { NOME_PLANO_ADDON } from "@/lib/planos";
 
 // Carência por extenso, como pede a redação de contrato.
 const CARENCIA_EXTENSO: Record<number, string> = { 3: "três", 5: "cinco", 7: "sete", 10: "dez", 15: "quinze", 30: "trinta", 60: "sessenta" };
@@ -79,6 +81,19 @@ export const CAMPOS_A_PREENCHER = [
   { marcador: "[PÁGINA DE DISPONIBILIDADE]", descricao: "Endereço público onde o histórico de verificações é publicado" },
 ] as const;
 
+// ── O ESCOPO DO TR SAI DA MESMA FONTE DA PÁGINA DE PRODUTOS ──
+//
+// O termo de referência é o que vincula. Ele descrevia Saúde como "cadastro
+// de unidades, indicadores e mapa" e Obras como "cadastro de obras", enquanto
+// a página de cada módulo falava de importação do CNES, leitura do PNCP e
+// pedido de reposição automático: a prefeitura comprava, no papel, menos do
+// que o site anunciava (revisão de outubro de 2026). Agora a tabela é montada
+// de lib/modulos-detalhe.ts, que só lista o que existe no código.
+const ESCOPO_DOS_MODULOS: string[][] = MODULOS_DETALHE.map((m) => [
+  NOME_PLANO_ADDON[m.chave],
+  `${m.capacidades.join("; ")}.${m.automacao ? ` Rotina automática: ${m.automacao}` : ""}`,
+]);
+
 const AVISO_JURIDICO =
   "Este é um MODELO, oferecido para acelerar a montagem do processo. Não substitui a análise da assessoria jurídica da prefeitura, que deve adaptá-lo às normas do município e à legislação vigente na data da contratação.";
 
@@ -113,12 +128,12 @@ const TERMO_DE_REFERENCIA: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "A contratação atende a obrigações legais de transparência ativa, de ouvidoria e de tratamento de manifestações do cidadão, além de consolidar informações hoje dispersas entre as secretarias, o que hoje é feito por planilhas isoladas e sem histórico auditável.",
+            "A contratação apoia o cumprimento de obrigações legais de ouvidoria, de acesso à informação e de prestação de contas, e consolida informações hoje dispersas entre as secretarias, mantidas em planilhas isoladas e sem histórico auditável. O portal do cidadão complementa, e não substitui, o Portal da Transparência exigido pela Lei Complementar nº 131/2009, que continua alimentado em tempo real pelo sistema contábil da contratante.",
         },
         {
           tipo: "lista",
           itens: [
-            "Lei nº 12.527/2011 — acesso à informação e transparência ativa;",
+            "Lei nº 12.527/2011 — acesso à informação;",
             "Lei nº 13.460/2017 — participação, proteção e defesa dos direitos do usuário de serviços públicos, incluindo manifestação anônima e acompanhamento do pedido;",
             "Lei nº 13.709/2018 — proteção de dados pessoais;",
             "Obrigações de prestação de contas perante o Tribunal de Contas do Estado.",
@@ -137,32 +152,12 @@ const TERMO_DE_REFERENCIA: Documento = {
         {
           tipo: "tabela",
           cabecalho: ["Módulo", "Escopo funcional"],
-          linhas: [
-            [
-              "Essencial",
-              "Portal do cidadão público com endereço próprio do município, complementar ao Portal da Transparência exigido pela LC 131/2009, que continua a cargo do sistema contábil da contratante; ouvidoria com manifestação anônima e protocolo não sequencial; protocolo de atendimento com número e chave de consulta entregues ao cidadão.",
-            ],
-            [
-              "Gestão",
-              "Painel financeiro consolidado; alertas gerais; histórico e projeção de indicadores; relatório executivo em PDF; administração de usuários e perfis.",
-            ],
-            [
-              "Saúde",
-              "Cadastro de unidades de saúde, indicadores da secretaria, visualização em mapa e relatório em PDF.",
-            ],
-            [
-              "Educação",
-              "Cadastro de escolas, indicadores da secretaria, visualização em mapa e relatório em PDF.",
-            ],
-            [
-              "Obras",
-              "Cadastro de obras com progresso executado e esperado, valor de contrato, visualização em mapa e relatório em PDF.",
-            ],
-            [
-              "Licitações",
-              "Cadastro de processos licitatórios com modalidade, valor estimado, fornecedor e observação de risco, e relatório em PDF.",
-            ],
-          ],
+          linhas: ESCOPO_DOS_MODULOS,
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "As informações que já constam de bases públicas (Tesouro Nacional, CNES, Catálogo de Escolas do INEP, PNCP, ObrasGov, Transferegov, SIOPE e InfoDengue) são importadas pelo sistema, sem digitação. As que só a contratante detém, como estoque das unidades, ocorrências, medição de obra, frequência e busca ativa de alunos, são lançadas pelos servidores designados nas telas do sistema.",
         },
       ],
     },
@@ -184,7 +179,45 @@ const TERMO_DE_REFERENCIA: Documento = {
       ],
     },
     {
-      titulo: "5. Do uso de inteligência artificial",
+      titulo: "5. Da estimativa da despesa, da justificativa do preço e da escolha do fornecedor",
+      blocos: [
+        {
+          tipo: "paragrafo",
+          texto:
+            "A instrução da contratação direta deve conter a estimativa de despesa, a justificativa do preço e a razão da escolha do contratado (art. 72, II, VI e VII, da Lei nº 14.133/2021). A estimativa segue os parâmetros do art. 23, § 1º: contratações similares de outros entes, inclusive as publicadas no Portal Nacional de Contratações Públicas, e pesquisa direta com no mínimo 3 (três) fornecedores de software de gestão pública municipal com escopo equivalente, mediante solicitação formal de cotação.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "Por se tratar de solução recente, podem não existir contratações anteriores do mesmo fornecedor para comparação. Nesse caso, a pesquisa com fornecedores de escopo equivalente é o parâmetro principal, e o preço desta proposta deve ser comparado a ela no processo.",
+        },
+      ],
+    },
+    {
+      titulo: "6. Da forma de contratação",
+      blocos: [
+        {
+          tipo: "lista",
+          itens: [
+            "Dispensa de licitação por valor (art. 75, II, da Lei nº 14.133/2021), quando o total anual estiver dentro do limite vigente, somadas as despesas da mesma unidade gestora com objetos de mesma natureza no exercício (art. 75, § 1º);",
+            "Na dispensa eletrônica, a Administração divulga aviso em sítio eletrônico oficial pelo prazo mínimo de 3 (três) dias úteis, para receber propostas adicionais de eventuais interessados, e seleciona a proposta mais vantajosa (art. 75, § 3º). A dispensa, portanto, não assegura a contratação de fornecedor determinado;",
+            "Acima do limite, pregão eletrônico.",
+          ],
+        },
+      ],
+    },
+    {
+      titulo: "7. Da dotação orçamentária",
+      blocos: [
+        {
+          tipo: "paragrafo",
+          texto:
+            "As despesas decorrentes desta contratação correrão à conta da dotação [DOTAÇÃO ORÇAMENTÁRIA], com indicação da classificação funcional programática e da categoria econômica, a ser informada pela contratante.",
+        },
+      ],
+    },
+    {
+      titulo: "8. Do uso de inteligência artificial",
       blocos: [
         {
           tipo: "paragrafo",
@@ -196,13 +229,13 @@ const TERMO_DE_REFERENCIA: Documento = {
           itens: [
             "Nenhuma informação numérica é gerada ou estimada pela ferramenta: na ausência do dado, o sistema informa a ausência;",
             "Sugestões produzidas por inteligência artificial não se convertem em alerta oficial sem aprovação humana registrada;",
-            "A responsabilidade pelo conteúdo publicado permanece integralmente da contratante.",
+            "Nenhum conteúdo produzido por inteligência artificial é publicado no portal do cidadão. A responsabilidade pelo conteúdo publicado permanece integralmente da contratante.",
           ],
         },
       ],
     },
     {
-      titulo: "6. Das obrigações da contratada",
+      titulo: "9. Das obrigações da contratada",
       blocos: [
         {
           tipo: "lista",
@@ -218,7 +251,7 @@ const TERMO_DE_REFERENCIA: Documento = {
       ],
     },
     {
-      titulo: "7. Das obrigações da contratante",
+      titulo: "10. Das obrigações da contratante",
       blocos: [
         {
           tipo: "lista",
@@ -233,7 +266,7 @@ const TERMO_DE_REFERENCIA: Documento = {
       ],
     },
     {
-      titulo: "8. Do prazo e da forma de pagamento",
+      titulo: "11. Do prazo e da forma de pagamento",
       blocos: [
         {
           tipo: "paragrafo",
@@ -257,17 +290,17 @@ const TERMO_DE_REFERENCIA: Documento = {
       ],
     },
     {
-      titulo: "9. Do recebimento e dos critérios de aceitação",
+      titulo: "12. Do recebimento e dos critérios de aceitação",
       blocos: [
         {
           tipo: "paragrafo",
           texto:
-            "O objeto será considerado recebido definitivamente quando verificado, pelo fiscal do contrato, que: os módulos contratados estão acessíveis aos usuários designados; o endereço público de transparência do município responde; e a ouvidoria e o protocolo recebem e permitem consultar manifestações.",
+            "O objeto será considerado recebido definitivamente quando verificado, pelo fiscal do contrato, que: os módulos contratados estão acessíveis aos usuários designados; o portal do cidadão do município responde; e a ouvidoria e o protocolo recebem e permitem consultar manifestações.",
         },
       ],
     },
     {
-      titulo: "10. Das sanções",
+      titulo: "13. Das sanções",
       blocos: [
         {
           tipo: "paragrafo",
@@ -363,22 +396,42 @@ const MINUTA_CONTRATO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "Decorridos 12 (doze) meses da data da proposta, o valor poderá ser reajustado pela variação acumulada do [ÍNDICE], mediante requerimento fundamentado da contratada e concordância da contratante.",
+            "Decorrido o interstício mínimo de 1 (um) ano, contado da data do orçamento estimado ([DATA DO ORÇAMENTO ESTIMADO]), o valor será reajustado pela variação acumulada do [ÍNDICE] no período, a pedido da CONTRATADA, independentemente de termo aditivo, por simples apostila (arts. 25, § 7º, 92, § 3º, e 136, I, da Lei nº 14.133/2021).",
         },
       ],
     },
     {
-      titulo: "Cláusula quinta — Das obrigações das partes",
+      titulo: "Cláusula quinta — Da dotação orçamentária",
       blocos: [
         {
           tipo: "paragrafo",
           texto:
-            "As partes obrigam-se ao disposto nos itens 6 e 7 do Termo de Referência, cujo teor integra esta cláusula.",
+            "As despesas deste contrato correrão à conta da dotação [DOTAÇÃO ORÇAMENTÁRIA], com a classificação funcional programática e a categoria econômica nela indicadas (art. 92, VIII, da Lei nº 14.133/2021). Nos exercícios seguintes, à conta das dotações próprias consignadas na lei orçamentária.",
         },
       ],
     },
     {
-      titulo: "Cláusula sexta — Da titularidade e da devolução dos dados",
+      titulo: "Cláusula sexta — Da fiscalização",
+      blocos: [
+        {
+          tipo: "paragrafo",
+          texto:
+            "A execução será acompanhada e fiscalizada por servidor designado pela CONTRATANTE, na forma do art. 117 da Lei nº 14.133/2021, que registrará as ocorrências e atestará o recebimento mensal do serviço.",
+        },
+      ],
+    },
+    {
+      titulo: "Cláusula sétima — Das obrigações das partes",
+      blocos: [
+        {
+          tipo: "paragrafo",
+          texto:
+            "As partes obrigam-se ao disposto nos itens 9 e 10 do Termo de Referência, cujo teor integra esta cláusula.",
+        },
+      ],
+    },
+    {
+      titulo: "Cláusula oitava — Da titularidade e da devolução dos dados",
       blocos: [
         {
           tipo: "paragrafo",
@@ -389,14 +442,14 @@ const MINUTA_CONTRATO: Documento = {
           tipo: "lista",
           itens: [
             "A contratante pode extrair a integralidade dos dados, em formato aberto e legível por máquina, a qualquer tempo, por iniciativa própria e sem custo adicional;",
-            "A extração independe de anuência, de aviso prévio ou de estar o contrato adimplido;",
+            "A extração independe de anuência, de aviso prévio ou de estar o contrato adimplido, inclusive durante a suspensão do acesso ao painel de gestão prevista na cláusula terceira, que nunca alcança os dados;",
             "Extinto o contrato por qualquer motivo, a contratada entregará a base completa em até [PRAZO DE DEVOLUÇÃO] dias e procederá à eliminação definitiva dos dados em seus ambientes, mediante declaração formal.",
           ],
         },
       ],
     },
     {
-      titulo: "Cláusula sétima — Da proteção de dados pessoais",
+      titulo: "Cláusula nona — Da proteção de dados pessoais",
       blocos: [
         {
           tipo: "paragrafo",
@@ -406,7 +459,7 @@ const MINUTA_CONTRATO: Documento = {
       ],
     },
     {
-      titulo: "Cláusula oitava — Do nível de serviço",
+      titulo: "Cláusula décima — Do nível de serviço",
       blocos: [
         {
           tipo: "paragrafo",
@@ -416,7 +469,7 @@ const MINUTA_CONTRATO: Documento = {
       ],
     },
     {
-      titulo: "Cláusula nona — Da rescisão",
+      titulo: "Cláusula décima primeira — Da rescisão",
       blocos: [
         {
           tipo: "paragrafo",
@@ -426,12 +479,12 @@ const MINUTA_CONTRATO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "A extinção não afeta o direito de extração e de devolução dos dados previsto na cláusula sexta.",
+            "A extinção não afeta o direito de extração e de devolução dos dados previsto na cláusula oitava.",
         },
       ],
     },
     {
-      titulo: "Cláusula décima — Do foro",
+      titulo: "Cláusula décima segunda — Do foro",
       blocos: [
         {
           tipo: "paragrafo",

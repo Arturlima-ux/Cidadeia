@@ -43,7 +43,7 @@ export const CONFORMIDADE = [
   {
     exigencia: "Transparência ativa",
     lei: "Lei 12.527/2011 (LAI)",
-    entrega: "Portal público com endereço próprio do município, acessível sem cadastro.",
+    entrega: "Portal do cidadão com endereço próprio da cidade no CidadeIA, acessível sem cadastro. Complementa o Portal da Transparência da LC 131, que sai do sistema contábil.",
   },
   {
     exigencia: "Manifestação anônima",

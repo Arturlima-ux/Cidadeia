@@ -29,7 +29,7 @@ const PASSOS = [
   },
   {
     titulo: "Avisa quem decide, publica o que a lei manda",
-    texto: "O que pede decisão chega ao prefeito no painel e por e-mail. O que a lei manda publicar, o sistema publica sozinho.",
+    texto: "O que pede decisão chega ao prefeito no painel e por e-mail. O aviso que a lei manda publicar sai pronto, com o que a prefeitura já registrou.",
   },
 ];
 
@@ -227,8 +227,8 @@ function VisualAviso() {
 
       {/* Um trabalho que o sistema faz sozinho, e não só avisa (revisão de
           outubro de 2026): o aviso de obra paralisada que a Lei 14.133 manda
-          publicar sai pronto no portal, com a placa para imprimir
-          (lib/obra-parada-publica.ts). */}
+          publicar vai ao portal sozinho quando a decisão registrada pela
+          prefeitura está completa (lib/obra-parada-publica.ts). */}
       <m.div
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -248,7 +248,7 @@ function VisualAviso() {
         <span className="min-w-0">
           <span className="block text-sm font-medium">Publicado sozinho no portal</span>
           <span className="block text-xs text-muted mt-0.5">
-            Aviso de obra paralisada, com a placa pronta (Lei 14.133, art. 115, § 6º)
+            Aviso de obra paralisada, assim que a prefeitura registra motivo, responsável e reinício (Lei 14.133, art. 115, § 6º)
           </span>
         </span>
       </m.div>

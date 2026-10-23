@@ -77,7 +77,7 @@ export const CAMINHOS: DescricaoCaminho[] = [
       // Dizia "é o caminho da maioria dos municípios de pequeno porte" —
       // estatística que ninguém mediu, num site que vende conformidade. O
       // que dá para afirmar é o que a lei diz: abaixo do limite, sem edital.
-      "Contratação direta quando o valor anual fica abaixo do limite — sem edital, sem sessão pública, com o processo montado em dias.",
+      "Contratação direta quando o valor anual fica abaixo do limite, sem edital nem sessão pública. Na dispensa eletrônica, um aviso fica aberto 3 dias úteis para outras propostas, e a prefeitura escolhe a mais vantajosa (art. 75, § 3º).",
     base: LIMITE_DISPENSA.base,
   },
   {
@@ -90,8 +90,11 @@ export const CAMINHOS: DescricaoCaminho[] = [
   {
     chave: "adesao",
     nome: "Adesão a ata",
+    // Dizia o caminho como se estivesse aberto. Não há, hoje, ata de registro
+    // de preços com o CidadeIA (revisão de outubro de 2026): a adesão só
+    // existe quando outro órgão tiver uma.
     resumo:
-      "A prefeitura adere a uma ata de registro de preços já existente, aproveitando um processo que outro órgão conduziu.",
-    base: "Ata de registro de preços vigente",
+      "A prefeitura adere à ata de registro de preços de outro órgão. Hoje não há ata vigente com o CidadeIA; este caminho só se abre quando houver uma.",
+    base: "Lei 14.133/2021, art. 86 — depende de ata vigente",
   },
 ];

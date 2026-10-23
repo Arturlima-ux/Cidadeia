@@ -93,6 +93,8 @@ describe("campos a preencher", () => {
       "[DIA]",
       "[ÍNDICE]",
       "[PRAZO DE AVISO]",
+      "[DOTAÇÃO ORÇAMENTÁRIA]",
+      "[DATA DO ORÇAMENTO ESTIMADO]",
       "[COLCHETES]",
     ]);
 

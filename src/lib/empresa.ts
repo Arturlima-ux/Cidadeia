@@ -17,6 +17,9 @@ export type DadosEmpresa = {
   representante: string | null;
   emailSuporte: string | null;
   telefoneSuporte: string | null;
+  /** Encarregado pelo tratamento de dados pessoais (LGPD, art. 41). */
+  encarregadoNome?: string | null;
+  encarregadoEmail?: string | null;
 };
 
 // ── UMA FONTE SÓ PARA A IDENTIFICAÇÃO DA EMPRESA ──
@@ -60,6 +63,8 @@ export function empresaDoAmbiente(
     representante: v("EMPRESA_REPRESENTANTE"),
     emailSuporte: v("SUPORTE_EMAIL"),
     telefoneSuporte: v("SUPORTE_TELEFONE"),
+    encarregadoNome: v("ENCARREGADO_NOME"),
+    encarregadoEmail: v("ENCARREGADO_EMAIL"),
   };
 }
 

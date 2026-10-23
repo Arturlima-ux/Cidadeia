@@ -1,17 +1,21 @@
+import { compartilhamento } from "@/lib/seo";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 
-export const metadata = {
-  title: "Perguntas frequentes",
-};
+export const metadata = compartilhamento({
+  titulo: "Perguntas frequentes",
+  descricao:
+    "O que a prefeitura precisa saber antes de contratar o CidadeIA: dados, acesso por cargo, inteligência artificial, contrato e suporte.",
+  caminho: "/faq",
+});
 
 const PERGUNTAS = [
   {
     pergunta: "Preciso saber programar ou ter uma equipe de TI para usar?",
     resposta:
-      "Não. O CidadeIA foi feito pra ser usado direto pelo prefeito, secretários e responsáveis, sem precisar de conhecimento técnico. É só criar a conta e começar a registrar os dados da sua gestão.",
+      "Não. O sistema funciona no navegador e foi feito para ser usado pelo prefeito, pelos secretários e pelas equipes, sem conhecimento técnico. O que já é público, como as contas no Tesouro, a rede do CNES, as escolas do INEP e os contratos do PNCP, entra sozinho. O que só a prefeitura sabe, como estoque, ocorrências nas unidades e medição de obra, a equipe lança nas telas de cada área.",
   },
   {
     // A resposta dizia "criar a conta é gratuito e sem cartão — você já entra
@@ -38,7 +42,7 @@ const PERGUNTAS = [
   {
     pergunta: "A IA pode inventar números ou dados que não existem?",
     resposta:
-      "Não — e essa é uma regra rígida do sistema. A IA (tanto no chat quanto nos insights automáticos) só usa dados que já estão cadastrados na sua prefeitura. Quando falta um dado, ela diz claramente que ele não está disponível, em vez de estimar ou inventar.",
+      "Não. É uma regra fixa do sistema: a inteligência artificial só usa dados que já estão no sistema da prefeitura. Quando falta um dado, ela diz que ele não está disponível, em vez de estimar.",
   },
   {
     pergunta: "Os alertas sugeridos pela IA viram alertas oficiais sozinhos?",
@@ -48,22 +52,32 @@ const PERGUNTAS = [
   {
     pergunta: "Os dados da minha prefeitura ficam visíveis para outras prefeituras?",
     resposta:
-      "Não. Cada prefeitura só enxerga os próprios dados — é uma separação garantida em nível de banco de dados, não só de tela. Dentro da sua prefeitura, um secretário só vê os dados da própria secretaria, nunca o financeiro geral nem outras áreas.",
+      "Não. Cada prefeitura só enxerga os próprios dados, numa separação feita no banco de dados, e não só na tela. Dentro da prefeitura, cada secretário vê apenas a própria secretaria, nunca o financeiro geral nem outras áreas.",
   },
   {
     pergunta: "Como funciona o login? Preciso lembrar de mais uma senha?",
     resposta:
-      "O login é feito com CPF ou CNPJ e uma senha própria do sistema. Se esquecer a senha, tem recuperação por e-mail direto na tela de login.",
+      "O acesso é feito com CPF ou CNPJ e uma senha própria do sistema. Quem esquecer a senha pode recuperá-la por e-mail, na própria tela de entrada.",
   },
   {
-    pergunta: "Posso contratar ou cancelar um módulo depois?",
+    // Dizia "direto no painel". Prefeitura não contrata nem cancela com um
+    // clique: muda o contrato por termo aditivo (revisão de outubro de 2026).
+    pergunta: "Posso acrescentar ou retirar um módulo depois?",
     resposta:
-      "Sim, a qualquer momento — direto no painel, na área de Módulos, ou falando com o nosso suporte.",
+      "Sim, como em qualquer contrato público: o módulo novo entra por termo aditivo, ou por nova contratação somada ao limite da dispensa no ano, e a retirada segue a cláusula de rescisão, com aviso prévio e sem multa. A equipe prepara a documentação.",
   },
   {
     pergunta: "Vocês têm suporte se eu tiver problema ou dúvida?",
     resposta:
-      "Sim. Tem um canal de suporte direto — veja a página de Suporte pra saber como falar com a gente.",
+      "Sim. Os canais e os prazos de atendimento estão na página de Suporte e no acordo de nível de serviço que vai anexo ao contrato.",
+  },
+  {
+    // A revisão de outubro de 2026 lembrou que há opção gratuita, e o site a
+    // ignorava. Melhor dizer quando ela basta do que deixar o comprador achar
+    // sozinho.
+    pergunta: "A CGU oferece o Fala.BR de graça. Por que contratar o Essencial?",
+    resposta:
+      "Se a prefeitura só precisa de ouvidoria e de pedidos de acesso à informação, o Fala.BR, da Controladoria-Geral da União, é gratuito e atende bem. O Essencial faz sentido quando a prefeitura quer, no mesmo lugar, o portal do cidadão com as contas, as obras e as compras da cidade, o prazo de cada manifestação ligado à secretaria que responde, e esses números no painel do prefeito. Uma coisa não impede a outra.",
   },
 ];
 

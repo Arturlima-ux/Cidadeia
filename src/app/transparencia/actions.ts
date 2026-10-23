@@ -6,6 +6,8 @@ import { atendimentos, configPublica, pedidoEventos, prefeituras } from "@/db/sc
 import { EVENTO_AVALIACAO, ehNota, lerAvaliacao, type Avaliacao } from "@/lib/avaliacao-cidadao";
 import { and, desc, eq, notInArray } from "drizzle-orm";
 import { PREFEITURAS_INTERNAS } from "@/lib/prefeituras-internas";
+import { portalVerificado } from "@/lib/endereco-publico";
+import { planosContratadosDe } from "@/lib/planos";
 import { gerarId } from "@/lib/id";
 import { limitarUso } from "@/lib/rate-limit";
 import {
@@ -80,12 +82,16 @@ export async function abrirAtendimento(formData: FormData): Promise<ResultadoAbe
   }
 
   const [config] = await db
-    .select({ prefeituraId: configPublica.prefeituraId, ativo: configPublica.portalAtivo })
+    .select({ prefeituraId: configPublica.prefeituraId, ativo: configPublica.portalAtivo, planos: prefeituras.planosContratados })
     .from(configPublica)
+    .innerJoin(prefeituras, eq(prefeituras.id, configPublica.prefeituraId))
     .where(eq(configPublica.slug, d.slug))
     .limit(1);
 
-  if (!config || !config.ativo) {
+  // Ouvidoria e protocolo fazem parte do Essencial, que só a equipe liga
+  // depois do contrato. Sem isso, uma conta criada por qualquer pessoa em
+  // nome de uma prefeitura receberia nome, e-mail e telefone de morador.
+  if (!config || !config.ativo || !planosContratadosDe(config.planos).includes("essencial")) {
     return { ok: false, erro: "Este canal de atendimento não está disponível." };
   }
 
@@ -282,5 +288,13 @@ export async function buscarPortal(slug: string) {
     .where(and(eq(configPublica.slug, slug), eq(configPublica.portalAtivo, true), notInArray(configPublica.prefeituraId, PREFEITURAS_INTERNAS)))
     .limit(1);
 
-  return linha ?? null;
+  // ── SÓ PREFEITURA VERIFICADA TEM ENDEREÇO PÚBLICO ──
+  // O cadastro é aberto: qualquer pessoa cria uma conta com o nome de uma
+  // prefeitura. Sem esta regra, ela ganhava na hora um portal com aquele
+  // nome, o "prefeito" que digitou e um WhatsApp seu — um portal falso com o
+  // endereço do CidadeIA (revisão de outubro de 2026). Módulo contratado só
+  // existe depois que a equipe confere o contrato e o empenho, então é ele
+  // que prova o vínculo. Antes disso, o endereço não existe.
+  if (!linha || !portalVerificado(linha.planosContratados)) return null;
+  return linha;
 }

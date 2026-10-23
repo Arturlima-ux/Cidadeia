@@ -4,10 +4,11 @@ import { textosDoAviso, type ObraParadaPublica } from "@/lib/obra-parada-publica
 
 // ── AVISO PÚBLICO DE OBRA PARALISADA, NO PORTAL ──
 //
-// Entra sozinho (lib/obra-parada-publica.ts): ninguém na prefeitura precisa
-// redigir nem publicar. Cada aviso traz o que o art. 115, § 6º, da Lei
-// 14.133/2021 pede — motivo, responsável e data de reinício — e, ao lado, o
-// quanto foi executado e o quanto já foi pago.
+// Entra sozinho (lib/obra-parada-publica.ts) assim que a prefeitura registra
+// a decisão sobre a obra com o que o art. 115, § 6º, da Lei 14.133/2021 pede:
+// motivo, responsável e data de reinício. Ao lado, o quanto foi executado e
+// o quanto já foi pago. As obras federais paradas aparecem em separado, como
+// registro público do ObrasGov, e não como aviso do município.
 
 function Comparacao({ o }: { o: ObraParadaPublica }) {
   const linhas = [
@@ -36,14 +37,37 @@ function Comparacao({ o }: { o: ObraParadaPublica }) {
 }
 
 export default function ObrasParadas({ obras, slug }: { obras: ObraParadaPublica[]; slug: string }) {
-  if (!obras.length) return null;
+  const avisos = obras.filter((o) => o.aviso === "completo");
+  const federais = obras.filter((o) => o.aviso === "federal");
+  if (!avisos.length && !federais.length) return null;
+  return (
+    <>
+      {avisos.length > 0 && (
+        <Grupo
+          titulo={`${avisos.length} ${avisos.length === 1 ? "aviso de obra paralisada" : "avisos de obra paralisada"}`}
+          nota="Aviso da prefeitura, como manda o art. 115, § 6º, da Lei 14.133/2021."
+          obras={avisos}
+          slug={slug}
+        />
+      )}
+      {federais.length > 0 && (
+        <Grupo
+          titulo={`${federais.length} ${federais.length === 1 ? "obra federal parada" : "obras federais paradas"}`}
+          nota="Registro público do ObrasGov, do governo federal, sobre obras com dinheiro federal no município."
+          obras={federais}
+          slug={slug}
+        />
+      )}
+    </>
+  );
+}
+
+function Grupo({ titulo, nota, obras, slug }: { titulo: string; nota: string; obras: ObraParadaPublica[]; slug: string }) {
   return (
     <div className="mt-12">
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
-        <h3 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em]">
-          {obras.length} {obras.length === 1 ? "obra parada" : "obras paradas"}
-        </h3>
-        <p className="text-sm text-muted">Aviso publicado sozinho, como manda o art. 115, § 6º, da Lei 14.133/2021.</p>
+        <h3 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em]">{titulo}</h3>
+        <p className="text-sm text-muted">{nota}</p>
       </div>
       <div className="mt-6 grid lg:grid-cols-2 gap-3 sm:gap-4">
         {obras.map((o) => {
@@ -84,9 +108,11 @@ export default function ObrasParadas({ obras, slug }: { obras: ObraParadaPublica
               <Comparacao o={o} />
               <div className="mt-5 flex items-center justify-between gap-3 flex-wrap text-sm">
                 <span className="text-muted">Fonte: {o.fonte}</span>
-                <Link href={`/transparencia/${slug}/placa/${o.id}`} className="font-semibold hover:underline" style={{ color: "var(--brand-claro)" }}>
-                  Placa da obra para imprimir →
-                </Link>
+                {o.aviso === "completo" && (
+                  <Link href={`/transparencia/${slug}/placa/${o.id}`} className="font-semibold hover:underline" style={{ color: "var(--brand-claro)" }}>
+                    Placa da obra para imprimir →
+                  </Link>
+                )}
               </div>
             </article>
           );

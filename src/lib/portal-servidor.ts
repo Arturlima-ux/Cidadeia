@@ -8,7 +8,7 @@ import { maisRecente, type Conjunto, type Fontes, type Frescor } from "@/lib/dad
 import { EVENTO_AVALIACAO, ultimaPorManifestacao } from "@/lib/avaliacao-cidadao";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
 import { lerObrasFederais } from "@/lib/obras-federais-servidor";
-import { obrasParadasParaPublicar } from "@/lib/obra-parada-publica";
+import { obrasParadasParaPublicar, paraOPortal } from "@/lib/obra-parada-publica";
 
 // ── O QUE O PORTAL PÚBLICO CARREGA ──
 // Uma leitura só, usada pela página (/transparencia/[slug]) e pelos arquivos
@@ -76,7 +76,7 @@ export async function carregarPortal(portal: Portal) {
           .where(eq(decisoesObra.prefeituraId, id)),
       ])
     : [null, []];
-  const obrasParadas = portal.mostrarObras ? obrasParadasParaPublicar(listaObras, decisoes, federais?.obras ?? []) : [];
+  const obrasParadas = portal.mostrarObras ? paraOPortal(obrasParadasParaPublicar(listaObras, decisoes, federais?.obras ?? [])) : [];
 
   const notas = ultimaPorManifestacao(avaliacoes);
   const manifestacoes = linhasAtendimento.map(({ id: atendimentoId, ...m }) => ({ ...m, avaliacao: notas.get(atendimentoId)?.nota ?? null }));

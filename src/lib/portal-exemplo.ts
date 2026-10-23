@@ -1,5 +1,5 @@
 import { emendasDeExemplo } from "@/lib/emendas-pix-exemplo";
-import { obrasParadasParaPublicar } from "@/lib/obra-parada-publica";
+import { obrasParadasParaPublicar, paraOPortal } from "@/lib/obra-parada-publica";
 import type { ObraFederal } from "@/lib/obras-federais";
 import type { LinhaVoz } from "@/lib/voz-da-cidade";
 import type { dashboardSnapshots, licitacoes, obras, publicacoes } from "@/db/schema";
@@ -225,5 +225,5 @@ export function obrasParadasDoExemplo(agora: number) {
       decididoEm: dia(60),
     },
   ];
-  return obrasParadasParaPublicar(dadosDoExemplo(agora).listaObras, decisoes, federais, new Date(agora));
+  return paraOPortal(obrasParadasParaPublicar(dadosDoExemplo(agora).listaObras, decisoes, federais, new Date(agora)));
 }

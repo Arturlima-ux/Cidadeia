@@ -45,7 +45,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     capacidades: [
       "Protocolo com número e chave privada de consulta emitidos na hora",
       "Ouvidoria que aceita manifestação sem identificação, com protocolo aleatório",
-      "Portal com endereço público próprio do município, que abre sem cadastro",
+      "Portal do cidadão com endereço próprio da cidade no CidadeIA, que abre sem cadastro",
       "Reclamação, denúncia, sugestão, elogio e pedido de informação no mesmo canal",
       "Contagem do prazo legal de resposta, com aviso antes de vencer",
       "Publicação de comunicados, Carta de Serviços, secretarias e perguntas frequentes no portal",
@@ -91,7 +91,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
       "Relatório da secretaria em PDF",
     ],
     automacao:
-      "Mantém a rede igual ao CNES e avisa unidade com cadastro parado há mais de 180 dias (trava repasse) ou que sumiu de lá. Marca urgente a unidade com ocorrência urgente aberta há dois dias. Monta o pedido de reposição com tudo abaixo de 15 dias de cobertura, em CSV para a farmácia central. Avisa indicador sem atualização há 30 dias.",
+      "Mantém a rede igual ao CNES e avisa unidade sem atualização no CNES há mais de 180 dias, que o próprio CNES desativa e impede de enviar produção e de receber o recurso das equipes (Portaria SAS/MS nº 118/2014), ou que sumiu de lá. Marca urgente a unidade com ocorrência urgente aberta há dois dias. Monta o pedido de reposição com tudo abaixo de 15 dias de cobertura, em CSV para a farmácia central. Avisa indicador sem atualização há 30 dias.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: false,
   },

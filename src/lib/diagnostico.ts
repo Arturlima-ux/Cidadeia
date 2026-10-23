@@ -78,7 +78,7 @@ export const EXIGENCIAS: Exigencia[] = [
     resolvemos: true,
     modulo: "essencial",
     comoResolve:
-      "O portal tem endereço público próprio do município e abre sem nenhum cadastro.",
+      "O portal tem endereço próprio da cidade no CidadeIA e abre sem nenhum cadastro.",
   },
   {
     id: "licitacoes",

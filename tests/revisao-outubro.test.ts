@@ -67,3 +67,40 @@ describe("contato e acabamento", () => {
     }
   });
 });
+
+describe("segunda revisão de outubro", () => {
+  it("cadastro aberto não ganha portal: só prefeitura com módulo contratado", async () => {
+    const { portalVerificado } = await import("@/lib/endereco-publico");
+    expect(portalVerificado("[]")).toBe(false);
+    expect(portalVerificado(null)).toBe(false);
+    expect(portalVerificado('["gestao"]')).toBe(true);
+    const acoes = ler("src/app/transparencia/actions.ts");
+    expect(acoes).toMatch(/portalVerificado\(linha\.planosContratados\)/);
+    expect(acoes).toMatch(/includes\("essencial"\)/);
+  });
+
+  it("o TR descreve os módulos com a mesma fonte da página de produtos", async () => {
+    const { documentoPorChave } = await import("@/lib/kit-contratacao");
+    const { MODULOS_DETALHE } = await import("@/lib/modulos-detalhe");
+    const tr = JSON.stringify(documentoPorChave("termo-de-referencia"));
+    for (const m of MODULOS_DETALHE) expect(tr).toContain(m.capacidades[0]);
+    expect(tr).toMatch(/art\. 72/);
+    expect(tr).toMatch(/75, § 3º/);
+    expect(tr).toMatch(/DOTAÇÃO ORÇAMENTÁRIA/);
+  });
+
+  it("o reajuste é por apostila, sem depender de concordância da prefeitura", async () => {
+    const { documentoPorChave } = await import("@/lib/kit-contratacao");
+    const minuta = JSON.stringify(documentoPorChave("minuta-de-contrato"));
+    expect(minuta).not.toMatch(/concordância da contratante/);
+    expect(minuta).toMatch(/apostila/);
+    expect(minuta).toMatch(/Da dotação orçamentária/);
+  });
+
+  it("a política fala de formulários, transferência internacional, encarregado e dados sensíveis", async () => {
+    const { politicaDePrivacidade } = await import("@/lib/documentos-legais");
+    const texto = JSON.stringify(politicaDePrivacidade({ razaoSocial: null, cnpj: null, endereco: null, representante: null, emailSuporte: null, telefoneSuporte: null }));
+    for (const t of ["Pedido de proposta", "art. 33", "art. 41", "art. 14", "Anthropic"]) expect(texto).toContain(t);
+    expect(texto).not.toMatch(/sem passar por formulário/);
+  });
+});

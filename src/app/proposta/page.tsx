@@ -1,3 +1,4 @@
+import { compartilhamento } from "@/lib/seo";
 import Link from "next/link";
 import { registrarEvento } from "@/lib/registrar-evento";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -13,11 +14,12 @@ import { porteDaPopulacao, PORTES } from "@/lib/precos";
 import { PLANOS_ADDON, type PlanoAddon } from "@/lib/planos";
 import { IconCheck } from "@/components/icons";
 
-export const metadata = {
-  title: "Pedir proposta",
-  description:
+export const metadata = compartilhamento({
+  titulo: "Pedir proposta",
+  descricao:
     "Peça a proposta e o termo de referência para o seu município: porte pela população do IBGE, módulos escolhidos, valor anual e o caminho de contratação.",
-};
+  caminho: "/proposta",
+});
 
 // ── A PÁGINA DO CLIENTE PEDINDO A PROPOSTA DELE ──
 //

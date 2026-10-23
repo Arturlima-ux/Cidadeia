@@ -26,6 +26,15 @@ export function modoDoPortal(planosContratadosRaw: string | null | undefined): M
   return planosContratadosDe(planosContratadosRaw).includes("essencial") ? "completo" : "minimo";
 }
 
+/**
+ * A prefeitura tem algum módulo contratado, o que só acontece depois que a
+ * equipe confere contrato e pagamento. É a prova de vínculo que o cadastro
+ * aberto não dá: sem ela, o endereço público não existe.
+ */
+export function portalVerificado(planosContratadosRaw: string | null | undefined): boolean {
+  return planosContratadosDe(planosContratadosRaw).length > 0;
+}
+
 /** Slug único a partir de município + UF; sufixo numérico em caso de colisão. */
 export async function slugLivre(municipio: string, estado: string): Promise<string> {
   const base = gerarSlug(municipio, estado);
