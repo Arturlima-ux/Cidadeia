@@ -9,8 +9,8 @@ import { h, montarEmail, saudacao } from "@/lib/email-modelo";
 import { enviarEmail } from "@/lib/email";
 import { PROXIMO_STATUS, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import { formatarMoeda } from "@/lib/formatadores";
-import { dataCurta, hojeEmBrasilia, rotuloCompetencia } from "@/lib/cobranca";
-import { confirmarPagamento, criarPrimeiraFatura, emailFatura, protocolo, registrarPasso, rodarCobranca } from "@/lib/cobranca-servidor";
+import { dataCurta, hojeEmBrasilia, rotuloCompetencia, type Modalidade } from "@/lib/cobranca";
+import { ativarPedido, confirmarPagamento, criarPrimeiraFatura, emailFatura, protocolo, registrarPasso, rodarCobranca } from "@/lib/cobranca-servidor";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { empresaDoAmbiente, montarPropostaComercial } from "@/lib/proposta-comercial";
 import { PropostaComercialPDF } from "@/lib/relatorios/PropostaComercial";
@@ -68,6 +68,12 @@ export async function registrarContrato(pedidoId: string, formData: FormData): P
   const numeroEmpenho = String(formData.get("numeroEmpenho") ?? "").trim();
   const valor = Number(String(formData.get("valor") ?? "").replace(/\./g, "").replace(",", "."));
   const dia = Number(formData.get("diaVencimento") ?? 10);
+  // Pós-pago é o padrão (Lei 4.320, art. 62); antecipado só quando a
+  // prefeitura escolheu e justificou no processo (Lei 14.133, art. 145, § 1º).
+  const modalidade: Modalidade = formData.get("modalidade") === "antecipado" ? "antecipado" : "pos_pago";
+  if (modalidade === "pos_pago" && !pedido.prefeituraId) {
+    return { ok: false, erro: "No pós-pago os módulos ligam no registro do contrato, e o pedido ainda não tem conta. Mande o link de cadastro ao cliente antes." };
+  }
   if (!numeroContrato || !numeroEmpenho) return { ok: false, erro: "Informe o número do contrato e o da nota de empenho." };
   if (!Number.isFinite(valor) || valor <= 0) return { ok: false, erro: "Informe o valor mensal do contrato." };
   if (!Number.isInteger(dia) || dia < 1 || dia > 28) return { ok: false, erro: "Dia de vencimento entre 1 e 28." };
@@ -83,8 +89,18 @@ export async function registrarContrato(pedidoId: string, formData: FormData): P
       diaVencimento: dia,
     })
     .where(eq(pedidosProposta.id, pedidoId));
+  await registrarPasso(pedidoId, "contratado", `Contrato ${numeroContrato}, empenho ${numeroEmpenho}, ${formatarMoeda(valor)}/mês`, autor);
+  await registrarPasso(pedidoId, "modalidade", modalidade === "pos_pago" ? "Pagamento pós-pago, após o atesto mensal" : `Pagamento antecipado, vencimento dia ${dia}`, autor);
+
+  if (modalidade === "pos_pago") {
+    const [contratado] = await db.select().from(pedidosProposta).where(eq(pedidosProposta.id, pedidoId)).limit(1);
+    const r = await ativarPedido(contratado, autor, null);
+    revalidar();
+    if (!r.ok) return r;
+    return r.aviso ? { ok: true, aviso: `Contrato registrado e módulos ativos. ${r.aviso}` } : { ok: true };
+  }
+
   const fat = await criarPrimeiraFatura(pedidoId, valor);
-  await registrarPasso(pedidoId, "contratado", `Contrato ${numeroContrato}, empenho ${numeroEmpenho}, ${formatarMoeda(valor)}/mês, vencimento dia ${dia}`, autor);
   await registrarPasso(pedidoId, "fatura", `Primeira fatura emitida, vence em ${dataCurta(fat.vencimento)}`, autor);
 
   const [f] = await db.select().from(faturas).where(eq(faturas.id, fat.id)).limit(1);

@@ -15,9 +15,11 @@ import {
   hojeEmBrasilia,
   rotuloCompetencia,
   situacaoDaConta,
-  CARENCIA_DIAS,
+  suspendeEm,
   vencimentoDaCompetencia,
   vencimentoDaPrimeira,
+  vencimentoPosPago,
+  type Modalidade,
   type FaturaResumo,
   type SituacaoFinanceira,
 } from "@/lib/cobranca";
@@ -61,7 +63,24 @@ function resumo(f: typeof faturas.$inferSelect): FaturaResumo {
     vencimento: f.vencimento,
     status: f.status as FaturaResumo["status"],
     valor: f.valor,
+    emitidaEm: f.createdAt.slice(0, 10),
   };
+}
+
+// ── A MODALIDADE DE PAGAMENTO ──
+// Fica na linha do tempo do pedido (passo "modalidade"), registrada junto do
+// contrato: é um fato do contrato, com data e autor. Contrato registrado antes
+// das duas modalidades existirem era antecipado.
+export async function modalidadesDosPedidos(pedidoIds: string[]): Promise<Map<string, Modalidade>> {
+  const mapa = new Map<string, Modalidade>();
+  if (!pedidoIds.length) return mapa;
+  const linhas = await db
+    .select({ pedidoId: pedidoEventos.pedidoId, descricao: pedidoEventos.descricao })
+    .from(pedidoEventos)
+    .where(and(inArray(pedidoEventos.pedidoId, pedidoIds), eq(pedidoEventos.tipo, "modalidade")))
+    .orderBy(asc(pedidoEventos.criadoEm));
+  for (const l of linhas) mapa.set(l.pedidoId, /pós-pago|pos_pago/i.test(l.descricao) ? "pos_pago" : "antecipado");
+  return mapa;
 }
 
 /** Faturas da prefeitura, agrupadas por contrato (pedido). */
@@ -82,7 +101,11 @@ export async function faturasDaPrefeitura(prefeituraId: string) {
 export async function situacaoDaPrefeitura(prefeituraId: string, hoje = hojeEmBrasilia()): Promise<SituacaoFinanceira> {
   try {
     const { pedidos, linhas } = await faturasDaPrefeitura(prefeituraId);
-    const porPedido = pedidos.map((p) => linhas.filter((l) => l.pedidoId === p.id).map(resumo));
+    const modalidades = await modalidadesDosPedidos(pedidos.map((p) => p.id));
+    const porPedido = pedidos.map((p) => ({
+      faturas: linhas.filter((l) => l.pedidoId === p.id).map(resumo),
+      modalidade: modalidades.get(p.id) ?? ("antecipado" as Modalidade),
+    }));
     return situacaoDaConta(porPedido, hoje);
   } catch (e) {
     // Se a leitura falhar, não trava ninguém por defeito nosso.
@@ -138,6 +161,22 @@ export async function confirmarPagamento(
   );
 
   if (!primeiro) return { ok: true, ativou: [] };
+  return ativarPedido(pedido, dados.autor, fat);
+}
+
+// ── ligar os módulos do pedido ──
+//
+// No antecipado, depois do primeiro pagamento; no pós-pago, quando o contrato
+// é registrado. O resto é igual: módulos na conta, pedido ativo, rastro na
+// auditoria da prefeitura e e-mail de boas-vindas.
+export async function ativarPedido(
+  pedido: typeof pedidosProposta.$inferSelect,
+  autor: string,
+  fat: typeof faturas.$inferSelect | null
+): Promise<ResultadoPagamento> {
+  if (!pedido.prefeituraId) {
+    return { ok: false, erro: "O pedido ainda não tem conta. Mande o link de cadastro ao cliente antes." };
+  }
 
   const [pref] = await db
     .select({ id: prefeituras.id, nome: prefeituras.nome, planosContratados: prefeituras.planosContratados })
@@ -154,7 +193,7 @@ export async function confirmarPagamento(
     .set({ planosContratados: ativarModulos(pref.planosContratados, modulos) })
     .where(eq(prefeituras.id, pref.id));
   await db.update(pedidosProposta).set({ status: "ativo", ativadoEm: agora }).where(eq(pedidosProposta.id, pedido.id));
-  await registrarPasso(pedido.id, "ativacao", `Módulos ativados: ${nomes.join(", ")}`, dados.autor);
+  await registrarPasso(pedido.id, "ativacao", `Módulos ativados: ${nomes.join(", ")}`, autor);
 
   // Na trilha da prefeitura: o controle interno dela precisa ver quando e
   // quais módulos ligaram, e por quê.
@@ -168,7 +207,7 @@ export async function confirmarPagamento(
       acao: "ativar",
       entidade: "modulo",
       entidadeId: pedido.id,
-      resumo: `módulos ativados após o pagamento da primeira fatura: ${nomes.join(", ")}`,
+      resumo: `módulos ativados ${fat ? "após o pagamento da primeira fatura" : "com o registro do contrato (pós-pago)"}: ${nomes.join(", ")}`,
     });
   } catch (e) {
     console.error("[auditoria] ativação não registrada:", e);
@@ -176,15 +215,15 @@ export async function confirmarPagamento(
 
   const envio = await enviarEmail({
     para: pedido.email,
-    assunto: `CidadeIA: pagamento confirmado, módulos ativos para ${pedido.municipio}/${pedido.uf}`,
+    assunto: `CidadeIA: ${fat ? "pagamento confirmado, " : ""}módulos ativos para ${pedido.municipio}/${pedido.uf}`,
     html: montarEmail({
       remetente: { tipo: "cidadeia" },
       previa: `Os módulos ${nomes.join(", ")} já estão ativos na conta da prefeitura.`,
-      etiqueta: { texto: "Pagamento confirmado", tom: "ok" },
+      etiqueta: { texto: fat ? "Pagamento confirmado" : "Contrato registrado", tom: "ok" },
       titulo: `Bem-vindos ao CidadeIA, ${pedido.municipio}`,
       saudacao: saudacao(pedido.nome),
       blocos: [
-        { p: h`Recebemos o pagamento de ${rotuloCompetencia(fat.competencia)}. Obrigado pela confiança. Os módulos <strong>${nomes.join(", ")}</strong> já estão ativos na conta da ${pref.nome}.` },
+        { p: fat ? h`Recebemos o pagamento de ${rotuloCompetencia(fat.competencia)}. Obrigado pela confiança. Os módulos <strong>${nomes.join(", ")}</strong> já estão ativos na conta da ${pref.nome}.` : h`O contrato está registrado. Obrigado pela confiança. Os módulos <strong>${nomes.join(", ")}</strong> já estão ativos na conta da ${pref.nome}.` },
         { secao: "Primeiros passos" },
         {
           itens: [
@@ -197,7 +236,7 @@ export async function confirmarPagamento(
         {
           dados: [
             ["Protocolo", protocolo(pedido.id)],
-            ["Próximas mensalidades", `todo dia ${pedido.diaVencimento}`],
+            fat ? ["Próximas mensalidades", `todo dia ${pedido.diaVencimento}`] : ["Mensalidades", "fatura do mês usado, emitida no mês seguinte, com 30 dias para pagar"],
           ],
         },
         { p: "A fatura de cada mês chega por e-mail e fica disponível em Financeiro, no painel. Qualquer dúvida na implantação, é só responder este e-mail." },
@@ -264,10 +303,12 @@ export async function rodarCobranca(hoje = hojeEmBrasilia()): Promise<RelatorioC
 
   // 1. Mensalidades dos contratos ativos.
   const ativos = await db.select().from(pedidosProposta).where(eq(pedidosProposta.status, "ativo"));
+  const modalidades = await modalidadesDosPedidos(ativos.map((p) => p.id));
   for (const p of ativos) {
     try {
+      const modalidade = modalidades.get(p.id) ?? "antecipado";
       const dele = await db.select().from(faturas).where(eq(faturas.pedidoId, p.id));
-      const falta = competenciaQueFalta(dele.map(resumo), hoje);
+      const falta = competenciaQueFalta(dele.map(resumo), hoje, modalidade, p.ativadoEm);
       const valor = p.valorContratado ?? p.mensal;
       if (!falta || valor == null) continue;
       await db.insert(faturas).values({
@@ -275,7 +316,7 @@ export async function rodarCobranca(hoje = hojeEmBrasilia()): Promise<RelatorioC
         pedidoId: p.id,
         competencia: falta,
         valor,
-        vencimento: vencimentoDaCompetencia(falta, p.diaVencimento),
+        vencimento: modalidade === "pos_pago" ? vencimentoPosPago(hoje) : vencimentoDaCompetencia(falta, p.diaVencimento),
       });
       await registrarPasso(p.id, "fatura", `Fatura de ${rotuloCompetencia(falta)} emitida (${formatarMoeda(valor)})`, "rotina diária");
       rel.emitidas++;
@@ -292,7 +333,8 @@ export async function rodarCobranca(hoje = hojeEmBrasilia()): Promise<RelatorioC
     .where(and(eq(faturas.status, "aberta")));
   for (const { f, p } of abertas) {
     const dias = diasEntre(hoje, f.vencimento);
-    const etapa = dias >= 0 && dias <= 3 ? "vence" : dias < 0 && -dias <= CARENCIA_DIAS ? "atraso" : dias < -CARENCIA_DIAS && p.status === "ativo" ? "suspenso" : null;
+    const trava = suspendeEm(resumo(f));
+    const etapa = dias >= 0 && dias <= 3 ? "vence" : dias < 0 && hoje < trava ? "atraso" : hoje >= trava && p.status === "ativo" ? "suspenso" : null;
     if (!etapa || f.avisoEnviado?.startsWith(etapa)) continue;
     const motivo = etapa === "vence" ? "fatura a vencer" : etapa === "atraso" ? "fatura em atraso" : "acesso suspenso";
     const envio = await enviarEmail(emailFatura(p, f, motivo));

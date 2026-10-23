@@ -134,8 +134,8 @@ export default function FormularioCadastro({ inicial }: { inicial: InicialDoPedi
           <h1 className="text-2xl font-semibold tracking-[-0.03em] mt-6">Criar a conta da prefeitura</h1>
           <p className="text-sm text-muted mt-2 max-w-md mx-auto leading-relaxed">
             {inicial
-              ? `Conta para a proposta de ${inicial.municipio}/${inicial.uf}. Já preenchemos o que você informou; falta o CNPJ e a senha. Os módulos ligam nesta conta quando o pagamento da primeira fatura for confirmado.`
-              : "Leva menos de um minuto. Os módulos são contratados por proposta e ligam nesta conta depois do pagamento da primeira fatura."}
+              ? `Conta para a proposta de ${inicial.municipio}/${inicial.uf}. Já preenchemos o que você informou; falta o CNPJ e a senha. Os módulos ligam nesta conta quando o contrato for registrado.`
+              : "Leva menos de um minuto. Os módulos são contratados por proposta e ligam nesta conta quando o contrato for registrado."}
           </p>
         </div>
 

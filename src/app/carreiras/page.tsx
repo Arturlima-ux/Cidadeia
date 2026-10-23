@@ -42,8 +42,9 @@ export default function CarreirasPage() {
           <Olho>Carreiras</Olho>
           <h1 className="titulo-pagina mt-5 max-w-[20ch]">Gestão pública, dado aberto e software que não pode errar.</h1>
           <p className="mt-6 text-lg text-muted leading-relaxed max-w-[62ch]">
-            O CidadeIA lê o que as prefeituras já enviam ao Tesouro e avisa antes do limite, do prazo e do apontamento. É
-            uma empresa nova, e cada pessoa que entra muda o produto de verdade.
+            O CidadeIA reúne a gestão da prefeitura num sistema só e transforma em rotina o que hoje é feito à mão: o
+            protocolo do cidadão, o painel de cada secretaria, as obras, a saúde, a educação e as contas. É uma empresa
+            nova, e cada pessoa que entra muda o produto de verdade.
           </p>
         </section>
 

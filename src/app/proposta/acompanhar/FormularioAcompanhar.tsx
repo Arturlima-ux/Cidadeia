@@ -91,7 +91,7 @@ export default function FormularioAcompanhar({ protocoloInicial }: { protocoloIn
             <div className="mt-5 rounded-xl border border-border p-4">
               <p className="font-semibold text-sm">Crie a conta da prefeitura</p>
               <p className="text-sm text-muted mt-1 leading-relaxed">
-                É nela que os módulos são ativados quando o pagamento da primeira fatura for confirmado. Já vem preenchida
+                É nela que os módulos são ativados quando o contrato é registrado. Já vem preenchida
                 com o que você informou.
               </p>
               <Link

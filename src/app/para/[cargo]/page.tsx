@@ -116,7 +116,7 @@ export default async function CargoPage({ params }: { params: Promise<{ cargo: s
         {/* ═══ O QUE ESTÁ EM JOGO ═══ */}
         <section className="border-t border-border" style={{ background: "var(--superficie)" }}>
           <div className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <h2 className="inicio-h2 max-w-[18ch]">O que está em jogo para você.</h2>
+            <h2 className="inicio-h2 max-w-[18ch]">O que a lei pede de você.</h2>
             <p className="text-muted mt-4 max-w-[60ch] leading-relaxed">
               Cada ponto com o artigo que o cria. O RGF é assinado pelo prefeito, pela administração financeira e
               pelo controle interno ({ASSINATURAS_DO_RGF}).

@@ -110,8 +110,8 @@ export default function ConfigPortal({
             <p className="text-xs font-medium mb-2">O que exibir no portal</p>
             <div className="space-y-2">
               {[
-                { nome: "mostrarFinanceiro", label: "Receita, despesas e saldo", padrao: config?.mostrarFinanceiro ?? true },
-                { nome: "mostrarObras", label: "Obras públicas e progresso", padrao: config?.mostrarObras ?? true },
+                { nome: "mostrarFinanceiro", label: "Receita, despesas e saldo, e o percentual das emendas aplicado em investimento", padrao: config?.mostrarFinanceiro ?? true },
+                { nome: "mostrarObras", label: "Lista de obras, com progresso e a comparação entre pago e executado", padrao: config?.mostrarObras ?? true },
                 { nome: "mostrarLicitacoes", label: "Processos licitatórios", padrao: config?.mostrarLicitacoes ?? true },
               ].map((c) => (
                 <label key={c.nome} className="flex items-center gap-2.5 text-sm cursor-pointer">
@@ -121,7 +121,9 @@ export default function ConfigPortal({
               ))}
             </div>
             <p className="text-xs text-muted mt-2">
-              O canal de manifestação fica sempre disponível quando o portal está no ar.
+              Ficam sempre no ar, porque a lei manda publicar: o aviso de obra paralisada (Lei 14.133, art. 115, § 6º),
+              as emendas recebidas (LAI, art. 8º), o canal de manifestação e o resultado das respostas, inclusive a
+              avaliação do cidadão (Lei 13.460, arts. 23 e 24).
             </p>
           </div>
 

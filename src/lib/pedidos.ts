@@ -51,7 +51,7 @@ export const STATUS_PEDIDO: Record<StatusPedido, { rotulo: string; paraOCliente:
   contratado: {
     rotulo: "Aguardando pagamento",
     paraOCliente:
-      "Contrato registrado. Os módulos ligam assim que o pagamento da primeira fatura for confirmado.",
+      "Contrato registrado. No pós-pago os módulos já estão ligados; no antecipado, ligam quando o pagamento da primeira fatura for confirmado.",
   },
   ativo: {
     rotulo: "Ativo",

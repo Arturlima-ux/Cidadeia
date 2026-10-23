@@ -161,7 +161,7 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
           itens: [
             { titulo: "A proposta chega neste e-mail", detalhe: "Em até um dia útil, com o valor, o escopo e o termo de referência prontos para o jurídico.", tom: "marca" },
             { titulo: "O kit de contratação vai junto", detalhe: "Estudo técnico, justificativa da contratação, minuta do contrato e acordo de tratamento de dados.", tom: "marca" },
-            { titulo: "Os módulos ligam com o primeiro pagamento", detalhe: "Se quiser adiantar, crie desde já a conta da prefeitura: é nela que os módulos são ativados.", tom: "marca" },
+            { titulo: "Os módulos ligam com o contrato registrado", detalhe: "O pagamento é mensal, depois do mês usado e do atesto do fiscal. Se quiser adiantar, crie desde já a conta da prefeitura: é nela que os módulos são ativados.", tom: "marca" },
           ],
         },
         { botao: "Acompanhar o pedido", link: `${base}/proposta/acompanhar?protocolo=${protocolo}`, depois: { texto: "Criar a conta da prefeitura", link: `${base}/cadastro?proposta=${id}` } },

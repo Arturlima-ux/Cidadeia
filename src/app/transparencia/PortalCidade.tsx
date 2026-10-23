@@ -73,41 +73,51 @@ export const TIPO_CURTO: Record<TipoAtendimento, string> = {
   informacao: "Pedido de informação",
 };
 
+// ── A FAIXA QUE CORRE ──
+// A rolagem infinita precisa do conteúdo duas vezes. Antes a cópia eram itens
+// soltos da mesma lista, com aria-hidden em cada um, e a revisão de outubro de
+// 2026 achou a lista lida duas vezes. Agora a cópia é uma segunda lista
+// inteira, escondida do leitor de tela e inerte (fora do Tab), e some de vez
+// quando o movimento está desligado.
 export function Faixa({ itens, sentido, duracao, compacta = false }: { itens: ItemFaixa[]; sentido: "ida" | "volta"; duracao: number; compacta?: boolean }) {
-  const dobrado = [...itens, ...itens];
+  const lista = (copia: boolean) => (
+    <ul className="portal-faixa-lista" {...(copia ? { "aria-hidden": true, inert: true } : {})}>
+      {itens.map((it, i) => (
+        <li
+          key={i}
+          className={compacta ? "shrink-0 rounded-xl border border-border px-3.5 py-2.5 min-w-[190px] text-[13px]" : "shrink-0 rounded-2xl border border-border px-5 py-4 min-w-[250px]"}
+          style={{ background: "var(--card)" }}
+        >
+          <p className={`flex items-center gap-2 font-medium ${compacta ? "" : "text-sm"}`}>
+            <span className="w-2 h-2 rounded-full" style={{ background: COR_TIPO[it.tipo] }} />
+            {TIPO_CURTO[it.tipo]}
+            <span className="text-muted font-normal">· {it.area}</span>
+          </p>
+          <p className={compacta ? "mt-1" : "text-sm mt-1.5"} style={{ color: it.situacao === "respondida" ? "var(--info)" : "var(--muted)" }}>
+            {it.situacao === "respondida"
+              ? it.dias === 0
+                ? "Respondida no mesmo dia"
+                : `Respondida em ${it.dias} ${it.dias === 1 ? "dia" : "dias"}`
+              : it.dias === 0
+                ? "Chegou hoje · em análise"
+                : `Em análise · há ${it.dias} ${it.dias === 1 ? "dia" : "dias"}`}
+          </p>
+          {it.avaliacao && (
+            <p className={`flex items-center gap-1.5 text-muted ${compacta ? "mt-0.5" : "text-xs mt-1"}`}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: NOTAS.find((n) => n.valor === it.avaliacao)!.cor }} />
+              Quem pediu: {NOTAS.find((n) => n.valor === it.avaliacao)!.rotulo.toLowerCase()}
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
   return (
     <div className="portal-faixa-janela">
-      <ul className="portal-faixa" data-sentido={sentido} style={{ "--duracao": `${duracao}s` } as React.CSSProperties}>
-        {dobrado.map((it, i) => (
-          <li
-            key={i}
-            aria-hidden={i >= itens.length}
-            className={compacta ? "shrink-0 rounded-xl border border-border px-3.5 py-2.5 min-w-[190px] text-[13px]" : "shrink-0 rounded-2xl border border-border px-5 py-4 min-w-[250px]"}
-            style={{ background: "var(--card)" }}
-          >
-            <p className={`flex items-center gap-2 font-medium ${compacta ? "" : "text-sm"}`}>
-              <span className="w-2 h-2 rounded-full" style={{ background: COR_TIPO[it.tipo] }} />
-              {TIPO_CURTO[it.tipo]}
-              <span className="text-muted font-normal">· {it.area}</span>
-            </p>
-            <p className={compacta ? "mt-1" : "text-sm mt-1.5"} style={{ color: it.situacao === "respondida" ? "var(--info)" : "var(--muted)" }}>
-              {it.situacao === "respondida"
-                ? it.dias === 0
-                  ? "Respondida no mesmo dia"
-                  : `Respondida em ${it.dias} ${it.dias === 1 ? "dia" : "dias"}`
-                : it.dias === 0
-                  ? "Chegou hoje · em análise"
-                  : `Em análise · há ${it.dias} ${it.dias === 1 ? "dia" : "dias"}`}
-            </p>
-            {it.avaliacao && (
-              <p className={`flex items-center gap-1.5 text-muted ${compacta ? "mt-0.5" : "text-xs mt-1"}`}>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: NOTAS.find((n) => n.valor === it.avaliacao)!.cor }} />
-                Quem pediu: {NOTAS.find((n) => n.valor === it.avaliacao)!.rotulo.toLowerCase()}
-              </p>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className="portal-faixa" data-sentido={sentido} style={{ "--duracao": `${duracao}s` } as React.CSSProperties}>
+        {lista(false)}
+        {lista(true)}
+      </div>
     </div>
   );
 }
@@ -329,9 +339,14 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
               Portal do Cidadão
               {snapshot && <span className="text-muted">· atualizado em {dataNumerica(snapshot.atualizadoEm, fuso)}</span>}
             </p>
-            <Link href="/" className="text-muted hover:text-foreground text-xs">
-              Feito com CidadeIA
-            </Link>
+            {/* Portal oficial de prefeitura não leva propaganda de fornecedor
+                (impessoalidade, CF art. 37). Só a cidade de exemplo, que mora
+                no site do CidadeIA, aponta de volta para ele. */}
+            {exemplo && (
+              <Link href="/" className="text-muted hover:text-foreground text-xs">
+                Voltar ao CidadeIA
+              </Link>
+            )}
           </div>
 
           <div className="grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] gap-6 lg:gap-10 items-center py-10 sm:py-16">
@@ -557,6 +572,14 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
             <ObrasParadas obras={obrasParadas} slug={slug} />
           </section>
         )}
+        {/* Lista de obras desligada: o aviso de obra paralisada continua,
+            porque a lei manda publicar. Sem a comparação pago × executado,
+            que é a parte que a prefeitura pode desligar. */}
+        {!portal.mostrarObras && obrasParadas.length > 0 && (
+          <section id="obras" className="pt-24 sm:pt-32 scroll-mt-6">
+            <ObrasParadas obras={obrasParadas} slug={slug} comparar={false} />
+          </section>
+        )}
 
         {/* ═══ AS COMPRAS ═══ */}
         {portal.mostrarLicitacoes && (
@@ -612,7 +635,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
             <Selo f={frescor.emendas} />
             {/* Pelo menos 70% em obra e equipamento (art. 166-A, § 5º): o que o
                 plano informa, ano a ano. */}
-            {percentualDeCapital(emendas).length > 0 && (
+            {portal.mostrarFinanceiro && percentualDeCapital(emendas).length > 0 && (
               <ul className="flex flex-wrap gap-x-6 gap-y-2 -mt-4 mb-8 text-sm">
                 {percentualDeCapital(emendas).slice(0, 4).map((a) => (
                   <li key={a.ano} style={{ color: a.abaixoDoPiso ? "var(--medio)" : "var(--muted)" }}>
@@ -743,9 +766,6 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
           <p className="text-xs text-muted">
             Dados publicados pela {portal.nome} · Lei de Acesso à Informação (12.527/2011) · Ouvidoria: Lei 13.460/2017
           </p>
-          <Link href="/" className="text-xs font-semibold text-brand-claro hover:underline">
-            Feito com CidadeIA
-          </Link>
           {/* A LC 131 pede receita e despesa em tempo real, saídas do sistema
               contábil. Este portal lê o RREO e o RGF do Tesouro, que são
               bimestrais e quadrimestrais: soma ao portal legal, não ocupa o

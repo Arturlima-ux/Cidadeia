@@ -83,15 +83,20 @@ export default function AcoesPedido({
             />
             <input name="diaVencimento" type="number" min={1} max={28} defaultValue={10} className={campo} title="Dia de vencimento" />
           </div>
+          <select name="modalidade" defaultValue="pos_pago" className={campo} aria-label="Modalidade de pagamento">
+            <option value="pos_pago">Pós-pago, após o atesto mensal (padrão)</option>
+            <option value="antecipado">Antecipado (art. 145, § 1º), se a prefeitura escolheu</option>
+          </select>
           <p className="text-xs text-muted leading-relaxed">
-            Emite a primeira fatura, com vencimento em 5 dias. Os módulos só ligam quando o pagamento for
-            confirmado em Financeiro.
+            Pós-pago: os módulos ligam agora, e a fatura de cada mês sai no mês seguinte, com 30 dias para pagar.
+            Antecipado: emite a primeira fatura, com vencimento em 5 dias, e os módulos ligam quando o pagamento for
+            confirmado em Financeiro. O dia de vencimento só vale no antecipado.
           </p>
           <button
             disabled={pendente}
             className="text-sm font-semibold bg-brand hover:bg-brand-dark text-white rounded-full px-4 py-2.5 transition disabled:opacity-50"
           >
-            {pendente ? "Salvando…" : "Registrar e emitir a fatura"}
+            {pendente ? "Salvando…" : "Registrar contrato"}
           </button>
         </form>
       )}

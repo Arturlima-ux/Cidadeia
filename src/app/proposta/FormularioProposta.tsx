@@ -88,7 +88,7 @@ export default function FormularioProposta({
             <p className="font-semibold text-sm">Crie a conta da prefeitura agora</p>
             <p className="text-sm text-muted mt-1 leading-relaxed">
               Leva um minuto e já vem preenchida. É nela que a proposta fica registrada e que os
-              módulos são ativados quando o pagamento da primeira fatura for confirmado.
+              módulos são ativados quando o contrato é registrado (ou, se a prefeitura escolher o pagamento antecipado, quando a primeira fatura for paga).
             </p>
             <Link
               href={`/cadastro?proposta=${encodeURIComponent(enviado.pedidoId)}`}

@@ -104,3 +104,41 @@ describe("segunda revisão de outubro", () => {
     expect(texto).not.toMatch(/sem passar por formulário/);
   });
 });
+
+describe("terceira revisão de outubro", () => {
+  it("o kit oferece pós-pago após o atesto como padrão e antecipado como alternativa", async () => {
+    const { documentoPorChave } = await import("@/lib/kit-contratacao");
+    const tr = JSON.stringify(documentoPorChave("termo-de-referencia"));
+    expect(tr).toMatch(/Opção A, padrão — pagamento após o atesto/);
+    expect(tr).toMatch(/Opção B, alternativa — pagamento antecipado/);
+    expect(tr).not.toMatch(/praticado pelo mercado/);
+    expect(tr).toMatch(/2 \(dois\) meses, contados da emissão da nota fiscal/);
+  });
+
+  it("o kit não fala do tamanho da operação nem diz que os dados não saem do país", async () => {
+    const tudo = JSON.stringify((await import("@/lib/kit-contratacao")).documentoPorChave("acordo-de-tratamento-de-dados")) + JSON.stringify((await import("@/lib/compromissos")).COMPROMISSOS);
+    expect(tudo).not.toMatch(/uma pessoa/);
+    expect(tudo).not.toMatch(/não deixam o território nacional/);
+    expect(tudo).not.toMatch(/\.\./);
+  });
+
+  it("dia sem verificação conta contra, e a lista tem um dia por linha", async () => {
+    const { apurar, porDia } = await import("@/lib/disponibilidade");
+    const m = (d: string, h = "09") => ({ verificadoEm: `${d}T${h}:00:00.000Z`, ok: true, ms: 300, detalhe: null });
+    const a = apurar([m("2026-10-01"), m("2026-10-03")]);
+    expect(a.diasSemVerificacao).toBe(1);
+    expect(porDia([m("2026-10-02", "09"), m("2026-10-02", "21"), m("2026-10-01")])).toHaveLength(2);
+  });
+
+  it("portal oficial sem propaganda do fornecedor", () => {
+    expect(ler("src/app/transparencia/PortalMinimo.tsx")).not.toMatch(/Feito com CidadeIA/);
+    expect(ler("src/app/transparencia/PortalCidade.tsx")).not.toMatch(/Feito com CidadeIA/);
+  });
+
+  it("a página do prefeito não promete conferir o RGF antes da assinatura", async () => {
+    const { CARGOS } = await import("@/lib/cargos");
+    const p = JSON.stringify(CARGOS.find((c) => c.slug === "prefeito"));
+    expect(p).not.toMatch(/antes de assinar/);
+    expect(p).not.toMatch(/o senhor/);
+  });
+});

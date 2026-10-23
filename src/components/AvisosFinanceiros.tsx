@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatarMoeda } from "@/lib/formatadores";
-import { CARENCIA_DIAS, dataCurta, rotuloCompetencia, type SituacaoFinanceira } from "@/lib/cobranca";
+import { dataCurta, rotuloCompetencia, type SituacaoFinanceira } from "@/lib/cobranca";
 
 // ── A CONTA TRAVADA ──
 //
@@ -20,8 +20,8 @@ export function BloqueioFinanceiro({ situacao }: { situacao: Extract<SituacaoFin
         A mensalidade de {rotuloCompetencia(f.competencia)} ainda não foi paga.
       </h1>
       <p className="text-muted leading-relaxed mt-5 max-w-[56ch]">
-        A fatura de {formatarMoeda(f.valor)} venceu em {dataCurta(f.vencimento)}, há {situacao.diasAtraso} dias. Passada a
-        carência de {CARENCIA_DIAS} dias prevista em contrato, o painel fica suspenso até a confirmação do pagamento. Confirmado,
+        A fatura de {formatarMoeda(f.valor)} venceu em {dataCurta(f.vencimento)}, há {situacao.diasAtraso} dias. Passados dois
+        meses da emissão da nota fiscal, como prevê o contrato (Lei 14.133, art. 137), o painel fica suspenso até a confirmação do pagamento. Confirmado,
         tudo volta na hora, com os dados intactos.
       </p>
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">

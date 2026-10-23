@@ -49,11 +49,12 @@ export default function AcessibilidadePage() {
             O que este site faz por quem acessa de outro jeito
           </h1>
           <p className="text-muted leading-relaxed mt-4">
-            O CidadeIA e os portais públicos das prefeituras que ele hospeda seguem as Diretrizes de
-            Acessibilidade para Conteúdo Web (WCAG 2.1) e o Modelo de Acessibilidade em Governo
-            Eletrônico (e-MAG), como pedem a Lei Brasileira de Inclusão (Lei 13.146/2015, art. 63) e o
-            Decreto 5.296/2004. Esta página diz o que já está feito, o que ainda falta e como avisar a
-            gente de uma barreira. Atualizada em 21 de setembro de 2026.
+            O CidadeIA e os portais públicos das prefeituras que ele hospeda buscam seguir as Diretrizes
+            de Acessibilidade para Conteúdo Web (WCAG 2.1, nível AA) e o Modelo de Acessibilidade em
+            Governo Eletrônico (e-MAG), como pedem a Lei Brasileira de Inclusão (Lei 13.146/2015, art.
+            63) e o Decreto 5.296/2004. Ainda não houve auditoria completa com leitores de tela, por isso
+            não afirmamos conformidade: esta página diz o que já está feito, o que ainda falta e como
+            avisar a gente de uma barreira. Atualizada em 23 de outubro de 2026.
           </p>
         </Reveal>
 

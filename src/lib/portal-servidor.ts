@@ -22,11 +22,13 @@ export async function carregarPortal(portal: Portal) {
   const id = portal.prefeituraId;
   const umAnoAtras = new Date(Date.now() - 365 * 86_400_000).toISOString().slice(0, 10);
 
-  const [snapshots, listaObras, listaLicitacoes, listaContratos, listaPublicacoes, linhasAtendimento, unidades, escolasDaRede, importacoes, avaliacoes, lidoEmendas] = await Promise.all([
+  const [snapshots, todasAsObras, listaLicitacoes, listaContratos, listaPublicacoes, linhasAtendimento, unidades, escolasDaRede, importacoes, avaliacoes, lidoEmendas] = await Promise.all([
     portal.mostrarFinanceiro
       ? db.select().from(dashboardSnapshots).where(eq(dashboardSnapshots.prefeituraId, id)).orderBy(desc(dashboardSnapshots.atualizadoEm)).limit(60)
       : Promise.resolve([]),
-    portal.mostrarObras ? db.select().from(obras).where(eq(obras.prefeituraId, id)).orderBy(desc(obras.createdAt)) : Promise.resolve([]),
+    // As obras são lidas sempre: o aviso de obra paralisada é obrigação legal
+    // e não se desliga. O que a prefeitura desliga é a LISTA de obras.
+    db.select().from(obras).where(eq(obras.prefeituraId, id)).orderBy(desc(obras.createdAt)),
     portal.mostrarLicitacoes ? db.select().from(licitacoes).where(eq(licitacoes.prefeituraId, id)).orderBy(desc(licitacoes.createdAt)) : Promise.resolve([]),
     portal.mostrarLicitacoes ? db.select().from(contratos).where(eq(contratos.prefeituraId, id)).orderBy(desc(contratos.createdAt)) : Promise.resolve([]),
     db.select().from(publicacoes).where(eq(publicacoes.prefeituraId, id)).orderBy(desc(publicacoes.atualizadoEm)),
@@ -64,19 +66,21 @@ export async function carregarPortal(portal: Portal) {
     lerEmendas(id),
   ]);
   const emendas = lidoEmendas?.emendas ?? [];
+  const listaObras = portal.mostrarObras ? todasAsObras : [];
 
-  // Aviso público de obra paralisada (lib/obra-parada-publica.ts): sai sozinho
-  // das obras da prefeitura e das federais do ObrasGov, sem ninguém publicar.
-  const [federais, decisoes] = portal.mostrarObras
-    ? await Promise.all([
-        lerObrasFederais(id),
-        db
-          .select({ obraId: decisoesObra.obraId, tipo: decisoesObra.tipo, justificativa: decisoesObra.justificativa, novaPrevisao: decisoesObra.novaPrevisao, decididoEm: decisoesObra.decididoEm })
-          .from(decisoesObra)
-          .where(eq(decisoesObra.prefeituraId, id)),
-      ])
-    : [null, []];
-  const obrasParadas = portal.mostrarObras ? paraOPortal(obrasParadasParaPublicar(listaObras, decisoes, federais?.obras ?? [])) : [];
+  // Aviso público de obra paralisada (lib/obra-parada-publica.ts). Sai mesmo
+  // com a lista de obras desligada: o art. 115, § 6º, da Lei 14.133 manda
+  // divulgar, e o que a lei manda a prefeitura não esconde (decisão do
+  // fundador, outubro de 2026). O registro do ObrasGov é dado oficial e
+  // também fica.
+  const [federais, decisoes] = await Promise.all([
+    lerObrasFederais(id),
+    db
+      .select({ obraId: decisoesObra.obraId, tipo: decisoesObra.tipo, justificativa: decisoesObra.justificativa, novaPrevisao: decisoesObra.novaPrevisao, decididoEm: decisoesObra.decididoEm })
+      .from(decisoesObra)
+      .where(eq(decisoesObra.prefeituraId, id)),
+  ]);
+  const obrasParadas = paraOPortal(obrasParadasParaPublicar(todasAsObras, decisoes, federais?.obras ?? []));
 
   const notas = ultimaPorManifestacao(avaliacoes);
   const manifestacoes = linhasAtendimento.map(({ id: atendimentoId, ...m }) => ({ ...m, avaliacao: notas.get(atendimentoId)?.nota ?? null }));

@@ -52,9 +52,13 @@ export const CARGOS: Cargo[] = [
     rotulo: "Prefeito",
     publico: "Prefeitos e prefeitas",
     cargoLigacao: "Prefeito(a)",
-    titulo: "A prefeitura inteira na sua tela, e o RGF conferido antes de assinar.",
+    // Dizia "o RGF conferido antes de assinar". O sistema lê o RGF no Tesouro,
+    // e ele só chega lá depois de assinado: a promessa não se sustentava
+    // (revisão de outubro de 2026). O que ele faz de verdade é acompanhar cada
+    // prazo e conferir cada relatório que sai.
+    titulo: "A prefeitura inteira na sua tela, e cada prazo da LRF acompanhado.",
     lead:
-      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, com o que é público lido sozinho das bases oficiais. E o que a lei fiscal exige, conferido a cada relatório, com cada prazo acompanhado: o senhor fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, com o que é público lido sozinho das bases oficiais. E o que a lei fiscal exige, conferido a cada relatório, com cada prazo acompanhado: você fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
     chamada: "A prefeitura inteira numa tela, e as contas que pesam no seu CPF conferidas a cada relatório.",
     riscos: [
       {
@@ -67,20 +71,18 @@ export const CARGOS: Cargo[] = [
           "Passou de 54%, o excesso tem de sair em dois quadrimestres, um terço no primeiro. Sem isso, o município deixa de receber transferências voluntárias e de contratar crédito.",
         base: "LRF, art. 23, caput e § 3º",
       },
+      // Saíram a multa de 30% dos vencimentos e a inelegibilidade por oito
+      // anos: verdadeiras, mas soavam como venda pelo medo (revisão de outubro
+      // de 2026). Ficou a obrigação, que é o que o sistema ajuda a cumprir.
       {
         texto:
-          "Deixar de divulgar o RGF no prazo, ou de promover a redução da despesa com pessoal, é infração punida com multa de 30% dos vencimentos anuais, paga pelo próprio agente.",
-        base: "Lei 10.028/2000, art. 5º, I e IV, e § 1º",
-      },
-      {
-        texto:
-          "Contas rejeitadas por irregularidade insanável que configure ato doloso de improbidade tornam o gestor inelegível por oito anos.",
-        base: "LC 64/1990, art. 1º, I, “g”",
+          "O RGF tem de ser divulgado até 30 dias depois do fim de cada quadrimestre, ou semestre no regime simplificado, e a responsabilidade pela divulgação é pessoal de quem o assina.",
+        base: "LRF, arts. 54, 55, § 2º, e 63; Lei 10.028/2000, art. 5º",
       },
     ],
     faz: [
       "Mostra a prefeitura inteira numa tela: despesa com pessoal, protocolos abertos, obras no prazo e o mapa da cidade com obras, escolas e unidades de saúde.",
-      "Confere todo dia no Tesouro se cada RREO e RGF foi entregue e avisa o senhor por e-mail 15 dias antes do prazo e no dia em que atrasar.",
+      "Confere todo dia no Tesouro se cada RREO e RGF foi entregue e avisa você por e-mail 15 dias antes do prazo e no dia em que atrasar.",
       "Mostra a despesa com pessoal na régua da LRF, com as vedações que valem em cada faixa e o cronograma de recondução quando passa do limite.",
       "Calcula quanto falta aplicar em saúde e educação para fechar o ano dentro dos mínimos, e quanto o ritmo mensal precisa subir.",
       "Avisa quando os números do RGF entregue não fecham, antes de o Tribunal de Contas apontar.",
@@ -104,7 +106,7 @@ export const CARGOS: Cargo[] = [
       },
     ],
     fechamento: {
-      titulo: "No próximo prazo, o senhor já fica sabendo antes.",
+      titulo: "No próximo prazo, você já fica sabendo antes.",
       texto:
         "Com o Gestão ligado, o aviso de cada RREO e RGF chega por e-mail 15 dias antes do vencimento, e a despesa com pessoal passa a ser conferida na régua da LRF a cada RGF publicado. O que precisa de decisão aparece no alto do painel, com o artigo ao lado.",
     },

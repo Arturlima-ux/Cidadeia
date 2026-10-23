@@ -89,12 +89,46 @@ async function registrar(ok: boolean, ms: number, detalhe: string | null) {
   }
 }
 
+// ── NÃO SÓ O BANCO ──
+// A verificação media só o Postgres. Se a aplicação ou o portal do cidadão
+// caíssem com o banco de pé, nada era registrado, e pelo acordo de nível de
+// serviço a queda do canal do cidadão é justamente o caso crítico (revisão de
+// outubro de 2026). Agora a mesma rotina abre a página inicial e o índice do
+// portal do cidadão, que lê o banco. Se a Vercel inteira cair, a rotina nem
+// roda, e o dia sem registro conta como falha (lib/disponibilidade.ts).
+const PAGINAS = [
+  { caminho: "/", nome: "página inicial" },
+  { caminho: "/transparencia", nome: "portal do cidadão" },
+];
+
+async function paginasQueFalharam(): Promise<string[]> {
+  const base = (process.env.APP_URL ?? "").replace(/\/$/, "");
+  // Sem endereço público configurado (desenvolvimento), não há o que abrir.
+  if (!/^https:\/\//.test(base)) return [];
+  const resultados = await Promise.all(
+    PAGINAS.map(async (p) => {
+      try {
+        const r = await fetch(`${base}${p.caminho}`, { signal: AbortSignal.timeout(15_000), cache: "no-store" });
+        return r.ok ? null : `${p.nome}: HTTP ${r.status}`;
+      } catch {
+        return `${p.nome}: sem resposta`;
+      }
+    })
+  );
+  return resultados.filter((x): x is string => x !== null);
+}
+
 export async function GET() {
   const inicio = Date.now();
 
   try {
     await db.execute(sql`select 1`);
     const ms = Date.now() - inicio;
+    const falhas = await paginasQueFalharam();
+    if (falhas.length) {
+      await registrar(false, ms, falhas.join("; "));
+      return Response.json({ ok: false, banco: "acordado", paginas: falhas, ms }, { status: 503 });
+    }
     await registrar(true, ms, null);
 
     return Response.json({
