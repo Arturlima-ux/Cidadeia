@@ -8,7 +8,7 @@ import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
 import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import { NOME_DOS_ESTADOS, doEstado, type Estado } from "@/lib/estados";
 import { PANORAMA, dataDoPanorama, fracao, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
-import { compartilhamento } from "@/lib/seo";
+import { JsonLdScript, ldPanorama, compartilhamento } from "@/lib/seo";
 import { registrarEvento } from "@/lib/registrar-evento";
 
 // ── O PANORAMA DE CADA ESTADO ──
@@ -73,6 +73,15 @@ export default async function PanoramaDoEstadoPage({ params }: { params: Promise
 
   return (
     <div className="tema-noite min-h-screen overflow-x-clip">
+      <JsonLdScript
+        dados={ldPanorama({
+          titulo: `Despesa com pessoal das prefeituras ${doEstado(uf)} na régua da LRF`,
+          descricao: `Quantas das ${numeroBr(c.municipios)} prefeituras ${doEstado(uf)} estão no alerta, no limite prudencial e acima do limite da despesa com pessoal da LRF, contadas a partir do último RGF de cada uma no Tesouro Nacional (SICONFI). Atualizado em ${dataDoPanorama()}.`,
+          caminho: `/panorama/${uf.toLowerCase()}`,
+          atualizadoEm: PANORAMA.geradoEm,
+          abrangencia: `${NOME_DOS_ESTADOS[uf]}, Brasil`,
+        })}
+      />
       <SiteHeader />
       <main id="conteudo">
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-24 pb-12">

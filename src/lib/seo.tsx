@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
+import { EMPRESA, type DadosEmpresa } from "@/lib/empresa";
 
 // ── COMO O SITE SE APRESENTA QUANDO ALGUÉM COMPARTILHA O LINK ──
 //
@@ -81,16 +82,64 @@ export function compartilhamento({
 
 type JsonLd = Record<string, unknown>;
 
-export function ldOrganizacao(): JsonLd {
+export function ldOrganizacao(empresa: DadosEmpresa = EMPRESA): JsonLd {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${URL_BASE}/#organizacao`,
     name: NOME_DO_SITE,
     url: URL_BASE,
-    logo: `${URL_BASE}/opengraph-image`,
+    // Quadrado, como o Google pede (era a imagem de compartilhamento, 1200×630).
+    logo: { "@type": "ImageObject", url: `${URL_BASE}/icon`, width: 512, height: 512 },
     description: "Sistema de gestão municipal por módulos, com o dado que a prefeitura já publicou no Tesouro Nacional.",
     areaServed: { "@type": "Country", name: "Brasil" },
     contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: CONTATO_PUBLICO, availableLanguage: "pt-BR" }],
+    // Só entram quando as variáveis EMPRESA_* estiverem preenchidas na Vercel:
+    // nada de CNPJ inventado ou vazio no schema.
+    ...(empresa.razaoSocial ? { legalName: empresa.razaoSocial } : {}),
+    ...(empresa.cnpj ? { taxID: empresa.cnpj } : {}),
+  };
+}
+
+/** Só na home: dá ao Google o nome do site para mostrar no resultado. */
+export function ldSite(): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${URL_BASE}/#site`,
+    name: NOME_DO_SITE,
+    alternateName: ["Cidade IA", "CidadeIA gestão municipal"],
+    url: `${URL_BASE}/`,
+    inLanguage: "pt-BR",
+    publisher: { "@id": `${URL_BASE}/#organizacao` },
+  };
+}
+
+// ── O PANORAMA COMO CONJUNTO DE DADOS ──
+// Contagem original (quantas prefeituras passaram do alerta, do prudencial e
+// do limite), refeita toda semana: é o que jornalista e assistente de IA
+// citam. Dataset deixa isso explícito para o Google Dataset Search.
+export function ldPanorama(m: {
+  titulo: string;
+  descricao: string;
+  caminho: string;
+  atualizadoEm: string;
+  abrangencia: string;
+}): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: m.titulo,
+    description: m.descricao,
+    url: `${URL_BASE}${m.caminho}`,
+    keywords: ["LRF", "despesa com pessoal", "RGF", "limite prudencial", "prefeituras", m.abrangencia],
+    inLanguage: "pt-BR",
+    isAccessibleForFree: true,
+    dateModified: m.atualizadoEm,
+    spatialCoverage: { "@type": "Place", name: m.abrangencia },
+    isBasedOn: "https://apidatalake.tesouro.gov.br/docs/siconfi/",
+    creator: { "@id": `${URL_BASE}/#organizacao` },
+    publisher: { "@type": "Organization", name: NOME_DO_SITE, url: URL_BASE },
   };
 }
 

@@ -123,3 +123,40 @@ describe("títulos e descrições para busca", () => {
     expect(ler("src/app/transparencia/[slug]/page.tsx")).toContain("Portal do Cidadão de ${cidade}");
   });
 });
+
+describe("schema da marca e do site", () => {
+  it("logo do Organization é quadrado, e CNPJ só entra quando existe", async () => {
+    const { ldOrganizacao } = await import("@/lib/seo");
+    const vazio = { razaoSocial: null, cnpj: null, endereco: null, representante: null, emailSuporte: null, telefoneSuporte: null };
+    const sem = ldOrganizacao(vazio);
+    const logo = sem.logo as { url: string; width: number; height: number };
+    expect(logo.url).toMatch(/\/icon$/);
+    expect(logo.width).toBe(logo.height);
+    expect(sem).not.toHaveProperty("taxID");
+    const com = ldOrganizacao({ ...vazio, razaoSocial: "Empresa Ltda", cnpj: "00.000.000/0001-00" });
+    expect(com.taxID).toBe("00.000.000/0001-00");
+    expect(com.legalName).toBe("Empresa Ltda");
+  });
+
+  it("a home publica WebSite", async () => {
+    const { ldSite } = await import("@/lib/seo");
+    expect(ldSite()["@type"]).toBe("WebSite");
+    expect(ler("src/app/page.tsx")).toContain("ldSite()");
+  });
+
+  it("o panorama nacional e o de cada estado são Dataset", () => {
+    expect(ler("src/app/panorama/page.tsx")).toContain("ldPanorama(");
+    expect(ler("src/app/panorama/[uf]/page.tsx")).toContain("ldPanorama(");
+  });
+});
+
+describe("/llms.txt", () => {
+  it("aponta as páginas-chave e as descrições dos módulos", async () => {
+    const { GET } = await import("@/app/llms.txt/route");
+    const texto = await GET().text();
+    expect(texto.startsWith("# CidadeIA")).toBe(true);
+    expect(texto).toContain("/raio-x");
+    expect(texto).toContain("/panorama");
+    for (const m of MODULOS_DETALHE) expect(texto).toContain(m.descricaoBusca);
+  });
+});
