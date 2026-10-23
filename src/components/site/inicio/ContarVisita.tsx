@@ -21,11 +21,26 @@ export default function ContarVisita() {
       }
       fetch("/api/visita", { method: "POST", body: corpo, keepalive: true, headers: { "content-type": "application/json" } }).catch(() => {});
     };
-    const ocioso = (window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-    const agendar = () => (ocioso ? ocioso(avisar, { timeout: 3000 }) : window.setTimeout(avisar, 1500));
+    const janela = window as Window & {
+      requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let espera: number | null = null;
+    const agendar = () => {
+      espera = janela.requestIdleCallback ? janela.requestIdleCallback(avisar, { timeout: 3000 }) : window.setTimeout(avisar, 1500);
+    };
     if (document.readyState === "complete") agendar();
     else window.addEventListener("load", agendar, { once: true });
-    return () => window.removeEventListener("load", agendar);
+    // Desmontou antes do aviso sair (troca de página, ou a montagem dupla do
+    // modo de desenvolvimento): o aviso agendado é cancelado, para uma
+    // visita não virar duas.
+    return () => {
+      window.removeEventListener("load", agendar);
+      if (espera !== null) {
+        if (janela.cancelIdleCallback) janela.cancelIdleCallback(espera);
+        else window.clearTimeout(espera);
+      }
+    };
   }, []);
   return null;
 }
