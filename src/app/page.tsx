@@ -20,7 +20,6 @@ import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
-import NumLugarSo from "@/components/site/inicio/NumLugarSo";
 import HomeMorador from "./_morador/HomeMorador";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
@@ -169,7 +168,7 @@ export default async function LandingPage({
             <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
           </div>
 
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-16 sm:pb-24">
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-6 sm:pb-10">
             {/* Duas linhas a partir de 1024px ("…inteira," / "num lugar só."),
                 três no celular. Em duas, o título baixa e a busca cabe inteira
                 num notebook de 1366×768 (avaliação Impeccable, outubro de 2026).
@@ -227,23 +226,25 @@ export default async function LandingPage({
                 </div>
               </div>
 
-              <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
-                {/* Com município escolhido, a régua corre o número dele. */}
-                {municipio && df ? (
-                  <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
-                ) : municipio ? (
-                  <Suspense
-                    key={municipio.codigo}
-                    fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
-                  >
-                    <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
-                  </Suspense>
-                ) : (
-                  // Sem cidade escolhida, o produto: a prefeitura inteira num
-                  // sistema só. A régua do país foi para o panorama, abaixo.
-                  <NumLugarSo />
-                )}
-              </div>
+              {/* Com município escolhido, a régua corre o número dele. Sem
+                  cidade, o lado direito fica só com o mapa: o quadro das seis
+                  áreas saiu daqui, porque a seção "Um módulo para cada parte
+                  da prefeitura", logo abaixo, mostra os módulos funcionando
+                  (pedido do fundador, outubro de 2026). */}
+              {municipio && (
+                <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
+                  {df ? (
+                    <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
+                  ) : (
+                    <Suspense
+                      key={municipio.codigo}
+                      fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
+                    >
+                      <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
+                    </Suspense>
+                  )}
+                </div>
+              )}
             </div>
 
             {municipio && (
@@ -312,7 +313,7 @@ export default async function LandingPage({
         </section>
 
         {/* ═══ DE ONDE VEM O DADO ═══ */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-20 sm:pt-28">
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 sm:pt-20">
           <div className="flex flex-col md:flex-row md:items-baseline gap-4 md:gap-12 border-t border-border pt-8">
             <p className="text-sm text-muted shrink-0">Lê direto das bases oficiais</p>
             <ul className="flex flex-wrap gap-x-10 gap-y-3">
