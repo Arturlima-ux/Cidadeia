@@ -145,22 +145,20 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
       <JsonLdScript dados={ldSite()} />
-      <Suspense>
-        <SiteHeader sessaoAtiva={sessaoAtiva} />
-      </Suspense>
+      <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}
 
       <main id="conteudo">
         <BarraConversao />
 
         {/* ═══ HERÓI ═══ */}
-        {/* ── HIDRATAÇÃO EM FATIAS ──
-            Cada trecho da página vem dentro de um limite de Suspense. Pronto
-            no servidor, ele é ligado pelo React depois do resto e em fatias
-            de poucos milissegundos, cedendo a vez ao navegador entre elas, em
-            vez de um bloco único que travava o toque no celular. Se a pessoa
-            tocar no campo antes, o React liga esse trecho primeiro. */}
-        <Suspense>
+        {/* ── SEM SUSPENSE EM VOLTA DO TOPO ──
+            Cabeçalho, topo e bases oficiais chegaram a ir dentro de limites
+            de Suspense, para o React ligá-los em fatias. Medido com o
+            Lighthouse: o servidor às vezes mandava o cabeçalho depois do
+            resto, e a página descia 71 px quando ele aparecia (CLS de 0,086).
+            O que está na primeira tela vem inteiro, na ordem; só o que está
+            abaixo dela é adiado (HidratarAoChegar). */}
         <section className="relative">
           {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
               do título no celular, e some nas bordas para não brigar com o
@@ -317,14 +315,12 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             )}
           </div>
         </section>
-        </Suspense>
 
         {/* ═══ DE ONDE VEM O DADO ═══ */}
         {/* As nove bases numa linha só, de margem a margem, como os créditos
             de um documento: antes elas dividiam a largura com o rótulo e a
             nona ("Transferegov") caía sozinha numa segunda linha. Sem fio
             em cima: o espaço separa do topo. */}
-        <Suspense>
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20" aria-labelledby="titulo-fontes">
           <h2 id="titulo-fontes" className="text-sm text-muted">Lê direto das bases oficiais</h2>
           <ul className="mt-4 flex flex-wrap lg:flex-nowrap lg:justify-between gap-x-7 gap-y-2.5">
@@ -338,7 +334,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             ))}
           </ul>
         </section>
-        </Suspense>
 
         {/* ═══ MÓDULOS ═══
             Cada módulo como o instrumento da parte da prefeitura que ele
