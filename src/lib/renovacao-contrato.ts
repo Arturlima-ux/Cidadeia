@@ -182,6 +182,29 @@ export function historicoDoObjeto(
     }));
 }
 
+/**
+ * O contrato posterior que já cobre o mesmo objeto, se houver.
+ *
+ * Nos dados reais, boa parte dos "vencidos" é contrato antigo que já foi
+ * substituído: o transporte escolar de 2024 venceu, e o de 2025 está valendo.
+ * Oferecer a renovação do antigo mandaria alguém montar um processo para uma
+ * necessidade já atendida. Conta como sucessor o contrato do histórico que
+ * começou depois deste e termina depois dele.
+ */
+export function contratoSucessor(
+  contrato: ContratoParaRenovacao,
+  todos: ContratoParaRenovacao[]
+): ContratoDoHistorico | null {
+  const inicio = dataValida(contrato.vigenciaInicio);
+  const fim = dataValida(contrato.vigenciaFim);
+  if (!inicio || !fim) return null;
+  return (
+    historicoDoObjeto(contrato, todos).find(
+      (h) => !!h.vigenciaInicio && !!h.vigenciaFim && h.vigenciaInicio > inicio && h.vigenciaFim > fim
+    ) ?? null
+  );
+}
+
 // ── O DIAGNÓSTICO (TELA) ──
 
 export type OpcaoDeCaminho = {
@@ -312,14 +335,29 @@ type Fatos = {
   processo: string;
   contratada: string;
   documentoContratada: string;
+  /** O objeto no meio da frase. */
   objeto: string;
+  /** O objeto abrindo frase ou título, como o PNCP publicou. */
+  objetoTitulo: string;
   fim: string | null;
   inicio: string | null;
   valorGlobal: string | null;
   mediaMensal: string | null;
   meses: number | null;
   setorSugerido: string | null;
+  /** Contratado pessoa física: sem "representada por". */
+  pessoaFisica: boolean;
 };
+
+/**
+ * O objeto como entra no meio de uma frase ("cujo objeto é locação de…").
+ * Só baixa a inicial quando a segunda letra é minúscula: "UBS do Centro" e
+ * "SAMU" ficam como estão. O ponto final do PNCP sai, porque a frase põe o seu.
+ */
+export function objetoNaFrase(objeto: string): string {
+  const t = objeto.trim().replace(/\.+$/, "");
+  return /^\p{Lu}\p{Ll}/u.test(t) ? t[0].toLowerCase() + t.slice(1) : t;
+}
 
 function fatos(c: ContratoParaRenovacao, pref: PrefeituraParaRenovacao): Fatos {
   const inicio = dataValida(c.vigenciaInicio);
@@ -343,13 +381,15 @@ function fatos(c: ContratoParaRenovacao, pref: PrefeituraParaRenovacao): Fatos {
       : c.fornecedorDocumento
         ? `CNPJ ${documentoExibivel(c.fornecedorDocumento, c.fornecedorTipoPessoa)}`
         : "CNPJ [CNPJ da contratada]",
-    objeto: c.objeto.trim(),
+    objeto: objetoNaFrase(c.objeto),
+    objetoTitulo: c.objeto.trim().replace(/\.+$/, ""),
     fim,
     inicio,
     valorGlobal: moeda(c.valorGlobal),
     mediaMensal: media ? moeda(media) : null,
     meses,
     setorSugerido: area ? NOME_SECRETARIA[area] : null,
+    pessoaFisica: pf,
   };
 }
 
@@ -488,7 +528,7 @@ function termoAditivo(f: Fatos): Documento {
         blocos: [
           p(
             `O MUNICÍPIO DE ${f.municipio.toUpperCase()}, inscrito no CNPJ sob o nº ${f.cnpjPrefeitura}, representado por ${f.prefeito}, ` +
-              `doravante CONTRATANTE, e ${f.contratada}, ${f.documentoContratada}, representada por [nome e qualificação do representante], ` +
+              `doravante CONTRATANTE, e ${f.contratada}, ${f.documentoContratada}, ${f.pessoaFisica ? "[qualificação do contratado]" : "representada por [nome e qualificação do representante]"}, ` +
               `doravante CONTRATADA, resolvem celebrar o presente termo aditivo, nos autos do processo ${f.processo}, mediante as cláusulas seguintes.`
           ),
         ],
@@ -549,7 +589,7 @@ function dfd(f: Fatos, h: ContratoDoHistorico[], edital: string | null): Documen
   return {
     chave: "dfd",
     nome: "Documento de formalização de demanda",
-    subtitulo: `Nova contratação — ${f.objeto}`,
+    subtitulo: `Nova contratação — ${f.objetoTitulo}`,
     resumo: "A demanda descrita a partir do contrato que vence, com a data em que o novo precisa estar valendo.",
     geramos: true,
     clausulas: [
@@ -559,7 +599,7 @@ function dfd(f: Fatos, h: ContratoDoHistorico[], edital: string | null): Documen
       },
       {
         titulo: "2. Objeto",
-        blocos: [p(`${f.objeto}.`), p("[Ajuste a descrição se a necessidade mudou desde a contratação anterior.]")],
+        blocos: [p(`${f.objetoTitulo}.`), p("[Ajuste a descrição se a necessidade mudou desde a contratação anterior.]")],
       },
       {
         titulo: "3. Justificativa da necessidade",
@@ -615,7 +655,7 @@ function etp(f: Fatos, h: ContratoDoHistorico[]): Documento {
   return {
     chave: "etp",
     nome: "Estudo técnico preliminar",
-    subtitulo: `Nova contratação — ${f.objeto}`,
+    subtitulo: `Nova contratação — ${f.objetoTitulo}`,
     resumo: "Os treze elementos do art. 18, § 1º, com o que o sistema já sabe preenchido e o resto marcado.",
     geramos: true,
     clausulas: [
@@ -807,8 +847,15 @@ export function estadoDaRenovacaoNaLista(
   prefeitura: PrefeituraParaRenovacao,
   aprovacoes: Aprovacao[],
   formatarData: (iso: string) => string = dataBr
-): { estado: "rascunho" | "aprovado" | "desatualizado"; texto: string } | null {
+): { estado: "rascunho" | "aprovado" | "desatualizado" | "substituido"; texto: string } | null {
   if (ehObraOuEngenharia(contrato.categoria)) return null;
+  const sucessor = contratoSucessor(contrato, todos);
+  if (sucessor && !aprovacoes.length) {
+    return {
+      estado: "substituido",
+      texto: `Já há contrato posterior para o mesmo objeto${sucessor.numeroContrato ? ` (${sucessor.numeroContrato})` : ""}: não há o que renovar`,
+    };
+  }
   const historico = historicoDoObjeto(contrato, todos);
   const pacotes = (["prorrogar", "licitar"] as const).map((c) => montarPacote(c, contrato, prefeitura, historico));
   const s = situacaoDaAprovacao(aprovacoes, pacotes);

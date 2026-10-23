@@ -42,11 +42,12 @@ export type ContratoNaTela = {
    * O processo de renovação já montado (lib/renovacao-contrato.ts). Null
    * quando não se aplica: obra prorroga sozinha pelo art. 111.
    */
-  renovacao: { estado: "rascunho" | "aprovado" | "desatualizado"; texto: string } | null;
+  renovacao: { estado: "rascunho" | "aprovado" | "desatualizado" | "substituido"; texto: string } | null;
 };
 
-const COR_RENOVACAO: Record<"rascunho" | "aprovado" | "desatualizado", string> = {
+const COR_RENOVACAO: Record<"rascunho" | "aprovado" | "desatualizado" | "substituido", string> = {
   rascunho: "var(--muted)",
+  substituido: "var(--muted)",
   aprovado: "var(--info)",
   desatualizado: "var(--medio)",
 };
@@ -197,12 +198,14 @@ export default function PainelContratos({
 
                       {c.renovacao && (
                         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                          <Link
-                            href={`/dashboard/secretarias/licitacoes/contratos/${c.id}`}
-                            className="inline-flex items-center min-h-10 text-sm font-semibold text-brand-legivel hover:underline"
-                          >
-                            {c.renovacao.estado === "aprovado" ? "Ver a renovação" : "Conferir a renovação montada"} →
-                          </Link>
+                          {c.renovacao.estado !== "substituido" && (
+                            <Link
+                              href={`/dashboard/secretarias/licitacoes/contratos/${c.id}`}
+                              className="inline-flex items-center min-h-10 text-sm font-semibold text-brand-legivel hover:underline"
+                            >
+                              {c.renovacao.estado === "aprovado" ? "Ver a renovação" : "Conferir a renovação montada"} →
+                            </Link>
+                          )}
                           <span className="text-xs" style={{ color: COR_RENOVACAO[c.renovacao.estado] }}>
                             {c.renovacao.texto}
                           </span>

@@ -10,6 +10,9 @@ import {
   resumoDaAprovacao,
   impressaoDoResumo,
   situacaoDaAprovacao,
+  contratoSucessor,
+  objetoNaFrase,
+  estadoDaRenovacaoNaLista,
   type ContratoParaRenovacao,
   type PrefeituraParaRenovacao,
 } from "@/lib/renovacao-contrato";
@@ -251,5 +254,33 @@ describe("situação da aprovação", () => {
     const antigo = montarPacote("licitar", contrato({ vigenciaFim: "2026-09-30" }), PREF, []);
     const s = situacaoDaAprovacao([linha(resumoDaAprovacao(contrato(), antigo), "2026-10-20T10:00:00Z")], [prorrogar, licitar]);
     expect(s.tipo).toBe("desatualizado");
+  });
+});
+
+describe("contrato já substituído", () => {
+  const antigo = contrato({ id: "c2", numeroContrato: "5/2024", vigenciaInicio: "2024-02-01", vigenciaFim: "2025-01-31" });
+  const atual = contrato();
+
+  it("o antigo aponta o contrato que veio depois e não oferece renovação", () => {
+    expect(contratoSucessor(antigo, [antigo, atual])?.id).toBe("c1");
+    const e = estadoDaRenovacaoNaLista(antigo, [antigo, atual], PREF, []);
+    expect(e?.estado).toBe("substituido");
+    expect(e?.texto).toContain("12/2025");
+  });
+
+  it("o atual não tem sucessor e fica como rascunho montado", () => {
+    expect(contratoSucessor(atual, [antigo, atual])).toBeNull();
+    expect(estadoDaRenovacaoNaLista(atual, [antigo, atual], PREF, [])?.estado).toBe("rascunho");
+  });
+
+  it("obra não entra na lista de renovação", () => {
+    expect(estadoDaRenovacaoNaLista(contrato({ categoria: "Obras" }), [], PREF, [])).toBeNull();
+  });
+});
+
+describe("o objeto dentro da frase", () => {
+  it("baixa só a inicial de palavra comum e preserva sigla", () => {
+    expect(objetoNaFrase("Locação de software.")).toBe("locação de software");
+    expect(objetoNaFrase("UBS do Centro: reforma")).toBe("UBS do Centro: reforma");
   });
 });

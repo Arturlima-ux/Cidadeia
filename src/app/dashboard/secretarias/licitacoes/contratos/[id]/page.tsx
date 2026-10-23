@@ -99,7 +99,7 @@ function BlocoNaTela({ bloco }: { bloco: Bloco }) {
 
 function Fato({ rotulo, valor, nota }: { rotulo: string; valor: string; nota?: string }) {
   return (
-    <div className="min-w-0 py-3 sm:py-0 sm:px-4 first:pl-0 border-b sm:border-b-0 sm:border-l first:border-l-0 border-border last:border-b-0">
+    <div className="min-w-0 pr-3 sm:pr-4 sm:pl-4 sm:first:pl-0 sm:border-l sm:first:border-l-0 border-border">
       <dt className="text-xs text-muted">{rotulo}</dt>
       <dd className="text-sm font-semibold mt-0.5 tabular-nums break-words">{valor}</dd>
       {nota && <dd className="text-xs text-muted mt-0.5">{nota}</dd>}
@@ -145,7 +145,7 @@ export default async function RenovacaoPage({
     );
   }
 
-  const { contrato, diagnostico: d, pacotes, aprovacao, historico } = leitura.renovacao;
+  const { contrato, diagnostico: d, pacotes, aprovacao, historico, sucessor } = leitura.renovacao;
   const fuso = fusoDoEstado(leitura.renovacao.prefeitura.estado);
   const caminho = caminhoInicial(typeof pedido === "string" ? pedido : undefined, d, aprovacao);
   const pacote = pacotes[caminho];
@@ -168,13 +168,15 @@ export default async function RenovacaoPage({
           <span>{d.vigencia.texto}</span>
         </p>
 
-        <dl className="mt-5 grid grid-cols-1 sm:grid-cols-4 border-y border-border sm:py-4">
+        <dl className={`mt-5 grid grid-cols-2 gap-y-4 ${d.ehObra ? "" : "sm:grid-cols-4"} border-y border-border py-4`}>
           <Fato
             rotulo="Vigência"
             valor={contrato.vigenciaFim ? `até ${dataBr(contrato.vigenciaFim)}` : "Sem data de fim"}
             nota={contrato.vigenciaInicio ? `desde ${dataBr(contrato.vigenciaInicio)}` : undefined}
           />
           <Fato rotulo="Valor global" valor={valor} />
+          {!d.ehObra && (
+            <>
           <Fato
             rotulo="Edital, se licitar"
             valor={d.editalAte ? `publicar até ${dataBr(d.editalAte)}` : "—"}
@@ -185,6 +187,8 @@ export default async function RenovacaoPage({
             valor={d.limiteDecenal ? dataBr(d.limiteDecenal) : "—"}
             nota="art. 107, pela data de início do PNCP"
           />
+            </>
+          )}
         </dl>
       </div>
 
@@ -198,6 +202,15 @@ export default async function RenovacaoPage({
         </section>
       ) : (
         <>
+          {sucessor && (
+            <p className="text-sm leading-relaxed rounded-xl px-4 py-3" style={{ background: "var(--medio-tint)", color: "var(--medio)" }}>
+              Já há contrato posterior para o mesmo objeto
+              {sucessor.numeroContrato ? ` (contrato ${sucessor.numeroContrato}` : " ("}
+              {sucessor.vigenciaFim ? `, até ${dataBr(sucessor.vigenciaFim)})` : ")"}. Confira se a necessidade não está atendida por
+              ele antes de montar outro processo.
+            </p>
+          )}
+
           <section aria-labelledby="caminho">
             <h2 id="caminho" className="font-semibold">Qual caminho</h2>
             <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
@@ -258,8 +271,8 @@ export default async function RenovacaoPage({
                   {dataHoraNumerica(aprovacao.aprovacao.createdAt, fuso)}.
                 </p>
                 <p className="text-muted mt-1">
-                  Os arquivos baixados levam esta aprovação no topo. Aprovar não é assinar: o ofício é enviado e o aditivo ou o
-                  estudo são assinados no processo, por quem a lei manda. Ref. <span className="font-mono">{pacote.impressao}</span>.
+                  Os arquivos baixados levam esta aprovação no topo. Aprovar não é assinar: cada documento segue para o processo
+                  e é enviado ou assinado por quem a lei manda. Ref. <span className="font-mono">{pacote.impressao}</span>.
                 </p>
               </div>
             ) : (
@@ -294,22 +307,28 @@ export default async function RenovacaoPage({
           </section>
 
           {pacote.pendencias.length > 0 && (
-            <section aria-labelledby="pendencias">
-              <h2 id="pendencias" className="font-semibold">
-                O que só a prefeitura sabe <span className="text-muted font-normal tabular-nums">({pacote.pendencias.length})</span>
-              </h2>
-              <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
-                Ficaram entre colchetes nos documentos. O sistema não estima nenhum deles: quantidade, preço, vantajosidade e
-                dotação dependem de quem tem o processo na mão.
-              </p>
-              <ul className="mt-3 grid sm:grid-cols-2 gap-x-6 text-sm">
-                {pacote.pendencias.map((m) => (
-                  <li key={m} className="py-1.5 border-b border-border break-words">
-                    {m.slice(1, -1)}
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <details className="group border border-border rounded-xl">
+              <summary className="cursor-pointer list-none px-5 py-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <span className="font-semibold">
+                  O que só a prefeitura sabe <span className="text-muted font-normal tabular-nums">({pacote.pendencias.length})</span>
+                </span>
+                <span className="text-xs font-semibold text-muted group-open:hidden">Ver a lista</span>
+                <span className="text-xs font-semibold text-muted hidden group-open:inline">Recolher</span>
+              </summary>
+              <div className="px-5 pb-5 border-t border-border">
+                <p className="text-sm text-muted mt-3 leading-relaxed max-w-2xl">
+                  Ficaram entre colchetes nos documentos. O sistema não estima nenhum deles: quantidade, preço, vantajosidade e
+                  dotação dependem de quem tem o processo na mão.
+                </p>
+                <ul className="mt-3 grid sm:grid-cols-2 gap-x-6 text-sm">
+                  {pacote.pendencias.map((m) => (
+                    <li key={m} className="py-1.5 border-b border-border break-words">
+                      {m.slice(1, -1)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
           )}
 
           <section aria-labelledby="documentos" className="space-y-3">

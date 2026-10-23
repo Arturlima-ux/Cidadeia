@@ -6,6 +6,7 @@ import { exigirPlano } from "@/lib/exigir-plano";
 import {
   ACAO_APROVAR,
   ENTIDADE_RENOVACAO,
+  contratoSucessor,
   diagnosticar,
   historicoDoObjeto,
   montarPacote,
@@ -37,6 +38,8 @@ export type Renovacao = {
   contrato: ContratoParaRenovacao;
   prefeitura: PrefeituraParaRenovacao;
   historico: ContratoDoHistorico[];
+  /** Contrato posterior que já cobre o mesmo objeto — quando há, não há o que renovar. */
+  sucessor: ContratoDoHistorico | null;
   diagnostico: DiagnosticoRenovacao;
   pacotes: Record<"prorrogar" | "licitar", PacoteRenovacao>;
   aprovacao: SituacaoAprovacao;
@@ -121,6 +124,7 @@ export async function lerRenovacao(
         contrato,
         prefeitura: pref,
         historico,
+        sucessor: contratoSucessor(contrato, todos),
         diagnostico: diagnosticar(contrato, hoje),
         pacotes,
         aprovacao: situacaoDaAprovacao(aprovacoes, [pacotes.prorrogar, pacotes.licitar]),
