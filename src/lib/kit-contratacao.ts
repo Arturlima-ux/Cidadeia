@@ -1,11 +1,17 @@
-import { CARENCIA_DIAS } from "@/lib/cobranca";
 
 import { preencherCompromissos } from "@/lib/compromissos";
 import { MODULOS_DETALHE } from "@/lib/modulos-detalhe";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
 
-// Carência por extenso, como pede a redação de contrato.
-const CARENCIA_EXTENSO: Record<number, string> = { 3: "três", 5: "cinco", 7: "sete", 10: "dez", 15: "quinze", 30: "trinta", 60: "sessenta" };
+// ── PAGAMENTO: PÓS-PAGO POR PADRÃO, ANTECIPADO COMO ALTERNATIVA ──
+// O kit só oferecia o antecipado, justificado como "o modelo praticado pelo
+// mercado" — justificativa que jurídico e Tribunal de Contas recusam, porque
+// a regra da despesa pública é pagar depois da liquidação (Lei 4.320, art.
+// 62). E o kit se contradizia: o fiscal "atestava o recebimento mensal" de um
+// serviço pago antes do uso (revisão de outubro de 2026). Agora as duas
+// opções vão no modelo, e a prefeitura apaga a que não adotar.
+const SUSPENSAO =
+  "Havendo atraso superior a 2 (dois) meses, contados da emissão da nota fiscal, a CONTRATADA poderá optar pela suspensão do acesso ao painel de gestão até a regularização (art. 137, § 2º, IV, e § 3º, II, da Lei nº 14.133/2021), mantidos em funcionamento o portal público do município e os canais de atendimento ao cidadão, inclusive a tela em que a equipe da CONTRATANTE responde à ouvidoria e aos pedidos de acesso à informação, preservados os dados e assegurada a sua exportação integral a qualquer tempo. Regularizado o pagamento, o acesso é restabelecido no mesmo dia útil.";
 
 // ── KIT DE CONTRATAÇÃO ──
 //
@@ -276,16 +282,20 @@ const TERMO_DE_REFERENCIA: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "O pagamento é mensal e antecipado, no valor de [VALOR MENSAL], totalizando [VALOR ANUAL] no período, com vencimento no [DIA] dia de cada mês de utilização, mediante apresentação de nota fiscal. Os módulos contratados são liberados após a confirmação do primeiro pagamento.",
+            "Opção A, padrão — pagamento após o atesto: o pagamento é mensal, depois de prestado o serviço, no valor de [VALOR MENSAL], totalizando [VALOR ANUAL] no período, em até 30 (trinta) dias da apresentação da nota fiscal, condicionado ao atesto do fiscal do contrato (arts. 62 e 63 da Lei nº 4.320/1964). Os módulos contratados são liberados na data da assinatura do contrato ou da ordem de serviço.",
         },
         {
           tipo: "paragrafo",
           texto:
-            "Justificativa da antecipação (art. 145, § 1º, da Lei nº 14.133/2021): o objeto é cessão de uso de software por assinatura mensal, hospedado pela contratada, cuja infraestrutura, processamento e suporte são alocados antes do período de uso. O pagamento antecipado é condição indispensável para a prestação do serviço nesse modelo, que é o praticado pelo mercado para software como serviço.",
+            "Opção B, alternativa — pagamento antecipado: só cabe se a contratante justificar no processo que a antecipação propicia sensível economia de recursos ou é condição indispensável para a prestação do serviço (art. 145, § 1º, da Lei nº 14.133/2021). Nesse caso, o pagamento é mensal, até o [DIA] dia de cada mês de utilização, os módulos são liberados após a confirmação do primeiro pagamento, a contratante pode exigir garantia adicional (art. 145, § 2º) e o valor antecipado de serviço não prestado será devolvido (art. 145, § 3º).",
         },
         {
           tipo: "paragrafo",
-          texto: `Não confirmado o pagamento em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, o acesso ao painel de gestão poderá ser suspenso até a regularização, nos termos do art. 137, § 3º, II, da Lei 14.133/2021, sem prejuízo do funcionamento do portal público do município, do atendimento à ouvidoria e aos pedidos de acesso à informação, da guarda dos dados e da sua exportação integral a qualquer tempo.`,
+          texto: "A contratante adotará uma das duas opções e excluirá a outra deste termo e da minuta de contrato.",
+        },
+        {
+          tipo: "paragrafo",
+          texto: SUSPENSAO,
         },
       ],
     },
@@ -295,7 +305,12 @@ const TERMO_DE_REFERENCIA: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "O objeto será considerado recebido definitivamente quando verificado, pelo fiscal do contrato, que: os módulos contratados estão acessíveis aos usuários designados; o portal do cidadão do município responde; e a ouvidoria e o protocolo recebem e permitem consultar manifestações.",
+            "Implantação: o objeto será considerado recebido quando verificado, pelo fiscal do contrato, que os módulos contratados estão acessíveis aos usuários designados, que o portal do cidadão do município responde e que a ouvidoria e o protocolo recebem e permitem consultar manifestações.",
+        },
+        {
+          tipo: "paragrafo",
+          texto:
+            "Recebimento mensal: até o 5º (quinto) dia útil de cada mês, o fiscal atesta a prestação do serviço no mês anterior, com base no uso e no relatório público de disponibilidade previsto no acordo de nível de serviço. Na opção A, o atesto antecede o pagamento; na opção B, ele confirma o serviço já pago e, se houver falha, gera o desconto previsto no acordo de nível de serviço.",
         },
       ],
     },
@@ -372,16 +387,16 @@ const MINUTA_CONTRATO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "O valor mensal é de [VALOR MENSAL], perfazendo [VALOR ANUAL] no período de vigência, pago antecipadamente até o [DIA] dia de cada mês de utilização, mediante nota fiscal, nos termos do art. 145, § 1º, da Lei nº 14.133/2021 e da justificativa constante do termo de referência.",
+            "O valor mensal é de [VALOR MENSAL], perfazendo [VALOR ANUAL] no período de vigência, pago na forma da opção adotada no item 11 do Termo de Referência: após o atesto mensal do fiscal, em até 30 (trinta) dias da apresentação da nota fiscal (opção A), ou antecipadamente, até o [DIA] dia de cada mês de utilização, com a justificativa do art. 145, § 1º, da Lei nº 14.133/2021 constante do processo (opção B).",
         },
         {
           tipo: "paragrafo",
           texto:
-            "Parágrafo primeiro. Os módulos contratados serão liberados pela CONTRATADA após a confirmação do pagamento da primeira parcela.",
+            "Parágrafo primeiro. Os módulos contratados serão liberados na assinatura deste contrato, na opção A, ou após a confirmação do pagamento da primeira parcela, na opção B.",
         },
         {
           tipo: "paragrafo",
-          texto: `Parágrafo segundo. Não confirmado o pagamento de parcela em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, a CONTRATADA poderá suspender o acesso ao painel de gestão até a regularização, nos termos do art. 137, § 3º, II, da Lei 14.133/2021, mantidos em funcionamento o portal público do município e os canais de atendimento ao cidadão, inclusive a tela em que a equipe responde à ouvidoria e aos pedidos de acesso à informação, preservados os dados e assegurada a sua exportação integral a qualquer tempo. Regularizado o pagamento, o acesso é restabelecido no mesmo dia útil.`,
+          texto: `Parágrafo segundo. ${SUSPENSAO}`,
         },
         {
           tipo: "paragrafo",
@@ -577,7 +592,7 @@ const ACORDO_DADOS: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "Os dados são hospedados em [HOSPEDAGEM]. A operadora informará o controlador previamente à contratação de novo subcontratado que trate dados pessoais, facultada objeção fundamentada.",
+            "Os dados são armazenados e processados em [HOSPEDAGEM]. O envio de e-mails transacionais e, quando utilizada, a função de inteligência artificial empregam prestadores com tratamento no exterior, o que configura transferência internacional nos termos do art. 33 da Lei nº 13.709/2018; à inteligência artificial não são enviados nome, contato nem texto de manifestação de cidadão. A operadora informará o controlador previamente à contratação de novo subcontratado que trate dados pessoais, facultada objeção fundamentada.",
         },
       ],
     },
@@ -740,7 +755,7 @@ const ACORDO_NIVEL_SERVICO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "Os prazos de atendimento estão em branco de propósito: são compromissos que a empresa precisa conseguir cumprir de fato. Prometer no papel o que a operação não sustenta cria inadimplemento contratual, não credibilidade.",
+            "Os prazos de atendimento são compromissos comerciais da contratada, fixados para serem cumpridos em horário comercial. Só o prazo de comunicação de incidente decorre da lei (art. 48 da Lei nº 13.709/2018).",
         },
         {
           tipo: "paragrafo",

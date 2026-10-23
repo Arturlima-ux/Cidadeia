@@ -65,7 +65,7 @@ export default function PergunteACidade({ municipio, itens }: { municipio: strin
           Pergunte qualquer coisa sobre {municipio}.
         </h2>
         <p className="text-muted mt-2 max-w-[60ch]">
-          Do seu jeito, sem precisar saber qual secretaria cuida do assunto. A resposta aparece enquanto você escreve.
+          Do seu jeito, sem precisar saber qual secretaria cuida do assunto. A busca procura enquanto você escreve, só no que a prefeitura publicou: nada aqui é escrito por inteligência artificial.
         </p>
 
         <form

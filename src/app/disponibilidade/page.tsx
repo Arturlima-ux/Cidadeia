@@ -1,7 +1,7 @@
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { medicoesBanco } from "@/db/schema";
-import { apurar, frase, latenciaPiorou, type Medicao } from "@/lib/disponibilidade";
+import { apurar, frase, latenciaPiorou, porDia, type Medicao } from "@/lib/disponibilidade";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
@@ -63,7 +63,7 @@ export default async function DisponibilidadePage() {
 
   const a = apurar(medicoes);
   const degradando = latenciaPiorou(medicoes);
-  const ultimas = medicoes.slice(0, 30);
+  const ultimas = porDia(medicoes).slice(0, 30);
 
   return (
     <div className="tema-noite min-h-screen">
@@ -158,9 +158,9 @@ export default async function DisponibilidadePage() {
                 &ldquo;uptime&rdquo;.
               </p>
               <p className="text-sm text-muted leading-relaxed mt-3">
-                O que a verificação diária detecta bem é a falha que mais ameaça um sistema desta
-                natureza: o banco de dados pausado por inatividade, que dura dias. Já aconteceu uma
-                vez, e foi o que motivou criar a verificação.
+                Cada verificação confere o banco de dados, a página inicial e o portal do cidadão. Se
+                o servidor inteiro cair, a rotina nem roda: por isso um dia sem verificação conta como
+                dia de falha, e não some da conta.
               </p>
               <p className="text-sm text-muted leading-relaxed mt-3">
                 Nenhum percentual aparece antes de trinta dias de histórico. Com cinco amostras,
@@ -176,12 +176,13 @@ export default async function DisponibilidadePage() {
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="font-semibold text-sm mb-1">Últimas verificações</h2>
                 <p className="text-xs text-muted mb-4">
-                  Da mais recente para trás. É sobre estas linhas que a contagem acima é feita.
+                  Um dia por linha, do mais recente para trás, com a pior verificação do dia. É sobre
+                  estas linhas que a contagem acima é feita.
                 </p>
                 <ul className="flex flex-col divide-y divide-border">
                   {ultimas.map((v) => (
                     <li
-                      key={v.verificadoEm}
+                      key={v.verificadoEm.slice(0, 10)}
                       className="flex items-center justify-between gap-4 py-2 text-sm"
                     >
                       <span className="tabular-nums text-muted">{dataCurta(v.verificadoEm)}</span>

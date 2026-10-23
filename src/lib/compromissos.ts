@@ -1,6 +1,6 @@
 // ── OS COMPROMISSOS DE SERVIÇO ──
 //
-// O kit de contratação deixa prazos e disponibilidade em branco de propósito:
+// Os prazos do kit são compromissos que a empresa precisa cumprir de fato:
 // prometer no papel o que a operação não sustenta cria inadimplemento
 // contratual, não credibilidade.
 //
@@ -48,7 +48,7 @@ export type Compromisso = {
  */
 export const HOSPEDAGEM =
   "Supabase sobre AWS, região de São Paulo (sa-east-1), para o banco de dados, e " +
-  "Vercel, região de São Paulo (gru1), para a aplicação. Os dados não deixam o território nacional.";
+  "Vercel, região de São Paulo (gru1), para a aplicação";
 
 /**
  * Em quanto tempo a operadora comunica um incidente ao município.
@@ -153,8 +153,8 @@ export const COMPROMISSOS: Compromisso[] = [
     valor: doAmbiente("NEXT_PUBLIC_RESPOSTA_CRITICA") ?? "4",
     origem: "decidido",
     fundamento:
-      "4 horas úteis até a primeira resposta com o serviço inacessível — metade de um dia de " +
-      "trabalho. Prometer uma hora exigiria plantão, que uma operação de uma pessoa não sustenta.",
+      "4 horas úteis até a primeira resposta com o serviço inacessível: metade de um dia de " +
+      "trabalho, em horário comercial, que é o horário de atendimento declarado no contrato.",
   },
   {
     marcador: "[SOLUÇÃO CRÍTICA]",

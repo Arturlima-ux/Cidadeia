@@ -40,6 +40,12 @@ export type ApuracaoDisponibilidade = {
   diasComFalha: number;
   /** Datas (AAAA-MM-DD) em que houve falha, da mais recente para trás. */
   datasComFalha: string[];
+  /**
+   * Dias do período sem nenhuma verificação. Se o servidor inteiro cai, a
+   * rotina nem roda e não grava nada: o dia some. Dia sem verificação não é
+   * dia disponível, e entra na conta contra (revisão de outubro de 2026).
+   */
+  diasSemVerificacao: number;
   /** Mediana da latência, em ms. Null sem medição bem-sucedida. */
   latenciaMediana: number | null;
   /** A pior latência registrada entre as que responderam. */
@@ -82,6 +88,7 @@ export function apurar(medicoes: Medicao[]): ApuracaoDisponibilidade {
     diasSemFalha: 0,
     diasComFalha: 0,
     datasComFalha: [],
+    diasSemVerificacao: 0,
     latenciaMediana: null,
     latenciaPior: null,
     primeira: null,
@@ -107,19 +114,23 @@ export function apurar(medicoes: Medicao[]): ApuracaoDisponibilidade {
 
   const diasVerificados = dias.length;
   const diasSemFalha = diasVerificados - comFalha.length;
+  const periodo = Math.round((Date.parse(dias[dias.length - 1][0]) - Date.parse(dias[0][0])) / 86_400_000) + 1;
+  const diasSemVerificacao = Math.max(0, periodo - diasVerificados);
+  const base = diasVerificados + diasSemVerificacao;
 
   return {
     diasVerificados,
     diasSemFalha,
     diasComFalha: comFalha.length,
     datasComFalha: comFalha.reverse(),
+    diasSemVerificacao,
     latenciaMediana: mediana(latencias),
     latenciaPior: latencias.length > 0 ? Math.max(...latencias) : null,
     primeira: ordenadas[0]?.verificadoEm ?? null,
     ultima: ordenadas[ordenadas.length - 1]?.verificadoEm ?? null,
     percentualDeDias:
-      diasVerificados >= MINIMO_DE_DIAS_PARA_PERCENTUAL
-        ? (diasSemFalha / diasVerificados) * 100
+      base >= MINIMO_DE_DIAS_PARA_PERCENTUAL
+        ? (diasSemFalha / base) * 100
         : null,
   };
 }
@@ -135,9 +146,13 @@ export function frase(a: ApuracaoDisponibilidade): string {
   if (a.diasVerificados === 0) {
     return "Nenhuma verificação registrada ainda.";
   }
+  const lacuna =
+    a.diasSemVerificacao > 0
+      ? ` (e em ${a.diasSemVerificacao} ${a.diasSemVerificacao === 1 ? "dia" : "dias"} do período não houve verificação, o que conta como falha)`
+      : "";
   const base =
-    `O banco de dados respondeu em ${a.diasSemFalha} dos ${a.diasVerificados} ` +
-    `${a.diasVerificados === 1 ? "dia verificado" : "dias verificados"}`;
+    `O sistema respondeu em ${a.diasSemFalha} dos ${a.diasVerificados} ` +
+    `${a.diasVerificados === 1 ? "dia verificado" : "dias verificados"}${lacuna}`;
 
   if (a.percentualDeDias === null) {
     return (
@@ -157,4 +172,20 @@ export function latenciaPiorou(medicoes: Medicao[], janela = 7): boolean {
   const anteriores = mediana(ok.slice(-janela * 2, -janela).map((m) => m.ms))!;
   // Dobrar é sinal; variar 20% é ruído de rede.
   return recentes > anteriores * 2;
+}
+
+/**
+ * Uma linha por dia, para a lista da página. Antes a lista mostrava cada
+ * medição e a contagem acima contava dias: "21 dias" em cima de 22 linhas, com
+ * o mesmo dia duas vezes (revisão de outubro de 2026). O dia vale a pior
+ * verificação dele.
+ */
+export function porDia(medicoes: Medicao[]): Medicao[] {
+  const mapa = new Map<string, Medicao>();
+  for (const m of medicoes) {
+    const d = diaDe(m.verificadoEm);
+    const atual = mapa.get(d);
+    if (!atual || (atual.ok && !m.ok) || (atual.ok === m.ok && m.ms > atual.ms)) mapa.set(d, m);
+  }
+  return [...mapa.values()].sort((a, b) => b.verificadoEm.localeCompare(a.verificadoEm));
 }

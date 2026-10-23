@@ -36,7 +36,7 @@ function Comparacao({ o }: { o: ObraParadaPublica }) {
   );
 }
 
-export default function ObrasParadas({ obras, slug }: { obras: ObraParadaPublica[]; slug: string }) {
+export default function ObrasParadas({ obras, slug, comparar = true }: { obras: ObraParadaPublica[]; slug: string; comparar?: boolean }) {
   const avisos = obras.filter((o) => o.aviso === "completo");
   const federais = obras.filter((o) => o.aviso === "federal");
   if (!avisos.length && !federais.length) return null;
@@ -48,6 +48,7 @@ export default function ObrasParadas({ obras, slug }: { obras: ObraParadaPublica
           nota="Aviso da prefeitura, como manda o art. 115, § 6º, da Lei 14.133/2021."
           obras={avisos}
           slug={slug}
+          comparar={comparar}
         />
       )}
       {federais.length > 0 && (
@@ -56,13 +57,14 @@ export default function ObrasParadas({ obras, slug }: { obras: ObraParadaPublica
           nota="Registro público do ObrasGov, do governo federal, sobre obras com dinheiro federal no município."
           obras={federais}
           slug={slug}
+          comparar={comparar}
         />
       )}
     </>
   );
 }
 
-function Grupo({ titulo, nota, obras, slug }: { titulo: string; nota: string; obras: ObraParadaPublica[]; slug: string }) {
+function Grupo({ titulo, nota, obras, slug, comparar }: { titulo: string; nota: string; obras: ObraParadaPublica[]; slug: string; comparar: boolean }) {
   return (
     <div className="mt-12">
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
@@ -105,7 +107,7 @@ function Grupo({ titulo, nota, obras, slug }: { titulo: string; nota: string; ob
                   </div>
                 )}
               </dl>
-              <Comparacao o={o} />
+              {comparar && <Comparacao o={o} />}
               <div className="mt-5 flex items-center justify-between gap-3 flex-wrap text-sm">
                 <span className="text-muted">Fonte: {o.fonte}</span>
                 {o.aviso === "completo" && (

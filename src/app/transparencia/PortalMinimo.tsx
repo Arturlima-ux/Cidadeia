@@ -91,9 +91,6 @@ export default function PortalMinimo({
       <footer className="border-t border-border mt-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">Página pública da {portal.nome}</p>
-          <Link href="/" className="text-xs font-semibold text-brand hover:underline">
-            Feito com CidadeIA
-          </Link>
         </div>
       </footer>
     </div>

@@ -1,40 +1,31 @@
 // ── A REGRA DE COBRANÇA ──
 //
-// Decisão comercial de outubro de 2026, do fundador:
+// Duas modalidades, escolhidas no contrato (decisão do fundador depois da
+// revisão de outubro de 2026):
 //
-// 1. O módulo só liga depois do PRIMEIRO pagamento. Pedido, proposta,
-//    contrato e empenho acontecem antes; a ativação é consequência do
-//    dinheiro na conta, confirmada pela equipe.
-// 2. A cobrança é mensal e antecipada: a fatura de um mês vence no próprio
-//    mês, no dia combinado no contrato.
-// 3. Fatura em atraso além da carência trava o painel. Paga, destrava na
-//    hora, sem ninguém precisar apertar nada.
+// 1. PÓS-PAGO, o padrão. É a regra da despesa pública: paga-se depois da
+//    liquidação (Lei 4.320/1964, arts. 62 e 63). Os módulos ligam quando o
+//    contrato é registrado; a fatura de cada mês sai no mês seguinte, depois
+//    do uso, e vence em 30 dias da emissão, tempo para o fiscal atestar e a
+//    tesouraria pagar.
+// 2. ANTECIPADO, opcional. Só quando a prefeitura escolhe e justifica no
+//    processo (Lei 14.133/2021, art. 145, § 1º). O módulo liga depois do
+//    primeiro pagamento, e a fatura de um mês vence no próprio mês.
 //
-// ── O QUE A LEI DIZ SOBRE ISSO ──
-//
-// Pagamento antecipado é vedado como regra na Lei 14.133/2021 (art. 145) e
-// só cabe se for condição indispensável para a prestação do serviço,
-// justificado no processo e previsto no instrumento da contratação direta
-// (art. 145, § 1º). A Lei 4.320/1964 (arts. 62 e 63) manda pagar depois da
-// liquidação. Por isso a cláusula de pagamento antecipado e de suspensão por
-// atraso precisa estar na minuta e no termo de referência do kit; sem ela, o
-// ordenador de despesa não consegue pagar antes de usar. O sistema aplica a
-// regra; o contrato é o que a torna lícita.
+// Nas duas, a suspensão por falta de pagamento só vem depois de atraso
+// superior a 2 meses contados da EMISSÃO da nota fiscal (art. 137, § 2º, IV,
+// e § 3º, II). Antes eram "60 dias do vencimento", que o jurídico apontaria:
+// a lei conta da emissão, e em meses. Paga, destrava na hora.
 //
 // Tudo aqui é função pura sobre datas em texto (AAAA-MM-DD), para ser testado
 // sem relógio e sem fuso: tests/cobranca.test.ts.
 
-/**
- * Dias depois do vencimento em que o painel ainda funciona.
- *
- * Eram 5. A revisão de outubro de 2026 lembrou a Lei 14.133: o contratado só
- * pode suspender a execução por falta de pagamento depois de atraso superior
- * a 2 meses (art. 137, § 2º, IV, e § 3º, II), e pagamento público é lento
- * por natureza (empenho, liquidação, ordem bancária). Travar em 5 dias seria
- * uma cláusula que o jurídico da prefeitura risca, ou que o Tribunal de
- * Contas aponta. Agora são 60 dias, o mínimo da lei.
- */
-export const CARENCIA_DIAS = 60;
+export type Modalidade = "pos_pago" | "antecipado";
+
+/** Meses de atraso, contados da emissão da nota fiscal, que a lei exige antes de suspender. */
+export const MESES_ATE_SUSPENDER = 2;
+/** Prazo de pagamento da fatura pós-paga, contado da emissão. */
+export const PRAZO_POS_PAGO_DIAS = 30;
 /** A partir de quantos dias antes do vencimento o painel avisa. */
 export const AVISO_DIAS = 7;
 /** Prazo da primeira fatura, contado do registro do contrato. */
@@ -50,6 +41,8 @@ export type FaturaResumo = {
   vencimento: string; // AAAA-MM-DD
   status: StatusFatura;
   valor: number;
+  /** Quando a fatura (e a nota fiscal) foi emitida. Sem ela, conta-se do vencimento. */
+  emitidaEm?: string;
 };
 
 export type SituacaoFinanceira =
@@ -74,6 +67,24 @@ function paraTexto(ms: number): string {
 /** Dias de `de` até `ate` (negativo se `ate` vem antes). */
 export function diasEntre(de: string, ate: string): number {
   return Math.round((utc(ate) - utc(de)) / 86_400_000);
+}
+
+/** Soma meses de calendário, prendendo o dia ao fim do mês (31/01 + 1 mês = 28/02). */
+export function somarMeses(data: string, meses: number): string {
+  const [a, m, d] = data.slice(0, 10).split("-").map(Number);
+  const alvo = new Date(Date.UTC(a, m - 1 + meses, 1));
+  const ultimo = new Date(Date.UTC(alvo.getUTCFullYear(), alvo.getUTCMonth() + 1, 0)).getUTCDate();
+  return `${alvo.getUTCFullYear()}-${String(alvo.getUTCMonth() + 1).padStart(2, "0")}-${String(Math.min(d, ultimo)).padStart(2, "0")}`;
+}
+
+/** Primeiro dia em que a falta de pagamento desta fatura permite suspender. */
+export function suspendeEm(f: FaturaResumo): string {
+  return somarDias(somarMeses(f.emitidaEm ?? f.vencimento, MESES_ATE_SUSPENDER), 1);
+}
+
+/** Vencimento da fatura pós-paga emitida em `emissao`. */
+export function vencimentoPosPago(emissao: string): string {
+  return somarDias(emissao, PRAZO_POS_PAGO_DIAS);
 }
 
 export function somarDias(data: string, dias: number): string {
@@ -118,7 +129,7 @@ export function hojeEmBrasilia(agora: Date = new Date()): string {
 
 // ── a regra ──
 
-export function situacaoFinanceira(faturas: FaturaResumo[], hoje: string): SituacaoFinanceira {
+export function situacaoFinanceira(faturas: FaturaResumo[], hoje: string, modalidade: Modalidade = "antecipado"): SituacaoFinanceira {
   const validas = faturas.filter((f) => f.status !== "cancelada");
   if (validas.length === 0) return { tipo: "sem_cobranca" };
 
@@ -126,22 +137,20 @@ export function situacaoFinanceira(faturas: FaturaResumo[], hoje: string): Situa
     .filter((f) => f.status === "aberta")
     .sort((a, b) => a.vencimento.localeCompare(b.vencimento));
 
-  // Antes do primeiro pagamento o módulo nem ligou. Não há o que travar, e
-  // chamar isso de "atraso" assustaria quem ainda está no trâmite do empenho.
-  if (!validas.some((f) => f.status === "paga")) {
+  // No antecipado, antes do primeiro pagamento o módulo nem ligou. Não há o
+  // que travar, e chamar isso de "atraso" assustaria quem ainda está no
+  // trâmite do empenho. No pós-pago o módulo já está ligado, e a primeira
+  // fatura segue a regra de todas.
+  if (modalidade === "antecipado" && !validas.some((f) => f.status === "paga")) {
     return { tipo: "aguardando_primeiro_pagamento", fatura: abertas[0] };
   }
 
   const atrasada = abertas.find((f) => diasEntre(f.vencimento, hoje) > 0);
   if (atrasada) {
     const diasAtraso = diasEntre(atrasada.vencimento, hoje);
-    if (diasAtraso > CARENCIA_DIAS) return { tipo: "travada", fatura: atrasada, diasAtraso };
-    return {
-      tipo: "vencida",
-      fatura: atrasada,
-      diasAtraso,
-      travaEm: somarDias(atrasada.vencimento, CARENCIA_DIAS + 1),
-    };
+    const trava = suspendeEm(atrasada);
+    if (hoje >= trava) return { tipo: "travada", fatura: atrasada, diasAtraso };
+    return { tipo: "vencida", fatura: atrasada, diasAtraso, travaEm: trava };
   }
 
   const proxima = abertas[0] ?? null;
@@ -162,7 +171,23 @@ export function painelTravado(s: SituacaoFinanceira): boolean {
  * Só depois do primeiro pagamento (antes disso o contrato não começou) e
  * nunca recriando uma fatura que a equipe cancelou.
  */
-export function competenciaQueFalta(faturas: FaturaResumo[], hoje: string): string | null {
+export function competenciaQueFalta(
+  faturas: FaturaResumo[],
+  hoje: string,
+  modalidade: Modalidade = "antecipado",
+  ativadoEm?: string | null
+): string | null {
+  if (modalidade === "pos_pago") {
+    // Fatura-se o mês que já passou, e só a partir do mês em que os módulos
+    // ligaram. O mês da ativação é cobrado inteiro só se ligou no dia 1º;
+    // proporcional fica para a equipe ajustar na fatura.
+    const passado = competenciaDe(somarMeses(`${competenciaDe(hoje)}-01`, -1));
+    if (!ativadoEm || passado < competenciaDe(ativadoEm)) return null;
+    if (faturas.some((f) => f.competencia === passado)) return null;
+    const maisRecente = faturas.map((f) => f.competencia).sort().at(-1);
+    if (maisRecente && maisRecente > passado) return null;
+    return passado;
+  }
   if (!faturas.some((f) => f.status === "paga")) return null;
   const atual = competenciaDe(hoje);
   if (faturas.some((f) => f.competencia === atual)) return null;
@@ -190,10 +215,13 @@ const GRAVIDADE: Record<SituacaoFinanceira["tipo"], number> = {
   travada: 5,
 };
 
-export function situacaoDaConta(faturasPorContrato: FaturaResumo[][], hoje: string): SituacaoFinanceira {
+export function situacaoDaConta(
+  faturasPorContrato: (FaturaResumo[] | { faturas: FaturaResumo[]; modalidade: Modalidade })[],
+  hoje: string
+): SituacaoFinanceira {
   let pior: SituacaoFinanceira = { tipo: "sem_cobranca" };
-  for (const faturas of faturasPorContrato) {
-    const s = situacaoFinanceira(faturas, hoje);
+  for (const c of faturasPorContrato) {
+    const s = Array.isArray(c) ? situacaoFinanceira(c, hoje) : situacaoFinanceira(c.faturas, hoje, c.modalidade);
     if (GRAVIDADE[s.tipo] > GRAVIDADE[pior.tipo]) pior = s;
   }
   return pior;

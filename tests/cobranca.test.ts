@@ -10,7 +10,8 @@ import {
   rotuloCompetencia,
   situacaoDaConta,
   rotaLivreNaTrava,
-  CARENCIA_DIAS,
+  suspendeEm,
+  somarMeses,
   type FaturaResumo,
 } from "@/lib/cobranca";
 
@@ -97,21 +98,23 @@ describe("situação financeira", () => {
     expect(painelTravado(s)).toBe(false);
     if (s.tipo === "vencida") {
       expect(s.diasAtraso).toBe(3);
-      expect(s.travaEm).toBe("2027-01-10");
+      expect(s.travaEm).toBe("2027-01-11");
     }
   });
 
-  it("a carência respeita os 2 meses da Lei 14.133 (art. 137, § 2º, IV)", () => {
-    expect(CARENCIA_DIAS).toBeGreaterThanOrEqual(60);
-    // Um mês inteiro de atraso ainda não trava.
-    const faturas = [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10")];
+  it("só suspende com atraso superior a 2 meses da emissão da nota fiscal (art. 137, § 2º, IV)", () => {
+    const emitida = { ...f("2026-11", "2026-11-10"), emitidaEm: "2026-11-01" };
+    const faturas = [f("2026-10", "2026-10-10", "paga"), emitida];
+    expect(suspendeEm(emitida)).toBe("2027-01-02");
+    // Um mês inteiro de atraso ainda não trava, nem o dia em que fecham 2 meses.
     expect(painelTravado(situacaoFinanceira(faturas, "2026-12-15"))).toBe(false);
+    expect(painelTravado(situacaoFinanceira(faturas, "2027-01-01"))).toBe(false);
+    expect(painelTravado(situacaoFinanceira(faturas, "2027-01-02"))).toBe(true);
   });
 
-  it("último dia da carência ainda não trava; o seguinte trava", () => {
-    const faturas = [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10")];
-    expect(painelTravado(situacaoFinanceira(faturas, `2026-11-${10 + CARENCIA_DIAS}`))).toBe(false);
-    expect(painelTravado(situacaoFinanceira(faturas, `2026-11-${10 + CARENCIA_DIAS + 1}`))).toBe(true);
+  it("meses de calendário presos ao fim do mês", () => {
+    expect(somarMeses("2026-12-31", 2)).toBe("2027-02-28");
+    expect(somarMeses("2026-11-01", -1)).toBe("2026-10-01");
   });
 
   it("pagou a fatura atrasada: destrava na hora", () => {
@@ -122,7 +125,7 @@ describe("situação financeira", () => {
   it("a fatura mais antiga em atraso é a que conta", () => {
     const s = situacaoFinanceira(
       [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10"), f("2026-12", "2026-12-10")],
-      "2027-01-10"
+      "2027-01-11"
     );
     expect(s.tipo).toBe("travada");
     if (s.tipo === "travada") expect(s.fatura.competencia).toBe("2026-11");
@@ -196,5 +199,30 @@ describe("o que continua aberto com a conta travada", () => {
     expect(rotaLivreNaTrava("/dashboard/secretarias/saude")).toBe(false);
     // Prefixo parecido não passa: /dashboard/dadosx não é /dashboard/dados.
     expect(rotaLivreNaTrava("/dashboard/dadosx")).toBe(false);
+  });
+});
+
+describe("pós-pago, o padrão", () => {
+  it("fatura o mês que passou, a partir do mês em que os módulos ligaram", () => {
+    expect(competenciaQueFalta([], "2026-11-01", "pos_pago", "2026-10-15T12:00:00Z")).toBe("2026-10");
+    expect(competenciaQueFalta([], "2026-10-20", "pos_pago", "2026-10-15T12:00:00Z")).toBeNull();
+    expect(competenciaQueFalta([f("2026-10", "2026-12-01")], "2026-11-20", "pos_pago", "2026-10-15")).toBeNull();
+    expect(competenciaQueFalta([], "2026-11-01", "pos_pago", null)).toBeNull();
+  });
+
+  it("a primeira fatura em aberto não vira 'aguardando pagamento': o módulo já está ligado", () => {
+    const s = situacaoFinanceira([{ ...f("2026-10", "2026-12-01"), emitidaEm: "2026-11-01" }], "2026-11-28", "pos_pago");
+    expect(s.tipo).toBe("a_vencer");
+  });
+
+  it("e trava pela mesma regra dos 2 meses da emissão", () => {
+    const fat = { ...f("2026-10", "2026-12-01"), emitidaEm: "2026-11-01" };
+    expect(painelTravado(situacaoFinanceira([fat], "2027-01-01", "pos_pago"))).toBe(false);
+    expect(painelTravado(situacaoFinanceira([fat], "2027-01-02", "pos_pago"))).toBe(true);
+  });
+
+  it("na conta, cada contrato com a sua modalidade", () => {
+    const pos = { faturas: [{ ...f("2026-10", "2026-12-01"), emitidaEm: "2026-11-01" }], modalidade: "pos_pago" as const };
+    expect(situacaoDaConta([pos], "2026-11-05").tipo).toBe("em_dia");
   });
 });

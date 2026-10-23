@@ -72,6 +72,14 @@ const PERGUNTAS = [
       "Sim. Os canais e os prazos de atendimento estão na página de Suporte e no acordo de nível de serviço que vai anexo ao contrato.",
   },
   {
+    // O prefeito pergunta isso antes de comprar (revisão de outubro de 2026),
+    // e o site não respondia. Regra decidida pelo fundador: o que a lei manda
+    // publicar não se desliga; as comparações a mais, sim.
+    pergunta: "A prefeitura escolhe o que aparece no portal do cidadão?",
+    resposta:
+      "Em parte. Ficam sempre no ar, porque a lei manda publicar: o aviso de obra paralisada (Lei 14.133, art. 115, § 6º), as emendas recebidas, o canal de manifestação e o resultado das respostas, inclusive a avaliação do cidadão (Lei 13.460, arts. 23 e 24). A prefeitura pode desligar, em Configurações, a lista de obras com a comparação entre o que foi pago e o que foi executado, o quadro de receita e despesa com o percentual das emendas aplicado em investimento, e a lista de compras.",
+  },
+  {
     // A revisão de outubro de 2026 lembrou que há opção gratuita, e o site a
     // ignorava. Melhor dizer quando ela basta do que deixar o comprador achar
     // sozinho.

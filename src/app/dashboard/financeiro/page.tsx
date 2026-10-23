@@ -4,8 +4,8 @@ import { formatarMoeda } from "@/lib/formatadores";
 import { NOME_PLANO_ADDON } from "@/lib/planos";
 import { modulosDoPedido, STATUS_PEDIDO, type StatusPedido } from "@/lib/pedidos";
 import {
-  CARENCIA_DIAS,
   dataCurta,
+  suspendeEm,
   diasEntre,
   hojeEmBrasilia,
   rotuloCompetencia,
@@ -52,8 +52,9 @@ export default async function FinanceiroPage() {
       <div>
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em] leading-[1.05]">{titulo}</h1>
         <p className="text-muted mt-3 max-w-[60ch] leading-relaxed">
-          A mensalidade é paga antes do mês de uso, no dia de vencimento do contrato. Atraso além de {CARENCIA_DIAS} dias suspende
-          o painel até o pagamento; a exportação dos dados e o portal público do município continuam disponíveis.
+          A fatura de cada mês segue a modalidade do contrato: no pós-pago, sai depois do mês usado e vence em 30 dias; no
+          antecipado, vence no próprio mês. Atraso superior a dois meses da emissão da nota fiscal suspende o painel até o
+          pagamento; a exportação dos dados, o atendimento ao cidadão e o portal público do município continuam disponíveis.
         </p>
       </div>
 
@@ -69,7 +70,7 @@ export default async function FinanceiroPage() {
           <ul className="border-t border-border">
             {abertas.map((f) => {
               const atraso = diasEntre(f.vencimento, hoje);
-              const cor = atraso > CARENCIA_DIAS ? "var(--urgente)" : atraso > 0 ? "var(--medio)" : "var(--muted)";
+              const cor = hoje >= suspendeEm({ ...f, emitidaEm: f.createdAt.slice(0, 10) }) ? "var(--urgente)" : atraso > 0 ? "var(--medio)" : "var(--muted)";
               return (
                 <li key={f.id} className="py-5 border-b border-border flex flex-wrap items-baseline justify-between gap-3">
                   <div>

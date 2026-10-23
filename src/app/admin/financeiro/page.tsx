@@ -7,9 +7,9 @@ import { lerSessao } from "@/lib/sessao";
 import { emailDaEquipe } from "@/lib/equipe";
 import { formatarMoeda } from "@/lib/formatadores";
 import {
-  CARENCIA_DIAS,
   competenciaDe,
   dataCurta,
+  suspendeEm,
   diasEntre,
   hojeEmBrasilia,
   rotuloCompetencia,
@@ -63,7 +63,7 @@ export default async function AdminFinanceiroPage() {
           <div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em]">Financeiro</h1>
             <p className="text-sm text-muted mt-2">
-              Mensalidade antecipada. Carência de {CARENCIA_DIAS} dias depois do vencimento; depois disso, a conta trava até o pagamento.
+              Pós-pago por padrão (fatura depois do mês usado, 30 dias para pagar) ou antecipado, conforme o contrato. A conta trava só com atraso superior a dois meses da emissão da nota fiscal (Lei 14.133, art. 137).
             </p>
           </div>
           <NavAdmin atual="/admin/financeiro" comPainelDeTeste />
@@ -100,7 +100,7 @@ export default async function AdminFinanceiroPage() {
           <ul className="border-t border-border">
             {abertas.map(({ f, p }) => {
               const atraso = diasEntre(f.vencimento, hoje);
-              const travou = atraso > CARENCIA_DIAS && p.status === "ativo";
+              const travou = hoje >= suspendeEm({ ...f, status: f.status as "aberta", emitidaEm: f.createdAt.slice(0, 10) }) && p.status === "ativo";
               const primeira = p.status === "contratado";
               const situacao =
                 atraso > 0

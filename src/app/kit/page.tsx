@@ -230,7 +230,7 @@ export default function KitPage() {
                         className="text-xs px-1.5 py-0.5 rounded font-medium"
                         style={{ background: "var(--info-tint)", color: "var(--info)" }}
                       >
-                        {c.origem === "apurado" ? "apurado" : "deduzido da lei"}
+                        {c.origem === "apurado" ? "apurado" : c.origem === "deduzido" ? "deduzido da lei" : "compromisso comercial"}
                       </span>
                     </div>
                     <p className="mt-1">{c.valor}</p>
