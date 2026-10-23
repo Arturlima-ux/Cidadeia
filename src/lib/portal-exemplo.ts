@@ -173,18 +173,18 @@ export function fontesDoExemplo(agora: number): Fontes {
   };
 }
 
-/** Na cidade de exemplo, o selo mostra o que acontece num município cliente. */
+/** Na cidade de exemplo, o selo diz que o dado é ilustrativo e de onde viria numa cidade cliente. */
 export function frescorDoExemplo(agora: number): Partial<Record<Conjunto, Frescor>> {
   const ha = (dias: number) => new Date(agora - dias * DIA).toISOString();
   return {
-    obras: { quando: ha(1), sozinho: true, fonte: "PNCP" },
-    compras: { quando: ha(0), sozinho: true, fonte: "PNCP" },
-    "unidades-de-saude": { quando: ha(2), sozinho: true, fonte: "CNES" },
-    escolas: { quando: ha(40), sozinho: false, fonte: "prefeitura" },
-    servicos: { quando: ha(5), sozinho: false, fonte: "prefeitura" },
-    manifestacoes: { quando: ha(0), sozinho: true, fonte: "próprio portal, a cada manifestação" },
-    dinheiro: { quando: ha(3), sozinho: false, fonte: "prefeitura" },
-    emendas: { quando: ha(2), sozinho: true, fonte: "Transferegov" },
+    obras: { quando: ha(1), sozinho: true, fonte: "PNCP", ilustrativo: true },
+    compras: { quando: ha(0), sozinho: true, fonte: "PNCP", ilustrativo: true },
+    "unidades-de-saude": { quando: ha(2), sozinho: true, fonte: "CNES", ilustrativo: true },
+    escolas: { quando: ha(40), sozinho: false, fonte: "prefeitura", ilustrativo: true },
+    servicos: { quando: ha(5), sozinho: false, fonte: "prefeitura", ilustrativo: true },
+    manifestacoes: { quando: ha(0), sozinho: true, fonte: "próprio portal, a cada manifestação", ilustrativo: true },
+    dinheiro: { quando: ha(3), sozinho: false, fonte: "prefeitura", ilustrativo: true },
+    emendas: { quando: ha(2), sozinho: true, fonte: "Transferegov", ilustrativo: true },
   };
 }
 

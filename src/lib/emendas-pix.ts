@@ -3,11 +3,18 @@ import type { DeteccaoAutomatica } from "@/lib/deteccao-automatica";
 // ── AS EMENDAS PIX DA PREFEITURA ──
 //
 // Transferência especial (art. 166-A da Constituição) é o dinheiro de emenda
-// parlamentar que cai direto na conta do município, sem convênio. Por isso o
-// apelido "emenda Pix" — e por isso o controle aperta: desde 2024 decisões
-// do STF cobram plano de trabalho cadastrado no Transferegov e transparência
-// sobre a aplicação, e os Tribunais de Contas passaram a cobrar a
-// rastreabilidade de cada real.
+// parlamentar que chega ao município sem convênio, por escolha do
+// parlamentar e sem finalidade definida por ele. Por isso o apelido "emenda
+// Pix". Até 2024 o dinheiro caía direto na conta; desde as decisões do STF
+// (2024–2025) ele só sai depois que a prefeitura cadastra e tem aprovado o
+// plano de trabalho no Transferegov, e entra numa conta específica, para cada
+// real ser rastreável. O objeto ("para quê") e o prazo de execução vêm desse
+// plano, que é da prefeitura, não do parlamentar.
+//
+// A Constituição também manda aplicar pelo menos 70% das transferências
+// especiais em despesas de capital (obra e equipamento), não em custeio
+// (art. 166-A, § 5º, da EC 105/2019). O plano traz os dois valores
+// separados, e o percentual vira indicador (percentualDeCapital).
 //
 // O prefeito raramente sabe, de cabeça, quantas emendas recebeu, de quem, em
 // que situação está cada uma e qual prazo vence. Tudo isso é público no
@@ -83,6 +90,9 @@ export type Emenda = {
   objeto: string | null;
   area: string | null;
   valor: number;
+  /** Parte do valor para custeio e para investimento (capital), como no plano de ação. */
+  custeio: number;
+  investimento: number;
   situacao: string | null;
   impedimento: string | null;
   planoTrabalho: {
@@ -152,6 +162,8 @@ export function montarEmendas(
         objeto: texto(p.nome_objeto) ?? texto(p.detalhamento_objeto),
         area: areaDe(p.codigo_descricao_areas_politicas_publicas_plano_acao),
         valor: (p.valor_custeio_plano_acao ?? 0) + (p.valor_investimento_plano_acao ?? 0),
+        custeio: p.valor_custeio_plano_acao ?? 0,
+        investimento: p.valor_investimento_plano_acao ?? 0,
         situacao: texto(p.situacao_plano_acao),
         impedimento: texto(p.motivo_impedimento_plano_acao),
         planoTrabalho: pt
@@ -183,6 +195,39 @@ export function montarEmendas(
 }
 
 export const temRelatorioFinal = (e: Emenda) => e.relatorios.some((r) => /final/i.test(r.tipo ?? ""));
+
+/**
+ * Em que pé está a emenda, para o morador e para o painel. Sem plano de
+ * trabalho aprovado o dinheiro nem sai, então não há o que prestar ainda: a
+ * situação certa é "aguardando plano de trabalho", não "prestação pendente".
+ */
+export function situacaoDaEmenda(e: Emenda): { rotulo: string; tom: "info" | "medio" | "muted" } {
+  if (!e.planoTrabalho?.aprovadoEm) return { rotulo: "Aguardando plano de trabalho", tom: "medio" };
+  if (temRelatorioFinal(e)) return { rotulo: "Contas prestadas", tom: "info" };
+  if (e.relatorios.length) return { rotulo: "Prestação de contas parcial", tom: "muted" };
+  return { rotulo: "Prestação de contas pendente", tom: "muted" };
+}
+
+/** Mínimo em despesa de capital (art. 166-A, § 5º, da Constituição, pela EC 105/2019). */
+export const PISO_CAPITAL = 0.7;
+
+/**
+ * Quanto das transferências especiais de cada ano foi para capital
+ * (investimento). Só entram os anos em que o plano informa a divisão.
+ */
+export function percentualDeCapital(emendas: Emenda[]): { ano: number; total: number; investimento: number; percentual: number; abaixoDoPiso: boolean }[] {
+  const anos = new Map<number, { total: number; investimento: number }>();
+  for (const e of emendas) {
+    if (!e.ano || e.custeio + e.investimento <= 0) continue;
+    const a = anos.get(e.ano) ?? { total: 0, investimento: 0 };
+    a.total += e.custeio + e.investimento;
+    a.investimento += e.investimento;
+    anos.set(e.ano, a);
+  }
+  return [...anos.entries()]
+    .map(([ano, v]) => ({ ano, ...v, percentual: v.investimento / v.total, abaixoDoPiso: v.investimento / v.total < PISO_CAPITAL }))
+    .sort((a, b) => b.ano - a.ano);
+}
 
 const DIA = 86_400_000;
 const diasAte = (iso: string, hoje: Date) => Math.round((Date.parse(`${iso}T12:00:00Z`) - hoje.getTime()) / DIA);

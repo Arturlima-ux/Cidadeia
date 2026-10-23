@@ -126,7 +126,7 @@ export const CONJUNTOS: DefinicaoConjunto[] = [
   {
     chave: "emendas",
     titulo: "Emendas Pix recebidas",
-    descricao: "Transferências especiais de emenda parlamentar que caíram direto na conta do município, com o objeto, o prazo e o relatório de gestão.",
+    descricao: "Transferências especiais de emenda parlamentar, recebidas sem convênio mediante plano de trabalho aprovado no Transferegov, com o objeto e o prazo do plano e o relatório de gestão.",
     colunas: [
       { chave: "ano", titulo: "Ano" },
       { chave: "parlamentar", titulo: "Parlamentar" },
@@ -180,7 +180,9 @@ export function paraJson(def: DefinicaoConjunto, linhas: Linha[], meta: { munici
       descricao: def.descricao,
       atualizado_em: meta.frescor ? dataDoBanco(meta.frescor.quando).toISOString() : null,
       origem: meta.frescor
-        ? meta.frescor.sozinho
+        ? meta.frescor.ilustrativo
+          ? "dados ilustrativos de uma cidade fictícia; não vêm de fonte oficial"
+          : meta.frescor.sozinho
           ? meta.frescor.fonte.startsWith("próprio")
             ? `registrado pelo ${meta.frescor.fonte}`
             : `importado automaticamente do ${meta.frescor.fonte}`
@@ -204,6 +206,12 @@ export type Frescor = {
   /** true: entrou sozinho de uma fonte oficial; false: lançado pela prefeitura. */
   sozinho: boolean;
   fonte: string;
+  /**
+   * Dado de exemplo (cidade fictícia). O selo NUNCA diz que dado ilustrativo
+   * veio de fonte oficial: num produto de transparência, isso seria afirmar
+   * uma informação falsa.
+   */
+  ilustrativo?: boolean;
 };
 
 /** "hoje", "ontem", "há 5 dias", "em 12/09/2026". */
@@ -220,6 +228,10 @@ export function haQuanto(quando: string, hoje: Date = new Date()): string {
 
 export function descreverFrescor(f: Frescor, hoje: Date = new Date()): string {
   const quando = haQuanto(f.quando, hoje);
+  if (f.ilustrativo)
+    return f.sozinho && !f.fonte.startsWith("próprio")
+      ? `Dados ilustrativos. Numa prefeitura cliente, este bloco se atualiza sozinho pelo ${f.fonte}`
+      : "Dados ilustrativos de uma cidade fictícia";
   if (f.sozinho && f.fonte.startsWith("próprio")) return "Ao vivo: cada manifestação entra na hora";
   return f.sozinho ? `Atualizado sozinho ${quando}, direto do ${f.fonte}` : `Atualizado pela prefeitura ${quando}`;
 }
