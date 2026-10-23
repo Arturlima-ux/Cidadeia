@@ -145,13 +145,22 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
       <JsonLdScript dados={ldSite()} />
-      <SiteHeader sessaoAtiva={sessaoAtiva} />
+      <Suspense>
+        <SiteHeader sessaoAtiva={sessaoAtiva} />
+      </Suspense>
       {!pedido && <ContarVisita />}
 
       <main id="conteudo">
         <BarraConversao />
 
         {/* ═══ HERÓI ═══ */}
+        {/* ── HIDRATAÇÃO EM FATIAS ──
+            Cada trecho da página vem dentro de um limite de Suspense. Pronto
+            no servidor, ele é ligado pelo React depois do resto e em fatias
+            de poucos milissegundos, cedendo a vez ao navegador entre elas, em
+            vez de um bloco único que travava o toque no celular. Se a pessoa
+            tocar no campo antes, o React liga esse trecho primeiro. */}
+        <Suspense>
         <section className="relative">
           {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
               do título no celular, e some nas bordas para não brigar com o
@@ -308,12 +317,14 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             )}
           </div>
         </section>
+        </Suspense>
 
         {/* ═══ DE ONDE VEM O DADO ═══ */}
         {/* As nove bases numa linha só, de margem a margem, como os créditos
             de um documento: antes elas dividiam a largura com o rótulo e a
             nona ("Transferegov") caía sozinha numa segunda linha. Sem fio
             em cima: o espaço separa do topo. */}
+        <Suspense>
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20" aria-labelledby="titulo-fontes">
           <h2 id="titulo-fontes" className="text-sm text-muted">Lê direto das bases oficiais</h2>
           <ul className="mt-4 flex flex-wrap lg:flex-nowrap lg:justify-between gap-x-7 gap-y-2.5">
@@ -327,11 +338,12 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             ))}
           </ul>
         </section>
+        </Suspense>
 
         {/* ═══ MÓDULOS ═══
             Cada módulo como o instrumento da parte da prefeitura que ele
             cuida, e não seis cartões iguais. Ver MesaDeModulos.tsx. */}
-        <section id="solucoes" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+        <section id="solucoes" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
             <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
             <p className="text-muted leading-relaxed max-w-[42ch]">
@@ -350,7 +362,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
         {/* ═══ COMO FUNCIONA ═══
             Rolagem narrada no desktop, três blocos no celular. Ver
             ComoFunciona.tsx. */}
-        <HidratarAoChegar id="como-funciona">
+        <HidratarAoChegar id="como-funciona" className="tela-adiada">
           <ComoFunciona />
         </HidratarAoChegar>
 
@@ -358,7 +370,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             O que o cidadão recebe com o módulo Essencial, mostrado vivo: a
             janela com a cidade de exemplo (VitrinePortal.tsx), e embaixo as
             quatro coisas que o morador encontra. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-16">
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
             <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
             <div>
@@ -411,7 +423,8 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             de todas as prefeituras lido toda semana (lib/panorama.ts). Só
             agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
             porta de cada uma das três pessoas que assinam o RGF. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
+        <HidratarAoChegar id="panorama">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 sm:pt-20">
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
             {/* Desceu do topo: as contas públicas são uma parte do produto, e
                 não o produto inteiro. Aqui, a prova de que a parte fiscal é
@@ -467,6 +480,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           </div>
 
         </section>
+        </HidratarAoChegar>
 
 
         {/* ═══ PROPOSTA ═══ */}
@@ -474,7 +488,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             Voltou em formato menor: em prefeitura quem acha o site quase
             nunca é quem decide, e o vídeo é o que se manda adiante
             (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
           <div className="surge grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-8 lg:gap-14 items-center">
             <div>
               <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
@@ -497,7 +511,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             uma seção igual às outras (revisão de outubro de 2026). O fundo é
             o roxo profundo da marca, sem contorno: a única mudança de campo
             de cor da página, e ela marca a decisão. */}
-        <section id="proposta" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+        <section id="proposta" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-10 scroll-mt-24">
           {/* Uma grade só: no computador, título e dispensa lado a lado e o
               montador embaixo; no celular, o montador sobe logo depois do
               título e as notas da dispensa vão para o fim, para a ação não
@@ -549,14 +563,18 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               páginas por cargo, no panorama, no Raio-X e na /proposta. */}
         </section>
 
-        <div className="pb-24 sm:pb-32" />
+        <div className="pb-14 sm:pb-22" />
 
         {/* ═══ A PORTA DO CIDADÃO ═══
             Quem compra precisa saber que o outro lado existe; o morador tem a
             página dele em /transparencia e não precisa atravessar esta. */}
       </main>
 
-      <SiteFooter />
+      {/* O rodapé tem uns oitenta links e nenhum botão: liga quando a pessoa
+          chega perto, e até lá cada link funciona como link comum. */}
+      <HidratarAoChegar id="rodape" className="tela-adiada">
+        <SiteFooter />
+      </HidratarAoChegar>
     </div>
   );
 }
