@@ -42,7 +42,9 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   if (!uf) return { title: "Estado não encontrado" };
   const r = retratoDaUf(uf);
   const meta = compartilhamento({
-    titulo: `Prefeituras ${doEstado(uf)}: despesa com pessoal e LRF`,
+    // Estado de nome longo ("do Rio Grande do Norte") passava de 65
+    // caracteres com a marca: aí sai o "e LRF".
+    titulo: `Prefeituras ${doEstado(uf)}: despesa com pessoal${doEstado(uf).length > 14 ? "" : " e LRF"}`,
     descricao: `Os ${r.total} municípios ${doEstado(uf)}, do maior para o menor, com o Raio-X de cada prefeitura no Tesouro Nacional: despesa com pessoal, RREO e RGF.`,
     caminho: `/raio-x/${uf.toLowerCase()}`,
     imagemPropria: true,

@@ -26,8 +26,7 @@ export const dynamic = "force-dynamic";
 export const metadata = compartilhamento({
   titulo: "Disponibilidade",
   descricao:
-    "Verificação diária automática do banco de dados da CidadeIA, com o histórico aberto. " +
-    "A cláusula de nível de serviço aponta para esta página em vez de prometer um percentual.",
+    "Verificação diária automática do CidadeIA, com o histórico aberto. A cláusula de nível de serviço aponta para cá em vez de prometer um percentual.",
   caminho: "/disponibilidade",
 });
 
