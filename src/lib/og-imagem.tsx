@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { URL_BASE } from "@/lib/seo";
 
 // ── A IMAGEM QUE APARECE NO WHATSAPP ──
 //
@@ -14,12 +15,70 @@ import { ImageResponse } from "next/og";
 export const TAMANHO_OG = { width: 1200, height: 630 };
 export const TIPO_OG = "image/png";
 
-const FUNDO = "#090c13";
-const CARTAO = "#131a26";
-const TEXTO = "#eef2f8";
-const MUDO = "#8794a8";
-const MARCA = "#4c8dff";
-const DESTAQUE = "#2fbf87";
+// As mesmas cores do tema noite (globals.css, .tema-noite). Eram as da
+// identidade antiga, azul e verde: o link no WhatsApp chegava com outra
+// marca. ImageResponse não lê variável CSS, por isso o valor vai escrito.
+const FUNDO = "#08090c";
+const CARTAO = "#14161b";
+const TEXTO = "#f3f4f6";
+const MUDO = "#8b8f98";
+const MARCA = "#7252f6";
+const DESTAQUE = "#a68fff";
+
+/** O endereço do site sem "https://": muda sozinho quando vier o domínio próprio. */
+const DOMINIO = new URL(URL_BASE).host;
+
+/** A marca Quadra compacta (components/site/MarcaQuadra.tsx), em divs. */
+function Quadra({ tamanho }: { tamanho: number }) {
+  const u = tamanho / 120;
+  const bloco = (x: number, y: number, w: number, h: number, cor: string) => (
+    <div
+      style={{
+        position: "absolute",
+        left: x * u,
+        top: y * u,
+        width: w * u,
+        height: h * u,
+        borderRadius: 6 * u,
+        background: cor,
+        display: "flex",
+      }}
+    />
+  );
+  return (
+    <div style={{ position: "relative", width: tamanho, height: tamanho, display: "flex" }}>
+      {bloco(0, 0, 120, 34, MARCA)}
+      {bloco(0, 41, 41, 79, MARCA)}
+      {bloco(48, 86, 72, 34, DESTAQUE)}
+    </div>
+  );
+}
+
+// ── O ÍCONE QUADRADO DA MARCA ──
+// O schema Organization apontava o logo para a imagem de compartilhamento,
+// 1200×630; o Google pede logo quadrado. É também o ícone de aba e o da tela
+// inicial do celular (app/icon.tsx e app/apple-icon.tsx).
+export function iconeDaMarca(tamanho: number) {
+  const margem = Math.round(tamanho * 0.18);
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: FUNDO,
+          borderRadius: Math.round(tamanho * 0.2),
+        }}
+      >
+        <Quadra tamanho={tamanho - margem * 2} />
+      </div>
+    ),
+    { width: tamanho, height: tamanho }
+  );
+}
 
 export function imagemDeCompartilhamento({
   olho,
@@ -61,9 +120,9 @@ export function imagemDeCompartilhamento({
         />
         <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 18, height: 18, background: DESTAQUE, display: "flex" }} />
-            <div style={{ fontSize: 30, color: TEXTO, fontWeight: 700, letterSpacing: -0.5 }}>Cidade</div>
-            <div style={{ fontSize: 30, color: MARCA, fontWeight: 700, letterSpacing: -0.5, marginLeft: -13 }}>IA</div>
+            <Quadra tamanho={40} />
+            <div style={{ fontSize: 32, color: TEXTO, fontWeight: 700, letterSpacing: -1 }}>cidade</div>
+            <div style={{ fontSize: 32, color: DESTAQUE, fontWeight: 700, letterSpacing: -1, marginLeft: -14 }}>ia</div>
           </div>
           <div style={{ fontSize: 24, color: MUDO, letterSpacing: 2, textTransform: "uppercase" }}>{olho}</div>
         </div>
@@ -94,7 +153,7 @@ export function imagemDeCompartilhamento({
           }}
         >
           <div style={{ fontSize: 26, color: MUDO }}>Dado público do Tesouro Nacional e do IBGE</div>
-          <div style={{ fontSize: 26, color: DESTAQUE, fontWeight: 700 }}>cidadeia.vercel.app</div>
+          <div style={{ fontSize: 26, color: DESTAQUE, fontWeight: 700 }}>{DOMINIO}</div>
         </div>
       </div>
     ),

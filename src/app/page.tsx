@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { compartilhamento, DESCRICAO_PADRAO, TITULO_DO_SITE } from "@/lib/seo";
+import { compartilhamento, DESCRICAO_PADRAO, JsonLdScript, ldSite, TITULO_DO_SITE } from "@/lib/seo";
 import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
@@ -132,6 +132,7 @@ export default async function LandingPage({
 
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
+      <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
 
       <main id="conteudo">

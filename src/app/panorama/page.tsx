@@ -14,7 +14,7 @@ import {
   passaramDoAlerta,
   umaEmCada,
 } from "@/lib/panorama";
-import { compartilhamento } from "@/lib/seo";
+import { JsonLdScript, ldPanorama, compartilhamento } from "@/lib/seo";
 import { registrarEvento } from "@/lib/registrar-evento";
 
 // ── O PANORAMA: AUTORIDADE QUE QUALQUER UM CONFERE ──
@@ -44,6 +44,15 @@ export default async function PanoramaPage() {
 
   return (
     <div className="tema-noite min-h-screen overflow-x-clip">
+      <JsonLdScript
+        dados={ldPanorama({
+          titulo: "Despesa com pessoal das prefeituras brasileiras na régua da LRF",
+          descricao: `Quantas das ${numeroBr(b.municipios)} prefeituras estão no alerta, no limite prudencial e acima do limite da despesa com pessoal da LRF, por estado, contadas a partir do último RGF de cada uma no Tesouro Nacional (SICONFI). Atualizado em ${dataDoPanorama()}.`,
+          caminho: "/panorama",
+          atualizadoEm: PANORAMA.geradoEm,
+          abrangencia: "Brasil",
+        })}
+      />
       <SiteHeader />
       <main id="conteudo">
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-24 pb-12">
