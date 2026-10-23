@@ -41,12 +41,14 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   const uf = acharUf((await params).uf);
   if (!uf) return { title: "Estado não encontrado" };
   const r = retratoDaUf(uf);
-  return compartilhamento({
+  const meta = compartilhamento({
     titulo: `Prefeituras ${doEstado(uf)}: despesa com pessoal e LRF`,
     descricao: `Os ${r.total} municípios ${doEstado(uf)}, do maior para o menor, com o Raio-X de cada prefeitura no Tesouro Nacional: despesa com pessoal, RREO e RGF.`,
     caminho: `/raio-x/${uf.toLowerCase()}`,
     imagemPropria: true,
   });
+  // O DF não tem prefeitura: fora do índice e do mapa do site.
+  return uf === "DF" ? { ...meta, robots: { index: false, follow: true } } : meta;
 }
 
 export default async function RaioXUfPage({ params }: { params: Promise<{ uf: string }> }) {
