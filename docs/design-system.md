@@ -221,7 +221,7 @@ variável CSS:
 | Onde | Por quê |
 |---|---|
 | `src/lib/relatorios/*` | PDF. O renderizador não tem CSS do documento |
-| `src/app/api/kit/[documento]/route.ts` | documento gerado |
+| `src/lib/documento-word.ts` | documento .doc gerado para o Word (kit de contratação e rascunhos de renovação), aberto fora do navegador |
 | `src/lib/og-imagem.tsx` | imagem de compartilhamento, renderizada fora do navegador |
 | `src/lib/email-modelo.ts` | HTML de e-mail. Cliente de e-mail não suporta variável CSS. Todos os e-mails saem deste modelo único, então as cores literais de e-mail moram só aqui |
 | `src/app/global-error.tsx` | substitui o layout raiz; a folha de estilo pode não ter carregado |

@@ -20,7 +20,7 @@ const RAIZ = join(process.cwd(), "src");
  */
 const EXCECOES: { caminho: string; motivo: string }[] = [
   { caminho: "lib/relatorios/", motivo: "PDF — o renderizador não tem o CSS do documento" },
-  { caminho: "app/api/kit/", motivo: "documento gerado, fora do navegador" },
+  { caminho: "lib/documento-word.ts", motivo: "documento .doc gerado para o Word, aberto fora do navegador" },
   { caminho: "lib/og-imagem.tsx", motivo: "imagem de compartilhamento, renderizada fora do navegador" },
   // Todo e-mail sai de um modelo só (lib/email-modelo.ts): as cores literais
   // que estavam espalhadas por onze arquivos de e-mail moram ali agora.

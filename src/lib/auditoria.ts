@@ -24,6 +24,7 @@ import type { SessaoPayload } from "@/lib/sessao";
 export type EntidadeAuditada =
   | "obra"
   | "licitacao"
+  | "contrato"
   | "unidade_saude"
   | "escola"
   | "indicador"
@@ -38,11 +39,12 @@ export type EntidadeAuditada =
   | "modulo"
   | "implantacao";
 
-export type AcaoAuditada = "criar" | "alterar" | "excluir" | "responder" | "publicar" | "despublicar" | "importar" | "ativar" | "pedir" | "concluir" | "resolver";
+export type AcaoAuditada = "criar" | "alterar" | "excluir" | "responder" | "publicar" | "despublicar" | "importar" | "ativar" | "pedir" | "concluir" | "resolver" | "aprovar";
 
 export const NOME_ENTIDADE: Record<EntidadeAuditada, string> = {
   obra: "Obra",
   licitacao: "Licitação",
+  contrato: "Contrato",
   unidade_saude: "Unidade de saúde",
   escola: "Escola",
   indicador: "Indicador",
@@ -70,6 +72,9 @@ export const NOME_ACAO: Record<AcaoAuditada, string> = {
   pedir: "pediu",
   concluir: "concluiu",
   resolver: "resolveu",
+  // Aprovar um rascunho que o sistema montou (lib/renovacao-contrato.ts). É
+  // a linha que responde "quem conferiu isto antes de ir para o processo".
+  aprovar: "aprovou",
 };
 
 export type RegistroAuditoria = {

@@ -166,10 +166,11 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
       "Valor global comparado ao inicial, contra o limite de alteração contratual",
       "Concentração de fornecedor apurada pelo CNPJ do contrato, não por semelhança de nome",
       "Rascunho do plano de contratações do ano seguinte, montado do histórico e exportável",
+      "Renovação do contrato que vence montada: ofício à contratada, checklist e minuta do aditivo para prorrogar, ou formalização de demanda e estudo técnico preliminar para contratar de novo, com a aprovação registrada",
       "Relatório da secretaria em PDF",
     ],
     automacao:
-      "Varre o PNCP por CNPJ e traz os processos e contratos do município; aponta o que foi registrado aqui e não consta lá, e distingue \"não consta\" de \"não deu para conferir\". Agrupa dispensas de objeto semelhante e avisa quando a soma do exercício passa do limite. Mede o contrato que vence contra o prazo mínimo de edital do art. 55 da Lei 14.133/2021 e diz quando a nova licitação já não cabe no tempo que resta. Compara valor global e inicial contra o limite do art. 125, sem concluir se a diferença é reajuste ou acréscimo — essa resposta está no termo aditivo. Avisa 7 e 3 dias antes do prazo final.",
+      "Varre o PNCP por CNPJ e traz os processos e contratos do município; aponta o que foi registrado aqui e não consta lá, e distingue \"não consta\" de \"não deu para conferir\". Agrupa dispensas de objeto semelhante e avisa quando a soma do exercício passa do limite. Mede o contrato que vence contra o prazo mínimo de edital do art. 55 da Lei 14.133/2021 e diz quando a nova licitação já não cabe no tempo que resta. Compara valor global e inicial contra o limite do art. 125, sem concluir se a diferença é reajuste ou acréscimo — essa resposta está no termo aditivo. Avisa 7 e 3 dias antes do prazo final. Para cada contrato que vence, monta os documentos dos dois caminhos — prorrogação pelo art. 107, com o teto de dez anos conferido, ou nova contratação com a data-limite do edital e o histórico do mesmo objeto no município — e deixa entre colchetes o que só a prefeitura sabe; nada sai sem uma pessoa aprovar.",
     ia: "Aponta o ponto mais importante agora e sugere uma ação concreta — ou diz que não há dado suficiente, em vez de forçar um insight genérico.",
     noPortal: true,
   },
