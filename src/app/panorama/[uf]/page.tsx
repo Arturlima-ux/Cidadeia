@@ -41,8 +41,8 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   if (!uf) return { title: "Estado não encontrado" };
   const c = PANORAMA.porUf[uf];
   return compartilhamento({
-    titulo: `Despesa com pessoal das prefeituras ${doEstado(uf)}`,
-    descricao: `${numeroBr(passaramDoAlerta(c))} das ${numeroBr(c.comNumero)} prefeituras ${doEstado(uf)} com RGF publicado já passaram do sinal de alerta da LRF. Conferência semanal no Tesouro Nacional, ${dataDoPanorama()}.`,
+    titulo: `Despesa com pessoal: prefeituras ${doEstado(uf)}`,
+    descricao: `${numeroBr(passaramDoAlerta(c))} das ${numeroBr(c.comNumero)} prefeituras ${doEstado(uf)} com RGF publicado já passaram do alerta da LRF. Conferência semanal no Tesouro Nacional.`,
     caminho: `/panorama/${uf.toLowerCase()}`,
   });
 }

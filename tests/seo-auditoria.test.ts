@@ -249,3 +249,16 @@ describe("conteúdo: fontes, guias, prazos e notícias", async () => {
     for (const a of ancoras) expect(a).toMatch(/^[a-z0-9-]{8,60}$/);
   });
 });
+
+describe("títulos dos estados", async () => {
+  const { ESTADOS, doEstado } = await import("@/lib/estados");
+  it("nenhum passa de 66 caracteres com a marca", () => {
+    for (const uf of ESTADOS) {
+      const d = doEstado(uf);
+      expect(`Prefeituras ${d}: despesa com pessoal${d.length > 14 ? "" : " e LRF"} — CidadeIA`.length).toBeLessThanOrEqual(66);
+      expect(`Despesa com pessoal: prefeituras ${d} — CidadeIA`.length).toBeLessThanOrEqual(66);
+    }
+    expect(ler("src/app/raio-x/[uf]/page.tsx")).toContain('doEstado(uf).length > 14 ? "" : " e LRF"');
+    expect(ler("src/app/panorama/[uf]/page.tsx")).toContain("Despesa com pessoal: prefeituras ${doEstado(uf)}");
+  });
+});
