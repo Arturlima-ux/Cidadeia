@@ -2,7 +2,10 @@ export type TomStatus = "neutro" | "andamento" | "positivo" | "atencao" | "negat
 
 const TONS: Record<TomStatus, { cor: string; fundo: string }> = {
   neutro: { cor: "var(--muted)", fundo: "var(--sutil)" },
-  andamento: { cor: "var(--brand)", fundo: "var(--brand-tint)" },
+  // No tema noite o roxo cheio sobre o próprio tom dava 3,1:1 (Lighthouse,
+  // /solucoes); o claro passa de 4,5. No tema claro --brand-claro não existe
+  // e vale o roxo, que lá já contrasta.
+  andamento: { cor: "var(--brand-claro, var(--brand))", fundo: "var(--brand-tint)" },
   positivo: { cor: "var(--info)", fundo: "var(--info-tint)" },
   atencao: { cor: "var(--medio)", fundo: "var(--medio-tint)" },
   negativo: { cor: "var(--urgente)", fundo: "var(--urgente-tint)" },

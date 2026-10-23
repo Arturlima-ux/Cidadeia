@@ -279,8 +279,11 @@ export default function MapaVivo({
     let ultimoQuadro = 0;
     function laco(agora: number) {
       if (progresso < 1) progresso = suave(Math.min(1, Math.max(0, (agora - inicio - ATRASO) / DURACAO)));
-      // Depois da onda, 15 quadros por segundo bastam para o respirar e os alertas.
-      const intervalo = progresso < 1 ? 0 : 66;
+      // A onda a 30 quadros por segundo (era a 60): no celular simulado do
+      // Lighthouse, ela disputava a linha principal com a hidratação e
+      // atrasava a maior pintura da página. Depois da onda, 15 bastam para o
+      // respirar e os alertas.
+      const intervalo = progresso < 1 ? 33 : 66;
       if (visivel && agora - ultimoQuadro >= intervalo) {
         ultimoQuadro = agora;
         desenhar(agora);
@@ -298,11 +301,17 @@ export default function MapaVivo({
         quadro = requestAnimationFrame(laco);
       }
     };
-    // Só quando a página já carregou e o navegador está livre.
+    // Só depois do evento load e com o navegador livre. Começava 0,4 s depois
+    // de montar, no meio da hidratação, e a auditoria de SEO (out/2026) mediu
+    // a maior pintura da home em 3,5 s no celular. O mapa é fundo: pode
+    // esperar o texto.
     const ocioso = (window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-    // Prazo curto: a onda acompanha o título, que começa a subir logo de cara.
-    if (ocioso) espera = ocioso(comecar, { timeout: 400 });
-    else espera = window.setTimeout(comecar, 150);
+    const agendar = () => {
+      if (ocioso) espera = ocioso(comecar, { timeout: 1200 });
+      else espera = window.setTimeout(comecar, 300);
+    };
+    if (document.readyState === "complete") agendar();
+    else window.addEventListener("load", agendar, { once: true });
 
     let voce: { x: number; y: number; raio: number } | null = null;
     const aoLocalizar = (e: Event) => {
@@ -344,6 +353,7 @@ export default function MapaVivo({
     document.addEventListener("visibilitychange", aoTrocarAba);
 
     return () => {
+      window.removeEventListener("load", agendar);
       cancelAnimationFrame(quadro);
       if (espera !== null) {
         const cancelar = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;

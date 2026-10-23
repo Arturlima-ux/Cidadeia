@@ -1223,8 +1223,12 @@ h1.font-serif,
   animation: inicio-aparece 0.9s var(--saida) both;
   animation-delay: var(--d, 0ms);
 }
+/* Parte de 0,6, não de zero: texto com opacidade zero não conta como pintado,
+   e o parágrafo do topo é a maior pintura em várias telas. Do zero, a
+   auditoria de SEO (out/2026) mediu 3,5 s até ele contar. Nada surge do nada
+   (regra de animação do projeto) e o texto já está lá na primeira pintura. */
 @keyframes inicio-aparece {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0.6; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
 }
 
