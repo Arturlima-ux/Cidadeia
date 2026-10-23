@@ -8,7 +8,7 @@ import { enviarEmail } from "@/lib/email";
 import { h, montarEmail, saudacao, type Bloco, type Html } from "@/lib/email-modelo";
 import { gerarId } from "@/lib/id";
 import { protocolo } from "@/lib/cobranca-servidor";
-import { destinoDaEquipe } from "@/lib/contato-comercial";
+import { CONTATO_PUBLICO, destinoDaEquipe } from "@/lib/contato-comercial";
 import {
   TIPOS_EVENTO_LEAD,
   acompanhamentoDevido,
@@ -160,7 +160,7 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
         const devido = acompanhamentoDevido(enviadaEm, meus.map((e) => e.tipo), agora);
         if (!devido) continue;
         const msg = emailAcompanhamento(devido.chave, p);
-        const envio = await enviarEmail({ para: p.email, assunto: msg.assunto, html: msg.html, responderPara: equipe });
+        const envio = await enviarEmail({ para: p.email, assunto: msg.assunto, html: msg.html, responderPara: CONTATO_PUBLICO });
         await db.insert(pedidoEventos).values({
           id: gerarId("pev"),
           pedidoId: p.id,
@@ -218,7 +218,7 @@ export async function rodarRotinaComercial(agora = Date.now()): Promise<Relatori
         // Quem assinou o aviso da cidade já recebe e-mail quando há novidade.
         if (l.origem === "aviso") continue;
         const msg = emailRetomadaDoLead(l);
-        const envio = await enviarEmail({ para: l.email, assunto: msg.assunto, html: msg.html, responderPara: equipe });
+        const envio = await enviarEmail({ para: l.email, assunto: msg.assunto, html: msg.html, responderPara: CONTATO_PUBLICO });
         await db.insert(pedidoEventos).values({
           id: gerarId("pev"),
           pedidoId: l.id,

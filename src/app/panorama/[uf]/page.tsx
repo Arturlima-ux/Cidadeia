@@ -135,7 +135,7 @@ export default async function PanoramaDoEstadoPage({ params }: { params: Promise
             <div>
               <h2 className="inicio-h2 max-w-[16ch]">Saber antes do Tribunal.</h2>
               <p className="text-muted mt-5 leading-relaxed max-w-[44ch]">
-                Com o módulo Gestão, o CidadeIA confere o Tesouro todo dia e avisa o prefeito antes do prazo, antes do
+                Com o módulo Gestão, o CidadeIA acompanha cada prazo no Tesouro e confere cada RGF que sai, e avisa o prefeito antes do prazo, antes do
                 limite e antes do apontamento.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">

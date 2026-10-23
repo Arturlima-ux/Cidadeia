@@ -1,6 +1,7 @@
 "use client";
 
 import { m } from "motion/react";
+import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 
 // ── DO DADO À DECISÃO, EM TRÊS CARTÕES ──
 //
@@ -27,17 +28,23 @@ const PASSOS = [
     texto: "Cada secretaria recebe o seu dado arrumado, e cada exigência da lei é conferida com o artigo ao lado.",
   },
   {
-    titulo: "Cada um trabalha na sua tela",
-    texto: "Prefeito, secretários e cidadão veem o que é seu, e o que pede decisão chega no painel e por e-mail.",
+    titulo: "Avisa quem decide, publica o que a lei manda",
+    texto: "O que pede decisão chega ao prefeito no painel e por e-mail. O que a lei manda publicar, o sistema publica sozinho.",
   },
 ];
 
-const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP"];
+// Cinco cabem nos fios do desenho; as outras aparecem como "e mais 4".
+const FONTES = FONTES_OFICIAIS.slice(0, 5);
+const OUTRAS_FONTES = FONTES_OFICIAIS.length - FONTES.length;
 
-const CONFERENCIA: { item: string; lei: string; estado: "ok" | "atencao" | "falha" }[] = [
+// 52,4% passou do limite prudencial (51,3%, LRF art. 22), mas não do limite
+// da lei (54%, art. 20, III, b): é "acima do prudencial", e não "fora da
+// lei". A revisão de outubro de 2026 apontou o rótulo errado, que um
+// contador percebe em segundos. Por isso cada item pode ter o próprio rótulo.
+const CONFERENCIA: { item: string; lei: string; estado: "ok" | "atencao" | "falha"; rotulo?: string }[] = [
   { item: "RREO do 4º bimestre entregue", lei: "LRF, art. 52", estado: "ok" },
   { item: "Saúde: 15,9% da receita aplicada", lei: "LC 141, art. 7º", estado: "ok" },
-  { item: "Despesa com pessoal em 52,4%", lei: "LRF, art. 22", estado: "falha" },
+  { item: "Despesa com pessoal em 52,4%", lei: "LRF, art. 22 · prudencial 51,3%, limite 54%", estado: "falha", rotulo: "Acima do prudencial" },
   { item: "Ouvidoria com resposta fora do prazo", lei: "Lei 13.460, art. 16", estado: "atencao" },
   { item: "Portal da transparência atualizado", lei: "LAI, art. 8º", estado: "ok" },
 ];
@@ -47,7 +54,7 @@ const COR_ESTADO = {
   atencao: "var(--medio)",
   falha: "var(--urgente)",
 };
-const ROTULO_ESTADO = { ok: "Em dia", atencao: "Atenção", falha: "Fora da lei" };
+const ROTULO_ESTADO = { ok: "Em dia", atencao: "Atenção", falha: "Urgente" };
 
 export default function ComoFunciona() {
   return (
@@ -98,6 +105,7 @@ function VisualFontes() {
             {f}
           </m.li>
         ))}
+        {OUTRAS_FONTES > 0 && <li className="px-3 text-xs text-muted">e mais {OUTRAS_FONTES}</li>}
       </ul>
 
       {/* Os fios: traço que corre da fonte ao núcleo. */}
@@ -161,7 +169,7 @@ function VisualConferencia() {
               className="text-[11px] font-medium rounded-full border px-2 py-0.5 shrink-0"
               style={{ color: COR_ESTADO[c.estado], borderColor: "currentColor" }}
             >
-              {ROTULO_ESTADO[c.estado]}
+              {c.rotulo ?? ROTULO_ESTADO[c.estado]}
             </span>
           </m.li>
         ))}
@@ -217,11 +225,39 @@ function VisualAviso() {
         </span>
       </m.div>
 
+      {/* Um trabalho que o sistema faz sozinho, e não só avisa (revisão de
+          outubro de 2026): o aviso de obra paralisada que a Lei 14.133 manda
+          publicar sai pronto no portal, com a placa para imprimir
+          (lib/obra-parada-publica.ts). */}
+      <m.div
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.75, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="rounded-2xl border border-border p-4 flex items-center gap-3"
+      >
+        <span
+          className="w-10 h-10 rounded-full grid place-items-center shrink-0"
+          style={{ background: "var(--accent-tint)", color: "var(--accent-claro)" }}
+          aria-hidden
+        >
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 10.5l4 4 8-9" />
+          </svg>
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-medium">Publicado sozinho no portal</span>
+          <span className="block text-xs text-muted mt-0.5">
+            Aviso de obra paralisada, com a placa pronta (Lei 14.133, art. 115, § 6º)
+          </span>
+        </span>
+      </m.div>
+
       <m.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        transition={{ delay: 0.9, duration: 0.6 }}
+        transition={{ delay: 1.05, duration: 0.6 }}
         className="text-xs text-muted"
       >
         Município de exemplo. O RGF oficial só sai no fim do quadrimestre.

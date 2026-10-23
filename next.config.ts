@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
     { source: "/precos", destination: "/solucoes", permanent: true },
     // "Por que CidadeIA" virou "Quem somos", com a história da empresa.
     { source: "/por-que-cidadeia", destination: "/quem-somos", permanent: true },
+    // "Segurança e LGPD" morava em /sobre: o nome do link e o endereço não
+    // batiam (revisão de outubro de 2026).
+    { source: "/sobre", destination: "/seguranca", permanent: true },
   ],
   // Headers de segurança
   headers: async () => {

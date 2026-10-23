@@ -103,7 +103,7 @@ export default async function AtendimentoPage() {
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.02em]">Atendimento ao cidadão</h1>
         <p className="text-muted text-sm mt-2 max-w-2xl leading-relaxed">
           {gestor
-            ? "Protocolo, Ouvidoria e Portal da Transparência. O cidadão abre a manifestação pelo portal público do município; quem resolve recebe um e-mail na hora, e o cidadão recebe a confirmação e, depois, a resposta no e-mail dele."
+            ? "Protocolo, Ouvidoria e Portal do Cidadão. O cidadão abre a manifestação pelo portal público do município; quem resolve recebe um e-mail na hora, e o cidadão recebe a confirmação e, depois, a resposta no e-mail dele."
             : "As manifestações do portal que o cidadão endereçou à sua secretaria. Você recebe um e-mail quando chega uma nova; a resposta que você escrever aqui vai por e-mail ao cidadão. Denúncias ficam com o gabinete."}
         </p>
       </div>

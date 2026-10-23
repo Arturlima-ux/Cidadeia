@@ -96,7 +96,7 @@ export default function PlacaObraParada({
             <div className="flex flex-col items-center text-center gap-3">
               <Qr texto={endereco} className="w-[200px] h-[200px] print:w-[280px] print:h-[280px]" />
               <p className="text-sm print:text-xl leading-snug">
-                Aponte a câmera do celular para acompanhar esta obra no Portal da Transparência.
+                Aponte a câmera do celular para acompanhar esta obra no Portal do Cidadão.
               </p>
             </div>
           </div>

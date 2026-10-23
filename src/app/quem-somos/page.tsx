@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FONTES_OFICIAIS, MUNICIPIOS_COM_PREFEITURA } from "@/lib/fontes-oficiais";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
@@ -32,14 +33,14 @@ export const metadata = compartilhamento({
 // sozinho. As cenas descrevem o que o sistema já faz hoje. O fundador não
 // aparece por nome: decisão dele.
 
-const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP", "FNDE", "Fiocruz", "ObrasGov", "Transferegov"];
+const FONTES = FONTES_OFICIAIS;
 
 const VALORES = [
   { titulo: "Gente primeiro", texto: "Automatizamos o repetitivo para devolver tempo a quem trabalha na prefeitura, não para substituí-lo." },
   { titulo: "Só dado oficial", texto: "Quando a fonte não responde, a tela diz isso. O vazio nunca é preenchido com estimativa." },
   { titulo: "Regra com o artigo ao lado", texto: "Todo aviso fiscal sai de regra fixa, com a base legal escrita. Quem decide é a prefeitura." },
   { titulo: "A IA sugere, a pessoa decide", texto: "Nenhuma sugestão da inteligência artificial vira alerta oficial sem alguém aprovar." },
-  { titulo: "Sem vender o que não existe", texto: "Cada módulo do site funciona hoje, e qualquer um confere antes de contratar, sem cadastro." },
+  { titulo: "Sem vender o que não existe", texto: "Cada módulo do site funciona hoje, e qualquer um confere antes de contratar, sem cadastro. O que depende de dado interno, como estoque e medição de obra, a tela diz que é a equipe que lança." },
 ];
 
 const SEGURO = [
@@ -56,12 +57,12 @@ const DUVIDAS = [
   {
     pergunta: "Já temos contador e sistema de contabilidade.",
     resposta:
-      "O CidadeIA não substitui nenhum dos dois. Ele confere o que o sistema contábil já enviou ao Tesouro: prazo, limite e coerência dos números, todo dia, sem depender de alguém lembrar.",
+      "O CidadeIA não substitui nenhum dos dois. Ele confere o que o sistema contábil já enviou ao Tesouro: o prazo de cada entrega, acompanhado todo dia, e o limite e a coerência dos números, a cada relatório publicado, sem depender de alguém lembrar.",
   },
   {
     pergunta: "Uma empresa nova é segura para a prefeitura?",
     resposta:
-      "Tudo o que o site promete se confere antes de contratar: o Raio-X da sua cidade, a demonstração completa e o panorama do país, sem cadastro. E o contrato é mensal, sem fidelidade.",
+      "O risco de uma empresa nova é a prefeitura ficar presa a ela, e o contrato tira esse risco: é mensal, sem fidelidade, encerra com aviso de 30 dias, e os dados do município saem inteiros a qualquer momento, em CSV e JSON, até com a mensalidade atrasada. E tudo o que o site promete se confere antes, sem cadastro: o Raio-X da sua cidade, a demonstração completa e o panorama do país.",
   },
   {
     pergunta: "O alerta vai direto para o Tribunal de Contas?",
@@ -70,7 +71,7 @@ const DUVIDAS = [
   },
   {
     pergunta: "Não temos equipe de TI.",
-    resposta: "Não precisa. Os dados entram sozinhos das bases oficiais, e cada secretário tem o próprio acesso, só à sua área.",
+    resposta: "Não precisa. O que é público entra sozinho das bases oficiais; o que só a prefeitura sabe, como estoque da UBS e medição de obra, a equipe lança na própria tela, sem instalar nada. Cada secretário tem o próprio acesso, só à sua área.",
   },
 ];
 
@@ -80,9 +81,10 @@ export default async function QuemSomosPage() {
   const b = PANORAMA.brasil;
   const mes = mesDoPanorama();
   const passaram = passaramDoAlerta(b);
-  const municipios = todosOsMunicipios();
+  // Sem Brasília: o DF não tem prefeitura, e com ele a página dizia "5.571
+  // cidades" num parágrafo e "5.570 prefeituras" no seguinte.
+  const municipios = todosOsMunicipios().filter((m) => m.uf !== "DF");
   const pequenas = municipios.filter((m) => m.populacao !== null && m.populacao <= 20_000).length;
-  const pctPequenas = Math.round((pequenas / municipios.length) * 100);
 
   const CAPITULOS = [
     {
@@ -90,13 +92,13 @@ export default async function QuemSomosPage() {
       titulo: "A prefeitura fazia tudo à mão",
       texto: `Desde a Lei de Responsabilidade Fiscal, de 2000, cada prefeitura entrega relatório a cada dois e a cada quatro meses, conta prazo de ouvidoria, acompanha os mínimos de saúde e educação e mede obra. ${numeroBr(
         pequenas
-      )} das ${numeroBr(municipios.length)} cidades do país têm até 20 mil habitantes (IBGE, ${ANO_ESTIMATIVA_POPULACAO}), e nelas a mesma equipe pequena faz isso em planilha, entre um atendimento e outro no balcão.`,
+      )} dos ${numeroBr(MUNICIPIOS_COM_PREFEITURA)} municípios do país têm até 20 mil habitantes (IBGE, ${ANO_ESTIMATIVA_POPULACAO}), e neles a mesma equipe pequena faz isso em planilha, entre um atendimento e outro no balcão.`,
     },
     {
       quando: "2026",
       titulo: "Nascemos para automatizar a prefeitura",
       texto:
-        "O CidadeIA começa com uma decisão clara: reunir a gestão da prefeitura num lugar só e transformar em sistema tudo o que é repetitivo. O protocolo do cidadão, o painel de cada secretaria, as unidades de saúde, as escolas, as obras, as compras e as contas do município, alimentados sozinhos pelas bases oficiais. Não para substituir quem trabalha na prefeitura, e sim para devolver a essa gente o tempo de decidir e de atender.",
+        "O CidadeIA começa com uma decisão clara: reunir a gestão da prefeitura num lugar só e transformar em sistema tudo o que é repetitivo. O protocolo do cidadão, o painel de cada secretaria, as unidades de saúde, as escolas, as obras, as compras e as contas do município, com o que já é público lido sozinho das bases oficiais. Não para substituir quem trabalha na prefeitura, e sim para devolver a essa gente o tempo de decidir e de atender.",
     },
     {
       quando: "Outubro de 2026",
@@ -108,22 +110,19 @@ export default async function QuemSomosPage() {
       )} tinham o RGF vencido sem entrega. Não faltava lei nem dado. Faltava alguém olhar a tempo.`,
       link: { href: "/panorama", rotulo: "Ver o panorama do seu estado" },
     },
+    // Eram três marcos seguidos em "Outubro de 2026", o que só chamava atenção
+    // para a idade da empresa sem dizer nada a mais (revisão de outubro de
+    // 2026). Datas não se inventam: os módulos e o portal viraram um marco
+    // só, o de hoje.
     {
-      quando: "Outubro de 2026",
-      titulo: "Seis módulos trabalhando sozinhos",
+      quando: "Hoje",
+      titulo: "Seis módulos e o portal do morador no ar",
       texto:
-        "Essencial, Gestão, Saúde, Educação, Obras e Licitações passam a ler as bases oficiais toda semana, sem ninguém digitar, e o aviso vai direto para quem resolve: o urgente ao prefeito, o de cada área ao seu secretário.",
+        "Essencial, Gestão, Saúde, Educação, Obras e Licitações leem toda semana o que as bases oficiais já têm, sem ninguém digitar, e o aviso vai direto para quem resolve: o urgente ao prefeito, o de cada área ao seu secretário. Do outro lado, o portal do cidadão responde a pergunta em uma frase, mostra o serviço mais perto de casa e conta o prazo legal de cada protocolo.",
       link: { href: "/solucoes", rotulo: "Conhecer os módulos" },
     },
     {
-      quando: "Outubro de 2026",
-      titulo: "E o morador entra na conversa",
-      texto:
-        "O portal do cidadão ganha a pergunta respondida em uma frase, o serviço mais perto de casa, o protocolo com prazo legal contado e a chance de dizer se a resposta resolveu.",
-      link: { href: "/transparencia", rotulo: "Abrir o portal" },
-    },
-    {
-      quando: "Agora",
+      quando: "Próximo",
       titulo: "O próximo capítulo é o da sua prefeitura",
       texto:
         "Cada prefeitura que entra muda o produto: é assim que os avisos ficam mais certeiros e as telas, mais simples. A próxima pode ser a sua.",
@@ -142,8 +141,8 @@ export default async function QuemSomosPage() {
           <div className="mt-7 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16">
             <div>
               <p className="text-lg text-muted leading-relaxed max-w-[58ch]">
-                Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num lugar só, alimentado sozinho
-                pelas bases oficiais. O que é repetitivo vira sistema, e a equipe volta para o que só gente faz: decidir e
+                Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num lugar só. O que já é público
+                entra sozinho das bases oficiais. O que é repetitivo vira sistema, e a equipe volta para o que só gente faz: decidir e
                 atender o cidadão.
               </p>
               {/* Sem "Receber a proposta" aqui: quem abre "Quem somos" está
@@ -165,8 +164,11 @@ export default async function QuemSomosPage() {
             {/* O retrato do país que justifica a empresa, em três números. */}
             <dl className="lg:border-l border-border lg:pl-10 self-start grid grid-cols-3 lg:grid-cols-1 gap-6">
               <div className="flex flex-col">
-                <dt className="order-2 text-sm text-muted leading-snug">cidades com até 20 mil habitantes</dt>
-                <dd className="order-1 text-3xl sm:text-4xl font-semibold tabular-nums tracking-[-0.04em]">{pctPequenas}%</dd>
+                {/* Era "68% das cidades com até 20 mil habitantes": dado do
+                    país, que não diz nada da empresa (revisão de outubro de
+                    2026). Agora é o que a empresa faz, e se confere. */}
+                <dt className="order-2 text-sm text-muted leading-snug">bases oficiais lidas sem ninguém digitar</dt>
+                <dd className="order-1 text-3xl sm:text-4xl font-semibold tabular-nums tracking-[-0.04em]">{FONTES_OFICIAIS.length}</dd>
               </div>
               <div className="flex flex-col">
                 <dt className="order-2 text-sm text-muted leading-snug">áreas da prefeitura num sistema só</dt>
@@ -348,7 +350,7 @@ export default async function QuemSomosPage() {
             </div>
           </div>
         </section>
-        <BarraConversao atalho={{ href: "#quem-e-voce", rotulo: "Ver como fica o seu dia" }} />
+        <BarraConversao />
       </main>
       <SiteFooter />
     </div>

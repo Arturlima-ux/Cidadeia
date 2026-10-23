@@ -20,7 +20,11 @@ export function mensagensDeExemplo(agora: number): LinhaVoz[] {
   const linhas: LinhaVoz[] = [];
   for (let i = 0; i < 42; i++) {
     const criada = agora - (i * 2.6 + (i % 3) * 0.4) * DIA - (i % 5) * 3_600_000;
-    const respondida = i % 7 !== 0 && i > 2;
+    // Só as três mais recentes esperam resposta. Antes, uma em cada sete
+    // ficava sem resposta para sempre, e a vitrine mostrava "Elogio · em
+    // análise há 19 dias" (e outras com dois meses) num exemplo que vende a
+    // prefeitura que responde (revisão de outubro de 2026).
+    const respondida = i > 2;
     const prazo = 1 + ((i * 3) % 6);
     linhas.push({
       tipo: tipos[i % tipos.length],

@@ -24,8 +24,17 @@
 // Tudo aqui é função pura sobre datas em texto (AAAA-MM-DD), para ser testado
 // sem relógio e sem fuso: tests/cobranca.test.ts.
 
-/** Dias depois do vencimento em que o painel ainda funciona. */
-export const CARENCIA_DIAS = 5;
+/**
+ * Dias depois do vencimento em que o painel ainda funciona.
+ *
+ * Eram 5. A revisão de outubro de 2026 lembrou a Lei 14.133: o contratado só
+ * pode suspender a execução por falta de pagamento depois de atraso superior
+ * a 2 meses (art. 137, § 2º, IV, e § 3º, II), e pagamento público é lento
+ * por natureza (empenho, liquidação, ordem bancária). Travar em 5 dias seria
+ * uma cláusula que o jurídico da prefeitura risca, ou que o Tribunal de
+ * Contas aponta. Agora são 60 dias, o mínimo da lei.
+ */
+export const CARENCIA_DIAS = 60;
 /** A partir de quantos dias antes do vencimento o painel avisa. */
 export const AVISO_DIAS = 7;
 /** Prazo da primeira fatura, contado do registro do contrato. */
@@ -195,7 +204,10 @@ export function situacaoDaConta(faturasPorContrato: FaturaResumo[][], hoje: stri
 // Financeiro, para ver a fatura e pagar. Meus dados, porque a exportação é
 // promessa pública do site ("a saída está escrita") e dado do município não
 // vira refém de cobrança. Minha conta, para trocar senha e e-mail.
-export const ROTAS_LIVRES_NA_TRAVA = ["/dashboard/financeiro", "/dashboard/dados", "/dashboard/conta"];
+// Atendimento, porque a ouvidoria e o pedido de acesso à informação têm
+// prazo legal com o cidadão (Lei 13.460 e LAI): a dívida é da prefeitura com
+// a empresa, e quem espera resposta não pode pagar por ela.
+export const ROTAS_LIVRES_NA_TRAVA = ["/dashboard/financeiro", "/dashboard/dados", "/dashboard/conta", "/dashboard/atendimento"];
 
 export function rotaLivreNaTrava(caminho: string): boolean {
   return ROTAS_LIVRES_NA_TRAVA.some((r) => caminho === r || caminho.startsWith(`${r}/`));

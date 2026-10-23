@@ -1,3 +1,4 @@
+import { AVISO_FRACIONAMENTO } from "@/lib/contratacao";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
@@ -335,7 +336,7 @@ export default function KitPage() {
             </h2>
             <p className="text-muted mt-3 leading-relaxed max-w-xl mx-auto">
               Monte a proposta com os módulos que a prefeitura vai usar e veja se
-              o total anual cabe na dispensa de licitação.
+              o total anual cabe na dispensa de licitação. {AVISO_FRACIONAMENTO.curto}
             </p>
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               <Link

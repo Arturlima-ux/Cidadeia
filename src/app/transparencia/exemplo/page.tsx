@@ -15,7 +15,7 @@ import { CONJUNTOS, linhasDe } from "@/lib/dados-abertos";
 // prefeito vê aqui é exatamente o que o morador dele vai ver.
 
 export const metadata = {
-  title: "Portal da Transparência · cidade de exemplo",
+  title: "Portal do Cidadão · cidade de exemplo",
   robots: { index: false },
 };
 

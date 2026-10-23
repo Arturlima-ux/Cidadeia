@@ -5,7 +5,7 @@ import { linhaIdentificacao } from "@/lib/empresa";
 
 const COLUNAS = [
   {
-    titulo: "Soluções",
+    titulo: "Produtos",
     links: [
       // Cada módulo tem página própria; os seis apontavam para a mesma âncora.
       { href: "/modulos/essencial", label: "Essencial" },
@@ -34,15 +34,18 @@ const COLUNAS = [
       { href: "/kit", label: "Kit de contratação" },
       { href: "/proposta/acompanhar", label: "Acompanhar pedido" },
       { href: "/conformidade", label: "Conformidade legal" },
-      { href: "/solucoes", label: "Soluções" },
+      { href: "/solucoes", label: "Todos os produtos" },
     ],
   },
   {
     titulo: "Cidadão",
     links: [
-      { href: "/transparencia", label: "Portal da Transparência" },
-      { href: "/transparencia", label: "Consultar protocolo" },
-      { href: "/transparencia", label: "Ouvidoria" },
+      // Eram três links com o mesmo destino ("Portal", "Consultar protocolo"
+      // e "Ouvidoria"). Protocolo e ouvidoria moram dentro do portal de cada
+      // cidade, então o rodapé leva até ele e ao exemplo, que são lugares
+      // diferentes de verdade.
+      { href: "/transparencia", label: "Portal da sua cidade" },
+      { href: "/transparencia/exemplo", label: "Ver um portal de exemplo" },
     ],
   },
   {
@@ -53,9 +56,9 @@ const COLUNAS = [
       { href: "/governanca", label: "Governança" },
       { href: "/carreiras", label: "Carreiras" },
       { href: "/fale-conosco", label: "Fale conosco" },
-      { href: "/sobre", label: "Segurança e LGPD" },
+      { href: "/seguranca", label: "Segurança e LGPD" },
       { href: "/acessibilidade", label: "Acessibilidade" },
-      { href: "/faq", label: "Dúvidas frequentes" },
+      { href: "/faq", label: "Perguntas frequentes" },
       { href: "/suporte", label: "Suporte" },
     ],
   },
@@ -70,8 +73,8 @@ export default function SiteFooter() {
             <MarcaCompleta tamanho={26} cor="#5f9bf0" corAcento="#6ee7b0" corTexto="#ffffff" />
             <p className="text-sm mt-4 leading-relaxed max-w-xs">
               A gestão municipal inteira, num lugar só: atendimento ao cidadão,
-              secretarias, obras, saúde, educação e finanças, alimentados pelas
-              bases oficiais.
+              secretarias, obras, saúde, educação e finanças, com o que é público
+              lido das bases oficiais.
             </p>
             {/* Aqui havia "[RAZÃO SOCIAL]" e "CNPJ [XX.XXX.XXX/0001-XX]"
                 literalmente publicados. Num site que vende conformidade

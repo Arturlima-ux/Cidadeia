@@ -5,7 +5,7 @@ import { linkWhatsappComercial } from "@/lib/contato-comercial";
 import SiteFooter from "@/components/site/SiteFooter";
 import Reveal from "@/components/site/Reveal";
 import Olho from "@/components/site/Olho";
-import { CAMINHOS } from "@/lib/contratacao";
+import { AVISO_FRACIONAMENTO, CAMINHOS } from "@/lib/contratacao";
 import { DOCUMENTOS } from "@/lib/kit-contratacao";
 import { IMPLANTACAO, VERSUS } from "@/lib/textos-contratacao";
 import { IconDownload } from "@/components/icons";
@@ -79,6 +79,12 @@ export default function ComoContratarPage() {
           );
         })}
       </div>
+
+      {/* O limite é da soma do ano (lib/contratacao.ts, AVISO_FRACIONAMENTO). */}
+      <p className="mt-5 text-sm text-muted leading-relaxed max-w-[72ch]">
+        <span className="font-semibold text-foreground">Atenção ao fracionamento.</span> {AVISO_FRACIONAMENTO.completo}{" "}
+        <span className="whitespace-nowrap">{AVISO_FRACIONAMENTO.base}.</span>
+      </p>
 
       {/* ── 2. o processo, pronto ── */}
       <div id="kit" className="mt-16 pt-12 border-t border-border">

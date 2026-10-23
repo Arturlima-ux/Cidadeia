@@ -28,6 +28,21 @@ export function limiteEstaVigente(hoje: Date = new Date()): boolean {
   return hoje.getFullYear() === LIMITE_DISPENSA.ano;
 }
 
+// ── O LIMITE É DO ANO, E NÃO DE CADA MÓDULO ──
+//
+// O site vende por módulo, e cada um sozinho cabe folgado na dispensa. A
+// revisão de outubro de 2026 lembrou o risco: se a prefeitura contratar os
+// módulos em separado, ao longo do ano, cada contrato não abre uma dispensa
+// nova. O art. 75, § 1º, manda somar o que a mesma unidade gestora gastar no
+// exercício com objetos da mesma natureza, e software de gestão é um ramo
+// só. O site tem de orientar isso, e não sugerir o contrário.
+export const AVISO_FRACIONAMENTO = {
+  curto: "O limite vale para a soma do ano: módulos contratados em separado contam juntos.",
+  completo:
+    "O limite vale para a soma do ano, e não para cada contrato: tudo o que a mesma unidade gestora contratar no exercício em software de gestão conta junto, inclusive o de outros fornecedores e módulos acrescentados depois. Contratar módulo por módulo não abre uma dispensa nova para cada um.",
+  base: "Art. 75, § 1º, da Lei 14.133/2021",
+} as const;
+
 export type CaminhoContratacao = "dispensa" | "pregao";
 
 /**

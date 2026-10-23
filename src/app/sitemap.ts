@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/kit`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/proposta/acompanhar`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/sobre`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/seguranca`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/acessibilidade`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/quem-somos`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/noticias`, changeFrequency: "weekly", priority: 0.6 },

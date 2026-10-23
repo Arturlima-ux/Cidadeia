@@ -14,7 +14,7 @@ import { confirmarPagamento, criarPrimeiraFatura, emailFatura, protocolo, regist
 import { renderToBuffer } from "@react-pdf/renderer";
 import { empresaDoAmbiente, montarPropostaComercial } from "@/lib/proposta-comercial";
 import { PropostaComercialPDF } from "@/lib/relatorios/PropostaComercial";
-import { destinoDaEquipe } from "@/lib/contato-comercial";
+import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
 import { linkRastreavel } from "@/lib/abertura-da-proposta";
 
 // ── QUEM AVANÇA O PEDIDO É A EQUIPE ──
@@ -181,7 +181,7 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
 
   const envio = await enviarEmail({
     para: pedido.email,
-    responderPara: destinoDaEquipe(),
+    responderPara: CONTATO_PUBLICO,
     assunto: `Proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}`,
     anexos: [{ nome: arquivo, conteudo: new Uint8Array(pdf) }],
     pedidoId: pedido.id,

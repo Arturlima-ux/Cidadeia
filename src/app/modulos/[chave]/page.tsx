@@ -53,7 +53,7 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
 
   return (
     <div className="tema-noite min-h-screen">
-      <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }, { nome: plano.nome, caminho: `/modulos/${plano.chave}` }])} />
+      <JsonLdScript dados={ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Produtos", caminho: "/solucoes" }, { nome: plano.nome, caminho: `/modulos/${plano.chave}` }])} />
       <SiteHeader />
       <main id="conteudo">
         {/* ── capa: o que é, e a tela ── */}
@@ -66,7 +66,11 @@ export default async function ModuloPage({ params }: { params: Promise<{ chave: 
                   {plano.nome}
                 </h1>
                 <p className="text-foreground text-lg leading-relaxed mt-5 max-w-[46ch]">{detalhe.resumo}</p>
-                <p className="text-muted leading-relaxed mt-3 max-w-[46ch]">{plano.descricao}</p>
+                {/* Em alguns módulos as duas frases são a mesma, e a página
+                    repetia a descrição duas vezes seguidas. */}
+                {plano.descricao.trim() !== detalhe.resumo.trim() && (
+                  <p className="text-muted leading-relaxed mt-3 max-w-[46ch]">{plano.descricao}</p>
+                )}
                 <div className="flex flex-wrap items-center gap-3 mt-8">
                   <Link
                     href={`/proposta?modulos=${plano.chave}`}

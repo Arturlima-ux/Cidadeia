@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { fontesPorExtenso } from "@/lib/fontes-oficiais";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
@@ -22,7 +23,7 @@ const COMPROMISSOS = [
   {
     titulo: "Só dado oficial, com a fonte ao lado",
     texto:
-      "Os números vêm do Tesouro Nacional, IBGE, PNCP, DataSUS, FNDE e INEP. Quando uma fonte não responde, a tela diz isso; o vazio nunca é preenchido com estimativa.",
+      `Os números vêm de ${fontesPorExtenso()}. Quando uma fonte não responde, a tela diz isso; o vazio nunca é preenchido com estimativa.`,
   },
   {
     titulo: "Regra com o artigo, e não opinião",
@@ -52,7 +53,7 @@ const COMPROMISSOS = [
 ];
 
 const DOCUMENTOS = [
-  { href: "/sobre", titulo: "Segurança e LGPD", texto: "Senhas, sessão, isolamento entre prefeituras, banco e limites da IA." },
+  { href: "/seguranca", titulo: "Segurança e LGPD", texto: "Senhas, sessão, isolamento entre prefeituras, banco e limites da IA." },
   { href: "/privacidade", titulo: "Política de privacidade", texto: "O que o CidadeIA coleta, com que base legal, com quem compartilha e por quanto tempo guarda." },
   { href: "/termos", titulo: "Termos de uso", texto: "As regras de uso do CidadeIA e do portal do cidadão." },
   { href: "/conformidade", titulo: "Conformidade legal", texto: "Cada exigência que o sistema confere, com a lei e o artigo." },

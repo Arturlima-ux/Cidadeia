@@ -1,5 +1,5 @@
 export const SISTEMAS_DISPONIVEIS = [
-  { chave: "portal_transparencia", label: "Portal da Transparência" },
+  { chave: "portal_transparencia", label: "Portal do Cidadão" },
   { chave: "esus", label: "E-SUS" },
   { chave: "receita", label: "Receita" },
   { chave: "siafi", label: "SIAFI" },

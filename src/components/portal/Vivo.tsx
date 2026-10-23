@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { m, useInView, useReducedMotion } from "motion/react";
 import { animarNumero } from "@/components/movimento/animarNumero";
 
@@ -48,21 +48,32 @@ function formatar(v: number, formato: "inteiro" | "decimal" | "moeda") {
 export function Contador({ valor, formato = "inteiro", duracao = 1.6, className = "" }: { valor: number; formato?: "inteiro" | "decimal" | "moeda"; duracao?: number; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const visto = useInView(ref, { once: true, margin: "-40px" });
-  const reduzir = useReducedMotion();
-  // Começa em zero no servidor e no navegador: a preferência de movimento só
-  // existe no navegador, e ler `reduzir` aqui fazia o servidor mostrar 0 e o
-  // navegador o número final — o React descartava e refazia a página. Para
-  // quem pediu menos movimento, a contagem tem duração zero e não espera o
-  // número entrar na tela.
-  const [atual, setAtual] = useState(0);
+  // ── O HTML SAI COM O NÚMERO CERTO ──
+  // Começava em zero no servidor, e o portal de exemplo aparecia com "0
+  // mensagens, R$ 0 entrou" para quem não executa JavaScript: buscador,
+  // prévia de link no WhatsApp, leitor de tela simples (revisão de outubro
+  // de 2026). Agora o HTML traz o valor final, igual no servidor e no
+  // navegador (sem refazer a página na hidratação). O useLayoutEffect, que
+  // roda antes da primeira pintura, rebaixa para zero só quando vai haver
+  // contagem; com "reduzir movimento" o número fica onde está.
+  // A contagem escreve direto no texto do elemento, sem estado: o React
+  // renderiza sempre o valor final, e só o navegador o rebaixa e o faz subir.
+  const vaiContar = useRef(false);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    vaiContar.current = true;
+    el.textContent = formatar(0, formato);
+  }, [formato]);
   useEffect(() => {
-    if (!visto && !reduzir) return;
-    const c = animarNumero(0, valor, { duracao: reduzir ? 0 : duracao, aoMudar: setAtual });
+    const el = ref.current;
+    if (!el || !vaiContar.current || !visto) return;
+    const c = animarNumero(0, valor, { duracao, aoMudar: (v) => (el.textContent = formatar(v, formato)) });
     return () => c.parar();
-  }, [visto, reduzir, valor, duracao]);
+  }, [visto, valor, duracao, formato]);
   return (
     <span ref={ref} className={`tabular-nums ${className}`} data-valor-final={formatar(valor, formato)}>
-      {formatar(atual, formato)}
+      {formatar(valor, formato)}
     </span>
   );
 }

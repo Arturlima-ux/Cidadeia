@@ -2,10 +2,11 @@
 
 import { montarProposta, PORTES, type PorteMunicipio } from "@/lib/precos";
 import type { PlanoAddon } from "@/lib/planos";
-import { LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
+import { AVISO_FRACIONAMENTO, LIMITE_DISPENSA, cabeNaDispensa } from "@/lib/contratacao";
 import { formatarMoeda } from "@/lib/formatadores";
+import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
 
-const CONTATO_EMAIL = "arturmlo2005@gmail.com";
+const CONTATO_EMAIL = CONTATO_PUBLICO;
 
 // De onde a pessoa veio muda o que ela quer perguntar, e chegar com o
 // assunto já escrito poupa a parte da mensagem que ninguém gosta de redigir.
@@ -73,7 +74,7 @@ function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string }
     linhas.push(`Mensal: ${formatarMoeda(proposta.mensal)} — 12 meses: ${formatarMoeda(proposta.anual)}`);
     linhas.push(
       cabeNaDispensa(proposta.anual)
-        ? `Cabe na dispensa de licitação (${LIMITE_DISPENSA.base}).`
+        ? `Cabe na dispensa de licitação (${LIMITE_DISPENSA.base}). ${AVISO_FRACIONAMENTO.curto}`
         : "Acima do limite de dispensa — caminho: pregão eletrônico."
     );
   } else if (proposta.incompleta) {

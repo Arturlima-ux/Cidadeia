@@ -178,8 +178,14 @@ export default function SiteHeader({
                 className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 transition"
                 style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
               >
-                <span className="sm:hidden">Proposta</span>
-                <span className="hidden sm:inline">Receber proposta</span>
+                {/* Um texto só, "Receber proposta". No celular o "Receber" fica
+                    só para o leitor de tela e o "proposta" ganha maiúscula.
+                    Antes eram dois textos, e o Google lia "Proposta Receber
+                    proposta". */}
+                <span>
+                  <span className="max-sm:sr-only">Receber </span>
+                  <span className="max-sm:capitalize">proposta</span>
+                </span>
               </Link>
             )}
           </div>

@@ -54,7 +54,7 @@ export default async function ObrasParadasNoPortal({
       <p className="text-sm text-muted mt-1">
         {publicado
           ? "Motivo, responsável e reinício, como pede o art. 115, § 6º, da Lei 14.133/2021, com a placa pronta para imprimir. Ao marcar a obra como retomada, o aviso sai do ar."
-          : "Ative o portal da transparência em Configurações para que os avisos e as placas sejam publicados."}
+          : "Ative o portal do cidadão em Configurações para que os avisos e as placas sejam publicados."}
       </p>
       <ul className="mt-4 divide-y divide-border">
         {paradas.map((o) => {
