@@ -21,6 +21,9 @@ import { lerAditivo } from "@/lib/aditivos";
 import { documentoExibivel } from "@/lib/contratos-pncp";
 import type { ProcessoDispensa } from "@/lib/fracionamento";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
+import { aprovacoesDeRenovacao } from "@/lib/renovacao-servidor";
+import { estadoDaRenovacaoNaLista } from "@/lib/renovacao-contrato";
+import { dataNumerica, fusoDoEstado } from "@/lib/horario";
 
 const LABEL_STATUS: Record<string, string> = {
   planejamento: "Planejamento",
@@ -85,6 +88,21 @@ export default async function LicitacoesPage() {
   // ocupam espaço: numa prefeitura real são a maioria (68 de 134 no município
   // medido), e listá-los afogaria os dez que importam.
   const listaContratos = await buscarContratos(ctx.sessao.prefeituraId);
+  // As aprovações de renovação já registradas. Só se lê com contratos na mão:
+  // buscarContratos já conferiu acesso à pasta, e sem ele a lista vem vazia.
+  const aprovacoes = listaContratos.length
+    ? await aprovacoesDeRenovacao(ctx.sessao.prefeituraId).catch((e) => {
+        console.error("[renovacao] aprovações:", (e as Error).name);
+        return [];
+      })
+    : [];
+  const fuso = fusoDoEstado(ctx.prefeitura.estado);
+  const prefeituraDoc = {
+    municipio: ctx.prefeitura.municipio,
+    estado: ctx.prefeitura.estado,
+    cnpj: ctx.prefeitura.cnpj,
+    prefeito: ctx.prefeitura.prefeito,
+  };
   const contratosQuePedemDecisao: ContratoNaTela[] = listaContratos
     .map((c) => ({
       id: c.id,
@@ -115,6 +133,13 @@ export default async function LicitacoesPage() {
         valorGlobal: c.valorGlobal,
         numeroRetificacao: c.numeroRetificacao,
       }),
+      renovacao: estadoDaRenovacaoNaLista(
+        c,
+        listaContratos,
+        prefeituraDoc,
+        aprovacoes.filter((a) => a.contratoId === c.id),
+        (iso) => dataNumerica(iso, fuso)
+      ),
     }))
     .filter((c) => pedeAcao(c.vigencia.situacao) || c.aditivo.situacao === "acima_se_for_acrescimo")
     .sort((a, b) => a.vigencia.peso - b.vigencia.peso);
@@ -151,6 +176,8 @@ export default async function LicitacoesPage() {
             contrato, num outro endereço do portal, e ainda não entra aqui.
           </p>
         </div>
+        {/* Download de rota de API: <Link> faria prefetch do PDF a cada abertura da tela. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/relatorios/secretaria/licitacoes"
           className="group shrink-0 flex items-center gap-2 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
