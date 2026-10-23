@@ -84,3 +84,31 @@ export function repartirAvisos<T extends { secretaria: string | null; prioridade
   }
   return saida;
 }
+
+/**
+ * A seção de alertas do contexto da IA Central, com o MESMO recorte da tela
+ * de alertas (podeVerAlerta).
+ *
+ * Antes o secretário recebia "o filtro de alertas por secretaria ainda não
+ * existe, então nenhum alerta é mostrado" — e, na tela ao lado, via os
+ * alertas da área dele. A IA respondia "não há alertas" sobre o que estava
+ * escrito na tela. E a seção exigia o plano Gestão, embora a vigia abra
+ * alerta para todos os módulos e a tela de alertas exista sem ele.
+ */
+export function secaoAlertasParaIA(
+  sessao: { cargo: string; secretaria?: string | null },
+  alertas: { titulo: string; descricao: string | null; prioridade: string; secretaria: string | null; resolvido: boolean }[]
+): string {
+  const visiveis = alertas.filter((a) => podeVerAlerta(sessao, a));
+  const abertos = visiveis.filter((a) => !a.resolvido);
+  const resolvidos = visiveis.length - abertos.length;
+  const ehGabinete = sessao.cargo === "prefeito" || sessao.cargo === "admin";
+  const recorte = ehGabinete ? "" : " — só os da área deste usuário; os das outras áreas não estão disponíveis para o perfil dele";
+  const linhas = abertos.map(
+    (a) =>
+      `- [${a.prioridade}] ${a.titulo}${a.secretaria ? " (Secretaria: " + a.secretaria + ")" : ""}${a.descricao ? " — " + a.descricao : ""}`
+  );
+  return `Alertas em aberto (${abertos.length})${recorte}:
+${linhas.length > 0 ? linhas.join("\n") : "Nenhum alerta em aberto."}
+Alertas já resolvidos: ${resolvidos}`;
+}

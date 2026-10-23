@@ -17,6 +17,7 @@ import { planosContratadosDe, type PlanoAddon } from "@/lib/planos";
 // As MESMAS funções que guardam as telas. O contexto da IA tinha a própria
 // cópia da regra de acesso, e foi por isso que os cargos novos passaram.
 import { ehGestor, temAcessoSecretaria } from "@/lib/sessao";
+import { secaoAlertasParaIA } from "@/lib/alerta-por-area";
 import { projetarProximoPeriodo } from "@/lib/projecao";
 import { montarEficacia } from "@/lib/montar-eficacia";
 import {
@@ -111,8 +112,6 @@ export async function montarContexto(
     resumoOperacionalEducacao(prefeituraId, cargoDaPergunta),
   ]);
 
-  const abertos = listaAlertas.filter((a) => !a.resolvido);
-  const resolvidos = listaAlertas.filter((a) => a.resolvido);
 
   const sistemasConectadosDeFato = sistemas.filter((s) => s.status === "conectado");
 
@@ -167,22 +166,8 @@ ${(() => {
   return `Projeção de saldo (~30 dias à frente, ${proj.confianca === "baixa" ? "confiança BAIXA" : "confiança " + proj.confianca}): ${formatarMoeda(proj.valorProjetado)}. IMPORTANTE: isto é uma regressão linear simples sobre o histórico real (${proj.baseadoEmRegistros} registros) — não é um modelo de IA nem um "gêmeo digital", não considera sazonalidade nem eventos externos. Sempre que mencionar isso ao usuário, deixe claro que é uma estimativa estatística simples, não uma previsão validada.`;
 })()}`;
 
-  const secaoAlertas = !veTudo
-    ? "Alertas: acesso restrito — este usuário não tem visão geral da prefeitura. O filtro de alertas por secretaria ainda não existe, então nenhum alerta é mostrado, em vez de mostrar os de todas."
-    : !temGestao
-    ? "Alertas: indisponíveis — a prefeitura não contratou o plano Gestão."
-    : `Alertas em aberto (${abertos.length}):
-${
-  abertos.length > 0
-    ? abertos
-        .map(
-          (a) =>
-            `- [${a.prioridade}] ${a.titulo}${a.secretaria ? " (Secretaria: " + a.secretaria + ")" : ""}${a.descricao ? " — " + a.descricao : ""}`
-        )
-        .join("\n")
-    : "Nenhum alerta em aberto."
-}
-Alertas já resolvidos: ${resolvidos.length}`;
+  // Mesmo recorte da tela de alertas (lib/alerta-por-area.ts).
+  const secaoAlertas = secaoAlertasParaIA(cargoParaAcesso, listaAlertas);
 
   const mostrarSaude = planosAtivos.includes("saude") && podeVer("saude");
   const mostrarEducacao = planosAtivos.includes("educacao") && podeVer("educacao");
