@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MarcaCompleta } from "@/components/site/MarcaQuadra";
 
 /**
  * A chamada para ação volta à tela depois que o herói sai.
@@ -11,14 +10,9 @@ import { MarcaCompleta } from "@/components/site/MarcaQuadra";
  * interesse, e é aí que faz sentido reaparecer. Antes disso a barra só
  * roubaria espaço da primeira impressão.
  *
- * No topo em telas largas, no rodapé no celular — onde o polegar alcança.
+ * Só no celular, no rodapé, onde o polegar alcança.
  */
-export default function BarraConversao({
-  atalho = { href: "#proposta", rotulo: "Montar proposta" },
-}: {
-  /** O link de texto antes do botão. Na home monta a proposta na própria página. */
-  atalho?: { href: string; rotulo: string };
-} = {}) {
+export default function BarraConversao() {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
@@ -40,71 +34,10 @@ export default function BarraConversao({
 
   return (
     <>
-      {/* topo — telas largas */}
-      <div
-        className={`hidden sm:block fixed top-0 inset-x-0 z-40 border-b transition-transform duration-300 ${
-          visivel ? "translate-y-0 border-border" : "-translate-y-full border-transparent"
-        }`}
-        // Opaca, sem desfoque de fundo. Esta barra é FIXA: com backdrop-filter,
-        // o navegador reamostrava e reborrava a página inteira atrás dela a
-        // cada quadro — o efeito mais caro possível, no elemento que passa mais
-        // tempo na tela. Sobre fundo escuro, 84% e opaco são quase idênticos.
-        style={{ background: "var(--background)" }}
-      >
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 h-[62px] flex items-center justify-between gap-4">
-          <Link href="/" aria-label="CidadeIA — início">
-            <MarcaCompleta tamanho={24} />
-          </Link>
-          {/* Esta barra cobre o cabeçalho quando aparece, ocupando o mesmo
-              lugar na tela. Enquanto o botão cheio de uma dizia "Ver quanto
-              custa" e o da outra "Falar com especialista", o caminho
-              principal do site trocava sozinho conforme a rolagem — que é
-              exatamente a confusão de ter dois CTAs concorrentes.
-
-              A ação cheia agora é a MESMA nas duas, e é a que realmente
-              fecha: contratação em prefeitura passa por proposta, processo e
-              empenho. Preço e kit continuam a um clique, como links. */}
-          <div className="flex items-center gap-5">
-            <Link
-              href={atalho.href}
-              className="hidden lg:inline text-sm font-semibold text-muted hover:text-foreground transition"
-            >
-              {atalho.rotulo}
-            </Link>
-            <Link
-              href="/kit"
-              className="hidden md:inline text-sm font-semibold text-muted hover:text-foreground transition"
-            >
-              Kit de contratação
-            </Link>
-            {/* Esta barra cobre o cabeçalho enquanto a página rola — e com ele
-                some o único caminho do morador. Ele volta aqui, discreto: quem
-                está avaliando a compra ignora, e quem procurava o portal não
-                fica preso numa página de vendas. */}
-            <Link
-              href="/transparencia"
-              className="hidden md:inline text-sm font-semibold text-muted hover:text-foreground transition"
-            >
-              Portal do cidadão
-            </Link>
-            {/* Dizia "Falar com especialista" — a mesma exigência que a página
-                inteira acusa a concorrência de fazer, no botão que passa mais
-                tempo na tela. O destino sempre foi o mesmo do fecho; só a
-                promessa era outra, e a errada.
-
-                Agora as duas ações cheias dizem a mesma coisa porque levam ao
-                mesmo lugar. Promessa diferente para o mesmo destino faz o
-                visitante achar que são caminhos distintos e hesitar entre eles. */}
-            <Link
-              href="/proposta"
-              className="text-sm font-bold text-white bg-brand hover:bg-brand-dark rounded-xl px-5 py-2.5 transition shadow-elevated"
-            >
-              Receber proposta
-            </Link>
-          </div>
-        </div>
-      </div>
-
+      {/* A barra do topo, nas telas largas, saiu (revisão de outubro de
+          2026): ela cobria o cabeçalho com outro menu e repetia o "Receber
+          proposta" que o cabeçalho, sticky, já mostra o tempo todo. Ficou a
+          do rodapé no celular, onde o polegar alcança. */}
       {/* rodapé — celular */}
       <div
         className={`sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${

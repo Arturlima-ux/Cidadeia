@@ -32,7 +32,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Portal do cidadão",
   description:
-    "Encontre o portal da transparência da sua cidade: para onde vai o dinheiro, as obras e um canal para falar com a prefeitura. Sem cadastro.",
+    "Encontre o portal do cidadão da sua cidade: para onde vai o dinheiro, as obras e um canal para falar com a prefeitura. Sem cadastro.",
 };
 
 const normalizar = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();

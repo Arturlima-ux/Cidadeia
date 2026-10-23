@@ -326,7 +326,7 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
             <p className="inline-flex items-center gap-2.5 rounded-full border border-border px-3.5 py-1.5" style={{ background: "var(--card)" }}>
               <span className="w-2 h-2 rounded-full portal-pulso" style={{ background: "var(--info)" }} />
-              Portal da Transparência
+              Portal do Cidadão
               {snapshot && <span className="text-muted">· atualizado em {dataNumerica(snapshot.atualizadoEm, fuso)}</span>}
             </p>
             <Link href="/" className="text-muted hover:text-foreground text-xs">
@@ -746,6 +746,13 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
           <Link href="/" className="text-xs font-semibold text-brand-claro hover:underline">
             Feito com CidadeIA
           </Link>
+          {/* A LC 131 pede receita e despesa em tempo real, saídas do sistema
+              contábil. Este portal lê o RREO e o RGF do Tesouro, que são
+              bimestrais e quadrimestrais: soma ao portal legal, não ocupa o
+              lugar dele (revisão de outubro de 2026). */}
+          <p className="text-xs text-muted basis-full max-w-[80ch]">
+            Este portal complementa, e não substitui, o Portal da Transparência que a LC 131/2009 exige, alimentado em tempo real pelo sistema contábil da prefeitura.
+          </p>
         </div>
       </footer>
     </div>

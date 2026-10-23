@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
 import { lerSessao } from "@/lib/sessao";
-import { LIMITE_DISPENSA } from "@/lib/contratacao";
+import { AVISO_FRACIONAMENTO, LIMITE_DISPENSA } from "@/lib/contratacao";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -86,7 +87,7 @@ function autoridadeVerificavel(temPortalNoAr: boolean) {
 
 // Bases que o produto de fato lê, cada uma com o arquivo que a consome em
 // lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
-const FONTES = ["Tesouro Nacional", "IBGE", "PNCP", "DataSUS", "INEP"];
+const FONTES = FONTES_OFICIAIS;
 
 
 export default async function LandingPage({
@@ -174,19 +175,26 @@ export default async function LandingPage({
                 num notebook de 1366×768 (avaliação Impeccable, outubro de 2026).
                 O aria-label dá o texto com espaços ao leitor de tela, que lia
                 as linhas coladas ("municipalinteira,"). */}
-            <h1 className="inicio-titulo max-w-[14ch] lg:max-w-none" aria-label="A gestão municipal inteira, num lugar só.">
-              <span className="linha" aria-hidden><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal<span className="hidden lg:inline"> inteira,</span></span></span>
-              <span className="linha linha-celular" aria-hidden><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>
-              <span className="linha" aria-hidden><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
+            {/* Cada palavra existe uma vez só. Antes "inteira," estava escrita
+                duas vezes (uma para o celular, outra para o computador), e o
+                Google e o leitor de tela liam "inteira, inteira,". Agora, a
+                partir de 1024px, as duas primeiras linhas viram inline-block e
+                se juntam numa só (globals.css, .linha-junta). */}
+            <h1 className="inicio-titulo max-w-[14ch] lg:max-w-none">
+              <span className="linha linha-junta"><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal</span></span>{" "}
+              <span className="linha linha-junta"><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>{" "}
+              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
             </h1>
 
             <div className="mt-12 sm:mt-16 lg:mt-10 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
               <div className="inicio-aparece" style={{ "--d": "420ms" } as React.CSSProperties}>
-                {/* A chamada inteira em branco: o diferencial ("alimentado
-                    sozinho") estava no cinza apagado. */}
+                {/* A chamada inteira em branco. "Alimentado sozinho" saiu
+                    (revisão de outubro de 2026): estoque da UBS, merenda e
+                    medição de obra são digitados pela equipe; só o que já é
+                    público entra sem ninguém digitar. */}
                 <p className="inicio-lead max-w-[40ch]">
-                  Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema,
-                  alimentado sozinho pelas bases oficiais.
+                  Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema. O que
+                  já é público entra sozinho das bases oficiais.
                 </p>
 
                 {/* ── A AÇÃO, NA ORDEM EM QUE A PESSOA PENSA ──
@@ -354,12 +362,13 @@ export default async function LandingPage({
             quatro coisas que o morador encontra. */}
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
           <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
-            <h2 className="inicio-h2 max-w-[17ch]">O portal da transparência da sua cidade.</h2>
+            <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
             <div>
               <p className="text-muted leading-relaxed max-w-[42ch]">
                 Um site da prefeitura para o morador: ele vê as contas e as obras e
                 fala com a prefeitura, em linguagem simples. Vem pronto no módulo
-                Essencial.
+                Essencial. Soma ao Portal da Transparência que a lei exige, que
+                continua saindo do sistema contábil.
               </p>
               <div className="flex flex-wrap items-center gap-3 mt-6">
                 {portais.length > 0 ? (
@@ -504,6 +513,9 @@ export default async function LandingPage({
               <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
                 por ano, em contratação direta. {LIMITE_DISPENSA.base}, valor do{" "}
                 {LIMITE_DISPENSA.atualizadoPor}.
+              </p>
+              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
+                {AVISO_FRACIONAMENTO.curto} {AVISO_FRACIONAMENTO.base}.
               </p>
             </div>
           </div>

@@ -15,6 +15,7 @@ import {
   hojeEmBrasilia,
   rotuloCompetencia,
   situacaoDaConta,
+  CARENCIA_DIAS,
   vencimentoDaCompetencia,
   vencimentoDaPrimeira,
   type FaturaResumo,
@@ -291,7 +292,7 @@ export async function rodarCobranca(hoje = hojeEmBrasilia()): Promise<RelatorioC
     .where(and(eq(faturas.status, "aberta")));
   for (const { f, p } of abertas) {
     const dias = diasEntre(hoje, f.vencimento);
-    const etapa = dias >= 0 && dias <= 3 ? "vence" : dias < 0 && -dias <= 5 ? "atraso" : dias < -5 && p.status === "ativo" ? "suspenso" : null;
+    const etapa = dias >= 0 && dias <= 3 ? "vence" : dias < 0 && -dias <= CARENCIA_DIAS ? "atraso" : dias < -CARENCIA_DIAS && p.status === "ativo" ? "suspenso" : null;
     if (!etapa || f.avisoEnviado?.startsWith(etapa)) continue;
     const motivo = etapa === "vence" ? "fatura a vencer" : etapa === "atraso" ? "fatura em atraso" : "acesso suspenso";
     const envio = await enviarEmail(emailFatura(p, f, motivo));

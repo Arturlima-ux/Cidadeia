@@ -85,7 +85,7 @@ export default function HomeMorador({
                     <AcheSuaCidade />
                   </div>
                   <p className="text-sm text-muted mt-4">
-                    Vale para as 5.571 cidades do Brasil. Os números vêm do Tesouro Nacional.
+                    Vale para os 5.570 municípios do Brasil e para Brasília. Os números vêm do Tesouro Nacional.
                   </p>
                 </>
             </div>
@@ -127,7 +127,7 @@ export default function HomeMorador({
               E quando a cidade tem o <span style={{ color: "var(--brand-claro)" }}>portal do CidadeIA</span>.
             </>
           }
-          subtitulo="É o portal da transparência que a prefeitura põe no ar com o CidadeIA. O morador abre no celular e tem:"
+          subtitulo="É o portal do cidadão que a prefeitura põe no ar com o CidadeIA. O morador abre no celular e tem:"
           acoes={
             <>
               <Link href="/transparencia/exemplo" className="rounded-full border border-border px-6 py-3.5 font-medium hover:border-brand transition">

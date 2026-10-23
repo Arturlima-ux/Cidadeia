@@ -7,7 +7,7 @@ import { resumirVoz } from "@/lib/voz-da-cidade";
 import { carregarPortal } from "@/lib/portal-servidor";
 import { CONJUNTOS, linhasDe } from "@/lib/dados-abertos";
 
-export const metadata = { title: "Portal da Transparência" };
+export const metadata = { title: "Portal do Cidadão" };
 
 // O desenho do portal mora em ../PortalCidade.tsx; a leitura, em
 // lib/portal-servidor.ts (a mesma dos arquivos de dados abertos). A cidade

@@ -158,9 +158,9 @@ export function emailDoAviso(dados: {
         : { destaque: `Nenhum prazo vencendo nos próximos ${DIAS_DE_ANTECEDENCIA} dias e nada em atraso no Tesouro Nacional.`, tom: "ok" },
       { botao: `Ver o Raio-X de ${dados.municipio}`, link: dados.linkRaioX },
       { divisor: true },
-      { secao: "Quer isso todos os dias, por dentro?" },
+      { secao: "Quer isso por dentro, sem precisar pedir?" },
       {
-        p: "Este aviso é a parte gratuita. Com o módulo Gestão, o CidadeIA confere tudo todos os dias, avisa o prefeito 15 dias antes de cada prazo e acompanha a despesa com pessoal na régua da LRF e os mínimos de saúde e educação.",
+        p: "Este aviso é a parte gratuita. Com o módulo Gestão, o CidadeIA acompanha cada prazo e confere cada relatório que sai, avisa o prefeito 15 dias antes de cada prazo e acompanha a despesa com pessoal na régua da LRF e os mínimos de saúde e educação.",
       },
       { botao: `Receber a proposta para ${dados.municipio}`, link: dados.linkProposta },
       { nota: "Fonte: extrato de entregas do Tesouro Nacional (Siconfi)." },

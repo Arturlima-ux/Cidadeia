@@ -97,8 +97,15 @@ describe("situação financeira", () => {
     expect(painelTravado(s)).toBe(false);
     if (s.tipo === "vencida") {
       expect(s.diasAtraso).toBe(3);
-      expect(s.travaEm).toBe("2026-11-16");
+      expect(s.travaEm).toBe("2027-01-10");
     }
+  });
+
+  it("a carência respeita os 2 meses da Lei 14.133 (art. 137, § 2º, IV)", () => {
+    expect(CARENCIA_DIAS).toBeGreaterThanOrEqual(60);
+    // Um mês inteiro de atraso ainda não trava.
+    const faturas = [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10")];
+    expect(painelTravado(situacaoFinanceira(faturas, "2026-12-15"))).toBe(false);
   });
 
   it("último dia da carência ainda não trava; o seguinte trava", () => {
@@ -115,7 +122,7 @@ describe("situação financeira", () => {
   it("a fatura mais antiga em atraso é a que conta", () => {
     const s = situacaoFinanceira(
       [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10"), f("2026-12", "2026-12-10")],
-      "2026-12-11"
+      "2027-01-10"
     );
     expect(s.tipo).toBe("travada");
     if (s.tipo === "travada") expect(s.fatura.competencia).toBe("2026-11");
@@ -169,7 +176,7 @@ describe("conta com mais de um contrato", () => {
   it("qualquer contrato travado trava a conta", () => {
     const principal = [f("2026-10", "2026-10-10", "paga"), f("2026-11", "2026-11-10")];
     const outro = [f("2026-10", "2026-10-15", "paga")];
-    expect(painelTravado(situacaoDaConta([outro, principal], "2026-11-30"))).toBe(true);
+    expect(painelTravado(situacaoDaConta([outro, principal], "2027-01-15"))).toBe(true);
   });
 });
 
@@ -178,6 +185,10 @@ describe("o que continua aberto com a conta travada", () => {
     expect(rotaLivreNaTrava("/dashboard/financeiro")).toBe(true);
     expect(rotaLivreNaTrava("/dashboard/dados")).toBe(true);
     expect(rotaLivreNaTrava("/dashboard/conta")).toBe(true);
+  });
+
+  it("o atendimento ao cidadão: ouvidoria e LAI têm prazo legal", () => {
+    expect(rotaLivreNaTrava("/dashboard/atendimento")).toBe(true);
   });
 
   it("o resto do painel não", () => {

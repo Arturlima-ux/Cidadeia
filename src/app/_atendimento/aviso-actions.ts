@@ -11,7 +11,7 @@ import { montarEmail, saudacao } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
 import { municipioPorCodigo } from "@/lib/municipios";
 import { CARGOS_LEAD } from "@/lib/leads";
-import { destinoDaEquipe } from "@/lib/contato-comercial";
+import { CONTATO_PUBLICO, destinoDaEquipe } from "@/lib/contato-comercial";
 import { EVENTO_AVISO_CANCELADO, ORIGEM_AVISO, chaveDoAviso, inscritoDaChave } from "@/lib/aviso-da-cidade";
 
 // ── INSCREVER E CANCELAR O AVISO DA CIDADE ──
@@ -74,7 +74,7 @@ export async function inscreverAvisoDaCidade(entrada: unknown): Promise<Resultad
   const cidade = `${m.nome}/${m.uf}`;
   const confirmacao = await enviarEmail({
     para: d.email,
-    responderPara: destinoDaEquipe(),
+    responderPara: CONTATO_PUBLICO,
     assunto: `Aviso de ${cidade} ativado`,
     cancelar,
     html: montarEmail({

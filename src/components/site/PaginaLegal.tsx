@@ -65,7 +65,7 @@ export default function PaginaLegal({
               substituto, e era justamente por ocupar o lugar deles no rodapé
               que a lacuna passava despercebida. */}
           <Link
-            href="/sobre"
+            href="/seguranca"
             className="font-semibold text-muted hover:text-foreground transition"
           >
             Como os dados são protegidos&nbsp;→

@@ -3,7 +3,7 @@ import { CARENCIA_DIAS } from "@/lib/cobranca";
 import { preencherCompromissos } from "@/lib/compromissos";
 
 // Carência por extenso, como pede a redação de contrato.
-const CARENCIA_EXTENSO: Record<number, string> = { 3: "três", 5: "cinco", 7: "sete", 10: "dez", 15: "quinze" };
+const CARENCIA_EXTENSO: Record<number, string> = { 3: "três", 5: "cinco", 7: "sete", 10: "dez", 15: "quinze", 30: "trinta", 60: "sessenta" };
 
 // ── KIT DE CONTRATAÇÃO ──
 //
@@ -140,7 +140,7 @@ const TERMO_DE_REFERENCIA: Documento = {
           linhas: [
             [
               "Essencial",
-              "Portal da transparência público com endereço próprio do município; ouvidoria com manifestação anônima e protocolo não sequencial; protocolo de atendimento com número e chave de consulta entregues ao cidadão.",
+              "Portal do cidadão público com endereço próprio do município, complementar ao Portal da Transparência exigido pela LC 131/2009, que continua a cargo do sistema contábil da contratante; ouvidoria com manifestação anônima e protocolo não sequencial; protocolo de atendimento com número e chave de consulta entregues ao cidadão.",
             ],
             [
               "Gestão",
@@ -252,7 +252,7 @@ const TERMO_DE_REFERENCIA: Documento = {
         },
         {
           tipo: "paragrafo",
-          texto: `Não confirmado o pagamento em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, o acesso ao painel de gestão poderá ser suspenso até a regularização, sem prejuízo do funcionamento do portal público do município, da guarda dos dados e da sua exportação integral a qualquer tempo.`,
+          texto: `Não confirmado o pagamento em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, o acesso ao painel de gestão poderá ser suspenso até a regularização, nos termos do art. 137, § 3º, II, da Lei 14.133/2021, sem prejuízo do funcionamento do portal público do município, do atendimento à ouvidoria e aos pedidos de acesso à informação, da guarda dos dados e da sua exportação integral a qualquer tempo.`,
         },
       ],
     },
@@ -348,7 +348,7 @@ const MINUTA_CONTRATO: Documento = {
         },
         {
           tipo: "paragrafo",
-          texto: `Parágrafo segundo. Não confirmado o pagamento de parcela em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, a CONTRATADA poderá suspender o acesso ao painel de gestão até a regularização, mantidos em funcionamento o portal público do município e os canais de atendimento ao cidadão, preservados os dados e assegurada a sua exportação integral a qualquer tempo. Regularizado o pagamento, o acesso é restabelecido no mesmo dia útil.`,
+          texto: `Parágrafo segundo. Não confirmado o pagamento de parcela em até ${CARENCIA_DIAS} (${CARENCIA_EXTENSO[CARENCIA_DIAS] ?? CARENCIA_DIAS}) dias do vencimento, a CONTRATADA poderá suspender o acesso ao painel de gestão até a regularização, nos termos do art. 137, § 3º, II, da Lei 14.133/2021, mantidos em funcionamento o portal público do município e os canais de atendimento ao cidadão, inclusive a tela em que a equipe responde à ouvidoria e aos pedidos de acesso à informação, preservados os dados e assegurada a sua exportação integral a qualquer tempo. Regularizado o pagamento, o acesso é restabelecido no mesmo dia útil.`,
         },
         {
           tipo: "paragrafo",

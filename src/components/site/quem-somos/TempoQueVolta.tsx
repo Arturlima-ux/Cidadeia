@@ -71,7 +71,7 @@ export default function TempoQueVolta() {
           conferindo.
         </p>
         <p className="mt-5 leading-relaxed">
-          É esse trabalho que o CidadeIA faz sozinho, todo dia. A sua equipe fica com o que só gente faz: decidir e
+          É esse trabalho que o CidadeIA faz sozinho. A sua equipe fica com o que só gente faz: decidir e
           atender quem bate à porta da prefeitura.
         </p>
         <Link

@@ -108,7 +108,7 @@ export async function enviarEmail(entrada: ParametrosEmail): Promise<ResultadoEn
 }
 
 function ehDaEquipe(para: string): boolean {
-  const equipe = [process.env.PROPOSTA_DESTINO_EMAIL, process.env.ADMIN_EMAILS, "arturmlo2005@gmail.com"]
+  const equipe = [process.env.PROPOSTA_DESTINO_EMAIL, process.env.ADMIN_EMAILS, "arturmlo2005@gmail.com", "cidadeia1326@gmail.com"]
     .join(",")
     .toLowerCase()
     .split(/[,;\s]+/)

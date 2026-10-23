@@ -8,7 +8,7 @@ import PilulaStatus from "@/components/PilulaStatus";
 import { NOME_PLANO_ADDON, PLANOS_ADDON } from "@/lib/planos";
 
 const LABEL_SISTEMA: Record<string, string> = {
-  portal_transparencia: "Portal da Transparência",
+  portal_transparencia: "Portal do Cidadão",
   esus: "E-SUS",
   receita: "Receita",
   siafi: "SIAFI",

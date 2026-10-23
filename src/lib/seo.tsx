@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
 
 // ── COMO O SITE SE APRESENTA QUANDO ALGUÉM COMPARTILHA O LINK ──
 //
@@ -80,7 +81,7 @@ export function ldOrganizacao(): JsonLd {
     logo: `${URL_BASE}/opengraph-image`,
     description: "Sistema de gestão municipal por módulos, com o dado que a prefeitura já publicou no Tesouro Nacional.",
     areaServed: { "@type": "Country", name: "Brasil" },
-    contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: "arturmlo2005@gmail.com", availableLanguage: "pt-BR" }],
+    contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: CONTATO_PUBLICO, availableLanguage: "pt-BR" }],
   };
 }
 

@@ -79,7 +79,7 @@ export default function PortalAberto({
             <div className="min-w-0">
               <p className="inline-flex items-center gap-2.5 rounded-full border border-border px-3.5 py-1.5 text-sm" style={{ background: "var(--card)" }}>
                 <span className="w-2 h-2 rounded-full portal-pulso" style={{ background: "var(--brand)" }} />
-                {portal ? "Portal da Transparência" : "Portal aberto · dados públicos"}
+                {portal ? "Portal do Cidadão" : "Portal aberto · dados públicos"}
               </p>
               <p className="text-muted text-lg mt-6">
                 {semPrefeitura ? "Distrito estadual" : "Prefeitura Municipal"}{" "}

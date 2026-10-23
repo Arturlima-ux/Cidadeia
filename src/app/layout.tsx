@@ -25,14 +25,14 @@ export const metadata: Metadata = {
     template: "%s — CidadeIA",
   },
   description:
-    "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, alimentado sozinho pelas bases oficiais: portal da transparência, protocolo, ouvidoria, painel de cada secretaria e as contas da LRF conferidas todo dia.",
+    "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, com o que é público lido sozinho das bases oficiais: portal do cidadão, protocolo, ouvidoria, painel de cada secretaria e os prazos e limites da LRF acompanhados a cada relatório.",
   openGraph: {
     type: "website",
     siteName: NOME_DO_SITE,
     locale: "pt_BR",
     title: "CidadeIA — a gestão municipal inteira, num lugar só",
     description:
-      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, alimentado sozinho pelas bases oficiais.",
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, com o que é público lido sozinho das bases oficiais.",
   },
   twitter: { card: "summary_large_image" },
   // Search Console: a tag de verificação vem da Vercel (GOOGLE_SITE_VERIFICATION).

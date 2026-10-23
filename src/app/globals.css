@@ -1195,8 +1195,9 @@ h1.font-serif,
    notebook de 1366×768. */
 @media (min-width: 1024px) {
   .inicio-titulo { font-size: clamp(2.55rem, min(6.8vw, 11vh), 6.2rem); }
-  /* "inteira," sobe para a primeira linha (span lg:inline em page.tsx) */
-  .inicio-titulo .linha.linha-celular { display: none; }
+  /* "inteira," sobe para a primeira linha: as duas viram inline-block e o
+     espaço entre elas (no HTML de page.tsx) aparece. */
+  .inicio-titulo .linha.linha-junta { display: inline-block; }
 }
 .inicio-titulo .linha {
   display: block;

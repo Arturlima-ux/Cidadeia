@@ -274,7 +274,7 @@ describe("documentos legais existem de verdade", () => {
     // Guarda contra a volta do atalho: /sobre continua existindo e continua
     // linkada, mas como complemento, não como substituta.
     const trecho = rodape.slice(rodape.indexOf("Política de privacidade") - 300);
-    expect(trecho.slice(0, 600)).not.toContain('href="/sobre"');
+    expect(trecho.slice(0, 600)).not.toContain('href="/seguranca"');
   });
 
   it("a política distingue controlador de operador", () => {

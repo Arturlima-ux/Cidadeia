@@ -54,8 +54,8 @@ export const CARGOS: Cargo[] = [
     cargoLigacao: "Prefeito(a)",
     titulo: "A prefeitura inteira na sua tela, e o RGF conferido antes de assinar.",
     lead:
-      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, alimentado sozinho pelas bases oficiais. E o que a lei fiscal exige, conferido todo dia: o senhor fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
-    chamada: "A prefeitura inteira numa tela, e as contas que pesam no seu CPF conferidas todo dia.",
+      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num painel só, com o que é público lido sozinho das bases oficiais. E o que a lei fiscal exige, conferido a cada relatório, com cada prazo acompanhado: o senhor fica sabendo pelo seu próprio sistema, e não pelo apontamento.",
+    chamada: "A prefeitura inteira numa tela, e as contas que pesam no seu CPF conferidas a cada relatório.",
     riscos: [
       {
         texto:
@@ -91,7 +91,7 @@ export const CARGOS: Cargo[] = [
       {
         pergunta: "Já tenho contador e sistema de contabilidade.",
         resposta:
-          "O CidadeIA não substitui nenhum dos dois. Ele lê o que o sistema contábil já enviou ao Tesouro e confere prazo, limite e coerência dos números, todo dia, sem depender de alguém lembrar.",
+          "O CidadeIA não substitui nenhum dos dois. Ele lê o que o sistema contábil já enviou ao Tesouro: acompanha o prazo de cada entrega todo dia e confere limite e coerência dos números a cada relatório publicado, sem depender de alguém lembrar.",
       },
       {
         pergunta: "Contratar software na prefeitura demora.",
@@ -106,10 +106,10 @@ export const CARGOS: Cargo[] = [
     fechamento: {
       titulo: "No próximo prazo, o senhor já fica sabendo antes.",
       texto:
-        "Com o Gestão ligado, o aviso de cada RREO e RGF chega por e-mail 15 dias antes do vencimento, e a despesa com pessoal passa a ser conferida todo dia na régua da LRF. O que precisa de decisão aparece no alto do painel, com o artigo ao lado.",
+        "Com o Gestão ligado, o aviso de cada RREO e RGF chega por e-mail 15 dias antes do vencimento, e a despesa com pessoal passa a ser conferida na régua da LRF a cada RGF publicado. O que precisa de decisão aparece no alto do painel, com o artigo ao lado.",
     },
     descricaoSeo:
-      "Despesa com pessoal, prazos do RREO e do RGF e mínimos de saúde e educação conferidos todo dia no Tesouro, com aviso ao prefeito antes do Tribunal de Contas.",
+      "Despesa com pessoal, prazos do RREO e do RGF e mínimos de saúde e educação conferidos a cada relatório publicado no Tesouro, com aviso ao prefeito antes do Tribunal de Contas.",
   },
   {
     slug: "financas",
@@ -119,7 +119,7 @@ export const CARGOS: Cargo[] = [
     titulo: "Os números do município num lugar só, e nenhum relatório vencido.",
     lead:
       "Receita, despesa e saldo do município consolidados num painel, a despesa por função lida sozinha do RREO e a despesa com pessoal do RGF. E, como quem responde pelas finanças assina o RGF junto com o prefeito, o CidadeIA confere no Tesouro todo dia o que já consta entregue e avisa antes do prazo. A planilha pode se aposentar.",
-    chamada: "Receita, despesa e relatórios fiscais num lugar só, conferidos todo dia.",
+    chamada: "Receita, despesa e relatórios fiscais num lugar só, conferidos a cada publicação.",
     riscos: [
       {
         texto:
@@ -230,7 +230,7 @@ export const CARGOS: Cargo[] = [
     fechamento: {
       titulo: "O próximo parecer começa com a conferência feita.",
       texto:
-        "Entregas no Tesouro, despesa com pessoal na régua da LRF, números do RGF que não fecham e dispensas somadas por objeto: o CidadeIA confere todo dia e entrega em PDF, com o artigo ao lado de cada apontamento. Você fica com a parte que é do controle: analisar e recomendar.",
+        "Entregas no Tesouro, despesa com pessoal na régua da LRF, números do RGF que não fecham e dispensas somadas por objeto: o CidadeIA confere sozinho e entrega em PDF, com o artigo ao lado de cada apontamento. Você fica com a parte que é do controle: analisar e recomendar.",
     },
     descricaoSeo:
       "Para o controle interno municipal: entregas do RREO e do RGF, despesa com pessoal na régua da LRF, números que não fecham e dispensas somadas, com a base legal de cada aviso.",

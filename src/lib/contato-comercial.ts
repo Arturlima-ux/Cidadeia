@@ -9,6 +9,15 @@
 //     preenchido na Vercel (só números, com DDI e DDD: 5586999990000). Sem a
 //     variável, nenhum botão de WhatsApp aparece, para não prometer o que não há.
 
+// ── O E-MAIL QUE O PÚBLICO VÊ ──
+// O endereço do projeto, e não o pessoal: o fundador prefere não aparecer
+// por nome, e um Gmail com nome de pessoa no "Fale conosco" passa amadorismo
+// a quem compra para a prefeitura (revisão de outubro de 2026). É o que vai
+// no site, nos dados para o Google e no "responder para" dos e-mails que
+// saem para clientes. O destino interno dos avisos da equipe (abaixo) não
+// aparece para ninguém de fora e continua configurável na Vercel.
+export const CONTATO_PUBLICO = "cidadeia1326@gmail.com";
+
 export const DESTINO_EQUIPE_PADRAO = "arturmlo2005@gmail.com";
 
 /** Para onde vão os avisos comerciais da equipe. */

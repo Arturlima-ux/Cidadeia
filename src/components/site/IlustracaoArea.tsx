@@ -74,7 +74,12 @@ function Atendimento({ cor }: { cor: string }) {
     <g>
       {/* painel de senha */}
       <rect x="30" y="20" width="62" height="30" rx="6" fill={BLOCO} stroke={LINHA} strokeOpacity="0.35" />
-      <text x="61" y="41" textAnchor="middle" fontSize="15" fontWeight="600" fill={cor}>042</text>
+      {/* A senha em três blocos, e não em texto: um <text> "042" dentro do
+          desenho entrava no nome do link que envolve o cartão, e o leitor
+          de tela (e o Google) liam "042Essencial →". */}
+      <rect x="44" y="28" width="9" height="14" rx="2" fill={cor} />
+      <rect x="56.5" y="28" width="9" height="14" rx="2" fill={cor} />
+      <rect x="69" y="28" width="9" height="14" rx="2" fill={cor} />
       {/* balcão */}
       <rect x="22" y="88" width="120" height="38" rx="6" fill={BLOCO} stroke={LINHA} strokeOpacity="0.35" />
       <rect x="22" y="84" width="120" height="8" rx="3" fill={cor} fillOpacity="0.5" />

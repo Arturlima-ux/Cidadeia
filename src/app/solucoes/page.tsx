@@ -21,7 +21,7 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
 };
 
 export const metadata = compartilhamento({
-  titulo: "Soluções",
+  titulo: "Produtos",
   descricao:
     "Os seis módulos do CidadeIA — Essencial, Gestão, Saúde, Educação, Obras e Licitações — com o que cada um entrega, o painel de cada um e o montador de proposta.",
   caminho: "/solucoes",
@@ -43,11 +43,11 @@ export default async function SolucoesPage({
   // /precos tem o atalho para o montador logo no topo.
   return (
     <div className="tema-noite min-h-screen overflow-x-clip">
-      <JsonLdScript dados={[ldSoftware(), ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Soluções", caminho: "/solucoes" }])]} />
+      <JsonLdScript dados={[ldSoftware(), ldBreadcrumb([{ nome: "Início", caminho: "/" }, { nome: "Produtos", caminho: "/solucoes" }])]} />
       <SiteHeader />
       <main id="conteudo">
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-24 pb-16">
-          <h1 className="titulo-pagina">Soluções</h1>
+          <h1 className="titulo-pagina">Produtos</h1>
           {demoIndisponivel && (
             <p
               className="text-sm rounded-xl px-4 py-3 border mt-6 max-w-2xl"
