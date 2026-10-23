@@ -45,3 +45,41 @@ describe("fila vazia da ouvidoria", () => {
     expect(textoFilaVazia(true, true)).toContain("ela aparece aqui");
   });
 });
+
+describe("medidor do Índice de Transparência", () => {
+  it("a primeira pintura já traz o valor real, não 0%", async () => {
+    const { createElement } = await import("react");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { default: GaugeEficiencia } = await import("@/components/GaugeEficiencia");
+    const html = renderToStaticMarkup(createElement(GaugeEficiencia, { valor: 78, label: "Índice de Transparência" }));
+    expect(html).toContain("78%");
+    expect(html).not.toContain(">0%<");
+    expect(html).toContain('aria-label="Índice de Transparência: 78%"');
+  });
+});
+
+describe("formulários do painel", () => {
+  // Rótulo seguido do campo, sem htmlFor/id: na tela parece certo, mas o
+  // leitor de tela anuncia só "caixa de edição" e clicar no rótulo não foca
+  // o campo. Eram 46 assim em outubro de 2026.
+  it("todo rótulo que precede um campo está ligado a ele", async () => {
+    const { readFileSync, readdirSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const arquivos: string[] = [];
+    const andar = (dir: string) => {
+      for (const nome of readdirSync(dir)) {
+        const caminho = join(dir, nome);
+        if (statSync(caminho).isDirectory()) andar(caminho);
+        else if (caminho.endsWith(".tsx")) arquivos.push(caminho);
+      }
+    };
+    andar("src/app/dashboard");
+    const soltos: string[] = [];
+    const padrao = /<label (?![^>]*htmlFor)[^>]*>((?:(?!<\/label>|<input|<select|<textarea)[\s\S])*?)<\/label>\s*<(input|select|textarea)\b/g;
+    for (const arquivo of arquivos) {
+      const codigo = readFileSync(arquivo, "utf8");
+      for (const m of codigo.matchAll(padrao)) soltos.push(`${arquivo}: ${m[1].replace(/\s+/g, " ").trim().slice(0, 40)}`);
+    }
+    expect(soltos).toEqual([]);
+  });
+});

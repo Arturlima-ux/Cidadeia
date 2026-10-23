@@ -115,6 +115,9 @@ export default async function EducacaoPage() {
             da escola.
           </p>
         </div>
+        {/* Download de PDF gerado por rota de API: o Link tentaria navegar
+            no cliente (e pré-carregar o arquivo). */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/relatorios/secretaria/educacao"
           className="group shrink-0 flex items-center gap-2 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
@@ -409,8 +412,9 @@ export default async function EducacaoPage() {
           <summary className="text-xs font-semibold text-muted cursor-pointer">Cadastrar escola à mão</summary>
           <form action={criarEscola} className="bg-card border border-border rounded-2xl p-4 flex flex-wrap gap-3 items-end mt-2">
             <div className="flex-1 min-w-[160px]">
-              <label className="block text-xs font-medium mb-1">Nome</label>
+              <label htmlFor="educacao-nome" className="block text-xs font-medium mb-1">Nome</label>
               <input
+                id="educacao-nome"
                 name="nome"
                 required
                 placeholder="Escola Municipal José Alves"
@@ -418,12 +422,13 @@ export default async function EducacaoPage() {
               />
             </div>
             <div className="flex-1 min-w-[140px]">
-              <label className="block text-xs font-medium mb-1">Bairro</label>
-              <input name="bairro" placeholder="Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
+              <label htmlFor="educacao-bairro" className="block text-xs font-medium mb-1">Bairro</label>
+              <input id="educacao-bairro" name="bairro" placeholder="Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
             </div>
             <div className="w-28">
-              <label className="block text-xs font-medium mb-1">Latitude</label>
+              <label htmlFor="educacao-latitude" className="block text-xs font-medium mb-1">Latitude</label>
               <input
+                id="educacao-latitude"
                 name="latitude"
                 type="number"
                 step="any"
@@ -435,8 +440,9 @@ export default async function EducacaoPage() {
               />
             </div>
             <div className="w-28">
-              <label className="block text-xs font-medium mb-1">Longitude</label>
+              <label htmlFor="educacao-longitude" className="block text-xs font-medium mb-1">Longitude</label>
               <input
+                id="educacao-longitude"
                 name="longitude"
                 type="number"
                 step="any"
@@ -448,8 +454,9 @@ export default async function EducacaoPage() {
               />
             </div>
             <div className="w-36">
-              <label className="block text-xs font-medium mb-1">Evasão (%)</label>
+              <label htmlFor="educacao-evasaoPercentual" className="block text-xs font-medium mb-1">Evasão (%)</label>
               <input
+                id="educacao-evasaoPercentual"
                 name="evasaoPercentual"
                 type="number"
                 step="0.1"
@@ -500,8 +507,9 @@ function FormularioIndicador() {
         className="absolute right-0 z-10 mt-2 w-72 bg-card border border-border rounded-xl p-4 shadow-lg space-y-3"
       >
         <div>
-          <label className="block text-xs font-medium mb-1">Frequência (%)</label>
+          <label htmlFor="educacao-frequenciaPercentual" className="block text-xs font-medium mb-1">Frequência (%)</label>
           <input
+            id="educacao-frequenciaPercentual"
             name="frequenciaPercentual"
             type="number"
             step="0.1"
@@ -511,8 +519,9 @@ function FormularioIndicador() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Nota média (0-10)</label>
+          <label htmlFor="educacao-notaMedia" className="block text-xs font-medium mb-1">Nota média (0-10)</label>
           <input
+            id="educacao-notaMedia"
             name="notaMedia"
             type="number"
             step="0.1"
@@ -522,12 +531,12 @@ function FormularioIndicador() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Alunos no transporte escolar</label>
-          <input name="alunosTransporte" type="number" className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand" />
+          <label htmlFor="educacao-alunosTransporte" className="block text-xs font-medium mb-1">Alunos no transporte escolar</label>
+          <input id="educacao-alunosTransporte" name="alunosTransporte" type="number" className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand" />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Professores ativos</label>
-          <input name="professoresAtivos" type="number" className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand" />
+          <label htmlFor="educacao-professoresAtivos" className="block text-xs font-medium mb-1">Professores ativos</label>
+          <input id="educacao-professoresAtivos" name="professoresAtivos" type="number" className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand" />
         </div>
         <button type="submit" className="w-full bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full py-2 transition">
           Salvar

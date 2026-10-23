@@ -75,6 +75,7 @@ export default async function ImplantacaoPage() {
                 color: passo.feito ? "var(--info)" : "var(--muted)",
                 background: passo.feito ? "var(--info-tint)" : "transparent",
               }}
+              role="img"
               aria-label={passo.feito ? "Concluído" : `Passo ${i + 1}`}
             >
               {passo.feito ? <IconCheck className="w-4 h-4" /> : i + 1}

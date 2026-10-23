@@ -49,7 +49,7 @@ export default function SimuladorFinanceiro({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="flex items-center justify-between text-xs font-medium mb-1.5">
+          <label htmlFor="simulador-receita" className="flex items-center justify-between text-xs font-medium mb-1.5">
             <span>Variação na receita</span>
             <span className="text-brand font-semibold">
               {variacaoReceita > 0 ? "+" : ""}
@@ -60,13 +60,16 @@ export default function SimuladorFinanceiro({
             type="range"
             min={-50}
             max={50}
+            step={1}
+            id="simulador-receita"
+            aria-valuetext={`${variacaoReceita > 0 ? "+" : ""}${variacaoReceita}%`}
             value={variacaoReceita}
             onChange={(e) => setVariacaoReceita(Number(e.target.value))}
             className="w-full accent-brand"
           />
         </div>
         <div>
-          <label className="flex items-center justify-between text-xs font-medium mb-1.5">
+          <label htmlFor="simulador-despesa" className="flex items-center justify-between text-xs font-medium mb-1.5">
             <span>Variação nas despesas</span>
             <span className="text-brand font-semibold">
               {variacaoDespesa > 0 ? "+" : ""}
@@ -77,6 +80,9 @@ export default function SimuladorFinanceiro({
             type="range"
             min={-50}
             max={50}
+            step={1}
+            id="simulador-despesa"
+            aria-valuetext={`${variacaoDespesa > 0 ? "+" : ""}${variacaoDespesa}%`}
             value={variacaoDespesa}
             onChange={(e) => setVariacaoDespesa(Number(e.target.value))}
             className="w-full accent-brand"

@@ -173,7 +173,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
                   <th className="px-4 py-2.5 font-medium">Data</th>
                   <th className="px-4 py-2.5 font-medium text-right">Valor</th>
                   <th className="px-4 py-2.5 font-medium">Agric. familiar</th>
-                  <th className="px-2 py-2.5"></th>
+                  <th className="relative px-2 py-2.5"><span className="sr-only">Ações</span></th>
                 </tr>
               </thead>
               <tbody>

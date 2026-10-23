@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { registrarInvestimento, type ResultadoInvestimento } from "./actions";
+import type { ResultadoInvestimento } from "./actions";
 
 const SECRETARIAS = [
   { chave: "saude", label: "Saúde" },
@@ -52,8 +52,9 @@ export default function FormularioInvestimento({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium mb-1">Secretaria</label>
+          <label htmlFor="investimento-secretaria" className="block text-xs font-medium mb-1">Secretaria</label>
           <select
+            id="investimento-secretaria"
             name="secretaria"
             required
             className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
@@ -66,8 +67,9 @@ export default function FormularioInvestimento({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Valor (R$)</label>
+          <label htmlFor="investimento-valor" className="block text-xs font-medium mb-1">Valor (R$)</label>
           <input
+            id="investimento-valor"
             name="valor"
             type="number"
             step="0.01"
@@ -78,8 +80,9 @@ export default function FormularioInvestimento({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Competência</label>
+          <label htmlFor="investimento-competencia" className="block text-xs font-medium mb-1">Competência</label>
           <input
+            id="investimento-competencia"
             name="competencia"
             type="month"
             required
@@ -88,8 +91,9 @@ export default function FormularioInvestimento({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Descrição (opcional)</label>
+          <label htmlFor="investimento-descricao" className="block text-xs font-medium mb-1">Descrição (opcional)</label>
           <input
+            id="investimento-descricao"
             name="descricao"
             placeholder="ex: compra de medicamentos"
             className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"

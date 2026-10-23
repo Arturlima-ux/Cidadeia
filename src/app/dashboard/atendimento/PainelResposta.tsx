@@ -103,8 +103,9 @@ export default function PainelResposta({
 
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium mb-1">Novo status</label>
+          <label htmlFor={`resposta-status-${id}`} className="block text-xs font-medium mb-1">Novo status</label>
           <select
+            id={`resposta-status-${id}`}
             name="status"
             defaultValue={statusAtual === "aberto" ? "respondido" : statusAtual}
             className="rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"

@@ -241,8 +241,9 @@ export default async function LicitacoesPage() {
           className="bg-card border border-border rounded-2xl p-4 grid sm:grid-cols-2 gap-3"
         >
           <div>
-            <label className="block text-xs font-medium mb-1">Número do processo</label>
+            <label htmlFor="licitacao-numero" className="block text-xs font-medium mb-1">Número do processo</label>
             <input
+              id="licitacao-numero"
               name="numero"
               required
               placeholder="PE 012/2026"
@@ -250,16 +251,18 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Modalidade</label>
+            <label htmlFor="licitacao-modalidade" className="block text-xs font-medium mb-1">Modalidade</label>
             <input
+              id="licitacao-modalidade"
               name="modalidade"
               placeholder="Pregão Eletrônico"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-xs font-medium mb-1">Objeto</label>
+            <label htmlFor="licitacao-objeto" className="block text-xs font-medium mb-1">Objeto</label>
             <input
+              id="licitacao-objeto"
               name="objeto"
               required
               placeholder="Aquisição de merenda escolar"
@@ -267,8 +270,9 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Valor estimado (R$)</label>
+            <label htmlFor="licitacao-valorEstimado" className="block text-xs font-medium mb-1">Valor estimado (R$)</label>
             <input
+              id="licitacao-valorEstimado"
               name="valorEstimado"
               type="number"
               step="0.01"
@@ -276,16 +280,18 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Fornecedor</label>
+            <label htmlFor="licitacao-fornecedor" className="block text-xs font-medium mb-1">Fornecedor</label>
             <input
+              id="licitacao-fornecedor"
               name="fornecedor"
               placeholder="(se já homologado)"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Status</label>
+            <label htmlFor="licitacao-status" className="block text-xs font-medium mb-1">Status</label>
             <select
+              id="licitacao-status"
               name="status"
               defaultValue="planejamento"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
@@ -298,20 +304,22 @@ export default async function LicitacoesPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label htmlFor="licitacao-observacaoRisco" className="block text-xs font-medium mb-1">
               Observação de risco (opcional)
             </label>
             <input
+              id="licitacao-observacaoRisco"
               name="observacaoRisco"
               placeholder="ex: impugnação em análise"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label htmlFor="licitacao-prazoFinal" className="block text-xs font-medium mb-1">
               Prazo final (opcional)
             </label>
             <input
+              id="licitacao-prazoFinal"
               name="prazoFinal"
               type="date"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"

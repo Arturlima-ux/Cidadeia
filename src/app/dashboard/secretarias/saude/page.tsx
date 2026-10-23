@@ -81,6 +81,9 @@ export default async function SaudePage() {
             uma (sem médico, faltou insulina, fila) a equipe registra pelo celular, na ficha da unidade.
           </p>
         </div>
+        {/* Download de PDF gerado por rota de API: o Link tentaria navegar
+            no cliente (e pré-carregar o arquivo). */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/relatorios/secretaria/saude"
           className="group shrink-0 flex items-center gap-2 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
@@ -314,28 +317,28 @@ export default async function SaudePage() {
             className="bg-card border border-border rounded-2xl p-4 flex flex-wrap gap-3 items-end mt-2"
           >
             <div className="flex-1 min-w-[160px]">
-              <label className="block text-xs font-medium mb-1">Nome</label>
-              <input name="nome" required placeholder="UBS Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
+              <label htmlFor="saude-nome" className="block text-xs font-medium mb-1">Nome</label>
+              <input id="saude-nome" name="nome" required placeholder="UBS Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Tipo</label>
-              <select name="tipo" className="rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand">
+              <label htmlFor="saude-tipo" className="block text-xs font-medium mb-1">Tipo</label>
+              <select id="saude-tipo" name="tipo" className="rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand">
                 {Object.entries(LABEL_TIPO).map(([chave, rotulo]) => (
                   <option key={chave} value={chave}>{rotulo}</option>
                 ))}
               </select>
             </div>
             <div className="flex-1 min-w-[140px]">
-              <label className="block text-xs font-medium mb-1">Bairro</label>
-              <input name="bairro" placeholder="Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
+              <label htmlFor="saude-bairro" className="block text-xs font-medium mb-1">Bairro</label>
+              <input id="saude-bairro" name="bairro" placeholder="Centro" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
             </div>
             <div className="w-28">
-              <label className="block text-xs font-medium mb-1">Latitude</label>
-              <input name="latitude" type="number" step="any" min={LIMITES_BRASIL.latitude.min} max={LIMITES_BRASIL.latitude.max} placeholder="-3.7327" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
+              <label htmlFor="saude-latitude" className="block text-xs font-medium mb-1">Latitude</label>
+              <input id="saude-latitude" name="latitude" type="number" step="any" min={LIMITES_BRASIL.latitude.min} max={LIMITES_BRASIL.latitude.max} placeholder="-3.7327" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
             </div>
             <div className="w-28">
-              <label className="block text-xs font-medium mb-1">Longitude</label>
-              <input name="longitude" type="number" step="any" min={LIMITES_BRASIL.longitude.min} max={LIMITES_BRASIL.longitude.max} placeholder="-38.5267" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
+              <label htmlFor="saude-longitude" className="block text-xs font-medium mb-1">Longitude</label>
+              <input id="saude-longitude" name="longitude" type="number" step="any" min={LIMITES_BRASIL.longitude.min} max={LIMITES_BRASIL.longitude.max} placeholder="-38.5267" className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand" />
             </div>
             <button type="submit" className="bg-brand hover:bg-brand-dark text-white text-sm font-semibold rounded-full px-5 py-2 transition">
               Adicionar
@@ -379,10 +382,11 @@ function FormularioIndicador() {
         className="absolute right-0 z-10 mt-2 w-72 bg-card border border-border rounded-xl p-4 shadow-lg space-y-3"
       >
         <div>
-          <label className="block text-xs font-medium mb-1">
+          <label htmlFor="saude-tempoMedioAtendimentoMin" className="block text-xs font-medium mb-1">
             Tempo médio de atendimento (min)
           </label>
           <input
+            id="saude-tempoMedioAtendimentoMin"
             name="tempoMedioAtendimentoMin"
             type="number"
             step="0.1"
@@ -390,16 +394,18 @@ function FormularioIndicador() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Médicos ativos</label>
+          <label htmlFor="saude-medicosAtivos" className="block text-xs font-medium mb-1">Médicos ativos</label>
           <input
+            id="saude-medicosAtivos"
             name="medicosAtivos"
             type="number"
             className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Faltas (%)</label>
+          <label htmlFor="saude-faltasPercentual" className="block text-xs font-medium mb-1">Faltas (%)</label>
           <input
+            id="saude-faltasPercentual"
             name="faltasPercentual"
             type="number"
             step="0.1"
@@ -409,10 +415,11 @@ function FormularioIndicador() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">
+          <label htmlFor="saude-estoqueMedicamentosPercentual" className="block text-xs font-medium mb-1">
             Estoque de medicamentos (%)
           </label>
           <input
+            id="saude-estoqueMedicamentosPercentual"
             name="estoqueMedicamentosPercentual"
             type="number"
             step="0.1"
