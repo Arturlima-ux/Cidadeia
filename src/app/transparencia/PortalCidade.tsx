@@ -6,7 +6,7 @@ import FormularioCidadao from "./FormularioCidadao";
 import SecoesPublicadas from "./SecoesPublicadas";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
-import { temRelatorioFinal, type Emenda } from "@/lib/emendas-pix";
+import { PISO_CAPITAL, percentualDeCapital, situacaoDaEmenda, type Emenda } from "@/lib/emendas-pix";
 import { MINIMO_AVALIACOES, type ItemFaixa, type VozDaCidade } from "@/lib/voz-da-cidade";
 import { NOTAS, type Satisfacao as DadosSatisfacao } from "@/lib/avaliacao-cidadao";
 import { NOME_TIPO, type TipoAtendimento } from "@/lib/atendimento";
@@ -207,9 +207,11 @@ const UNIDADE_CURTA: Record<string, { rotulo: string; peso: number }> = {
 /** "● Atualizado sozinho há 2 dias, direto do PNCP": de quando é o dado, sempre à vista. */
 function Selo({ f }: { f: Frescor | undefined }) {
   if (!f) return null;
+  // Dado ilustrativo nunca ganha a cor e o pulso de "ao vivo".
+  const vivo = f.sozinho && !f.ilustrativo;
   return (
-    <p className="inline-flex items-center gap-2 text-sm -mt-6 mb-8" style={{ color: f.sozinho ? "var(--info)" : "var(--muted)" }}>
-      <span className={`w-2 h-2 rounded-full ${f.sozinho ? "portal-pulso" : ""}`} style={{ background: f.sozinho ? "var(--info)" : "var(--muted)" }} aria-hidden />
+    <p className="inline-flex items-center gap-2 text-sm -mt-6 mb-8" style={{ color: vivo ? "var(--info)" : "var(--muted)" }}>
+      <span className={`w-2 h-2 rounded-full ${vivo ? "portal-pulso" : ""}`} style={{ background: vivo ? "var(--info)" : "var(--muted)" }} aria-hidden />
       {descreverFrescor(f)}
     </p>
   );
@@ -605,24 +607,39 @@ export default function PortalCidade({ portal, slug, snapshot, listaObras, lista
                   O dinheiro que veio <span style={{ color: "var(--brand-claro)" }}>de Brasília.</span>
                 </>
               }
-              texto="Emendas Pix: transferências de deputados e senadores que caem direto na conta da prefeitura. De quem veio, para quê, até quando a obra ou o serviço tem de ficar pronto, e se a prefeitura já prestou contas."
+              texto="Emendas Pix: transferências de deputados e senadores que chegam à prefeitura sem convênio, mediante plano de trabalho aprovado no Transferegov. De quem veio, o que a prefeitura definiu no plano, até quando a execução vai e se as contas já foram prestadas."
             />
             <Selo f={frescor.emendas} />
+            {/* Pelo menos 70% em obra e equipamento (art. 166-A, § 5º): o que o
+                plano informa, ano a ano. */}
+            {percentualDeCapital(emendas).length > 0 && (
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 -mt-4 mb-8 text-sm">
+                {percentualDeCapital(emendas).slice(0, 4).map((a) => (
+                  <li key={a.ano} style={{ color: a.abaixoDoPiso ? "var(--medio)" : "var(--muted)" }}>
+                    <span className="font-semibold tabular-nums" style={{ color: a.abaixoDoPiso ? "var(--medio)" : "var(--foreground)" }}>
+                      {Math.round(a.percentual * 100)}%
+                    </span>{" "}
+                    em obras e equipamentos em {a.ano}
+                    {a.abaixoDoPiso ? ` (a Constituição pede ao menos ${PISO_CAPITAL * 100}%)` : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
             <ul className="border-t border-border">
               {emendas.slice(0, 12).map((e, i) => (
                 <Surgir key={e.id} como="li" atraso={Math.min(i, 4) * 0.05} className="grid sm:grid-cols-[minmax(0,1fr)_auto] gap-x-8 gap-y-2 py-6 border-b border-border">
                     <div className="min-w-0">
                       <p className="text-lg font-medium tracking-[-0.01em] break-words">{e.objeto ?? (e.area ? `Emenda para ${e.area}` : "Objeto não informado")}</p>
                       <p className="text-sm text-muted mt-1">
-                        {[e.parlamentar, e.ano ? String(e.ano) : null, e.area, e.planoTrabalho?.fim ? `execução até ${e.planoTrabalho.fim.split("-").reverse().join("/")}` : null]
+                        {[e.parlamentar, e.ano ? String(e.ano) : null, e.area, e.planoTrabalho?.fim ? `execução até ${e.planoTrabalho.fim.split("-").reverse().join("/")}` : null, e.impedimento ? `impedimento: ${e.impedimento.toLowerCase()}` : null]
                           .filter(Boolean)
                           .join(" · ")}
                       </p>
                     </div>
                     <div className="sm:text-right self-center">
                       <p className="text-lg font-semibold tabular-nums">{formatarMoeda(e.valor)}</p>
-                      <p className="text-xs mt-0.5" style={{ color: temRelatorioFinal(e) ? "var(--info)" : "var(--muted)" }}>
-                        {temRelatorioFinal(e) ? "Contas prestadas" : e.relatorios.length ? "Prestação de contas parcial" : "Prestação de contas pendente"}
+                      <p className="text-xs mt-0.5" style={{ color: `var(--${situacaoDaEmenda(e).tom})` }}>
+                        {situacaoDaEmenda(e).rotulo}
                       </p>
                     </div>
                 </Surgir>

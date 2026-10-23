@@ -3,7 +3,7 @@ import BloqueioPlano from "@/components/BloqueioPlano";
 import FaixaExemplo from "@/components/FaixaExemplo";
 import { ehGestor } from "@/lib/sessao";
 import { formatarMoeda } from "@/lib/formatadores";
-import { achadosDasEmendas, resumirEmendas, temRelatorioFinal, type Emenda } from "@/lib/emendas-pix";
+import { PISO_CAPITAL, achadosDasEmendas, percentualDeCapital, resumirEmendas, situacaoDaEmenda, temRelatorioFinal, type Emenda } from "@/lib/emendas-pix";
 import { lerEmendas } from "@/lib/emendas-pix-servidor";
 import { emendasDeExemplo } from "@/lib/emendas-pix-exemplo";
 import { dataDoBanco } from "@/lib/data-do-banco";
@@ -31,7 +31,7 @@ function Linha({ e, hoje }: { e: Emenda; hoje: Date }) {
         <p className="text-lg font-semibold tabular-nums whitespace-nowrap">{formatarMoeda(e.valor)}</p>
       </div>
       <div className="grid sm:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted mt-3">
-        <p>Situação: <span className="text-foreground">{e.situacao ?? "—"}</span></p>
+        <p>Situação: <span className="text-foreground">{e.planoTrabalho?.aprovadoEm ? e.situacao ?? "—" : situacaoDaEmenda(e).rotulo}</span></p>
         <p>Execução até: <span className="text-foreground">{data(e.planoTrabalho?.fim ?? null)}</span></p>
         <p>
           Relatório final:{" "}
@@ -80,6 +80,25 @@ export default async function EmendasPage() {
           </div>
         ))}
       </div>
+      {percentualDeCapital(emendas).length > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-sm font-medium">Despesa de capital (obras e equipamentos)</p>
+          <p className="text-xs text-muted mt-0.5">
+            A Constituição manda aplicar ao menos {PISO_CAPITAL * 100}% das transferências especiais em capital (art. 166-A, § 5º).
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
+            {percentualDeCapital(emendas).map((a) => (
+              <li key={a.ano}>
+                {a.ano}:{" "}
+                <strong className="tabular-nums" style={{ color: a.abaixoDoPiso ? "var(--urgente)" : "var(--info)" }}>
+                  {Math.round(a.percentual * 100)}%
+                </strong>
+                {a.abaixoDoPiso && <span className="text-muted"> · abaixo do mínimo</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {emendas.length ? (
         <ul className="space-y-3">
           {emendas.map((e) => (
@@ -100,8 +119,8 @@ export default async function EmendasPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-[-0.02em]">Emendas Pix</h1>
           <p className="text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
-            As transferências especiais que caíram direto na conta da prefeitura: de quem veio, para quê, até quando
-            executar e se o relatório de gestão foi enviado. Lido sozinho no Transferegov toda semana; o que vencer vira
+            As transferências especiais recebidas sem convênio, mediante plano de trabalho aprovado no Transferegov: de
+            quem veio, o objeto e o prazo do plano e se o relatório de gestão foi enviado. Lido sozinho no Transferegov toda semana; o que vencer vira
             alerta no painel e e-mail para o prefeito.
           </p>
           {lido && (
