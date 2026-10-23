@@ -22,6 +22,15 @@ export const URL_BASE = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?
 
 export const NOME_DO_SITE = "CidadeIA";
 
+// ── O QUE A PREFEITURA DIGITA NO GOOGLE ──
+// "A gestão municipal inteira, num lugar só" é o slogan e fica no título da
+// tela. Ninguém procura por ele; procura "sistema de gestão municipal".
+// O título da aba e do resultado de busca leva o termo (auditoria de SEO,
+// out/2026).
+export const TITULO_DO_SITE = "CidadeIA: sistema de gestão municipal para prefeituras";
+export const DESCRICAO_PADRAO =
+  "Sistema de gestão municipal: ouvidoria, protocolo, portal do cidadão, obras, saúde, educação e LRF, com o dado público lido sozinho das bases oficiais.";
+
 const IMAGEM_PADRAO = { url: "/opengraph-image", width: 1200, height: 630, alt: "CidadeIA — gestão municipal com dado público" };
 
 /**

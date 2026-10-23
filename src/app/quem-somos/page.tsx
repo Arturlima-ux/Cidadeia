@@ -16,7 +16,7 @@ import { todosOsMunicipios, ANO_ESTIMATIVA_POPULACAO } from "@/lib/municipios";
 export const metadata = compartilhamento({
   titulo: "Quem somos",
   descricao:
-    "O CidadeIA nasceu para automatizar a prefeitura brasileira e reunir a gestão municipal inteira num lugar só: atendimento ao cidadão, secretarias, obras, saúde, educação e finanças.",
+    "O CidadeIA nasceu para automatizar a prefeitura brasileira: atendimento ao cidadão, secretarias, obras, saúde, educação e finanças num lugar só.",
   caminho: "/quem-somos",
 });
 

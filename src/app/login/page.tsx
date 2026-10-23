@@ -19,6 +19,7 @@ import FormularioLogin from "./FormularioLogin";
 
 export const metadata = {
   title: "Entrar",
+  description: "Acesso ao painel do CidadeIA com o CPF ou CNPJ e a senha cadastrados pela prefeitura.",
 };
 
 export default async function LoginPage({

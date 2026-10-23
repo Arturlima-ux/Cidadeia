@@ -29,7 +29,7 @@ import { registrarEvento } from "@/lib/registrar-evento";
 export const metadata = compartilhamento({
   titulo: "Panorama da despesa com pessoal das prefeituras",
   descricao:
-    "Quantas prefeituras estão no alerta, no limite prudencial e acima do limite da LRF, por estado. RGF de cada prefeitura conferido toda semana no Tesouro Nacional.",
+    "Quantas prefeituras estão no alerta, no prudencial e acima do limite da LRF, por estado, com o RGF de cada uma conferido toda semana no Tesouro Nacional.",
   caminho: "/panorama",
 });
 

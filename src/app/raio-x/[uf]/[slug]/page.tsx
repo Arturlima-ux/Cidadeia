@@ -88,9 +88,13 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   const m = acharMunicipio(uf, slug);
   if (!m) return { title: "Município não encontrado" };
   const pop = new Intl.NumberFormat("pt-BR").format(m.populacao ?? 0);
+  const ano = Number(hojeEmBrasilia().slice(0, 4));
   return compartilhamento({
-    titulo: `Raio-X da Prefeitura de ${m.nome}/${m.uf} — receita, saúde, educação e RREO no Tesouro`,
-    descricao: `O que o Tesouro Nacional já publicou sobre ${m.nome} (${m.uf}, ${pop} habitantes): receita realizada, aplicação em saúde e educação, e quais relatórios obrigatórios constam. Dado público, sem cadastro.`,
+    // Era "Raio-X da Prefeitura de X/UF — receita, saúde, educação e RREO no
+    // Tesouro — CidadeIA": 91 caracteres, cortado no Google, e sem o dado
+    // que mais se procura. Agora ~60, com despesa com pessoal e LRF.
+    titulo: `${m.nome} (${m.uf}): despesa com pessoal e LRF em ${ano}`,
+    descricao: `Despesa com pessoal da prefeitura de ${m.nome} na régua da LRF, receita, saúde, educação e entrega do RREO e do RGF no Tesouro em ${ano}. ${pop} habitantes.`,
     caminho: caminhoDoRaioX(m),
     imagemPropria: true,
   });

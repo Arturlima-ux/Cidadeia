@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ cargo: st
   const c = cargoPorSlug(cargo);
   if (!c) return { title: "Página não encontrada" };
   return compartilhamento({
-    titulo: `CidadeIA para ${c.publico.toLowerCase()}`,
+    titulo: c.tituloBusca,
     descricao: c.descricaoSeo,
     caminho: `/para/${c.slug}`,
   });

@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   if (!uf) return { title: "Estado não encontrado" };
   const r = retratoDaUf(uf);
   return compartilhamento({
-    titulo: `Raio-X das ${r.total} prefeituras ${doEstado(uf)} — população, faixa e o que consta no Tesouro`,
-    descricao: `Os ${r.total} municípios ${doEstado(uf)} (${n(r.populacao)} habitantes pela estimativa do IBGE), do maior para o menor, com a faixa de habitantes de cada um e o Raio-X do que a prefeitura publicou no Tesouro Nacional. Dado público, sem cadastro.`,
+    titulo: `Prefeituras ${doEstado(uf)}: despesa com pessoal e LRF`,
+    descricao: `Os ${r.total} municípios ${doEstado(uf)}, do maior para o menor, com o Raio-X de cada prefeitura no Tesouro Nacional: despesa com pessoal, RREO e RGF.`,
     caminho: `/raio-x/${uf.toLowerCase()}`,
     imagemPropria: true,
   });

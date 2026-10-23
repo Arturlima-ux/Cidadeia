@@ -34,9 +34,10 @@ export async function generateMetadata({ params }: { params: Promise<{ chave: st
   const { chave } = await params;
   const plano = PLANOS_ADDON.find((p) => p.chave === chave);
   if (!plano) return { title: "Módulo" };
+  const detalhe = detalheDoModulo(plano.chave);
   return compartilhamento({
-    titulo: `Módulo ${plano.nome}`,
-    descricao: detalheDoModulo(plano.chave)?.resumo ?? plano.descricao,
+    titulo: detalhe?.tituloBusca ?? `Módulo ${plano.nome}`,
+    descricao: detalhe?.descricaoBusca ?? plano.descricao,
     caminho: `/modulos/${plano.chave}`,
   });
 }

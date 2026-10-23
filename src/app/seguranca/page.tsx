@@ -7,7 +7,7 @@ import { IconCheck } from "@/components/icons";
 export const metadata = compartilhamento({
   titulo: "Segurança e LGPD",
   descricao:
-    "Como o CidadeIA protege os dados da prefeitura e do cidadão: senha com hash, isolamento entre prefeituras, acesso por cargo e limites da inteligência artificial.",
+    "Como o CidadeIA protege os dados da prefeitura e do cidadão: senha com hash, isolamento entre prefeituras, acesso por cargo e limites da IA.",
   caminho: "/seguranca",
 });
 

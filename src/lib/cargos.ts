@@ -44,6 +44,9 @@ export type Cargo = {
    */
   fechamento: { titulo: string; texto: string };
   descricaoSeo: string;
+  /** Título no Google, sem a marca (o layout acrescenta "— CidadeIA"). Era
+   *  "CidadeIA para prefeitos — CidadeIA", com a marca duas vezes. */
+  tituloBusca: string;
 };
 
 export const ASSINATURAS_DO_RGF = "LRF, art. 54";
@@ -114,7 +117,8 @@ export const CARGOS: Cargo[] = [
         "Com o Gestão ligado, o aviso de cada RREO e RGF chega por e-mail 15 dias antes do vencimento, e a despesa com pessoal passa a ser conferida na régua da LRF a cada RGF publicado. O que precisa de decisão aparece no alto do painel, com o artigo ao lado.",
     },
     descricaoSeo:
-      "Despesa com pessoal, prazos do RREO e do RGF e mínimos de saúde e educação conferidos a cada relatório publicado no Tesouro, com aviso ao prefeito antes do Tribunal de Contas.",
+      "Despesa com pessoal, prazos do RREO e do RGF e mínimos de saúde e educação conferidos a cada relatório no Tesouro, com aviso antes do Tribunal de Contas.",
+    tituloBusca: "Sistema para prefeitos: LRF e prazos acompanhados",
   },
   {
     slug: "financas",
@@ -178,6 +182,7 @@ export const CARGOS: Cargo[] = [
     },
     descricaoSeo:
       "Prazos do RREO e do RGF conferidos todo dia no Tesouro, comum ou simplificado, com aviso antes do vencimento e alerta quando os números do RGF não fecham.",
+    tituloBusca: "Para finanças e contabilidade: RREO, RGF e LRF",
   },
   {
     slug: "controle",
@@ -240,7 +245,8 @@ export const CARGOS: Cargo[] = [
         "Entregas no Tesouro, despesa com pessoal na régua da LRF, números do RGF que não fecham e dispensas somadas por objeto: o CidadeIA confere sozinho e entrega em PDF, com o artigo ao lado de cada apontamento. Você fica com a parte que é do controle: analisar e recomendar.",
     },
     descricaoSeo:
-      "Para o controle interno municipal: entregas do RREO e do RGF, despesa com pessoal na régua da LRF, números que não fecham e dispensas somadas, com a base legal de cada aviso.",
+      "Controle interno municipal: entrega do RREO e do RGF, despesa com pessoal na régua da LRF, números que não fecham e dispensas somadas, com a base legal.",
+    tituloBusca: "Para o controle interno: LRF, RREO e dispensas",
   },
 ];
 

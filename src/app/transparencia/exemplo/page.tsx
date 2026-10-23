@@ -16,6 +16,7 @@ import { CONJUNTOS, linhasDe } from "@/lib/dados-abertos";
 
 export const metadata = {
   title: "Portal do Cidadão · cidade de exemplo",
+  description: "Portal de uma cidade fictícia, Bela Aurora, para ver como o morador acompanha obras, protocolos e o dinheiro da prefeitura.",
   robots: { index: false },
 };
 

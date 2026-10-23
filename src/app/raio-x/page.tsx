@@ -8,9 +8,9 @@ import ConferenciaConformidade from "@/components/site/ConferenciaConformidade";
 import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 
 export const metadata = compartilhamento({
-  titulo: "Raio-X do município",
+  titulo: "Raio-X da prefeitura: despesa com pessoal e LRF",
   descricao:
-    "Digite o nome da cidade e veja os números reais dela, puxados na hora do Tesouro Nacional, e confira as exigências da LAI, da Lei 13.460 e da LGPD que não estão em base pública. Sem cadastro.",
+    "Digite a cidade e veja a despesa com pessoal na régua da LRF, a receita e a entrega do RREO e do RGF, lidas na hora do Tesouro Nacional. Sem cadastro.",
   caminho: "/raio-x",
 });
 
