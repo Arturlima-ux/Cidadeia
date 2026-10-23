@@ -7,7 +7,9 @@ import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
-import { ldDadosDoMunicipio } from "@/lib/seo";
+import { DESCRICAO_PADRAO, TITULO_DO_SITE, ldDadosDoMunicipio } from "@/lib/seo";
+import { MODULOS_DETALHE } from "@/lib/modulos-detalhe";
+import { CARGOS } from "@/lib/cargos";
 
 const ler = (rel: string) => readFileSync(path.join(__dirname, "..", rel), "utf8");
 
@@ -82,5 +84,42 @@ describe("schema da página de município", () => {
 
   it("a página não usa mais o schema de prefeitura", () => {
     expect(ler("src/app/raio-x/[uf]/[slug]/page.tsx")).not.toContain("ldPrefeitura");
+  });
+});
+
+
+// O layout acrescenta " — CidadeIA" (11 caracteres). O Google mostra cerca
+// de 60 no título e corta a descrição perto de 155.
+const SUFIXO = " — CidadeIA".length;
+
+describe("títulos e descrições para busca", () => {
+  it("o título do site diz o que a prefeitura procura", () => {
+    expect(TITULO_DO_SITE.toLowerCase()).toContain("sistema de gestão municipal");
+    expect(TITULO_DO_SITE.length).toBeLessThanOrEqual(60);
+    expect(DESCRICAO_PADRAO.length).toBeLessThanOrEqual(155);
+  });
+
+  it.each(MODULOS_DETALHE.map((m) => [m.chave, m]))("módulo %s: título e descrição no tamanho", (_, m) => {
+    expect(m.tituloBusca.length + SUFIXO).toBeLessThanOrEqual(60);
+    expect(m.descricaoBusca.length).toBeLessThanOrEqual(158);
+    expect(m.descricaoBusca.length).toBeGreaterThanOrEqual(110);
+  });
+
+  it.each(CARGOS.map((c) => [c.slug, c]))("cargo %s: sem a marca duas vezes", (_, c) => {
+    expect(c.tituloBusca).not.toContain("CidadeIA");
+    expect(c.tituloBusca.length + SUFIXO).toBeLessThanOrEqual(60);
+    expect(c.descricaoSeo.length).toBeLessThanOrEqual(158);
+  });
+
+  it("município: despesa com pessoal no título, sem os 91 caracteres de antes", () => {
+    const fonte = ler("src/app/raio-x/[uf]/[slug]/page.tsx");
+    expect(fonte).toContain("despesa com pessoal e LRF em ${ano}");
+    // Maior nome de município do país + UF + o resto do modelo.
+    const maior = "Vila Bela da Santíssima Trindade (MT): despesa com pessoal e LRF em 2026";
+    expect(maior.length + SUFIXO).toBeLessThanOrEqual(85);
+  });
+
+  it("portal de cada cidade tem título com o nome dela", () => {
+    expect(ler("src/app/transparencia/[slug]/page.tsx")).toContain("Portal do Cidadão de ${cidade}");
   });
 });

@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import MovimentoLeve from "@/components/movimento/MovimentoLeve";
-import { URL_BASE, NOME_DO_SITE, JsonLdScript, ldOrganizacao } from "@/lib/seo";
+import { URL_BASE, NOME_DO_SITE, TITULO_DO_SITE, DESCRICAO_PADRAO, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
 // Geist, a família do site inteiro, servida do próprio projeto (licença OFL
 // em app/fontes). Ver a nota de tipografia em globals.css.
@@ -21,18 +21,17 @@ const geist = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(URL_BASE),
   title: {
-    default: "CidadeIA — a gestão municipal inteira, num lugar só",
+    default: TITULO_DO_SITE,
     template: "%s — CidadeIA",
   },
-  description:
-    "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, com o que é público lido sozinho das bases oficiais: portal do cidadão, protocolo, ouvidoria, painel de cada secretaria e os prazos e limites da LRF acompanhados a cada relatório.",
+  // Até ~155 caracteres: o Google corta o resto. Era de 268.
+  description: DESCRICAO_PADRAO,
   openGraph: {
     type: "website",
     siteName: NOME_DO_SITE,
     locale: "pt_BR",
-    title: "CidadeIA — a gestão municipal inteira, num lugar só",
-    description:
-      "Atendimento ao cidadão, secretarias, obras, saúde, educação e finanças no mesmo sistema, com o que é público lido sozinho das bases oficiais.",
+    title: TITULO_DO_SITE,
+    description: DESCRICAO_PADRAO,
   },
   twitter: { card: "summary_large_image" },
   // Search Console: a tag de verificação vem da Vercel (GOOGLE_SITE_VERIFICATION).

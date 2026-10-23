@@ -21,7 +21,7 @@ const ICONE_ADDON: Record<string, (p: React.SVGProps<SVGSVGElement>) => React.Re
 };
 
 export const metadata = compartilhamento({
-  titulo: "Produtos",
+  titulo: "Sistema para prefeituras: os seis módulos",
   descricao:
     "Os seis módulos do CidadeIA — Essencial, Gestão, Saúde, Educação, Obras e Licitações — com o que cada um entrega, o painel de cada um e o montador de proposta.",
   caminho: "/solucoes",

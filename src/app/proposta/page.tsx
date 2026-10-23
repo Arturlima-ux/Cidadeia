@@ -74,7 +74,7 @@ export default async function PropostaPage({
                   — não é uma escolha — e o pedido segue na tela seguinte.
                 </p>
               </div>
-              <MontadorProposta modulosIniciais={modulos.length > 0 ? modulos : undefined} />
+              <MontadorProposta nivelDoResumo={2} modulosIniciais={modulos.length > 0 ? modulos : undefined} />
             </section>
           </Reveal>
         </main>

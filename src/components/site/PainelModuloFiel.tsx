@@ -41,7 +41,8 @@ export default function PainelModuloFiel({ painel }: { painel: PainelModulo }) {
             <p className="text-xs font-semibold text-muted">
               Prefeitura Modelo
             </p>
-            <h3 className="font-serif text-xl font-bold mt-0.5">{painel.titulo}</h3>
+            {/* Título dentro da imitação de tela: não é título da página. */}
+            <p className="font-serif text-xl font-bold mt-0.5">{painel.titulo}</p>
           </div>
           <span className="text-xs text-muted font-mono">Atualizado agora</span>
         </div>

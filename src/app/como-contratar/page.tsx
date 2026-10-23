@@ -68,7 +68,7 @@ export default function ComoContratarPage() {
                     Mais rápido
                   </span>
                 )}
-                <h3 className="font-serif text-xl font-bold">{c.nome}</h3>
+                <h2 className="font-serif text-xl font-bold">{c.nome}</h2>
                 <p className="text-sm text-muted leading-relaxed flex-1">{c.resumo}</p>
                 <p
                   className="text-xs font-bold border-t border-border pt-3 mt-1"
@@ -143,9 +143,9 @@ export default function ComoContratarPage() {
       <div className="mt-16 pt-12 border-t border-border">
         <Reveal>
           <div className="mb-8">
-            <p className="font-serif text-2xl font-semibold tracking-[-0.03em]">
+            <h2 className="font-serif text-2xl font-semibold tracking-[-0.03em]">
               Da assinatura ao portal no ar.
-            </p>
+            </h2>
             <p className="text-sm text-muted leading-relaxed mt-2 max-w-[52ch]">
               Sem licitação de infraestrutura, sem servidor na prefeitura e
               sem equipe de tecnologia dedicada.

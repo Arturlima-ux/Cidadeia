@@ -10,7 +10,7 @@ import { CONFORMIDADE, OBJECOES } from "@/lib/textos-contratacao";
 export const metadata = compartilhamento({
   titulo: "Conformidade legal",
   descricao:
-    "O que a LAI, a Lei 13.460, a LRF e a LGPD exigem da prefeitura, o que o CidadeIA entrega para cada exigência, e as perguntas que o jurídico sempre faz antes de assinar.",
+    "O que a LAI, a Lei 13.460, a LRF e a LGPD exigem da prefeitura, o que o CidadeIA entrega para cada exigência e as perguntas do jurídico antes de assinar.",
   caminho: "/conformidade",
 });
 

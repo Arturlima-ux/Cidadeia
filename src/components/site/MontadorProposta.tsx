@@ -27,6 +27,7 @@ export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
   municipioInicial,
   campoNoTopo = false,
+  nivelDoResumo = 3,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
@@ -36,6 +37,10 @@ export default function MontadorProposta({
   /** Na home, o município se escolhe só no campo do topo: um campo por
    *  página. Aqui fica o nome escolhido, ou o caminho até o campo. */
   campoNoTopo?: boolean;
+  /** Nível do título "Sua proposta": 3 dentro de uma seção com h2 (home,
+   *  soluções); 2 em /proposta, onde vem logo depois do h1. Pular de h1
+   *  para h3 confunde leitor de tela e quem extrai a estrutura da página. */
+  nivelDoResumo?: 2 | 3;
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -296,7 +301,11 @@ export default function MontadorProposta({
       <div
         className="montador-resumo p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-white/10"
       >
-        <h3 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h3>
+        {nivelDoResumo === 2 ? (
+          <h2 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h2>
+        ) : (
+          <h3 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h3>
+        )}
 
         {!identificado ? (
           <p className="text-sm text-white/70 leading-relaxed">

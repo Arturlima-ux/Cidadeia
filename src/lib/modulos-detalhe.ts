@@ -28,6 +28,12 @@ export type ModuloDetalhe = {
   chave: PlanoAddon;
   /** Uma linha do que o módulo entrega, para o card. */
   resumo: string;
+  /** Título da aba e do Google: o que a prefeitura procura, não o nome do
+   *  módulo (auditoria de SEO, out/2026). Até ~50 caracteres; o layout
+   *  acrescenta "— CidadeIA". */
+  tituloBusca: string;
+  /** Descrição do resultado de busca, até ~155 caracteres. */
+  descricaoBusca: string;
   /** Cada item mapeia um campo real do banco ou uma tela existente. */
   capacidades: string[];
   /** Regra determinística. Roda sem chave de API. */
@@ -41,6 +47,9 @@ export type ModuloDetalhe = {
 export const MODULOS_DETALHE: ModuloDetalhe[] = [
   {
     chave: "essencial",
+    tituloBusca: "Ouvidoria, protocolo e portal do cidadão",
+    descricaoBusca:
+      "Portal do cidadão do município, ouvidoria com manifestação anônima, protocolo com chave de consulta e os prazos da LAI e da Lei 13.460 contados sozinhos.",
     resumo: "O portal do município: a prefeitura publica de um lado, o cidadão lê e se manifesta do outro.",
     capacidades: [
       "Protocolo com número e chave privada de consulta emitidos na hora",
@@ -57,6 +66,9 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "gestao",
+    tituloBusca: "Painel do prefeito: finanças, LRF e prazos",
+    descricaoBusca:
+      "A prefeitura numa tela: receita e despesa, mínimos de saúde e educação, entrega do RREO e do RGF conferida todo dia no Tesouro e o mapa da cidade.",
     resumo: "A visão do prefeito sobre a prefeitura inteira, numa tela só.",
     capacidades: [
       "Receita, despesa, investimento e saldo consolidados do município",
@@ -77,6 +89,9 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "saude",
+    tituloBusca: "Gestão da saúde municipal: UBS, estoque e CNES",
+    descricaoBusca:
+      "A rede de saúde importada do CNES, ficha de cada UBS, ocorrências pelo celular, estoque em dias de cobertura e os indicadores da APS por quadrimestre.",
     resumo: "A rede inteira vinda do CNES, e o que está acontecendo dentro de cada unidade.",
     capacidades: [
       "Toda a rede importada do CNES — UBS, postos, hospitais, UPA, CAPS — com endereço, turno, SUS e mapa, sem digitar",
@@ -97,6 +112,9 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "educacao",
+    tituloBusca: "Gestão da educação municipal: escolas e FUNDEB",
+    descricaoBusca:
+      "Escolas do Censo Escolar, matrícula convertida em FUNDEB, 200 dias letivos, merenda e os 30% da agricultura familiar no PNAE, e busca ativa com ofício.",
     resumo:
       "A rede vinda do Censo Escolar, e o que cada escola vive por dentro — da merenda ao aluno que sumiu.",
     capacidades: [
@@ -117,6 +135,9 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "obras",
+    tituloBusca: "Gestão de obras municipais: contrato e medição",
+    descricaoBusca:
+      "Obras trazidas do contrato no PNCP, progresso medido contra o prazo, a obra parada apontada primeiro e o mapa da cidade, sem cronograma digitado à mão.",
     resumo: "Todas as obras da prefeitura num lugar só: contrato, medição, mapa e as obras federais do município.",
     capacidades: [
       "Obras trazidas do contrato publicado no PNCP, com objeto, contratado, valor e prazo",
@@ -133,6 +154,9 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
   },
   {
     chave: "licitacoes",
+    tituloBusca: "Licitações e contratos da prefeitura no PNCP",
+    descricaoBusca:
+      "Compras e contratos do município lidos do PNCP sem digitação, soma das dispensas contra o limite anual e contrato que vence antes de dar tempo de licitar.",
     resumo: "As compras e os contratos do município num lugar só, vindos do portal nacional sem digitação.",
     capacidades: [
       "Processos e contratos trazidos do Portal Nacional de Contratações Públicas, sem digitação",
