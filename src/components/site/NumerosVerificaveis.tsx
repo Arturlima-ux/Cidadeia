@@ -41,7 +41,7 @@ export default function NumerosVerificaveis() {
       valor: EXIGENCIAS.length,
       rotulo: "exigências conferidas",
       detalhe: "LAI, Lei 13.460, LRF e LGPD — cada pendência sai com o artigo que a cria.",
-      href: "/diagnostico",
+      href: "/raio-x#conferencia",
       cor: "var(--accent-claro)",
     },
     {

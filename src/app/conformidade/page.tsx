@@ -41,7 +41,7 @@ export default function ConformidadePage() {
                   município — sem cadastro, sem enviar nada.
                 </p>
                 <Link
-                  href="/diagnostico"
+                  href="/raio-x#conferencia"
                   className="inline-block mt-7 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-7 py-4 transition shadow-elevated"
                 >
                   Fazer o diagnóstico&nbsp;&nbsp;→

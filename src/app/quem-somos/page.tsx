@@ -45,7 +45,7 @@ const VALORES = [
 
 const SEGURO = [
   {
-    titulo: "Cabe na dispensa de licitação",
+    titulo: "Dentro do limite da dispensa",
     texto: "O processo vai pronto para o jurídico: termo de referência, minuta de contrato, acordo de tratamento de dados e de nível de serviço.",
   },
   { titulo: "Mensal, por módulo, sem fidelidade", texto: "A prefeitura contrata só o que precisa e encerra qualquer módulo com aviso de 30 dias." },

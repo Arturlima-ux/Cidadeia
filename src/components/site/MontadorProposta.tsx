@@ -23,9 +23,13 @@ const RESUMO_MODULO: Record<PlanoAddon, string> = {
 
 export default function MontadorProposta({
   modulosIniciais = ["essencial", "gestao"],
+  municipioInicial,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
+  /** O município que a pessoa já escolheu no topo da home: não se pergunta
+   *  de novo (revisão de outubro de 2026). */
+  municipioInicial?: { nome: string; uf: string };
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -41,7 +45,7 @@ export default function MontadorProposta({
   // "Até 10 mil / 10 a 50 mil / acima" exigia saber a população. O IBGE
   // sabe: nome + UF → estimativa do ano → faixa. A escolha manual continua
   // logo abaixo, para quem prefere ou para quando o IBGE não responde.
-  const [municipio, setMunicipio] = useState("");
+  const [municipio, setMunicipio] = useState(municipioInicial?.nome ?? "");
   const [achado, setAchado] = useState<string | null>(null);
   // Código IBGE do município identificado. Enquanto existir, o porte é o
   // do IBGE e os botões ficam travados: a tela marcava "acima de 50 mil" e
@@ -64,11 +68,7 @@ export default function MontadorProposta({
     setPorte(null);
   }
 
-  function escolherMunicipio(nome: string, sigla: string) {
-    setMunicipio(nome);
-    setErroPorte(null);
-    setAchado(null);
-    setCodigoIbge(null);
+  function buscarPorte(nome: string, sigla: string) {
     consultar(async () => {
       const r = await sugerirPorte({ municipio: nome, uf: sigla });
       if (!r.ok) {
@@ -82,6 +82,23 @@ export default function MontadorProposta({
       );
     });
   }
+
+  function escolherMunicipio(nome: string, sigla: string) {
+    setMunicipio(nome);
+    setErroPorte(null);
+    setAchado(null);
+    setCodigoIbge(null);
+    buscarPorte(nome, sigla);
+  }
+
+  // Com o município vindo do topo da página, a faixa é buscada uma vez, ao
+  // abrir: o estado já nasceu com o nome, só falta a população do IBGE.
+  const jaBuscou = useRef(false);
+  useEffect(() => {
+    if (!municipioInicial || jaBuscou.current) return;
+    jaBuscou.current = true;
+    buscarPorte(municipioInicial.nome, municipioInicial.uf);
+  }, [municipioInicial]);
 
   // O pedido de proposta leva porte e módulos na URL — validados do outro
   // lado contra a tabela, nunca interpolados como texto — para o formulário

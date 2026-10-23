@@ -198,7 +198,7 @@ function Protocolo() {
             ))}
           </div>
           <p className="mt-4 text-sm font-medium" style={{ color: "var(--medio)" }}>
-            Faltam 6 dias. O aviso sai 5 dias antes de vencer, para a secretaria responder a tempo.
+            Faltam 6 dias. O prazo é contado sozinho, e o pedido já está na fila da Saúde, que responde por aqui.
           </p>
         </div>
       </div>
@@ -422,7 +422,7 @@ function Dispensas({ limite }: { limite: number }) {
         <span className="text-sm text-muted"> do limite usado ({reais(total)})</span>
       </p>
       <p className="mt-2 text-sm font-medium" style={{ color: "var(--medio)" }}>
-        Mais uma compra dessas passa do limite e vira fracionamento. A próxima tem de ir para licitação.
+        Mais uma compra dessas passa do limite e vira fracionamento. O plano de contratações do ano que vem já sai montado deste histórico.
       </p>
     </div>
   );

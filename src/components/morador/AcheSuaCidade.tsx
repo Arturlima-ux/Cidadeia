@@ -96,6 +96,7 @@ export default function AcheSuaCidade({
   placeholder = "Digite o nome da sua cidade",
   inicial = "",
   empilhado = false,
+  localNoCampo = false,
   rolarAoTopo = true,
   aoEscolher,
 }: {
@@ -109,6 +110,9 @@ export default function AcheSuaCidade({
   inicial?: string;
   /** Campo e botão um embaixo do outro, para colunas estreitas. */
   empilhado?: boolean;
+  /** A localização vira um botão de ícone dentro do campo: uma ação só na
+   *  tela (o topo da home do gestor, revisão de outubro de 2026). */
+  localNoCampo?: boolean;
   /** O portal do morador abre do topo; o Raio-X da prefeitura fica onde está. */
   rolarAoTopo?: boolean;
   /** Em vez de navegar, entrega a cidade escolhida (o montador da proposta). */
@@ -220,7 +224,7 @@ export default function AcheSuaCidade({
   // Ao lado do campo, em coluna larga; embaixo, como atalho discreto, em
   // coluna estreita (o topo da home da prefeitura), para a lista de
   // sugestões abrir colada no campo.
-  const botaoLocal = empilhado ? (
+  const botaoLocal = localNoCampo ? null : empilhado ? (
     <button
       type="button"
       onClick={estouAqui}
@@ -246,7 +250,7 @@ export default function AcheSuaCidade({
 
   return (
     <div ref={caixa} className="relative w-full">
-      <div className="flex flex-col sm:flex-row gap-2.5">
+      <div className="relative flex flex-col sm:flex-row gap-2.5">
         <label className="relative flex-1 block">
           <span className="sr-only">Nome da sua cidade</span>
           <svg aria-hidden viewBox="0 0 24 24" className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2">
@@ -277,10 +281,22 @@ export default function AcheSuaCidade({
               preparar();
             }}
             onKeyDown={teclas}
-            className={`campo-morador w-full rounded-full border border-border pl-14 pr-5 font-medium placeholder:text-muted ${altura}`}
+            className={`campo-morador w-full rounded-full border border-border pl-14 ${localNoCampo ? "pr-16" : "pr-5"} font-medium placeholder:text-muted ${altura}`}
             style={{ background: "var(--card)" }}
           />
         </label>
+        {localNoCampo && (
+          <button
+            type="button"
+            onClick={estouAqui}
+            aria-label={local?.estado === "procurando" ? "Procurando a sua localização" : "Usar a minha localização"}
+            title="Usar a minha localização"
+            className={`absolute right-1.5 top-1.5 grid place-items-center rounded-full transition hover:opacity-80 ${compacto ? "w-11 h-11" : "w-[52px] h-[52px] sm:w-[60px] sm:h-[60px]"}`}
+            style={{ color: "var(--localizacao)", background: "var(--brand-tint)" }}
+          >
+            {local?.estado === "procurando" ? <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> : pino}
+          </button>
+        )}
         {!empilhado && botaoLocal}
       </div>
 

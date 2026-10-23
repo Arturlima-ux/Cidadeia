@@ -28,7 +28,6 @@ const COLUNAS = [
   {
     titulo: "Contratação",
     links: [
-      { href: "/diagnostico", label: "Diagnóstico gratuito" },
       { href: "/raio-x", label: "Raio-X do município" },
       { href: "/como-contratar", label: "Como contratar" },
       { href: "/kit", label: "Kit de contratação" },
@@ -54,7 +53,9 @@ const COLUNAS = [
       { href: "/quem-somos", label: "Quem somos" },
       { href: "/noticias", label: "Notícias" },
       { href: "/governanca", label: "Governança" },
-      { href: "/carreiras", label: "Carreiras" },
+      // Carreiras saiu do rodapé: sem vaga aberta, a página é honesta mas
+      // quase vazia, e o rodapé a prometia em toda tela (revisão de outubro
+      // de 2026). Continua no ar em /carreiras.
       { href: "/fale-conosco", label: "Fale conosco" },
       { href: "/seguranca", label: "Segurança e LGPD" },
       { href: "/acessibilidade", label: "Acessibilidade" },

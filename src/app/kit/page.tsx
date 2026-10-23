@@ -338,7 +338,7 @@ export default function KitPage() {
             </h2>
             <p className="text-muted mt-3 leading-relaxed max-w-xl mx-auto">
               Monte a proposta com os módulos que a prefeitura vai usar e veja se
-              o total anual cabe na dispensa de licitação. {AVISO_FRACIONAMENTO.curto}
+              o total anual fica dentro do limite da dispensa de licitação, que ainda pede justificativa e pesquisa de preço (art. 72). {AVISO_FRACIONAMENTO.curto}
             </p>
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               <Link

@@ -3,12 +3,13 @@ import SiteFooter from "@/components/site/SiteFooter";
 import MapaVivo from "@/components/site/inicio/MapaVivo";
 import FormularioRaioX from "./FormularioRaioX";
 import Link from "next/link";
+import ConferenciaConformidade from "@/components/site/ConferenciaConformidade";
 import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 
 export const metadata = {
   title: "Raio-X do município",
   description:
-    "Digite o nome da cidade e veja os números reais dela, puxados na hora do Tesouro Nacional. Sem cadastro.",
+    "Digite o nome da cidade e veja os números reais dela, puxados na hora do Tesouro Nacional, e confira as exigências da LAI, da Lei 13.460 e da LGPD que não estão em base pública. Sem cadastro.",
 };
 
 // ── O TOPO NO PADRÃO DA HOME ──
@@ -55,6 +56,7 @@ export default function RaioXPage() {
             </div>
           </div>
         </section>
+        <ConferenciaConformidade />
       </main>
 
       <SiteFooter />

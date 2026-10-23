@@ -74,7 +74,7 @@ function textoDaProposta(p: PropostaMontada): { assunto: string; corpo: string }
     linhas.push(`Mensal: ${formatarMoeda(proposta.mensal)} — 12 meses: ${formatarMoeda(proposta.anual)}`);
     linhas.push(
       cabeNaDispensa(proposta.anual)
-        ? `Cabe na dispensa de licitação (${LIMITE_DISPENSA.base}). ${AVISO_FRACIONAMENTO.curto}`
+        ? `Dentro do limite da dispensa de licitação (${LIMITE_DISPENSA.base}), que ainda pede justificativa e pesquisa de preço (art. 72). ${AVISO_FRACIONAMENTO.curto}`
         : "Acima do limite de dispensa — caminho: pregão eletrônico."
     );
   } else if (proposta.incompleta) {
