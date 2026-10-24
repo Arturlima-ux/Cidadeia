@@ -124,3 +124,44 @@ describe("eixo dos gráficos do histórico", () => {
     for (const v of [600000, -150000, 1250000]) expect(formatarCompacto(v).length).toBeLessThanOrEqual(8);
   });
 });
+
+describe("obras: o esperado diz de onde vem", () => {
+  const base = {
+    id: "o1", nome: "Reforma da UBS", fornecedorNome: null, valorContrato: 480000,
+    progressoAtual: 20, progressoEsperado: 65, atualizadoEm: "2026-09-12T14:00:00Z",
+  };
+
+  it("sem datas de contrato, o número digitado não é chamado de prazo", async () => {
+    const { esperadoDaObra, rotuloDoEsperado, fraseDoAtraso } = await import("@/lib/obra-prazo");
+    const e = esperadoDaObra({ ...base, vigenciaInicio: null, vigenciaFim: null }, new Date("2026-10-23T12:00:00Z"))!;
+    expect(e).toEqual({ valor: 65, fonte: "informado" });
+    expect(rotuloDoEsperado(e)).not.toContain("prazo");
+    expect(fraseDoAtraso("Reforma da UBS", 20, e)).not.toContain("pelo prazo");
+    expect(fraseDoAtraso("Reforma da UBS", 20, e)).toContain("65% esperados");
+  });
+
+  it("com datas, o esperado é a fração do prazo, e o texto diz isso", async () => {
+    const { esperadoDaObra, rotuloDoEsperado } = await import("@/lib/obra-prazo");
+    const e = esperadoDaObra(
+      { ...base, vigenciaInicio: "2026-01-01", vigenciaFim: "2026-12-31" },
+      new Date("2026-07-02T12:00:00Z")
+    )!;
+    expect(e.fonte).toBe("prazo");
+    expect(e.valor).toBeGreaterThanOrEqual(49);
+    expect(e.valor).toBeLessThanOrEqual(51);
+    expect(rotuloDoEsperado(e)).toMatch(/^pelo prazo, \d+%$/);
+  });
+
+  it("sem datas e sem esperado digitado, não há esperado", async () => {
+    const { esperadoDaObra } = await import("@/lib/obra-prazo");
+    expect(esperadoDaObra({ ...base, progressoEsperado: 0, vigenciaInicio: null, vigenciaFim: null })).toBeNull();
+  });
+});
+
+describe("mapas sem dependência de CDN para os marcadores", () => {
+  it("nenhum componente busca o ícone do Leaflet no unpkg", async () => {
+    const { execSync } = await import("node:child_process");
+    const achados = execSync('grep -rln "unpkg.com/leaflet" src || true', { encoding: "utf8" }).trim();
+    expect(achados).toBe("");
+  });
+});

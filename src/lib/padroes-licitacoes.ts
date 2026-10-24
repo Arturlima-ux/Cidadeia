@@ -185,8 +185,11 @@ export function detectarDispensaNoTeto(processos: ProcessoParaPadrao[], hoje = n
       tipo: "teto_dispensa",
       chave: `licitacao:${p.numero}:teto`,
       texto:
-        `Dispensa ${p.numero} (${p.objeto}) com valor de ${formatarMoeda(p.valorEstimado)}, ` +
-        `a ${pct(folga)} do limite de dispensa de ${formatarMoeda(limite)} (${LIMITE_DISPENSA.base}).`,
+        // "a 2,4% do limite" se lia como "vale 2,4% do limite" — o contrário
+        // do que importa. Diz quanto do limite já foi usado e quanto sobra.
+        `Dispensa ${p.numero} (${p.objeto}) com valor de ${formatarMoeda(p.valorEstimado)}: ` +
+        `${pct(100 - folga)} do limite de dispensa de ${formatarMoeda(limite)} (${LIMITE_DISPENSA.base}), ` +
+        `sobram só ${formatarMoeda(limite - p.valorEstimado)}.`,
       acao:
         `Confirme com a Comissão de Licitação se há outra contratação do mesmo objeto neste exercício — ` +
         `duas dispensas que somadas passam do limite configuram o fracionamento que o art. 75, § 1º, veda.`,

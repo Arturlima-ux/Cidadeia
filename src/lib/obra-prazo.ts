@@ -281,3 +281,51 @@ export function lerObra(c: ContratoDeObra, hoje: Date = new Date()): LeituraObra
 export function pedeAtencao(s: SituacaoObra): boolean {
   return s !== "em_dia" && s !== "nao_comecou";
 }
+
+export type EsperadoDaObra = { valor: number; fonte: "prazo" | "informado" };
+
+/**
+ * Quanto a obra já deveria ter andado, e DE ONDE vem esse número.
+ *
+ * Com início e término, é a fração do prazo consumida. Sem as datas (obra
+ * antiga), vale o percentual digitado à mão. A tela dizia "pelo prazo, 65%"
+ * nos dois casos — e, logo acima, o painel de prazo avisava que a mesma obra
+ * não tinha data nenhuma. O número digitado não é prazo: é o que alguém
+ * informou, e a tela precisa dizer isso.
+ */
+export function esperadoDaObra(
+  o: {
+    id: string;
+    nome: string;
+    fornecedorNome: string | null;
+    valorContrato: number | null;
+    vigenciaInicio: string | null;
+    vigenciaFim: string | null;
+    progressoAtual: number | null;
+    progressoEsperado: number;
+    atualizadoEm: string | null;
+  },
+  hoje: Date = new Date()
+): EsperadoDaObra | null {
+  if (o.vigenciaInicio && o.vigenciaFim) {
+    const l = lerObra(
+      { id: o.id, objeto: o.nome, fornecedorNome: o.fornecedorNome, valorInicial: o.valorContrato, valorGlobal: o.valorContrato, vigenciaInicio: o.vigenciaInicio, vigenciaFim: o.vigenciaFim, progressoInformado: o.progressoAtual, progressoAtualizadoEm: o.atualizadoEm },
+      hoje
+    );
+    if (l.prazoConsumido !== null) return { valor: Math.round(l.prazoConsumido), fonte: "prazo" };
+    return l.situacao === "nao_comecou" ? { valor: 0, fonte: "prazo" } : null;
+  }
+  return o.progressoEsperado > 0 ? { valor: o.progressoEsperado, fonte: "informado" } : null;
+}
+
+/** "pelo prazo, 65%" ou "esperado informado, 65%". */
+export function rotuloDoEsperado(e: EsperadoDaObra): string {
+  return e.fonte === "prazo" ? `pelo prazo, ${e.valor}%` : `esperado informado, ${e.valor}%`;
+}
+
+/** A frase do aviso de atraso, sem chamar de prazo o que foi digitado. */
+export function fraseDoAtraso(nome: string, progressoAtual: number, e: EsperadoDaObra): string {
+  return e.fonte === "prazo"
+    ? `${nome}: ${progressoAtual}% concluído, e pelo prazo já deveria estar em ${e.valor}%`
+    : `${nome}: ${progressoAtual}% concluído, contra ${e.valor}% esperados (informado no cadastro, sem datas de contrato)`;
+}

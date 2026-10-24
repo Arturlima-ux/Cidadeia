@@ -5,17 +5,21 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// O bundler do Next.js não resolve os ícones padrão do Leaflet a partir do
-// pacote — sem isso, os marcadores apareceriam quebrados/invisíveis.
-const iconePadrao = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// ── O MARCADOR É DESENHADO AQUI, NÃO BAIXADO ──
+// Era o ícone padrão do Leaflet, buscado no unpkg. Atrás do firewall de uma
+// prefeitura — o mesmo caso do aviso de "imagens do mapa não carregaram",
+// que promete "os marcadores continuam corretos" — o marcador vinha como
+// imagem quebrada. Desenhado localmente (como no MapaCidade), não depende de
+// rede nenhuma.
+function iconeMarcador(cor: string): L.DivIcon {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="24" height="32" aria-hidden="true">
+      <path d="M12 0C5.4 0 0 5.4 0 12c0 8.4 12 20 12 20s12-11.6 12-20C24 5.4 18.6 0 12 0z"
+            fill="${cor}" stroke="var(--sobre-forte)" stroke-width="2"/>
+      <circle cx="12" cy="12" r="4.5" fill="var(--sobre-forte)"/>
+    </svg>`;
+  return L.divIcon({ html: svg, className: "", iconSize: [24, 32], iconAnchor: [12, 32], popupAnchor: [0, -28] });
+}
 
 export type PontoMapa = {
   id: string;
@@ -84,7 +88,7 @@ export default function MapaSecretaria({
             }}
           />
           {pontos.map((p) => (
-            <Marker key={p.id} position={[p.latitude, p.longitude]} icon={iconePadrao}>
+            <Marker key={p.id} position={[p.latitude, p.longitude]} icon={iconeMarcador(p.corBadge ?? corDestaque)} title={p.nome}>
               <Popup>
                 <strong>{p.nome}</strong>
                 {p.descricao && (
