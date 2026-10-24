@@ -332,3 +332,35 @@ function juntar(itens: string[]): string {
 function moeda(n: number): string {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 }
+
+/**
+ * A linha de baixo do cartão de matrícula, no painel da Educação.
+ *
+ * Ela olhava só o saldo da rede; o valor em reais logo acima (apurarFundebPorAluno)
+ * soma escola a escola. Com 19 alunos a mais numa escola e 17 a menos em
+ * outra, o cartão dizia "R$ 137.560 por ano fora da conta do FUNDEB" e, logo
+ * abaixo, "o número de hoje bate com o declarado". Agora as duas linhas
+ * contam a mesma coisa.
+ */
+export function fraseMatriculaDaRede(e: {
+  escolasInformadas: number;
+  saldoDaRede: number;
+  alunosForaDaConta: number;
+  alunosDeclaradosAMais: number;
+}): string {
+  const nas = e.escolasInformadas === 1 ? "Na escola que já informou" : `Nas ${e.escolasInformadas} escolas que já informaram`;
+  const alunos = (n: number) => `${n.toLocaleString("pt-BR")} ${n === 1 ? "aluno" : "alunos"}`;
+  if (e.escolasInformadas === 0) {
+    return "Nenhuma escola informou a matrícula de hoje ainda. É essa comparação que mostra aluno atendido sem entrar na conta do FUNDEB. →";
+  }
+  if (e.alunosForaDaConta > 0 && e.alunosDeclaradosAMais > 0) {
+    return `${nas}, o total ${e.saldoDaRede === 0 ? "da rede bate com o declarado" : "da rede não bate com o declarado"}, mas escola a escola há ${alunos(e.alunosForaDaConta)} a mais e ${alunos(e.alunosDeclaradosAMais)} a menos do que o declarado ao Censo. →`;
+  }
+  if (e.alunosForaDaConta > 0) {
+    return `${nas}, há ${alunos(e.alunosForaDaConta)} a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB. →`;
+  }
+  if (e.alunosDeclaradosAMais > 0) {
+    return `${nas}, há ${alunos(e.alunosDeclaradosAMais)} a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real. →`;
+  }
+  return `${nas}, o número de hoje bate com o declarado. →`;
+}

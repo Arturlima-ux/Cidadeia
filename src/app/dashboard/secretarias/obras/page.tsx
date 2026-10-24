@@ -3,7 +3,7 @@ import { insightInicial } from "@/lib/ia";
 import { buscarObras, atualizarProgressoObra, excluirObra } from "./actions";
 import FormularioNovaObra from "./FormularioNovaObra";
 import PainelObras, { type ObraNaTela } from "./PainelObras";
-import { lerObra, pedeAtencao, ehObraOuEngenharia } from "@/lib/obra-prazo";
+import { lerObra, pedeAtencao, ehObraOuEngenharia, esperadoDaObra, rotuloDoEsperado, fraseDoAtraso } from "@/lib/obra-prazo";
 import { buscarDecisoes } from "./actions";
 import { resumoDaDecisao, decisaoAindaVale } from "@/lib/decisao-obra";
 import { buscarContratos } from "@/app/dashboard/secretarias/licitacoes/contratos-actions";
@@ -68,7 +68,10 @@ export default async function ObrasPage() {
   // para a obra sumir da tela para sempre.
   const decisoes = await buscarDecisoes(ctx.sessao.prefeituraId);
 
+  // Obra concluída não tem prazo a vigiar: pedir as datas da creche já
+  // entregue era ruído no topo da tela.
   const todasLidas: ObraNaTela[] = listaObras
+    .filter((o) => o.status !== "concluida")
     .map((o) => ({
       id: o.id,
       nome: o.nome,
@@ -114,20 +117,10 @@ export default async function ObrasPage() {
   // Com início e término, quanto a obra já deveria ter andado é a fração do
   // prazo consumida (lib/obra-prazo.ts), recalculada todo dia. O número
   // digitado à mão (progressoEsperado) só vale para obra antiga sem datas.
-  const esperadoDe = (o: (typeof listaObras)[number]): number | null => {
-    if (o.vigenciaInicio && o.vigenciaFim) {
-      const l = lerObra(
-        { id: o.id, objeto: o.nome, fornecedorNome: o.fornecedorNome, valorInicial: o.valorContrato, valorGlobal: o.valorContrato, vigenciaInicio: o.vigenciaInicio, vigenciaFim: o.vigenciaFim, progressoInformado: o.progressoAtual, progressoAtualizadoEm: o.atualizadoEm },
-        agora
-      );
-      return l.prazoConsumido === null ? (l.situacao === "nao_comecou" ? 0 : null) : Math.round(l.prazoConsumido);
-    }
-    return o.progressoEsperado > 0 ? o.progressoEsperado : null;
-  };
-  const esperados = new Map(listaObras.map((o) => [o.id, esperadoDe(o)]));
+  const esperados = new Map(listaObras.map((o) => [o.id, esperadoDaObra(o, agora)]));
   const atrasadas = listaObras.filter((o) => {
     const e = esperados.get(o.id);
-    return o.status !== "concluida" && o.progressoAtual !== null && e !== null && e !== undefined && o.progressoAtual < e - 10;
+    return o.status !== "concluida" && o.progressoAtual !== null && !!e && o.progressoAtual < e.valor - 10;
   });
   const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split("-").reverse().join("/") : null);
 
@@ -142,6 +135,9 @@ export default async function ObrasPage() {
             10 pontos para trás.
           </p>
         </div>
+        {/* Download de PDF gerado por rota de API: o Link tentaria navegar
+            no cliente (e pré-carregar o arquivo). */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/relatorios/secretaria/obras"
           className="group shrink-0 flex items-center gap-2 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
@@ -171,7 +167,7 @@ export default async function ObrasPage() {
           titulo={`${atrasadas.length} obra${atrasadas.length > 1 ? "s" : ""} com progresso abaixo do esperado`}
           itens={atrasadas.map(
             (o) =>
-              `${o.nome}: ${o.progressoAtual}% concluído, e pelo prazo já deveria estar em ${esperados.get(o.id)}%`
+              fraseDoAtraso(o.nome, o.progressoAtual!, esperados.get(o.id)!)
           )}
         />
       )}
@@ -242,7 +238,7 @@ export default async function ObrasPage() {
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-1.5 text-xs text-muted">
                   <span>
                     {o.progressoAtual === null ? "sem medição registrada" : `${o.progressoAtual}% concluído`}
-                    {esperados.get(o.id) !== null && o.status !== "concluida" && ` · pelo prazo, ${esperados.get(o.id)}%`}
+                    {esperados.get(o.id) && o.status !== "concluida" && ` · ${rotuloDoEsperado(esperados.get(o.id)!)}`}
                     {o.vigenciaFim && ` · término ${dataBr(o.vigenciaFim)}`}
                   </span>
                   {o.valorContrato !== null && <span>{formatarMoeda(o.valorContrato)}</span>}
@@ -258,10 +254,11 @@ export default async function ObrasPage() {
                   >
                     <input type="hidden" name="id" value={o.id} />
                     <div>
-                      <label className="block text-xs font-medium mb-1">
+                      <label htmlFor={`obra-progressoAtual-${o.id}`} className="block text-xs font-medium mb-1">
                         Novo progresso (%)
                       </label>
                       <input
+                        id={`obra-progressoAtual-${o.id}`}
                         name="progressoAtual"
                         type="number"
                         min={0}
@@ -273,17 +270,18 @@ export default async function ObrasPage() {
                     </div>
                     {!o.vigenciaInicio && (
                       <div>
-                        <label className="block text-xs font-medium mb-1">Início</label>
-                        <input name="vigenciaInicio" type="date" className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
+                        <label htmlFor={`obra-vigenciaInicio-${o.id}`} className="block text-xs font-medium mb-1">Início</label>
+                        <input id={`obra-vigenciaInicio-${o.id}`} name="vigenciaInicio" type="date" className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
                       </div>
                     )}
                     <div>
-                      <label className="block text-xs font-medium mb-1">{o.vigenciaFim ? "Novo término (prorrogação)" : "Término previsto"}</label>
-                      <input name="vigenciaFim" type="date" min={o.vigenciaInicio?.slice(0, 10)} className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
+                      <label htmlFor={`obra-vigenciaFim-${o.id}`} className="block text-xs font-medium mb-1">{o.vigenciaFim ? "Novo término (prorrogação)" : "Término previsto"}</label>
+                      <input id={`obra-vigenciaFim-${o.id}`} name="vigenciaFim" type="date" min={o.vigenciaInicio?.slice(0, 10)} className="rounded-lg border border-border px-2 py-2 text-sm outline-none focus:border-brand" />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium mb-1">Status</label>
+                      <label htmlFor={`obra-status-${o.id}`} className="block text-xs font-medium mb-1">Status</label>
                       <select
+                        id={`obra-status-${o.id}`}
                         name="status"
                         defaultValue={o.status}
                         className="rounded-lg border border-border px-2 py-1.5 text-sm outline-none focus:border-brand"

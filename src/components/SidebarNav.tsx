@@ -88,7 +88,7 @@ export default function SidebarNav({
     >
       {grupos.map((grupo) => (
         <div key={grupo.titulo}>
-          <p className="px-3 mb-1.5 text-xs font-semibold text-muted/80">
+          <p className="px-3 mb-1.5 text-xs font-semibold text-muted">
             {grupo.titulo}
           </p>
           <div className="space-y-0.5">

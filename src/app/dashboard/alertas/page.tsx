@@ -77,12 +77,14 @@ export default async function AlertasPage() {
         <h2 className="font-semibold text-sm">Novo alerta</h2>
         <input
           name="titulo"
+          aria-label="Título do alerta"
           placeholder="Título do alerta"
           required
           className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand"
         />
         <textarea
           name="descricao"
+          aria-label="Descrição (opcional)"
           placeholder="Descrição (opcional)"
           rows={2}
           className="w-full rounded-lg border border-border px-3.5 py-2.5 text-sm outline-none focus:border-brand resize-none"
@@ -91,6 +93,7 @@ export default async function AlertasPage() {
         <div className="flex flex-wrap gap-3">
           <select
             name="prioridade"
+            aria-label="Prioridade"
             defaultValue="info"
             className="rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
           >
@@ -101,6 +104,7 @@ export default async function AlertasPage() {
           {gestor ? (
             <input
               name="secretaria"
+              aria-label="Secretaria (opcional)"
               placeholder="Secretaria (opcional)"
               className="flex-1 min-w-[200px] rounded-lg border border-border px-3.5 py-2 text-sm outline-none focus:border-brand"
             />

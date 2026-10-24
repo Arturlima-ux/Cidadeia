@@ -181,6 +181,21 @@ describe("a frente que não se mede em reais", () => {
   it("lista vazia é sem_dado, não cumprido", () => {
     expect(frenteDaTransparencia([]).situacao).toBe("sem_dado");
   });
+
+  it("com o portal desativado, publicar não é divulgar: não é cumprido", () => {
+    // A frente dizia "Cumprido" enquanto o radar de Publicações avisava que
+    // o portal estava fora do ar e nada chegava ao cidadão.
+    const tudo = [
+      { nome: "Orçamento", atendida: true },
+      { nome: "Serviços", atendida: true },
+    ];
+    const fora = frenteDaTransparencia(tudo, false);
+    expect(fora.situacao).toBe("risco");
+    expect(fora.veredito).toMatch(/portal público está desativado/);
+    expect(frenteDaTransparencia(tudo, true).situacao).toBe("cumprido");
+    // Quem ainda não passa o estado do portal continua com a regra antiga.
+    expect(frenteDaTransparencia(tudo).situacao).toBe("cumprido");
+  });
 });
 
 describe("medição velha não sustenta veredito verde", () => {

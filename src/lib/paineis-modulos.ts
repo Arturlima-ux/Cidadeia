@@ -105,7 +105,7 @@ export const PAINEIS_MODULOS: PainelModulo[] = [
       { label: "Receita", valor: formatarMoeda(482300) },
       { label: "Despesas", valor: formatarMoeda(356800) },
       { label: "Saldo", valor: formatarMoeda(125500) },
-      { label: "Eficiência da gestão", valor: "78%" },
+      { label: "Índice de Transparência", valor: "78%" },
     ],
   },
   {

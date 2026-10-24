@@ -9,6 +9,18 @@ describe("dias entre datas do banco", () => {
   it("conta dias inteiros, com o formato do Postgres", () => {
     expect(diasEntreDatas("2026-10-01 10:00:00.123456-03", "2026-10-11 09:00:00-03")).toBe(10);
   });
+
+  it("conta pelo calendário, como a tela escreve as datas", () => {
+    // 14 de out às 23h → 20 de out às 8h: a tela diz "14 de out → 20 de out".
+    // Em blocos de 24h arredondados davam 5; no calendário são 6.
+    expect(diasEntreDatas("2026-10-14 23:00:00-03", "2026-10-20 08:00:00-03")).toBe(6);
+    // 23h → 8h do dia seguinte não é "no mesmo dia".
+    expect(diasEntreDatas("2026-10-14 23:00:00-03", "2026-10-15 08:00:00-03")).toBe(1);
+    // De manhã à noite do mesmo dia é.
+    expect(diasEntreDatas("2026-10-14 08:00:00-03", "2026-10-14 22:00:00-03")).toBe(0);
+    // A data em UTC (02h do dia 15) ainda é 14 em Brasília.
+    expect(diasEntreDatas("2026-10-15T02:00:00Z", "2026-10-14T20:00:00-03:00")).toBe(0);
+  });
 });
 
 describe("o valor", () => {

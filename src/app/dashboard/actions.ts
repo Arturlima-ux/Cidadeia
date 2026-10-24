@@ -11,6 +11,7 @@ import { podeVerAlerta } from "@/lib/alerta-por-area";
 import { revalidatePath } from "next/cache";
 import { gerarSugestoesAlertas } from "@/lib/ia";
 import { notificarAlertaUrgente } from "@/lib/notificacoes";
+import { exigirPlano } from "@/lib/exigir-plano";
 
 const schemaSnapshot = z.object({
   receita: z.coerce.number().optional(),
@@ -21,6 +22,12 @@ const schemaSnapshot = z.object({
 export async function atualizarSnapshot(formData: FormData) {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
+  // Receita, despesa e saldo são os números da prefeitura inteira na visão do
+  // prefeito. A ação não conferia cargo: o formulário só aparece para o
+  // gabinete, mas ação de servidor é chamada pelo id (ver ia/actions.ts), e
+  // um secretário ou uma direção de escola sobrescrevia o painel do prefeito.
+  if (!ehGestor(sessao)) throw new Error("Apenas o prefeito ou um administrador atualiza os indicadores.");
+  if (!(await exigirPlano(sessao.prefeituraId, "gestao")).ok) throw new Error("Disponível no plano Gestão.");
 
   const dados = schemaSnapshot.parse({
     receita: formData.get("receita") || undefined,
@@ -120,6 +127,11 @@ export type ResultadoGerarSugestoes = { ok: true } | { ok: false; erro: string }
 export async function gerarSugestoes(): Promise<ResultadoGerarSugestoes> {
   const sessao = await lerSessao();
   if (!sessao) throw new Error("Não autenticado.");
+  // Gerar apaga as sugestões pendentes da prefeitura inteira e põe outras no
+  // lugar. Aprovar e descartar já eram do gabinete; gerar não conferia nada,
+  // e qualquer cargo apagava o rascunho do prefeito (e gastava IA).
+  if (!ehGestor(sessao)) return { ok: false, erro: "As sugestões da IA são do gabinete do prefeito." };
+  if (!(await exigirPlano(sessao.prefeituraId, "gestao")).ok) return { ok: false, erro: "Disponível no plano Gestão." };
 
   const resultado = await gerarSugestoesAlertas(sessao.prefeituraId, {
     cargo: sessao.cargo,

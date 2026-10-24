@@ -32,7 +32,7 @@ export default async function HistoricoPage() {
           <span className="font-semibold">projeção estatística simples</span>{" "}
           (regressão linear sobre o histórico — a mesma matemática de uma
           linha de tendência de planilha, não é IA). Uma previsão de verdade
-          tipo "gêmeo digital" (ex: risco de superlotação, evasão escolar
+          tipo “gêmeo digital” (ex: risco de superlotação, evasão escolar
           futura cruzando várias variáveis) exige meses/anos de dados
           históricos reais pra treinar um modelo confiável, que este sistema
           ainda está acumulando.
@@ -46,16 +46,19 @@ export default async function HistoricoPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <GraficoTendencia
             titulo="Receita"
+            moeda
             cor="var(--serie-3)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.receita }))}
           />
           <GraficoTendencia
             titulo="Despesas"
+            moeda
             cor="var(--serie-2)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.despesas }))}
           />
           <GraficoTendencia
             titulo="Saldo"
+            moeda
             cor="var(--serie-1)"
             serie={snapshots.map((s) => ({ data: s.atualizadoEm, valor: s.saldo }))}
           />

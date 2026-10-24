@@ -83,7 +83,11 @@ describe("dispensa colada no teto", () => {
     const longe = proc({ numero: "D 2", modalidade: "Dispensa", objeto: "Material de limpeza", valorEstimado: L * 0.7 });
     const padroes = detectarDispensaNoTeto([perto, longe], HOJE);
     expect(padroes.map((p) => p.chave)).toEqual(["licitacao:D 1:teto"]);
-    expect(padroes[0].texto).toContain("a 2% do limite de dispensa");
+    // Quanto do limite já foi usado, e não a folga — "a 2% do limite" se lia
+    // como "vale 2% do limite".
+    expect(padroes[0].texto).toContain("98% do limite de dispensa");
+    expect(padroes[0].texto).toMatch(/sobram só R\$/);
+    expect(padroes[0].texto).not.toContain("a 2% do limite");
     expect(padroes[0].texto).toContain(LIMITE_DISPENSA.base);
   });
 

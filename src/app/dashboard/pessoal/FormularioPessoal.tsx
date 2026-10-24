@@ -48,7 +48,7 @@ export default function FormularioPessoal({
             id="pessoal-mes"
             name="mesReferencia"
             defaultValue={mesSugerido}
-            className={classeInput}
+            className={`${classeInput} flex-1 min-w-0`}
           >
             {MESES.map((m, i) => (
               <option key={m} value={i + 1}>
@@ -63,7 +63,9 @@ export default function FormularioPessoal({
             max="2100"
             required
             defaultValue={exercicio}
-            className={`${classeInput} w-28 shrink-0`}
+            // Sem o w-full de classeInput: com "w-full w-28 shrink-0" o w-full
+            // vencia no CSS, o ano tomava a linha e o mês sumia espremido.
+            className={`${classeInput.replace("w-full ", "")} w-28 shrink-0`}
             aria-label="Exercício"
           />
         </div>
@@ -95,7 +97,7 @@ export default function FormularioPessoal({
           parlamentares e à remuneração dos agentes comunitários de saúde. É
           esta, e não a RCL cheia, que serve de base ao limite — usar a cheia
           dá um percentual menor que o oficial. No RGF ela vem na linha
-          "Receita Corrente Líquida Ajustada para Cálculo dos Limites".
+          “Receita Corrente Líquida Ajustada para Cálculo dos Limites”.
         </p>
       </div>
 

@@ -87,10 +87,11 @@ export default function ConfigPortal({
           </label>
 
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label htmlFor="portal-whatsappNumero" className="block text-xs font-medium mb-1">
               WhatsApp da prefeitura (opcional)
             </label>
             <input
+              id="portal-whatsappNumero"
               name="whatsappNumero"
               defaultValue={config?.whatsappNumero ?? ""}
               placeholder="55 85 99999-8888"

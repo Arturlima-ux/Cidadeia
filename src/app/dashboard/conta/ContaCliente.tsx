@@ -105,8 +105,10 @@ export function FormularioPerfil({
   return (
     <form onSubmit={enviar} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium mb-1">Nome</label>
+        <label htmlFor="conta-nome" className="block text-xs font-medium mb-1">Nome</label>
         <input
+          id="conta-nome"
+          autoComplete="name"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           className="w-full rounded-lg border border-border px-3 py-1.5 text-sm outline-none focus:border-brand"
@@ -114,8 +116,10 @@ export function FormularioPerfil({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium mb-1">E-mail</label>
+        <label htmlFor="conta-email" className="block text-xs font-medium mb-1">E-mail</label>
         <input
+          id="conta-email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           type="email"
@@ -125,8 +129,10 @@ export function FormularioPerfil({
         <p className="text-[11px] text-muted mt-1">Usado só para recuperar sua senha.</p>
       </div>
       <div>
-        <label className="block text-xs font-medium mb-1">Celular</label>
+        <label htmlFor="conta-celular" className="block text-xs font-medium mb-1">Celular</label>
         <input
+          id="conta-celular"
+          autoComplete="tel" inputMode="tel"
           value={celular}
           onChange={(e) => setCelular(e.target.value)}
           placeholder="(85) 99999-9999"
@@ -182,8 +188,10 @@ export function FormularioSenha({
   return (
     <form onSubmit={enviar} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium mb-1">Senha atual</label>
+        <label htmlFor="conta-senha-atual" className="block text-xs font-medium mb-1">Senha atual</label>
         <input
+          id="conta-senha-atual"
+          autoComplete="current-password"
           value={senhaAtual}
           onChange={(e) => setSenhaAtual(e.target.value)}
           type="password"
@@ -192,8 +200,10 @@ export function FormularioSenha({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium mb-1">Nova senha</label>
+        <label htmlFor="conta-senha-nova" className="block text-xs font-medium mb-1">Nova senha</label>
         <input
+          id="conta-senha-nova"
+          autoComplete="new-password"
           value={senhaNova}
           onChange={(e) => setSenhaNova(e.target.value)}
           type="password"
@@ -203,8 +213,10 @@ export function FormularioSenha({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium mb-1">Confirmar nova senha</label>
+        <label htmlFor="conta-senha-confirmacao" className="block text-xs font-medium mb-1">Confirmar nova senha</label>
         <input
+          id="conta-senha-confirmacao"
+          autoComplete="new-password"
           value={confirmacao}
           onChange={(e) => setConfirmacao(e.target.value)}
           type="password"
