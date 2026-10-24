@@ -255,8 +255,9 @@ export default async function AtendimentoPage() {
                       </p>
                     )}
                     {/* A resposta sai por e-mail quando o cidadão deixou um
-                        (lib/ouvidoria-avisos.ts); o que não sai fica na caixa
-                        de saída da equipe. */}
+                        (lib/ouvidoria-avisos.ts). O que não sai não vai para
+                        a caixa de saída da equipe do CidadeIA: o cidadão vê
+                        pelo protocolo. */}
                     {avaliacoes.get(a.id) && (
                       <p className="text-xs font-semibold mt-2" style={{ color: "var(--info)" }}>
                         O cidadão avaliou: {rotuloDaNota(avaliacoes.get(a.id)!.nota).toLowerCase()}

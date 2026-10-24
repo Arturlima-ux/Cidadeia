@@ -40,6 +40,18 @@ type ParametrosEmail = {
   /** Pedido de proposta ligado ao e-mail: se ele não sair, a caixa de saída
    *  oferece o PDF para baixar e mandar à mão. */
   pedidoId?: string;
+  /**
+   * Se não sair, guarda na caixa de saída da EQUIPE do CidadeIA (/admin/saida)
+   * para alguém mandar à mão. Padrão: sim — é o caminho dos e-mails
+   * comerciais para a prefeitura.
+   *
+   * false para o que a equipe não pode ler: código de login e link de troca
+   * de senha (quem lê entra na conta do outro) e tudo da ouvidoria (nome,
+   * e-mail e texto do cidadão, que são da prefeitura, não nossos). Esses
+   * falham sem cópia; o cidadão vê a resposta pelo protocolo e a prefeitura
+   * vê a manifestação no painel.
+   */
+  guardarNaCaixaDeSaida?: boolean;
 };
 
 // ── DOIS CAMINHOS, E UMA REDE EMBAIXO ──
@@ -89,7 +101,7 @@ export async function enviarEmail(entrada: ParametrosEmail): Promise<ResultadoEn
   }
 
   const detalhe = tentativas.join(" | ");
-  if (!ehDaEquipe(params.para)) {
+  if (!ehDaEquipe(params.para) && params.guardarNaCaixaDeSaida !== false) {
     try {
       const { guardarNaCaixaDeSaida } = await import("@/lib/caixa-de-saida");
       await guardarNaCaixaDeSaida({

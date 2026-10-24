@@ -76,6 +76,8 @@ async function mandarCodigo(usuarioId: string, email: string, nome: string): Pro
     reenvioEm: Date.now() + ESPERA_REENVIO_SEGUNDOS * 1000,
   };
   const envio = await enviarEmail({
+    // Segredo de acesso: nunca na caixa de saída da equipe (lib/email.ts).
+    guardarNaCaixaDeSaida: false,
     para: email,
     assunto: `CidadeIA: seu código de acesso é ${codigo}`,
     html: montarEmail({
