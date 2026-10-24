@@ -547,7 +547,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               novembro de 2026). Agora o campo está no próprio montador; com
               município escolhido no topo, ele já vem preenchido. */}
           <HidratarAoChegar id="montador" className="order-2 lg:order-none lg:col-span-2 min-w-0">
-            <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+            <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
           </HidratarAoChegar>
           </div>
 
