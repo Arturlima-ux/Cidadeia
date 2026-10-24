@@ -1,4 +1,4 @@
-import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
+import { contar, formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import {
@@ -213,7 +213,7 @@ export default async function SaudePage() {
             <p className="font-semibold text-sm">
               {pedido.length === 0
                 ? "Estoque: nenhum item abaixo de 15 dias de cobertura."
-                : `Estoque: ${pedido.length} item(ns) para repor em ${unidadesComReposicao.size} unidade(s)${emFalta.length > 0 ? ` — ${emFalta.length} em falta ou acabando em dias` : ""}.`}
+                : `Estoque: ${contar(pedido.length, "item", "itens")} para repor em ${contar(unidadesComReposicao.size, "unidade", "unidades")}${emFalta.length > 0 ? ` — ${emFalta.length} em falta ou acabando em dias` : ""}.`}
             </p>
             {emFalta.length > 0 && (
               <p className="text-xs text-muted mt-1">
@@ -236,7 +236,7 @@ export default async function SaudePage() {
             </h2>
             {doCnes > 0 && (
               <p className="text-xs text-muted mt-1">
-                {doCnes} do CNES · {unidades.length - doCnes} cadastrada(s) à mão
+                {doCnes} do CNES · {contar(unidades.length - doCnes, "cadastrada", "cadastradas")} à mão
                 {desatualizadasNoCnes.length > 0 && (
                   <span style={{ color: "var(--medio)" }}> · {desatualizadasNoCnes.length} sem atualização no CNES há mais de {DIAS_CNES_DESATUALIZADO} dias</span>
                 )}
@@ -296,7 +296,7 @@ export default async function SaudePage() {
         {inativas.length > 0 && (
           <details className="mt-3">
             <summary className="text-xs font-semibold text-muted cursor-pointer">
-              {inativas.length} unidade(s) que não constam mais no CNES
+              {contar(inativas.length, "unidade que não consta", "unidades que não constam")} mais no CNES
             </summary>
             <ul className="mt-2 text-sm text-muted list-disc pl-5">
               {inativas.map((u) => (

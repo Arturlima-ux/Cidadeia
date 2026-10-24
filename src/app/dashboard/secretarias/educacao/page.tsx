@@ -1,6 +1,6 @@
 import Link from "next/link";
 import MarcadorSituacao from "@/components/MarcadorSituacao";
-import { formatarNumero, formatarPercentual } from "@/lib/formatadores";
+import { contar, formatarNumero, formatarPercentual } from "@/lib/formatadores";
 import { insightInicial } from "@/lib/ia";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import { buscarUltimoIndicadorEducacao, criarEscola, atualizarIndicadorEducacao, excluirEscola } from "./actions";
@@ -26,7 +26,7 @@ import { apurarPnae, PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 
 import { lerCaso, emAndamento, DIAS_PARA_CONSELHO, FREQUENCIA_MINIMA_LDB } from "@/lib/busca-ativa";
 
-import { apurarFundebPorAluno } from "@/lib/resultado-educacao";
+import { apurarFundebPorAluno, fraseMatriculaDaRede } from "@/lib/resultado-educacao";
 import { formatarMoeda } from "@/lib/formatadores";
 
 export default async function EducacaoPage() {
@@ -199,20 +199,19 @@ export default async function EducacaoPage() {
           }}
         >
           <p className="font-semibold text-sm">
-            Matrícula declarada ao Censo: {formatarNumero(matriculaCenso)} aluno(s)
+            Matrícula declarada ao Censo: {contar(matriculaCenso, "aluno", "alunos")}
             {matriculaHoje > 0 && ` · informada hoje pelas escolas: ${formatarNumero(matriculaHoje)}`}
             {fundebApurado.reaisForaDaConta !== null && fundebApurado.alunosForaDaConta > 0 && (
               <span> — {formatarMoeda(fundebApurado.reaisForaDaConta)} por ano fora da conta do FUNDEB</span>
             )}
           </p>
           <p className="text-xs text-muted mt-1 leading-relaxed">
-            {comMatriculaInformada.length === 0
-              ? "Nenhuma escola informou a matrícula de hoje ainda. É essa comparação que mostra aluno atendido sem entrar na conta do FUNDEB. →"
-              : diferenca === 0
-                ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram, o número de hoje bate com o declarado. →`
-                : diferenca > 0
-                  ? `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(diferenca)} aluno(s) a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB. →`
-                  : `Nas ${comMatriculaInformada.length} escola(s) que já informaram há ${formatarNumero(-diferenca)} aluno(s) a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real. →`}
+            {fraseMatriculaDaRede({
+              escolasInformadas: comMatriculaInformada.length,
+              saldoDaRede: diferenca,
+              alunosForaDaConta: fundebApurado.alunosForaDaConta,
+              alunosDeclaradosAMais: fundebApurado.alunosDeclaradosAMais,
+            })}
           </p>
         </Link>
       )}

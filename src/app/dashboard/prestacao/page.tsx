@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { configPublica } from "@/db/schema";
 import { contextoDashboard } from "@/lib/contexto-dashboard";
 import BloqueioPlano from "@/components/BloqueioPlano";
 import { formatarMoeda } from "@/lib/formatadores";
@@ -73,7 +76,7 @@ const TOM: Record<SituacaoFrente, { cor: string; fundo: string; borda: string; t
 };
 
 export default async function PrestacaoPage() {
-  const { prefeitura, temPlano } = await contextoDashboard();
+  const { sessao, prefeitura, temPlano } = await contextoDashboard();
   if (!temPlano("gestao")) return <BloqueioPlano plano="gestao" />;
 
   // Exercício e mês no fuso do município, não no do servidor — a Vercel roda
@@ -90,10 +93,16 @@ export default async function PrestacaoPage() {
 
   // Quatro leituras independentes. Em sequência, a tela esperaria a soma dos
   // quatro tempos para desenhar a primeira linha.
-  const [bases, periodosPessoal, publicacoes] = await Promise.all([
+  const [bases, periodosPessoal, publicacoes, portalAtivo] = await Promise.all([
     buscarBases(exercicio),
     buscarPeriodos(),
     listarPublicacoes(),
+    db
+      .select({ ativo: configPublica.portalAtivo })
+      .from(configPublica)
+      .where(eq(configPublica.prefeituraId, sessao.prefeituraId))
+      .limit(1)
+      .then((l) => Boolean(l[0]?.ativo)),
   ]);
 
   // ── MÍNIMOS E FUNDEB ──
@@ -148,7 +157,7 @@ export default async function PrestacaoPage() {
   );
 
   // ── TRANSPARÊNCIA ATIVA ──
-  const frenteTransparencia = frenteDaTransparencia(coberturaLegal(publicacoes));
+  const frenteTransparencia = frenteDaTransparencia(coberturaLegal(publicacoes), portalAtivo);
 
   // ── CALENDÁRIO FISCAL ──
   //

@@ -10,6 +10,8 @@
  *   nunca a uma média nacional que não temos.
  */
 
+import { contar } from "@/lib/formatadores";
+
 export type SituacaoEficacia = "critico" | "atencao" | "ok" | "sem_dados";
 
 export type SinalEficacia = {
@@ -70,14 +72,14 @@ export function eficaciaObras(
   const sinais: SinalEficacia[] = [];
   if (atrasadas.length > 0) {
     sinais.push({
-      texto: `${atrasadas.length} de ${emAndamento.length} obra(s) em andamento estão com progresso abaixo do esperado: ${atrasadas.map((o) => o.nome).join(", ")}.`,
+      texto: `${atrasadas.length} de ${contar(emAndamento.length, "obra em andamento", "obras em andamento")} ${atrasadas.length === 1 ? "está" : "estão"} com progresso abaixo do esperado: ${atrasadas.map((o) => o.nome).join(", ")}.`,
       valorEmRisco: somar(atrasadas.map((o) => o.valorContrato)),
     });
   }
   const paralisadas = obras.filter((o) => o.status === "paralisada");
   if (paralisadas.length > 0) {
     sinais.push({
-      texto: `${paralisadas.length} obra(s) paralisada(s): ${paralisadas.map((o) => o.nome).join(", ")}.`,
+      texto: `${contar(paralisadas.length, "obra paralisada", "obras paralisadas")}: ${paralisadas.map((o) => o.nome).join(", ")}.`,
       valorEmRisco: somar(paralisadas.map((o) => o.valorContrato)),
     });
   }
@@ -91,7 +93,7 @@ export function eficaciaObras(
   const resultado =
     obras.length === 0
       ? "Nenhuma obra cadastrada ainda."
-      : `${concluidas} de ${obras.length} obra(s) concluída(s); ${atrasadas.length} atrasada(s).`;
+      : `${concluidas} de ${contar(obras.length, "obra concluída", "obras concluídas")}; ${contar(atrasadas.length, "atrasada", "atrasadas")}.`;
 
   return {
     secretaria: "obras",
@@ -124,13 +126,13 @@ export function eficaciaLicitacoes(
   const sinais: SinalEficacia[] = [];
   if (comRisco.length > 0) {
     sinais.push({
-      texto: `${comRisco.length} processo(s) com risco registrado: ${comRisco.map((l) => l.numero).join(", ")}.`,
+      texto: `${contar(comRisco.length, "processo", "processos")} com risco registrado: ${comRisco.map((l) => l.numero).join(", ")}.`,
       valorEmRisco: somar(comRisco.map((l) => l.valorEstimado)),
     });
   }
   if (canceladas.length > 0) {
     sinais.push({
-      texto: `${canceladas.length} processo(s) cancelado(s) — recurso planejado que não virou entrega.`,
+      texto: `${contar(canceladas.length, "processo cancelado", "processos cancelados")} — recurso planejado que não virou entrega.`,
       valorEmRisco: somar(canceladas.map((l) => l.valorEstimado)),
     });
   }
@@ -143,7 +145,7 @@ export function eficaciaLicitacoes(
   const resultado =
     licitacoes.length === 0
       ? "Nenhum processo cadastrado ainda."
-      : `${homologadas.length} de ${licitacoes.length} processo(s) homologado(s); ${canceladas.length} cancelado(s).`;
+      : `${homologadas.length} de ${contar(licitacoes.length, "processo homologado", "processos homologados")}; ${contar(canceladas.length, "cancelado", "cancelados")}.`;
 
   return {
     secretaria: "licitacoes",
@@ -223,7 +225,7 @@ export function eficaciaSaude(
     resultado:
       sinais.length === 0
         ? "Indicadores estáveis ou melhorando em relação ao registro anterior."
-        : `${sinais.length} indicador(es) pioraram desde o registro anterior.`,
+        : (sinais.length === 1 ? "1 indicador piorou desde o registro anterior." : `${sinais.length} indicadores pioraram desde o registro anterior.`),
   };
 }
 
@@ -239,7 +241,7 @@ export function eficaciaEducacao(
   const evasaoAlta = escolas.filter((e) => (e.evasaoPercentual ?? 0) > 10);
   if (evasaoAlta.length > 0) {
     sinais.push({
-      texto: `${evasaoAlta.length} escola(s) com evasão acima de 10%: ${evasaoAlta.map((e) => `${e.nome} (${e.evasaoPercentual}%)`).join(", ")}.`,
+      texto: `${contar(evasaoAlta.length, "escola", "escolas")} com evasão acima de 10%: ${evasaoAlta.map((e) => `${e.nome} (${e.evasaoPercentual}%)`).join(", ")}.`,
     });
   }
 

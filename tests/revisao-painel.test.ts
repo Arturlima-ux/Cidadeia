@@ -165,3 +165,76 @@ describe("mapas sem dependência de CDN para os marcadores", () => {
     expect(achados).toBe("");
   });
 });
+
+describe("formulário de despesa com pessoal", () => {
+  it("o campo do ano não disputa a largura com o mês", async () => {
+    const { createElement } = await import("react");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { default: FormularioPessoal } = await import("@/app/dashboard/pessoal/FormularioPessoal");
+    const html = renderToStaticMarkup(createElement(FormularioPessoal, { exercicio: 2026, mesSugerido: 8, rcl: null, despesa: null }));
+    const ano = html.match(/<input[^>]*name="exercicio"[^>]*>/)![0];
+    const classes = ano.match(/class="([^"]*)"/)![1].split(/\s+/);
+    // "w-full w-28" fazia o ano tomar a linha inteira e o mês sumir.
+    expect(classes).toContain("w-28");
+    expect(classes).not.toContain("w-full");
+    const mes = html.match(/<select[^>]*id="pessoal-mes"[^>]*>/)![0];
+    expect(mes).toContain("flex-1");
+  });
+});
+
+describe("textos do painel concordam em número", () => {
+  it("contar escreve singular e plural sem '(s)'", async () => {
+    const { contar } = await import("@/lib/formatadores");
+    expect(contar(1, "obra", "obras")).toBe("1 obra");
+    expect(contar(3, "obra", "obras")).toBe("3 obras");
+    expect(contar(0, "item", "itens")).toBe("0 itens");
+  });
+
+  it("a eficácia de obras e licitações não escreve '(s)'", async () => {
+    const { eficaciaObras, eficaciaLicitacoes } = await import("@/lib/eficacia");
+    const obras = eficaciaObras(
+      [
+        { nome: "UBS", status: "em_andamento", progressoAtual: 20, progressoEsperado: 65, valorContrato: 480000 },
+        { nome: "Via", status: "em_andamento", progressoAtual: 72, progressoEsperado: 70, valorContrato: 1250000 },
+        { nome: "Creche", status: "concluida", progressoAtual: 100, progressoEsperado: 100, valorContrato: 690000 },
+      ],
+      0
+    );
+    const lic = eficaciaLicitacoes(
+      [
+        { numero: "PE 1", status: "homologada", valorEstimado: 100, observacaoRisco: null },
+        { numero: "PE 2", status: "cancelada", valorEstimado: 100, observacaoRisco: "impugnação" },
+      ],
+      0
+    );
+    const tudo = JSON.stringify([obras, lic]);
+    expect(tudo).not.toMatch(/\((s|es|ns)\)/);
+    expect(tudo).toContain("1 de 3 obras concluídas; 1 atrasada.");
+    expect(tudo).toContain("1 de 2 obras em andamento está com progresso abaixo do esperado");
+  });
+});
+
+describe("cartão de matrícula da Educação", () => {
+  it("não diz que bate quando o valor acima aponta dinheiro fora da conta", async () => {
+    const { apurarFundebPorAluno, fraseMatriculaDaRede } = await import("@/lib/resultado-educacao");
+    // A demonstração: +19 numa escola, -17 noutra, -2 noutra; a rede fecha igual.
+    const escolas = [
+      { id: "a", nome: "Padre Cícero", matriculasCenso: 412, matriculasAtuais: 431 },
+      { id: "b", nome: "Maria das Dores", matriculasCenso: 188, matriculasAtuais: 171 },
+      { id: "c", nome: "José Alencar", matriculasCenso: 356, matriculasAtuais: 354 },
+      { id: "d", nome: "Santa Luzia", matriculasCenso: 74, matriculasAtuais: 74 },
+    ];
+    const ap = apurarFundebPorAluno(escolas, 7240);
+    const frase = fraseMatriculaDaRede({ escolasInformadas: 4, saldoDaRede: 0, alunosForaDaConta: ap.alunosForaDaConta, alunosDeclaradosAMais: ap.alunosDeclaradosAMais });
+    expect(ap.reaisForaDaConta).toBeGreaterThan(0);
+    expect(frase).not.toContain("o número de hoje bate com o declarado");
+    expect(frase).toContain("19 alunos a mais");
+    expect(frase).toContain("19 alunos a menos");
+  });
+
+  it("rede que bate escola a escola continua dizendo que bate", async () => {
+    const { fraseMatriculaDaRede } = await import("@/lib/resultado-educacao");
+    expect(fraseMatriculaDaRede({ escolasInformadas: 2, saldoDaRede: 0, alunosForaDaConta: 0, alunosDeclaradosAMais: 0 })).toContain("bate com o declarado");
+    expect(fraseMatriculaDaRede({ escolasInformadas: 1, saldoDaRede: 3, alunosForaDaConta: 3, alunosDeclaradosAMais: 0 })).toContain("Na escola que já informou, há 3 alunos a mais");
+  });
+});

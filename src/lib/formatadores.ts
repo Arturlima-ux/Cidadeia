@@ -55,3 +55,8 @@ export function formatarCnpj(cnpj: string | null | undefined): string | null {
 export function formatarCompacto(valor: number): string {
   return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(valor);
 }
+
+/** "1 obra", "3 obras". Para o painel parar de escrever "obra(s)". */
+export function contar(n: number, singular: string, plural: string): string {
+  return `${n.toLocaleString("pt-BR")} ${n === 1 ? singular : plural}`;
+}
