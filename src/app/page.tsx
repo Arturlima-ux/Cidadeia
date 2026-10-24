@@ -4,7 +4,7 @@ import { compartilhamento, DESCRICAO_PADRAO, JsonLdScript, ldSite, TITULO_DO_SIT
 import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
-import { lerSessao } from "@/lib/sessao";
+import type { PedidoDaHome } from "@/lib/home-montada";
 import { AVISO_FRACIONAMENTO, LIMITE_DISPENSA } from "@/lib/contratacao";
 import { listarPortaisPublicados } from "@/lib/portais";
 import { formatarMoedaExata } from "@/lib/formatadores";
@@ -20,8 +20,10 @@ import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
-import MapaVivo from "@/components/site/inicio/MapaVivo";
+import MapaVivoAdiado from "@/components/site/inicio/MapaVivoAdiado";
+import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
+import ContarVisita from "@/components/site/inicio/ContarVisita";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
@@ -69,21 +71,27 @@ export const metadata: Metadata = {
   title: { absolute: TITULO_DO_SITE },
 };
 
-export default async function LandingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ m?: string; uf?: string; para?: string }>;
-}) {
+// ── ESTÁTICA, COM UMA PORTA PARA A VERSÃO MONTADA ──
+// A home sai pronta do cache e é refeita no máximo uma vez por hora (a lista
+// de portais no ar é a única coisa dela que vem do banco). Antes, cada
+// visita esperava sessão, banco e registro de evento antes do primeiro byte.
+// Quem traz município (?m=), estado (?uf=), ?para= ou sessão é levado pelo
+// proxy.ts a app/inicio, que monta esta mesma página com o pedido em mãos
+// (lib/home-montada.ts). Sem `pedido`, nada aqui lê cabeçalho, cookie ou
+// parâmetro: é isso que mantém a página estática.
+export const revalidate = 3600;
+
+export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
-  const parametros = await searchParams;
-  const pedido = municipioDoParametro(parametros.m);
+  const parametros: Partial<PedidoDaHome> = pedido ?? {};
+  const pedidoM = municipioDoParametro(parametros.m);
   const ufEscolhida =
     typeof parametros.uf === "string" && (ESTADOS as readonly string[]).includes(parametros.uf)
       ? parametros.uf
       : null;
   // Município de outra UF é resto de uma troca de estado, não uma escolha.
-  const municipio = pedido && ufEscolhida && pedido.uf !== ufEscolhida ? null : pedido;
+  const municipio = pedidoM && ufEscolhida && pedidoM.uf !== ufEscolhida ? null : pedidoM;
   // Quem está olhando: a prefeitura (padrão, o funil de venda) ou o morador
   // (a porta do portal do cidadão). A chave fica no topo, ao lado da busca.
   const morador = parametros.para === "morador";
@@ -99,18 +107,21 @@ export default async function LandingPage({
   // são os do Distrito Federal inteiro, que é quem reporta ao Tesouro.
   const dados = municipio ? municipioParaDados(municipio) : null;
   const df = ehDistritoFederal(municipio?.uf);
-  await registrarEvento({ tipo: "visita", caminho: "/" });
-  // O Raio-X aberto aqui no topo conta como o da página própria: é o sinal
-  // de interesse por cidade que a equipe vê em /admin/interessados.
-  if (municipio && !df && !morador) {
-    await registrarEvento({ tipo: "raio_x", caminho: "/", uf: municipio.uf, codigoIbge: municipio.codigo, municipio: municipio.nome });
+  // A visita: na versão montada, registrada aqui; na estática, pelo aviso
+  // do navegador (ContarVisita, app/api/visita).
+  if (pedido) {
+    await registrarEvento({ tipo: "visita", caminho: "/" });
+    // O Raio-X aberto aqui no topo conta como o da página própria: é o sinal
+    // de interesse por cidade que a equipe vê em /admin/interessados.
+    if (municipio && !df && !morador) {
+      await registrarEvento({ tipo: "raio_x", caminho: "/", uf: municipio.uf, codigoIbge: municipio.codigo, municipio: municipio.nome });
+    }
   }
 
-  // A sessão é lida aqui e passada ao cabeçalho: ler cookie dentro dele
-  // tiraria do cache todas as outras páginas que o usam. Quem tem sessão vê
-  // "Ir para o painel"; a de demonstração não conta como cliente
-  // (tests/sessao-demo-nao-e-cliente.test.ts).
-  const sessao = await lerSessao();
+  // A sessão é lida em app/inicio e chega pronta: ler cookie aqui tiraria a
+  // home do cache. Quem tem sessão vê "Ir para o painel"; a de demonstração
+  // não conta como cliente (tests/sessao-demo-nao-e-cliente.test.ts).
+  const sessaoAtiva = pedido?.sessaoAtiva ?? false;
 
   // Prova verificável no lugar de muro de logos: portais que qualquer um
   // abre agora. Sem portal, a página mostra a cidade de exemplo.
@@ -122,7 +133,7 @@ export default async function LandingPage({
   if (morador) {
     return (
       <div className="tema-noite tema-morador min-h-screen overflow-x-clip relative" style={{ background: "var(--background)" }}>
-        <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} modo="morador" />
+        <SiteHeader sessaoAtiva={sessaoAtiva} modo="morador" />
         <main id="conteudo">
           <HomeMorador municipio={municipio} dados={dados} portais={portais} linkPrefeitura={comPara("prefeitura")} />
         </main>
@@ -134,18 +145,26 @@ export default async function LandingPage({
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
       <JsonLdScript dados={ldSite()} />
-      <SiteHeader sessaoAtiva={Boolean(sessao) && !sessao?.demo} />
+      <SiteHeader sessaoAtiva={sessaoAtiva} />
+      {!pedido && <ContarVisita />}
 
       <main id="conteudo">
         <BarraConversao />
 
         {/* ═══ HERÓI ═══ */}
+        {/* ── SEM SUSPENSE EM VOLTA DO TOPO ──
+            Cabeçalho, topo e bases oficiais chegaram a ir dentro de limites
+            de Suspense, para o React ligá-los em fatias. Medido com o
+            Lighthouse: o servidor às vezes mandava o cabeçalho depois do
+            resto, e a página descia 71 px quando ele aparecia (CLS de 0,086).
+            O que está na primeira tela vem inteiro, na ordem; só o que está
+            abaixo dela é adiado (HidratarAoChegar). */}
         <section className="relative">
           {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
               do título no celular, e some nas bordas para não brigar com o
               texto. Ver MapaVivo.tsx. */}
           <div className="inicio-mapa absolute pointer-events-none" aria-hidden>
-            <MapaVivo destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
+            <MapaVivoAdiado destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
           </div>
 
           <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-6 sm:pb-10">
@@ -298,50 +317,56 @@ export default async function LandingPage({
         </section>
 
         {/* ═══ DE ONDE VEM O DADO ═══ */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 sm:pt-20">
-          <div className="flex flex-col md:flex-row md:items-baseline gap-4 md:gap-12 border-t border-border pt-8">
-            <p className="text-sm text-muted shrink-0">Lê direto das bases oficiais</p>
-            <ul className="flex flex-wrap gap-x-10 gap-y-3">
-              {FONTES.map((f) => (
-                <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em] text-foreground/80">
-                  {/* Cada base leva ao próprio site: é onde conferir. */}
-                  <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                    {f}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* As nove bases numa linha só, de margem a margem, como os créditos
+            de um documento: antes elas dividiam a largura com o rótulo e a
+            nona ("Transferegov") caía sozinha numa segunda linha. Sem fio
+            em cima: o espaço separa do topo. */}
+        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20" aria-labelledby="titulo-fontes">
+          <h2 id="titulo-fontes" className="text-sm text-muted">Lê direto das bases oficiais</h2>
+          <ul className="mt-4 flex flex-wrap lg:flex-nowrap lg:justify-between gap-x-7 gap-y-2.5">
+            {FONTES.map((f) => (
+              <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em]">
+                {/* Cada base leva ao próprio site: é onde conferir. */}
+                <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="inicio-fonte">
+                  {f}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* ═══ MÓDULOS ═══
             Cada módulo como o instrumento da parte da prefeitura que ele
             cuida, e não seis cartões iguais. Ver MesaDeModulos.tsx. */}
-        <section id="solucoes" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
+        <section id="solucoes" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
+          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
             <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
             <p className="text-muted leading-relaxed max-w-[42ch]">
               Escolha uma pergunta e veja o módulo trabalhando. Cada um funciona sozinho: a prefeitura contrata só os que usa,
               sem pacote fechado e sem cobrança por usuário.
             </p>
           </div>
-          <MesaDeModulos
-            limiteDispensa={LIMITE_DISPENSA.valor}
-            modulos={modulosNaOrdemDaHome().map(({ chave, nome, detalhe }) => ({ chave, nome, capacidades: detalhe.capacidades }))}
-          />
+          <HidratarAoChegar id="mesa" className="surge">
+            <MesaDeModulos
+              limiteDispensa={LIMITE_DISPENSA.valor}
+              modulos={modulosNaOrdemDaHome().map(({ chave, nome, detalhe }) => ({ chave, nome, capacidades: detalhe.capacidades }))}
+            />
+          </HidratarAoChegar>
         </section>
 
         {/* ═══ COMO FUNCIONA ═══
             Rolagem narrada no desktop, três blocos no celular. Ver
             ComoFunciona.tsx. */}
-        <ComoFunciona />
+        <HidratarAoChegar id="como-funciona" className="tela-adiada">
+          <ComoFunciona />
+        </HidratarAoChegar>
 
         {/* ═══ O PORTAL DA TRANSPARÊNCIA ═══
             O que o cidadão recebe com o módulo Essencial, mostrado vivo: a
             janela com a cidade de exemplo (VitrinePortal.tsx), e embaixo as
             quatro coisas que o morador encontra. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-16">
+          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
             <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
             <div>
               <p className="text-muted leading-relaxed max-w-[42ch]">
@@ -381,7 +406,9 @@ export default async function LandingPage({
             </div>
           </div>
 
-          <VitrinePortal />
+          <HidratarAoChegar id="vitrine" className="surge">
+            <VitrinePortal />
+          </HidratarAoChegar>
 
 
         </section>
@@ -391,8 +418,9 @@ export default async function LandingPage({
             de todas as prefeituras lido toda semana (lib/panorama.ts). Só
             agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
             porta de cada uma das três pessoas que assinam o RGF. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36">
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
+        <HidratarAoChegar id="panorama">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 sm:pt-20">
+          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
             {/* Desceu do topo: as contas públicas são uma parte do produto, e
                 não o produto inteiro. Aqui, a prova de que a parte fiscal é
                 séria: o país inteiro conferido toda semana. */}
@@ -405,7 +433,7 @@ export default async function LandingPage({
               Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
             </p>
           </div>
-          <ul className="mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
+          <ul className="surge mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
             {faixasDoPanorama(PANORAMA.brasil).map((f) => (
               <li key={f.chave} className="border-t border-border pt-5">
                 <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
@@ -423,22 +451,23 @@ export default async function LandingPage({
           {/* ── QUEM ASSINA O RGF ──
               Voltou, mais compacta: era o único ponto da home em que cada
               comprador se reconhecia (revisão de outubro de 2026). */}
-          <div className="mt-14 border-t border-border pt-6 grid md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-4 md:gap-10 items-baseline">
-            <p className="text-sm text-muted">Três pessoas assinam o RGF. Cada uma tem a sua página.</p>
-            <ul className="grid sm:grid-cols-3 gap-3">
+          {/* Um campo de cor, e não três caixas de contorno: a porta de cada
+              cargo é uma linha que acende ao passar o mouse. */}
+          <div className="surge mt-16 rounded-[28px] px-5 py-7 sm:px-10 sm:py-9" style={{ background: "var(--card)" }}>
+            <h3 className="text-xl sm:text-2xl font-semibold tracking-[-0.03em] max-w-[46ch] [text-wrap:balance]">
+              Três pessoas assinam o RGF. Cada uma tem a sua página.
+            </h3>
+            <ul className="mt-6 grid md:grid-cols-3 gap-1 md:gap-3 -mx-3">
               {CARGOS.map((c) => (
                 <li key={c.slug}>
-                  <Link
-                    href={`/para/${c.slug}`}
-                    className="group block h-full rounded-2xl border border-border hover:border-brand px-5 py-4 transition"
-                  >
-                    <span className="flex items-center justify-between gap-3 font-semibold">
+                  <Link href={`/para/${c.slug}`} className="inicio-porta group block h-full rounded-2xl px-3 py-3.5">
+                    <span className="flex items-center gap-2 text-lg font-semibold tracking-[-0.02em]">
                       {c.rotulo}
-                      <span className="inline-block transition-transform group-hover:translate-x-1" style={{ color: "var(--brand-claro)" }}>
+                      <span aria-hidden className="inicio-porta-seta" style={{ color: "var(--brand-claro)" }}>
                         →
                       </span>
                     </span>
-                    <span className="block text-sm text-muted leading-snug mt-1.5">{c.gancho}</span>
+                    <span className="block text-sm text-muted leading-snug mt-1 max-w-[34ch]">{c.gancho}</span>
                   </Link>
                 </li>
               ))}
@@ -446,6 +475,7 @@ export default async function LandingPage({
           </div>
 
         </section>
+        </HidratarAoChegar>
 
 
         {/* ═══ PROPOSTA ═══ */}
@@ -453,36 +483,43 @@ export default async function LandingPage({
             Voltou em formato menor: em prefeitura quem acha o site quase
             nunca é quem decide, e o vídeo é o que se manda adiante
             (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
-          <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-8 lg:gap-14 items-center">
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
+          <div className="surge grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-8 lg:gap-14 items-center">
             <div>
               <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
               <p className="text-muted leading-relaxed mt-3 max-w-[40ch]">
                 Para assistir agora, ou mandar para quem decide na prefeitura.
               </p>
             </div>
-            <VideoExplicativo
-              src="/video/cidadeia-gestao.mp4"
-              srcWebm="/video/cidadeia-gestao.webm"
-              capa="/video/cidadeia-gestao-capa.jpg"
-              titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
-            />
+            <HidratarAoChegar id="video">
+              <VideoExplicativo
+                src="/video/cidadeia-gestao.mp4"
+                srcWebm="/video/cidadeia-gestao.webm"
+                capa="/video/cidadeia-gestao-capa.jpg"
+                titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
+              />
+            </HidratarAoChegar>
           </div>
         </section>
 
         {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
-            uma seção igual às outras (revisão de outubro de 2026). */}
-        <section id="proposta" className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
-          <div className="rounded-[32px] border border-border px-5 py-10 sm:px-12 sm:py-14" style={{ background: "var(--superficie)" }}>
-          <div className="grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 lg:gap-16 items-end mb-12">
-            <div>
+            uma seção igual às outras (revisão de outubro de 2026). O fundo é
+            o roxo profundo da marca, sem contorno: a única mudança de campo
+            de cor da página, e ela marca a decisão. */}
+        <section id="proposta" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-10 scroll-mt-24">
+          {/* Uma grade só: no computador, título e dispensa lado a lado e o
+              montador embaixo; no celular, o montador sobe logo depois do
+              título e as notas da dispensa vão para o fim, para a ação não
+              ficar atrás de três parágrafos de letra miúda. */}
+          <div className="inicio-fecho surge rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-x-16 gap-y-10 lg:gap-y-12 items-start">
+            <div className="px-2 sm:px-0">
               <h2 className="inicio-h2 max-w-[16ch]">Proposta pronta em um dia útil.</h2>
               <p className="text-muted leading-relaxed mt-6 max-w-[46ch]">
                 Escolha o município e os módulos. Valor, termo de referência e
                 minuta de contrato chegam no mesmo e-mail, sem reunião antes.
               </p>
             </div>
-            <div className="lg:border-l border-border lg:pl-10">
+            <div className="order-3 lg:order-none px-2 sm:px-0 lg:border-l border-border lg:pl-10">
               <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
               <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
                 {formatarMoedaExata(LIMITE_DISPENSA.valor)}
@@ -502,8 +539,16 @@ export default async function LandingPage({
                 (art. 72). O <Link href="/kit" className="underline underline-offset-2">kit de contratação</Link> traz o modelo.
               </p>
             </div>
-          </div>
-          <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+          {/* ── O MUNICÍPIO SE ESCOLHE AQUI MESMO ──
+              Era "Escolher o município no topo da página ↑": quem chegava à
+              proposta subia a página inteira, escolhia, a home recarregava e
+              a pessoa descia de novo procurando onde estava. No último passo
+              antes do pedido, era o maior atrito do caminho (revisão de
+              novembro de 2026). Agora o campo está no próprio montador; com
+              município escolhido no topo, ele já vem preenchido. */}
+          <HidratarAoChegar id="montador" className="order-2 lg:order-none lg:col-span-2 min-w-0">
+            <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+          </HidratarAoChegar>
           </div>
 
           {/* ═══ O FECHO É O MONTADOR ═══
@@ -513,14 +558,18 @@ export default async function LandingPage({
               páginas por cargo, no panorama, no Raio-X e na /proposta. */}
         </section>
 
-        <div className="pb-24 sm:pb-32" />
+        <div className="pb-14 sm:pb-22" />
 
         {/* ═══ A PORTA DO CIDADÃO ═══
             Quem compra precisa saber que o outro lado existe; o morador tem a
             página dele em /transparencia e não precisa atravessar esta. */}
       </main>
 
-      <SiteFooter />
+      {/* O rodapé tem uns oitenta links e nenhum botão: liga quando a pessoa
+          chega perto, e até lá cada link funciona como link comum. */}
+      <HidratarAoChegar id="rodape" className="tela-adiada">
+        <SiteFooter />
+      </HidratarAoChegar>
     </div>
   );
 }

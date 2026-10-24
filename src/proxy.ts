@@ -3,6 +3,7 @@ import { verificarTokenSessao } from "@/lib/sessao";
 import { deveForcarHttps } from "@/lib/forcar-https";
 import { deveCorrigirCaminho } from "@/lib/url-colada";
 import { decidirNaDemo, ROTAS_DE_DOWNLOAD } from "@/lib/demo/regras";
+import { homePrecisaSerMontada } from "@/lib/home-montada";
 import { redirecionarSecretario } from "@/lib/acesso-rotas";
 
 const NOME_COOKIE = "cidadeia_sessao";
@@ -41,6 +42,19 @@ export default async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = corrigido;
     return NextResponse.redirect(url, 308);
+  }
+
+  // ── A HOME TEM DUAS MONTAGENS ──
+  // "/" sai pronta do cache (app/page.tsx, estática): é a primeira impressão
+  // e não pode esperar banco nem cookie. Só quem traz algo que muda a página
+  // vai para a versão montada a cada pedido (app/inicio): o município do
+  // Raio-X (?m=), a troca de estado (?uf=), a porta do morador (?para=) ou a
+  // sessão, que troca "Entrar" por "Ir para o painel". O endereço na barra
+  // continua "/"; a canônica das duas é "/".
+  if (pathname === "/" && homePrecisaSerMontada(request.nextUrl.searchParams, Boolean(request.cookies.get(NOME_COOKIE)?.value))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/inicio";
+    return NextResponse.rewrite(url);
   }
 
   // ── DEMONSTRAÇÃO: SÓ LEITURA, DECIDIDO AQUI ──

@@ -13,14 +13,20 @@ import { readFileSync } from "node:fs";
 
 describe("sessão de demonstração não vale como cliente no site público", () => {
   it("a home não passa a sessão da demo como sessão ativa", () => {
+    // A home ficou estática (novembro de 2026): a sessão é lida na versão
+    // montada (app/inicio), que entrega à página só o "é cliente?", já sem
+    // a demo. A página repassa esse valor ao cabeçalho.
     const home = readFileSync("src/app/page.tsx", "utf8");
     const uso = home.match(/<SiteHeader[^>]*sessaoAtiva=\{([^}]*)\}/);
     expect(uso, "a home precisa informar sessaoAtiva ao SiteHeader").not.toBeNull();
-    expect(uso![1]).toMatch(/demo/);
+    expect(home).toMatch(/const sessaoAtiva = pedido\?\.sessaoAtiva \?\? false/);
+    const montada = readFileSync("src/app/inicio/page.tsx", "utf8");
+    expect(montada).toMatch(/sessaoAtiva: Boolean\(sessao\) && !sessao\?\.demo/);
+    expect(home).not.toMatch(/lerSessao/);
   });
 
   it("nenhuma página passa Boolean(sessao) cru para o cabeçalho", () => {
-    const arquivos = ["src/app/page.tsx"];
+    const arquivos = ["src/app/page.tsx", "src/app/inicio/page.tsx"];
     for (const a of arquivos) {
       const fonte = readFileSync(a, "utf8");
       expect(fonte).not.toMatch(/sessaoAtiva=\{Boolean\(sessao\)\}/);

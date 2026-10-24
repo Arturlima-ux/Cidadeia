@@ -1332,6 +1332,94 @@ h1.font-serif,
   }
 }
 
+/* ── HOME, REVISÃO DE NOVEMBRO DE 2026 ──
+   As bases oficiais como créditos: o nome em tinta cheia a 80%, e o
+   sublinhado chega ao passar o mouse, só onde há mouse. */
+.inicio-fonte {
+  color: color-mix(in oklab, var(--foreground) 80%, transparent);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.24em;
+  text-decoration-thickness: 1px;
+  transition: color var(--t-micro) var(--saida), text-decoration-color var(--t-micro) var(--saida);
+}
+.inicio-fonte:focus-visible {
+  color: var(--foreground);
+  text-decoration-color: var(--brand-claro);
+}
+@media (hover: hover) and (pointer: fine) {
+  .inicio-fonte:hover {
+    color: var(--foreground);
+    text-decoration-color: var(--brand-claro);
+  }
+}
+
+/* As portas por cargo: uma linha que acende (passo de tom, sem contorno) e
+   uma seta que anda 4 px. Só transform e cor de fundo. */
+.inicio-porta {
+  transition: background-color 180ms var(--saida);
+}
+.inicio-porta-seta {
+  display: inline-block;
+  transition: transform 180ms var(--saida);
+}
+.inicio-porta:focus-visible {
+  background-color: var(--sutil);
+}
+@media (hover: hover) and (pointer: fine) {
+  .inicio-porta:hover {
+    background-color: var(--sutil);
+  }
+  .inicio-porta:hover .inicio-porta-seta {
+    transform: translateX(4px);
+  }
+}
+.inicio-porta:active {
+  background-color: var(--sutil);
+}
+
+/* O fecho: o único campo de cor da página, o roxo da marca bem baixo sobre o
+   fundo. Sem contorno e sem sombra; o montador dentro dele tem a própria
+   moldura. */
+.inicio-fecho {
+  background: color-mix(in oklab, var(--brand) 13%, var(--background));
+}
+
+/* ── O QUE CHEGA AO ROLAR ──
+   Títulos e blocos abaixo da dobra sobem 24 px e ganham opacidade enquanto
+   entram na tela, presos à própria rolagem (animation-timeline: view()). É
+   CSS puro: nada roda na linha principal, nenhum JavaScript espera a página.
+   Partem de 0,35, nunca de zero (nada surge do nada), e acabam quando o
+   topo do elemento sobe 180 px da borda de baixo. Navegador sem suporte, ou quem pediu
+   menos movimento, vê tudo parado e pronto. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* forwards, e não both: enquanto o elemento está abaixo da tela ele fica
+       no estado final, inteiro. Só ao cruzar a borda de baixo (onde ninguém
+       vê) ele passa a 0,35 e desce 24 px, e sobe dali. Com "both" o texto
+       fora da tela ficava a 0,35, e quem lê a página inteira de uma vez (um
+       leitor de tela, o verificador de contraste) o via apagado. */
+    .surge {
+      animation: surge-ao-rolar linear forwards;
+      animation-timeline: view();
+      /* Em pixels, e não em porcentagem do elemento: num bloco alto como o
+         montador, "metade da entrada" deixava o topo dele apagado no meio
+         da tela. Assim tudo está pronto quando sobe 180 px da borda. */
+      animation-range: entry 0px entry 180px;
+    }
+  }
+}
+@keyframes surge-ao-rolar {
+  from {
+    opacity: 0.35;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ── O MONTADOR DE PROPOSTA ACENDE ──
    O quadro chega apagado (as cores certas, sem luz) e acende quando entra
    na tela, logo depois do subtítulo: halo em volta, como lâmpada ligando,
@@ -1925,4 +2013,131 @@ select option {
 .guia-texto td { color: var(--muted); }
 .guia-tabela {
   overflow-x: auto;
+}
+
+/* As perguntas da mesa de módulos (MesaDeModulos.tsx). */
+.mesa-aba {
+  background: var(--sutil);
+  transition: background-color 180ms var(--saida), transform 120ms var(--saida);
+}
+.mesa-aba[data-sel] {
+  background: var(--brand-tint);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mesa-aba:not([data-sel]):hover {
+    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  }
+}
+.mesa-aba:active {
+  transform: scale(0.99);
+}
+
+/* ── O QUE ESTÁ LONGE DA TELA NÃO É DESENHADO AINDA ──
+   Seções abaixo da dobra da home: o navegador pula estilo, layout e pintura
+   delas até chegarem perto da tela (content-visibility). O HTML está todo
+   lá, para leitura, busca na página e indexação. "auto" no tamanho guarda a
+   altura real depois da primeira vez, para a barra de rolagem não pular.
+   Medido com a CPU do celular simulado: o primeiro cálculo de estilo e
+   layout da página caiu de ~150 ms para ~80 ms. */
+.tela-adiada {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}
+
+/* ── O MAPA VIVO (components/site/inicio/MapaVivo.tsx) ──
+   O país é um canvas desenhado uma vez. O que se mexe são marcadores
+   pequenos por cima, só com transform e opacity: o compositor anima, a
+   linha principal fica livre. */
+/* Acende quando o desenho fica pronto (data-pronto), e não ao montar: nas
+   páginas em que ele espera o load, a animação acabaria antes do desenho. */
+.mapa-vivo[data-pronto] .mapa-vivo-pais {
+  animation: mapa-acende 1.6s var(--saida) both;
+}
+@keyframes mapa-acende {
+  from { opacity: 0.15; transform: scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.mapa-marcador {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.mapa-marcador[hidden] { display: none; }
+.mapa-marcador > span {
+  position: absolute;
+  border-radius: 9999px;
+}
+.mapa-marcador[data-cor="medio"] { color: var(--medio); }
+.mapa-marcador[data-cor="urgente"] { color: var(--urgente); }
+.mapa-marcador[data-cor="info"] { color: var(--info); }
+.mapa-alerta-ponto {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: currentColor;
+  opacity: 0;
+  animation: mapa-alerta-ponto 2.2s ease-out infinite;
+  animation-delay: var(--atraso, 0s);
+}
+.mapa-alerta-anel {
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: mapa-alerta-anel 2.2s ease-out infinite;
+  animation-delay: var(--atraso, 0s);
+}
+@keyframes mapa-alerta-ponto {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes mapa-alerta-anel {
+  from { opacity: 0.6; transform: scale(0.12); }
+  to { opacity: 0; transform: scale(1); }
+}
+.mapa-destaque-ponto {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: var(--brand-claro);
+}
+.mapa-destaque-anel {
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 1.5px solid var(--brand-claro);
+  animation: mapa-respira 3.1s ease-in-out infinite alternate;
+}
+@keyframes mapa-respira {
+  from { opacity: 0.25; transform: scale(0.65); }
+  to { opacity: 0.6; transform: scale(1); }
+}
+.mapa-voce-ponto {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: var(--localizacao);
+  box-shadow: 0 0 0 1.5px var(--foreground);
+}
+.mapa-voce-anel {
+  width: var(--anel, 18px);
+  height: var(--anel, 18px);
+  margin: calc(var(--anel, 18px) / -2) 0 0 calc(var(--anel, 18px) / -2);
+  background: color-mix(in oklab, var(--localizacao) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--localizacao) 55%, transparent);
+}
+.mapa-vivo[data-visivel="0"] .mapa-marcador > span {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mapa-vivo-pais,
+  .mapa-destaque-anel {
+    animation: none;
+  }
+  .mapa-marcador[data-mapa="alerta"] { display: none; }
 }

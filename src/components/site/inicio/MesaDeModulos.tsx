@@ -90,12 +90,12 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
               aria-controls={`${base}-painel`}
               tabIndex={sel ? 0 : -1}
               onClick={() => escolher(i)}
-              className="snap-start shrink-0 lg:shrink text-left rounded-2xl border px-4 py-3.5 lg:px-5 lg:py-4 transition-colors min-w-[220px] lg:min-w-0"
-              style={
-                sel
-                  ? { borderColor: "color-mix(in oklab, var(--brand) 55%, var(--border))", background: "var(--brand-tint)" }
-                  : { borderColor: "var(--border)", background: "transparent" }
-              }
+              // Passo de tom, sem contorno: a pergunta escolhida acende no
+              // roxo da marca; as outras ficam num cinza baixo e clareiam ao
+              // passar o mouse (.mesa-aba em globals.css). Eram seis caixas
+              // de contorno iguais (revisão de novembro de 2026).
+              className="mesa-aba snap-start shrink-0 lg:shrink text-left rounded-2xl px-4 py-3.5 lg:px-5 lg:py-4 min-w-[220px] lg:min-w-0"
+              data-sel={sel ? "1" : undefined}
             >
               <span className="block font-semibold tracking-[-0.02em]" style={{ color: sel ? "var(--brand-claro)" : undefined }}>
                 {x.nome}

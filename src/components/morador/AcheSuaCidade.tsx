@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { decodificarPontos } from "@/lib/mapa-municipios";
 import { anunciarLocalizacao, localizarComPrecisao, paraMapa, textoDaMargem } from "@/lib/localizacao";
 
 // ── ACHE SUA CIDADE ──
@@ -178,6 +177,9 @@ export default function AcheSuaCidade({
         try {
           const todas = lista ?? (await carregarLista());
           setLista(todas);
+          // As 5.571 sedes (34 kB) só chegam quando alguém pede "Estou aqui":
+          // estavam no pacote do topo da home, lidas por todo visitante.
+          const { decodificarPontos } = await import("@/lib/mapa-municipios");
           const { indice, distanciaKm } = maisProximo(leitura.lat, leitura.lng, decodificarPontos());
           // Fora do Brasil (ou bem longe de qualquer sede): melhor perguntar.
           if (distanciaKm > 80) {

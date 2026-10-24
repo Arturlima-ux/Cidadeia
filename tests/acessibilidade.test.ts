@@ -29,8 +29,8 @@ describe("acessibilidade", () => {
       const s = readFileSync(p, "utf8");
       const temMain = /<main[^>]*id="conteudo"/.test(s);
       // PortalCidade traz o <main id="conteudo"> do portal (real e exemplo); PlacaObraParada, o da placa;
-      // GuiaArtigo, o dos guias.
-      const usaTemplate = /PaginaLegal|FormularioCadastro|<PortalCidade|<PlacaObraParada|<GuiaArtigo/.test(s);
+      // GuiaArtigo, o dos guias; app/inicio monta a própria home (<LandingPage).
+      const usaTemplate = /PaginaLegal|FormularioCadastro|<PortalCidade|<PlacaObraParada|<GuiaArtigo|<LandingPage/.test(s);
       if (!temMain && !usaTemplate) semMain.push(p);
     }
     expect(semMain).toEqual([]);
