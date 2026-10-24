@@ -214,6 +214,7 @@ export async function ativarPedido(
   }
 
   const envio = await enviarEmail({
+    guardarNaCaixaDeSaida: true,
     para: pedido.email,
     assunto: `CidadeIA: ${fat ? "pagamento confirmado, " : ""}módulos ativos para ${pedido.municipio}/${pedido.uf}`,
     html: montarEmail({

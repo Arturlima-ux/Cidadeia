@@ -119,6 +119,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
 
   const cidade = `${municipio.nome}/${municipio.uf}`;
   const paraVoce = await enviarEmail({
+    guardarNaCaixaDeSaida: true,
     para: dados.email,
     assunto: `Projeção da despesa com pessoal — ${cidade}`,
     html: montarEmail({

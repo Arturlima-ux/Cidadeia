@@ -94,6 +94,7 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
 
   // 3) para a pessoa
   const paraVoce = await enviarEmail({
+    guardarNaCaixaDeSaida: true,
     para: dados.email,
     assunto: `Raio-X da Prefeitura de ${cidade}: o que o Tesouro já publicou`,
     html: montarEmail({

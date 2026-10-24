@@ -1,3 +1,4 @@
+import { limparPendentesSensiveis } from "@/lib/caixa-de-saida";
 import { db } from "@/db";
 import { medicoesBanco } from "@/db/schema";
 import { gerarId } from "@/lib/id";
@@ -130,6 +131,10 @@ export async function GET() {
       return Response.json({ ok: false, banco: "acordado", paginas: falhas, ms }, { status: 503 });
     }
     await registrar(true, ms, null);
+    // Aproveita a passada diária para tirar da caixa de saída da equipe o
+    // que não é comercial (lib/caixa-de-saida.ts). Falha aqui não derruba a
+    // verificação de disponibilidade.
+    await limparPendentesSensiveis().catch((e) => console.error("[manter-vivo] limpeza da caixa de saída:", e));
 
     return Response.json({
       ok: true,

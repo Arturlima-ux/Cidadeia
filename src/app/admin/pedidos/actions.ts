@@ -196,6 +196,7 @@ export async function enviarPropostaAoCliente(pedidoId: string): Promise<Resulta
   const base = process.env.APP_URL ?? "https://cidadeia.vercel.app";
 
   const envio = await enviarEmail({
+    guardarNaCaixaDeSaida: true,
     para: pedido.email,
     responderPara: CONTATO_PUBLICO,
     assunto: `Proposta do CidadeIA para ${pedido.municipio}/${pedido.uf}`,

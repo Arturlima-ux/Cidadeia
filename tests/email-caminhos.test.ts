@@ -61,15 +61,25 @@ describe("envio de e-mail", () => {
     expect(enviados).toHaveLength(0);
   });
 
-  it("nenhum caminho entrega: o e-mail do cliente vai para a caixa de saída", async () => {
+  it("nenhum caminho entrega: o e-mail comercial que pediu cópia vai para a caixa de saída", async () => {
     process.env.RESEND_API_KEY = "re_x";
     process.env.RESEND_FROM_EMAIL = "CidadeIA <onboarding@resend.dev>";
     delete process.env.SMTP_USUARIO;
     vi.stubGlobal("fetch", async () => new Response("recusado", { status: 403 }));
-    const r = await enviarEmail({ para: "secretaria@picos.pi.gov.br", assunto: "Proposta", html: "<p>Oi</p>", pedidoId: "prop_1234" });
+    const r = await enviarEmail({ para: "secretaria@picos.pi.gov.br", assunto: "Proposta", html: "<p>Oi</p>", pedidoId: "prop_1234", guardarNaCaixaDeSaida: true });
     expect(r.enviado).toBe(false);
     expect(guardados).toHaveLength(1);
     expect(guardados[0]).toMatchObject({ para: "secretaria@picos.pi.gov.br", pedidoId: "prop_1234" });
+  });
+
+  it("sem pedir, nada é guardado: remetente novo nasce sem cópia para a equipe", async () => {
+    process.env.RESEND_API_KEY = "re_x";
+    process.env.RESEND_FROM_EMAIL = "CidadeIA <onboarding@resend.dev>";
+    delete process.env.SMTP_USUARIO;
+    vi.stubGlobal("fetch", async () => new Response("recusado", { status: 403 }));
+    const r = await enviarEmail({ para: "fulano@exemplo.com.br", assunto: "Qualquer coisa", html: "<p>Oi</p>" });
+    expect(r.enviado).toBe(false);
+    expect(guardados).toHaveLength(0);
   });
 
   it("código de login, troca de senha e ouvidoria não vão para a caixa de saída da equipe", async () => {
