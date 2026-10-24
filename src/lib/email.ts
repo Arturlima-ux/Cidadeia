@@ -42,14 +42,14 @@ type ParametrosEmail = {
   pedidoId?: string;
   /**
    * Se não sair, guarda na caixa de saída da EQUIPE do CidadeIA (/admin/saida)
-   * para alguém mandar à mão. Padrão: sim — é o caminho dos e-mails
-   * comerciais para a prefeitura.
+   * para alguém mandar à mão. Padrão: NÃO.
    *
-   * false para o que a equipe não pode ler: código de login e link de troca
-   * de senha (quem lê entra na conta do outro) e tudo da ouvidoria (nome,
-   * e-mail e texto do cidadão, que são da prefeitura, não nossos). Esses
-   * falham sem cópia; o cidadão vê a resposta pelo protocolo e a prefeitura
-   * vê a manifestação no painel.
+   * Era ao contrário: tudo era guardado, e quem lidava com segredo ou com dado
+   * de cidadão tinha de lembrar de desligar. Assim o código de login, o link
+   * de troca de senha e os e-mails da ouvidoria acabaram lidos pela equipe
+   * (revisão do painel, out/2026). Agora só guarda quem pede: os e-mails
+   * comerciais para a prefeitura e para quem pediu proposta ou Raio-X, que
+   * são da relação comercial do CidadeIA. Remetente novo nasce sem cópia.
    */
   guardarNaCaixaDeSaida?: boolean;
 };
@@ -101,7 +101,7 @@ export async function enviarEmail(entrada: ParametrosEmail): Promise<ResultadoEn
   }
 
   const detalhe = tentativas.join(" | ");
-  if (!ehDaEquipe(params.para) && params.guardarNaCaixaDeSaida !== false) {
+  if (!ehDaEquipe(params.para) && params.guardarNaCaixaDeSaida === true) {
     try {
       const { guardarNaCaixaDeSaida } = await import("@/lib/caixa-de-saida");
       await guardarNaCaixaDeSaida({

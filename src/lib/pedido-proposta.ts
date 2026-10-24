@@ -139,6 +139,7 @@ export async function registrarPedidoProposta(dados: DadosDoPedido): Promise<Res
   // não promete "enviamos um e-mail" quando não enviou.
   const base = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://cidadeia.vercel.app";
   const confirmacao = await enviarEmail({
+    guardarNaCaixaDeSaida: true,
     para: dados.email,
     assunto: `Pedido recebido — proposta do CidadeIA para ${municipio.nome}/${municipio.uf} (protocolo ${protocolo})`,
     html: montarEmail({

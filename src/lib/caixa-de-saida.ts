@@ -48,12 +48,57 @@ export async function guardarNaCaixaDeSaida(e: {
       anexos: e.anexos ?? [],
       pedidoId: e.pedidoId ?? null,
       motivo: e.motivo.slice(0, 300),
+      // Só chega aqui quem pediu a cópia (lib/email.ts): a marca diz que a
+      // linha é da relação comercial e não deve ser apagada pela limpeza.
+      comercial: true,
     }),
     autor: "envio de e-mail",
   });
 }
 
+// ── O QUE FICOU GUARDADO ANTES DA REGRA ──
+// Até outubro de 2026 todo e-mail que falhava vinha para cá, inclusive
+// código de login, link de troca de senha e e-mails da ouvidoria com nome,
+// contato e texto do cidadão. Essas linhas são apagadas: a limpeza roda na
+// rotina diária (api/manter-vivo) e sempre que alguém abre /admin/saida.
+// Fica só o que é comercial: as linhas novas trazem a marca `comercial`, e as
+// antigas são reconhecidas pelo assunto dos e-mails comerciais da época.
+const ASSUNTOS_COMERCIAIS_ANTIGOS = [
+  /^Proposta do CidadeIA para /,
+  /^Pedido recebido — proposta do CidadeIA /,
+  /^CidadeIA: .*módulos ativos para /,
+  /: o processo de contratação já vai pronto$/,
+  /: o que o painel mostraria por dentro$/,
+  /^Raio-X da Prefeitura de /,
+  /^Projeção da despesa com pessoal — /,
+];
+
+/** true para a linha que pode continuar na caixa de saída da equipe. */
+export function linhaPodeFicar(descricao: string): boolean {
+  try {
+    const d = JSON.parse(descricao) as { assunto?: unknown; comercial?: unknown };
+    if (d.comercial === true) return true;
+    const assunto = typeof d.assunto === "string" ? d.assunto : "";
+    return ASSUNTOS_COMERCIAIS_ANTIGOS.some((r) => r.test(assunto));
+  } catch {
+    // Sem como ler, sem como saber o que tem dentro: sai.
+    return false;
+  }
+}
+
+/** Apaga as pendências que não são comerciais. Devolve quantas apagou. */
+export async function limparPendentesSensiveis(): Promise<number> {
+  const linhas = await db
+    .select({ id: pedidoEventos.id, descricao: pedidoEventos.descricao })
+    .from(pedidoEventos)
+    .where(eq(pedidoEventos.tipo, TIPO_PENDENTE));
+  const apagar = linhas.filter((l) => !linhaPodeFicar(l.descricao)).map((l) => l.id);
+  if (apagar.length) await db.delete(pedidoEventos).where(inArray(pedidoEventos.id, apagar));
+  return apagar.length;
+}
+
 export async function pendentesDaCaixaDeSaida(limite = 100): Promise<EmailPendente[]> {
+  await limparPendentesSensiveis().catch((e) => console.error("[caixa de saída] limpeza:", e));
   const linhas = await db
     .select()
     .from(pedidoEventos)
