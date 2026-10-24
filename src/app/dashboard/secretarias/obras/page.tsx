@@ -8,6 +8,7 @@ import { buscarDecisoes } from "./actions";
 import { resumoDaDecisao, decisaoAindaVale } from "@/lib/decisao-obra";
 import { buscarContratos } from "@/app/dashboard/secretarias/licitacoes/contratos-actions";
 import BotaoExcluir from "@/components/BotaoExcluir";
+import { estadosDasNotificacoes } from "@/lib/notificacao-servidor";
 
 import MapaSecretariaClient from "@/components/MapaSecretariaClient";
 import ObrasFederais from "@/components/ObrasFederais";
@@ -67,6 +68,7 @@ export default async function ObrasPage() {
   // conta: o alerta precisa voltar, senão bastaria registrar qualquer coisa
   // para a obra sumir da tela para sempre.
   const decisoes = await buscarDecisoes(ctx.sessao.prefeituraId);
+  const notificacoes = await estadosDasNotificacoes(ctx.sessao, agora);
 
   // Obra concluída não tem prazo a vigiar: pedir as datas da creche já
   // entregue era ruído no topo da tela.
@@ -80,6 +82,7 @@ export default async function ObrasPage() {
       origem: o.origem,
       decisao: decisoes.get(o.id) ?? null,
       resumoDecisao: decisoes.has(o.id) ? resumoDaDecisao(decisoes.get(o.id)!, agora) : null,
+      notificacao: notificacoes.get(o.id) ?? null,
       leitura: lerObra(
         {
           id: o.id,
