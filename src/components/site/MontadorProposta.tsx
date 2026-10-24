@@ -118,7 +118,24 @@ export default function MontadorProposta({
     try {
       if (sessionStorage.getItem(VOLTAR_PARA_PROPOSTA)) {
         sessionStorage.removeItem(VOLTAR_PARA_PROPOSTA);
-        requestAnimationFrame(() => document.getElementById("proposta")?.scrollIntoView({ block: "start" }));
+        // As seções acima da proposta só ganham a altura real quando chegam
+        // perto da tela (content-visibility e hidratação sob demanda na home
+        // estática). Uma rolagem só caía antes ou depois da proposta; então
+        // a posição é refeita a cada mudança de altura por 3 s, e para de
+        // seguir assim que a pessoa rola por conta própria.
+        const alvo = () => document.getElementById("proposta");
+        const alinhar = () => alvo()?.scrollIntoView({ block: "start" });
+        requestAnimationFrame(alinhar);
+        const ro = new ResizeObserver(alinhar);
+        ro.observe(document.body);
+        const parar = () => {
+          ro.disconnect();
+          window.removeEventListener("wheel", parar);
+          window.removeEventListener("touchmove", parar);
+        };
+        window.addEventListener("wheel", parar, { passive: true, once: true });
+        window.addEventListener("touchmove", parar, { passive: true, once: true });
+        setTimeout(parar, 3000);
       }
     } catch {
       // armazenamento bloqueado: a pessoa rola sozinha
