@@ -200,7 +200,8 @@ export async function garantirPrefeituraDemo(): Promise<void> {
   // ── Educação: frequência caindo (86 → 71), uma escola com evasão alta ──
   // A rede vem como se tivesse sido importada do Censo Escolar: código
   // INEP, etapas, matrícula declarada. A Padre Cícero declarou 412 e tem
-  // 431 hoje — 19 alunos atendidos fora da conta do FUNDEB.
+  // 431 hoje; com as outras escolas, a rede fecha igual ao declarado — o
+  // FUNDEB não muda, mas o Censo precisa ser acertado escola a escola.
   const censo = { origem: "censo" as const, dependencia: "municipal" as const, situacao: "ativa" as const, censoAno: 2025, sincronizadoEm: diasAtras(9) };
   await db.insert(escolas).values([
     { id: "demo_esc_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "E. M. Padre Cícero", bairro: "Centro", evasaoPercentual: 12.4, latitude: -6.7701, longitude: -43.0235, codigoInep: "22099001", localizacao: "urbana", etapas: "Ensino Fundamental", porte: "Entre 201 e 500 matrículas", matriculasCenso: 412, matriculasAtuais: 431, diasPrevistos: 200, ...censo },

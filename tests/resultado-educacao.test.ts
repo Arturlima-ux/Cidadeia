@@ -229,10 +229,22 @@ describe("o total em risco não pode sair da lista filtrada", () => {
     expect(apurarFundebPorAluno(rede, 5_000).porEscola).toHaveLength(0);
   });
 
-  it("diferenças em sentidos opostos não se anulam no total", () => {
+  it("diferenças em sentidos opostos se anulam no dinheiro (o FUNDEB é pela rede), mas continuam contadas por escola", () => {
+    // Decisão do dono (out/2026): o repasse segue a matrícula da rede.
     const a = apurarFundebPorAluno([esc("e1", 100, 103), esc("e2", 100, 97)], 5_000);
-    expect(a.alunosForaDaConta).toBe(3);
-    expect(a.alunosDeclaradosAMais).toBe(3);
+    expect(a.alunosForaDaConta).toBe(0);
+    expect(a.alunosDeclaradosAMais).toBe(0);
+    expect(a.reaisForaDaConta).toBe(0);
+    expect(a.alunosAMaisNasEscolas).toBe(3);
+    expect(a.alunosAMenosNasEscolas).toBe(3);
+    expect(a.frase).toMatch(/Pela rede/);
+  });
+
+  it("saldo da rede vira o dinheiro: +30 numa escola e -10 noutra são 20 alunos fora da conta", () => {
+    const a = apurarFundebPorAluno([esc("e1", 100, 130), esc("e2", 100, 90)], 5_000);
+    expect(a.alunosForaDaConta).toBe(20);
+    expect(a.reaisForaDaConta).toBe(100_000);
+    expect(a.alunosDeclaradosAMais).toBe(0);
   });
 
   it("rede que bate de verdade continua dizendo que nada está em risco", () => {

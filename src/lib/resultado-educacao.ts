@@ -211,6 +211,10 @@ export type ApuracaoFundeb = {
   /** Alunos declarados que a escola não tem mais: risco de glosa na auditoria. */
   alunosDeclaradosAMais: number;
   reaisEmRiscoDeGlosa: number | null;
+  /** Escola a escola, somando só os excessos (não entra no dinheiro). */
+  alunosAMaisNasEscolas: number;
+  /** Escola a escola, somando só as faltas (não entra no dinheiro). */
+  alunosAMenosNasEscolas: number;
   porEscola: GapDeEscola[];
   frase: string;
 };
@@ -230,7 +234,9 @@ export function apurarFundebPorAluno(escolas: EscolaComMatricula[], valorAlunoAn
         escolaId: e.id,
         escolaNome: e.nome,
         diferenca,
-        reais: valorAlunoAno === null ? null : Math.abs(diferenca) * valorAlunoAno,
+        // Por escola não há reais: o repasse é pela rede (ver abaixo). Fica
+        // o campo para quem ainda o lê, sempre nulo.
+        reais: null,
       };
     })
     .filter((g) => Math.abs(g.diferenca) >= DIFERENCA_RELEVANTE)
@@ -251,9 +257,20 @@ export function apurarFundebPorAluno(escolas: EscolaComMatricula[], valorAlunoAn
   //
   // Agora o total percorre TODAS as escolas comparáveis; o limiar segue
   // valendo só para `porEscola`, que é o detalhamento da tela.
+  //
+  // ── PELA REDE, NÃO ESCOLA A ESCOLA (decisão do dono, out/2026) ──
+  // O FUNDEB repassa pela matrícula da REDE municipal declarada ao Censo
+  // (Lei 14.113/2020), não por escola. Somar só os excessos de cada escola
+  // inventava dinheiro: +19 numa escola e -17 noutra davam "R$ 137 mil fora
+  // da conta" numa rede que fecha igual. O dinheiro agora sai do saldo da
+  // rede; a diferença escola a escola continua contada, à parte, porque o
+  // Censo é declarado por escola e é lá que se corrige.
   const diferencas = comparaveis.map((e) => (e.matriculasAtuais ?? 0) - (e.matriculasCenso ?? 0));
-  const alunosForaDaConta = diferencas.filter((d) => d > 0).reduce((s, d) => s + d, 0);
-  const alunosDeclaradosAMais = diferencas.filter((d) => d < 0).reduce((s, d) => s - d, 0);
+  const alunosAMaisNasEscolas = diferencas.filter((d) => d > 0).reduce((s, d) => s + d, 0);
+  const alunosAMenosNasEscolas = diferencas.filter((d) => d < 0).reduce((s, d) => s - d, 0);
+  const saldoDaRede = atuais - declarados;
+  const alunosForaDaConta = Math.max(0, saldoDaRede);
+  const alunosDeclaradosAMais = Math.max(0, -saldoDaRede);
   const reaisForaDaConta = valorAlunoAno === null ? null : alunosForaDaConta * valorAlunoAno;
   const reaisEmRiscoDeGlosa = valorAlunoAno === null ? null : alunosDeclaradosAMais * valorAlunoAno;
 
@@ -270,6 +287,8 @@ export function apurarFundebPorAluno(escolas: EscolaComMatricula[], valorAlunoAn
     frase = `${alunosForaDaConta} aluno(s) estão sendo atendidos sem entrar na conta do FUNDEB — ${moeda(reaisForaDaConta!)} por ano que o município não recebe, pagando a despesa mesmo assim.`;
   } else if (alunosDeclaradosAMais > 0) {
     frase = `${alunosDeclaradosAMais} aluno(s) declarados ao Censo já não estão nas escolas — ${moeda(reaisEmRiscoDeGlosa!)} de repasse sobre matrícula que a auditoria pode glosar.`;
+  } else if (alunosAMaisNasEscolas > 0) {
+    frase = `Pela rede, a matrícula de hoje bate com a declarada ao Censo: nada a receber a mais nem em risco no FUNDEB. Escola a escola, porém, há ${alunosAMaisNasEscolas} aluno(s) a mais e ${alunosAMenosNasEscolas} a menos do que o declarado — vale acertar no próximo Censo, porque o peso de cada etapa de ensino muda o repasse.`;
   } else {
     frase = `Nas ${comparaveis.length} escola(s) comparáveis, a matrícula de hoje bate com a declarada ao Censo. Nada em risco.`;
   }
@@ -283,6 +302,8 @@ export function apurarFundebPorAluno(escolas: EscolaComMatricula[], valorAlunoAn
     reaisForaDaConta,
     alunosDeclaradosAMais,
     reaisEmRiscoDeGlosa,
+    alunosAMaisNasEscolas,
+    alunosAMenosNasEscolas,
     porEscola,
     frase,
   };
@@ -345,22 +366,24 @@ function moeda(n: number): string {
 export function fraseMatriculaDaRede(e: {
   escolasInformadas: number;
   saldoDaRede: number;
-  alunosForaDaConta: number;
-  alunosDeclaradosAMais: number;
+  /** Escola a escola (apurarFundebPorAluno): só para dizer onde acertar o Censo. */
+  alunosAMaisNasEscolas: number;
+  alunosAMenosNasEscolas: number;
 }): string {
   const nas = e.escolasInformadas === 1 ? "Na escola que já informou" : `Nas ${e.escolasInformadas} escolas que já informaram`;
   const alunos = (n: number) => `${n.toLocaleString("pt-BR")} ${n === 1 ? "aluno" : "alunos"}`;
   if (e.escolasInformadas === 0) {
     return "Nenhuma escola informou a matrícula de hoje ainda. É essa comparação que mostra aluno atendido sem entrar na conta do FUNDEB. →";
   }
-  if (e.alunosForaDaConta > 0 && e.alunosDeclaradosAMais > 0) {
-    return `${nas}, o total ${e.saldoDaRede === 0 ? "da rede bate com o declarado" : "da rede não bate com o declarado"}, mas escola a escola há ${alunos(e.alunosForaDaConta)} a mais e ${alunos(e.alunosDeclaradosAMais)} a menos do que o declarado ao Censo. →`;
+  // O dinheiro segue a rede (ver apurarFundebPorAluno); a frase também.
+  if (e.saldoDaRede > 0) {
+    return `${nas}, há ${alunos(e.saldoDaRede)} a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB. →`;
   }
-  if (e.alunosForaDaConta > 0) {
-    return `${nas}, há ${alunos(e.alunosForaDaConta)} a mais do que o declarado ao Censo — atendidos sem entrar na conta do FUNDEB. →`;
+  if (e.saldoDaRede < 0) {
+    return `${nas}, há ${alunos(-e.saldoDaRede)} a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real. →`;
   }
-  if (e.alunosDeclaradosAMais > 0) {
-    return `${nas}, há ${alunos(e.alunosDeclaradosAMais)} a menos do que o declarado ao Censo — ou saíram (busca ativa), ou a declaração está acima do real. →`;
+  if (e.alunosAMaisNasEscolas > 0 || e.alunosAMenosNasEscolas > 0) {
+    return `${nas}, o total da rede bate com o declarado, então o FUNDEB não muda; escola a escola há ${alunos(e.alunosAMaisNasEscolas)} a mais e ${alunos(e.alunosAMenosNasEscolas)} a menos, para acertar no próximo Censo. →`;
   }
   return `${nas}, o número de hoje bate com o declarado. →`;
 }
