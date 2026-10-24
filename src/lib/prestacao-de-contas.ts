@@ -268,7 +268,14 @@ export function frenteDoPessoal(
  * Prometer multa certa venderia melhor e seria falso.
  */
 export function frenteDaTransparencia(
-  cobertura: { nome: string; atendida: boolean }[]
+  cobertura: { nome: string; atendida: boolean }[],
+  /**
+   * O portal público está no ar? Sem ele, publicar não divulga: a frente
+   * dava "Cumprido — as 4 exigências estão publicadas" com o portal
+   * desativado, enquanto o radar de Publicações, na tela ao lado, dizia que
+   * nada chegava ao cidadão. undefined = não conferido (compatível).
+   */
+  portalAtivo?: boolean
 ): Frente {
   const base = {
     chave: "transparencia",
@@ -291,6 +298,20 @@ export function frenteDaTransparencia(
   }
 
   const descobertas = cobertura.filter((c) => !c.atendida);
+
+  if (portalAtivo === false) {
+    return {
+      ...base,
+      situacao: "risco",
+      veredito:
+        "O portal público está desativado: nada do que foi publicado aparece para o cidadão" +
+        (descobertas.length > 0
+          ? `, e ${descobertas.length} de ${cobertura.length} exigências de conteúdo ainda faltam.`
+          : ", embora as exigências de conteúdo estejam prontas para ir ao ar."),
+      falta: null,
+      esforco: null,
+    };
+  }
 
   if (descobertas.length === 0) {
     return {

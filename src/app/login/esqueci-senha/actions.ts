@@ -80,6 +80,8 @@ async function processarRecuperacao(documento: string): Promise<ResultadoSolicit
   const link = linkApp(`/login/redefinir-senha?token=${token}`);
 
   const resultado = await enviarEmail({
+    // Segredo de acesso: nunca na caixa de saída da equipe (lib/email.ts).
+    guardarNaCaixaDeSaida: false,
     para: usuario.email,
     assunto: "Redefinir sua senha do CidadeIA",
     html: montarEmail({

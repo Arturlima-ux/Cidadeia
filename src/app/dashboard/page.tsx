@@ -221,8 +221,8 @@ export default async function DashboardPage() {
               <div className="border-t pt-5 @3xl:pt-0 @3xl:border-t-0 @3xl:border-l border-border @3xl:pl-6 flex items-center gap-4">
                 <GaugeEficiencia
                   valor={snapshot!.indiceTransparencia}
-                  label="Eficiência da gestão"
-                  sublabel="Índice de Transparência mais recente."
+                  label="Índice de Transparência"
+                  sublabel="O último informado em “Atualizar indicadores”."
                 />
                 {(() => {
                   const delta = calcularDelta(
@@ -419,8 +419,9 @@ function DetalhesSnapshotForm() {
           Inserção manual (Fase 1) — sem integração automática ainda.
         </p>
         <div>
-          <label className="block text-xs font-medium mb-1">Receita (R$)</label>
+          <label htmlFor="indicador-receita" className="block text-xs font-medium mb-1">Receita (R$)</label>
           <input
+            id="indicador-receita"
             name="receita"
             type="number"
             step="0.01"
@@ -428,8 +429,9 @@ function DetalhesSnapshotForm() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Despesas (R$)</label>
+          <label htmlFor="indicador-despesas" className="block text-xs font-medium mb-1">Despesas (R$)</label>
           <input
+            id="indicador-despesas"
             name="despesas"
             type="number"
             step="0.01"
@@ -437,10 +439,11 @@ function DetalhesSnapshotForm() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">
+          <label htmlFor="indicador-indiceTransparencia" className="block text-xs font-medium mb-1">
             Índice de Transparência (%)
           </label>
           <input
+            id="indicador-indiceTransparencia"
             name="indiceTransparencia"
             type="number"
             min={0}

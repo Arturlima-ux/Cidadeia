@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { importarDoSiconfi, type ResultadoImportacao } from "./actions";
+import type { ResultadoImportacao } from "./actions";
 
 function formatarMoeda(v: number) {
   return v.toLocaleString("pt-BR", {
@@ -59,8 +59,9 @@ export default function ImportarSiconfi({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium mb-1">Ano</label>
+          <label htmlFor="siconfi-ano" className="block text-xs font-medium mb-1">Ano</label>
           <select
+            id="siconfi-ano"
             name="ano"
             defaultValue={String(ANO_ATUAL - 1)}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
@@ -73,8 +74,9 @@ export default function ImportarSiconfi({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Bimestre</label>
+          <label htmlFor="siconfi-bimestre" className="block text-xs font-medium mb-1">Bimestre</label>
           <select
+            id="siconfi-bimestre"
             name="bimestre"
             defaultValue="6"
             className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"

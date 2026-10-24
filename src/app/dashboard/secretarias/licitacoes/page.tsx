@@ -21,6 +21,9 @@ import { lerAditivo } from "@/lib/aditivos";
 import { documentoExibivel } from "@/lib/contratos-pncp";
 import type { ProcessoDispensa } from "@/lib/fracionamento";
 import { detectarPadroes } from "@/lib/padroes-licitacoes";
+import { aprovacoesDeRenovacao } from "@/lib/renovacao-servidor";
+import { estadoDaRenovacaoNaLista } from "@/lib/renovacao-contrato";
+import { dataNumerica, fusoDoEstado } from "@/lib/horario";
 
 const LABEL_STATUS: Record<string, string> = {
   planejamento: "Planejamento",
@@ -85,6 +88,21 @@ export default async function LicitacoesPage() {
   // ocupam espaço: numa prefeitura real são a maioria (68 de 134 no município
   // medido), e listá-los afogaria os dez que importam.
   const listaContratos = await buscarContratos(ctx.sessao.prefeituraId);
+  // As aprovações de renovação já registradas. Só se lê com contratos na mão:
+  // buscarContratos já conferiu acesso à pasta, e sem ele a lista vem vazia.
+  const aprovacoes = listaContratos.length
+    ? await aprovacoesDeRenovacao(ctx.sessao.prefeituraId).catch((e) => {
+        console.error("[renovacao] aprovações:", (e as Error).name);
+        return [];
+      })
+    : [];
+  const fuso = fusoDoEstado(ctx.prefeitura.estado);
+  const prefeituraDoc = {
+    municipio: ctx.prefeitura.municipio,
+    estado: ctx.prefeitura.estado,
+    cnpj: ctx.prefeitura.cnpj,
+    prefeito: ctx.prefeitura.prefeito,
+  };
   const contratosQuePedemDecisao: ContratoNaTela[] = listaContratos
     .map((c) => ({
       id: c.id,
@@ -115,6 +133,13 @@ export default async function LicitacoesPage() {
         valorGlobal: c.valorGlobal,
         numeroRetificacao: c.numeroRetificacao,
       }),
+      renovacao: estadoDaRenovacaoNaLista(
+        c,
+        listaContratos,
+        prefeituraDoc,
+        aprovacoes.filter((a) => a.contratoId === c.id),
+        (iso) => dataNumerica(iso, fuso)
+      ),
     }))
     .filter((c) => pedeAcao(c.vigencia.situacao) || c.aditivo.situacao === "acima_se_for_acrescimo")
     .sort((a, b) => a.vigencia.peso - b.vigencia.peso);
@@ -151,6 +176,8 @@ export default async function LicitacoesPage() {
             contrato, num outro endereço do portal, e ainda não entra aqui.
           </p>
         </div>
+        {/* Download de rota de API: <Link> faria prefetch do PDF a cada abertura da tela. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/api/relatorios/secretaria/licitacoes"
           className="group shrink-0 flex items-center gap-2 border border-border rounded-full px-4 py-2 text-sm font-semibold hover:border-brand hover:text-brand transition"
@@ -214,8 +241,9 @@ export default async function LicitacoesPage() {
           className="bg-card border border-border rounded-2xl p-4 grid sm:grid-cols-2 gap-3"
         >
           <div>
-            <label className="block text-xs font-medium mb-1">Número do processo</label>
+            <label htmlFor="licitacao-numero" className="block text-xs font-medium mb-1">Número do processo</label>
             <input
+              id="licitacao-numero"
               name="numero"
               required
               placeholder="PE 012/2026"
@@ -223,16 +251,18 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Modalidade</label>
+            <label htmlFor="licitacao-modalidade" className="block text-xs font-medium mb-1">Modalidade</label>
             <input
+              id="licitacao-modalidade"
               name="modalidade"
               placeholder="Pregão Eletrônico"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-xs font-medium mb-1">Objeto</label>
+            <label htmlFor="licitacao-objeto" className="block text-xs font-medium mb-1">Objeto</label>
             <input
+              id="licitacao-objeto"
               name="objeto"
               required
               placeholder="Aquisição de merenda escolar"
@@ -240,8 +270,9 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Valor estimado (R$)</label>
+            <label htmlFor="licitacao-valorEstimado" className="block text-xs font-medium mb-1">Valor estimado (R$)</label>
             <input
+              id="licitacao-valorEstimado"
               name="valorEstimado"
               type="number"
               step="0.01"
@@ -249,16 +280,18 @@ export default async function LicitacoesPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Fornecedor</label>
+            <label htmlFor="licitacao-fornecedor" className="block text-xs font-medium mb-1">Fornecedor</label>
             <input
+              id="licitacao-fornecedor"
               name="fornecedor"
               placeholder="(se já homologado)"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Status</label>
+            <label htmlFor="licitacao-status" className="block text-xs font-medium mb-1">Status</label>
             <select
+              id="licitacao-status"
               name="status"
               defaultValue="planejamento"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
@@ -271,20 +304,22 @@ export default async function LicitacoesPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label htmlFor="licitacao-observacaoRisco" className="block text-xs font-medium mb-1">
               Observação de risco (opcional)
             </label>
             <input
+              id="licitacao-observacaoRisco"
               name="observacaoRisco"
               placeholder="ex: impugnação em análise"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label htmlFor="licitacao-prazoFinal" className="block text-xs font-medium mb-1">
               Prazo final (opcional)
             </label>
             <input
+              id="licitacao-prazoFinal"
               name="prazoFinal"
               type="date"
               className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-brand"

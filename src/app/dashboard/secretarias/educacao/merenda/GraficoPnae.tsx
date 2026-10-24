@@ -84,7 +84,7 @@ export default function GraficoPnae({ serie, atingiu, percentualAtual }: Props) 
 
       <div className="h-56 sm:h-64" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={serie} margin={{ top: 8, right: 16, bottom: 0, left: -18 }}>
+          <AreaChart data={serie} margin={{ top: 8, right: 16, bottom: 0, left: -18 }} accessibilityLayer={false}>
             <defs>
               <linearGradient id="preenchimento-af" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={corSerie} stopOpacity={0.28} />

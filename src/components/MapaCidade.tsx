@@ -171,6 +171,9 @@ export default function MapaCidade({ pontos }: { pontos: PontoCidade[] }) {
             <Marker
               key={p.id}
               position={[p.latitude, p.longitude]}
+              // Nome acessível do marcador: sem ele o leitor de tela anuncia
+              // só "botão", onze vezes.
+              title={`${p.nome} · ${NOME_CAMADA[p.camada]}${p.emAtraso ? " · em atraso" : ""}`}
               icon={icone(p.emAtraso ? COR_ATRASO : CORES_CAMADA[p.camada], Boolean(p.emAtraso))}
             >
               <Popup>

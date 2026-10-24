@@ -369,3 +369,30 @@ export function detectarPrazoAtendimento(resumo: {
 
   return achados;
 }
+
+const ROTULO_AREA: Record<string, string> = {
+  saude: "Saúde",
+  educacao: "Educação",
+  obras: "Obras",
+  licitacoes: "Licitações",
+};
+
+/**
+ * A etiqueta de módulo de um achado na Central Inteligente. Achado sem
+ * secretaria virava sempre "Financeiro" — inclusive o prazo de manifestação
+ * do cidadão, que é da ouvidoria, e a despesa com pessoal.
+ */
+export function moduloDoAchado(d: Pick<DeteccaoAutomatica, "secretaria" | "categoria" | "chave">): string {
+  if (d.secretaria) return ROTULO_AREA[d.secretaria] ?? d.secretaria;
+  if (d.chave?.startsWith("atendimento:")) return "Ouvidoria";
+  if (d.categoria === "pessoal") return "Pessoal";
+  return "Financeiro";
+}
+
+/** O resumo da Central quando a IA não escreve um ("1 ponto", "6 pontos"). */
+export function resumoDosAchados(quantidade: number): string {
+  if (quantidade === 0) return "Nenhum ponto crítico detectado nos dados registrados até agora.";
+  return quantidade === 1
+    ? "1 ponto detectado automaticamente que merece atenção."
+    : `${quantidade} pontos detectados automaticamente que merecem atenção.`;
+}

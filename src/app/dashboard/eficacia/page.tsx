@@ -118,7 +118,7 @@ export default async function EficaciaPage() {
                 {formatarMoeda(investimentoTotal)}
               </p>
               <p className="text-[11px] text-muted mt-1">
-                recurso público nas {analise.length} área(s) contratada(s)
+                recurso público {analise.length === 1 ? "na área contratada" : `nas ${analise.length} áreas contratadas`}
               </p>
             </div>
             <div

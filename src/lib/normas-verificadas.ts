@@ -166,6 +166,27 @@ export const NORMAS_VERIFICADAS: Norma[] = [
     modulo: "licitacoes",
   },
   {
+    artigo: "Art. 107",
+    norma: "Lei 14.133/2021",
+    oQueVerifica: "O teto de dez anos da prorrogação de contrato contínuo, que tira a prorrogação das opções quando já foi atingido.",
+    onde: "lib/renovacao-contrato.ts",
+    modulo: "licitacoes",
+  },
+  {
+    artigo: "Art. 18, §§ 1º e 2º",
+    norma: "Lei 14.133/2021",
+    oQueVerifica: "Os treze elementos do estudo técnico preliminar, com os cinco obrigatórios marcados no rascunho gerado.",
+    onde: "lib/renovacao-contrato.ts",
+    modulo: "licitacoes",
+  },
+  {
+    artigo: "Art. 91, § 4º",
+    norma: "Lei 14.133/2021",
+    oQueVerifica: "As certidões e consultas ao CEIS e ao CNEP no checklist gerado antes de prorrogar.",
+    onde: "lib/renovacao-contrato.ts",
+    modulo: "licitacoes",
+  },
+  {
     artigo: "Art. 111",
     norma: "Lei 14.133/2021",
     oQueVerifica: "A vigência de contrato de escopo, prorrogada automaticamente.",
