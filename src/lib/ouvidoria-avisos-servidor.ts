@@ -19,8 +19,12 @@ import {
 // ── OS E-MAILS DA OUVIDORIA ── (ver ouvidoria-avisos.ts)
 //
 // Nenhuma destas funções lança erro: o e-mail é aviso, e falhar ao avisar
-// não pode desfazer o protocolo do cidadão nem a resposta do servidor. O que
-// não sai pela Resend nem pelo Gmail fica na caixa de saída (lib/email.ts).
+// não pode desfazer o protocolo do cidadão nem a resposta do servidor.
+//
+// E nenhuma delas guarda cópia na caixa de saída da equipe do CidadeIA
+// (guardarNaCaixaDeSaida: false): nome, e-mail e texto do cidadão são da
+// prefeitura. O que não sai, o cidadão vê consultando o protocolo, e a
+// prefeitura vê no painel.
 
 async function carregar(atendimentoId: string) {
   const [a] = await db
@@ -62,7 +66,7 @@ export async function avisarManifestacaoNova(atendimentoId: string): Promise<voi
       linkPainel: linkApp("/dashboard/atendimento"),
     });
     const envios = destinatariosDaManifestacao(a, pessoas).map((para) =>
-      enviarEmail({ para, assunto: equipe.assunto, html: equipe.html })
+      enviarEmail({ para, assunto: equipe.assunto, html: equipe.html, guardarNaCaixaDeSaida: false })
     );
 
     if (a.email) {
@@ -76,7 +80,7 @@ export async function avisarManifestacaoNova(atendimentoId: string): Promise<voi
         prazo,
         linkConsulta: linkConsulta(r.slug, a.protocolo, a.chaveConsulta),
       });
-      envios.push(enviarEmail({ para: a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente }));
+      envios.push(enviarEmail({ para: a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente, guardarNaCaixaDeSaida: false }));
     }
     await Promise.all(envios);
   } catch (e) {
@@ -113,7 +117,7 @@ export async function avisarAvaliacaoRuim(atendimentoId: string, nota: "parte" |
       linkPainel: linkApp("/dashboard/atendimento"),
     });
     const pessoas = await equipeDaPrefeitura(a.prefeituraId);
-    await Promise.all(destinatariosDaManifestacao(a, pessoas).map((para) => enviarEmail({ para, assunto: msg.assunto, html: msg.html })));
+    await Promise.all(destinatariosDaManifestacao(a, pessoas).map((para) => enviarEmail({ para, assunto: msg.assunto, html: msg.html, guardarNaCaixaDeSaida: false })));
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar avaliação:", e);
   }
@@ -133,7 +137,7 @@ export async function avisarResposta(atendimentoId: string): Promise<boolean> {
       resposta: r.a.resposta,
       linkConsulta: linkConsulta(r.slug, r.a.protocolo, r.a.chaveConsulta),
     });
-    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente });
+    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente, guardarNaCaixaDeSaida: false });
     return envio.enviado;
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar resposta:", e);
@@ -157,7 +161,7 @@ export async function avisarProrrogacao(atendimentoId: string, justificativa: st
       lei: `${PRAZOS[tipo].lei}, ${PRAZOS[tipo].artigo}`,
       linkConsulta: linkConsulta(r.slug, r.a.protocolo, r.a.chaveConsulta),
     });
-    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente });
+    const envio = await enviarEmail({ para: r.a.email, assunto: msg.assunto, html: msg.html, nomeRemetente: msg.remetente, guardarNaCaixaDeSaida: false });
     return envio.enviado;
   } catch (e) {
     console.error("[ouvidoria] falha ao avisar prorrogação:", e);

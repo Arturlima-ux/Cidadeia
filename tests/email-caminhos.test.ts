@@ -72,6 +72,40 @@ describe("envio de e-mail", () => {
     expect(guardados[0]).toMatchObject({ para: "secretaria@picos.pi.gov.br", pedidoId: "prop_1234" });
   });
 
+  it("código de login, troca de senha e ouvidoria não vão para a caixa de saída da equipe", async () => {
+    // A caixa de saída é lida em /admin/saida pela equipe do CidadeIA. Um
+    // código de login guardado ali deixa quem lê entrar na conta do outro; a
+    // resposta da ouvidoria carrega e-mail e texto do cidadão.
+    process.env.RESEND_API_KEY = "re_x";
+    process.env.RESEND_FROM_EMAIL = "CidadeIA <onboarding@resend.dev>";
+    delete process.env.SMTP_USUARIO;
+    vi.stubGlobal("fetch", async () => new Response("recusado", { status: 403 }));
+    const r = await enviarEmail({
+      para: "cidada@exemplo.com",
+      assunto: "CidadeIA: seu código de acesso é 123456",
+      html: "<p>123456</p>",
+      guardarNaCaixaDeSaida: false,
+    });
+    expect(r.enviado).toBe(false);
+    expect(guardados).toHaveLength(0);
+  });
+
+  it("quem manda segredo ou dado do cidadão desliga a caixa de saída", async () => {
+    const { readFileSync } = await import("node:fs");
+    const semComentario = (t: string) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const arquivo of [
+      "src/lib/ouvidoria-avisos-servidor.ts",
+      "src/app/login/actions.ts",
+      "src/app/login/esqueci-senha/actions.ts",
+    ]) {
+      const codigo = semComentario(readFileSync(arquivo, "utf8"));
+      const chamadas = codigo.match(/enviarEmail\(/g)?.length ?? 0;
+      const desligadas = codigo.match(/guardarNaCaixaDeSaida: false/g)?.length ?? 0;
+      expect(chamadas, arquivo).toBeGreaterThan(0);
+      expect(desligadas, arquivo).toBe(chamadas);
+    }
+  });
+
   it("e-mail para a própria equipe não vai para a caixa de saída", async () => {
     process.env.RESEND_API_KEY = "re_x";
     process.env.RESEND_FROM_EMAIL = "x@resend.dev";
