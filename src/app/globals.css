@@ -2044,3 +2044,100 @@ select option {
   content-visibility: auto;
   contain-intrinsic-size: auto 1000px;
 }
+
+/* ── O MAPA VIVO (components/site/inicio/MapaVivo.tsx) ──
+   O país é um canvas desenhado uma vez. O que se mexe são marcadores
+   pequenos por cima, só com transform e opacity: o compositor anima, a
+   linha principal fica livre. */
+/* Acende quando o desenho fica pronto (data-pronto), e não ao montar: nas
+   páginas em que ele espera o load, a animação acabaria antes do desenho. */
+.mapa-vivo[data-pronto] .mapa-vivo-pais {
+  animation: mapa-acende 1.6s var(--saida) both;
+}
+@keyframes mapa-acende {
+  from { opacity: 0.15; transform: scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.mapa-marcador {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.mapa-marcador[hidden] { display: none; }
+.mapa-marcador > span {
+  position: absolute;
+  border-radius: 9999px;
+}
+.mapa-marcador[data-cor="medio"] { color: var(--medio); }
+.mapa-marcador[data-cor="urgente"] { color: var(--urgente); }
+.mapa-marcador[data-cor="info"] { color: var(--info); }
+.mapa-alerta-ponto {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: currentColor;
+  opacity: 0;
+  animation: mapa-alerta-ponto 2.2s ease-out infinite;
+  animation-delay: var(--atraso, 0s);
+}
+.mapa-alerta-anel {
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  border: 1px solid currentColor;
+  opacity: 0;
+  animation: mapa-alerta-anel 2.2s ease-out infinite;
+  animation-delay: var(--atraso, 0s);
+}
+@keyframes mapa-alerta-ponto {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes mapa-alerta-anel {
+  from { opacity: 0.6; transform: scale(0.12); }
+  to { opacity: 0; transform: scale(1); }
+}
+.mapa-destaque-ponto {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: var(--brand-claro);
+}
+.mapa-destaque-anel {
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 1.5px solid var(--brand-claro);
+  animation: mapa-respira 3.1s ease-in-out infinite alternate;
+}
+@keyframes mapa-respira {
+  from { opacity: 0.25; transform: scale(0.65); }
+  to { opacity: 0.6; transform: scale(1); }
+}
+.mapa-voce-ponto {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: var(--localizacao);
+  box-shadow: 0 0 0 1.5px var(--foreground);
+}
+.mapa-voce-anel {
+  width: var(--anel, 18px);
+  height: var(--anel, 18px);
+  margin: calc(var(--anel, 18px) / -2) 0 0 calc(var(--anel, 18px) / -2);
+  background: color-mix(in oklab, var(--localizacao) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--localizacao) 55%, transparent);
+}
+.mapa-vivo[data-visivel="0"] .mapa-marcador > span {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mapa-vivo-pais,
+  .mapa-destaque-anel {
+    animation: none;
+  }
+  .mapa-marcador[data-mapa="alerta"] { display: none; }
+}
