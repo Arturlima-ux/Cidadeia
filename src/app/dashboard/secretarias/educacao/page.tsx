@@ -208,9 +208,11 @@ export default async function EducacaoPage() {
           <p className="text-xs text-muted mt-1 leading-relaxed">
             {fraseMatriculaDaRede({
               escolasInformadas: comMatriculaInformada.length,
-              saldoDaRede: diferenca,
-              alunosForaDaConta: fundebApurado.alunosForaDaConta,
-              alunosDeclaradosAMais: fundebApurado.alunosDeclaradosAMais,
+              // O mesmo saldo do valor em reais logo acima (só escolas com Censo e
+              // matrícula de hoje), para as duas linhas contarem a mesma coisa.
+              saldoDaRede: fundebApurado.atuais - fundebApurado.declarados,
+              alunosAMaisNasEscolas: fundebApurado.alunosAMaisNasEscolas,
+              alunosAMenosNasEscolas: fundebApurado.alunosAMenosNasEscolas,
             })}
           </p>
         </Link>

@@ -124,10 +124,14 @@ export default async function ResultadoPage({ searchParams }: { searchParams: Pr
             ? formatarMoeda(apuracao.reaisForaDaConta)
             : apuracao.reaisEmRiscoDeGlosa !== null && apuracao.alunosDeclaradosAMais > 0
               ? formatarMoeda(apuracao.reaisEmRiscoDeGlosa)
-              : `${apuracao.alunosForaDaConta + apuracao.alunosDeclaradosAMais} aluno(s)`}
+              : `${apuracao.alunosAMaisNasEscolas + apuracao.alunosAMenosNasEscolas} ${apuracao.alunosAMaisNasEscolas + apuracao.alunosAMenosNasEscolas === 1 ? "aluno" : "alunos"}`}
           <span className="text-sm font-sans font-normal text-muted">
             {" "}
-            {apuracao.alunosForaDaConta > 0 ? "por ano, fora da conta do FUNDEB" : apuracao.alunosDeclaradosAMais > 0 ? "de repasse sob risco de glosa" : "de diferença"}
+            {apuracao.alunosForaDaConta > 0
+              ? "por ano, fora da conta do FUNDEB"
+              : apuracao.alunosDeclaradosAMais > 0
+                ? "de repasse sob risco de glosa"
+                : "de diferença por escola, sem efeito no FUNDEB da rede"}
           </span>
         </p>
         <p className="text-sm mt-2 leading-relaxed">{apuracao.frase}</p>
@@ -141,7 +145,8 @@ export default async function ResultadoPage({ searchParams }: { searchParams: Pr
                 </Link>
                 <span className="tabular-nums text-muted">
                   {g.diferenca > 0 ? `+${g.diferenca}` : g.diferenca} aluno(s)
-                  {g.reais !== null && ` · ${formatarMoeda(g.reais)}`}
+                  {/* Sem reais por escola: o FUNDEB é apurado pela rede, e o valor
+                      de uma escola sozinha somava dinheiro que a rede não perde. */}
                 </span>
               </li>
             ))}

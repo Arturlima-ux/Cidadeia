@@ -215,26 +215,38 @@ describe("textos do painel concordam em número", () => {
 });
 
 describe("cartão de matrícula da Educação", () => {
-  it("não diz que bate quando o valor acima aponta dinheiro fora da conta", async () => {
+  // Decisão do dono (out/2026): o FUNDEB é apurado pela rede. A demonstração
+  // tem +19 numa escola, -17 noutra e -2 noutra: a rede fecha igual, então
+  // não há dinheiro "fora da conta" — mas a diferença por escola continua
+  // dita, para acertar no próximo Censo.
+  const escolas = [
+    { id: "a", nome: "Padre Cícero", matriculasCenso: 412, matriculasAtuais: 431 },
+    { id: "b", nome: "Maria das Dores", matriculasCenso: 188, matriculasAtuais: 171 },
+    { id: "c", nome: "José Alencar", matriculasCenso: 356, matriculasAtuais: 354 },
+    { id: "d", nome: "Santa Luzia", matriculasCenso: 74, matriculasAtuais: 74 },
+  ];
+
+  it("rede que fecha igual não tem dinheiro fora da conta, e o cartão diz onde acertar", async () => {
     const { apurarFundebPorAluno, fraseMatriculaDaRede } = await import("@/lib/resultado-educacao");
-    // A demonstração: +19 numa escola, -17 noutra, -2 noutra; a rede fecha igual.
-    const escolas = [
-      { id: "a", nome: "Padre Cícero", matriculasCenso: 412, matriculasAtuais: 431 },
-      { id: "b", nome: "Maria das Dores", matriculasCenso: 188, matriculasAtuais: 171 },
-      { id: "c", nome: "José Alencar", matriculasCenso: 356, matriculasAtuais: 354 },
-      { id: "d", nome: "Santa Luzia", matriculasCenso: 74, matriculasAtuais: 74 },
-    ];
     const ap = apurarFundebPorAluno(escolas, 7240);
-    const frase = fraseMatriculaDaRede({ escolasInformadas: 4, saldoDaRede: 0, alunosForaDaConta: ap.alunosForaDaConta, alunosDeclaradosAMais: ap.alunosDeclaradosAMais });
-    expect(ap.reaisForaDaConta).toBeGreaterThan(0);
-    expect(frase).not.toContain("o número de hoje bate com o declarado");
-    expect(frase).toContain("19 alunos a mais");
-    expect(frase).toContain("19 alunos a menos");
+    expect(ap.reaisForaDaConta).toBe(0);
+    expect(ap.reaisEmRiscoDeGlosa).toBe(0);
+    expect(ap.alunosAMaisNasEscolas).toBe(19);
+    expect(ap.alunosAMenosNasEscolas).toBe(19);
+    const frase = fraseMatriculaDaRede({
+      escolasInformadas: 4,
+      saldoDaRede: ap.atuais - ap.declarados,
+      alunosAMaisNasEscolas: ap.alunosAMaisNasEscolas,
+      alunosAMenosNasEscolas: ap.alunosAMenosNasEscolas,
+    });
+    expect(frase).toContain("o total da rede bate com o declarado");
+    expect(frase).toContain("19 alunos a mais e 19 alunos a menos");
+    expect(ap.frase).toMatch(/Pela rede, a matrícula de hoje bate/);
   });
 
-  it("rede que bate escola a escola continua dizendo que bate", async () => {
+  it("rede que bate escola a escola continua dizendo que bate, e saldo positivo vira aluno fora da conta", async () => {
     const { fraseMatriculaDaRede } = await import("@/lib/resultado-educacao");
-    expect(fraseMatriculaDaRede({ escolasInformadas: 2, saldoDaRede: 0, alunosForaDaConta: 0, alunosDeclaradosAMais: 0 })).toContain("bate com o declarado");
-    expect(fraseMatriculaDaRede({ escolasInformadas: 1, saldoDaRede: 3, alunosForaDaConta: 3, alunosDeclaradosAMais: 0 })).toContain("Na escola que já informou, há 3 alunos a mais");
+    expect(fraseMatriculaDaRede({ escolasInformadas: 2, saldoDaRede: 0, alunosAMaisNasEscolas: 0, alunosAMenosNasEscolas: 0 })).toContain("bate com o declarado");
+    expect(fraseMatriculaDaRede({ escolasInformadas: 1, saldoDaRede: 3, alunosAMaisNasEscolas: 3, alunosAMenosNasEscolas: 0 })).toContain("Na escola que já informou, há 3 alunos a mais");
   });
 });
