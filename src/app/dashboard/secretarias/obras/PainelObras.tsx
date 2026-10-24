@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { importarObrasDeContratos, type ResultadoImportacaoObras } from "./actions";
 import MarcadorSituacao, { type SituacaoMarcador } from "@/components/MarcadorSituacao";
 import type { LeituraObra, SituacaoObra } from "@/lib/obra-prazo";
 import FormDecisao from "./FormDecisao";
-import { resumoDaDecisao, type DecisaoObra } from "@/lib/decisao-obra";
+import { type DecisaoObra } from "@/lib/decisao-obra";
+import type { EstadoNaLista } from "@/lib/notificacao-servidor";
 
 /**
  * ── O PRAZO DA OBRA, VINDO DO CONTRATO ──
@@ -38,6 +40,14 @@ export type ObraNaTela = {
   decisao: DecisaoObra | null;
   /** Resumo já montado no servidor — o cliente não recalcula data. */
   resumoDecisao: string | null;
+  /** Estado da notificação à contratada, quando a obra pede uma. */
+  notificacao: EstadoNaLista | null;
+};
+
+const COR_NOTIFICACAO: Record<EstadoNaLista["estado"], string> = {
+  rascunho: "var(--muted)",
+  aprovado: "var(--info)",
+  desatualizado: "var(--medio)",
 };
 
 const MARCADOR: Record<SituacaoObra, SituacaoMarcador> = {
@@ -244,6 +254,24 @@ export default function PainelObras({
                               {o.decisao.justificativa}
                             </p>
                           )}
+                        </div>
+                      )}
+
+                      {/* ── ANTES DE DECIDIR, PERGUNTAR ──
+                          A notificação já vem montada com a obra e o
+                          contrato. Mora do contratado só se sustenta depois
+                          de a empresa ter sido ouvida. */}
+                      {o.notificacao && (
+                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                          <Link
+                            href={`/dashboard/secretarias/obras/${o.id}/notificacao`}
+                            className="inline-flex items-center border border-border rounded-lg px-3.5 py-2 min-h-10 text-sm font-semibold hover:border-brand hover:text-brand transition"
+                          >
+                            {o.notificacao.estado === "aprovado" ? "Ver a notificação à contratada" : "Notificar a contratada"}
+                          </Link>
+                          <span className="text-xs leading-relaxed" style={{ color: COR_NOTIFICACAO[o.notificacao.estado] }}>
+                            {o.notificacao.texto}
+                          </span>
                         </div>
                       )}
 
