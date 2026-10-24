@@ -12,24 +12,36 @@ import { LazyMotion } from "motion/react";
 // trazer a biblioteca inteira de volta sem ninguém perceber.
 
 //
-// ── NA HOME, DEPOIS DO LOAD ──
-// Na home estática nada acima da dobra usa o motor: a régua da LRF só
-// aparece com município escolhido, e o resto da página liga quando a pessoa
-// chega perto (HidratarAoChegar). Lá o pacote espera o evento load e o
-// navegador livre, para não disputar a linha principal com a primeira
-// pintura e a hidratação do topo. Nas outras páginas, carrega como antes.
-function quandoLivre(): Promise<void> {
+// ── NA HOME, SÓ QUANDO A PESSOA SE MEXE ──
+// Na home estática nada da primeira tela usa o motor: a régua da LRF só
+// aparece com município escolhido, e o que anima (mesa de módulos, portal de
+// exemplo) está abaixo da dobra. Lá o pacote só é pedido no primeiro gesto
+// (rolar, tocar, teclar) depois do load, ou oito segundos depois dele. Medido no Lighthouse da home: era
+// avaliado logo depois do load em tarefas de 110 a 140 ms, sem que nada na
+// tela precisasse dele. Nas outras páginas, carrega como antes.
+function quandoSeMexer(): Promise<void> {
   return new Promise((pronto) => {
-    const janela = window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number };
-    const agendar = () =>
-      janela.requestIdleCallback ? janela.requestIdleCallback(() => pronto(), { timeout: 2000 }) : window.setTimeout(pronto, 300);
-    if (document.readyState === "complete") agendar();
-    else window.addEventListener("load", agendar, { once: true });
+    const gestos = ["scroll", "pointerdown", "keydown", "touchstart", "wheel"] as const;
+    let espera = 0;
+    const ir = () => {
+      for (const g of gestos) window.removeEventListener(g, ir, true);
+      window.clearTimeout(espera);
+      pronto();
+    };
+    const ouvir = () => {
+      for (const g of gestos) window.addEventListener(g, ir, { capture: true, passive: true, once: true });
+      // Rede de segurança: quem chega por um link para o meio da página
+      // (#proposta) e não mexe em nada também vê o que anima, oito segundos
+      // depois do load, quando a página já está quieta.
+      espera = window.setTimeout(ir, 8000);
+    };
+    if (document.readyState === "complete") ouvir();
+    else window.addEventListener("load", ouvir, { once: true });
   });
 }
 
 const carregar = () =>
-  (window.location.pathname === "/" && !window.location.search.includes("m=") ? quandoLivre() : Promise.resolve())
+  (window.location.pathname === "/" && !window.location.search.includes("m=") ? quandoSeMexer() : Promise.resolve())
     .then(() => import("./recursos"))
     .then((r) => r.default);
 
