@@ -19,6 +19,9 @@ import { antecipacoesDaPrefeitura } from "@/lib/antecipacoes-da-prefeitura";
 import { gerarDeteccoesAutomaticas } from "@/lib/ia";
 import VisaoDoPrefeito from "@/components/VisaoDoPrefeito";
 import { carregarVisaoDoPrefeito } from "@/lib/visao-do-prefeito-servidor";
+import PainelExecutivo from "@/components/PainelExecutivo";
+import { buscarObras } from "./secretarias/obras/actions";
+import { montarObrasNoMapa } from "@/lib/obras-no-mapa";
 
 // A saudação e a data saem de lib/horario.ts, no fuso do estado da
 // prefeitura. Calcular aqui com `new Date().getHours()` devolvia a hora do
@@ -75,6 +78,17 @@ export default async function DashboardPage() {
     console.error("[Painel] falha na visão do prefeito:", e);
     return null;
   });
+  // As obras do mapa só para quem contratou o módulo, como no /dashboard/mapa.
+  // Vão ao navegador só os campos que o mapa usa, não a linha inteira.
+  const obrasNoMapa = ctx.temPlano("obras")
+    ? montarObrasNoMapa(
+        await buscarObras(sessao.prefeituraId).catch((e) => {
+          console.error("[Painel] falha nas obras do mapa:", e);
+          return [];
+        })
+      )
+    : null;
+
   const snapshot = historico[historico.length - 1] ?? null;
   const anterior = historico.length > 1 ? historico[historico.length - 2] : null;
 
@@ -142,6 +156,16 @@ export default async function DashboardPage() {
           →
         </span>
       </Link>
+
+      {obrasNoMapa && (
+        <PainelExecutivo
+          obras={obrasNoMapa.obras}
+          semLocal={obrasNoMapa.semLocal}
+          planejadas={obrasNoMapa.planejadas}
+          municipio={prefeitura.municipio}
+          estado={prefeitura.estado}
+        />
+      )}
 
       <InsightIA
         acao={gerarInsightIA}
