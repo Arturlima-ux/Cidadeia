@@ -24,6 +24,8 @@ import MapaVivoAdiado from "@/components/site/inicio/MapaVivoAdiado";
 import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
+import RevelarNoMouse from "@/components/site/inicio/RevelarNoMouse";
+import QuantoCusta from "@/components/site/inicio/QuantoCusta";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
@@ -144,6 +146,12 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
 
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
+      {/* O brilho líquido do topo, atrás de tudo (globals.css, .fundo-liquido). */}
+      <div className="fundo-liquido" aria-hidden>
+        <span />
+        <span />
+        <span />
+      </div>
       <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}
@@ -160,6 +168,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             O que está na primeira tela vem inteiro, na ordem; só o que está
             abaixo dela é adiado (HidratarAoChegar). */}
         <section className="relative">
+          {/* A grade de pontos atrás do topo, que o mouse acende em volta
+              dele (RevelarNoMouse.tsx). */}
+          <RevelarNoMouse />
           {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
               do título no celular, e some nas bordas para não brigar com o
               texto. Ver MapaVivo.tsx. */}
@@ -326,23 +337,40 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           </div>
         </section>
 
-        {/* ═══ DE ONDE VEM O DADO ═══ */}
-        {/* As nove bases numa linha só, de margem a margem, como os créditos
-            de um documento: antes elas dividiam a largura com o rótulo e a
-            nona ("Transferegov") caía sozinha numa segunda linha. Sem fio
-            em cima: o espaço separa do topo. */}
-        <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20" aria-labelledby="titulo-fontes">
-          <h2 id="titulo-fontes" className="text-sm text-muted">Lê direto das bases oficiais</h2>
-          <ul className="mt-4 flex flex-wrap lg:flex-nowrap lg:justify-between gap-x-7 gap-y-2.5">
-            {FONTES.map((f) => (
-              <li key={f} className="text-lg sm:text-xl font-medium tracking-[-0.02em]">
-                {/* Cada base leva ao próprio site: é onde conferir. */}
-                <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="inicio-fonte">
-                  {f}
-                </a>
-              </li>
-            ))}
-          </ul>
+        {/* ═══ DE ONDE VEM O DADO ═══
+            As nove bases numa faixa diagonal de margem a margem, que corre de
+            lado enquanto a página desce (globals.css, .faixa-diagonal). A
+            segunda volta da lista só existe para a faixa não acabar no meio:
+            fica fora do leitor de tela e do Tab. */}
+        <section className="pt-16 sm:pt-24" aria-labelledby="titulo-fontes">
+          <h2 id="titulo-fontes" className="max-w-[1200px] mx-auto px-4 sm:px-8 text-sm text-muted">
+            Lê direto das bases oficiais
+          </h2>
+          <div className="faixa-diagonal mt-8 sm:mt-10">
+            <ul className="faixa-trilho">
+              {[0, 1, 2].flatMap((volta) =>
+                FONTES.map((f) => (
+                  <li
+                    key={`${volta}-${f}`}
+                    className="text-xl sm:text-3xl font-medium tracking-[-0.03em]"
+                    data-copia={volta > 0 ? "" : undefined}
+                    aria-hidden={volta > 0 || undefined}
+                  >
+                    {/* Cada base leva ao próprio site: é onde conferir. */}
+                    <a
+                      href={LINK_DA_FONTE[f]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inicio-fonte"
+                      tabIndex={volta > 0 ? -1 : undefined}
+                    >
+                      {f}
+                    </a>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
         </section>
 
         {/* ═══ MÓDULOS ═══
@@ -416,9 +444,13 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             </div>
           </div>
 
-          <HidratarAoChegar id="vitrine" className="surge">
-            <VitrinePortal />
-          </HidratarAoChegar>
+          {/* A janela do portal chega deitada e se endireita ao subir
+              (globals.css, .vista-3d). */}
+          <div className="vista-3d">
+            <HidratarAoChegar id="vitrine">
+              <VitrinePortal />
+            </HidratarAoChegar>
+          </div>
 
 
         </section>
@@ -443,9 +475,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
             </p>
           </div>
-          <ul className="surge mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
-            {faixasDoPanorama(PANORAMA.brasil).map((f) => (
-              <li key={f.chave} className="border-t border-border pt-5">
+          <ul className="surge-lista mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
+            {faixasDoPanorama(PANORAMA.brasil).map((f, i) => (
+              <li key={f.chave} className="border-t border-border pt-5" style={{ "--i": i } as React.CSSProperties}>
                 <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
                   {numeroBr(f.valor)}
                 </p>
@@ -493,14 +525,16 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             Voltou em formato menor: em prefeitura quem acha o site quase
             nunca é quem decide, e o vídeo é o que se manda adiante
             (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
-        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-24 sm:pt-28">
-          <div className="surge grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-8 lg:gap-14 items-center">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] max-w-[18ch]">O CidadeIA em 30 segundos.</h2>
-              <p className="text-muted leading-relaxed mt-3 max-w-[40ch]">
-                Para assistir agora, ou mandar para quem decide na prefeitura.
-              </p>
-            </div>
+        <section className="tela-adiada pt-24 sm:pt-32">
+          <div className="surge max-w-[1200px] mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
+            <h2 className="inicio-h2 max-w-[16ch]">O CidadeIA em 30 segundos.</h2>
+            <p className="text-muted leading-relaxed max-w-[40ch]">
+              Para assistir agora, ou mandar para quem decide na prefeitura.
+            </p>
+          </div>
+          {/* O vídeo ocupa a tela e chega recortado na largura da coluna; o
+              recorte abre enquanto ele sobe (globals.css, .video-expande). */}
+          <div className="video-expande">
             <HidratarAoChegar id="video">
               <VideoExplicativo
                 src="/video/cidadeia-gestao.mp4"
@@ -511,6 +545,11 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             </HidratarAoChegar>
           </div>
         </section>
+
+        {/* ═══ QUANTO CUSTA ═══
+            "Sob consulta" no cartão de vidro, sobre o painel de pontos. Ver
+            QuantoCusta.tsx. */}
+        <QuantoCusta />
 
         {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
             uma seção igual às outras (revisão de outubro de 2026). O fundo é

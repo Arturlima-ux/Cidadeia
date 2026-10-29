@@ -1959,9 +1959,11 @@ select option {
    Mais baixo desde out/2026 (46% → 30% no centro): o brilho competia com o
    título e com o mapa pela primeira olhada. */
 .fundo-liso {
-  background:
-    radial-gradient(78rem 52rem at 20% -12rem, color-mix(in oklab, var(--brand) 30%, transparent) 0%, color-mix(in oklab, var(--brand) 10%, transparent) 44%, transparent 74%),
-    var(--background);
+  /* O brilho saiu daqui para .fundo-liquido (out/2026), que se move. O
+     isolamento cria a pilha própria da página: as camadas do fundo ficam
+     atrás de todo o conteúdo, inclusive do que não tem position. */
+  background: var(--background);
+  isolation: isolate;
 }
 
 /* ── TEXTO CORRIDO DOS GUIAS (app/guias) ──
@@ -2168,4 +2170,294 @@ select option {
     animation: none;
   }
   .mapa-marcador[data-mapa="alerta"] { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HOME — O FUNDO E OS DEZ EFEITOS (outubro de 2026)
+   Pedido do fundador: fugir da página genérica com dez recursos de
+   página premiada, sem trocar a identidade escura e roxa. Desenho no
+   Figma, seção "Acabamento · outubro de 2026".
+
+   Regras que valem para todos:
+   - Só transform, opacity e clip-path animam (nada de layout).
+   - Movimento preso à rolagem é CSS (animation-timeline: view()), fora da
+     linha principal. Navegador sem suporte vê tudo parado e pronto.
+   - Nada parte do zero e, com movimento reduzido, nada se move.
+   - O que segue o mouse só existe com mouse fino (hover: hover).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 3. O BRILHO LÍQUIDO DO TOPO ──
+   Três manchas de roxo, cada uma uma elipse em degradê, derivando devagar
+   (22 a 34 s, ida e volta). Girar uma elipse faz a forma "escorrer" sem
+   animar nada além de transform. Atrás de tudo (z-index -1 dentro da pilha
+   de .fundo-liso) e apagada para baixo pela máscara. */
+.fundo-liquido {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1100px;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+}
+.fundo-liquido > span {
+  position: absolute;
+  border-radius: 9999px;
+}
+.fundo-liquido > span:nth-child(1) {
+  width: 78rem;
+  height: 46rem;
+  left: -18rem;
+  top: -22rem;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 34%, transparent), transparent);
+}
+.fundo-liquido > span:nth-child(2) {
+  width: 44rem;
+  height: 30rem;
+  left: 38%;
+  top: -12rem;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--violeta-profundo) 90%, transparent), transparent);
+}
+.fundo-liquido > span:nth-child(3) {
+  width: 36rem;
+  height: 26rem;
+  right: -10rem;
+  top: 14rem;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 16%, transparent), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fundo-liquido > span:nth-child(1) { animation: liquido-a 26s ease-in-out infinite alternate; }
+  .fundo-liquido > span:nth-child(2) { animation: liquido-b 34s ease-in-out infinite alternate; }
+  .fundo-liquido > span:nth-child(3) { animation: liquido-c 22s ease-in-out infinite alternate; }
+}
+@keyframes liquido-a {
+  from { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  to { transform: translate3d(9rem, 4rem, 0) rotate(18deg) scale(1.12); }
+}
+@keyframes liquido-b {
+  from { transform: translate3d(0, 0, 0) rotate(-12deg) scale(1.1); }
+  to { transform: translate3d(-12rem, 6rem, 0) rotate(22deg) scale(0.92); }
+}
+@keyframes liquido-c {
+  from { transform: translate3d(0, 0, 0) rotate(8deg) scale(0.95); }
+  to { transform: translate3d(-8rem, -5rem, 0) rotate(-16deg) scale(1.15); }
+}
+
+/* ── A GRADE DE PONTOS (a assinatura) e 10. A REVELAÇÃO PELO MOUSE ──
+   Uma grade de pontos de 28 px, quase invisível, atrás do topo: a mesma
+   linguagem do mapa (um ponto por município). Sob o mouse, uma segunda
+   grade no roxo claro aparece num círculo de 240 px. RevelarNoMouse.tsx
+   escreve --mx/--my na própria camada que usa a máscara, e não no pai:
+   assim só ela recalcula. */
+.grade-pontos,
+.grade-pontos-revela {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, var(--ponto, color-mix(in oklab, var(--foreground) 10%, transparent)) 1px, transparent 1.6px);
+  background-size: 28px 28px;
+}
+.grade-pontos {
+  -webkit-mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
+  mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
+}
+.grade-pontos-revela {
+  --ponto: color-mix(in oklab, var(--brand-claro) 95%, transparent);
+  opacity: 0;
+  -webkit-mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), black, transparent 72%);
+  mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), black, transparent 72%);
+  transition: opacity 400ms var(--saida);
+}
+.grade-pontos-revela[data-ativo] { opacity: 1; }
+
+/* ── 5. A FAIXA DIAGONAL ──
+   As bases oficiais numa faixa inclinada de margem a margem, que corre de
+   lado enquanto a página desce. Sem suporte ou com movimento reduzido, a
+   faixa fica parada e a lista quebra linha normalmente. */
+.faixa-diagonal {
+  position: relative;
+  width: 120vw;
+  margin-left: calc(50% - 60vw);
+  transform: rotate(-3deg);
+  background: var(--violeta-profundo);
+  border-block: 1px solid color-mix(in oklab, var(--brand) 30%, transparent);
+  padding-block: 1.1rem;
+}
+.faixa-trilho {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2.25rem;
+  padding-inline: 12vw;
+}
+.faixa-trilho [data-copia] { display: none; }
+.faixa-trilho li {
+  display: flex;
+  align-items: center;
+  gap: 2.25rem;
+  white-space: nowrap;
+  /* A mesma cor da faixa, no próprio item: o verificador de contraste não
+     acompanha a faixa girada e, fora da tela, supunha fundo branco. */
+  background-color: var(--violeta-profundo);
+}
+.faixa-trilho li::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--brand);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .faixa-trilho {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: max-content;
+      padding-inline: 0;
+      animation: faixa-corre linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    .faixa-trilho [data-copia] { display: flex; }
+  }
+}
+@keyframes faixa-corre {
+  from { transform: translateX(-4%); }
+  to { transform: translateX(-38%); }
+}
+
+/* ── 2. A IMAGEM EM 3D ──
+   A janela do portal chega deitada (22°, vista de baixo) e se endireita
+   enquanto entra na tela. Começa na borda de baixo, onde ninguém vê o
+   salto, e termina com 40% dela à mostra. */
+.vista-3d { perspective: 1400px; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .vista-3d > * {
+      transform-origin: 50% 100%;
+      animation: vista-endireita linear forwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+@keyframes vista-endireita {
+  from { opacity: 0.55; transform: rotateX(24deg) scale(0.9) translateY(48px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── 7. O VÍDEO QUE SE EXPANDE ──
+   O quadro ocupa a largura da tela, mas chega recortado do tamanho da
+   coluna do site; enquanto sobe, o recorte abre até a borda. clip-path é a
+   quarta propriedade que se anima sem custo de layout. */
+.video-expande {
+  position: relative;
+  width: min(1600px, calc(100vw - 32px));
+  left: 50%;
+  transform: translateX(-50%);
+  --recorte-x: 3%;
+  --recorte-y: 2%;
+}
+@media (min-width: 1024px) {
+  .video-expande { --recorte-x: max(0px, calc((100% - 1136px) / 2)); --recorte-y: 7%; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .video-expande {
+      animation: video-abre linear forwards;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+  }
+}
+@keyframes video-abre {
+  from { clip-path: inset(var(--recorte-y) var(--recorte-x) round 28px); }
+  to { clip-path: inset(0 0 round 20px); }
+}
+
+/* ── 6. O PREÇO EM VIDRO e 8. A SOBREPOSIÇÃO ──
+   O painel de pontos com o brilho por trás, e o cartão de vidro por cima,
+   passando 72 px da borda de baixo do painel. O vidro desfoca o que está
+   atrás; sem backdrop-filter, fica mais opaco para o texto continuar lido. */
+.preco-painel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--violeta-profundo);
+}
+.preco-painel::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 52rem;
+  height: 40rem;
+  right: -12rem;
+  top: -16rem;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 55%, transparent), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .preco-painel::before { animation: liquido-b 30s ease-in-out infinite alternate; }
+}
+.preco-painel .grade-pontos {
+  -webkit-mask-image: none;
+  mask-image: none;
+  z-index: -1;
+}
+.preco-vidro {
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 16%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 9%, transparent),
+    var(--shadow-lg);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .preco-vidro {
+    background: color-mix(in oklab, var(--card) 42%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+}
+/* 4. O cartão mínimo: um fio, um título, uma frase. Fundo no violeta para
+   a grade de pontos não cruzar o texto. */
+.cartao-minimo {
+  background: color-mix(in oklab, var(--violeta-profundo) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+
+/* ── 9. A INCLINAÇÃO 3D NO MOUSE ──
+   Inclinar.tsx escreve o transform direto no elemento (sem variável no
+   pai) e um brilho que segue o mouse. A volta ao plano é transição, que
+   retoma de onde parou. */
+.inclinar {
+  transform-style: preserve-3d;
+  transition: transform 500ms var(--saida);
+}
+.inclinar[data-movendo] { transition: transform 120ms linear; }
+.inclinar-luz {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(360px circle at var(--lx, 50%) var(--ly, 0%), color-mix(in oklab, var(--foreground) 9%, transparent), transparent 60%);
+  transition: opacity 300ms var(--saida);
+}
+.inclinar[data-movendo] .inclinar-luz { opacity: 1; }
+
+/* ── 1. A ENTRADA EM SEQUÊNCIA ──
+   Itens de uma lista entram um depois do outro (--i vem do componente).
+   Mesmo princípio de .surge. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .surge-lista > * {
+      animation: surge-ao-rolar linear forwards;
+      animation-timeline: view();
+      /* Todos começam na borda de baixo (onde ninguém vê o salto) e
+         terminam escalonados: o seguinte leva 60 px a mais de rolagem. */
+      animation-range: entry 0px entry calc(180px + var(--i, 0) * 60px);
+    }
+  }
 }
