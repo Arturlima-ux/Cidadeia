@@ -35,7 +35,7 @@ import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
-import { PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
+import { DIAS_DA_CONFERENCIA, PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
 import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 
 // ── A PÁGINA EM SEIS PARTES ──
@@ -464,23 +464,30 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
             {/* Desceu do topo: as contas públicas são uma parte do produto, e
                 não o produto inteiro. Aqui, a prova de que a parte fiscal é
-                séria: o país inteiro conferido toda semana. */}
+                séria: o país inteiro conferido duas vezes por semana. */}
             <h2 className="inicio-h2 max-w-[19ch]">E as contas públicas, conferidas no país inteiro.</h2>
             <p className="text-muted leading-relaxed max-w-[44ch]">
               {(() => {
                 const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
                 return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
               })()}
-              Toda semana lemos no Tesouro o RGF de cada prefeitura do país. Última conferência: {dataDoPanorama()}.
+              A conta é refeita {DIAS_DA_CONFERENCIA} com o RGF de cada prefeitura do país no Tesouro.
+              <span className="mt-3 flex items-center gap-2 text-sm">
+                <span aria-hidden className="ponto-ao-vivo" />
+                Última conferência: {dataDoPanorama()}
+              </span>
             </p>
           </div>
           <ul className="surge-lista mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
-            {faixasDoPanorama(PANORAMA.brasil).map((f, i) => (
+            {faixasDoPanorama(PANORAMA.brasil, PANORAMA.anterior?.brasil, PANORAMA.anterior?.geradoEm).map((f, i) => (
               <li key={f.chave} className="border-t border-border pt-5" style={{ "--i": i } as React.CSSProperties}>
                 <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
                   {numeroBr(f.valor)}
                 </p>
                 <p className="mt-2 font-medium">{f.rotulo}</p>
+                {/* Quanto mudou desde a conferência anterior: a prova de que
+                    o número é vivo, e não escrito uma vez à mão. */}
+                {f.variacao && <p className="mt-1 text-xs text-muted tabular-nums">{f.variacao}</p>}
                 <p className="text-sm text-muted leading-relaxed mt-1">{f.consequencia}</p>
               </li>
             ))}

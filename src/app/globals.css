@@ -2465,3 +2465,31 @@ select option {
     }
   }
 }
+
+/* ── PONTO AO VIVO ──
+   Ao lado da data da última conferência do panorama: diz, sem frase, que o
+   número é refeito sozinho. Um anel que se expande e some (transform e
+   opacity); parado com movimento reduzido. */
+.ponto-ao-vivo {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ponto-ao-vivo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--accent);
+    animation: ponto-ao-vivo 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  }
+}
+@keyframes ponto-ao-vivo {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(2.6); opacity: 0; }
+}

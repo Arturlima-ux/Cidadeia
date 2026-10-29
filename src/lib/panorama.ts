@@ -28,7 +28,12 @@ export type Panorama = {
   fonte: string;
   brasil: ContagemPanorama;
   porUf: Record<string, ContagemPanorama>;
+  /** A conferência anterior, para mostrar quanto cada número mudou. */
+  anterior?: { geradoEm: string; brasil: ContagemPanorama; porUf: Record<string, ContagemPanorama> } | null;
 };
+
+/** Os dias da semana em que a vigia confere o RGF (.github/workflows/vigia-dados-publicos.yml). */
+export const DIAS_DA_CONFERENCIA = "toda segunda e quinta";
 
 export const PANORAMA = dados as Panorama;
 
@@ -41,6 +46,29 @@ const MESES = [
 export function dataDoPanorama(p: Panorama = PANORAMA): string {
   const [a, m, d] = p.geradoEm.split("-").map(Number);
   return `${d} de ${MESES[m - 1]} de ${a}`;
+}
+
+/** "19 de outubro", sem o ano: a data da conferência anterior, na frase da variação. */
+export function diaDaConferencia(geradoEm: string): string {
+  const [, m, d] = geradoEm.split("-").map(Number);
+  return `${d} de ${MESES[m - 1]}`;
+}
+
+/**
+ * Quanto um número mudou desde a conferência anterior, em palavras:
+ * "3 a mais que em 19 de outubro", "6 a menos…", "igual a 19 de outubro".
+ * Null quando não há conferência anterior guardada.
+ */
+export function variacaoDesde(
+  atual: number,
+  anterior: number | undefined,
+  dataAnterior: string | undefined
+): string | null {
+  if (anterior === undefined || !dataAnterior) return null;
+  const dia = diaDaConferencia(dataAnterior);
+  const d = atual - anterior;
+  if (d === 0) return `igual a ${dia}`;
+  return `${numeroBr(Math.abs(d))} a ${d > 0 ? "mais" : "menos"} que em ${dia}`;
 }
 
 /** "outubro de 2026", para frases correntes. */
@@ -83,7 +111,14 @@ export function umaEmCada(n: number, c: ContagemPanorama): string | null {
 const pct = (v: number) => `${v.toFixed(1).replace(".", ",")}%`;
 
 /** As faixas, com a régua da lei ao lado de cada uma. */
-export function faixasDoPanorama(c: ContagemPanorama) {
+export function faixasDoPanorama(c: ContagemPanorama, antes?: ContagemPanorama | null, dataAntes?: string) {
+  return faixasBase(c).map((f) => ({
+    ...f,
+    variacao: variacaoDesde(f.valor, antes ? antes[f.campo] : undefined, dataAntes),
+  }));
+}
+
+function faixasBase(c: ContagemPanorama) {
   return [
     {
       chave: "acima",
@@ -92,6 +127,7 @@ export function faixasDoPanorama(c: ContagemPanorama) {
       consequencia: "Tem dois quadrimestres para eliminar o excesso; sem isso, perde transferências voluntárias e crédito.",
       base: "LRF, art. 23",
       valor: c.acimaDoLimite,
+      campo: "acimaDoLimite" as const,
       cor: "var(--urgente)",
     },
     {
@@ -101,6 +137,7 @@ export function faixasDoPanorama(c: ContagemPanorama) {
       consequencia: "Não pode dar reajuste, criar cargo nem nomear, salvo as exceções da lei.",
       base: "LRF, art. 22, parágrafo único",
       valor: c.prudencial,
+      campo: "prudencial" as const,
       cor: "var(--medio)",
     },
     {
@@ -110,6 +147,7 @@ export function faixasDoPanorama(c: ContagemPanorama) {
       consequencia: "O Tribunal de Contas emite o alerta formal.",
       base: "LRF, art. 59, § 1º, II",
       valor: c.alerta,
+      campo: "alerta" as const,
       cor: "var(--accent-claro)",
     },
   ] as const;

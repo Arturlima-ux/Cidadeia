@@ -67,7 +67,17 @@ function principal() {
     console.error(`Auditoria incompleta (${panorama.brasil.municipios}); panorama não atualizado.`);
     process.exit(1);
   }
-  writeFileSync(saida, JSON.stringify(panorama, null, 1) + "\n");
+  // ── A CONFERÊNCIA ANTERIOR VAI JUNTO ──
+  // O site mostra quanto cada número mudou desde a última conferência
+  // ("3 a mais que em 19 de outubro"): é o que prova que ele se atualiza.
+  // Rodar duas vezes no mesmo dia não pode apagar a anterior: aí se mantém
+  // a que já estava guardada.
+  const antes = existsSync(saida) ? (JSON.parse(readFileSync(saida, "utf8")) as Partial<typeof panorama> & { anterior?: unknown }) : null;
+  const anterior =
+    antes?.geradoEm && antes.geradoEm !== panorama.geradoEm && antes.brasil
+      ? { geradoEm: antes.geradoEm, brasil: antes.brasil, porUf: antes.porUf }
+      : (antes?.anterior ?? null);
+  writeFileSync(saida, JSON.stringify(anterior ? { ...panorama, anterior } : panorama, null, 1) + "\n");
   console.log(JSON.stringify(panorama.brasil));
 }
 

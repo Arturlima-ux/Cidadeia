@@ -18,14 +18,17 @@ import {
 export default function BarrasPanorama({
   contagem = PANORAMA.brasil,
   onde = "do Brasil",
+  anterior = contagem === PANORAMA.brasil ? PANORAMA.anterior?.brasil : undefined,
   comLinks = true,
 }: {
   contagem?: ContagemPanorama;
+  /** A mesma contagem na conferência anterior, para mostrar quanto mudou. */
+  anterior?: ContagemPanorama;
   /** "do Brasil", "de Minas Gerais"… */
   onde?: string;
   comLinks?: boolean;
 }) {
-  const faixas = faixasDoPanorama(contagem);
+  const faixas = faixasDoPanorama(contagem, anterior, PANORAMA.anterior?.geradoEm);
   return (
     <div className="rounded-[28px] border border-border p-6 sm:p-10" style={{ background: "var(--card)" }}>
       <p className="text-sm text-muted">
@@ -47,7 +50,10 @@ export default function BarrasPanorama({
                   <span className="font-medium">{f.rotulo}</span>{" "}
                   <span className="text-sm text-muted">({f.regua})</span>
                 </p>
-                <p className="text-sm text-muted tabular-nums">{fracao(f.valor, contagem)}</p>
+                <p className="text-sm text-muted tabular-nums">
+                  {fracao(f.valor, contagem)}
+                  {f.variacao && <span className="text-xs"> · {f.variacao}</span>}
+                </p>
               </div>
               <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: "var(--sutil)" }} aria-hidden>
                 <div className="h-full rounded-full" style={{ width: `${Math.max(largura, 0.6)}%`, background: f.cor }} />

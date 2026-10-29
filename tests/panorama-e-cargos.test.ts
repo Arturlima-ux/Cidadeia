@@ -7,7 +7,10 @@ import { contar } from "../scripts/vigia/panorama";
 
 describe("panorama das prefeituras", () => {
   it("o arquivo só tem agregados: Brasil e estados, nenhum município", () => {
-    expect(Object.keys(PANORAMA).sort()).toEqual(["brasil", "fonte", "geradoEm", "porUf"]);
+    expect(Object.keys(PANORAMA).sort()).toEqual(["anterior", "brasil", "fonte", "geradoEm", "porUf"]);
+    // A conferência anterior também só tem agregados.
+    expect(Object.keys(PANORAMA.anterior!).sort()).toEqual(["brasil", "geradoEm", "porUf"]);
+    expect(Object.keys(PANORAMA.anterior!.porUf).every((uf) => /^[A-Z]{2}$/.test(uf))).toBe(true);
     expect(Object.keys(PANORAMA.porUf).every((uf) => /^[A-Z]{2}$/.test(uf))).toBe(true);
     expect(PANORAMA.porUf.DF).toBeUndefined();
   });
