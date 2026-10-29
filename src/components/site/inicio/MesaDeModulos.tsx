@@ -110,13 +110,13 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
         role="tabpanel"
         id={`${base}-painel`}
         aria-labelledby={`${base}-aba-${m.chave}`}
-        className="rounded-[28px] border border-border overflow-hidden"
+        className="mesa-painel rounded-[28px] overflow-hidden"
         style={{ background: "var(--card)" }}
       >
-        <div className="p-5 sm:p-8 min-h-[300px] sm:min-h-[340px] flex flex-col">
+        <div className="p-5 sm:p-9 min-h-[300px] sm:min-h-[340px] flex flex-col">
           <Instrumento key={`${m.chave}-${rodada}`} chave={m.chave} limiteDispensa={limiteDispensa} />
         </div>
-        <div className="border-t border-border px-5 sm:px-8 py-5 sm:py-6" style={{ background: "var(--superficie)" }}>
+        <div className="border-t border-border px-5 sm:px-9 py-5 sm:py-6" style={{ background: "var(--superficie)" }}>
           <ul className="grid gap-2 text-sm leading-relaxed">
             {m.capacidades.slice(0, 3).map((c) => (
               <li key={c} className="flex gap-2.5">
@@ -140,6 +140,35 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 function Rotulo({ children }: { children: React.ReactNode }) {
   return <p className="text-xs text-muted">{children}</p>;
+}
+
+// ── O FECHO DE CADA EXEMPLO ──
+// O instrumento mostra o número; o fecho diz o que ele significa. Antes era
+// uma frase pequena e colorida no pé do painel, do mesmo peso que a legenda,
+// e quem olhava via o gráfico e não a conclusão. Agora o problema vem em
+// destaque e, embaixo, o que o sistema já fez ou o que vem a seguir.
+// Figma: "Conclusão do instrumento" (Tom=Alerta / Tom=Urgente).
+function Conclusao({
+  tom,
+  problema,
+  children,
+}: {
+  tom: "medio" | "urgente";
+  problema: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="mesa-conclusao mt-6 rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4"
+      style={{ "--tom": `var(--${tom})` } as React.CSSProperties}
+    >
+      <p className="flex items-baseline gap-2.5 font-semibold tracking-[-0.01em] leading-snug">
+        <span aria-hidden className="w-2 h-2 rounded-full shrink-0 translate-y-[-1px]" style={{ background: "var(--tom)" }} />
+        {problema}
+      </p>
+      <p className="mesa-conclusao-consequencia mt-1 text-sm leading-relaxed pl-[18px]">{children}</p>
+    </div>
+  );
 }
 
 function Instrumento({ chave, limiteDispensa }: { chave: ModuloDaMesa["chave"]; limiteDispensa: number }) {
@@ -197,11 +226,11 @@ function Protocolo() {
               />
             ))}
           </div>
-          <p className="mt-4 text-sm font-medium" style={{ color: "var(--medio)" }}>
-            Faltam 6 dias. O prazo é contado sozinho, e o pedido já está na fila da Saúde, que responde por aqui.
-          </p>
         </div>
       </div>
+      <Conclusao tom="medio" problema="Faltam 6 dias para o prazo da Lei de Acesso.">
+        O prazo é contado sozinho, e o pedido já está na fila da Saúde, que responde por aqui.
+      </Conclusao>
     </div>
   );
 }
@@ -243,20 +272,24 @@ function Ponteiro() {
         <p className="text-3xl font-semibold tabular-nums tracking-[-0.03em] -mt-1">47,8%</p>
         <p className="text-sm text-muted">alerta em 48,6% · prudencial em 51,3% · máximo 54%</p>
       </div>
-      <div className="grid gap-3">
-        <div className="rounded-2xl border border-border p-4">
-          <p className="text-xs text-muted">Próximo prazo no Tesouro</p>
-          <p className="text-lg font-semibold mt-1">RGF do 3º quadrimestre</p>
-          <p className="text-sm" style={{ color: "var(--medio)" }}>
-            vence em 12 dias, ainda não consta entregue
-          </p>
+      {/* Lista com fio, e não cartões dentro do painel: cartão dentro de
+          cartão era o "bloco pesado" da revisão de acabamento. */}
+      <dl className="grid divide-y divide-[color:var(--border)] border-y border-border">
+        <div className="py-3.5">
+          <dt className="text-xs text-muted">Próximo prazo no Tesouro</dt>
+          <dd className="text-lg font-semibold mt-1">RGF do 3º quadrimestre</dd>
         </div>
-        <div className="rounded-2xl border border-border p-4">
-          <p className="text-xs text-muted">Mínimos do ano</p>
-          <p className="text-sm mt-1">
+        <div className="py-3.5">
+          <dt className="text-xs text-muted">Mínimos do ano</dt>
+          <dd className="text-sm mt-1">
             Educação <span className="font-semibold tabular-nums">23,1%</span> de 25% · faltam R$ 1,2 mi em 3 meses
-          </p>
+          </dd>
         </div>
+      </dl>
+      <div className="sm:col-span-2 -mt-6">
+        <Conclusao tom="medio" problema="O RGF do 3º quadrimestre vence em 12 dias e ainda não consta entregue.">
+          A despesa com pessoal está em 47,8%, a 0,8 ponto do alerta: o próximo relatório já sai perto da linha.
+        </Conclusao>
       </div>
     </div>
   );
@@ -289,13 +322,10 @@ function Rede() {
           </m.li>
         ))}
       </ul>
-      <div className="mt-5 rounded-2xl border p-4" style={{ borderColor: "var(--urgente-borda)" }}>
-        <p className="font-semibold">UBS Vila Nova precisa de você hoje</p>
-        <p className="text-sm text-muted mt-1">
-          Geladeira de vacinas parada há 2 dias, aberta como urgente. Insulina com 6 dias de cobertura: o pedido de reposição já
-          saiu.
-        </p>
-      </div>
+      <Conclusao tom="urgente" problema="UBS Vila Nova precisa de você hoje.">
+        Geladeira de vacinas parada há 2 dias, aberta como urgente. Insulina com 6 dias de cobertura: o pedido de reposição já
+        saiu.
+      </Conclusao>
     </div>
   );
 }
@@ -334,9 +364,9 @@ function Calendario() {
           <span className="text-sm text-muted"> perdidos (greve e chuva)</span>
         </p>
       </div>
-      <p className="mt-3 text-sm font-medium" style={{ color: "var(--medio)" }}>
-        Faltam 40 dias para os 200, e o calendário tem 42 dias de aula até dezembro: folga de 2. Mais uma chuva e não fecha.
-      </p>
+      <Conclusao tom="medio" problema="Folga de 2 dias para fechar os 200.">
+        Faltam 40 dias para os 200, e o calendário tem 42 dias de aula até dezembro. Mais uma chuva e não fecha.
+      </Conclusao>
     </div>
   );
 }
@@ -370,9 +400,10 @@ function PrazoContraObra() {
         {barra("Prazo do contrato já consumido", 82, "var(--medio)")}
         {barra("Obra medida", 41, "var(--brand)", 0.25)}
       </div>
-      <p className="mt-5 text-sm font-medium" style={{ color: "var(--urgente)" }}>
-        Faltam 18% do prazo para 59% da obra. Sem medição há 47 dias.
-      </p>
+      <Conclusao tom="urgente" problema="Faltam 18% do prazo para 59% da obra.">
+        Sem medição há 47 dias. A notificação à contratada, pedindo as razões e o cronograma, já sai montada para o fiscal
+        conferir.
+      </Conclusao>
     </div>
   );
 }
@@ -421,9 +452,9 @@ function Dispensas({ limite }: { limite: number }) {
         <span className="text-3xl font-semibold tabular-nums tracking-[-0.03em]">{Math.round((total / limite) * 100)}%</span>
         <span className="text-sm text-muted"> do limite usado ({reais(total)})</span>
       </p>
-      <p className="mt-2 text-sm font-medium" style={{ color: "var(--medio)" }}>
-        Mais uma compra dessas passa do limite e vira fracionamento. O plano de contratações do ano que vem já sai montado deste histórico.
-      </p>
+      <Conclusao tom="medio" problema="Mais uma compra dessas passa do limite e vira fracionamento.">
+        O plano de contratações do ano que vem já sai montado deste histórico.
+      </Conclusao>
     </div>
   );
 }

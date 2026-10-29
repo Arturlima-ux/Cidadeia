@@ -165,6 +165,16 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               texto. Ver MapaVivo.tsx. */}
           <div className="inicio-mapa absolute pointer-events-none" aria-hidden>
             <MapaVivoAdiado destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
+            {/* A legenda amarra o mapa ao que a página faz: cada ponto é uma
+                prefeitura que o CidadeIA lê. Só no computador e só sem cidade
+                escolhida: com cidade, o quadro da régua ocupa este canto e o
+                ponto dela acende no mapa. */}
+            {!municipio && (
+              <p className="hidden lg:flex items-center gap-2 absolute right-6 bottom-4 text-xs text-muted">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--muted)" }} />
+                Um ponto para cada município do Brasil.
+              </p>
+            )}
           </div>
 
           <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-6 sm:pb-10">

@@ -137,6 +137,10 @@
   --brand-dark: #6344e0;
   --brand-tint: rgba(124, 92, 255, 0.15);
   --brand-profundo: #0c0a18;
+  /* Roxo muito escuro (Figma: cor/violeta-profundo): a pergunta escolhida
+     da mesa de módulos e as áreas especiais. Fica entre o fundo e o roxo da
+     marca, para o selecionado ter um degrau próprio sem acender a tela. */
+  --violeta-profundo: #171329;
   --accent: #a68fff;
   --accent-tint: rgba(166, 143, 255, 0.14);
   --gradient-hero: linear-gradient(140deg, #0c0a18 0%, #171133 55%, #231a52 100%);
@@ -1951,10 +1955,12 @@ select option {
 }
 
 /* Fundo liso da página inicial: escuro, com um único degradê roxo suave
-   descendo do alto à esquerda, no lugar das manchas de várias cores. */
+   descendo do alto à esquerda, no lugar das manchas de várias cores.
+   Mais baixo desde out/2026 (46% → 30% no centro): o brilho competia com o
+   título e com o mapa pela primeira olhada. */
 .fundo-liso {
   background:
-    radial-gradient(78rem 52rem at 20% -12rem, color-mix(in oklab, var(--brand) 46%, transparent) 0%, color-mix(in oklab, var(--brand) 16%, transparent) 44%, transparent 74%),
+    radial-gradient(78rem 52rem at 20% -12rem, color-mix(in oklab, var(--brand) 30%, transparent) 0%, color-mix(in oklab, var(--brand) 10%, transparent) 44%, transparent 74%),
     var(--background);
 }
 
@@ -2015,22 +2021,44 @@ select option {
   overflow-x: auto;
 }
 
-/* As perguntas da mesa de módulos (MesaDeModulos.tsx). */
+/* As perguntas da mesa de módulos (MesaDeModulos.tsx).
+   Três degraus de profundidade, todos abaixo do painel: a pergunta comum
+   quase no tom do fundo, a que está sob o mouse um pouco acima, e a
+   escolhida no violeta profundo com um fio de 1px no roxo da marca. A faixa
+   de 3px à esquerda saiu (acabamento de out/2026): marcava o escolhido com
+   um enfeite em vez de um degrau. */
 .mesa-aba {
-  background: var(--sutil);
-  transition: background-color 180ms var(--saida), transform 120ms var(--saida);
+  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+  transition: background-color 180ms var(--saida), box-shadow 180ms var(--saida), transform 120ms var(--saida);
 }
 .mesa-aba[data-sel] {
-  background: var(--brand-tint);
-  box-shadow: inset 3px 0 0 var(--brand);
+  background: var(--violeta-profundo);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
   .mesa-aba:not([data-sel]):hover {
-    background: color-mix(in oklab, var(--foreground) 10%, transparent);
+    background: color-mix(in oklab, var(--foreground) 7%, transparent);
   }
 }
 .mesa-aba:active {
   transform: scale(0.99);
+}
+
+/* O painel do módulo: borda mais baixa que a padrão e sombra com
+   deslocamento, para ele se assentar sobre o fundo em vez de recortar. */
+.mesa-painel {
+  border: 1px solid color-mix(in oklab, var(--foreground) 9%, transparent);
+  box-shadow: var(--shadow-lg);
+}
+
+/* O fecho de cada exemplo da mesa: o problema e o que vem depois.
+   --tom é a cor do status (médio ou urgente), passada pelo componente. */
+.mesa-conclusao {
+  background: color-mix(in oklab, var(--tom) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tom) 28%, transparent);
+}
+.mesa-conclusao-consequencia {
+  color: color-mix(in oklab, var(--foreground) 78%, var(--tom));
 }
 
 /* ── O QUE ESTÁ LONGE DA TELA NÃO É DESENHADO AINDA ──
