@@ -1543,6 +1543,12 @@ h1.font-serif,
   opacity: 1;
 }
 
+/* O resumo da home em vidro (MontadorProposta, resumoSobConsulta): um
+   cartão dentro do montador, sobre o fundo de pontos e brilho do quadro. */
+.montador-resumo-vidro {
+  align-self: start;
+}
+
 .montador-numero {
   display: inline-flex;
   align-items: center;
@@ -2445,26 +2451,6 @@ select option {
     backdrop-filter: blur(18px) saturate(140%);
   }
 }
-/* ── 9. A INCLINAÇÃO 3D NO MOUSE ──
-   Inclinar.tsx escreve o transform direto no elemento (sem variável no
-   pai) e um brilho que segue o mouse. A volta ao plano é transição, que
-   retoma de onde parou. */
-.inclinar {
-  transform-style: preserve-3d;
-  transition: transform 500ms var(--saida);
-}
-.inclinar[data-movendo] { transition: transform 120ms linear; }
-.inclinar-luz {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(360px circle at var(--lx, 50%) var(--ly, 0%), color-mix(in oklab, var(--foreground) 9%, transparent), transparent 60%);
-  transition: opacity 300ms var(--saida);
-}
-.inclinar[data-movendo] .inclinar-luz { opacity: 1; }
-
 /* ── 1. A ENTRADA EM SEQUÊNCIA ──
    Itens de uma lista entram um depois do outro (--i vem do componente).
    Mesmo princípio de .surge. */

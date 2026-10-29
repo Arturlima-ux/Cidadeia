@@ -25,7 +25,6 @@ import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
 import RevelarNoMouse from "@/components/site/inicio/RevelarNoMouse";
-import Inclinar from "@/components/site/inicio/Inclinar";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
@@ -573,30 +572,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               </p>
             </div>
             <div className="order-3 lg:order-none px-2 sm:px-0 lg:border-l border-border lg:pl-10">
-              {/* ── O PREÇO, EM VIDRO ──
-                  "Sob consulta" no cartão de vidro sobre o brilho, e logo
-                  abaixo como a prefeitura contrata esse valor. Era uma seção
-                  própria ("Quanto custa"); veio para cá a pedido do fundador
-                  (outubro de 2026). Fica nesta coluna, e não junto do título,
-                  para no celular o montador continuar logo depois do título.
-                  O texto repete só o que o site já afirma (valor por módulo,
-                  pela faixa de habitantes do IBGE, sem cobrança por usuário). */}
-              <Inclinar className="rounded-[24px] mb-9">
-                <div className="preco-vidro rounded-[24px] px-6 py-7 sm:px-8 sm:py-8">
-                  <p className="text-[2.4rem] sm:text-5xl font-semibold tracking-[-0.045em] leading-none">Sob consulta</p>
-                  <p className="mt-4 text-[15px] leading-relaxed" style={{ color: "color-mix(in oklab, var(--foreground) 78%, transparent)" }}>
-                    Por módulo, por mês, pela faixa de habitantes do município, a população estimada pelo IBGE. Sem
-                    cobrança por usuário.
-                  </p>
-                  {/* Leva ao montador, logo abaixo neste mesmo quadro. */}
-                  <a
-                    href="#montar-proposta"
-                    className="mt-6 inline-flex items-center min-h-12 rounded-full px-6 text-[15px] font-semibold text-white bg-brand hover:bg-brand-dark transition-colors pressiona"
-                  >
-                    Receber proposta
-                  </a>
-                </div>
-              </Inclinar>
               <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
               <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
                 {formatarMoedaExata(LIMITE_DISPENSA.valor)}
@@ -625,7 +600,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               município escolhido no topo, ele já vem preenchido. */}
           <div id="montar-proposta" className="order-2 lg:order-none lg:col-span-2 min-w-0 scroll-mt-24">
             <HidratarAoChegar id="montador">
-              <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+              <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo resumoSobConsulta municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
             </HidratarAoChegar>
           </div>
           </div>
