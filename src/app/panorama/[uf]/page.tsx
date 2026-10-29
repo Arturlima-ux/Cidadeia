@@ -103,7 +103,7 @@ export default async function PanoramaDoEstadoPage({ params }: { params: Promise
         </section>
 
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 pb-16">
-          <BarrasPanorama contagem={c} onde={doEstado(uf)} comLinks={false} />
+          <BarrasPanorama contagem={c} anterior={PANORAMA.anterior?.porUf[uf]} onde={doEstado(uf)} comLinks={false} />
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
             <Link href={`/raio-x/${uf.toLowerCase()}`} className="inicio-sublinhado text-sm">
               Ver o Raio-X de cada município {doEstado(uf)}

@@ -1,10 +1,10 @@
 name: vigia-dados-publicos
-# Toda segunda-feira: confere, nos 5.571 municípios, o que o site diz sobre a
+# Toda segunda e quinta-feira: confere, nos 5.571 municípios, o que o site diz sobre a
 # despesa com pessoal, e confere o site no ar. Se algo regredir, abre um aviso
 # (issue) no repositório, que chega por e-mail. Ver scripts/vigia/.
 on:
   schedule:
-    - cron: "17 9 * * 1"
+    - cron: "17 9 * * 1,4"
   workflow_dispatch:
     inputs:
       so_site:
@@ -12,7 +12,7 @@ on:
         type: boolean
         default: false
 permissions:
-  contents: write # o panorama semanal (src/dados/panorama-rgf.json) é publicado no main
+  contents: write # o panorama (src/dados/panorama-rgf.json) é publicado no main
   issues: write
 jobs:
   # As obras federais por estado (ObrasGov): independente da auditoria do RGF.
