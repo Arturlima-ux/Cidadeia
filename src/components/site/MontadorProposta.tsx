@@ -28,6 +28,7 @@ export default function MontadorProposta({
   municipioInicial,
   campoNoTopo = false,
   nivelDoResumo = 3,
+  resumoSobConsulta = false,
 }: {
   /** Vindo da página de um módulo ("Adicionar à minha proposta"). */
   modulosIniciais?: PlanoAddon[];
@@ -41,6 +42,14 @@ export default function MontadorProposta({
    *  soluções); 2 em /proposta, onde vem logo depois do h1. Pular de h1
    *  para h3 confunde leitor de tela e quem extrai a estrutura da página. */
   nivelDoResumo?: 2 | 3;
+  /**
+   * Na home, o resumo vira o cartão de vidro "Sob consulta" (out/2026).
+   * Havia dois quadros falando de proposta, um em cima do outro: este
+   * resumo ("Sua proposta", com o botão travado até escolher o município)
+   * e o vidro "Sob consulta" com outro botão. O fundador pediu um só: fica
+   * o vidro, e é nele que o cliente pede a proposta.
+   */
+  resumoSobConsulta?: boolean;
 }) {
   // ── O PORTE NÃO É ESCOLHA ──
   // Era um botão com três faixas e "Município (opcional)" ao lado. Quem
@@ -316,19 +325,36 @@ export default function MontadorProposta({
           a promessa que substitui a tabela: proposta em um dia útil, sem
           reunião obrigatória, com o termo de referência pronto. */}
       <div
-        className="montador-resumo p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-white/10"
+        className={
+          resumoSobConsulta
+            ? "montador-resumo-vidro preco-vidro m-3 sm:m-4 lg:ml-0 rounded-[24px] p-6 sm:p-8 flex flex-col gap-4 text-white"
+            : "montador-resumo p-6 sm:p-9 flex flex-col gap-4 text-white border-t lg:border-t-0 lg:border-l border-white/10"
+        }
       >
-        {nivelDoResumo === 2 ? (
+        {resumoSobConsulta ? (
+          nivelDoResumo === 2 ? (
+            <h2 className="text-[2.4rem] sm:text-5xl font-semibold tracking-[-0.045em] leading-none">Sob consulta</h2>
+          ) : (
+            <h3 className="text-[2.4rem] sm:text-5xl font-semibold tracking-[-0.045em] leading-none">Sob consulta</h3>
+          )
+        ) : nivelDoResumo === 2 ? (
           <h2 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h2>
         ) : (
           <h3 className="text-lg font-semibold tracking-[-0.02em]">Sua proposta</h3>
         )}
 
         {!identificado ? (
-          <p className="text-sm text-white/70 leading-relaxed">
-            Informe o município para montar a proposta — é a população dele que
-            define a faixa.
-          </p>
+          resumoSobConsulta ? (
+            <p className="text-[15px] text-white/80 leading-relaxed">
+              Por módulo, por mês, pela faixa de habitantes do município, a população estimada pelo IBGE. Sem
+              cobrança por usuário.
+            </p>
+          ) : (
+            <p className="text-sm text-white/70 leading-relaxed">
+              Informe o município para montar a proposta — é a população dele que
+              define a faixa.
+            </p>
+          )
         ) : (
           <>
             <div className="rounded-xl border border-white/20 bg-white/[0.08] p-4 backdrop-blur-sm">
@@ -365,8 +391,19 @@ export default function MontadorProposta({
               href={linkProposta}
               className="montador-cta font-semibold text-sm rounded-full px-5 py-3.5 text-center"
             >
-              Receber esta proposta e o termo de referência
+              {resumoSobConsulta ? "Pedir a proposta" : "Receber esta proposta e o termo de referência"}
             </Link>
+          ) : resumoSobConsulta && campoNoTopo ? (
+            // Sem município ainda, o botão não fica travado: ele leva ao
+            // campo do topo, e depois de escolher a página volta para cá
+            // (irAoTopo guarda o caminho de volta).
+            <a
+              href="#municipio-topo"
+              onClick={irAoTopo}
+              className="montador-cta font-semibold text-sm rounded-full px-5 py-3.5 text-center"
+            >
+              Escolher o município e pedir a proposta
+            </a>
           ) : (
             <span
               aria-disabled
