@@ -25,7 +25,7 @@ import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
 import RevelarNoMouse from "@/components/site/inicio/RevelarNoMouse";
-import QuantoCusta from "@/components/site/inicio/QuantoCusta";
+import Inclinar from "@/components/site/inicio/Inclinar";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
@@ -546,11 +546,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           </div>
         </section>
 
-        {/* ═══ QUANTO CUSTA ═══
-            "Sob consulta" no cartão de vidro, sobre o painel de pontos. Ver
-            QuantoCusta.tsx. */}
-        <QuantoCusta />
-
         {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
             uma seção igual às outras (revisão de outubro de 2026). O fundo é
             o roxo profundo da marca, sem contorno: a única mudança de campo
@@ -560,7 +555,14 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               montador embaixo; no celular, o montador sobe logo depois do
               título e as notas da dispensa vão para o fim, para a ação não
               ficar atrás de três parágrafos de letra miúda. */}
-          <div className="inicio-fecho surge rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-x-16 gap-y-10 lg:gap-y-12 items-start">
+          <div className="inicio-fecho surge relative isolate rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-x-16 gap-y-10 lg:gap-y-12 items-start">
+            {/* O fundo do fecho: a grade de pontos e o brilho que se move,
+                atrás do vidro do preço (globals.css, .fecho-fundo). Numa
+                camada própria, e não no quadro, para o recorte não cortar o
+                halo do montador. */}
+            <div className="fecho-fundo" aria-hidden>
+              <div className="grade-pontos" />
+            </div>
             <div className="px-2 sm:px-0">
               <h2 className="inicio-h2 max-w-[16ch]">Proposta pronta em um dia útil.</h2>
               <p className="text-muted leading-relaxed mt-6 max-w-[46ch]">
@@ -569,6 +571,23 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               </p>
             </div>
             <div className="order-3 lg:order-none px-2 sm:px-0 lg:border-l border-border lg:pl-10">
+              {/* ── O PREÇO, EM VIDRO ──
+                  "Sob consulta" no cartão de vidro sobre o brilho, e logo
+                  abaixo como a prefeitura contrata esse valor. Era uma seção
+                  própria ("Quanto custa"); veio para cá a pedido do fundador
+                  (outubro de 2026). Fica nesta coluna, e não junto do título,
+                  para no celular o montador continuar logo depois do título.
+                  O texto repete só o que o site já afirma (valor por módulo,
+                  pela faixa de habitantes do IBGE, sem cobrança por usuário). */}
+              <Inclinar className="rounded-[24px] mb-9">
+                <div className="preco-vidro rounded-[24px] px-6 py-7 sm:px-8 sm:py-8">
+                  <p className="text-[2.4rem] sm:text-5xl font-semibold tracking-[-0.045em] leading-none">Sob consulta</p>
+                  <p className="mt-4 text-[15px] leading-relaxed" style={{ color: "color-mix(in oklab, var(--foreground) 78%, transparent)" }}>
+                    Por módulo, por mês, pela faixa de habitantes do município, a população estimada pelo IBGE. Sem
+                    cobrança por usuário.
+                  </p>
+                </div>
+              </Inclinar>
               <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
               <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
                 {formatarMoedaExata(LIMITE_DISPENSA.valor)}
