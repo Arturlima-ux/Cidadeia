@@ -1388,6 +1388,29 @@ h1.font-serif,
 .inicio-fecho {
   background: color-mix(in oklab, var(--brand) 13%, var(--background));
 }
+/* ── O FECHO EM NEON (out/2026) ──
+   O bloco da landing de campanha de que o fundador gostou: fundo no
+   violeta profundo, moldura de tubo de 2 px no roxo claro com halo por
+   fora e por dentro, e o título aceso como letreiro. Só este bloco da
+   página tem neon; o resto continua apagado para ele ser o único aceso.
+   Nada pisca: o brilho é parado. */
+.inicio-fecho {
+  background: var(--violeta-profundo);
+  border: 2px solid color-mix(in oklab, var(--accent-claro) 60%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in oklab, var(--brand) 55%, transparent),
+    0 0 60px color-mix(in oklab, var(--brand) 30%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--brand) 28%, transparent);
+}
+.fecho-neon {
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  color: color-mix(in oklab, var(--accent-claro) 18%, var(--foreground));
+  text-shadow:
+    0 0 10px color-mix(in oklab, var(--accent-claro) 90%, transparent),
+    0 0 30px color-mix(in oklab, var(--brand) 90%, transparent),
+    0 0 70px color-mix(in oklab, var(--brand) 70%, transparent);
+}
 
 /* ── O QUE CHEGA AO ROLAR ──
    Títulos e blocos abaixo da dobra sobem 24 px e ganham opacidade enquanto

@@ -564,7 +564,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               <div className="grade-pontos" />
             </div>
             <div className="px-2 sm:px-0">
-              <h2 className="inicio-h2 max-w-[16ch]">Proposta pronta em um dia útil.</h2>
+              {/* O título aceso como letreiro (globals.css, .fecho-neon): o
+                  bloco de que o fundador gostou na landing de campanha. */}
+              <h2 className="inicio-h2 fecho-neon max-w-[16ch]">Proposta pronta em um dia útil.</h2>
               <p className="text-muted leading-relaxed mt-6 max-w-[46ch]">
                 Escolha o município e os módulos. Valor, termo de referência e
                 minuta de contrato chegam no mesmo e-mail, sem reunião antes.
@@ -586,6 +588,13 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
                     Por módulo, por mês, pela faixa de habitantes do município, a população estimada pelo IBGE. Sem
                     cobrança por usuário.
                   </p>
+                  {/* Leva ao montador, logo abaixo neste mesmo quadro. */}
+                  <a
+                    href="#montar-proposta"
+                    className="mt-6 inline-flex items-center min-h-12 rounded-full px-6 text-[15px] font-semibold text-white bg-brand hover:bg-brand-dark transition-colors pressiona"
+                  >
+                    Receber proposta
+                  </a>
                 </div>
               </Inclinar>
               <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
@@ -614,9 +623,11 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               antes do pedido, era o maior atrito do caminho (revisão de
               novembro de 2026). Agora o campo está no próprio montador; com
               município escolhido no topo, ele já vem preenchido. */}
-          <HidratarAoChegar id="montador" className="order-2 lg:order-none lg:col-span-2 min-w-0">
-            <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
-          </HidratarAoChegar>
+          <div id="montar-proposta" className="order-2 lg:order-none lg:col-span-2 min-w-0 scroll-mt-24">
+            <HidratarAoChegar id="montador">
+              <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
+            </HidratarAoChegar>
+          </div>
           </div>
 
           {/* ═══ O FECHO É O MONTADOR ═══
