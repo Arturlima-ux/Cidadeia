@@ -2377,34 +2377,36 @@ select option {
   to { clip-path: inset(0 0 round 20px); }
 }
 
-/* ── 6. O PREÇO EM VIDRO e 8. A SOBREPOSIÇÃO ──
-   O painel de pontos com o brilho por trás, e o cartão de vidro por cima,
-   passando 72 px da borda de baixo do painel. O vidro desfoca o que está
-   atrás; sem backdrop-filter, fica mais opaco para o texto continuar lido. */
-.preco-painel {
-  position: relative;
-  isolation: isolate;
+/* ── 6. O PREÇO EM VIDRO ──
+   O fundo do quadro "Proposta pronta": a grade de pontos e um brilho roxo
+   que deriva no canto de cima à direita, atrás do cartão de vidro. Camada
+   própria com recorte (e não overflow no quadro), para não cortar o halo
+   do montador. O vidro desfoca o que está atrás; sem backdrop-filter, fica
+   mais opaco para o texto continuar lido. */
+.fecho-fundo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
   overflow: hidden;
-  background: var(--violeta-profundo);
+  pointer-events: none;
 }
-.preco-painel::before {
+.fecho-fundo::before {
   content: "";
   position: absolute;
-  z-index: -1;
   width: 52rem;
   height: 40rem;
-  right: -12rem;
-  top: -16rem;
+  right: -14rem;
+  top: -18rem;
   border-radius: 9999px;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 55%, transparent), transparent);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 50%, transparent), transparent);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .preco-painel::before { animation: liquido-b 30s ease-in-out infinite alternate; }
+  .fecho-fundo::before { animation: liquido-b 30s ease-in-out infinite alternate; }
 }
-.preco-painel .grade-pontos {
-  -webkit-mask-image: none;
-  mask-image: none;
-  z-index: -1;
+.fecho-fundo .grade-pontos {
+  -webkit-mask-image: radial-gradient(90% 70% at 85% 0%, black 20%, transparent 80%);
+  mask-image: radial-gradient(90% 70% at 85% 0%, black 20%, transparent 80%);
 }
 .preco-vidro {
   background: color-mix(in oklab, var(--card) 88%, transparent);
@@ -2420,13 +2422,6 @@ select option {
     backdrop-filter: blur(18px) saturate(140%);
   }
 }
-/* 4. O cartão mínimo: um fio, um título, uma frase. Fundo no violeta para
-   a grade de pontos não cruzar o texto. */
-.cartao-minimo {
-  background: color-mix(in oklab, var(--violeta-profundo) 85%, transparent);
-  border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
-}
-
 /* ── 9. A INCLINAÇÃO 3D NO MOUSE ──
    Inclinar.tsx escreve o transform direto no elemento (sem variável no
    pai) e um brilho que segue o mouse. A volta ao plano é transição, que
