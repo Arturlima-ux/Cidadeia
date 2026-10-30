@@ -41,6 +41,8 @@ export const metadata: Metadata = {
     : {}),
 };
 
+const SCRIPT_INICIAL = `(function(){var d=document.documentElement;d.classList.add("com-js");try{var q=/[?&]leve=([01])/.exec(location.search);if(q)localStorage.setItem("cidadeia-leve",q[1]);var g=localStorage.getItem("cidadeia-leve");var n=navigator;if(g==="1"||(g!=="0"&&((n.hardwareConcurrency&&n.hardwareConcurrency<=4)||(n.deviceMemory&&n.deviceMemory<=4))))d.setAttribute("data-leve","")}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,9 +71,19 @@ export default function RootLayout({
             `dangerouslySetInnerHTML` é a única forma de emitir script inline
             aqui, e o conteúdo é uma constante escrita à mão — não há entrada
             de usuário envolvida. */}
+        {/* ── E SE O COMPUTADOR É FRACO ──
+            Na mesma linha, antes da primeira pintura: com até 4 núcleos ou
+            até 4 GB de memória, liga o modo leve (globals.css, data-leve),
+            para nenhuma animação de entrada começar. Uma escolha guardada
+            (localStorage "cidadeia-leve", "1" ou "0", que ModoLeve.tsx grava —
+            ele vem dentro de MovimentoLeve, para o layout não ganhar mais um
+            componente de cliente, o que separava a fonte num CSS à parte e
+            atrasava a primeira pintura —
+            quando mede quadros lentos, ou ?leve=1 / ?leve=0 no endereço)
+            vale mais que o palpite. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add("com-js")`,
+            __html: SCRIPT_INICIAL,
           }}
         />
         <JsonLdScript dados={ldOrganizacao()} />

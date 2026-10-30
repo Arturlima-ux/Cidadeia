@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
+import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
@@ -258,13 +259,19 @@ export default function MapaVivo({
 
 /** Preferência do sistema por menos movimento, sem a biblioteca de animação. */
 function usePrefereMenosMovimento(): boolean {
+  // Movimento reduzido pelo sistema ou modo leve (computador fraco, ver
+  // lib/modo-leve.ts): o mapa fica parado, sem alertas nem brilho do mouse.
   return useSyncExternalStore(
     (avisar) => {
       const m = window.matchMedia("(prefers-reduced-motion: reduce)");
       m.addEventListener("change", avisar);
-      return () => m.removeEventListener("change", avisar);
+      window.addEventListener(EVENTO_LEVE, avisar);
+      return () => {
+        m.removeEventListener("change", avisar);
+        window.removeEventListener(EVENTO_LEVE, avisar);
+      };
     },
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    semMovimento,
     () => false
   );
 }

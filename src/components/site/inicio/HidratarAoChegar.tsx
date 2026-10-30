@@ -42,6 +42,53 @@ function portao(id: string): Portao {
   return novo;
 }
 
+// ── E ANTES QUE A PESSOA ROLE (revisão de outubro de 2026) ──
+// Ligar o trecho só quando ele chega fazia o trabalho cair justo no meio da
+// rolagem: com a CPU 4x mais lenta (o computador de muita prefeitura), a
+// primeira descida pela home caía para 30 quadros por segundo, com quadros
+// de 200 a 400 ms, e a segunda descida, com tudo já ligado, ia a 51. Com o
+// JavaScript bloqueado, a primeira descida ia a 57: o peso era ligar.
+// Agora, depois que a página termina de carregar, os trechos são ligados um
+// de cada vez quando o navegador fica ocioso (requestIdleCallback), na ordem
+// da página. A chegada perto da tela continua ligando na hora, se a pessoa
+// rolar antes.
+const fila: string[] = [];
+let filaAgendada = false;
+/** Espera depois do carregamento, para não disputar com o que é da primeira tela. */
+const ESPERA_INICIAL = 1500;
+/** Intervalo entre um trecho e o seguinte, para o React terminar de ligar o anterior. */
+const INTERVALO = 250;
+
+type JanelaOciosa = Window & {
+  requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+};
+
+function quandoOcioso(fn: () => void) {
+  const janela = window as JanelaOciosa;
+  if (janela.requestIdleCallback) janela.requestIdleCallback(fn);
+  else window.setTimeout(fn, 200);
+}
+
+function proximoDaFila() {
+  let id = fila.shift();
+  while (id && portao(id).aberto) id = fila.shift();
+  if (!id) {
+    filaAgendada = false;
+    return;
+  }
+  portao(id).abrir();
+  window.setTimeout(() => quandoOcioso(proximoDaFila), INTERVALO);
+}
+
+function entrarNaFila(id: string) {
+  fila.push(id);
+  if (filaAgendada) return;
+  filaAgendada = true;
+  const comecar = () => window.setTimeout(() => quandoOcioso(proximoDaFila), ESPERA_INICIAL);
+  if (document.readyState === "complete") comecar();
+  else window.addEventListener("load", comecar, { once: true });
+}
+
 const semAssinatura = () => () => {};
 /** Verdadeiro só durante a hidratação (o React usa o retrato "do servidor"). */
 function useHidratando(): boolean {
@@ -90,6 +137,7 @@ export default function HidratarAoChegar({
       rootMargin: `${margem} 0px ${margem} 0px`,
     });
     io.observe(el);
+    entrarNaFila(id);
     // Toque ou teclado dentro do trecho antes de ele chegar perto (link de
     // âncora, Tab rápido): liga na hora.
     el.addEventListener("pointerdown", abrir, { capture: true, once: true });

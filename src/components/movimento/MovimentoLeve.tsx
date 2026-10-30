@@ -1,6 +1,9 @@
 "use client";
 
-import { LazyMotion } from "motion/react";
+import { useSyncExternalStore } from "react";
+import { LazyMotion, MotionConfig } from "motion/react";
+import { EVENTO_LEVE, emModoLeve } from "@/lib/modo-leve";
+import ModoLeve from "./ModoLeve";
 
 // ── ANIMAÇÃO SEM PESAR NO PRIMEIRO CARREGAMENTO ──
 //
@@ -12,43 +15,47 @@ import { LazyMotion } from "motion/react";
 // trazer a biblioteca inteira de volta sem ninguém perceber.
 
 //
-// ── NA HOME, SÓ QUANDO A PESSOA SE MEXE ──
-// Na home estática nada da primeira tela usa o motor: a régua da LRF só
-// aparece com município escolhido, e o que anima (mesa de módulos, portal de
-// exemplo) está abaixo da dobra. Lá o pacote só é pedido no primeiro gesto
-// (rolar, tocar, teclar) depois do load, ou oito segundos depois dele. Medido no Lighthouse da home: era
-// avaliado logo depois do load em tarefas de 110 a 140 ms, sem que nada na
-// tela precisasse dele. Nas outras páginas, carrega como antes.
-function quandoSeMexer(): Promise<void> {
+// ── NA HOME, DEPOIS DE CARREGAR, QUANDO O NAVEGADOR ESTÁ OCIOSO ──
+// Na home estática nada da primeira tela usa o motor: o que anima (mesa de
+// módulos, portal de exemplo) está abaixo da dobra. Medido no Lighthouse:
+// avaliar o pacote logo depois do load custava tarefas de 110 a 140 ms.
+// Antes ele era pedido no primeiro gesto (rolar, tocar, teclar), e por isso
+// essas tarefas caíam justo no começo da primeira rolagem, que travava no
+// computador fraco (revisão de outubro de 2026). Agora vem 2,5 s depois do
+// load, quando o navegador estiver ocioso.
+function quandoOcioso(): Promise<void> {
   return new Promise((pronto) => {
-    const gestos = ["scroll", "pointerdown", "keydown", "touchstart", "wheel"] as const;
-    let espera = 0;
-    const ir = () => {
-      for (const g of gestos) window.removeEventListener(g, ir, true);
-      window.clearTimeout(espera);
-      pronto();
+    const janela = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
     };
-    const ouvir = () => {
-      for (const g of gestos) window.addEventListener(g, ir, { capture: true, passive: true, once: true });
-      // Rede de segurança: quem chega por um link para o meio da página
-      // (#proposta) e não mexe em nada também vê o que anima, oito segundos
-      // depois do load, quando a página já está quieta.
-      espera = window.setTimeout(ir, 8000);
-    };
-    if (document.readyState === "complete") ouvir();
-    else window.addEventListener("load", ouvir, { once: true });
+    const ir = () =>
+      window.setTimeout(() => {
+        if (janela.requestIdleCallback) janela.requestIdleCallback(() => pronto(), { timeout: 4000 });
+        else pronto();
+      }, 2500);
+    if (document.readyState === "complete") ir();
+    else window.addEventListener("load", ir, { once: true });
   });
 }
 
 const carregar = () =>
-  (window.location.pathname === "/" && !window.location.search.includes("m=") ? quandoSeMexer() : Promise.resolve())
+  (window.location.pathname === "/" && !window.location.search.includes("m=") ? quandoOcioso() : Promise.resolve())
     .then(() => import("./recursos"))
     .then((r) => r.default);
 
+// No modo leve (computador fraco, ver lib/modo-leve.ts), o motor não move
+// nada: "always" faz cada animação ir direto ao estado final.
+const assinarLeve = (aviso: () => void) => {
+  window.addEventListener(EVENTO_LEVE, aviso);
+  return () => window.removeEventListener(EVENTO_LEVE, aviso);
+};
+
 export default function MovimentoLeve({ children }: { children: React.ReactNode }) {
+  const leve = useSyncExternalStore(assinarLeve, emModoLeve, () => false);
   return (
     <LazyMotion features={carregar} strict>
-      {children}
+      <MotionConfig reducedMotion={leve ? "always" : "user"}>{children}</MotionConfig>
+      <ModoLeve />
     </LazyMotion>
   );
 }
