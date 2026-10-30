@@ -27,8 +27,8 @@ describe("modo leve: o palpite antes da primeira pintura", () => {
   });
   it("o CSS do modo leve leva tudo ao estado final e tira o desfoque do vidro", () => {
     const bloco = css.slice(css.indexOf("── MODO LEVE"));
-    expect(bloco).toMatch(/animation-iteration-count: 1 !important/);
-    expect(bloco).toMatch(/animation-timeline: auto !important/);
+    expect(bloco).toMatch(/animation: none !important/);
+    expect(bloco).toMatch(/transition: none !important/);
     expect(bloco).toMatch(/backdrop-filter: none/);
   });
 });

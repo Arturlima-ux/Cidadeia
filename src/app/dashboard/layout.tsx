@@ -1,3 +1,4 @@
+import "./painel.css";
 import { redirect } from "next/navigation";
 import VoltarAoTopo from "@/components/VoltarAoTopo";
 import Link from "next/link";

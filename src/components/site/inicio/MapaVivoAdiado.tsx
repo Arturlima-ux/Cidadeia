@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 // em absoluto, em globals.css .inicio-mapa) fica vazia e nada se mexe.
 const MapaVivo = dynamic(() => import("./MapaVivo"), { ssr: false });
 
-export default function MapaVivoAdiado(props: { destaque?: number | null; className?: string }) {
+export default function MapaVivoAdiado(props: { destaque?: number | null; className?: string; semBrilho?: boolean; intenso?: boolean }) {
   const [pronto, setPronto] = useState(false);
 
   useEffect(() => {
