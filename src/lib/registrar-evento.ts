@@ -1,5 +1,6 @@
 import { after, connection } from "next/server";
 import { cookies, headers } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import { db } from "@/db";
 import { eventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
@@ -100,8 +101,11 @@ export async function registrarEvento(dados: DadosDoEvento): Promise<void> {
       }
     });
   } catch (e) {
-    // Inclui o caso de a rota não poder ler cabeçalho. Não é motivo para a
-    // página falhar.
+    // O aviso interno do Next de que a rota depende do pedido (connection(),
+    // headers()) passa adiante: engolido aqui, a rota era gerada estática na
+    // montagem e a visita nunca era contada (/panorama/[uf], outubro de 2026).
+    unstable_rethrow(e);
+    // Qualquer outro erro de medição não é motivo para a página falhar.
     console.error("[analytics] não consegui montar o evento:", e);
   }
 }
