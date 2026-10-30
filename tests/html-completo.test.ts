@@ -56,11 +56,11 @@ describe("nada do site público depende de JavaScript para aparecer", () => {
     expect(reveal).not.toContain("useEffect");
   });
 
-  it("a regra que esconde depende da marca de JavaScript", () => {
+  it("nenhuma regra esconde conteúdo sem a marca de JavaScript", () => {
+    // A classe .revelar saiu em novembro de 2026 (ninguém mais a usava). Se
+    // uma regra de esconder voltar, tem de vir atrás de `.com-js`: sem ele,
+    // valeria sempre, inclusive para quem nunca vai receber a classe.
     const css = readFileSync("src/app/globals.css", "utf8");
-    expect(css).toContain(".com-js .revelar:not([data-visivel])");
-    // Sem o seletor `.com-js` na frente, a regra valeria sempre — inclusive
-    // para quem nunca vai receber a classe.
     expect(css).not.toMatch(/^\s*\.revelar:not\(\[data-visivel\]\)/m);
   });
 
