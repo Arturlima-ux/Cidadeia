@@ -20,11 +20,11 @@ import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
 import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
 import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
-import MapaVivoAdiado from "@/components/site/inicio/MapaVivoAdiado";
 import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
-import RevelarNoMouse from "@/components/site/inicio/RevelarNoMouse";
+import PlanetaTopo from "@/components/site/inicio/PlanetaTopo";
+import PerguntasQueTrocam from "@/components/site/inicio/PerguntasQueTrocam";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
@@ -145,12 +145,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
 
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
-      {/* O brilho líquido do topo, atrás de tudo (globals.css, .fundo-liquido). */}
-      <div className="fundo-liquido" aria-hidden>
-        <span />
-        <span />
-        <span />
-      </div>
       <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}
@@ -166,110 +160,79 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             resto, e a página descia 71 px quando ele aparecia (CLS de 0,086).
             O que está na primeira tela vem inteiro, na ordem; só o que está
             abaixo dela é adiado (HidratarAoChegar). */}
-        <section className="relative">
-          {/* A grade de pontos atrás do topo, que o mouse acende em volta
-              dele (RevelarNoMouse.tsx). */}
-          <RevelarNoMouse />
-          {/* O Brasil, um ponto por município. Fica à direita no desktop, atrás
-              do título no celular, e some nas bordas para não brigar com o
-              texto. Ver MapaVivo.tsx. */}
-          <div className="inicio-mapa absolute pointer-events-none" aria-hidden>
-            <MapaVivoAdiado destaque={dados ? indiceNoMapa(dados.codigo) : null} className="w-full h-full" />
-            {/* A legenda amarra o mapa ao que a página faz: cada ponto é uma
-                prefeitura que o CidadeIA lê. Só no computador e só sem cidade
-                escolhida: com cidade, o quadro da régua ocupa este canto e o
-                ponto dela acende no mapa. */}
-            {!municipio && (
-              <p className="hidden lg:flex items-center gap-2 absolute right-6 bottom-4 text-xs text-muted">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--muted)" }} />
-                Um ponto para cada município do Brasil.
-              </p>
-            )}
-          </div>
+        {/* ── O PLANETA (outubro de 2026) ──
+            Referência escolhida pelo fundador no quadro "CidadeIA — home
+            pelas referências": o horizonte aceso de um planeta, o Brasil
+            deitado em cima, um ponto por município, os alertas piscando e o
+            ponto de quem visita (PlanetaTopo.tsx). Depois, o título com as
+            perguntas que trocam, a frase, as duas ações e a busca no meio. */}
+        <section className="heroi-planeta relative">
+          <PlanetaTopo destaque={dados ? indiceNoMapa(dados.codigo) : null} />
 
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pt-16 sm:pt-28 lg:pt-20 pb-6 sm:pb-10">
-            {/* Duas linhas a partir de 1024px ("…inteira," / "num lugar só."),
-                três no celular. Em duas, o título baixa e a busca cabe inteira
-                num notebook de 1366×768 (avaliação Impeccable, outubro de 2026).
-                O aria-label dá o texto com espaços ao leitor de tela, que lia
-                as linhas coladas ("municipalinteira,"). */}
-            {/* Cada palavra existe uma vez só. Antes "inteira," estava escrita
-                duas vezes (uma para o celular, outra para o computador), e o
-                Google e o leitor de tela liam "inteira, inteira,". Agora, a
-                partir de 1024px, as duas primeiras linhas viram inline-block e
-                se juntam numa só (globals.css, .linha-junta). */}
-            <h1 className="inicio-titulo max-w-[14ch] lg:max-w-none">
-              <span className="linha linha-junta"><span style={{ "--i": 0 } as React.CSSProperties}>A gestão municipal</span></span>{" "}
-              <span className="linha linha-junta"><span style={{ "--i": 1 } as React.CSSProperties}>inteira,</span></span>{" "}
-              <span className="linha"><span style={{ "--i": 2 } as React.CSSProperties}>num lugar só.</span></span>
+          <div className="heroi-planeta-conteudo relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
+            <p className="heroi-sobre">Lê · Confere · Resolve</p>
+            {/* O h1 tem o texto de sempre para o leitor de tela e o buscador;
+                as perguntas que trocam são o desenho (aria-hidden). */}
+            <h1 className="heroi-titulo">
+              <span className="sr-only">A gestão municipal inteira, num lugar só.</span>
+              <PerguntasQueTrocam />
             </h1>
 
-            <div className="mt-12 sm:mt-16 lg:mt-10 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-12 lg:gap-16 items-start">
-              <div className="inicio-aparece" style={{ "--d": "420ms" } as React.CSSProperties}>
-                {/* A chamada inteira em branco. "Alimentado sozinho" saiu
-                    (revisão de outubro de 2026): estoque da UBS, merenda e
-                    medição de obra são digitados pela equipe; só o que já é
-                    público entra sem ninguém digitar. */}
-                <p className="inicio-lead max-w-[40ch]">
-                  Atendimento, secretarias, obras, saúde, educação e finanças num sistema que faz sozinho o que
-                  hoje é feito à mão: lê as bases oficiais, conta os prazos e deixa prontos pedidos, ofícios e
-                  relatórios.
-                </p>
-
-                {/* ── A AÇÃO, NA ORDEM EM QUE A PESSOA PENSA ──
-                    O rótulo diz o que ela vai ver, a busca, a localização, a
-                    garantia. A chave "Sou da prefeitura / Sou morador" pedia
-                    que a pessoa dissesse quem é antes de ver qualquer coisa;
-                    o morador agora tem um link no fim (?para=morador). */}
-                <div className="mt-7">
-                  <p className="text-[15px] font-medium mb-3">Digite o município e veja agora os números dele</p>
-                  {/* ── UM CAMPO, NÃO DUAS LISTAS ──
-                      A pessoa digita o nome (ou usa a localização) e a página
-                      atualiza aqui mesmo, sem rolar. Sem JavaScript, /raio-x
-                      tem a lista por estado. */}
-                  <AcheSuaCidade
-                    key={municipio?.codigo ?? "sem-cidade"}
-                    destino="/?m="
-                    compacto
-                    empilhado
-                    localNoCampo
-                    idCampo="municipio-topo"
-                    rolarAoTopo={false}
-                    placeholder="Digite o nome do município"
-                    inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
-                  />
-                  <p className="text-[13px] mt-2" style={{ color: "color-mix(in oklab, var(--foreground) 70%, transparent)" }}>
-                    Sem cadastro. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
-                    <noscript>
-                      <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
-                    </noscript>
-                  </p>
-                  {/* "É morador?" saiu daqui: a home é do gestor, e o topo tem
-                      uma ação só (revisão de outubro de 2026). O morador entra
-                      pelo rodapé, em "Portal da sua cidade". */}
-                </div>
+            <div className="mt-7 sm:mt-9 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-7">
+              <p className="inicio-lead max-w-[44ch]">
+                Atendimento, secretarias, obras, saúde, educação e finanças num sistema que lê as bases oficiais,
+                conta os prazos da lei e deixa pronto o documento da prefeitura. Antes de vencer.
+              </p>
+              <div className="flex flex-wrap gap-3 shrink-0">
+                <Link href="#proposta" className="botao-aceso">
+                  Receber proposta <span aria-hidden>→</span>
+                </Link>
+                <Link href="#solucoes" className="botao-escuro">
+                  Ver os módulos
+                </Link>
               </div>
-
-              {/* Com município escolhido, a régua corre o número dele. Sem
-                  cidade, o lado direito fica só com o mapa: o quadro das seis
-                  áreas saiu daqui, porque a seção "Um módulo para cada parte
-                  da prefeitura", logo abaixo, mostra os módulos funcionando
-                  (pedido do fundador, outubro de 2026). */}
-              {municipio && (
-                <div className="inicio-aparece" style={{ "--d": "560ms" } as React.CSSProperties}>
-                  {df ? (
-                    <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
-                  ) : (
-                    <Suspense
-                      key={municipio.codigo}
-                      fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
-                    >
-                      <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
-                    </Suspense>
-                  )}
-                </div>
-              )}
             </div>
+
+            {/* ── A BUSCA NO MEIO ──
+                A pessoa digita o nome (ou usa a localização) e a página
+                atualiza aqui mesmo, sem rolar. Sem JavaScript, /raio-x tem a
+                lista por estado. */}
+            <div className="heroi-busca mt-12 sm:mt-14 mx-auto">
+              <p className="text-[15px] font-semibold text-center mb-3">Sua prefeitura já está no mapa. Veja os números dela.</p>
+              <AcheSuaCidade
+                key={municipio?.codigo ?? "sem-cidade"}
+                destino="/?m="
+                compacto
+                empilhado
+                localNoCampo
+                idCampo="municipio-topo"
+                rolarAoTopo={false}
+                placeholder="Digite o nome do município"
+                inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
+              />
+              <p className="text-[13px] mt-2 text-center" style={{ color: "color-mix(in oklab, var(--foreground) 70%, transparent)" }}>
+                Sem cadastro. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
+                <noscript>
+                  <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
+                </noscript>
+              </p>
+            </div>
+
+            {/* Com município escolhido, a régua corre o número dele. */}
+            {municipio && (
+              <div className="mt-12 max-w-[760px] mx-auto">
+                {df ? (
+                  <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
+                ) : (
+                  <Suspense
+                    key={municipio.codigo}
+                    fallback={<ReguaLrf dado={{ modo: "carregando", municipio: municipio.nome }} />}
+                  >
+                    <CarregaRegua codigoIbge={dados!.codigo} municipio={municipio.nome} />
+                  </Suspense>
+                )}
+              </div>
+            )}
 
             {municipio && (
               <div className="mt-16">

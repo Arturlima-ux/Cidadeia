@@ -3,6 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
+import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
@@ -39,10 +40,18 @@ const CORES = ["medio", "medio", "urgente", "medio", "info", "urgente"] as const
 export default function MapaVivo({
   destaque = null,
   className = "",
+  semBrilho = false,
+  intenso = false,
 }: {
   /** Índice do município escolhido em PONTOS, quando houver. */
   destaque?: number | null;
   className?: string;
+  /** Sem o brilho em volta do mouse: o mapa do planeta é inclinado em 3D e
+   *  a posição do ponteiro não bate com a do desenho. */
+  semBrilho?: boolean;
+  /** Pontos mais claros e um pouco maiores: no planeta, o mapa fica deitado
+   *  e longe, e com a tinta de fundo os pontos sumiam. */
+  intenso?: boolean;
 }) {
   const raiz = useRef<HTMLDivElement>(null);
   const fundo = useRef<HTMLCanvasElement>(null);
@@ -79,6 +88,14 @@ export default function MapaVivo({
 
     const alvoDestaque = caixa.querySelector<HTMLElement>("[data-mapa='destaque']");
     const alvoVoce = caixa.querySelector<HTMLElement>("[data-mapa='voce']");
+    const alvoVisitante = caixa.querySelector<HTMLElement>("[data-mapa='visitante']");
+    // O visitante, pela conexão (lib/onde-esta.ts): acende sozinho, numa cor
+    // própria, e some quando a posição exata do GPS chega.
+    let visitante: { x: number; y: number } | null = null;
+    const pelaConexao = (l: LocalAproximado | null) => {
+      visitante = l ? paraMapa(l.lat, l.lng) : null;
+    };
+    pelaConexao(lerVisitante());
     const alertas = Array.from(caixa.querySelectorAll<HTMLElement>("[data-mapa='alerta']"));
     let voce: { x: number; y: number; raio: number } | null = null;
 
@@ -87,6 +104,11 @@ export default function MapaVivo({
         const ok = destaque !== null && destaque >= 0 && destaque < n;
         if (ok) posicionar(alvoDestaque, px(destaque), py(destaque));
         alvoDestaque.hidden = !ok;
+      }
+      if (alvoVisitante) {
+        const ok = !!visitante && !voce;
+        if (ok) posicionar(alvoVisitante, origemX + visitante!.x * escala, origemY + visitante!.y * escala);
+        alvoVisitante.hidden = !ok;
       }
       if (alvoVoce && voce) {
         posicionar(alvoVoce, origemX + voce.x * escala, origemY + voce.y * escala);
@@ -97,10 +119,13 @@ export default function MapaVivo({
 
     // O país, desenhado uma vez (e de novo só se a caixa mudar de tamanho).
     function desenhar() {
-      const r = caixa!.getBoundingClientRect();
+      // Tamanho de layout, e não o da tela: no planeta do topo o mapa é
+      // inclinado em 3D, e getBoundingClientRect devolveria a caixa já
+      // achatada pela perspectiva (o desenho saía espremido e os marcadores
+      // fora do lugar).
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      largura = r.width;
-      altura = r.height;
+      largura = caixa!.offsetWidth;
+      altura = caixa!.offsetHeight;
       for (const c of [canvas!, camadaBrilho!]) {
         c.width = Math.round(largura * dpr);
         c.height = Math.round(altura * dpr);
@@ -110,10 +135,10 @@ export default function MapaVivo({
       escala = Math.min(largura / MAPA_LARGURA, altura / MAPA_ALTURA);
       origemX = (largura - MAPA_LARGURA * escala) / 2;
       origemY = (altura - MAPA_ALTURA * escala) / 2;
-      raio = Math.max(1.1, Math.min(2, escala * 2));
+      raio = intenso ? Math.max(1.6, Math.min(2.8, escala * 2.8)) : Math.max(1.1, Math.min(2, escala * 2));
       ctx!.clearRect(0, 0, largura, altura);
       ctx!.fillStyle = corPonto;
-      ctx!.globalAlpha = 0.4;
+      ctx!.globalAlpha = intenso ? 0.72 : 0.4;
       for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
       ctx!.globalAlpha = 1;
       marcarFixos();
@@ -198,7 +223,7 @@ export default function MapaVivo({
       ponteiro.y = dentro ? y : -9999;
       pedirBrilho();
     };
-    if (!reduzir && comMouse) window.addEventListener("pointermove", aoMover, { passive: true });
+    if (!reduzir && comMouse && !semBrilho) window.addEventListener("pointermove", aoMover, { passive: true });
 
     const aoLocalizar = (e: Event) => {
       const l = (e as CustomEvent<Leitura>).detail;
@@ -207,12 +232,16 @@ export default function MapaVivo({
       if (iniciado) marcarFixos();
     };
     window.addEventListener(EVENTO_LOCALIZACAO, aoLocalizar);
+    const aoVisitante = (e: Event) => {
+      pelaConexao((e as CustomEvent<LocalAproximado>).detail);
+      if (iniciado) marcarFixos();
+    };
+    window.addEventListener(EVENTO_VISITANTE, aoVisitante);
 
     let ultimo = "";
     const ro = new ResizeObserver(() => {
       if (!iniciado) return;
-      const r = caixa.getBoundingClientRect();
-      const agora = `${Math.round(r.width)}x${Math.round(r.height)}`;
+      const agora = `${caixa.offsetWidth}x${caixa.offsetHeight}`;
       if (agora === ultimo) return;
       ultimo = agora;
       desenhar();
@@ -230,10 +259,11 @@ export default function MapaVivo({
       for (const el of alertas) el.removeEventListener("animationiteration", aoCiclo);
       window.removeEventListener("pointermove", aoMover);
       window.removeEventListener(EVENTO_LOCALIZACAO, aoLocalizar);
+      window.removeEventListener(EVENTO_VISITANTE, aoVisitante);
       io.disconnect();
       ro.disconnect();
     };
-  }, [reduzir, destaque]);
+  }, [reduzir, destaque, semBrilho, intenso]);
 
   return (
     <div ref={raiz} className={`mapa-vivo relative ${className}`} aria-hidden role="presentation">
@@ -248,6 +278,10 @@ export default function MapaVivo({
       <span data-mapa="destaque" className="mapa-marcador" hidden>
         <span className="mapa-destaque-anel" />
         <span className="mapa-destaque-ponto" />
+      </span>
+      <span data-mapa="visitante" className="mapa-marcador" hidden>
+        <span className="mapa-visitante-anel" />
+        <span className="mapa-visitante-ponto" />
       </span>
       <span data-mapa="voce" className="mapa-marcador" hidden>
         <span className="mapa-voce-anel" />

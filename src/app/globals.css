@@ -496,40 +496,6 @@ button:active {
   }
 }
 
-/* ── IMPRESSÃO ──
-   O ofício ao Conselho Tutelar é protocolado em papel. Na impressão some
-   tudo que é tela — menu, cabeçalho, botões, avisos — e fica a folha:
-   fundo branco, texto preto, sem borda nem sombra. */
-@media print {
-  .nao-imprimir,
-  header,
-  aside,
-  nav {
-    display: none !important;
-  }
-  html,
-  body,
-  main {
-    background: #fff !important;
-    color: #000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .imprimir-limpo {
-    border: 0 !important;
-    background: #fff !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    max-width: none !important;
-  }
-  .imprimir-limpo pre {
-    color: #000 !important;
-  }
-  @page {
-    margin: 2.5cm 2cm;
-  }
-}
-
 /* ═══════════════════════════════════════════════════════════════════
    MOTOR DE MOVIMENTO
    ═══════════════════════════════════════════════════════════════════
@@ -1029,51 +995,6 @@ h1.font-serif,
   font-feature-settings: "ss03";
 }
 
-.inicio-titulo {
-  font-family: var(--font-titulo);
-  font-weight: 600;
-  font-size: clamp(2.55rem, 7.4vw, 6.4rem);
-  line-height: 0.95;
-  letter-spacing: -0.048em;
-}
-/* A partir de 1024px o título vai em duas linhas, mais largas: o tamanho
-   segue a largura E a altura da tela, para a busca caber inteira num
-   notebook de 1366×768. */
-@media (min-width: 1024px) {
-  .inicio-titulo { font-size: clamp(2.55rem, min(6.8vw, 11vh), 6.2rem); }
-  /* "inteira," sobe para a primeira linha: as duas viram inline-block e o
-     espaço entre elas (no HTML de page.tsx) aparece. */
-  .inicio-titulo .linha.linha-junta { display: inline-block; }
-}
-.inicio-titulo .linha {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.07em;
-  margin-bottom: -0.07em;
-}
-.inicio-titulo .linha > span {
-  display: block;
-  animation: inicio-linha-sobe 1.05s var(--saida) both;
-  animation-delay: calc(var(--i, 0) * 95ms + 60ms);
-}
-@keyframes inicio-linha-sobe {
-  from { transform: translateY(108%); }
-  to { transform: none; }
-}
-
-.inicio-aparece {
-  animation: inicio-aparece 0.9s var(--saida) both;
-  animation-delay: var(--d, 0ms);
-}
-/* Parte de 0,6, não de zero: texto com opacidade zero não conta como pintado,
-   e o parágrafo do topo é a maior pintura em várias telas. Do zero, a
-   auditoria de SEO (out/2026) mediu 3,5 s até ele contar. Nada surge do nada
-   (regra de animação do projeto) e o texto já está lá na primeira pintura. */
-@keyframes inicio-aparece {
-  from { opacity: 0.6; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
-}
-
 .inicio-h2 {
   font-family: var(--font-titulo);
   font-weight: 600;
@@ -1086,37 +1007,6 @@ h1.font-serif,
   font-size: clamp(1.05rem, 1.35vw, 1.25rem);
   line-height: 1.55;
   letter-spacing: -0.008em;
-}
-
-/* O mapa vivo do topo. No desktop ocupa a metade direita e desce até a
-   régua; no celular fica atrás do título, mais apagado. A máscara apaga as
-   bordas para os pontos não cortarem seco. */
-.inicio-mapa {
-  top: 10px;
-  left: 50%;
-  width: 420px;
-  height: 420px;
-  transform: translateX(-50%);
-  opacity: 0.35;
-}
-@media (min-width: 640px) {
-  .inicio-mapa {
-    width: 560px;
-    height: 560px;
-    left: auto;
-    right: 0;
-    transform: none;
-    opacity: 0.45;
-  }
-}
-@media (min-width: 1024px) {
-  .inicio-mapa {
-    top: 0;
-    right: max(24px, calc((100vw - 1200px) / 2 + 8px));
-    width: 580px;
-    height: 560px;
-    opacity: 1;
-  }
 }
 
 /* Títulos do site público na mesma escala da home: um h1 de página e um
@@ -1160,8 +1050,6 @@ h1.font-serif,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .inicio-titulo .linha > span,
-  .inicio-aparece,
   .fio-dados {
     animation: none;
   }
@@ -1710,32 +1598,6 @@ select option {
   .vidro { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
-/* Cabeçalho do painel: o mesmo vidro do site, por ser pequeno e fixo. */
-.cabecalho-painel { background: var(--card); }
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cabecalho-painel {
-    background: color-mix(in oklab, var(--card) 72%, transparent);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-  }
-}
-@media (prefers-reduced-transparency: reduce) {
-  .cabecalho-painel { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
-}
-
-/* Painel: fundo com uma luz roxa no alto e cartões de vidro sem filtro. */
-.painel-vidro {
-  background:
-    radial-gradient(70rem 40rem at 30% -14rem, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
-    var(--background);
-}
-.painel-vidro main .bg-card {
-  background:
-    linear-gradient(180deg, color-mix(in oklab, var(--foreground) 4%, transparent), transparent 40%),
-    color-mix(in oklab, var(--card) 86%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 7%, transparent);
-}
-
 /* ── MICROINTERAÇÕES DO CABEÇALHO ──
    Links do menu: a cor muda e um fundo suave aparece atrás, só com mouse
    (dezenas de vezes por dia: rápido e discreto). Botões em pílula afundam um
@@ -1803,11 +1665,185 @@ select option {
    Mais baixo desde out/2026 (46% → 30% no centro): o brilho competia com o
    título e com o mapa pela primeira olhada. */
 .fundo-liso {
-  /* O brilho saiu daqui para .fundo-liquido (out/2026), que se move. O
-     isolamento cria a pilha própria da página: as camadas do fundo ficam
+  /* O isolamento cria a pilha própria da página: as camadas do fundo ficam
      atrás de todo o conteúdo, inclusive do que não tem position. */
   background: var(--background);
   isolation: isolate;
+}
+
+/* ── O PLANETA DO TOPO (outubro de 2026) ──
+   Quadro "CidadeIA — home pelas referências", aprovado pelo fundador: um
+   planeta escuro com o horizonte aceso, o Brasil deitado em cima (MapaVivo
+   inclinado em 3D) e estrelas no céu. O planeta acompanha a tela: 1,6 vez a
+   largura no computador, 1.400 px no celular, para a curva ficar suave. O
+   giro do arraste chega por --giro (PlanetaTopo.tsx). */
+.heroi-planeta {
+  --planeta-topo: 190px;
+  --planeta-largura: max(160vw, 1400px);
+  --mapa-largura: clamp(392px, 54vw, 800px);
+  overflow: hidden;
+  padding-top: 470px;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 8%, var(--muted), transparent),
+    radial-gradient(1.4px 1.4px at 46% 5%, var(--foreground), transparent),
+    radial-gradient(1.2px 1.2px at 78% 9%, var(--muted), transparent),
+    radial-gradient(1px 1px at 92% 15%, var(--foreground), transparent);
+}
+@media (min-width: 1024px) {
+  .heroi-planeta {
+    --planeta-topo: 80px;
+    padding-top: 360px;
+  }
+}
+.planeta,
+.planeta-giro {
+  position: absolute;
+  left: 50%;
+  top: var(--planeta-topo);
+  width: var(--planeta-largura);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+}
+.planeta {
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--brand) 32%, var(--violeta-profundo)) 0%, var(--violeta-profundo) 22%, var(--background) 48%);
+  box-shadow:
+    0 -40px 140px 20px color-mix(in oklab, var(--brand) 55%, transparent),
+    0 -8px 40px 0 color-mix(in oklab, var(--brand-claro) 60%, transparent),
+    inset 0 40px 90px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.planeta-giro {
+  transform: translateX(-50%) rotate(var(--giro, 0deg));
+  transition: transform 600ms var(--saida);
+  touch-action: pan-y;
+}
+.planeta-giro[data-pode-girar] { cursor: grab; }
+.planeta-giro[data-arrastando] { cursor: grabbing; transition: none; }
+.planeta-mapa {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  width: var(--mapa-largura);
+  aspect-ratio: 1000 / 975;
+  margin-left: calc(var(--mapa-largura) / -2);
+  transform: perspective(1600px) rotateX(58deg);
+  transform-origin: 50% 0%;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .planeta-mapa { top: 20px; }
+}
+/* O relógio e a legenda, no alto, à direita. */
+.planeta-legenda {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  right: max(16px, calc((100vw - 1200px) / 2 + 32px));
+  left: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 85%, transparent);
+  pointer-events: none;
+}
+.planeta-legenda-item { display: inline-flex; align-items: center; gap: 8px; }
+.planeta-legenda-ponto { width: 6px; height: 6px; border-radius: 9999px; background: color-mix(in oklab, var(--foreground) 75%, transparent); }
+.planeta-legenda-voce { background: var(--localizacao); box-shadow: 0 0 0 3px color-mix(in oklab, var(--localizacao) 35%, transparent); }
+.planeta-legenda-dica { flex-basis: 100%; text-align: right; color: var(--muted); }
+@media (min-width: 640px) {
+  .planeta-legenda { font-size: 13px; }
+}
+/* O planeta some no fundo da página, sem corte seco no fim do topo. */
+.heroi-planeta::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 260px;
+  background: linear-gradient(to bottom, transparent, var(--background));
+  pointer-events: none;
+}
+.heroi-planeta-conteudo { z-index: 1; }
+.heroi-sobre {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 85%, transparent);
+}
+.heroi-titulo {
+  margin-top: 14px;
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  font-size: clamp(2.9rem, 6.4vw, 6.25rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+.perguntas { display: block; transition: opacity 260ms var(--saida), transform 260ms var(--saida); }
+.perguntas[data-saindo] { opacity: 0; transform: translateY(-6px); }
+.perguntas-a { display: block; }
+.perguntas-b { display: block; text-align: right; color: var(--brand-claro); }
+.heroi-busca {
+  max-width: 640px;
+  padding: 14px;
+  border-radius: 22px;
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  border: 1px solid var(--border);
+}
+/* Os dois botões do topo: o aceso e o escuro. */
+.botao-aceso,
+.botao-escuro {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 160ms var(--saida), box-shadow 200ms var(--saida);
+}
+.botao-aceso {
+  background: var(--brand);
+  color: white;
+  box-shadow: 0 0 22px color-mix(in oklab, var(--brand) 55%, transparent);
+}
+.botao-aceso:hover { box-shadow: 0 0 30px color-mix(in oklab, var(--brand) 75%, transparent); }
+.botao-escuro {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+.botao-aceso:active,
+.botao-escuro:active { transform: scale(0.97); }
+/* O ponto de quem visita, pela conexão: na cor de localização, piscando. */
+.mapa-visitante-ponto {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: var(--localizacao);
+  box-shadow: 0 0 0 2.5px var(--foreground), 0 0 18px 4px color-mix(in oklab, var(--localizacao) 70%, transparent);
+}
+.mapa-visitante-anel {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border: 1.5px solid var(--localizacao);
+  opacity: 0;
+  animation: mapa-alerta-anel 1.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .planeta-giro { transition: none; }
+  .perguntas { transition: none; }
+  .mapa-visitante-anel { animation: none; opacity: 0.5; }
 }
 
 /* ── TEXTO CORRIDO DOS GUIAS (app/guias) ──
@@ -2031,76 +2067,16 @@ select option {
    - O que segue o mouse só existe com mouse fino (hover: hover).
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── 3. O BRILHO LÍQUIDO DO TOPO ──
-   Três manchas de roxo, cada uma uma elipse em degradê, derivando devagar
-   (22 a 34 s, ida e volta). Girar uma elipse faz a forma "escorrer" sem
-   animar nada além de transform. Atrás de tudo (z-index -1 dentro da pilha
-   de .fundo-liso) e apagada para baixo pela máscara. */
-.fundo-liquido {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1100px;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
-}
-.fundo-liquido > span {
-  position: absolute;
-  border-radius: 9999px;
-}
-.fundo-liquido > span:nth-child(1) {
-  width: 78rem;
-  height: 46rem;
-  left: -18rem;
-  top: -22rem;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 34%, transparent), transparent);
-}
-.fundo-liquido > span:nth-child(2) {
-  width: 44rem;
-  height: 30rem;
-  left: 38%;
-  top: -12rem;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--violeta-profundo) 90%, transparent), transparent);
-}
-.fundo-liquido > span:nth-child(3) {
-  width: 36rem;
-  height: 26rem;
-  right: -10rem;
-  top: 14rem;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--brand) 16%, transparent), transparent);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .fundo-liquido > span:nth-child(1) { animation: liquido-a 26s ease-in-out infinite alternate; }
-  .fundo-liquido > span:nth-child(2) { animation: liquido-b 34s ease-in-out infinite alternate; }
-  .fundo-liquido > span:nth-child(3) { animation: liquido-c 22s ease-in-out infinite alternate; }
-}
-/* Só deslizam. Antes também giravam e cresciam: mancha redonda e difusa
-   girando não se vê, e o zoom (scale) animado fazia o navegador redesenhar
-   cada mancha a cada quadro, porque a escala muda a nitidez do desenho.
-   Medido com a CPU 4x mais lenta: de 53 para 59 quadros por segundo parado. */
-@keyframes liquido-a {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(9rem, 4rem, 0); }
-}
+/* A deriva do brilho atrás do quadro "Proposta pronta" (.fecho-fundo). */
 @keyframes liquido-b {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-12rem, 6rem, 0); }
 }
-@keyframes liquido-c {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-8rem, -5rem, 0); }
-}
 
-/* ── A GRADE DE PONTOS (a assinatura) e 10. A REVELAÇÃO PELO MOUSE ──
-   Uma grade de pontos de 28 px, quase invisível, atrás do topo: a mesma
-   linguagem do mapa (um ponto por município). Sob o mouse, uma segunda
-   grade no roxo claro aparece num círculo de 240 px de raio, que só se
-   desloca (transform): nada é redesenhado quando o mouse anda
-   (RevelarNoMouse.tsx). */
-.grade-pontos,
-.grade-pontos-revela {
+/* ── A GRADE DE PONTOS ──
+   Uma grade de pontos de 28 px, quase invisível: a mesma linguagem do mapa
+   (um ponto por município). Fica no quadro "Proposta pronta". */
+.grade-pontos {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -2111,39 +2087,6 @@ select option {
   -webkit-mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
   mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
 }
-/* A lente: 480 px, presa no canto do topo e levada pelo transform. A
-   máscara é fixa na própria lente, então não muda quando ela anda. A grade
-   de dentro é 28 px maior que a lente, para o deslocamento módulo 28 nunca
-   mostrar a borda. */
-.grade-recorte {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.grade-lente {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 480px;
-  height: 480px;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  -webkit-mask-image: radial-gradient(closest-side, black, transparent 72%);
-  mask-image: radial-gradient(closest-side, black, transparent 72%);
-  transition: opacity 400ms var(--saida);
-}
-.grade-lente[data-ativo] { opacity: 1; }
-.grade-lente > .grade-pontos-revela {
-  --ponto: color-mix(in oklab, var(--brand-claro) 95%, transparent);
-  inset: auto;
-  top: 0;
-  left: 0;
-  width: 508px;
-  height: 508px;
-}
-
 /* ── 5. A FAIXA DIAGONAL ──
    As bases oficiais numa faixa inclinada de margem a margem, que corre de
    lado enquanto a página desce. Sem suporte ou com movimento reduzido, a
@@ -2348,20 +2291,21 @@ select option {
    memória, ou a escolha guardada) ou de ModoLeve.tsx (que mede os quadros
    depois do carregamento). Com ele, tudo aparece já no lugar final, como na
    preferência de movimento reduzido, e o vidro vira cartão opaco. A página é
-   a mesma: só não se mexe. */
+   a mesma: só não se mexe.
+
+   "animation: none", e não uma duração de 1 ms: com 1 ms, a animação de
+   entrada de um trecho ainda fora da tela (content-visibility) ficava parada
+   no primeiro quadro, apagada, e o verificador de contraste a lia assim.
+   Nenhum conteúdo depende de animação para aparecer; só os enfeites (os
+   alertas piscando do mapa) somem. */
 html[data-leve] *,
 html[data-leve] *::before,
 html[data-leve] *::after {
-  animation-duration: 1ms !important;
-  animation-delay: 0s !important;
-  animation-iteration-count: 1 !important;
-  animation-timeline: auto !important;
-  transition-duration: 0s !important;
-  transition-delay: 0s !important;
+  animation: none !important;
+  transition: none !important;
 }
 html[data-leve] .vidro,
-html[data-leve] .preco-vidro,
-html[data-leve] .cabecalho-painel {
+html[data-leve] .preco-vidro {
   background: var(--card);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
@@ -2371,4 +2315,3 @@ html[data-leve][data-rolou] .cabecalho-site {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-html[data-leve] .grade-recorte { display: none; }
