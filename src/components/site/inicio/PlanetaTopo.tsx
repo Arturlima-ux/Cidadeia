@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import MapaVivoAdiado from "./MapaVivoAdiado";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
-import { guardarVisitante, nomeDoLocal, type LocalAproximado } from "@/lib/onde-esta";
+import { EVENTO_MAPA_PRONTO, guardarVisitante, nomeDoLocal, type LocalAproximado } from "@/lib/onde-esta";
 
 // ── O PLANETA DO TOPO, COM O BRASIL EM CIMA ──
 //
@@ -62,7 +62,8 @@ function posicionarFarol(farol: HTMLElement | null): boolean {
   if (!farol) return false;
   const marcador = document.querySelector<HTMLElement>(".planeta-mapa [data-mapa='visitante']");
   const pai = farol.parentElement;
-  if (!marcador || marcador.hidden || !pai) {
+  // Enquanto a onda de entrada corre, os marcadores esperam, e o farol junto.
+  if (!marcador || marcador.hidden || marcador.closest("[data-onda]") || !pai) {
     farol.hidden = true;
     return false;
   }
@@ -149,10 +150,12 @@ export default function PlanetaTopo({ destaque }: { destaque: number | null }) {
       pararResize = seguirFarol(farol.current, 300);
     };
     window.addEventListener("resize", aoMudar);
+    window.addEventListener(EVENTO_MAPA_PRONTO, aoMudar);
     return () => {
       parar();
       pararResize();
       window.removeEventListener("resize", aoMudar);
+      window.removeEventListener(EVENTO_MAPA_PRONTO, aoMudar);
     };
   }, [local]);
 

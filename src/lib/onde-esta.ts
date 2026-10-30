@@ -57,6 +57,8 @@ export function nomeDoLocal(l: Pick<LocalAproximado, "cidade" | "uf"> | null): s
 // depois a lê; quem já está ouvindo recebe o evento.
 
 export const EVENTO_VISITANTE = "cidadeia:visitante";
+/** O mapa do planeta terminou a onda de entrada (MapaVivo): o farol do visitante pode aparecer. */
+export const EVENTO_MAPA_PRONTO = "cidadeia:mapa-pronto";
 let ultimo: LocalAproximado | null = null;
 
 export function guardarVisitante(l: LocalAproximado) {
