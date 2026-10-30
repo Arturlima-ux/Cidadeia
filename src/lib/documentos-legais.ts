@@ -62,7 +62,7 @@ export function politicaDePrivacidade(e: DadosEmpresa = EMPRESA): SecaoLegal[] {
     {
       titulo: "O que o site coleta de quem navega",
       paragrafos: [
-        "As visitas são contadas sem cookie: o servidor guarda a página aberta, o tipo de aparelho, o site de origem e um identificador que muda todo dia e não permite saber quem é a pessoa. Não usamos rastreador de publicidade, não montamos perfil de navegação e não vendemos nem compartilhamos dado para fins comerciais.",
+        "As visitas são contadas sem cookie: o servidor guarda a página aberta, o tipo de aparelho, o site de origem e um identificador que muda todo dia e não permite saber quem é a pessoa. O tempo que cada página leva para abrir e responder também é medido pela hospedagem (Vercel), do mesmo jeito: sem cookie e sem saber quem é a pessoa, só para deixar o site mais rápido. Não usamos rastreador de publicidade, não montamos perfil de navegação e não vendemos nem compartilhamos dado para fins comerciais.",
         "O diagnóstico de conformidade roda inteiro no navegador: as respostas não são enviadas a servidor algum. A busca de município e o botão de localização também: a posição do aparelho só vira o ponto no mapa e o nome da cidade mais próxima, calculados no próprio navegador.",
       ],
     },
