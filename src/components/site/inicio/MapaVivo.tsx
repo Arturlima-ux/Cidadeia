@@ -4,6 +4,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { homografia } from "@/lib/homografia";
+import { aneisDoContorno } from "@/lib/contorno-brasil";
 import { ESTILO_MAPA_VIVO } from "./mapa-vivo-estilo";
 import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
@@ -69,7 +70,10 @@ export default function MapaVivo({
 
     const pontos = decodificarPontos();
     const n = pontos.length / 2;
-    const corPonto = getComputedStyle(canvas).getPropertyValue("--foreground").trim();
+    const estilo = getComputedStyle(canvas);
+    const corPonto = estilo.getPropertyValue("--foreground").trim();
+    const corContorno = estilo.getPropertyValue("--brand-claro").trim() || corPonto;
+    const corTerra = estilo.getPropertyValue("--brand").trim() || corPonto;
 
     let largura = 0;
     let altura = 0;
@@ -117,29 +121,99 @@ export default function MapaVivo({
       }
     }
 
+    // O território (só no planeta): o contorno real do país, aceso, e uma
+    // trama fina e regular de pontos por dentro, debaixo dos municípios.
+    // Sem isso o mapa era só os pontos das sedes, sem fronteira e quase
+    // vazio na Amazônia, e parecia de baixa resolução.
+    function desenharTerritorio() {
+      const contorno = new Path2D();
+      for (const anel of aneisDoContorno()) {
+        anel.forEach(([x, y], i) => {
+          const cx = origemX + x * escala;
+          const cy = origemY + y * escala;
+          if (i === 0) contorno.moveTo(cx, cy);
+          else contorno.lineTo(cx, cy);
+        });
+        contorno.closePath();
+      }
+      const k = ctx!;
+      // A terra, num véu da cor da marca.
+      k.globalAlpha = 0.14;
+      k.fillStyle = corTerra;
+      k.fill(contorno);
+      // A trama: pontos em grade de colmeia, só dentro do país.
+      k.save();
+      k.clip(contorno);
+      const passo = Math.max(4, 7.2 * escala);
+      const r = Math.max(0.55, passo * 0.11);
+      k.globalAlpha = 0.32;
+      k.fillStyle = corContorno;
+      k.beginPath();
+      for (let y = 0, linha = 0; y < altura; y += passo * 0.866, linha++) {
+        for (let x = linha % 2 ? passo / 2 : 0; x < largura; x += passo) {
+          k.moveTo(x + r, y);
+          k.arc(x, y, r, 0, Math.PI * 2);
+        }
+      }
+      k.fill();
+      k.restore();
+      // A fronteira e o litoral, acesos.
+      k.globalAlpha = 0.9;
+      k.strokeStyle = corContorno;
+      k.lineWidth = 1.2;
+      k.lineJoin = "round";
+      k.shadowColor = corContorno;
+      k.shadowBlur = 10;
+      k.stroke(contorno);
+      k.shadowBlur = 0;
+      k.globalAlpha = 1;
+    }
+
     // O país, desenhado uma vez (e de novo só se a caixa mudar de tamanho).
     function desenhar() {
       // Tamanho de layout, e não o da tela: no planeta do topo o mapa é
       // inclinado em 3D, e getBoundingClientRect devolveria a caixa já
       // achatada pela perspectiva (o desenho saía espremido e os marcadores
       // fora do lugar).
+      //
+      // Resolução: no planeta, a perspectiva amplia a parte de baixo do mapa
+      // (a mais perto) em até 1,7 vez, e o canvas era desenhado só na
+      // densidade da tela. Num notebook comum (tela 1x), o sul do país saía
+      // ampliado e borrado; o fundador achou o mapa "sem HD". Agora o mapa
+      // do planeta é desenhado com folga de 1,75 a 2,5 vezes, e os pontos são
+      // círculos em vez de quadradinhos, que ampliados viravam borrão.
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const fator = intenso ? Math.min(2.5, Math.max(1.75, dpr * 1.75)) : dpr;
       largura = caixa!.offsetWidth;
       altura = caixa!.offsetHeight;
       for (const c of [canvas!, camadaBrilho!]) {
-        c.width = Math.round(largura * dpr);
-        c.height = Math.round(altura * dpr);
+        c.width = Math.round(largura * fator);
+        c.height = Math.round(altura * fator);
       }
-      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctxBrilho!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.setTransform(fator, 0, 0, fator, 0, 0);
+      ctxBrilho!.setTransform(fator, 0, 0, fator, 0, 0);
       escala = Math.min(largura / MAPA_LARGURA, altura / MAPA_ALTURA);
       origemX = (largura - MAPA_LARGURA * escala) / 2;
       origemY = (altura - MAPA_ALTURA * escala) / 2;
       raio = intenso ? Math.max(1.6, Math.min(2.8, escala * 2.8)) : Math.max(1.1, Math.min(2, escala * 2));
       ctx!.clearRect(0, 0, largura, altura);
+      if (intenso) desenharTerritorio();
       ctx!.fillStyle = corPonto;
       ctx!.globalAlpha = intenso ? 0.85 : 0.4;
-      for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
+      if (intenso) {
+        // Um caminho só com todos os círculos: um preenchimento, não 5.571.
+        const r = raio * 0.56;
+        ctx!.beginPath();
+        for (let i = 0; i < n; i++) {
+          const x = px(i);
+          const y = py(i);
+          ctx!.moveTo(x + r, y);
+          ctx!.arc(x, y, r, 0, Math.PI * 2);
+        }
+        ctx!.fill();
+      } else {
+        for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
+      }
       ctx!.globalAlpha = 1;
       marcarFixos();
       caixa!.dataset.pronto = "1";
@@ -231,7 +305,13 @@ export default function MapaVivo({
         const forca = 1 - perto / ALCANCE;
         const lado = raio * (1 + forca * (intenso ? 1.2 : 0.6));
         ctxBrilho!.globalAlpha = forca * (intenso ? 0.95 : 0.55);
-        ctxBrilho!.fillRect(x - lado / 2, y - lado / 2, lado, lado);
+        if (intenso) {
+          ctxBrilho!.beginPath();
+          ctxBrilho!.arc(x, y, lado * 0.56, 0, Math.PI * 2);
+          ctxBrilho!.fill();
+        } else {
+          ctxBrilho!.fillRect(x - lado / 2, y - lado / 2, lado, lado);
+        }
       }
       ctxBrilho!.globalAlpha = 1;
     };
