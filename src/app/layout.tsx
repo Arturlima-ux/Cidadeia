@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import MovimentoLeve from "@/components/movimento/MovimentoLeve";
 import { URL_BASE, NOME_DO_SITE, TITULO_DO_SITE, DESCRICAO_PADRAO, JsonLdScript, ldOrganizacao } from "@/lib/seo";
 
@@ -94,6 +95,12 @@ export default function RootLayout({
             Web Analytics). Só liga em produção; precisa estar ativado no
             painel da Vercel (aba Analytics) para começar a contar. */}
         <Analytics />
+        {/* Quanto tempo a página leva para abrir e responder no aparelho de
+            quem visita (Vercel Speed Insights): mostra se o site está lento
+            nos computadores das prefeituras, o que o Lighthouse daqui não
+            mede. Sem cookie e sem identificar pessoa; também precisa estar
+            ativado no painel da Vercel (aba Speed Insights). */}
+        <SpeedInsights />
       </body>
     </html>
   );
