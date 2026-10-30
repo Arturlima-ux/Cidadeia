@@ -5,7 +5,10 @@
 // regra de decisão por quadros medidos, pura, para teste.
 
 export const ATRIBUTO_LEVE = "data-leve";
-export const CHAVE_LEVE = "cidadeia-leve";
+// "-2" desde novembro de 2026: o palpite pelo hardware ficou mais justo (só
+// 2 núcleos ou 2 GB) e a escolha guardada antes, com o critério antigo, é
+// descartada; quem trava de verdade volta ao modo leve pela medição.
+export const CHAVE_LEVE = "cidadeia-leve-2";
 /** Evento disparado quando o modo leve é ligado depois do carregamento. */
 export const EVENTO_LEVE = "cidadeia:leve";
 

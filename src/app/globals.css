@@ -2302,6 +2302,12 @@ html[data-leve] *::after {
   animation: none !important;
   transition: none !important;
 }
+/* A exceção: o ponto de quem visita continua pulsando. É um elemento só,
+   animando transform e opacidade (só composição), e é o que diz à pessoa que
+   o site a reconheceu. Movimento reduzido pelo sistema continua parando. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-leve] .mapa-visitante-anel { animation: mapa-alerta-anel 1.8s ease-out infinite !important; }
+}
 html[data-leve] .vidro,
 html[data-leve] .preco-vidro {
   background: var(--card);

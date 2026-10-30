@@ -3,6 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
+import { homografia } from "@/lib/homografia";
 import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
@@ -32,6 +33,8 @@ import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/li
 // Canvas não lê variável CSS: a cor dos pontos vem de getComputedStyle sobre
 // o token do tema; nenhuma cor é escrita aqui (tests/design-system.test.ts).
 
+/** Até onde o brilho do mouse alcança, em pixels do mapa. */
+const ALCANCE = 120;
 /** Quantos alertas acendem ao mesmo tempo, em rodízio. */
 const ALERTAS = 3;
 /** Cores dos alertas: mais atenção que incêndio, e um verde de vez em quando. */
@@ -40,15 +43,11 @@ const CORES = ["medio", "medio", "urgente", "medio", "info", "urgente"] as const
 export default function MapaVivo({
   destaque = null,
   className = "",
-  semBrilho = false,
   intenso = false,
 }: {
   /** Índice do município escolhido em PONTOS, quando houver. */
   destaque?: number | null;
   className?: string;
-  /** Sem o brilho em volta do mouse: o mapa do planeta é inclinado em 3D e
-   *  a posição do ponteiro não bate com a do desenho. */
-  semBrilho?: boolean;
   /** Pontos mais claros e um pouco maiores: no planeta, o mapa fica deitado
    *  e longe, e com a tinta de fundo os pontos sumiam. */
   intenso?: boolean;
@@ -190,22 +189,48 @@ export default function MapaVivo({
     io.observe(caixa);
 
     // O brilho perto do ponteiro: só com mouse, só enquanto ele se mexe, e
-    // só os pontos perto dele, numa camada à parte.
+    // só os pontos perto dele, numa camada à parte. É barato (redesenha uns
+    // poucos pontos por quadro, e só com o mouse andando), então fica ligado
+    // também no modo leve; sai só com movimento reduzido pelo sistema.
+    //
+    // O mouse chega em coordenadas de tela, e no planeta do topo o mapa está
+    // deitado em 3D e pode girar. Os quatro cantos do mapa (spans de tamanho
+    // zero, lidos com getBoundingClientRect, que devolve a posição já
+    // projetada) dão a homografia que leva a tela de volta ao plano do mapa
+    // (lib/homografia.ts). Num mapa reto, ela é só a translação de sempre.
+    const cantos = Array.from(caixa.querySelectorAll<HTMLElement>("[data-canto]"));
     let quadro = 0;
-    const ponteiro = { x: -9999, y: -9999 };
+    const tela = { x: -9999, y: -9999 };
     const desenharBrilho = () => {
       quadro = 0;
       ctxBrilho!.clearRect(0, 0, largura, altura);
-      if (ponteiro.x < -9000) return;
+      if (tela.x < -9000 || cantos.length !== 4) return;
+      const naTela = cantos.map((c) => {
+        const r = c.getBoundingClientRect();
+        return { x: r.left, y: r.top };
+      });
+      const paraOMapa = homografia(naTela, [
+        { x: 0, y: 0 },
+        { x: largura, y: 0 },
+        { x: 0, y: altura },
+        { x: largura, y: altura },
+      ]);
+      if (!paraOMapa) return;
+      const p = paraOMapa(tela);
+      if (p.x < -120 || p.y < -120 || p.x > largura + 120 || p.y > altura + 120) return;
       ctxBrilho!.fillStyle = corPonto;
       for (let i = 0; i < n; i++) {
         const x = px(i);
         const y = py(i);
-        if (Math.abs(x - ponteiro.x) + Math.abs(y - ponteiro.y) > 150) continue;
-        const perto = Math.hypot(x - ponteiro.x, y - ponteiro.y);
-        if (perto >= 110) continue;
-        ctxBrilho!.globalAlpha = (1 - perto / 110) * 0.55;
-        ctxBrilho!.fillRect(x - raio / 2, y - raio / 2, raio, raio);
+        if (Math.abs(x - p.x) + Math.abs(y - p.y) > ALCANCE * 1.42) continue;
+        const perto = Math.hypot(x - p.x, y - p.y);
+        if (perto >= ALCANCE) continue;
+        // Perto do mouse, o ponto cresce e acende; no planeta, onde os pontos
+        // já são claros, só acender não se via.
+        const forca = 1 - perto / ALCANCE;
+        const lado = raio * (1 + forca * (intenso ? 1.2 : 0.6));
+        ctxBrilho!.globalAlpha = forca * (intenso ? 0.95 : 0.55);
+        ctxBrilho!.fillRect(x - lado / 2, y - lado / 2, lado, lado);
       }
       ctxBrilho!.globalAlpha = 1;
     };
@@ -213,17 +238,20 @@ export default function MapaVivo({
       if (!quadro) quadro = requestAnimationFrame(desenharBrilho);
     };
     const comMouse = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const sistemaPedeMenos = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const aoMover = (e: PointerEvent) => {
-      const r = canvas.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      const dentro = x > -120 && y > -120 && x < r.width + 120 && y < r.height + 120;
-      if (!dentro && ponteiro.x < -9000) return;
-      ponteiro.x = dentro ? x : -9999;
-      ponteiro.y = dentro ? y : -9999;
+      tela.x = e.clientX;
+      tela.y = e.clientY;
       pedirBrilho();
     };
-    if (!reduzir && comMouse && !semBrilho) window.addEventListener("pointermove", aoMover, { passive: true });
+    const aoSair = () => {
+      tela.x = -9999;
+      pedirBrilho();
+    };
+    if (comMouse && !sistemaPedeMenos) {
+      window.addEventListener("pointermove", aoMover, { passive: true });
+      document.documentElement.addEventListener("pointerleave", aoSair);
+    }
 
     const aoLocalizar = (e: Event) => {
       const l = (e as CustomEvent<Leitura>).detail;
@@ -258,17 +286,22 @@ export default function MapaVivo({
       cancelAnimationFrame(quadro);
       for (const el of alertas) el.removeEventListener("animationiteration", aoCiclo);
       window.removeEventListener("pointermove", aoMover);
+      document.documentElement.removeEventListener("pointerleave", aoSair);
       window.removeEventListener(EVENTO_LOCALIZACAO, aoLocalizar);
       window.removeEventListener(EVENTO_VISITANTE, aoVisitante);
       io.disconnect();
       ro.disconnect();
     };
-  }, [reduzir, destaque, semBrilho, intenso]);
+  }, [reduzir, destaque, intenso]);
 
   return (
     <div ref={raiz} className={`mapa-vivo relative ${className}`} aria-hidden role="presentation">
       <canvas ref={fundo} className="mapa-vivo-pais absolute inset-0 w-full h-full" />
       <canvas ref={brilho} className="absolute inset-0 w-full h-full" />
+      {/* Os quatro cantos, para o brilho achar o mouse no mapa inclinado. */}
+      {[0, 1, 2, 3].map((i) => (
+        <span key={`canto-${i}`} data-canto={i} className="absolute w-0 h-0" style={{ left: i % 2 ? "100%" : 0, top: i > 1 ? "100%" : 0 }} />
+      ))}
       {Array.from({ length: ALERTAS }, (_, i) => (
         <span key={i} data-mapa="alerta" className="mapa-marcador" style={{ "--atraso": `${i * 0.73 + 0.4}s` } as React.CSSProperties}>
           <span className="mapa-alerta-anel" />

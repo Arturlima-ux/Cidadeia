@@ -20,9 +20,9 @@ describe("modo leve: o palpite antes da primeira pintura", () => {
   const layout = readFileSync("src/app/layout.tsx", "utf8");
   const css = readFileSync("src/app/globals.css", "utf8");
   it("o <head> marca data-leve com poucos núcleos ou pouca memória, e respeita a escolha guardada", () => {
-    expect(layout).toMatch(/hardwareConcurrency<=4/);
-    expect(layout).toMatch(/deviceMemory<=4/);
-    expect(layout).toMatch(/cidadeia-leve/);
+    expect(layout).toMatch(/hardwareConcurrency<=2/);
+    expect(layout).toMatch(/deviceMemory<=2/);
+    expect(layout).toMatch(/cidadeia-leve-2/);
     expect(layout).toMatch(/setAttribute\("data-leve"/);
   });
   it("o CSS do modo leve leva tudo ao estado final e tira o desfoque do vidro", () => {

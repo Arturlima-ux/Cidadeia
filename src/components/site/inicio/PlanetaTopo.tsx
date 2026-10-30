@@ -123,7 +123,7 @@ export default function PlanetaTopo({ destaque }: { destaque: number | null }) {
       <div className="planeta" aria-hidden />
       <div ref={giro} className="planeta-giro" data-pode-girar={podeGirar ? "" : undefined} aria-hidden>
         <div className="planeta-mapa">
-          <MapaVivoAdiado destaque={destaque} semBrilho intenso className="w-full h-full" />
+          <MapaVivoAdiado destaque={destaque} intenso className="w-full h-full" />
         </div>
       </div>
       <div className="planeta-legenda">
