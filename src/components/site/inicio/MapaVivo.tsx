@@ -4,6 +4,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { homografia } from "@/lib/homografia";
+import { ESTILO_MAPA_VIVO } from "./mapa-vivo-estilo";
 import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
@@ -36,7 +37,7 @@ import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/li
 /** Até onde o brilho do mouse alcança, em pixels do mapa. */
 const ALCANCE = 120;
 /** Quantos alertas acendem ao mesmo tempo, em rodízio. */
-const ALERTAS = 3;
+const ALERTAS = 5;
 /** Cores dos alertas: mais atenção que incêndio, e um verde de vez em quando. */
 const CORES = ["medio", "medio", "urgente", "medio", "info", "urgente"] as const;
 
@@ -137,7 +138,7 @@ export default function MapaVivo({
       raio = intenso ? Math.max(1.6, Math.min(2.8, escala * 2.8)) : Math.max(1.1, Math.min(2, escala * 2));
       ctx!.clearRect(0, 0, largura, altura);
       ctx!.fillStyle = corPonto;
-      ctx!.globalAlpha = intenso ? 0.72 : 0.4;
+      ctx!.globalAlpha = intenso ? 0.85 : 0.4;
       for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
       ctx!.globalAlpha = 1;
       marcarFixos();
@@ -296,6 +297,9 @@ export default function MapaVivo({
 
   return (
     <div ref={raiz} className={`mapa-vivo relative ${className}`} aria-hidden role="presentation">
+      <style href="cidadeia-mapa-vivo" precedence="medium">
+        {ESTILO_MAPA_VIVO}
+      </style>
       <canvas ref={fundo} className="mapa-vivo-pais absolute inset-0 w-full h-full" />
       <canvas ref={brilho} className="absolute inset-0 w-full h-full" />
       {/* Os quatro cantos, para o brilho achar o mouse no mapa inclinado. */}
@@ -303,7 +307,7 @@ export default function MapaVivo({
         <span key={`canto-${i}`} data-canto={i} className="absolute w-0 h-0" style={{ left: i % 2 ? "100%" : 0, top: i > 1 ? "100%" : 0 }} />
       ))}
       {Array.from({ length: ALERTAS }, (_, i) => (
-        <span key={i} data-mapa="alerta" className="mapa-marcador" style={{ "--atraso": `${i * 0.73 + 0.4}s` } as React.CSSProperties}>
+        <span key={i} data-mapa="alerta" className="mapa-marcador" style={{ "--atraso": `${i * 0.92 + 0.4}s` } as React.CSSProperties}>
           <span className="mapa-alerta-anel" />
           <span className="mapa-alerta-ponto" />
         </span>
@@ -313,6 +317,7 @@ export default function MapaVivo({
         <span className="mapa-destaque-ponto" />
       </span>
       <span data-mapa="visitante" className="mapa-marcador" hidden>
+        <span className="mapa-visitante-anel" />
         <span className="mapa-visitante-anel" />
         <span className="mapa-visitante-ponto" />
       </span>
