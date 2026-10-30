@@ -8,7 +8,9 @@
 // <style> no <head> uma vez só (href + precedence), por mais mapas que haja.
 //
 // O que cada parte faz:
-// - o país acende quando o desenho fica pronto (data-pronto);
+// - o país acende quando o desenho fica pronto (data-pronto); no planeta,
+//   entra com a onda que sai de Brasília (data-entrada), e os marcadores
+//   esperam a onda passar (data-onda);
 // - os marcadores são spans de tamanho zero, movidos só com transform;
 // - os alertas acendem de uma vez, ficam acesos quase 4 s e apagam (antes
 //   sumiam em 2,2 s e o fundador não chegava a ver a cor);
@@ -42,9 +44,10 @@ export const ESTILO_MAPA_VIVO = `
   70% { opacity: 0; }
   to { opacity: 0; transform: scale(1); }
 }
-.mapa-vivo[data-pronto] .mapa-vivo-pais {
+.mapa-vivo[data-pronto]:not([data-entrada]) .mapa-vivo-pais {
   animation: mapa-acende 1.6s var(--saida) both;
 }
+.mapa-vivo[data-onda] .mapa-marcador { visibility: hidden; }
 @keyframes mapa-acende {
   from { opacity: 0.15; transform: scale(0.985); }
   to { opacity: 1; transform: none; }

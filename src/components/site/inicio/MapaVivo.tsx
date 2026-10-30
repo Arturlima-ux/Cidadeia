@@ -6,7 +6,7 @@ import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { homografia } from "@/lib/homografia";
 import { aneisDoContorno } from "@/lib/contorno-brasil";
 import { ESTILO_MAPA_VIVO } from "./mapa-vivo-estilo";
-import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
+import { EVENTO_MAPA_PRONTO, EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
@@ -125,8 +125,10 @@ export default function MapaVivo({
     // trama fina e regular de pontos por dentro, debaixo dos municípios.
     // Sem isso o mapa era só os pontos das sedes, sem fronteira e quase
     // vazio na Amazônia, e parecia de baixa resolução.
+    let contornoAtual: Path2D | null = null;
     function desenharTerritorio() {
       const contorno = new Path2D();
+      contornoAtual = contorno;
       for (const anel of aneisDoContorno()) {
         anel.forEach(([x, y], i) => {
           const cx = origemX + x * escala;
@@ -182,6 +184,7 @@ export default function MapaVivo({
       // ampliado e borrado; o fundador achou o mapa "sem HD". Agora o mapa
       // do planeta é desenhado com folga de 1,75 a 2,5 vezes, e os pontos são
       // círculos em vez de quadradinhos, que ampliados viravam borrão.
+      pararOnda();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const fator = intenso ? Math.min(2.5, Math.max(1.75, dpr * 1.75)) : dpr;
       largura = caixa!.offsetWidth;
@@ -220,6 +223,91 @@ export default function MapaVivo({
       ultimo = `${Math.round(largura)}x${Math.round(altura)}`;
     }
 
+    // ── A ONDA DE ENTRADA (planeta) ──
+    // Como no mapa de antes: o país acende numa onda que sai de Brasília e
+    // corre até a fronteira, com a frente mais clara e um anel de luz
+    // varrendo o território. O mapa já desenhado vira uma imagem, e cada
+    // quadro só a recorta num círculo maior: duas cópias de imagem por
+    // quadro, por 2,6 s. Com movimento reduzido ou no modo leve, não há onda.
+    // Os marcadores (alertas, visitante) esperam ela passar.
+    const BRASILIA = paraMapa(-15.79, -47.88);
+    let ondaQuadro = 0;
+    function pararOnda() {
+      if (ondaQuadro) cancelAnimationFrame(ondaQuadro);
+      ondaQuadro = 0;
+      delete caixa!.dataset.onda;
+    }
+    function onda() {
+      const camada = document.createElement("canvas");
+      camada.width = canvas!.width;
+      camada.height = canvas!.height;
+      const kc = camada.getContext("2d");
+      if (!kc) return;
+      kc.drawImage(canvas!, 0, 0);
+      const f = canvas!.width / Math.max(1, largura);
+      const bx = origemX + BRASILIA.x * escala;
+      const by = origemY + BRASILIA.y * escala;
+      const longe = Math.max(Math.hypot(bx, by), Math.hypot(largura - bx, by), Math.hypot(bx, altura - by), Math.hypot(largura - bx, altura - by));
+      const faixa = Math.max(18, longe * 0.08);
+      const DURACAO = 2600;
+      const inicio = performance.now() + 150;
+      const contorno = contornoAtual;
+      caixa!.dataset.onda = "1";
+      const k = ctx!;
+      const passo = (agora: number) => {
+        const x = Math.min(1, Math.max(0, (agora - inicio) / DURACAO));
+        // Entra e sai devagar: com curva de saída forte, o círculo cobria
+        // metade do país no primeiro quinto do tempo e parecia um piscar.
+        const p = (1 - Math.cos(Math.PI * x)) / 2;
+        const r = p * longe;
+        k.save();
+        k.setTransform(1, 0, 0, 1, 0, 0);
+        k.clearRect(0, 0, canvas!.width, canvas!.height);
+        // O que a onda já alcançou.
+        k.beginPath();
+        k.arc(bx * f, by * f, r * f, 0, Math.PI * 2);
+        k.clip();
+        k.drawImage(camada, 0, 0);
+        k.restore();
+        // A frente: um anel em que os pontos passam mais claros.
+        k.save();
+        k.setTransform(1, 0, 0, 1, 0, 0);
+        k.beginPath();
+        k.arc(bx * f, by * f, r * f, 0, Math.PI * 2);
+        k.arc(bx * f, by * f, Math.max(0, r - faixa) * f, 0, Math.PI * 2, true);
+        k.clip();
+        k.globalCompositeOperation = "lighter";
+        k.globalAlpha = 1 - p * 0.55;
+        k.drawImage(camada, 0, 0);
+        k.restore();
+        // O anel de luz, só dentro do país.
+        k.save();
+        if (contorno) k.clip(contorno);
+        k.globalAlpha = (1 - p) * 0.85;
+        k.strokeStyle = corContorno;
+        k.lineWidth = 1.6;
+        k.shadowColor = corContorno;
+        k.shadowBlur = 12;
+        k.beginPath();
+        k.arc(bx, by, r, 0, Math.PI * 2);
+        k.stroke();
+        k.restore();
+        if (x < 1) {
+          ondaQuadro = requestAnimationFrame(passo);
+        } else {
+          k.save();
+          k.setTransform(1, 0, 0, 1, 0, 0);
+          k.clearRect(0, 0, canvas!.width, canvas!.height);
+          k.drawImage(camada, 0, 0);
+          k.restore();
+          ondaQuadro = 0;
+          delete caixa!.dataset.onda;
+          window.dispatchEvent(new CustomEvent(EVENTO_MAPA_PRONTO));
+        }
+      };
+      ondaQuadro = requestAnimationFrame(passo);
+    }
+
     // Alertas em rodízio: cada um, ao fim do seu ciclo (evento do próprio
     // CSS), pula para outro município sorteado e troca de cor.
     const sortear = (el: HTMLElement) => {
@@ -238,7 +326,9 @@ export default function MapaVivo({
     const iniciar = () => {
       espera = null;
       iniciado = true;
+      if (intenso) caixa.dataset.entrada = "onda";
       desenhar();
+      if (intenso && !reduzir) onda();
       if (!reduzir) {
         for (const el of alertas) {
           sortear(el);
@@ -365,6 +455,7 @@ export default function MapaVivo({
         else window.clearTimeout(espera);
       }
       cancelAnimationFrame(quadro);
+      pararOnda();
       for (const el of alertas) el.removeEventListener("animationiteration", aoCiclo);
       window.removeEventListener("pointermove", aoMover);
       document.documentElement.removeEventListener("pointerleave", aoSair);
