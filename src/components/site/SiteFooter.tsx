@@ -68,9 +68,14 @@ const COLUNAS = [
   },
 ];
 
-export default function SiteFooter() {
+/**
+ * `assinatura`: só na home. O rodapé entra pela luz da página em vez de por
+ * um corte reto, e fecha com o nome grande (quadro "CidadeIA — home pelas
+ * referências", globals.css .rodape-assinatura).
+ */
+export default function SiteFooter({ assinatura = false }: { assinatura?: boolean }) {
   return (
-    <footer className="text-white/70" style={{ background: "var(--brand-profundo)" }}>
+    <footer className={assinatura ? "rodape-fundido text-white/70" : "text-white/70"} style={assinatura ? undefined : { background: "var(--brand-profundo)" }}>
       <div className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 pb-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 pb-8 border-b border-white/10">
           <div className="lg:col-span-1">
@@ -148,6 +153,11 @@ export default function SiteFooter() {
           {LIMITE_DISPENSA.atualizadoPor} e reajustados anualmente — confirme o
           valor vigente com a assessoria jurídica da prefeitura.
         </p>
+        {assinatura && (
+          <p aria-hidden className="rodape-assinatura">
+            cidade<span>ia</span>
+          </p>
+        )}
       </div>
     </footer>
   );
