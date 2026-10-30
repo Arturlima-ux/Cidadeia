@@ -998,9 +998,10 @@ h1.font-serif,
 .inicio-h2 {
   font-family: var(--font-titulo);
   font-weight: 600;
-  font-size: clamp(2rem, 4.4vw, 3.6rem);
-  line-height: 1;
-  letter-spacing: -0.042em;
+  font-size: clamp(2.4rem, 5.2vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
 }
 
 .inicio-lead {
@@ -1104,9 +1105,6 @@ h1.font-serif,
 /* O fecho: o único campo de cor da página, o roxo da marca bem baixo sobre o
    fundo. Sem contorno e sem sombra; o montador dentro dele tem a própria
    moldura. */
-.inicio-fecho {
-  background: color-mix(in oklab, var(--brand) 13%, var(--background));
-}
 /* ── O FECHO EM NEON (out/2026) ──
    O bloco da landing de campanha de que o fundador gostou: fundo no
    violeta profundo, moldura de tubo de 2 px no roxo claro com halo por
@@ -2315,3 +2313,63 @@ html[data-leve][data-rolou] .cabecalho-site {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* ── A PÁGINA QUE FLUI (outubro de 2026) ──
+   "Do jeito que está, só que mais fluido, de acordo com as referências":
+   abaixo do topo era um preto só por seis mil pixels. Agora uma luz parada
+   corre por trás das seções, alternando os lados, e cada assunto ganha o
+   seu clarão sem faixa nem corte. É uma camada só, sem animação: pinta uma
+   vez e a rolagem não a repinta, então o modo leve fica igual. */
+.mare {
+  position: absolute;
+  inset: 760px 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(64rem 46rem at 2% 2%, color-mix(in oklab, var(--brand) 32%, transparent), transparent 70%),
+    radial-gradient(54rem 42rem at 100% 15%, color-mix(in oklab, var(--localizacao) 22%, transparent), transparent 70%),
+    radial-gradient(60rem 46rem at 0% 31%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(56rem 44rem at 100% 46%, color-mix(in oklab, var(--brand) 26%, transparent), transparent 70%),
+    radial-gradient(54rem 40rem at 2% 62%, color-mix(in oklab, var(--localizacao) 16%, transparent), transparent 70%),
+    radial-gradient(76rem 50rem at 50% 82%, color-mix(in oklab, var(--brand) 30%, transparent), transparent 70%);
+}
+.cartao-numero {
+  border-radius: 28px;
+  padding: 1.75rem 1.75rem 2rem;
+  background: color-mix(in oklab, var(--cor) 8%, var(--card));
+  border: 1px solid color-mix(in oklab, var(--cor) 20%, transparent);
+}
+.numero-grande {
+  font-size: clamp(4.25rem, 8.6vw, 8.25rem);
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--cor);
+}
+.manifesto > p {
+  margin: 0;
+  font-size: clamp(2rem, 5.2vw, 4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.manifesto > p + p { margin-top: 0.4em; }
+.manifesto > p:nth-child(2) { color: var(--muted); }
+.manifesto > p:nth-child(3) { color: color-mix(in oklab, var(--muted) 55%, var(--background)); }
+.rodape-fundido {
+  background: linear-gradient(to bottom, transparent, var(--brand-profundo) 14rem);
+  padding-top: 8rem;
+}
+.rodape-assinatura {
+  margin: 2.5rem 0 0;
+  font-size: clamp(5rem, 20.5vw, 16.5rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.07em;
+  color: var(--sobre-forte);
+  white-space: nowrap;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.rodape-assinatura span { color: var(--brand-claro); }

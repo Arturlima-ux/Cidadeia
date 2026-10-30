@@ -145,6 +145,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
 
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
+      {/* A luz que corre atrás das seções, do fim do topo até o rodapé
+          (globals.css, .mare): a página escura deixa de ser um preto só. */}
+      <div className="mare" aria-hidden />
       <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}
@@ -441,10 +444,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               </span>
             </p>
           </div>
-          <ul className="surge-lista mt-10 grid sm:grid-cols-3 gap-x-8 gap-y-6">
+          <ul className="surge-lista mt-12 grid sm:grid-cols-3 gap-4 sm:gap-5">
             {faixasDoPanorama(PANORAMA.brasil, PANORAMA.anterior?.brasil, PANORAMA.anterior?.geradoEm).map((f, i) => (
-              <li key={f.chave} className="border-t border-border pt-5" style={{ "--i": i } as React.CSSProperties}>
-                <p className="text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]" style={{ color: f.cor }}>
+              <li key={f.chave} className="cartao-numero" style={{ "--i": i, "--cor": f.cor } as React.CSSProperties}>
+                <p className="numero-grande tabular-nums">
                   {numeroBr(f.valor)}
                 </p>
                 <p className="mt-2 font-medium">{f.rotulo}</p>
@@ -488,6 +491,19 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
         </section>
         </HidratarAoChegar>
 
+
+        {/* ═══ O QUE PENSAMOS ═══
+            Do quadro aprovado pelo fundador ("CidadeIA — home pelas
+            referências"): três frases que descem de tom, uma pausa de leitura
+            entre os números e o vídeo. */}
+        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-40" aria-labelledby="titulo-pensamos">
+          <h2 id="titulo-pensamos" className="text-sm text-muted">O que pensamos</h2>
+          <div className="surge-lista manifesto mt-8">
+            <p style={{ "--i": 0 } as React.CSSProperties}>Nem toda prefeitura precisa trocar de sistema.</p>
+            <p style={{ "--i": 1 } as React.CSSProperties}>Nem todo prazo precisa de mais uma planilha.</p>
+            <p style={{ "--i": 2 } as React.CSSProperties}>Nem todo relatório precisa de reunião.</p>
+          </div>
+        </section>
 
         {/* ═══ PROPOSTA ═══ */}
         {/* ═══ O VÍDEO, PARA REPASSAR ═══
@@ -592,7 +608,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
       {/* O rodapé tem uns oitenta links e nenhum botão: liga quando a pessoa
           chega perto, e até lá cada link funciona como link comum. */}
       <HidratarAoChegar id="rodape" className="tela-adiada">
-        <SiteFooter />
+        <SiteFooter assinatura />
       </HidratarAoChegar>
     </div>
   );
