@@ -1876,6 +1876,22 @@ select option {
 .mesa-aba:active {
   transform: scale(0.99);
 }
+/* A pílula que corre entre as perguntas (MesaDeModulos.tsx). Com ela
+   ligada (data-pilula), o fundo da escolhida é o dela, e o contorno acende
+   na pergunta só quando a pílula chega. */
+.mesa-aba { position: relative; z-index: 1; }
+.mesa-pilula {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  background: var(--violeta-profundo);
+  clip-path: inset(100%);
+}
+[data-pilula] .mesa-aba[data-sel] {
+  background: transparent;
+  transition: box-shadow 220ms var(--saida) 280ms;
+}
 
 /* O painel do módulo: borda mais baixa que a padrão e sombra com
    deslocamento, para ele se assentar sobre o fundo em vez de recortar. */
