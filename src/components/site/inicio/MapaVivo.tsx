@@ -70,6 +70,11 @@ export default function MapaVivo({
 
     const pontos = decodificarPontos();
     const n = pontos.length / 2;
+    const foto = new Image();
+    if (intenso) {
+      foto.decoding = "async";
+      foto.src = "/mapa/brasil-noite.jpg";
+    }
     const estilo = getComputedStyle(canvas);
     const corPonto = estilo.getPropertyValue("--foreground").trim();
     const corContorno = estilo.getPropertyValue("--brand-claro").trim() || corPonto;
@@ -121,10 +126,13 @@ export default function MapaVivo({
       }
     }
 
-    // O território (só no planeta): o contorno real do país, aceso, e uma
-    // trama fina e regular de pontos por dentro, debaixo dos municípios.
-    // Sem isso o mapa era só os pontos das sedes, sem fronteira e quase
-    // vazio na Amazônia, e parecia de baixa resolução.
+    // O território (só no planeta): a foto de satélite do Brasil à noite,
+    // recortada pela fronteira, com a fronteira e o litoral acesos por cima.
+    // Escolha do fundador na bancada de materiais (outubro de 2026): "o
+    // primeiro", a Terra real, só que sem o globo. A foto é a Black Marble da
+    // NASA (domínio público), já reprojetada para o sistema deste mapa e
+    // recortada no tamanho dele (public/mapa/brasil-noite.jpg, 1000 x 975);
+    // as luzes que se veem nela são as das cidades de verdade.
     let contornoAtual: Path2D | null = null;
     function desenharTerritorio() {
       const contorno = new Path2D();
@@ -139,36 +147,31 @@ export default function MapaVivo({
         contorno.closePath();
       }
       const k = ctx!;
-      // A terra, num véu da cor da marca.
-      k.globalAlpha = 0.14;
-      k.fillStyle = corTerra;
-      k.fill(contorno);
-      // A trama: pontos em grade de colmeia, só dentro do país.
-      k.save();
-      k.clip(contorno);
-      const passo = Math.max(4, 7.2 * escala);
-      const r = Math.max(0.55, passo * 0.11);
-      k.globalAlpha = 0.32;
-      k.fillStyle = corContorno;
-      k.beginPath();
-      for (let y = 0, linha = 0; y < altura; y += passo * 0.866, linha++) {
-        for (let x = linha % 2 ? passo / 2 : 0; x < largura; x += passo) {
-          k.moveTo(x + r, y);
-          k.arc(x, y, r, 0, Math.PI * 2);
-        }
+      if (foto.complete && foto.naturalWidth) {
+        k.save();
+        k.clip(contorno);
+        k.imageSmoothingEnabled = true;
+        k.imageSmoothingQuality = "high";
+        k.drawImage(foto, origemX, origemY, MAPA_LARGURA * escala, MAPA_ALTURA * escala);
+        // Uma luz por dentro da borda, para o país se descolar do planeta.
+        k.globalAlpha = 0.35;
+        k.strokeStyle = corTerra;
+        k.lineWidth = 10;
+        k.shadowColor = corTerra;
+        k.shadowBlur = 18;
+        k.stroke(contorno);
+        k.restore();
       }
-      k.fill();
-      k.restore();
       // A fronteira e o litoral, acesos.
-      k.globalAlpha = 0.9;
+      k.save();
+      k.globalAlpha = 0.95;
       k.strokeStyle = corContorno;
       k.lineWidth = 1.2;
       k.lineJoin = "round";
       k.shadowColor = corContorno;
       k.shadowBlur = 10;
       k.stroke(contorno);
-      k.shadowBlur = 0;
-      k.globalAlpha = 1;
+      k.restore();
     }
 
     // O país, desenhado uma vez (e de novo só se a caixa mudar de tamanho).
@@ -205,7 +208,10 @@ export default function MapaVivo({
       ctx!.globalAlpha = intenso ? 0.85 : 0.4;
       if (intenso) {
         // Um caminho só com todos os círculos: um preenchimento, não 5.571.
-        const r = raio * 0.56;
+        // Somando luz à da foto, como as sedes acesas no globo.
+        ctx!.globalCompositeOperation = "lighter";
+        ctx!.globalAlpha = 0.7;
+        const r = raio * 0.42;
         ctx!.beginPath();
         for (let i = 0; i < n; i++) {
           const x = px(i);
@@ -214,6 +220,7 @@ export default function MapaVivo({
           ctx!.arc(x, y, r, 0, Math.PI * 2);
         }
         ctx!.fill();
+        ctx!.globalCompositeOperation = "source-over";
       } else {
         for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
       }
@@ -323,8 +330,16 @@ export default function MapaVivo({
     // e pode esperar o texto e a hidratação (na home ele já chega depois do
     // load, por MapaVivoAdiado; nas outras páginas espera aqui).
     let iniciado = false;
+    let desmontado = false;
     const iniciar = () => {
       espera = null;
+      if (desmontado || iniciado) return;
+      // No planeta, espera a foto do país (100 kB) chegar; sem ela, desenha
+      // só a fronteira e as sedes.
+      if (intenso && !foto.complete) {
+        foto.decode().then(iniciar, iniciar);
+        return;
+      }
       iniciado = true;
       if (intenso) caixa.dataset.entrada = "onda";
       desenhar();
@@ -449,6 +464,7 @@ export default function MapaVivo({
     ro.observe(caixa);
 
     return () => {
+      desmontado = true;
       window.removeEventListener("load", agendar);
       if (espera !== null) {
         if (janela.cancelIdleCallback) janela.cancelIdleCallback(espera);
