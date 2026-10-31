@@ -82,6 +82,17 @@ export const metadata: Metadata = {
 // parâmetro: é isso que mantém a página estática.
 export const revalidate = 3600;
 
+// Os clarões da luz que corre atrás das seções (globals.css, .mare): onde
+// cada um fica (x, y em relação à camada), o tamanho e a cor.
+const MARE = [
+  { "--x": "2%", "--y": "2%", "--l": "90rem", "--a": "64rem", "--c": "color-mix(in oklab, var(--brand) 32%, transparent)" },
+  { "--x": "100%", "--y": "15%", "--l": "76rem", "--a": "59rem", "--c": "color-mix(in oklab, var(--localizacao) 22%, transparent)" },
+  { "--x": "0%", "--y": "31%", "--l": "84rem", "--a": "64rem", "--c": "color-mix(in oklab, var(--accent) 22%, transparent)" },
+  { "--x": "100%", "--y": "46%", "--l": "78rem", "--a": "62rem", "--c": "color-mix(in oklab, var(--brand) 26%, transparent)" },
+  { "--x": "2%", "--y": "62%", "--l": "76rem", "--a": "56rem", "--c": "color-mix(in oklab, var(--localizacao) 16%, transparent)" },
+  { "--x": "50%", "--y": "82%", "--l": "106rem", "--a": "70rem", "--c": "color-mix(in oklab, var(--brand) 30%, transparent)" },
+];
+
 export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
@@ -147,7 +158,11 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
       {/* A luz que corre atrás das seções, do fim do topo até o rodapé
           (globals.css, .mare): a página escura deixa de ser um preto só. */}
-      <div className="mare" aria-hidden />
+      <div className="mare" aria-hidden>
+        {MARE.map((m, i) => (
+          <span key={i} style={m as React.CSSProperties} />
+        ))}
+      </div>
       <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}

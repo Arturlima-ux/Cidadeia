@@ -48,6 +48,20 @@ export const ESTILO_MAPA_VIVO = `
   animation: mapa-acende 1.6s var(--saida) both;
 }
 .mapa-vivo[data-onda] .mapa-marcador { visibility: hidden; }
+.mapa-onda {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--brand-claro);
+  box-shadow: 0 0 22px color-mix(in oklab, var(--brand-claro) 80%, transparent), inset 0 0 26px color-mix(in oklab, var(--brand-claro) 45%, transparent);
+  pointer-events: none;
+  animation: mapa-onda 2.6s cubic-bezier(0.45, 0, 0.55, 1) 0.15s both;
+}
+.mapa-onda[hidden] { display: none; }
+@keyframes mapa-onda {
+  from { transform: scale(0); opacity: 1; }
+  75% { opacity: 0.85; }
+  to { transform: scale(1); opacity: 0; }
+}
 @keyframes mapa-acende {
   from { opacity: 0.15; transform: scale(0.985); }
   to { opacity: 1; transform: none; }
