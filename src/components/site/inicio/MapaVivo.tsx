@@ -56,14 +56,18 @@ export default function MapaVivo({
 }) {
   const raiz = useRef<HTMLDivElement>(null);
   const fundo = useRef<HTMLCanvasElement>(null);
+  const pais = useRef<HTMLDivElement>(null);
+  const imagem = useRef<HTMLImageElement>(null);
   const brilho = useRef<HTMLCanvasElement>(null);
   const reduzir = usePrefereMenosMovimento();
 
   useEffect(() => {
     const caixa = raiz.current;
     const canvas = fundo.current;
+    const camadaPais = pais.current;
+    const imagemPais = imagem.current;
     const camadaBrilho = brilho.current;
-    if (!caixa || !canvas || !camadaBrilho) return;
+    if (!caixa || !canvas || !camadaBrilho || !camadaPais) return;
     const ctx = canvas.getContext("2d");
     const ctxBrilho = camadaBrilho.getContext("2d");
     if (!ctx || !ctxBrilho) return;
@@ -229,6 +233,7 @@ export default function MapaVivo({
       ctx!.globalAlpha = 1;
       marcarFixos();
       caixa!.dataset.pronto = "1";
+      if (intenso) fixarComoImagem();
       ultimo = `${Math.round(largura)}x${Math.round(altura)}`;
     }
 
@@ -247,8 +252,8 @@ export default function MapaVivo({
     let ondaFim = 0;
     function terminarOnda(avisar: boolean) {
       window.clearTimeout(ondaFim);
-      canvas!.style.clipPath = "";
-      canvas!.style.transition = "";
+      camadaPais!.style.clipPath = "";
+      camadaPais!.style.transition = "";
       if (anelOnda) anelOnda.hidden = true;
       if (caixa!.dataset.onda) {
         delete caixa!.dataset.onda;
@@ -260,7 +265,7 @@ export default function MapaVivo({
       const bx = origemX + BRASILIA.x * escala;
       const by = origemY + BRASILIA.y * escala;
       const longe = Math.max(Math.hypot(bx, by), Math.hypot(largura - bx, by), Math.hypot(bx, altura - by), Math.hypot(largura - bx, altura - by));
-      const c = canvas!;
+      const c = camadaPais!;
       caixa!.dataset.onda = "1";
       c.style.transition = "none";
       c.style.clipPath = `circle(0px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
@@ -277,6 +282,32 @@ export default function MapaVivo({
       c.style.transition = `clip-path ${DURACAO_ONDA}ms cubic-bezier(0.45, 0, 0.55, 1) 150ms`;
       c.style.clipPath = `circle(${longe.toFixed(1)}px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
       ondaFim = window.setTimeout(() => terminarOnda(true), DURACAO_ONDA + 250);
+    }
+
+    // ── O PAÍS PRONTO VIRA IMAGEM (planeta) ──
+    // Um canvas na tela é recopiado para a placa de vídeo toda vez que a
+    // região dele é pintada de novo; no planeta, inclinado em 3D e grande,
+    // isso custava um terço de segundo a cada descida da página num
+    // computador fraco (trace de novembro de 2026). Depois de desenhado, o
+    // país vira uma imagem comum (PNG em memória), que o navegador só
+    // decodifica uma vez, e o canvas sai da tela.
+    let urlImagem = "";
+    function fixarComoImagem() {
+      if (!imagemPais) return;
+      canvas!.hidden = false;
+      imagemPais.hidden = true;
+      canvas!.toBlob((blob) => {
+        if (!blob || desmontado) return;
+        const url = URL.createObjectURL(blob);
+        imagemPais.onload = () => {
+          if (desmontado) return;
+          imagemPais.hidden = false;
+          canvas!.hidden = true;
+          if (urlImagem && urlImagem !== url) URL.revokeObjectURL(urlImagem);
+          urlImagem = url;
+        };
+        imagemPais.src = url;
+      });
     }
 
     // Alertas em rodízio: cada um, ao fim do seu ciclo (evento do próprio
@@ -434,6 +465,7 @@ export default function MapaVivo({
 
     return () => {
       desmontado = true;
+      if (urlImagem) URL.revokeObjectURL(urlImagem);
       window.removeEventListener("load", agendar);
       if (espera !== null) {
         if (janela.cancelIdleCallback) janela.cancelIdleCallback(espera);
@@ -456,7 +488,11 @@ export default function MapaVivo({
       <style href="cidadeia-mapa-vivo" precedence="medium">
         {ESTILO_MAPA_VIVO}
       </style>
-      <canvas ref={fundo} className="mapa-vivo-pais absolute inset-0 w-full h-full" />
+      <div ref={pais} className="mapa-vivo-pais absolute inset-0">
+        <canvas ref={fundo} className="absolute inset-0 w-full h-full" />
+        {/* eslint-disable-next-line @next/next/no-img-element -- imagem gerada aqui mesmo (blob), não um arquivo para otimizar */}
+        <img ref={imagem} alt="" className="absolute inset-0 w-full h-full" hidden />
+      </div>
       <canvas ref={brilho} className="absolute inset-0 w-full h-full" />
       <span data-mapa="onda" className="mapa-onda" hidden />
       {/* Os quatro cantos, para o brilho achar o mouse no mapa inclinado. */}
