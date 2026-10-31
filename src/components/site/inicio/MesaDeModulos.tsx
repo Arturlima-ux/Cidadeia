@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { semMovimento } from "@/lib/modo-leve";
 import Link from "next/link";
 import { m, useReducedMotion } from "motion/react";
 
@@ -23,6 +24,21 @@ import { m, useReducedMotion } from "motion/react";
 // React descartar e refazer a página inteira na hidratação. Para quem pediu
 // menos movimento, a transição dura zero.
 
+// ── A PÍLULA QUE ESTICA ──
+// O destaque da pergunta escolhida é uma pílula só, que corre de uma
+// pergunta à outra (pedido do fundador, a partir de um trecho com GSAP;
+// aqui sem a biblioteca). Ela cobre a lista inteira e um recorte
+// (clip-path: inset) mostra só o pedaço sobre a pergunta escolhida. As duas
+// bordas andam em tempos diferentes: a da frente sai primeiro e mais rápido,
+// a de trás alcança depois, e a pílula estica no caminho. No computador a
+// lista é vertical (as bordas são a de cima e a de baixo); no celular, uma
+// faixa de lado (esquerda e direita). Com movimento reduzido ou no modo
+// leve, ela pula direto.
+const RAPIDO = 360;
+const LENTO = 550;
+const saida3 = (t: number) => 1 - Math.pow(1 - t, 3);
+const entraSai3 = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
 export type ModuloDaMesa = {
   chave: "essencial" | "gestao" | "saude" | "educacao" | "obras" | "licitacoes";
   nome: string;
@@ -43,7 +59,86 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
   const [rodada, setRodada] = useState(0);
   const base = useId();
   const abas = useRef<(HTMLButtonElement | null)[]>([]);
+  const lista = useRef<HTMLDivElement>(null);
+  const pilula = useRef<HTMLDivElement>(null);
+  // Bordas atuais da pílula ao longo da lista: [início, fim] (de cima e de
+  // baixo, ou da esquerda e da direita), para uma troca no meio do caminho
+  // partir de onde ela está.
+  const bordas = useRef<[number, number] | null>(null);
   const m = modulos[ativo];
+
+  useEffect(() => {
+    const caixa = lista.current;
+    const p = pilula.current;
+    if (!caixa || !p) return;
+    caixa.dataset.pilula = "1";
+    let quadro = 0;
+
+    const medir = () => {
+      const alvo = abas.current[ativo];
+      if (!alvo) return null;
+      const vertical = getComputedStyle(caixa).flexDirection.startsWith("column");
+      const W = caixa.scrollWidth;
+      const H = caixa.scrollHeight;
+      p.style.width = `${W}px`;
+      p.style.height = `${H}px`;
+      const L = alvo.offsetLeft;
+      const R = W - (alvo.offsetLeft + alvo.offsetWidth);
+      const T = alvo.offsetTop;
+      const B = H - (alvo.offsetTop + alvo.offsetHeight);
+      return vertical ? { vertical, ini: T, fim: B, a: L, b: R } : { vertical, ini: L, fim: R, a: T, b: B };
+    };
+    const recortar = (vertical: boolean, ini: number, fim: number, a: number, b: number) => {
+      p.style.clipPath = vertical
+        ? `inset(${ini.toFixed(1)}px ${b.toFixed(1)}px ${fim.toFixed(1)}px ${a.toFixed(1)}px round 16px)`
+        : `inset(${a.toFixed(1)}px ${fim.toFixed(1)}px ${b.toFixed(1)}px ${ini.toFixed(1)}px round 16px)`;
+    };
+
+    const destino = medir();
+    if (!destino) return;
+    const de = bordas.current;
+    if (!de || semMovimento()) {
+      bordas.current = [destino.ini, destino.fim];
+      recortar(destino.vertical, destino.ini, destino.fim, destino.a, destino.b);
+    } else {
+      // Indo para baixo (ou para a direita), a borda de baixo é a da frente.
+      const avanca = destino.ini > de[0];
+      const durIni = avanca ? LENTO : RAPIDO;
+      const durFim = avanca ? RAPIDO : LENTO;
+      const curvaIni = avanca ? entraSai3 : saida3;
+      const curvaFim = avanca ? saida3 : entraSai3;
+      const t0 = performance.now();
+      const passo = (agora: number) => {
+        const t = agora - t0;
+        const ini = de[0] + (destino.ini - de[0]) * curvaIni(Math.min(1, t / durIni));
+        const fim = de[1] + (destino.fim - de[1]) * curvaFim(Math.min(1, t / durFim));
+        bordas.current = [ini, fim];
+        recortar(destino.vertical, ini, fim, destino.a, destino.b);
+        if (t < LENTO) quadro = requestAnimationFrame(passo);
+      };
+      quadro = requestAnimationFrame(passo);
+    }
+
+    // Mudou o tamanho (janela, fonte): a pílula vai direto para o lugar.
+    // (O observador sempre avisa uma vez ao começar; sem mudança de tamanho,
+    // não interrompe a corrida.)
+    let tam = `${caixa.clientWidth}x${caixa.clientHeight}`;
+    const ro = new ResizeObserver(() => {
+      const agora = `${caixa.clientWidth}x${caixa.clientHeight}`;
+      if (agora === tam) return;
+      tam = agora;
+      cancelAnimationFrame(quadro);
+      const d = medir();
+      if (!d) return;
+      bordas.current = [d.ini, d.fim];
+      recortar(d.vertical, d.ini, d.fim, d.a, d.b);
+    });
+    ro.observe(caixa);
+    return () => {
+      cancelAnimationFrame(quadro);
+      ro.disconnect();
+    };
+  }, [ativo]);
 
   function escolher(i: number) {
     if (i === ativo) return;
@@ -71,11 +166,13 @@ export default function MesaDeModulos({ modulos, limiteDispensa }: { modulos: Mo
     <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-6 lg:gap-12 items-start">
       {/* A régua de perguntas. No celular, uma faixa que rola de lado. */}
       <div
+        ref={lista}
         role="tablist"
         aria-label="Módulos do CidadeIA"
         onKeyDown={teclas}
-        className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0 pb-1 snap-x"
+        className="relative flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0 pb-1 snap-x"
       >
+        <div ref={pilula} className="mesa-pilula" aria-hidden />
         {modulos.map((x, i) => {
           const sel = i === ativo;
           return (
