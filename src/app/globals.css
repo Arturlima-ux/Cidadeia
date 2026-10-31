@@ -1376,18 +1376,27 @@ h1.font-serif,
 @keyframes portal-correr {
   to { transform: translateX(-50%); }
 }
-.portal-pulso {
+/* A onda sai num pseudoelemento e anima só transform e opacidade: com
+   box-shadow, o navegador repintava a página a cada quadro enquanto o ponto
+   estava na tela, e a rolagem engasgava em computador fraco (nov/2026). */
+.portal-pulso { position: relative; }
+.portal-pulso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
   animation: portal-pulso 2.4s ease-out infinite;
 }
 @keyframes portal-pulso {
-  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--info) 70%, transparent); }
-  80%, 100% { box-shadow: 0 0 0 10px transparent; }
+  0% { opacity: 0.7; transform: scale(1); }
+  80%, 100% { opacity: 0; transform: scale(3.4); }
 }
 @media (prefers-reduced-motion: reduce) {
   .portal-faixa { animation: none; width: auto; }
   .portal-faixa-lista { flex-wrap: wrap; }
   .portal-faixa > [aria-hidden="true"] { display: none; }
-  .portal-pulso { animation: none; }
+  .portal-pulso::after { animation: none; opacity: 0; }
 }
 
 /* ── PORTAL: ACESSIBILIDADE (components/portal/Acessibilidade.tsx) ──
@@ -1525,6 +1534,9 @@ select option {
       faria o navegador reamostrar a página a cada rolagem, e computador de
       prefeitura é fraco. No painel o vidro é só preenchimento translúcido,
       borda clara e um fio de luz no topo, sem filtro.
+   (Novembro de 2026: desfoque de 10 a 12 px e sem "saturate"; cada filtro é
+   uma passada a mais na placa de vídeo a cada quadro da rolagem, e o site
+   engasgava em computador fraco. O fundo ficou um pouco mais opaco.)
    2. Sem suporte a backdrop-filter, ou com "reduzir transparência" ligado no
       sistema, tudo volta a ser opaco: translúcido sem desfoque é só sujeira
       atrás do texto. */
@@ -1537,14 +1549,14 @@ select option {
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   [data-rolou] .cabecalho-site {
-    background: color-mix(in oklab, var(--background) 70%, transparent);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+    background: color-mix(in oklab, var(--background) 84%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
   .vidro {
-    background: color-mix(in oklab, var(--card) 62%, transparent);
-    -webkit-backdrop-filter: saturate(160%) blur(18px);
-    backdrop-filter: saturate(160%) blur(18px);
+    background: color-mix(in oklab, var(--card) 70%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }  /* Menu que abre por cima de texto: quase opaco, para o texto de trás não
      competir com o do menu. */
   .vidro.vidro-forte { background: color-mix(in oklab, var(--card) 90%, transparent); }
@@ -2079,8 +2091,8 @@ select option {
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .preco-vidro {
     background: color-mix(in oklab, var(--card) 42%, transparent);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
 }
 /* ── 1. A ENTRADA EM SEQUÊNCIA ──
