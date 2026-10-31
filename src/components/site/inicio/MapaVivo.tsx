@@ -133,10 +133,8 @@ export default function MapaVivo({
     // NASA (domínio público), já reprojetada para o sistema deste mapa e
     // recortada no tamanho dele (public/mapa/brasil-noite.jpg, 1000 x 975);
     // as luzes que se veem nela são as das cidades de verdade.
-    let contornoAtual: Path2D | null = null;
     function desenharTerritorio() {
       const contorno = new Path2D();
-      contornoAtual = contorno;
       for (const anel of aneisDoContorno()) {
         anel.forEach(([x, y], i) => {
           const cx = origemX + x * escala;
@@ -189,7 +187,11 @@ export default function MapaVivo({
       // círculos em vez de quadradinhos, que ampliados viravam borrão.
       pararOnda();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const fator = intenso ? Math.min(2.5, Math.max(1.75, dpr * 1.75)) : dpr;
+      // Era 1,75 a 2,5: nítido, mas o canvas inclinado em 3D ficava grande
+      // demais para recompor a cada quadro, e num computador fraco a página
+      // parada caía para 22 quadros por segundo (novembro de 2026). Com a
+      // foto de satélite por baixo, 1,25 a 2 basta.
+      const fator = intenso ? Math.min(2, Math.max(1.25, dpr * 1.25)) : dpr;
       largura = caixa!.offsetWidth;
       altura = caixa!.offsetHeight;
       for (const c of [canvas!, camadaBrilho!]) {
@@ -232,87 +234,49 @@ export default function MapaVivo({
 
     // ── A ONDA DE ENTRADA (planeta) ──
     // Como no mapa de antes: o país acende numa onda que sai de Brasília e
-    // corre até a fronteira, com a frente mais clara e um anel de luz
-    // varrendo o território. O mapa já desenhado vira uma imagem, e cada
-    // quadro só a recorta num círculo maior: duas cópias de imagem por
-    // quadro, por 2,6 s. Com movimento reduzido ou no modo leve, não há onda.
-    // Os marcadores (alertas, visitante) esperam ela passar.
+    // corre até a fronteira, com um anel de luz na frente. O mapa é
+    // desenhado uma vez só; a onda é um recorte (clip-path) que se abre e um
+    // anel que cresce (transform e opacidade), animados pelo navegador.
+    // Antes o canvas inteiro era redesenhado a cada quadro por 2,6 s, logo
+    // depois de a página abrir, e num computador fraco a página caía para
+    // 22 quadros por segundo (medido em novembro de 2026). Com movimento
+    // reduzido ou no modo leve, não há onda. Os marcadores esperam ela passar.
     const BRASILIA = paraMapa(-15.79, -47.88);
-    let ondaQuadro = 0;
-    function pararOnda() {
-      if (ondaQuadro) cancelAnimationFrame(ondaQuadro);
-      ondaQuadro = 0;
-      delete caixa!.dataset.onda;
+    const DURACAO_ONDA = 2600;
+    const anelOnda = caixa.querySelector<HTMLElement>("[data-mapa='onda']");
+    let ondaFim = 0;
+    function terminarOnda(avisar: boolean) {
+      window.clearTimeout(ondaFim);
+      canvas!.style.clipPath = "";
+      canvas!.style.transition = "";
+      if (anelOnda) anelOnda.hidden = true;
+      if (caixa!.dataset.onda) {
+        delete caixa!.dataset.onda;
+        if (avisar) window.dispatchEvent(new CustomEvent(EVENTO_MAPA_PRONTO));
+      }
     }
+    const pararOnda = () => terminarOnda(false);
     function onda() {
-      const camada = document.createElement("canvas");
-      camada.width = canvas!.width;
-      camada.height = canvas!.height;
-      const kc = camada.getContext("2d");
-      if (!kc) return;
-      kc.drawImage(canvas!, 0, 0);
-      const f = canvas!.width / Math.max(1, largura);
       const bx = origemX + BRASILIA.x * escala;
       const by = origemY + BRASILIA.y * escala;
       const longe = Math.max(Math.hypot(bx, by), Math.hypot(largura - bx, by), Math.hypot(bx, altura - by), Math.hypot(largura - bx, altura - by));
-      const faixa = Math.max(18, longe * 0.08);
-      const DURACAO = 2600;
-      const inicio = performance.now() + 150;
-      const contorno = contornoAtual;
+      const c = canvas!;
       caixa!.dataset.onda = "1";
-      const k = ctx!;
-      const passo = (agora: number) => {
-        const x = Math.min(1, Math.max(0, (agora - inicio) / DURACAO));
-        // Entra e sai devagar: com curva de saída forte, o círculo cobria
-        // metade do país no primeiro quinto do tempo e parecia um piscar.
-        const p = (1 - Math.cos(Math.PI * x)) / 2;
-        const r = p * longe;
-        k.save();
-        k.setTransform(1, 0, 0, 1, 0, 0);
-        k.clearRect(0, 0, canvas!.width, canvas!.height);
-        // O que a onda já alcançou.
-        k.beginPath();
-        k.arc(bx * f, by * f, r * f, 0, Math.PI * 2);
-        k.clip();
-        k.drawImage(camada, 0, 0);
-        k.restore();
-        // A frente: um anel em que os pontos passam mais claros.
-        k.save();
-        k.setTransform(1, 0, 0, 1, 0, 0);
-        k.beginPath();
-        k.arc(bx * f, by * f, r * f, 0, Math.PI * 2);
-        k.arc(bx * f, by * f, Math.max(0, r - faixa) * f, 0, Math.PI * 2, true);
-        k.clip();
-        k.globalCompositeOperation = "lighter";
-        k.globalAlpha = 1 - p * 0.55;
-        k.drawImage(camada, 0, 0);
-        k.restore();
-        // O anel de luz, só dentro do país.
-        k.save();
-        if (contorno) k.clip(contorno);
-        k.globalAlpha = (1 - p) * 0.85;
-        k.strokeStyle = corContorno;
-        k.lineWidth = 1.6;
-        k.shadowColor = corContorno;
-        k.shadowBlur = 12;
-        k.beginPath();
-        k.arc(bx, by, r, 0, Math.PI * 2);
-        k.stroke();
-        k.restore();
-        if (x < 1) {
-          ondaQuadro = requestAnimationFrame(passo);
-        } else {
-          k.save();
-          k.setTransform(1, 0, 0, 1, 0, 0);
-          k.clearRect(0, 0, canvas!.width, canvas!.height);
-          k.drawImage(camada, 0, 0);
-          k.restore();
-          ondaQuadro = 0;
-          delete caixa!.dataset.onda;
-          window.dispatchEvent(new CustomEvent(EVENTO_MAPA_PRONTO));
-        }
-      };
-      ondaQuadro = requestAnimationFrame(passo);
+      c.style.transition = "none";
+      c.style.clipPath = `circle(0px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
+      if (anelOnda) {
+        Object.assign(anelOnda.style, {
+          left: `${(bx - longe).toFixed(1)}px`,
+          top: `${(by - longe).toFixed(1)}px`,
+          width: `${(longe * 2).toFixed(1)}px`,
+          height: `${(longe * 2).toFixed(1)}px`,
+        });
+        anelOnda.hidden = false;
+      }
+      void c.offsetWidth;
+      c.style.transition = `clip-path ${DURACAO_ONDA}ms cubic-bezier(0.45, 0, 0.55, 1) 150ms`;
+      c.style.clipPath = `circle(${longe.toFixed(1)}px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
+      ondaFim = window.setTimeout(() => terminarOnda(true), DURACAO_ONDA + 250);
     }
 
     // Alertas em rodízio: cada um, ao fim do seu ciclo (evento do próprio
@@ -381,9 +345,13 @@ export default function MapaVivo({
     const cantos = Array.from(caixa.querySelectorAll<HTMLElement>("[data-canto]"));
     let quadro = 0;
     const tela = { x: -9999, y: -9999 };
+    // A camada do brilho fica fora da tela (hidden) enquanto não há brilho:
+    // um canvas transparente do tamanho do mapa também custa a cada quadro.
+    camadaBrilho.hidden = true;
     const desenharBrilho = () => {
       quadro = 0;
       ctxBrilho!.clearRect(0, 0, largura, altura);
+      camadaBrilho.hidden = true;
       if (tela.x < -9000 || cantos.length !== 4) return;
       const naTela = cantos.map((c) => {
         const r = c.getBoundingClientRect();
@@ -398,6 +366,7 @@ export default function MapaVivo({
       if (!paraOMapa) return;
       const p = paraOMapa(tela);
       if (p.x < -120 || p.y < -120 || p.x > largura + 120 || p.y > altura + 120) return;
+      camadaBrilho.hidden = false;
       ctxBrilho!.fillStyle = corPonto;
       for (let i = 0; i < n; i++) {
         const x = px(i);
@@ -489,6 +458,7 @@ export default function MapaVivo({
       </style>
       <canvas ref={fundo} className="mapa-vivo-pais absolute inset-0 w-full h-full" />
       <canvas ref={brilho} className="absolute inset-0 w-full h-full" />
+      <span data-mapa="onda" className="mapa-onda" hidden />
       {/* Os quatro cantos, para o brilho achar o mouse no mapa inclinado. */}
       {[0, 1, 2, 3].map((i) => (
         <span key={`canto-${i}`} data-canto={i} className="absolute w-0 h-0" style={{ left: i % 2 ? "100%" : 0, top: i > 1 ? "100%" : 0 }} />

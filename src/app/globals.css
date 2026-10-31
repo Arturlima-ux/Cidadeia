@@ -2173,13 +2173,20 @@ html[data-leve][data-rolou] .cabecalho-site {
   inset: 760px 0 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(64rem 46rem at 2% 2%, color-mix(in oklab, var(--brand) 32%, transparent), transparent 70%),
-    radial-gradient(54rem 42rem at 100% 15%, color-mix(in oklab, var(--localizacao) 22%, transparent), transparent 70%),
-    radial-gradient(60rem 46rem at 0% 31%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
-    radial-gradient(56rem 44rem at 100% 46%, color-mix(in oklab, var(--brand) 26%, transparent), transparent 70%),
-    radial-gradient(54rem 40rem at 2% 62%, color-mix(in oklab, var(--localizacao) 16%, transparent), transparent 70%),
-    radial-gradient(76rem 50rem at 50% 82%, color-mix(in oklab, var(--brand) 30%, transparent), transparent 70%);
+  overflow: hidden;
+}
+/* Cada clarão é uma caixa do próprio tamanho, com um degradê só. Era uma
+   camada de 9.000 px com os seis degradês empilhados em cada pixel: na
+   primeira rolagem, num computador fraco, pintar isso travava a tela por
+   mais de um segundo (medido em novembro de 2026). */
+.mare > span {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--l);
+  height: var(--a);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, var(--c), transparent);
 }
 .cartao-numero {
   border-radius: 28px;
