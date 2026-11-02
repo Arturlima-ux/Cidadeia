@@ -3,20 +3,15 @@
 // Marcadores, alertas e o farol do visitante (MapaVivo.tsx). Moravam em
 // globals.css, mas a folha global está no limite em que o Turbopack a
 // divide e a home abre mais devagar (CLAUDE.md, armadilhas). Aqui o estilo
-// vai junto com o componente: na home, o mapa só carrega depois do load, e
-// este CSS chega com ele, sem bloquear a primeira pintura. O React 19 põe o
+// vai junto com o componente, só nas páginas que têm o mapa. O React 19 põe o
 // <style> no <head> uma vez só (href + precedence), por mais mapas que haja.
 //
 // O que cada parte faz:
-// - o país acende quando o desenho fica pronto (data-pronto); no planeta,
-//   entra com a onda que sai de Brasília (data-entrada), e os marcadores
-//   esperam a onda passar (data-onda);
+// - o país acende quando o desenho fica pronto (data-pronto);
 // - os marcadores são spans de tamanho zero, movidos só com transform;
 // - os alertas acendem de uma vez, ficam acesos quase 4 s e apagam (antes
 //   sumiam em 2,2 s e o fundador não chegava a ver a cor);
-// - o visitante é um farol: ponto aceso e duas ondas de sonar alternadas (o
-//   feixe com o nome da cidade, no planeta, é uma camada reta por cima:
-//   PlanetaTopo.tsx);
+// - o visitante é um farol: ponto aceso e duas ondas de sonar alternadas;
 // - no modo leve tudo para, menos o sonar do visitante (um elemento, só
 //   composição); movimento reduzido pelo sistema para tudo.
 // Só tokens de cor (var(--…)): tests/design-system.test.ts.
@@ -44,23 +39,8 @@ export const ESTILO_MAPA_VIVO = `
   70% { opacity: 0; }
   to { opacity: 0; transform: scale(1); }
 }
-.mapa-vivo[data-pronto]:not([data-entrada]) .mapa-vivo-pais {
+.mapa-vivo[data-pronto] .mapa-vivo-pais {
   animation: mapa-acende 1.6s var(--saida) both;
-}
-.mapa-vivo[data-onda] .mapa-marcador { visibility: hidden; }
-.mapa-onda {
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid var(--brand-claro);
-  box-shadow: 0 0 22px color-mix(in oklab, var(--brand-claro) 80%, transparent), inset 0 0 26px color-mix(in oklab, var(--brand-claro) 45%, transparent);
-  pointer-events: none;
-  animation: mapa-onda 2.6s cubic-bezier(0.45, 0, 0.55, 1) 0.15s both;
-}
-.mapa-onda[hidden] { display: none; }
-@keyframes mapa-onda {
-  from { transform: scale(0); opacity: 1; }
-  75% { opacity: 0.85; }
-  to { transform: scale(1); opacity: 0; }
 }
 @keyframes mapa-acende {
   from { opacity: 0.15; transform: scale(0.985); }

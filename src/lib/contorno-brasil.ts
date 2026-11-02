@@ -2,9 +2,8 @@
 //
 // A fronteira e o litoral do país, no mesmo sistema de coordenadas dos
 // pontos dos municípios (lib/mapa-municipios.ts, MAPA_LARGURA x MAPA_ALTURA),
-// pela mesma projeção de lib/localizacao.ts (paraMapa). Serve ao mapa do
-// planeta do topo (MapaVivo, "intenso"): só com os pontos soltos, sem linha
-// de fronteira e quase vazio na Amazônia, o mapa parecia de baixa resolução.
+// pela mesma projeção de lib/localizacao.ts (paraMapa). Recorta o Brasil em
+// relevo do topo da home (brasil-relevo-cena.ts).
 //
 // Fonte: Natural Earth 1:10m (domínio público), pelo pacote world-atlas
 // 2.0.2 (ISC). Simplificado (Douglas-Peucker, tolerância de 0,7 unidade do

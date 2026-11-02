@@ -3,10 +3,8 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { decodificarPontos, MAPA_ALTURA, MAPA_LARGURA } from "@/lib/mapa-municipios";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
-import { homografia } from "@/lib/homografia";
-import { aneisDoContorno } from "@/lib/contorno-brasil";
 import { ESTILO_MAPA_VIVO } from "./mapa-vivo-estilo";
-import { EVENTO_MAPA_PRONTO, EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
+import { EVENTO_VISITANTE, lerVisitante, type LocalAproximado } from "@/lib/onde-esta";
 import { EVENTO_LOCALIZACAO, KM_POR_UNIDADE, paraMapa, type Leitura } from "@/lib/localizacao";
 
 // ── O BRASIL, UM PONTO POR MUNICÍPIO ──
@@ -45,19 +43,14 @@ const CORES = ["medio", "medio", "urgente", "medio", "info", "urgente"] as const
 export default function MapaVivo({
   destaque = null,
   className = "",
-  intenso = false,
 }: {
   /** Índice do município escolhido em PONTOS, quando houver. */
   destaque?: number | null;
   className?: string;
-  /** Pontos mais claros e um pouco maiores: no planeta, o mapa fica deitado
-   *  e longe, e com a tinta de fundo os pontos sumiam. */
-  intenso?: boolean;
 }) {
   const raiz = useRef<HTMLDivElement>(null);
   const fundo = useRef<HTMLCanvasElement>(null);
   const pais = useRef<HTMLDivElement>(null);
-  const imagem = useRef<HTMLImageElement>(null);
   const brilho = useRef<HTMLCanvasElement>(null);
   const reduzir = usePrefereMenosMovimento();
 
@@ -65,7 +58,6 @@ export default function MapaVivo({
     const caixa = raiz.current;
     const canvas = fundo.current;
     const camadaPais = pais.current;
-    const imagemPais = imagem.current;
     const camadaBrilho = brilho.current;
     if (!caixa || !canvas || !camadaBrilho || !camadaPais) return;
     const ctx = canvas.getContext("2d");
@@ -74,15 +66,7 @@ export default function MapaVivo({
 
     const pontos = decodificarPontos();
     const n = pontos.length / 2;
-    const foto = new Image();
-    if (intenso) {
-      foto.decoding = "async";
-      foto.src = "/mapa/brasil-noite.jpg";
-    }
-    const estilo = getComputedStyle(canvas);
-    const corPonto = estilo.getPropertyValue("--foreground").trim();
-    const corContorno = estilo.getPropertyValue("--brand-claro").trim() || corPonto;
-    const corTerra = estilo.getPropertyValue("--brand").trim() || corPonto;
+    const corPonto = getComputedStyle(canvas).getPropertyValue("--foreground").trim();
 
     let largura = 0;
     let altura = 0;
@@ -130,72 +114,9 @@ export default function MapaVivo({
       }
     }
 
-    // O território (só no planeta): a foto de satélite do Brasil à noite,
-    // recortada pela fronteira, com a fronteira e o litoral acesos por cima.
-    // Escolha do fundador na bancada de materiais (outubro de 2026): "o
-    // primeiro", a Terra real, só que sem o globo. A foto é a Black Marble da
-    // NASA (domínio público), já reprojetada para o sistema deste mapa e
-    // recortada no tamanho dele (public/mapa/brasil-noite.jpg, 1000 x 975);
-    // as luzes que se veem nela são as das cidades de verdade.
-    function desenharTerritorio() {
-      const contorno = new Path2D();
-      for (const anel of aneisDoContorno()) {
-        anel.forEach(([x, y], i) => {
-          const cx = origemX + x * escala;
-          const cy = origemY + y * escala;
-          if (i === 0) contorno.moveTo(cx, cy);
-          else contorno.lineTo(cx, cy);
-        });
-        contorno.closePath();
-      }
-      const k = ctx!;
-      if (foto.complete && foto.naturalWidth) {
-        k.save();
-        k.clip(contorno);
-        k.imageSmoothingEnabled = true;
-        k.imageSmoothingQuality = "high";
-        k.drawImage(foto, origemX, origemY, MAPA_LARGURA * escala, MAPA_ALTURA * escala);
-        // Uma luz por dentro da borda, para o país se descolar do planeta.
-        k.globalAlpha = 0.35;
-        k.strokeStyle = corTerra;
-        k.lineWidth = 10;
-        k.shadowColor = corTerra;
-        k.shadowBlur = 18;
-        k.stroke(contorno);
-        k.restore();
-      }
-      // A fronteira e o litoral, acesos.
-      k.save();
-      k.globalAlpha = 0.95;
-      k.strokeStyle = corContorno;
-      k.lineWidth = 1.2;
-      k.lineJoin = "round";
-      k.shadowColor = corContorno;
-      k.shadowBlur = 10;
-      k.stroke(contorno);
-      k.restore();
-    }
-
     // O país, desenhado uma vez (e de novo só se a caixa mudar de tamanho).
     function desenhar() {
-      // Tamanho de layout, e não o da tela: no planeta do topo o mapa é
-      // inclinado em 3D, e getBoundingClientRect devolveria a caixa já
-      // achatada pela perspectiva (o desenho saía espremido e os marcadores
-      // fora do lugar).
-      //
-      // Resolução: no planeta, a perspectiva amplia a parte de baixo do mapa
-      // (a mais perto) em até 1,7 vez, e o canvas era desenhado só na
-      // densidade da tela. Num notebook comum (tela 1x), o sul do país saía
-      // ampliado e borrado; o fundador achou o mapa "sem HD". Agora o mapa
-      // do planeta é desenhado com folga de 1,75 a 2,5 vezes, e os pontos são
-      // círculos em vez de quadradinhos, que ampliados viravam borrão.
-      pararOnda();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      // Era 1,75 a 2,5: nítido, mas o canvas inclinado em 3D ficava grande
-      // demais para recompor a cada quadro, e num computador fraco a página
-      // parada caía para 22 quadros por segundo (novembro de 2026). Com a
-      // foto de satélite por baixo, 1,25 a 2 basta.
-      const fator = intenso ? Math.min(2, Math.max(1.25, dpr * 1.25)) : dpr;
+      const fator = Math.min(window.devicePixelRatio || 1, 2);
       largura = caixa!.offsetWidth;
       altura = caixa!.offsetHeight;
       for (const c of [canvas!, camadaBrilho!]) {
@@ -207,107 +128,15 @@ export default function MapaVivo({
       escala = Math.min(largura / MAPA_LARGURA, altura / MAPA_ALTURA);
       origemX = (largura - MAPA_LARGURA * escala) / 2;
       origemY = (altura - MAPA_ALTURA * escala) / 2;
-      raio = intenso ? Math.max(1.6, Math.min(2.8, escala * 2.8)) : Math.max(1.1, Math.min(2, escala * 2));
+      raio = Math.max(1.1, Math.min(2, escala * 2));
       ctx!.clearRect(0, 0, largura, altura);
-      if (intenso) desenharTerritorio();
       ctx!.fillStyle = corPonto;
-      ctx!.globalAlpha = intenso ? 0.85 : 0.4;
-      if (intenso) {
-        // Um caminho só com todos os círculos: um preenchimento, não 5.571.
-        // Somando luz à da foto, como as sedes acesas no globo.
-        ctx!.globalCompositeOperation = "lighter";
-        ctx!.globalAlpha = 0.7;
-        const r = raio * 0.42;
-        ctx!.beginPath();
-        for (let i = 0; i < n; i++) {
-          const x = px(i);
-          const y = py(i);
-          ctx!.moveTo(x + r, y);
-          ctx!.arc(x, y, r, 0, Math.PI * 2);
-        }
-        ctx!.fill();
-        ctx!.globalCompositeOperation = "source-over";
-      } else {
-        for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
-      }
+      ctx!.globalAlpha = 0.4;
+      for (let i = 0; i < n; i++) ctx!.fillRect(px(i) - raio / 2, py(i) - raio / 2, raio, raio);
       ctx!.globalAlpha = 1;
       marcarFixos();
       caixa!.dataset.pronto = "1";
-      if (intenso) fixarComoImagem();
       ultimo = `${Math.round(largura)}x${Math.round(altura)}`;
-    }
-
-    // ── A ONDA DE ENTRADA (planeta) ──
-    // Como no mapa de antes: o país acende numa onda que sai de Brasília e
-    // corre até a fronteira, com um anel de luz na frente. O mapa é
-    // desenhado uma vez só; a onda é um recorte (clip-path) que se abre e um
-    // anel que cresce (transform e opacidade), animados pelo navegador.
-    // Antes o canvas inteiro era redesenhado a cada quadro por 2,6 s, logo
-    // depois de a página abrir, e num computador fraco a página caía para
-    // 22 quadros por segundo (medido em novembro de 2026). Com movimento
-    // reduzido ou no modo leve, não há onda. Os marcadores esperam ela passar.
-    const BRASILIA = paraMapa(-15.79, -47.88);
-    const DURACAO_ONDA = 2600;
-    const anelOnda = caixa.querySelector<HTMLElement>("[data-mapa='onda']");
-    let ondaFim = 0;
-    function terminarOnda(avisar: boolean) {
-      window.clearTimeout(ondaFim);
-      camadaPais!.style.clipPath = "";
-      camadaPais!.style.transition = "";
-      if (anelOnda) anelOnda.hidden = true;
-      if (caixa!.dataset.onda) {
-        delete caixa!.dataset.onda;
-        if (avisar) window.dispatchEvent(new CustomEvent(EVENTO_MAPA_PRONTO));
-      }
-    }
-    const pararOnda = () => terminarOnda(false);
-    function onda() {
-      const bx = origemX + BRASILIA.x * escala;
-      const by = origemY + BRASILIA.y * escala;
-      const longe = Math.max(Math.hypot(bx, by), Math.hypot(largura - bx, by), Math.hypot(bx, altura - by), Math.hypot(largura - bx, altura - by));
-      const c = camadaPais!;
-      caixa!.dataset.onda = "1";
-      c.style.transition = "none";
-      c.style.clipPath = `circle(0px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
-      if (anelOnda) {
-        Object.assign(anelOnda.style, {
-          left: `${(bx - longe).toFixed(1)}px`,
-          top: `${(by - longe).toFixed(1)}px`,
-          width: `${(longe * 2).toFixed(1)}px`,
-          height: `${(longe * 2).toFixed(1)}px`,
-        });
-        anelOnda.hidden = false;
-      }
-      void c.offsetWidth;
-      c.style.transition = `clip-path ${DURACAO_ONDA}ms cubic-bezier(0.45, 0, 0.55, 1) 150ms`;
-      c.style.clipPath = `circle(${longe.toFixed(1)}px at ${bx.toFixed(1)}px ${by.toFixed(1)}px)`;
-      ondaFim = window.setTimeout(() => terminarOnda(true), DURACAO_ONDA + 250);
-    }
-
-    // ── O PAÍS PRONTO VIRA IMAGEM (planeta) ──
-    // Um canvas na tela é recopiado para a placa de vídeo toda vez que a
-    // região dele é pintada de novo; no planeta, inclinado em 3D e grande,
-    // isso custava um terço de segundo a cada descida da página num
-    // computador fraco (trace de novembro de 2026). Depois de desenhado, o
-    // país vira uma imagem comum (PNG em memória), que o navegador só
-    // decodifica uma vez, e o canvas sai da tela.
-    let urlImagem = "";
-    function fixarComoImagem() {
-      if (!imagemPais) return;
-      canvas!.hidden = false;
-      imagemPais.hidden = true;
-      canvas!.toBlob((blob) => {
-        if (!blob || desmontado) return;
-        const url = URL.createObjectURL(blob);
-        imagemPais.onload = () => {
-          if (desmontado) return;
-          imagemPais.hidden = false;
-          canvas!.hidden = true;
-          if (urlImagem && urlImagem !== url) URL.revokeObjectURL(urlImagem);
-          urlImagem = url;
-        };
-        imagemPais.src = url;
-      });
     }
 
     // Alertas em rodízio: cada um, ao fim do seu ciclo (evento do próprio
@@ -322,23 +151,14 @@ export default function MapaVivo({
       if ((e.target as HTMLElement).classList.contains("mapa-alerta-anel")) sortear(e.currentTarget as HTMLElement);
     };
     // Desenha depois do evento load, com o navegador livre: o mapa é fundo
-    // e pode esperar o texto e a hidratação (na home ele já chega depois do
-    // load, por MapaVivoAdiado; nas outras páginas espera aqui).
+    // e pode esperar o texto e a hidratação.
     let iniciado = false;
     let desmontado = false;
     const iniciar = () => {
       espera = null;
       if (desmontado || iniciado) return;
-      // No planeta, espera a foto do país (100 kB) chegar; sem ela, desenha
-      // só a fronteira e as sedes.
-      if (intenso && !foto.complete) {
-        foto.decode().then(iniciar, iniciar);
-        return;
-      }
       iniciado = true;
-      if (intenso) caixa.dataset.entrada = "onda";
       desenhar();
-      if (intenso && !reduzir) onda();
       if (!reduzir) {
         for (const el of alertas) {
           sortear(el);
@@ -367,13 +187,6 @@ export default function MapaVivo({
     // só os pontos perto dele, numa camada à parte. É barato (redesenha uns
     // poucos pontos por quadro, e só com o mouse andando), então fica ligado
     // também no modo leve; sai só com movimento reduzido pelo sistema.
-    //
-    // O mouse chega em coordenadas de tela, e no planeta do topo o mapa está
-    // deitado em 3D e pode girar. Os quatro cantos do mapa (spans de tamanho
-    // zero, lidos com getBoundingClientRect, que devolve a posição já
-    // projetada) dão a homografia que leva a tela de volta ao plano do mapa
-    // (lib/homografia.ts). Num mapa reto, ela é só a translação de sempre.
-    const cantos = Array.from(caixa.querySelectorAll<HTMLElement>("[data-canto]"));
     let quadro = 0;
     const tela = { x: -9999, y: -9999 };
     // A camada do brilho fica fora da tela (hidden) enquanto não há brilho:
@@ -383,19 +196,9 @@ export default function MapaVivo({
       quadro = 0;
       ctxBrilho!.clearRect(0, 0, largura, altura);
       camadaBrilho.hidden = true;
-      if (tela.x < -9000 || cantos.length !== 4) return;
-      const naTela = cantos.map((c) => {
-        const r = c.getBoundingClientRect();
-        return { x: r.left, y: r.top };
-      });
-      const paraOMapa = homografia(naTela, [
-        { x: 0, y: 0 },
-        { x: largura, y: 0 },
-        { x: 0, y: altura },
-        { x: largura, y: altura },
-      ]);
-      if (!paraOMapa) return;
-      const p = paraOMapa(tela);
+      if (tela.x < -9000) return;
+      const naTela = caixa.getBoundingClientRect();
+      const p = { x: tela.x - naTela.left, y: tela.y - naTela.top };
       if (p.x < -120 || p.y < -120 || p.x > largura + 120 || p.y > altura + 120) return;
       camadaBrilho.hidden = false;
       ctxBrilho!.fillStyle = corPonto;
@@ -405,18 +208,11 @@ export default function MapaVivo({
         if (Math.abs(x - p.x) + Math.abs(y - p.y) > ALCANCE * 1.42) continue;
         const perto = Math.hypot(x - p.x, y - p.y);
         if (perto >= ALCANCE) continue;
-        // Perto do mouse, o ponto cresce e acende; no planeta, onde os pontos
-        // já são claros, só acender não se via.
+        // Perto do mouse, o ponto cresce e acende.
         const forca = 1 - perto / ALCANCE;
-        const lado = raio * (1 + forca * (intenso ? 1.2 : 0.6));
-        ctxBrilho!.globalAlpha = forca * (intenso ? 0.95 : 0.55);
-        if (intenso) {
-          ctxBrilho!.beginPath();
-          ctxBrilho!.arc(x, y, lado * 0.56, 0, Math.PI * 2);
-          ctxBrilho!.fill();
-        } else {
-          ctxBrilho!.fillRect(x - lado / 2, y - lado / 2, lado, lado);
-        }
+        const lado = raio * (1 + forca * 0.6);
+        ctxBrilho!.globalAlpha = forca * 0.55;
+        ctxBrilho!.fillRect(x - lado / 2, y - lado / 2, lado, lado);
       }
       ctxBrilho!.globalAlpha = 1;
     };
@@ -465,14 +261,12 @@ export default function MapaVivo({
 
     return () => {
       desmontado = true;
-      if (urlImagem) URL.revokeObjectURL(urlImagem);
       window.removeEventListener("load", agendar);
       if (espera !== null) {
         if (janela.cancelIdleCallback) janela.cancelIdleCallback(espera);
         else window.clearTimeout(espera);
       }
       cancelAnimationFrame(quadro);
-      pararOnda();
       for (const el of alertas) el.removeEventListener("animationiteration", aoCiclo);
       window.removeEventListener("pointermove", aoMover);
       document.documentElement.removeEventListener("pointerleave", aoSair);
@@ -481,7 +275,7 @@ export default function MapaVivo({
       io.disconnect();
       ro.disconnect();
     };
-  }, [reduzir, destaque, intenso]);
+  }, [reduzir, destaque]);
 
   return (
     <div ref={raiz} className={`mapa-vivo relative ${className}`} aria-hidden role="presentation">
@@ -490,15 +284,8 @@ export default function MapaVivo({
       </style>
       <div ref={pais} className="mapa-vivo-pais absolute inset-0">
         <canvas ref={fundo} className="absolute inset-0 w-full h-full" />
-        {/* eslint-disable-next-line @next/next/no-img-element -- imagem gerada aqui mesmo (blob), não um arquivo para otimizar */}
-        <img ref={imagem} alt="" className="absolute inset-0 w-full h-full" hidden />
       </div>
       <canvas ref={brilho} className="absolute inset-0 w-full h-full" />
-      <span data-mapa="onda" className="mapa-onda" hidden />
-      {/* Os quatro cantos, para o brilho achar o mouse no mapa inclinado. */}
-      {[0, 1, 2, 3].map((i) => (
-        <span key={`canto-${i}`} data-canto={i} className="absolute w-0 h-0" style={{ left: i % 2 ? "100%" : 0, top: i > 1 ? "100%" : 0 }} />
-      ))}
       {Array.from({ length: ALERTAS }, (_, i) => (
         <span key={i} data-mapa="alerta" className="mapa-marcador" style={{ "--atraso": `${i * 0.92 + 0.4}s` } as React.CSSProperties}>
           <span className="mapa-alerta-anel" />
