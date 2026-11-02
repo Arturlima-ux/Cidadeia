@@ -80,17 +80,6 @@ export const metadata: Metadata = {
 // parâmetro: é isso que mantém a página estática.
 export const revalidate = 3600;
 
-// Os clarões da luz que corre atrás das seções (globals.css, .mare): onde
-// cada um fica (x, y em relação à camada), o tamanho e a cor.
-const MARE = [
-  { "--x": "2%", "--y": "2%", "--l": "90rem", "--a": "64rem", "--c": "color-mix(in oklab, var(--brand) 32%, transparent)" },
-  { "--x": "100%", "--y": "15%", "--l": "76rem", "--a": "59rem", "--c": "color-mix(in oklab, var(--localizacao) 22%, transparent)" },
-  { "--x": "0%", "--y": "31%", "--l": "84rem", "--a": "64rem", "--c": "color-mix(in oklab, var(--accent) 22%, transparent)" },
-  { "--x": "100%", "--y": "46%", "--l": "78rem", "--a": "62rem", "--c": "color-mix(in oklab, var(--brand) 26%, transparent)" },
-  { "--x": "2%", "--y": "62%", "--l": "76rem", "--a": "56rem", "--c": "color-mix(in oklab, var(--localizacao) 16%, transparent)" },
-  { "--x": "50%", "--y": "82%", "--l": "106rem", "--a": "70rem", "--c": "color-mix(in oklab, var(--brand) 30%, transparent)" },
-];
-
 export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
@@ -154,13 +143,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
 
   return (
     <div className="tema-noite pagina-inicial fundo-liso min-h-screen overflow-x-clip relative">
-      {/* A luz que corre atrás das seções, do fim do topo até o rodapé
-          (globals.css, .mare): a página escura deixa de ser um preto só. */}
-      <div className="mare" aria-hidden>
-        {MARE.map((m, i) => (
-          <span key={i} style={m as React.CSSProperties} />
-        ))}
-      </div>
       <JsonLdScript dados={ldSite()} />
       <SiteHeader sessaoAtiva={sessaoAtiva} />
       {!pedido && <ContarVisita />}
@@ -291,37 +273,24 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
         </section>
 
         {/* ═══ DE ONDE VEM O DADO ═══
-            As nove bases numa faixa diagonal de margem a margem, que corre de
-            lado enquanto a página desce (globals.css, .faixa-diagonal). A
-            segunda volta da lista só existe para a faixa não acabar no meio:
-            fica fora do leitor de tela e do Tab. */}
+            As nove bases numa linha reta entre dois fios (globals.css,
+            .faixa-reta). Era uma faixa roxa inclinada que corria de lado; saiu
+            no clima grafite (nov/2026). */}
         <section className="pt-16 sm:pt-24" aria-labelledby="titulo-fontes">
-          <h2 id="titulo-fontes" className="max-w-[1200px] mx-auto px-4 sm:px-8 text-sm text-muted">
+          <h2 id="titulo-fontes" className="inicio-sobre max-w-[1200px] mx-auto px-4 sm:px-8">
+            <i aria-hidden />
             Lê direto das bases oficiais
           </h2>
-          <div className="faixa-diagonal mt-8 sm:mt-10">
-            <ul className="faixa-trilho">
-              {[0, 1, 2].flatMap((volta) =>
-                FONTES.map((f) => (
-                  <li
-                    key={`${volta}-${f}`}
-                    className="text-xl sm:text-3xl font-medium tracking-[-0.03em]"
-                    data-copia={volta > 0 ? "" : undefined}
-                    aria-hidden={volta > 0 || undefined}
-                  >
-                    {/* Cada base leva ao próprio site: é onde conferir. */}
-                    <a
-                      href={LINK_DA_FONTE[f]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inicio-fonte"
-                      tabIndex={volta > 0 ? -1 : undefined}
-                    >
-                      {f}
-                    </a>
-                  </li>
-                ))
-              )}
+          <div className="faixa-reta">
+            <ul>
+              {FONTES.map((f) => (
+                <li key={f} className="text-lg sm:text-2xl font-medium tracking-[-0.03em]">
+                  {/* Cada base leva ao próprio site: é onde conferir. */}
+                  <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="inicio-fonte">
+                    {f}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </section>
@@ -331,7 +300,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             cuida, e não seis cartões iguais. Ver MesaDeModulos.tsx. */}
         <section id="solucoes" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
-            <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
+            <div>
+              <p className="inicio-sobre"><i aria-hidden />Módulos</p>
+              <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
+            </div>
             <p className="text-muted leading-relaxed max-w-[42ch]">
               Escolha uma pergunta e veja o módulo trabalhando. Cada um funciona sozinho: a prefeitura contrata só os que usa,
               sem pacote fechado e sem cobrança por usuário.
@@ -358,7 +330,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             quatro coisas que o morador encontra. */}
         <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-16">
           <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
-            <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
+            <div>
+              <p className="inicio-sobre"><i aria-hidden />Portal do cidadão</p>
+              <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
+            </div>
             <div>
               <p className="text-muted leading-relaxed max-w-[42ch]">
                 Um site da prefeitura para o morador: ele vê as contas e as obras e
@@ -419,7 +394,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             {/* Desceu do topo: as contas públicas são uma parte do produto, e
                 não o produto inteiro. Aqui, a prova de que a parte fiscal é
                 séria: o país inteiro conferido duas vezes por semana. */}
-            <h2 className="inicio-h2 max-w-[19ch]">E as contas públicas, conferidas no país inteiro.</h2>
+            <div>
+              <p className="inicio-sobre"><i aria-hidden />Panorama nacional</p>
+              <h2 className="inicio-h2 max-w-[19ch]">E as contas públicas, conferidas no país inteiro.</h2>
+            </div>
             <p className="text-muted leading-relaxed max-w-[44ch]">
               {(() => {
                 const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
@@ -485,7 +463,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             referências"): três frases que descem de tom, uma pausa de leitura
             entre os números e o vídeo. */}
         <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-40" aria-labelledby="titulo-pensamos">
-          <h2 id="titulo-pensamos" className="text-sm text-muted">O que pensamos</h2>
+          <h2 id="titulo-pensamos" className="inicio-sobre">
+            <i aria-hidden />
+            O que pensamos
+          </h2>
           <div className="surge-lista manifesto mt-8">
             <p style={{ "--i": 0 } as React.CSSProperties}>Nem toda prefeitura precisa trocar de sistema.</p>
             <p style={{ "--i": 1 } as React.CSSProperties}>Nem todo prazo precisa de mais uma planilha.</p>
@@ -500,7 +481,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
         <section className="tela-adiada pt-24 sm:pt-32">
           <div className="surge max-w-[1200px] mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
-            <h2 className="inicio-h2 max-w-[16ch]">O CidadeIA em 30 segundos.</h2>
+            <div>
+              <p className="inicio-sobre"><i aria-hidden />Em vídeo</p>
+              <h2 className="inicio-h2 max-w-[16ch]">O CidadeIA em 30 segundos.</h2>
+            </div>
             <p className="text-muted leading-relaxed max-w-[40ch]">
               Para assistir agora, ou mandar para quem decide na prefeitura.
             </p>

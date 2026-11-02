@@ -955,10 +955,37 @@ h1.font-serif,
    da página fica parado de propósito.
    ═══════════════════════════════════════════════════════════════════════ */
 .pagina-inicial {
+  /* Clima grafite (nov/2026): os mesmos neutros do Brasil em relevo do topo,
+     com um leve viés violeta, em vez do azulado. Só na home: o tema noite
+     também veste outras páginas e o painel da equipe. */
+  --background: #09080c;
+  --superficie: #0e0d12;
+  --card: #131218;
+  --border: rgba(243, 241, 248, 0.1);
   --font-titulo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-corpo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   font-family: var(--font-corpo);
   font-feature-settings: "ss03";
+}
+
+/* O rótulo de cada seção, como o do topo ("• Lê · Confere · Resolve"). */
+.inicio-sobre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.inicio-sobre > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--brand-claro);
+  box-shadow: 0 0 12px var(--brand);
 }
 
 .inicio-h2 {
@@ -1829,60 +1856,35 @@ select option {
   -webkit-mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
   mask-image: radial-gradient(120% 90% at 30% 0%, black 30%, transparent 75%);
 }
-/* ── 5. A FAIXA DIAGONAL ──
-   As bases oficiais numa faixa inclinada de margem a margem, que corre de
-   lado enquanto a página desce. Sem suporte ou com movimento reduzido, a
-   faixa fica parada e a lista quebra linha normalmente. */
-.faixa-diagonal {
-  position: relative;
-  width: 120vw;
-  margin-left: calc(50% - 60vw);
-  transform: rotate(-3deg);
-  background: var(--violeta-profundo);
-  border-block: 1px solid color-mix(in oklab, var(--brand) 30%, transparent);
-  padding-block: 1.1rem;
+/* ── 5. AS BASES OFICIAIS NUMA LINHA ──
+   Era uma faixa roxa inclinada que corria de lado; no clima grafite (nov/2026)
+   é uma linha reta entre dois fios, com os nomes em cinza claro. */
+.faixa-reta {
+  border-block: 1px solid var(--border);
+  padding-block: 1.4rem;
 }
-.faixa-trilho {
+.faixa-reta ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem 2.25rem;
-  padding-inline: 12vw;
+  gap: 0.9rem 2rem;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
 }
-.faixa-trilho [data-copia] { display: none; }
-.faixa-trilho li {
+.faixa-reta li {
   display: flex;
   align-items: center;
-  gap: 2.25rem;
+  gap: 2rem;
   white-space: nowrap;
-  /* A mesma cor da faixa, no próprio item: o verificador de contraste não
-     acompanha a faixa girada e, fora da tela, supunha fundo branco. */
-  background-color: var(--violeta-profundo);
+  color: color-mix(in oklab, var(--foreground) 72%, transparent);
 }
-.faixa-trilho li::after {
+.faixa-reta li:not(:last-child)::after {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   border-radius: 9999px;
-  background: var(--brand);
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .faixa-trilho {
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      width: max-content;
-      padding-inline: 0;
-      animation: faixa-corre linear both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 100%;
-    }
-    .faixa-trilho [data-copia] { display: flex; }
-  }
-}
-@keyframes faixa-corre {
-  from { transform: translateX(-4%); }
-  to { transform: translateX(-38%); }
+  background: color-mix(in oklab, var(--foreground) 25%, transparent);
 }
 
 /* ── 2. A IMAGEM EM 3D ──
@@ -2058,37 +2060,12 @@ html[data-leve][data-rolou] .cabecalho-site {
   backdrop-filter: none;
 }
 
-/* ── A PÁGINA QUE FLUI (outubro de 2026) ──
-   "Do jeito que está, só que mais fluido, de acordo com as referências":
-   abaixo do topo era um preto só por seis mil pixels. Agora uma luz parada
-   corre por trás das seções, alternando os lados, e cada assunto ganha o
-   seu clarão sem faixa nem corte. É uma camada só, sem animação: pinta uma
-   vez e a rolagem não a repinta, então o modo leve fica igual. */
-.mare {
-  position: absolute;
-  inset: 760px 0 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-/* Cada clarão é uma caixa do próprio tamanho, com um degradê só. Era uma
-   camada de 9.000 px com os seis degradês empilhados em cada pixel: na
-   primeira rolagem, num computador fraco, pintar isso travava a tela por
-   mais de um segundo (medido em novembro de 2026). */
-.mare > span {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: var(--l);
-  height: var(--a);
-  transform: translate(-50%, -50%);
-  background: radial-gradient(closest-side, var(--c), transparent);
-}
+/* Clima grafite: o cartão é neutro e a cor do estado fica só no número. */
 .cartao-numero {
   border-radius: 28px;
   padding: 1.75rem 1.75rem 2rem;
-  background: color-mix(in oklab, var(--cor) 8%, var(--card));
-  border: 1px solid color-mix(in oklab, var(--cor) 20%, transparent);
+  background: var(--card);
+  border: 1px solid var(--border);
 }
 .numero-grande {
   font-size: clamp(4.25rem, 8.6vw, 8.25rem);
