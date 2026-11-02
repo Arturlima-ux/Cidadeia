@@ -52,13 +52,11 @@ export function nomeDoLocal(l: Pick<LocalAproximado, "cidade" | "uf"> | null): s
 }
 
 // ── NO NAVEGADOR: A ÚLTIMA POSIÇÃO E O AVISO ──
-// O topo pede a posição uma vez e o mapa (que chega depois, MapaVivoAdiado)
+// O topo pede a posição uma vez e o mapa (que chega depois, BrasilRelevo)
 // pode ainda não existir: a última leitura fica guardada aqui, e quem chegar
 // depois a lê; quem já está ouvindo recebe o evento.
 
 export const EVENTO_VISITANTE = "cidadeia:visitante";
-/** O mapa do planeta terminou a onda de entrada (MapaVivo): o farol do visitante pode aparecer. */
-export const EVENTO_MAPA_PRONTO = "cidadeia:mapa-pronto";
 let ultimo: LocalAproximado | null = null;
 
 export function guardarVisitante(l: LocalAproximado) {
