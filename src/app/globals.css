@@ -124,6 +124,14 @@
    SiteHeader, SiteFooter e MontadorProposta leem os tokens em vez de cor
    fixa, basta envolver a página nesta classe para tudo acompanhar. */
 .tema-noite {
+  /* O Brasil em relevo do topo (BrasilRelevo.tsx): grafite acetinado e as
+     luzes de estúdio que desenham o relevo. O 3D lê estes tokens. */
+  --grafite-parede: #1c1b22;
+  --grafite-chao: #15131c;
+  --luz-chave: #fff4ea;
+  --luz-ceu: #cfcbe0;
+  --luz-recorte: #dcd5ff;
+  --localizacao-clara: #e8f1ff;
   --background: #08090c;
   --superficie: #0d0f13;
   --card: #14161b;
@@ -1639,139 +1647,8 @@ select option {
   isolation: isolate;
 }
 
-/* ── O PLANETA DO TOPO (outubro de 2026) ──
-   Quadro "CidadeIA — home pelas referências", aprovado pelo fundador: um
-   planeta escuro com o horizonte aceso, o Brasil deitado em cima (MapaVivo
-   inclinado em 3D) e estrelas no céu. O planeta acompanha a tela: 1,6 vez a
-   largura no computador, 1.400 px no celular, para a curva ficar suave. O
-   giro do arraste chega por --giro (PlanetaTopo.tsx). */
-.heroi-planeta {
-  --planeta-topo: 190px;
-  --planeta-largura: max(160vw, 1400px);
-  --mapa-largura: clamp(392px, 54vw, 800px);
-  overflow: hidden;
-  padding-top: 470px;
-  background-color: var(--background);
-  background-image:
-    radial-gradient(1.2px 1.2px at 12% 8%, var(--muted), transparent),
-    radial-gradient(1.4px 1.4px at 46% 5%, var(--foreground), transparent),
-    radial-gradient(1.2px 1.2px at 78% 9%, var(--muted), transparent),
-    radial-gradient(1px 1px at 92% 15%, var(--foreground), transparent);
-}
-/* No computador, lado a lado: o planeta e o Brasil vão para a direita e o
-   texto ocupa a coluna da esquerda, tudo dentro da primeira tela de um
-   notebook (1366 × 650). Escolha do fundador entre três desenhos, nov/2026. */
-@media (min-width: 1024px) {
-  .heroi-planeta {
-    --planeta-topo: 70px;
-    --mapa-largura: clamp(392px, 44vw, 760px);
-    padding-top: clamp(120px, 14vh, 170px);
-  }
-  .heroi-coluna { max-width: min(46%, 600px); }
-  /* Quatro linhas guardadas: os pares de perguntas quebram em três ou
-     quatro, e a frase de baixo não pode pular a cada troca. */
-  .heroi-coluna .heroi-titulo {
-    font-size: clamp(2.75rem, 4.7vw, 5.25rem);
-    line-height: 0.92;
-    min-height: calc(4 * 0.92em);
-  }
-  .heroi-coluna .perguntas-b { text-align: left; }
-  .heroi-busca { margin-top: clamp(90px, 16vh, 190px); }
-}
-.planeta,
-.planeta-giro {
-  position: absolute;
-  left: 50%;
-  top: var(--planeta-topo);
-  width: var(--planeta-largura);
-  aspect-ratio: 1;
-  border-radius: 9999px;
-}
-.planeta {
-  transform: translateX(-50%);
-  background: radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--brand) 32%, var(--violeta-profundo)) 0%, var(--violeta-profundo) 22%, var(--background) 48%);
-  box-shadow:
-    0 -40px 140px 20px color-mix(in oklab, var(--brand) 55%, transparent),
-    0 -8px 40px 0 color-mix(in oklab, var(--brand-claro) 60%, transparent),
-    inset 0 40px 90px color-mix(in oklab, var(--accent) 35%, transparent);
-}
-.planeta-giro {
-  transform: translateX(-50%) rotate(var(--giro, 0deg));
-  transition: transform 600ms var(--saida);
-  touch-action: pan-y;
-}
-.planeta-giro[data-pode-girar] { cursor: grab; }
-.planeta-giro[data-arrastando] { cursor: grabbing; transition: none; }
-/* Lado a lado no computador: o planeta e o Brasil à direita da coluna. */
-@media (min-width: 1024px) {
-  .planeta,
-  .planeta-giro { left: 66%; }
-}
-.planeta-mapa {
-  position: absolute;
-  left: 50%;
-  top: 16px;
-  width: var(--mapa-largura);
-  aspect-ratio: 1000 / 975;
-  margin-left: calc(var(--mapa-largura) / -2);
-  transform: perspective(1600px) rotateX(58deg);
-  transform-origin: 50% 0%;
-  pointer-events: none;
-}
-@media (min-width: 1024px) {
-  .planeta-mapa { top: 20px; }
-}
-/* O relógio e a legenda, no alto, à direita. */
-.planeta-legenda {
-  position: absolute;
-  z-index: 2;
-  top: 20px;
-  right: max(16px, calc((100vw - 1200px) / 2 + 32px));
-  left: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px 20px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--foreground) 85%, transparent);
-  pointer-events: none;
-}
-.planeta-legenda-item { display: inline-flex; align-items: center; gap: 8px; }
-.planeta-legenda-ponto { width: 6px; height: 6px; border-radius: 9999px; background: color-mix(in oklab, var(--foreground) 75%, transparent); }
-.planeta-legenda-voce { background: var(--localizacao); box-shadow: 0 0 0 3px color-mix(in oklab, var(--localizacao) 35%, transparent); }
-.planeta-legenda-dica { flex-basis: 100%; text-align: right; color: var(--muted); }
-@media (min-width: 640px) {
-  .planeta-legenda { font-size: 13px; }
-}
-/* O planeta some no fundo da página, sem corte seco no fim do topo. */
-.heroi-planeta::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 260px;
-  background: linear-gradient(to bottom, transparent, var(--background));
-  pointer-events: none;
-}
-.heroi-planeta-conteudo { z-index: 1; }
-.heroi-sobre {
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--foreground) 85%, transparent);
-}
-.heroi-titulo {
-  margin-top: 14px;
-  font-family: var(--font-titulo);
-  font-weight: 600;
-  font-size: clamp(2.9rem, 6.4vw, 6.25rem);
-  line-height: 0.9;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-}
+/* As perguntas que trocam no título do topo (PerguntasQueTrocam.tsx). O
+   resto do topo mora junto do componente (TopoBrasil.tsx). */
 .perguntas { display: block; transition: opacity 260ms var(--saida), transform 260ms var(--saida); }
 .perguntas[data-saindo] { opacity: 0; transform: translateY(-6px); }
 .perguntas-a { display: block; }
@@ -1783,36 +1660,7 @@ select option {
   background: color-mix(in oklab, var(--card) 92%, transparent);
   border: 1px solid var(--border);
 }
-/* Os dois botões do topo: o aceso e o escuro. */
-.botao-aceso,
-.botao-escuro {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 24px;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: transform 160ms var(--saida), box-shadow 200ms var(--saida);
-}
-.botao-aceso {
-  background: var(--brand);
-  color: white;
-  box-shadow: 0 0 22px color-mix(in oklab, var(--brand) 55%, transparent);
-}
-.botao-aceso:hover { box-shadow: 0 0 30px color-mix(in oklab, var(--brand) 75%, transparent); }
-.botao-escuro {
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--foreground);
-}
-.botao-aceso:active,
-.botao-escuro:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
-  .planeta-giro { transition: none; }
   /* Com menos movimento pedido, as perguntas trocam só pela opacidade. */
   .perguntas[data-saindo] { transform: none; }
 }

@@ -23,12 +23,10 @@ import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
-import PlanetaTopo from "@/components/site/inicio/PlanetaTopo";
-import PerguntasQueTrocam from "@/components/site/inicio/PerguntasQueTrocam";
+import TopoBrasil from "@/components/site/inicio/TopoBrasil";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
-import { indiceNoMapa } from "@/lib/mapa-municipios-codigos";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
@@ -178,52 +176,19 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             resto, e a página descia 71 px quando ele aparecia (CLS de 0,086).
             O que está na primeira tela vem inteiro, na ordem; só o que está
             abaixo dela é adiado (HidratarAoChegar). */}
-        {/* ── O PLANETA (outubro de 2026) ──
-            Referência escolhida pelo fundador no quadro "CidadeIA — home
-            pelas referências": o horizonte aceso de um planeta, o Brasil
-            deitado em cima, um ponto por município, os alertas piscando e o
-            ponto de quem visita (PlanetaTopo.tsx). Depois, o título com as
-            perguntas que trocam, a frase, as duas ações e a busca no meio. */}
-        <section className="heroi-planeta relative">
-          <PlanetaTopo destaque={dados ? indiceNoMapa(dados.codigo) : null} />
+        {/* ── O BRASIL EM RELEVO (novembro de 2026) ──
+            No lugar do planeta: o Brasil esculpido em grafite, as capitais
+            acendendo em roxo e o visitante em azul (TopoBrasil.tsx). O texto
+            vem do servidor; o 3D chega depois do load. */}
+        <TopoBrasil />
 
-          <div className="heroi-planeta-conteudo relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
-            {/* ── LADO A LADO NO COMPUTADOR (novembro de 2026) ──
-                O título descia para cima do sul do mapa e, numa tela de
-                notebook (1366 × 650), ficava cortado no fim. O fundador
-                escolheu, entre três desenhos, a coluna à esquerda com o
-                Brasil inteiro à direita (heroi-coluna em globals.css). No
-                celular nada muda: o mapa em cima e o texto embaixo. */}
-            <div className="heroi-coluna">
-            <p className="heroi-sobre">Lê · Confere · Resolve</p>
-            {/* O h1 tem o texto de sempre para o leitor de tela e o buscador;
-                as perguntas que trocam são o desenho (aria-hidden). */}
-            <h1 className="heroi-titulo">
-              <span className="sr-only">A gestão municipal inteira, num lugar só.</span>
-              <PerguntasQueTrocam />
-            </h1>
-
-            <div className="mt-7 sm:mt-9 flex flex-col gap-7">
-              <p className="inicio-lead max-w-[44ch]">
-                Atendimento, secretarias, obras, saúde, educação e finanças num sistema que lê as bases oficiais,
-                conta os prazos da lei e deixa pronto o documento da prefeitura. Antes de vencer.
-              </p>
-              <div className="flex flex-wrap gap-3 shrink-0">
-                <Link href="#proposta" className="botao-aceso">
-                  Receber proposta <span aria-hidden>→</span>
-                </Link>
-                <Link href="#solucoes" className="botao-escuro">
-                  Ver os módulos
-                </Link>
-              </div>
-            </div>
-            </div>
-
+        <section className="relative">
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
             {/* ── A BUSCA NO MEIO ──
                 A pessoa digita o nome (ou usa a localização) e a página
                 atualiza aqui mesmo, sem rolar. Sem JavaScript, /raio-x tem a
                 lista por estado. */}
-            <div className="heroi-busca mt-12 sm:mt-14 mx-auto">
+            <div className="heroi-busca mt-6 sm:mt-10 mx-auto">
               <p className="text-[15px] font-semibold text-center mb-3">Sua prefeitura já está no mapa. Veja os números dela.</p>
               <AcheSuaCidade
                 key={municipio?.codigo ?? "sem-cidade"}
