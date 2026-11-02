@@ -22,7 +22,7 @@ export function GET() {
 
 > Sistema de gestão municipal para prefeituras brasileiras, contratado por módulo. Lê sozinho o dado público de ${FONTES_OFICIAIS.length} bases oficiais (${fontesPorExtenso()}) e acompanha prazos e limites da LRF, da LAI e da Lei 13.460.
 
-O site também publica, sem cadastro, o que cada uma das ${MUNICIPIOS_COM_PREFEITURA.toLocaleString("pt-BR")} prefeituras declarou ao Tesouro Nacional: despesa com pessoal na régua da LRF, receita, saúde, educação e entrega do RREO e do RGF. Os percentuais sobre a receita são indício, não cálculo de mínimo constitucional.
+O site também publica, sem login, o que cada uma das ${MUNICIPIOS_COM_PREFEITURA.toLocaleString("pt-BR")} prefeituras declarou ao Tesouro Nacional: despesa com pessoal na régua da LRF, receita, saúde, educação e entrega do RREO e do RGF. Os percentuais sobre a receita são indício, não cálculo de mínimo constitucional.
 
 ## Dado público por município
 - [Raio-X da prefeitura](${u("/raio-x")}): busca por cidade; cada município tem página em /raio-x/{uf}/{nome-do-municipio}, por exemplo ${u("/raio-x/pi/teresina")}

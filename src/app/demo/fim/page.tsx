@@ -25,7 +25,7 @@ const PASSOS = [
   {
     titulo: "Veja o dado do seu município",
     texto:
-      "O mesmo tipo de leitura que você acabou de ver, com os números que a sua prefeitura já publicou no Tesouro Nacional. Sem cadastro.",
+      "O mesmo tipo de leitura que você acabou de ver, com os números que a sua prefeitura já publicou no Tesouro Nacional. Sem login.",
     acao: "Abrir o Raio-X",
     href: "/raio-x",
     principal: false,

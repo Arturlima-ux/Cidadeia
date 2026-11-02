@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const cidade = `${portal.municipio} (${portal.estado})`;
   return compartilhamento({
     titulo: `Portal do Cidadão de ${cidade}`,
-    descricao: `Portal do cidadão de ${cidade}: protocolo com chave de consulta, ouvidoria, obras e para onde vai o dinheiro da prefeitura. Sem cadastro.`,
+    descricao: `Portal do cidadão de ${cidade}: protocolo com chave de consulta, ouvidoria, obras e para onde vai o dinheiro da prefeitura. Sem login.`,
     caminho: `/transparencia/${slug}`,
   });
 }

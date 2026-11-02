@@ -69,7 +69,7 @@ export default async function SolucoesPage({
               Montar proposta
             </a>
             <Link href="/demo" className="inicio-sublinhado text-sm text-muted">
-              Abrir a demonstração, sem cadastro
+              Abrir a demonstração, sem login
             </Link>
           </div>
         </section>

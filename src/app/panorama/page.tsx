@@ -137,7 +137,7 @@ export default async function PanoramaPage() {
               </li>
               <li>
                 <span className="text-foreground font-medium">Nenhuma cidade é citada aqui.</span> O dado de cada uma
-                está aberto no Raio-X dela, sem cadastro.
+                está aberto no Raio-X dela, sem login.
               </li>
             </ul>
           </div>
@@ -148,7 +148,7 @@ export default async function PanoramaPage() {
             <div>
               <h2 className="inicio-h2 max-w-[16ch]">E a sua prefeitura?</h2>
               <p className="text-muted mt-5 leading-relaxed max-w-[44ch]">
-                O Raio-X mostra o número que ela declarou, sem cadastro. Com o módulo Gestão, a conferência passa a
+                O Raio-X mostra o número que ela declarou, sem login. Com o módulo Gestão, a conferência passa a
                 ser diária, e o aviso chega ao prefeito antes do prazo e antes do Tribunal de Contas.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">

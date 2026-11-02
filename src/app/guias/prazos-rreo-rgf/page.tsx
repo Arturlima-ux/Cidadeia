@@ -91,7 +91,7 @@ export default function GuiaPrazos() {
       <p>
         O Tesouro registra cada entrega no SICONFI. O{" "}
         <Link href="/raio-x">Raio-X do CidadeIA</Link> lê esse registro e mostra, para qualquer município, quantos
-        relatórios com prazo vencido já constam como publicados, sem cadastro. Dentro do sistema, o módulo{" "}
+        relatórios com prazo vencido já constam como publicados, sem login. Dentro do sistema, o módulo{" "}
         <Link href="/modulos/gestao">Gestão</Link> confere todo dia e avisa 15 dias antes do vencimento e no dia em
         que atrasar.
       </p>

@@ -54,7 +54,7 @@ export const MODULOS_DETALHE: ModuloDetalhe[] = [
     capacidades: [
       "Protocolo com número e chave privada de consulta emitidos na hora",
       "Ouvidoria que aceita manifestação sem identificação, com protocolo aleatório",
-      "Portal do cidadão com endereço próprio da cidade no CidadeIA, que abre sem cadastro",
+      "Portal do cidadão com endereço próprio da cidade no CidadeIA, que abre sem login",
       "Reclamação, denúncia, sugestão, elogio e pedido de informação no mesmo canal",
       "Contagem do prazo legal de resposta, com aviso antes de vencer",
       "Publicação de comunicados, Carta de Serviços, secretarias e perguntas frequentes no portal",

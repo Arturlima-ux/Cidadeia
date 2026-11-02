@@ -45,7 +45,7 @@ export default function BotaoImportar() {
       <p className="text-xs text-muted leading-relaxed max-w-xl">
         Busca o Relatório de Gestão Fiscal mais recente que a prefeitura já
         publicou no SICONFI e preenche o período sozinho. São os mesmos números
-        que o Tribunal de Contas olha. Sem cadastro, sem senha — o dado é
+        que o Tribunal de Contas olha. Sem login: o dado é
         público.
       </p>
 

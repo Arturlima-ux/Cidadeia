@@ -33,7 +33,7 @@ export const dynamic = "force-dynamic";
 export const metadata = compartilhamento({
   titulo: "Portal do cidadão",
   descricao:
-    "Encontre o portal do cidadão da sua cidade: para onde vai o dinheiro, as obras e um canal para falar com a prefeitura. Sem cadastro.",
+    "Encontre o portal do cidadão da sua cidade: para onde vai o dinheiro, as obras e um canal para falar com a prefeitura. Sem login.",
   caminho: "/transparencia",
 });
 
@@ -85,7 +85,7 @@ export default async function PortaDoCidadao({
                 Qual é a sua <span style={{ color: "var(--brand-claro)" }}>cidade?</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted leading-relaxed mt-6 max-w-[34ch]">
-                Veja para onde vai o dinheiro, como estão as obras e fale com a prefeitura. Sem cadastro.
+                Veja para onde vai o dinheiro, como estão as obras e fale com a prefeitura. Sem login.
               </p>
               <div className="mt-8 max-w-[560px]">
                 <SeletorMunicipio uf={uf} inicial={municipio} acao="/transparencia" rotuloBotao="Procurar" />

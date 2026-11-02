@@ -19,7 +19,7 @@ export default function ConferenciaConformidade() {
             style={{ color: "var(--brand-claro)" }}
           >
             <span className="block w-6 h-px" style={{ background: "currentColor" }} />
-            Parte 2 do Raio-X · sem cadastro
+            Parte 2 do Raio-X · sem login
           </span>
 
           <h2 className="titulo-pagina mt-6">

@@ -254,7 +254,7 @@ export default function ReguaLrf({ dado = { modo: "exemplo" } }: { dado?: DadoRe
             )
           : dado.modo === "exemplo"
             ? (dado.aviso ?? "Município de exemplo. Escolha o seu para ver o número real.")
-            : "Dado público, sem cadastro."}
+            : "Dado público, sem login."}
       </p>
     </figure>
   );

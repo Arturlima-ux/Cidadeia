@@ -79,7 +79,7 @@ export default function HomeMorador({
                   </h1>
                   <p className="text-lg sm:text-xl text-muted mt-6 max-w-[44ch] leading-relaxed">
                     Digite sua cidade e veja, em português claro, quanto vai para os servidores, para a saúde e para a
-                    educação, e se a prefeitura está prestando contas. Sem cadastro.
+                    educação, e se a prefeitura está prestando contas. Sem login.
                   </p>
                   <div className="mt-9 max-w-[680px]">
                     <AcheSuaCidade />
