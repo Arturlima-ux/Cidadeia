@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { semMovimento } from "@/lib/modo-leve";
 
 // ── AS PERGUNTAS QUE TROCAM NO TOPO ──
 //
 // Duas perguntas por vez, uma à esquerda e outra à direita, que trocam a
 // cada 2,8 s: cada par é um problema de prefeitura que um módulo resolve.
-// O servidor manda o primeiro par, que é o que fica para quem tem movimento
-// reduzido, modo leve ou JavaScript desligado. A troca é só de opacidade.
+// O servidor manda o primeiro par, que é o que fica sem JavaScript. A troca
+// roda em qualquer computador: no modo leve ela chegou a parar, e no
+// notebook do fundador o título ficava parado no primeiro par (nov/2026).
+// Trocar duas palavras a cada 2,8 s não pesa. Com movimento reduzido pedido
+// no sistema, a troca continua, só pela opacidade, sem deslizar (globals.css).
 // O texto que o leitor de tela e o buscador leem está no h1 (page.tsx), e
 // este bloco é decorativo (aria-hidden).
 
@@ -27,7 +29,6 @@ export default function PerguntasQueTrocam() {
   const [saindo, setSaindo] = useState(false);
 
   useEffect(() => {
-    if (semMovimento()) return;
     let troca = 0;
     const t = window.setInterval(() => {
       if (document.hidden) return;
