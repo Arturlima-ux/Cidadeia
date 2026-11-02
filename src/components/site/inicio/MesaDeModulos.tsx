@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { semMovimento } from "@/lib/modo-leve";
 import Link from "next/link";
 import { m, useReducedMotion } from "motion/react";
+import CidadeDeExemplo, { type PontoDaCidade } from "./CidadeDeExemplo";
 
 // ── A MESA DE INSTRUMENTOS ──
 //
@@ -392,33 +393,62 @@ function Ponteiro() {
   );
 }
 
-/** Saúde: a rede de unidades, e a que precisa de você hoje. */
+/** Saúde: a rede de unidades no mapa da cidade, e a que precisa de você hoje. */
+const UNIDADES: PontoDaCidade[] = [
+  { nome: "UBS Planalto", x: 64, y: 62, cor: "info" },
+  { nome: "UBS Centro", x: 168, y: 90, cor: "info" },
+  { nome: "Hospital Municipal", x: 210, y: 80, cor: "medio" },
+  { nome: "CAPS", x: 158, y: 116, cor: "info" },
+  { nome: "UPA 24h", x: 222, y: 126, cor: "medio" },
+  { nome: "UBS São José", x: 74, y: 190, cor: "info" },
+  { nome: "UBS Jardim", x: 196, y: 200, cor: "info" },
+  { nome: "UBS Boa Vista", x: 300, y: 186, cor: "info" },
+  { nome: "UBS Vila Nova", x: 282, y: 70, cor: "urgente", destaque: true },
+];
+
+function Legenda({ itens }: { itens: [string, string][] }) {
+  return (
+    <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted">
+      {itens.map(([cor, texto]) => (
+        <span key={texto} className="inline-flex items-center gap-1.5">
+          <span aria-hidden className="w-2 h-2 rounded-full" style={{ background: `var(--${cor})` }} />
+          {texto}
+        </span>
+      ))}
+    </p>
+  );
+}
+
 function Rede() {
-  const reduzir = useReducedMotion();
-  const unidades = [
-    { n: "UBS Centro", s: 0 }, { n: "UBS Vila Nova", s: 2 }, { n: "UBS Boa Vista", s: 0 }, { n: "UPA 24h", s: 1 },
-    { n: "UBS Planalto", s: 0 }, { n: "CAPS", s: 0 }, { n: "UBS Rural I", s: 0 }, { n: "UBS São José", s: 0 },
-    { n: "Hospital Municipal", s: 1 }, { n: "UBS Rural II", s: 0 }, { n: "UBS Jardim", s: 0 }, { n: "Farmácia Central", s: 0 },
-  ];
-  const cor = ["var(--info)", "var(--medio)", "var(--urgente)"];
   return (
     <div className="flex-1 flex flex-col justify-center">
-      <Rotulo>Exemplo: a rede trazida do CNES, cada unidade com a sua situação</Rotulo>
-      <ul className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
-        {unidades.map((u, i) => (
-          <m.li
-            key={u.n}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={reduzir ? { duration: 0 } : { delay: i * 0.04, duration: 0.35, ease }}
-            className="rounded-xl border px-2.5 py-2 text-xs leading-tight"
-            style={{ borderColor: u.s === 2 ? "var(--urgente-borda)" : "var(--border)", background: u.s === 2 ? "var(--urgente-tint)" : "transparent" }}
-          >
-            <span className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle" style={{ background: cor[u.s] }} />
-            {u.n}
-          </m.li>
-        ))}
-      </ul>
+      <Rotulo>Exemplo: a rede trazida do CNES, no mapa da cidade</Rotulo>
+      <div className="mt-4 grid sm:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-5 sm:gap-7 items-center">
+        <div>
+          <CidadeDeExemplo
+            pontos={UNIDADES}
+            descricao="Mapa de uma cidade de exemplo com nove unidades de saúde: seis em dia, o hospital e a UPA em atenção, e a UBS Vila Nova em urgente."
+          />
+          <Legenda itens={[["info", "Em dia"], ["medio", "Atenção"], ["urgente", "Urgente"]]} />
+        </div>
+        {/* No celular, a legenda e o fecho já dizem isso: os números ficam para telas maiores. */}
+        <dl className="hidden sm:grid divide-y divide-[color:var(--border)] border-y border-border">
+          {(
+            [
+              ["Unidades na rede", "9", null],
+              ["Pedem atenção", "2", "medio"],
+              ["Urgente hoje", "1", "urgente"],
+            ] as const
+          ).map(([rotulo, valor, cor]) => (
+            <div key={rotulo} className="py-3.5 flex items-baseline justify-between gap-4">
+              <dt className="text-sm text-muted">{rotulo}</dt>
+              <dd className="text-2xl font-semibold tabular-nums tracking-[-0.03em]" style={cor ? { color: `var(--${cor})` } : undefined}>
+                {valor}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
       <Conclusao tom="urgente" problema="UBS Vila Nova precisa de você hoje.">
         Geladeira de vacinas parada há 2 dias, aberta como urgente. Insulina com 6 dias de cobertura: o pedido de reposição já
         saiu.
@@ -468,7 +498,15 @@ function Calendario() {
   );
 }
 
-/** Obras: o prazo do contrato consumido contra o que foi medido. */
+/** Obras: a obra atrasada no mapa, e o prazo do contrato consumido contra o que foi medido. */
+const OBRAS: PontoDaCidade[] = [
+  { nome: "Drenagem do Planalto", x: 92, y: 52, cor: "info" },
+  { nome: "Reforma da UBS Centro", x: 170, y: 92, cor: "medio" },
+  { nome: "Praça da Vila Nova", x: 292, y: 72, cor: "medio" },
+  { nome: "Rua das Flores", x: 198, y: 198, cor: "info" },
+  { nome: "Creche São José", x: 80, y: 182, cor: "urgente", destaque: true },
+];
+
 function PrazoContraObra() {
   const reduzir = useReducedMotion();
   const barra = (rotulo: string, pct: number, cor: string, atraso = 0) => (
@@ -491,11 +529,22 @@ function PrazoContraObra() {
   return (
     <div className="flex-1 flex flex-col justify-center">
       <Rotulo>Exemplo: contrato trazido do PNCP, medição lançada pela secretaria</Rotulo>
-      <p className="mt-3 text-xl font-semibold tracking-[-0.02em]">Creche do Bairro São José</p>
-      <p className="text-sm text-muted">Contrato de R$ 2,4 mi · término em 18/03/2027</p>
-      <div className="mt-6 grid gap-5">
-        {barra("Prazo do contrato já consumido", 82, "var(--medio)")}
-        {barra("Obra medida", 41, "var(--brand)", 0.25)}
+      <div className="mt-4 grid sm:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] gap-5 sm:gap-7 items-center">
+        <div>
+          <CidadeDeExemplo
+            pontos={OBRAS}
+            descricao="Mapa de uma cidade de exemplo com cinco obras: a creche do São José atrasada, duas em andamento e duas concluídas."
+          />
+          <Legenda itens={[["medio", "Em andamento"], ["urgente", "Atrasada"], ["info", "Concluída"]]} />
+        </div>
+        <div>
+          <p className="text-xl font-semibold tracking-[-0.02em]">Creche do Bairro São José</p>
+          <p className="text-sm text-muted">Contrato de R$ 2,4 mi · término em 18/03/2027</p>
+          <div className="mt-6 grid gap-5">
+            {barra("Prazo do contrato já consumido", 82, "var(--medio)")}
+            {barra("Obra medida", 41, "var(--brand)", 0.25)}
+          </div>
+        </div>
       </div>
       <Conclusao tom="urgente" problema="Faltam 18% do prazo para 59% da obra.">
         Sem medição há 47 dias. A notificação à contratada, pedindo as razões e o cronograma, já sai montada para o fiscal
