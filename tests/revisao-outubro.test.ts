@@ -55,7 +55,8 @@ describe("contato e acabamento", () => {
   });
 
   it("o título da home tem cada palavra uma vez só", () => {
-    const h1 = ler("src/app/page.tsx").match(/<h1[\s\S]*?<\/h1>/)![0];
+    // Desde nov/2026 o título mora no topo em relevo (TopoBrasil.tsx).
+    const h1 = ler("src/components/site/inicio/TopoBrasil.tsx").match(/<h1[\s\S]*?<\/h1>/)![0];
     expect(h1.match(/inteira,/g)).toHaveLength(1);
   });
 
