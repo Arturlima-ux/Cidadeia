@@ -188,6 +188,13 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           <PlanetaTopo destaque={dados ? indiceNoMapa(dados.codigo) : null} />
 
           <div className="heroi-planeta-conteudo relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
+            {/* ── LADO A LADO NO COMPUTADOR (novembro de 2026) ──
+                O título descia para cima do sul do mapa e, numa tela de
+                notebook (1366 × 650), ficava cortado no fim. O fundador
+                escolheu, entre três desenhos, a coluna à esquerda com o
+                Brasil inteiro à direita (heroi-coluna em globals.css). No
+                celular nada muda: o mapa em cima e o texto embaixo. */}
+            <div className="heroi-coluna">
             <p className="heroi-sobre">Lê · Confere · Resolve</p>
             {/* O h1 tem o texto de sempre para o leitor de tela e o buscador;
                 as perguntas que trocam são o desenho (aria-hidden). */}
@@ -196,7 +203,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               <PerguntasQueTrocam />
             </h1>
 
-            <div className="mt-7 sm:mt-9 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-7">
+            <div className="mt-7 sm:mt-9 flex flex-col gap-7">
               <p className="inicio-lead max-w-[44ch]">
                 Atendimento, secretarias, obras, saúde, educação e finanças num sistema que lê as bases oficiais,
                 conta os prazos da lei e deixa pronto o documento da prefeitura. Antes de vencer.
@@ -209,6 +216,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
                   Ver os módulos
                 </Link>
               </div>
+            </div>
             </div>
 
             {/* ── A BUSCA NO MEIO ──

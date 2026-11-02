@@ -1658,11 +1658,25 @@ select option {
     radial-gradient(1.2px 1.2px at 78% 9%, var(--muted), transparent),
     radial-gradient(1px 1px at 92% 15%, var(--foreground), transparent);
 }
+/* No computador, lado a lado: o planeta e o Brasil vão para a direita e o
+   texto ocupa a coluna da esquerda, tudo dentro da primeira tela de um
+   notebook (1366 × 650). Escolha do fundador entre três desenhos, nov/2026. */
 @media (min-width: 1024px) {
   .heroi-planeta {
-    --planeta-topo: 80px;
-    padding-top: 360px;
+    --planeta-topo: 70px;
+    --mapa-largura: clamp(392px, 44vw, 760px);
+    padding-top: clamp(120px, 14vh, 170px);
   }
+  .heroi-coluna { max-width: min(46%, 600px); }
+  /* Quatro linhas guardadas: os pares de perguntas quebram em três ou
+     quatro, e a frase de baixo não pode pular a cada troca. */
+  .heroi-coluna .heroi-titulo {
+    font-size: clamp(2.75rem, 4.7vw, 5.25rem);
+    line-height: 0.92;
+    min-height: calc(4 * 0.92em);
+  }
+  .heroi-coluna .perguntas-b { text-align: left; }
+  .heroi-busca { margin-top: clamp(90px, 16vh, 190px); }
 }
 .planeta,
 .planeta-giro {
@@ -1688,6 +1702,11 @@ select option {
 }
 .planeta-giro[data-pode-girar] { cursor: grab; }
 .planeta-giro[data-arrastando] { cursor: grabbing; transition: none; }
+/* Lado a lado no computador: o planeta e o Brasil à direita da coluna. */
+@media (min-width: 1024px) {
+  .planeta,
+  .planeta-giro { left: 66%; }
+}
 .planeta-mapa {
   position: absolute;
   left: 50%;
@@ -1794,7 +1813,8 @@ select option {
 .botao-escuro:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
   .planeta-giro { transition: none; }
-  .perguntas { transition: none; }
+  /* Com menos movimento pedido, as perguntas trocam só pela opacidade. */
+  .perguntas[data-saindo] { transform: none; }
 }
 
 /* ── TEXTO CORRIDO DOS GUIAS (app/guias) ──
