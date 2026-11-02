@@ -18,7 +18,7 @@ export const DIREITOS_CIDADAO = [
     icone: IconVisaoGeral,
     titulo: "Ver para onde vai o dinheiro",
     texto:
-      "Receita, despesa, obras em andamento e licitações do seu município, numa página que abre sem cadastro.",
+      "Receita, despesa, obras em andamento e licitações do seu município, numa página que abre sem login.",
     lei: "Lei 12.527/2011 · art. 8º",
   },
   {

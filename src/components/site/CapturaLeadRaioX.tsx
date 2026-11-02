@@ -60,7 +60,7 @@ export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge
       <h3 className="font-serif text-lg font-bold">Receba este Raio-X por e-mail</h3>
       <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-[60ch]">
         Com a leitura de cada número — o que ele diz, o que não diz, e o que perguntar à
-        prefeitura. Sem cadastro, sem cartão.
+        prefeitura. Sem login, sem cartão.
       </p>
       <div className="grid sm:grid-cols-[1fr_1fr] gap-3 mt-4">
         <div>

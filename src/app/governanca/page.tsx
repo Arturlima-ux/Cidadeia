@@ -94,7 +94,7 @@ export default function GovernancaPage() {
         <section className="max-w-[1200px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
           <h2 className="inicio-h2 max-w-[18ch]">Os documentos.</h2>
           <p className="text-muted mt-4 max-w-[60ch] leading-relaxed">
-            Os mesmos que o jurídico da prefeitura vai pedir. Todos abertos, sem cadastro.
+            Os mesmos que o jurídico da prefeitura vai pedir. Todos abertos, sem login.
           </p>
           <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {DOCUMENTOS.map((d) => (

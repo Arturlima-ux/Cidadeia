@@ -41,7 +41,7 @@ const VALORES = [
   { titulo: "Só dado oficial", texto: "Quando a fonte não responde, a tela diz isso. O vazio nunca é preenchido com estimativa." },
   { titulo: "Regra com o artigo ao lado", texto: "Todo aviso fiscal sai de regra fixa, com a base legal escrita. Quem decide é a prefeitura." },
   { titulo: "A IA sugere, a pessoa decide", texto: "Nenhuma sugestão da inteligência artificial vira alerta oficial sem alguém aprovar." },
-  { titulo: "Sem vender o que não existe", texto: "Cada módulo do site funciona hoje, e qualquer um confere antes de contratar, sem cadastro. O que depende de dado interno, como estoque e medição de obra, a tela diz que é a equipe que lança." },
+  { titulo: "Sem vender o que não existe", texto: "Cada módulo do site funciona hoje, e qualquer um confere antes de contratar, sem login. O que depende de dado interno, como estoque e medição de obra, a tela diz que é a equipe que lança." },
 ];
 
 const SEGURO = [
@@ -63,7 +63,7 @@ const DUVIDAS = [
   {
     pergunta: "Uma empresa nova é segura para a prefeitura?",
     resposta:
-      "O risco de uma empresa nova é a prefeitura ficar presa a ela, e o contrato tira esse risco: é mensal, sem fidelidade, encerra com aviso de 30 dias, e os dados do município saem inteiros a qualquer momento, em CSV e JSON, até com a mensalidade atrasada. E tudo o que o site promete se confere antes, sem cadastro: o Raio-X da sua cidade, a demonstração completa e o panorama do país.",
+      "O risco de uma empresa nova é a prefeitura ficar presa a ela, e o contrato tira esse risco: é mensal, sem fidelidade, encerra com aviso de 30 dias, e os dados do município saem inteiros a qualquer momento, em CSV e JSON, até com a mensalidade atrasada. E tudo o que o site promete se confere antes, sem login: o Raio-X da sua cidade, a demonstração completa e o panorama do país.",
   },
   {
     pergunta: "O alerta vai direto para o Tribunal de Contas?",

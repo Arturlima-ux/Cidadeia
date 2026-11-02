@@ -70,7 +70,7 @@ export const EXIGENCIAS: Exigencia[] = [
     id: "despesas",
     bloco: "transparencia",
     pergunta:
-      "As despesas do município estão numa página aberta, que abre sem cadastro e sem login?",
+      "As despesas do município estão numa página aberta, que abre sem login?",
     lei: "Lei 12.527/2011 (LAI)",
     artigo: "art. 8º, § 1º, III",
     risco:

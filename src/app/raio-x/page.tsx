@@ -10,7 +10,7 @@ import { ESTADOS, NOME_DOS_ESTADOS } from "@/lib/estados";
 export const metadata = compartilhamento({
   titulo: "Raio-X da prefeitura: despesa com pessoal e LRF",
   descricao:
-    "Digite a cidade e veja a despesa com pessoal na régua da LRF, a receita e a entrega do RREO e do RGF, lidas na hora do Tesouro Nacional. Sem cadastro.",
+    "Digite a cidade e veja a despesa com pessoal na régua da LRF, a receita e a entrega do RREO e do RGF, lidas na hora do Tesouro Nacional. Sem login.",
   caminho: "/raio-x",
 });
 
@@ -30,7 +30,7 @@ export default function RaioXPage() {
               <p className="inicio-lead text-muted mt-6 max-w-[44ch]">
                 Digite o município e veja o que a própria prefeitura publicou no
                 Tesouro: receita, aplicação por área e os relatórios que faltam.
-                Sem cadastro.
+                Sem login.
               </p>
               <div className="mt-10">
                 <FormularioRaioX />

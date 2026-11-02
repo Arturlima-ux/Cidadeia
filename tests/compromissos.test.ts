@@ -228,7 +228,7 @@ describe("o kit e o catálogo não divergem", () => {
     const sla = textoCorrido(DOCUMENTOS.find((d) => d.chave === "acordo-de-nivel-de-servico")!);
     // Medir, publicar, avisar e deixar sair.
     expect(sla).toMatch(/verifica diariamente/);
-    expect(sla).toMatch(/acesso público e sem cadastro/);
+    expect(sla).toMatch(/acesso público e sem login/);
     // E a cláusula diz ONDE: promessa de publicação sem endereço é promessa
     // que o fiscal do contrato não consegue exercer.
     expect(sla).toMatch(/\[PÁGINA DE DISPONIBILIDADE\]|https:\/\//);

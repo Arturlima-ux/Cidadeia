@@ -97,7 +97,7 @@ export default function ComoContratarPage() {
                 O jurídico só confere. Não redige.
               </p>
               <p className="text-sm text-muted leading-relaxed mt-2 max-w-[52ch]">
-                Baixe sem cadastro, leve para a reunião, volte se fizer
+                Baixe sem login, leve para a reunião, volte se fizer
                 sentido.
               </p>
             </div>

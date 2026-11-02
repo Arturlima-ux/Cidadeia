@@ -184,7 +184,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
                 inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
               />
               <p className="text-[13px] mt-2 text-center" style={{ color: "color-mix(in oklab, var(--foreground) 70%, transparent)" }}>
-                Sem cadastro. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
+                Sem login. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
                 <noscript>
                   <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
                 </noscript>

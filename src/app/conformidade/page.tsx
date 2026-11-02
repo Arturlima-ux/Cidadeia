@@ -45,7 +45,7 @@ export default function ConformidadePage() {
                   <LinkOficial href={LEIS.lrf.url}>LRF</LinkOficial> e{" "}
                   <LinkOficial href={LEIS.lgpd.url}>LGPD</LinkOficial>, em quatro blocos. O diagnóstico
                   gratuito confere as {EXIGENCIAS.length} contra a situação do seu
-                  município — sem cadastro, sem enviar nada.
+                  município — sem login, sem enviar nada.
                 </p>
                 <Link
                   href="/raio-x#conferencia"

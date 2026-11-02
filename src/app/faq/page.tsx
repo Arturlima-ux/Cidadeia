@@ -33,7 +33,7 @@ const PERGUNTAS = [
     // dado real do município de quem pergunta, sem cadastro nenhum.
     pergunta: "Posso testar antes de contratar algum módulo?",
     resposta:
-      "Dá para ver o produto trabalhando sem criar nada: o Raio-X lê os dados que a União já publica sobre a sua prefeitura e responde na hora, sem cadastro, e o painel de demonstração abre com uma prefeitura de exemplo. Os módulos (Essencial, Gestão, Saúde, Educação, Obras e Licitações) são liberados com a contratação; se a prefeitura quiser um período de avaliação, ele entra na proposta. E se preferir conversar antes, a equipe liga.",
+      "Dá para ver o produto trabalhando sem criar nada: o Raio-X lê os dados que a União já publica sobre a sua prefeitura e responde na hora, sem login, e o painel de demonstração abre com uma prefeitura de exemplo. Os módulos (Essencial, Gestão, Saúde, Educação, Obras e Licitações) são liberados com a contratação; se a prefeitura quiser um período de avaliação, ele entra na proposta. E se preferir conversar antes, a equipe liga.",
     caminhos: [
       { href: "/raio-x", rotulo: "Ver o Raio-X da minha prefeitura" },
       { href: "/demo", rotulo: "Abrir o painel de demonstração" },

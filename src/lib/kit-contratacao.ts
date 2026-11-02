@@ -649,7 +649,7 @@ const ACORDO_NIVEL_SERVICO: Documento = {
         {
           tipo: "paragrafo",
           texto:
-            "A contratada verifica diariamente, por rotina automática, se o banco de dados responde, e registra o resultado e o tempo de resposta. O histórico completo dessas verificações é publicado em [PÁGINA DE DISPONIBILIDADE], página de acesso público e sem cadastro, incluindo os dias em que houve falha.",
+            "A contratada verifica diariamente, por rotina automática, se o banco de dados responde, e registra o resultado e o tempo de resposta. O histórico completo dessas verificações é publicado em [PÁGINA DE DISPONIBILIDADE], página de acesso público e sem login, incluindo os dias em que houve falha.",
         },
         {
           tipo: "paragrafo",

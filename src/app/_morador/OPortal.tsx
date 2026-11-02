@@ -27,7 +27,7 @@ export const O_QUE_O_PORTAL_DA = [
     texto: "Cada obra com o andamento, e cada compra da prefeitura aberta para qualquer pessoa conferir.",
   },
   {
-    titulo: "No celular, sem cadastro",
+    titulo: "No celular, sem login",
     texto: "Abre como um site qualquer. Não precisa baixar aplicativo nem criar senha.",
   },
 ] as const;

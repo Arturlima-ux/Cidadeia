@@ -55,7 +55,7 @@ export function politicaDePrivacidade(e: DadosEmpresa = EMPRESA): SecaoLegal[] {
       titulo: "Quem é responsável pelos dados",
       paragrafos: [
         `Há dois papéis diferentes, e confundi-los é o erro mais comum. Sobre os dados de quem visita este site, pede proposta ou cria conta, o controlador é ${quemSomos(e)}. Sobre os dados que uma prefeitura cliente trata no sistema, inclusive as manifestações de cidadãos e as informações de saúde e educação, o controlador é o município, e o CidadeIA atua como operador, tratando apenas o que o município determina.`,
-        "Por isso, quem quiser exercer direitos sobre dados que estão no sistema de uma prefeitura deve procurar aquela prefeitura. O acordo de tratamento de dados que rege essa relação vai anexo ao contrato e está no kit de contratação, sem cadastro.",
+        "Por isso, quem quiser exercer direitos sobre dados que estão no sistema de uma prefeitura deve procurar aquela prefeitura. O acordo de tratamento de dados que rege essa relação vai anexo ao contrato e está no kit de contratação, sem login.",
         encarregado(e),
       ],
     },
