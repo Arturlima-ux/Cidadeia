@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import { emTempoDeTrabalho, HORAS_POR_SEMANA, SEMANAS_DE_TRABALHO } from "@/lib/tempo-de-trabalho";
 
 // ── QUANTO TEMPO VOLTA PARA A EQUIPE ──
 //
@@ -9,10 +10,8 @@ import Link from "next/link";
 // cada um gasta conferindo prazo, limite e relatório. Nenhum número nosso
 // entra aqui, nem "economia média dos clientes": a calculadora só mostra, em
 // horas por ano, o tamanho do trabalho que a pessoa mesma descreveu, e que é
-// exatamente o que o sistema faz sozinho.
-
-const SEMANAS_DE_TRABALHO = 48;
-const HORAS_POR_SEMANA_CHEIA = 40;
+// exatamente o que o sistema faz sozinho. A medida do "o mesmo que" (dias,
+// semanas, meses ou anos) vem de lib/tempo-de-trabalho.ts.
 
 export default function TempoQueVolta() {
   const id = useId();
@@ -20,7 +19,6 @@ export default function TempoQueVolta() {
   const [horas, setHoras] = useState(4);
 
   const porAno = pessoas * horas * SEMANAS_DE_TRABALHO;
-  const semanasCheias = porAno / HORAS_POR_SEMANA_CHEIA;
   const br = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
   return (
@@ -67,8 +65,7 @@ export default function TempoQueVolta() {
           {br(porAno)} <span className="text-2xl text-muted tracking-normal">horas por ano</span>
         </p>
         <p className="mt-3 text-muted leading-relaxed">
-          O mesmo que {br(semanasCheias)} {semanasCheias < 1.5 ? "semana inteira" : "semanas inteiras"} de trabalho de uma pessoa, só
-          conferindo.
+          O mesmo que {emTempoDeTrabalho(porAno)} de trabalho de uma pessoa, só conferindo.
         </p>
         <p className="mt-5 leading-relaxed">
           É esse trabalho que o CidadeIA faz sozinho. A sua equipe fica com o que só gente faz: decidir e
@@ -80,7 +77,7 @@ export default function TempoQueVolta() {
         >
           Receber a proposta
         </Link>
-        <p className="mt-3 text-xs text-muted">Conta feita só com os números que você informou, em 48 semanas de trabalho por ano.</p>
+        <p className="mt-3 text-xs text-muted">Conta feita só com os números que você informou, em {SEMANAS_DE_TRABALHO} semanas de trabalho por ano e jornada de {HORAS_POR_SEMANA} horas por semana.</p>
       </div>
     </div>
   );
