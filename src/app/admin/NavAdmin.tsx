@@ -11,6 +11,8 @@ import BotaoPainelTeste from "./teste/BotaoPainelTeste";
 // a página; a partir do tablet, as abas quebram linha normalmente.
 
 const ITENS = [
+  // A ordem do funil: procurar, atender quem levantou a mão, vender.
+  { href: "/admin/prospeccao", rotulo: "Prospecção" },
   { href: "/admin/pedidos", rotulo: "Pedidos" },
   { href: "/admin/interessados", rotulo: "Interessados" },
   { href: "/admin/financeiro", rotulo: "Financeiro" },

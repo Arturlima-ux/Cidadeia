@@ -20,6 +20,7 @@ import {
 import AcoesInteressado from "./AcoesInteressado";
 import { carregarSinaisComDescarte } from "@/lib/sinais-de-interesse-servidor";
 import { descreverSinal } from "@/lib/sinais-de-interesse";
+import { levarSinalParaProspeccao } from "../prospeccao/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -266,14 +267,25 @@ export default async function InteressadosPage({ searchParams }: { searchParams:
                     </p>
                   </div>
                   {!x.jaEmContato && (
-                    <a
-                      href={`https://www.google.com/search?q=${encodeURIComponent(`Prefeitura de ${x.municipio} ${x.uf} secretaria de finanças telefone`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm rounded-full border border-border hover:border-brand px-4 py-2 transition"
-                    >
-                      Achar o contato da prefeitura
-                    </a>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Vira prospecto mapeado, com o gancho de quem estudou o Raio-X
+                          (mesa de prospecção, lib/prospeccao.ts). */}
+                      <form action={levarSinalParaProspeccao}>
+                        <input type="hidden" name="codigoIbge" value={x.codigoIbge} />
+                        <input type="hidden" name="gancho" value={`${descreverSinal(x)}, sem deixar contato`} />
+                        <button type="submit" className="text-sm rounded-full bg-brand text-white font-semibold hover:bg-brand-dark px-4 py-2 transition">
+                          Levar para a prospecção
+                        </button>
+                      </form>
+                      <a
+                        href={`https://www.google.com/search?q=${encodeURIComponent(`Prefeitura de ${x.municipio} ${x.uf} secretaria de finanças telefone`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm rounded-full border border-border hover:border-brand px-4 py-2 transition"
+                      >
+                        Achar o contato da prefeitura
+                      </a>
+                    </div>
                   )}
                 </li>
               ))}
