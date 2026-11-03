@@ -10,6 +10,12 @@
 //   de nitidez em public/mapa/relevo: o aparelho baixa só o que consegue
 //   mostrar (celular 1024 px, notebook 2048, tela grande 4096). Abre com o
 //   nível leve e troca pelo nítido quando ele chega.
+// - Entrada (pedido do fundador: "nem demore demais, nem entre rápido
+//   demais"): o relógio só começa no primeiro quadro desenhado de verdade,
+//   depois de os shaders compilarem; antes, num aparelho lento, a compilação
+//   comia a entrada e o mapa aparecia já pronto, de uma vez. Em ~2,6 s o país
+//   sobe do chão, o relevo cresce de quase plano até a altura dele e a câmera
+//   deita; a partir de 0,9 s as capitais acendem numa onda que sai de Brasília.
 // - Luzes: as 27 capitais (lib/capitais-mapa.ts), sempre do mesmo tamanho,
 //   acendendo e apagando cada uma no seu tempo; acendem numa onda que sai de
 //   Brasília.
@@ -108,6 +114,9 @@ export async function montarBrasil(o: {
   const camera = new THREE.PerspectiveCamera(28, 1, 10, 9000);
   const brasil = new THREE.Group();
   cena.add(brasil);
+  // O relevo e a espessura, num grupo que a entrada achata e estica (scale.y).
+  const relevo = new THREE.Group();
+  brasil.add(relevo);
   const descartaveis: { dispose: () => void }[] = [renderer, pmrem, ambiente];
 
   const textura = (img: HTMLImageElement, deCor: boolean) => {
@@ -173,7 +182,7 @@ export async function montarBrasil(o: {
     g.setIndex(idx);
     g.computeVertexNormals();
     descartaveis.push(g);
-    brasil.add(new THREE.Mesh(g, matTerra));
+    relevo.add(new THREE.Mesh(g, matTerra));
   }
 
   // ── A espessura: parede acetinada, normais suavizadas ──
@@ -189,7 +198,7 @@ export async function montarBrasil(o: {
       g.computeVertexNormals();
       g.rotateX(-Math.PI / 2); g.translate(0, -21.6, 0);
       descartaveis.push(g);
-      brasil.add(new THREE.Mesh(g, mat));
+      relevo.add(new THREE.Mesh(g, mat));
     }
   }
 
@@ -228,11 +237,12 @@ export async function montarBrasil(o: {
     return s;
   };
   const luzes = CAPITAIS_NO_MAPA.map(([, x, y], n) => {
-    const p = new THREE.Vector3(paraX(x), alturaEm(x, y) + 2.2, paraZ(y));
+    const h = alturaEm(x, y);
+    const p = new THREE.Vector3(paraX(x), h + 2.2, paraZ(y));
     const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
     halo.position.copy(p); nucleo.position.copy(p);
     brasil.add(halo, nucleo);
-    return { halo, nucleo, p, oculta: false, dist: Math.hypot(x - bx, y - by) / 1000, fase: (n * 0.61803) % 1, periodo: 4.2 + ((n * 37) % 10) * 0.32, n };
+    return { halo, nucleo, p, h, oculta: false, dist: Math.hypot(x - bx, y - by) / 1000, fase: (n * 0.61803) % 1, periodo: 4.2 + ((n * 37) % 10) * 0.32, n };
   });
 
   // ── O visitante: azul, sempre aceso, com feixe e ondas no chão ──
@@ -306,11 +316,20 @@ export async function montarBrasil(o: {
   }
 
   // ── Um quadro ──
-  const saida = (t: number) => 1 - Math.pow(1 - t, 3);
+  // Saída quadrática, e não cúbica: a cúbica fazia 70% do movimento no
+  // primeiro terço e o fundador achou que "entrou rápido". Esta reparte melhor
+  // os 2,6 s, sem começar arrastada.
+  const saida = (t: number) => 1 - (1 - t) * (1 - t);
+  const ENTRADA = 2.6; // segundos da câmera deitando e do país subindo
   function desenhar(s: number) {
     const quieto = parado;
-    const e = quieto ? 1 : saida(Math.min(1, s / 2.8));
-    const onda = quieto ? 9 : Math.max(0, s - 0.6) * 0.5;
+    const e = quieto ? 1 : saida(Math.min(1, s / ENTRADA));
+    // O relevo se esculpe: a altura sai de 12% e o detalhe da superfície (o
+    // mapa de normais, que dá quase todo o sombreado) nasce junto.
+    const k = quieto ? 1 : saida(THREE.MathUtils.clamp((s - 0.15) / (ENTRADA - 0.35), 0, 1));
+    relevo.scale.y = 0.12 + 0.88 * k;
+    matTerra.normalScale.setScalar(0.75 * k);
+    const onda = quieto ? 9 : Math.max(0, s - 0.9) * 0.55;
     if (!mexeu) {
       mouseSuave += (mouseX - mouseSuave) * 0.05;
       posicionar(0.66 + (PHI - 0.66) * e, (quieto ? 0 : Math.sin(s * 0.1) * 0.06 * e) + mouseSuave * 0.16);
@@ -318,6 +337,7 @@ export async function montarBrasil(o: {
     brasil.position.y = (1 - e) * -26;
     for (const l of luzes) {
       if (l.oculta) { l.nucleo.material.opacity = 0; l.halo.material.opacity = 0; continue; }
+      l.halo.position.y = l.nucleo.position.y = l.h * relevo.scale.y + 2.2; // pousada no relevo que cresce
       const acesa = THREE.MathUtils.smoothstep(onda, l.dist, l.dist + 0.05);
       // Acende em 0,7 s, fica 1,6 s, apaga em 0,9 s e some até a próxima vez.
       const tc = (((s / l.periodo) + l.fase) % 1) * l.periodo;
@@ -350,12 +370,16 @@ export async function montarBrasil(o: {
 
   // ── O laço: só enquanto o topo está na tela e a aba está aberta ──
   let parado = o.parado();
-  const t0 = performance.now();
+  let t0 = -1; // o relógio da entrada começa no primeiro quadro de verdade
+  let avisou = false;
+  const avisar = () => { if (!avisou) { avisou = true; o.aoPronto(); } };
   let visivel = true, quadro = 0;
   const laco = (agora: number) => {
     quadro = 0;
     if (parado) return;
+    if (t0 < 0) t0 = agora;
     desenhar((agora - t0) / 1000);
+    avisar();
     if (visivel && !document.hidden) quadro = requestAnimationFrame(laco);
   };
   const retomar = () => { if (!parado && visivel && !document.hidden && !quadro) quadro = requestAnimationFrame(laco); };
@@ -365,8 +389,13 @@ export async function montarBrasil(o: {
   const redimensionar = new ResizeObserver(() => enquadrar());
   redimensionar.observe(palco);
   enquadrar();
-  if (parado) desenhar(99); else retomar();
-  o.aoPronto();
+  // Compila os shaders antes do primeiro quadro (em paralelo, quando o
+  // aparelho deixa), para a entrada não começar travada.
+  if (!parado) {
+    posicionar(0.66, 0);
+    await renderer.compileAsync(cena, camera).catch(() => {});
+  }
+  if (parado) { desenhar(99); avisar(); } else retomar();
 
   // O nível nítido chega depois, sem travar a abertura.
   if (nivel !== "baixa") {
@@ -381,7 +410,7 @@ export async function montarBrasil(o: {
       const x = 24.0686 * local.lng + 1780.593, y = -24.8884 * local.lat + 137.0145; // lib/localizacao.ts (paraMapa)
       vPos = new THREE.Vector3(paraX(x), alturaEm(x, y) + 2.4, paraZ(y));
       vDist = Math.hypot(x - bx, y - by) / 1000;
-      vDesde = Math.max(1.4, (performance.now() - t0) / 1000 - vDist * 2);
+      vDesde = Math.max(1.6, (t0 < 0 ? 0 : (performance.now() - t0) / 1000) - vDist * 2);
       feixe.position.copy(vPos).add(new THREE.Vector3(0, ALT_FEIXE / 2, 0));
       vNucleo.position.copy(vPos); vHalo.position.copy(vPos);
       for (const w of ondas) w.m.position.copy(vPos).add(new THREE.Vector3(0, 0.3, 0));
