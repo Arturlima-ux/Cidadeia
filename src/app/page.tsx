@@ -11,7 +11,6 @@ import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import MontadorProposta from "@/components/site/MontadorProposta";
-import VitrinePortal from "@/components/site/VitrinePortal";
 import BarraConversao from "@/components/site/BarraConversao";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
@@ -25,7 +24,6 @@ import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
 import TopoBrasil from "@/components/site/inicio/TopoBrasil";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
-import { CARGOS } from "@/lib/cargos";
 import HomeMorador from "./_morador/HomeMorador";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -33,14 +31,19 @@ import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
-import { DIAS_DA_CONFERENCIA, PANORAMA, dataDoPanorama, faixasDoPanorama, numeroBr, passaramDoAlerta, umaEmCada } from "@/lib/panorama";
 import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 
-// ── A PÁGINA EM SEIS PARTES ──
+// ── A PÁGINA EM SEIS PARTES (enxuta, novembro de 2026) ──
 //
-// Herói (a gestão municipal inteira, num lugar só) → de onde vem o dado → os
-// seis módulos → como funciona → o portal do cidadão → as contas do país
-// conferidas e as portas por cargo → vídeo → proposta e fecho.
+// Topo com o mapa e a busca da cidade → de onde vem o dado → os seis módulos
+// → como funciona, em três linhas → vídeo → proposta.
+//
+// Pedido do fundador: "está com muita informação". Eram dez seções, ~1.260
+// palavras e 14,5 telas no celular. Saíram da home, e seguem nas próprias
+// páginas e no menu: o portal do cidadão (já mostrado no módulo Essencial;
+// /transparencia), o panorama nacional com as portas por cargo (/panorama,
+// /para/...) e "O que pensamos" (/quem-somos). A proposta ficou com o
+// formulário e duas linhas; a dispensa por inteiro está em /como-contratar.
 //
 // Até outubro de 2026 a página abria pela régua da LRF ("saiba o que o
 // Tribunal vai apontar"), e o site inteiro parecia um sistema de alerta
@@ -71,8 +74,9 @@ export const metadata: Metadata = {
 };
 
 // ── ESTÁTICA, COM UMA PORTA PARA A VERSÃO MONTADA ──
-// A home sai pronta do cache e é refeita no máximo uma vez por hora (a lista
-// de portais no ar é a única coisa dela que vem do banco). Antes, cada
+// A home sai pronta do cache e é refeita no máximo uma vez por hora; desde
+// que o portal saiu dela (nov/2026), só a versão do morador lê o banco (a
+// lista de portais no ar). Antes, cada
 // visita esperava sessão, banco e registro de evento antes do primeiro byte.
 // Quem traz município (?m=), estado (?uf=), ?para= ou sessão é levado pelo
 // proxy.ts a app/inicio, que monta esta mesma página com o pedido em mãos
@@ -122,14 +126,12 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
   // não conta como cliente (tests/sessao-demo-nao-e-cliente.test.ts).
   const sessaoAtiva = pedido?.sessaoAtiva ?? false;
 
-  // Prova verificável no lugar de muro de logos: portais que qualquer um
-  // abre agora. Sem portal, a página mostra a cidade de exemplo.
-  const { portais } = await listarPortaisPublicados();
-
   // ── O MORADOR VÊ OUTRO SITE ──
   // Outra cor (tema-morador), outro cabeçalho e outra página inteira: a
   // cidade dele explicada em linguagem simples. Ver _morador/HomeMorador.tsx.
   if (morador) {
+    // Os portais no ar, que o morador abre agora; sem nenhum, a cidade de exemplo.
+    const { portais } = await listarPortaisPublicados();
     return (
       <div className="tema-noite tema-morador min-h-screen overflow-x-clip relative" style={{ background: "var(--background)" }}>
         <SiteHeader sessaoAtiva={sessaoAtiva} modo="morador" />
@@ -318,161 +320,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
         </section>
 
         {/* ═══ COMO FUNCIONA ═══
-            Rolagem narrada no desktop, três blocos no celular. Ver
-            ComoFunciona.tsx. */}
-        <HidratarAoChegar id="como-funciona" className="tela-adiada">
-          <ComoFunciona />
-        </HidratarAoChegar>
-
-        {/* ═══ O PORTAL DA TRANSPARÊNCIA ═══
-            O que o cidadão recebe com o módulo Essencial, mostrado vivo: a
-            janela com a cidade de exemplo (VitrinePortal.tsx), e embaixo as
-            quatro coisas que o morador encontra. */}
-        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-16">
-          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10">
-            <div>
-              <p className="inicio-sobre"><i aria-hidden />Portal do cidadão</p>
-              <h2 className="inicio-h2 max-w-[17ch]">O portal do cidadão da sua cidade.</h2>
-            </div>
-            <div>
-              <p className="text-muted leading-relaxed max-w-[42ch]">
-                Um site da prefeitura para o morador: ele vê as contas e as obras e
-                fala com a prefeitura, em linguagem simples. Vem pronto no módulo
-                Essencial. Soma ao Portal da Transparência que a lei exige, que
-                continua saindo do sistema contábil.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 mt-6">
-                {portais.length > 0 ? (
-                  <>
-                    {portais.slice(0, 3).map((p) => (
-                      <Link
-                        key={p.slug}
-                        href={`/transparencia/${p.slug}`}
-                        className="inline-flex items-center gap-2.5 border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0 portal-pulso" style={{ background: "var(--info)" }} />
-                        {p.municipio}, {p.estado}
-                      </Link>
-                    ))}
-                    <Link href="/transparencia/exemplo" className="inicio-sublinhado text-sm text-muted">
-                      Ver a cidade de exemplo
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/transparencia/exemplo"
-                      className="inline-flex items-center border border-border hover:border-brand font-medium text-sm rounded-full px-5 py-2.5 transition"
-                    >
-                      Ver como é o portal
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* A janela do portal chega deitada e se endireita ao subir
-              (globals.css, .vista-3d). */}
-          <div className="vista-3d">
-            <HidratarAoChegar id="vitrine">
-              <VitrinePortal />
-            </HidratarAoChegar>
-          </div>
-
-
-        </section>
-
-        {/* ═══ O PAÍS CONFERIDO ═══
-            A prova de autoridade de uma empresa sem logo de cliente: o RGF
-            de todas as prefeituras lido toda semana (lib/panorama.ts). Só
-            agregados; cada cidade se vê no próprio Raio-X. Logo abaixo, a
-            porta de cada uma das três pessoas que assinam o RGF. */}
-        <HidratarAoChegar id="panorama">
-        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 sm:pt-20">
-          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end">
-            {/* Desceu do topo: as contas públicas são uma parte do produto, e
-                não o produto inteiro. Aqui, a prova de que a parte fiscal é
-                séria: o país inteiro conferido duas vezes por semana. */}
-            <div>
-              <p className="inicio-sobre"><i aria-hidden />Panorama nacional</p>
-              <h2 className="inicio-h2 max-w-[19ch]">E as contas públicas, conferidas no país inteiro.</h2>
-            </div>
-            <p className="text-muted leading-relaxed max-w-[44ch]">
-              {(() => {
-                const f = umaEmCada(passaramDoAlerta(PANORAMA.brasil), PANORAMA.brasil);
-                return `${numeroBr(passaramDoAlerta(PANORAMA.brasil))} prefeituras já passaram do sinal de alerta${f ? ` (${f})` : ""}. `;
-              })()}
-              A conta é refeita {DIAS_DA_CONFERENCIA} com o RGF de cada prefeitura do país no Tesouro.
-              <span className="mt-3 flex items-center gap-2 text-sm">
-                <span aria-hidden className="ponto-ao-vivo" />
-                Última conferência: {dataDoPanorama()}
-              </span>
-            </p>
-          </div>
-          <ul className="surge-lista mt-12 grid sm:grid-cols-3 gap-4 sm:gap-5">
-            {faixasDoPanorama(PANORAMA.brasil, PANORAMA.anterior?.brasil, PANORAMA.anterior?.geradoEm).map((f, i) => (
-              <li key={f.chave} className="cartao-numero" style={{ "--i": i, "--cor": f.cor } as React.CSSProperties}>
-                <p className="numero-grande tabular-nums">
-                  {numeroBr(f.valor)}
-                </p>
-                <p className="mt-2 font-medium">{f.rotulo}</p>
-                {/* Quanto mudou desde a conferência anterior: a prova de que
-                    o número é vivo, e não escrito uma vez à mão. */}
-                {f.variacao && <p className="mt-1 text-xs text-muted tabular-nums">{f.variacao}</p>}
-                <p className="text-sm text-muted leading-relaxed mt-1">{f.consequencia}</p>
-              </li>
-            ))}
-          </ul>
-          <Link href="/panorama" className="inicio-sublinhado inline-block mt-8 text-sm text-muted">
-            Ver o panorama por estado
-          </Link>
-
-          {/* ── QUEM ASSINA O RGF ──
-              Voltou, mais compacta: era o único ponto da home em que cada
-              comprador se reconhecia (revisão de outubro de 2026). */}
-          {/* Um campo de cor, e não três caixas de contorno: a porta de cada
-              cargo é uma linha que acende ao passar o mouse. */}
-          <div className="surge mt-16 rounded-[28px] px-5 py-7 sm:px-10 sm:py-9" style={{ background: "var(--card)" }}>
-            <h3 className="text-xl sm:text-2xl font-semibold tracking-[-0.03em] max-w-[46ch] [text-wrap:balance]">
-              Três pessoas assinam o RGF. Cada uma tem a sua página.
-            </h3>
-            <ul className="mt-6 grid md:grid-cols-3 gap-1 md:gap-3 -mx-3">
-              {CARGOS.map((c) => (
-                <li key={c.slug}>
-                  <Link href={`/para/${c.slug}`} className="inicio-porta group block h-full rounded-2xl px-3 py-3.5">
-                    <span className="flex items-center gap-2 text-lg font-semibold tracking-[-0.02em]">
-                      {c.rotulo}
-                      <span aria-hidden className="inicio-porta-seta" style={{ color: "var(--brand-claro)" }}>
-                        →
-                      </span>
-                    </span>
-                    <span className="block text-sm text-muted leading-snug mt-1 max-w-[34ch]">{c.gancho}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-        </section>
-        </HidratarAoChegar>
-
-
-        {/* ═══ O QUE PENSAMOS ═══
-            Do quadro aprovado pelo fundador ("CidadeIA — home pelas
-            referências"): três frases que descem de tom, uma pausa de leitura
-            entre os números e o vídeo. */}
-        <section className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-40" aria-labelledby="titulo-pensamos">
-          <h2 id="titulo-pensamos" className="inicio-sobre">
-            <i aria-hidden />
-            O que pensamos
-          </h2>
-          <div className="surge-lista manifesto mt-8">
-            <p style={{ "--i": 0 } as React.CSSProperties}>Nem toda prefeitura precisa trocar de sistema.</p>
-            <p style={{ "--i": 1 } as React.CSSProperties}>Nem todo prazo precisa de mais uma planilha.</p>
-            <p style={{ "--i": 2 } as React.CSSProperties}>Nem todo relatório precisa de reunião.</p>
-          </div>
-        </section>
+            Três passos, uma linha cada, sem nada a ligar no navegador
+            (ComoFunciona.tsx). */}
+        <ComoFunciona />
 
         {/* ═══ PROPOSTA ═══ */}
         {/* ═══ O VÍDEO, PARA REPASSAR ═══
@@ -508,11 +358,8 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             o roxo profundo da marca, sem contorno: a única mudança de campo
             de cor da página, e ela marca a decisão. */}
         <section id="proposta" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-10 scroll-mt-24">
-          {/* Uma grade só: no computador, título e dispensa lado a lado e o
-              montador embaixo; no celular, o montador sobe logo depois do
-              título e as notas da dispensa vão para o fim, para a ação não
-              ficar atrás de três parágrafos de letra miúda. */}
-          <div className="inicio-fecho surge relative isolate rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-x-16 gap-y-10 lg:gap-y-12 items-start">
+          {/* Título, duas linhas e o montador, nessa ordem, em qualquer tela. */}
+          <div className="inicio-fecho surge relative isolate rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid gap-y-10 lg:gap-y-12 items-start">
             {/* O fundo do fecho: a grade de pontos e o brilho que se move,
                 atrás do vidro do preço (globals.css, .fecho-fundo). Numa
                 camada própria, e não no quadro, para o recorte não cortar o
@@ -528,25 +375,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
                 Escolha o município e os módulos. Valor, termo de referência e
                 minuta de contrato chegam no mesmo e-mail, sem reunião antes.
               </p>
-            </div>
-            <div className="order-3 lg:order-none px-2 sm:px-0 lg:border-l border-border lg:pl-10">
-              <p className="text-sm text-muted">Limite da dispensa de licitação por valor</p>
-              <p className="mt-2 text-4xl sm:text-5xl font-semibold tabular-nums tracking-[-0.045em]">
-                {formatarMoedaExata(LIMITE_DISPENSA.valor)}
-              </p>
-              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
-                por ano, em contratação direta. {LIMITE_DISPENSA.base}, valor do{" "}
-                {LIMITE_DISPENSA.atualizadoPor}.
-              </p>
-              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
-                {AVISO_FRACIONAMENTO.curto} {AVISO_FRACIONAMENTO.base}.
-              </p>
-              {/* "Cabe na dispensa" dizia só metade: o valor abre a porta, mas
-                  a dispensa ainda pede justificativa do preço e pesquisa com
-                  outros fornecedores (art. 72), e o kit traz o modelo. */}
-              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[36ch]">
-                O valor não basta: a dispensa pede estimativa de despesa, pesquisa de preço e justificativa da escolha
-                (art. 72). O <Link href="/kit" className="underline underline-offset-2">kit de contratação</Link> traz o modelo.
+              {/* A dispensa em uma linha; por inteiro em /como-contratar e no kit. */}
+              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[52ch]">
+                Cabe na dispensa por valor, até {formatarMoedaExata(LIMITE_DISPENSA.valor)} por ano ({LIMITE_DISPENSA.base}).{" "}
+                {AVISO_FRACIONAMENTO.curto} <Link href="/como-contratar" className="underline underline-offset-2">Como contratar</Link>
               </p>
             </div>
           {/* ── O MUNICÍPIO SE ESCOLHE AQUI MESMO ──
@@ -556,7 +388,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               antes do pedido, era o maior atrito do caminho (revisão de
               novembro de 2026). Agora o campo está no próprio montador; com
               município escolhido no topo, ele já vem preenchido. */}
-          <div id="montar-proposta" className="order-2 lg:order-none lg:col-span-2 min-w-0 scroll-mt-24">
+          <div id="montar-proposta" className="min-w-0 scroll-mt-24">
             <HidratarAoChegar id="montador">
               <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo resumoSobConsulta municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
             </HidratarAoChegar>

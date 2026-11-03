@@ -21,18 +21,17 @@ describe("números que batem entre as páginas", () => {
 
   it("uma lista só de bases oficiais, usada pela home, Quem somos e Governança", () => {
     expect(FONTES_OFICIAIS.length).toBe(9);
-    for (const p of ["src/app/page.tsx", "src/app/quem-somos/page.tsx", "src/app/governanca/page.tsx", "src/components/site/inicio/ComoFunciona.tsx"]) {
+    // ComoFunciona.tsx saiu da lista em nov/2026: na home enxuta ele tem só
+    // os três passos, sem o quadro das bases.
+    for (const p of ["src/app/page.tsx", "src/app/quem-somos/page.tsx", "src/app/governanca/page.tsx"]) {
       expect(ler(p)).toMatch(/fontes-oficiais/);
     }
   });
 });
 
 describe("o que é jurídico, certo", () => {
-  it("52,4% de despesa com pessoal é acima do prudencial, não fora da lei", () => {
-    const s = ler("src/components/site/inicio/ComoFunciona.tsx");
-    expect(s).not.toMatch(/Fora da lei/);
-    expect(s).toMatch(/Acima do prudencial/);
-  });
+  // O quadro de conferência com "52,4%, acima do prudencial" saiu da home
+  // enxuta (nov/2026), e com ele o teste do rótulo. Se voltar, volta o teste.
 
   it("o limite da dispensa é da soma do ano, e o site diz isso", () => {
     expect(AVISO_FRACIONAMENTO.base).toMatch(/75, § 1º/);

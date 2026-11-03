@@ -75,10 +75,10 @@ describe("prova social não promete portal que não existe", () => {
     }
   });
 
-  it("sem portal no ar, a página mostra a cidade de exemplo, que existe de verdade", () => {
-    // O Raio-X agora é o próprio topo da home; a reserva da seção do portal é
-    // a cidade de exemplo, que qualquer um abre e confere.
-    expect(home).toContain("/transparencia/exemplo");
+  it("a cidade de exemplo, que existe de verdade, continua a um clique", () => {
+    // A seção do portal saiu da home enxuta (nov/2026). O portal de exemplo,
+    // que qualquer um abre e confere, fica no rodapé de todas as páginas.
+    expect(readFileSync("src/components/site/SiteFooter.tsx", "utf8")).toContain("/transparencia/exemplo");
   });
 });
 
