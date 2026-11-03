@@ -123,12 +123,12 @@ export default function BrasilRelevo() {
         ref={tela}
         className="topo3d-tela"
         role="img"
-        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? ` e, em azul, você, perto de ${nome}` : ""}`}
+        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? ` e, em azul, você, em ${nome}` : ""}`}
       />
       <div ref={rotulo} className="topo3d-voce" aria-hidden hidden={!nome}>
         <i className="topo3d-ponto-voce" />
         <span>
-          Você, perto de <b>{nome}</b>
+          Você está em <b>{nome}</b>
         </span>
       </div>
       <a href="#proposta" className="topo3d-pilula">
