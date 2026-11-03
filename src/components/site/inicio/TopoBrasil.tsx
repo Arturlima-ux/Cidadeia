@@ -19,7 +19,7 @@ const ESTILO = `
 .topo3d { position: relative; height: clamp(600px, calc(100svh - 70px), 900px); overflow: hidden; }
 .topo3d::after { content: ""; position: absolute; inset: auto 0 0 0; height: 180px; background: linear-gradient(transparent, var(--background)); pointer-events: none; z-index: 1; }
 .topo3d-palco { position: absolute; inset: 0; }
-.topo3d-tela { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 900ms var(--saida); }
+.topo3d-tela { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 700ms var(--saida); }
 .topo3d-palco[data-pronto] .topo3d-tela { opacity: 1; }
 .topo3d-palco[data-gira] .topo3d-tela { cursor: grab; }
 .topo3d-palco[data-gira] .topo3d-tela:active { cursor: grabbing; }

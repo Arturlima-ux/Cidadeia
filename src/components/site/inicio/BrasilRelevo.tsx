@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { EVENTO_VISITANTE, guardarVisitante, lerVisitante, nomeDoLocal, type LocalAproximado } from "@/lib/onde-esta";
 import type { CenaBrasil } from "./brasil-relevo-cena";
+import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 
 // ── O BRASIL EM RELEVO DO TOPO (o palco do 3D) ──
 //
 // O texto do topo chega pronto do servidor (TopoBrasil.tsx); aqui fica só o
 // palco: a tela do 3D, o rótulo do visitante, a pílula de ação e a legenda.
-// O three.js e a cena (brasil-relevo-cena.ts) só são baixados depois do load,
-// com o navegador livre: a primeira pintura e o maior conteúdo da página são
-// o texto, nunca o mapa.
+// O three.js, a cena (brasil-relevo-cena.ts) e o relevo leve começam a baixar
+// assim que a página hidrata, em baixa prioridade, em paralelo; a cena só é
+// montada depois do load. Antes tudo esperava o load e o navegador livre, e
+// depois baixava em fila (código, depois imagens): o mapa demorava. A
+// primeira pintura e o maior conteúdo continuam sendo o texto.
 //
 // O visitante: /api/onde-estou devolve a cidade aproximada pela conexão
 // (cabeçalhos da Vercel), sem pedir permissão e sem gravar nada. Só quem
@@ -51,12 +54,20 @@ export default function BrasilRelevo() {
   useEffect(() => {
     let vivo = true;
     const janela = window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number };
-    const quandoLivre = (f: () => void) => (janela.requestIdleCallback ? janela.requestIdleCallback(f, { timeout: 2500 }) : window.setTimeout(f, 300));
+    const quandoLivre = (f: () => void) => (janela.requestIdleCallback ? janela.requestIdleCallback(f, { timeout: 700 }) : window.setTimeout(f, 200));
+
+    // Já começa a baixar: o código da cena e as imagens da abertura.
+    const modulo = import("./brasil-relevo-cena");
+    for (const src of ARQUIVOS_DA_ABERTURA) {
+      const i = new Image();
+      i.fetchPriority = "low";
+      i.src = src;
+    }
 
     const montar = async () => {
       if (!palco.current || !tela.current || !rotulo.current) return;
       try {
-        const { montarBrasil } = await import("./brasil-relevo-cena");
+        const { montarBrasil } = await modulo;
         if (!vivo || !palco.current || !tela.current || !rotulo.current) return;
         const c = await montarBrasil({
           palco: palco.current,
