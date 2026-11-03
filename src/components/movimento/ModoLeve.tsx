@@ -9,7 +9,8 @@ import { ATRIBUTO_LEVE, CHAVE_LEVE, EVENTO_LEVE, emModoLeve, quadrosLentos } fro
 // memória). Mas há computador com bons núcleos e sem aceleração de vídeo,
 // e aí tudo que se mexe é desenhado pela CPU. Então mede 2 segundos de
 // quadros duas vezes (parado, 4 s depois do carregamento, e na primeira
-// rolagem): se 12% deles passam de 34 ms, fora das tarefas longas do
+// rolagem): se o ritmo é muito baixo ou se travam (regra em
+// lib/modo-leve.ts, quadrosLentos), fora das tarefas longas do
 // próprio carregamento, liga o modo leve e guarda a escolha (localStorage),
 // para a próxima visita já abrir leve.
 //
