@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { ARQUIVOS_DA_ABERTURA } from "./src/components/site/inicio/relevo-abertura";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
@@ -86,6 +87,20 @@ const nextConfig: NextConfig = {
     const emProducaoReal = process.env.VERCEL === "1";
 
     return [
+      // A home avisa no cabeçalho da resposta, e não só no <head>, quais são
+      // as imagens do relevo do topo: o navegador começa a baixá-las ao
+      // receber a resposta, antes de ler o HTML (no 4G simulado, ~0,02 s em
+      // vez de ~0,17 s). Prioridade baixa: não passam na frente do texto.
+      // A lista é a mesma que o mapa usa (relevo-abertura.ts).
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Link",
+            value: ARQUIVOS_DA_ABERTURA.map((src) => `<${src}>; rel=preload; as=image; fetchpriority=low`).join(", "),
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
