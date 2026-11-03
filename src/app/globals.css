@@ -1023,14 +1023,6 @@ h1.font-serif,
   text-wrap: balance;
 }
 
-/* Os fios da seção "Como funciona": o traço corre da fonte ao município. */
-.fio-dados {
-  animation: fio-corre 1.6s linear infinite;
-}
-@keyframes fio-corre {
-  to { stroke-dashoffset: -28; }
-}
-
 .inicio-sublinhado {
   text-decoration: underline;
   text-decoration-color: var(--border);
@@ -1041,12 +1033,6 @@ h1.font-serif,
 .inicio-sublinhado:hover {
   color: var(--foreground);
   text-decoration-color: var(--brand-claro);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fio-dados {
-    animation: none;
-  }
 }
 
 /* ── HOME, REVISÃO DE NOVEMBRO DE 2026 ──
@@ -1069,30 +1055,6 @@ h1.font-serif,
     color: var(--foreground);
     text-decoration-color: var(--brand-claro);
   }
-}
-
-/* As portas por cargo: uma linha que acende (passo de tom, sem contorno) e
-   uma seta que anda 4 px. Só transform e cor de fundo. */
-.inicio-porta {
-  transition: background-color 180ms var(--saida);
-}
-.inicio-porta-seta {
-  display: inline-block;
-  transition: transform 180ms var(--saida);
-}
-.inicio-porta:focus-visible {
-  background-color: var(--sutil);
-}
-@media (hover: hover) and (pointer: fine) {
-  .inicio-porta:hover {
-    background-color: var(--sutil);
-  }
-  .inicio-porta:hover .inicio-porta-seta {
-    transform: translateX(4px);
-  }
-}
-.inicio-porta:active {
-  background-color: var(--sutil);
 }
 
 /* O fecho: o único campo de cor da página, o roxo da marca bem baixo sobre o
@@ -1887,26 +1849,6 @@ select option {
   background: color-mix(in oklab, var(--foreground) 25%, transparent);
 }
 
-/* ── 2. A IMAGEM EM 3D ──
-   A janela do portal chega deitada (22°, vista de baixo) e se endireita
-   enquanto entra na tela. Começa na borda de baixo, onde ninguém vê o
-   salto, e termina com 40% dela à mostra. */
-.vista-3d { perspective: 1400px; }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .vista-3d > * {
-      transform-origin: 50% 100%;
-      animation: vista-endireita linear forwards;
-      animation-timeline: view();
-      animation-range: entry 0% cover 40%;
-    }
-  }
-}
-@keyframes vista-endireita {
-  from { opacity: 0.55; transform: rotateX(24deg) scale(0.9) translateY(48px); }
-  to { opacity: 1; transform: none; }
-}
-
 /* ── 7. O VÍDEO QUE SE EXPANDE ──
    O quadro ocupa a largura da tela, mas chega recortado do tamanho da
    coluna do site; enquanto sobe, o recorte abre até a borda. clip-path é a
@@ -1981,49 +1923,6 @@ select option {
     backdrop-filter: blur(10px);
   }
 }
-/* ── 1. A ENTRADA EM SEQUÊNCIA ──
-   Itens de uma lista entram um depois do outro (--i vem do componente).
-   Mesmo princípio de .surge. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .surge-lista > * {
-      animation: surge-ao-rolar linear forwards;
-      animation-timeline: view();
-      /* Todos começam na borda de baixo (onde ninguém vê o salto) e
-         terminam escalonados: o seguinte leva 60 px a mais de rolagem. */
-      animation-range: entry 0px entry calc(180px + var(--i, 0) * 60px);
-    }
-  }
-}
-
-/* ── PONTO AO VIVO ──
-   Ao lado da data da última conferência do panorama: diz, sem frase, que o
-   número é refeito sozinho. Um anel que se expande e some (transform e
-   opacity); parado com movimento reduzido. */
-.ponto-ao-vivo {
-  position: relative;
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  flex: none;
-  border-radius: 9999px;
-  background: var(--accent);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .ponto-ao-vivo::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--accent);
-    animation: ponto-ao-vivo 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  }
-}
-@keyframes ponto-ao-vivo {
-  from { transform: scale(1); opacity: 0.6; }
-  to { transform: scale(2.6); opacity: 0; }
-}
-
 /* ── MODO LEVE: COMPUTADOR FRACO ──
    Muita prefeitura trabalha em computador antigo, sem placa de vídeo, com
    2 a 4 núcleos. Nesses, cada animação de entrada e cada desfoque de vidro
@@ -2060,31 +1959,6 @@ html[data-leve][data-rolou] .cabecalho-site {
   backdrop-filter: none;
 }
 
-/* Clima grafite: o cartão é neutro e a cor do estado fica só no número. */
-.cartao-numero {
-  border-radius: 28px;
-  padding: 1.75rem 1.75rem 2rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-}
-.numero-grande {
-  font-size: clamp(4.25rem, 8.6vw, 8.25rem);
-  font-weight: 300;
-  line-height: 0.9;
-  letter-spacing: -0.06em;
-  color: var(--cor);
-}
-.manifesto > p {
-  margin: 0;
-  font-size: clamp(2rem, 5.2vw, 4rem);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.045em;
-  text-wrap: balance;
-}
-.manifesto > p + p { margin-top: 0.4em; }
-.manifesto > p:nth-child(2) { color: var(--muted); }
-.manifesto > p:nth-child(3) { color: color-mix(in oklab, var(--muted) 55%, var(--background)); }
 .rodape-fundido {
   background: linear-gradient(to bottom, transparent, var(--brand-profundo) 14rem);
   padding-top: 8rem;
