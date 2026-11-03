@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     : {}),
 };
 
-const SCRIPT_INICIAL = `(function(){var d=document.documentElement;d.classList.add("com-js");try{var q=/[?&]leve=([01])/.exec(location.search);if(q)localStorage.setItem("cidadeia-leve-2",q[1]);var g=localStorage.getItem("cidadeia-leve-2");var n=navigator;if(g==="1"||(g!=="0"&&((n.hardwareConcurrency&&n.hardwareConcurrency<=2)||(n.deviceMemory&&n.deviceMemory<=2))))d.setAttribute("data-leve","")}catch(e){}})()`;
+const SCRIPT_INICIAL = `(function(){var d=document.documentElement;d.classList.add("com-js");try{var q=/[?&]leve=([01])/.exec(location.search);if(q)localStorage.setItem("cidadeia-leve-3",q[1]);var g=localStorage.getItem("cidadeia-leve-3");var n=navigator;if(g==="1"||(g!=="0"&&((n.hardwareConcurrency&&n.hardwareConcurrency<=2)||(n.deviceMemory&&n.deviceMemory<=2))))d.setAttribute("data-leve","")}catch(e){}})()`;
 
 export default function RootLayout({
   children,
@@ -80,7 +80,7 @@ export default function RootLayout({
             o fundador viu o ponto azul parado no próprio computador. Quem
             tem 4 núcleos e trava de verdade cai no modo leve pela medição de
             quadros logo depois. Uma escolha guardada
-            (localStorage "cidadeia-leve-2", "1" ou "0", que ModoLeve.tsx grava —
+            (localStorage "cidadeia-leve-3", "1" ou "0", que ModoLeve.tsx grava —
             ele vem dentro de MovimentoLeve, para o layout não ganhar mais um
             componente de cliente, o que separava a fonte num CSS à parte e
             atrasava a primeira pintura —

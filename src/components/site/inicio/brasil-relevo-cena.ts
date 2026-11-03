@@ -358,6 +358,25 @@ export async function montarBrasil(o: {
 
   let nitida: HTMLImageElement[] | null = null; // a textura nítida, esperando a entrada acabar
 
+  // A etiqueta "Você está em…" sobre o topo do feixe, sem sair da tela. A
+  // largura dela é medida aqui, e não uma vez: quando o nome chega, a
+  // etiqueta ainda está escondida (largura zero) e, com o mapa parado (modo
+  // leve), a posição medida assim ficava, com a etiqueta cortada na borda
+  // (print do fundador, iPhone, 3/11/2026). Quem chama de novo quando o
+  // tamanho muda é o observador logo abaixo.
+  function posicionarRotulo() {
+    if (!vPos) return;
+    brasil.updateMatrixWorld();
+    camera.updateMatrixWorld();
+    proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
+    const W = palco.clientWidth, H = palco.clientHeight, rw = rotulo.offsetWidth, rh = rotulo.offsetHeight;
+    const x = Math.max(8, Math.min(W - rw - 8, ((proj.x + 1) / 2) * W - rw / 2));
+    const y = Math.max(8, ((1 - proj.y) / 2) * H - rh);
+    rotulo.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+  }
+  const medirRotulo = new ResizeObserver(() => posicionarRotulo());
+  medirRotulo.observe(rotulo);
+
   // ── Um quadro ──
   const lim = (t: number) => Math.min(1, Math.max(0, t));
   const saida = (t: number) => 1 - Math.pow(1 - lim(t), 3);
@@ -412,13 +431,7 @@ export async function montarBrasil(o: {
         w.m.scale.setScalar(4 + c * 34);
         (w.m.material as THREE.MeshBasicMaterial).opacity = liga * (1 - c) * 0.8;
       }
-      brasil.updateMatrixWorld();
-      camera.updateMatrixWorld();
-      proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
-      const W = palco.clientWidth, H = palco.clientHeight, rw = rotulo.offsetWidth, rh = rotulo.offsetHeight;
-      const x = Math.max(8, Math.min(W - rw - 8, ((proj.x + 1) / 2) * W - rw / 2));
-      const y = Math.max(8, ((1 - proj.y) / 2) * H - rh);
-      rotulo.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      posicionarRotulo();
       if (liga > 0.5) rotulo.setAttribute("data-visivel", "");
     }
     renderer.render(cena, camera);
@@ -488,6 +501,7 @@ export async function montarBrasil(o: {
       cancelAnimationFrame(quadro);
       observador.disconnect();
       redimensionar.disconnect();
+      medirRotulo.disconnect();
       document.removeEventListener("visibilitychange", retomar);
       window.removeEventListener("pointermove", aoMover);
       controles.dispose();

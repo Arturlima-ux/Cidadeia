@@ -57,10 +57,12 @@ const ESTILO = `
   background: color-mix(in oklab, var(--background) 72%, transparent); border: 1px solid color-mix(in oklab, var(--localizacao) 35%, transparent);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   font-size: 12.5px; white-space: nowrap; color: var(--foreground);
+  max-width: calc(100% - 16px);
   opacity: 0; transition: opacity 500ms var(--saida); will-change: transform;
 }
 .topo3d-voce[data-visivel] { opacity: 1; }
 .topo3d-voce b { font-weight: 600; }
+.topo3d-voce > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 @media (min-width: 640px) {
   .topo3d-dentro { padding-inline: 32px; }
   .topo3d-lados { left: 32px; right: 32px; }
