@@ -44,7 +44,11 @@ export type TipoEvento =
   /** Baixou um documento do kit de contratação. */
   | "kit_baixado"
   /** Abriu a página de um módulo. */
-  | "modulo";
+  | "modulo"
+  /** Deixou nome e e-mail ou telefone (Raio-X por e-mail, projeção, ligação,
+   *  aviso da cidade). O detalhe diz qual formulário; o contato fica em leads,
+   *  nunca aqui. Serve para somar leads por canal (lib/links-de-campanha.ts). */
+  | "contato_deixado";
 
 export const TIPOS_EVENTO: TipoEvento[] = [
   "visita",
@@ -54,6 +58,7 @@ export const TIPOS_EVENTO: TipoEvento[] = [
   "proposta_enviada",
   "kit_baixado",
   "modulo",
+  "contato_deixado",
 ];
 
 export type Evento = {

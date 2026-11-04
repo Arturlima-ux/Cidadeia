@@ -1,4 +1,5 @@
 import { registrarEvento } from "@/lib/registrar-evento";
+import { lerCampanha, type Campanha } from "@/lib/links-de-campanha";
 
 // ── A VISITA DA HOME ESTÁTICA ──
 //
@@ -21,13 +22,17 @@ export async function POST(request: Request) {
   if (site && site !== "same-origin") return new Response(null, { status: 403 });
 
   let referer: string | null = null;
+  let campanha: Campanha | null = null;
   try {
-    const corpo = (await request.json()) as { origem?: unknown };
+    const corpo = (await request.json()) as { origem?: unknown; busca?: unknown };
     if (typeof corpo.origem === "string" && corpo.origem.length <= 500) referer = corpo.origem || null;
+    // A busca da página (?utm_source=…): só vale o link marcado pelo
+    // CidadeIA, e dele só o canal e o número do prospecto.
+    if (typeof corpo.busca === "string" && corpo.busca.length <= 500) campanha = lerCampanha(new URLSearchParams(corpo.busca));
   } catch {
     // corpo vazio ou estranho: a visita conta, sem origem
   }
 
-  await registrarEvento({ tipo: "visita", caminho: "/", referer });
+  await registrarEvento({ tipo: "visita", caminho: "/", referer, campanha });
   return new Response(null, { status: 204 });
 }

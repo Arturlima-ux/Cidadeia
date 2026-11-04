@@ -2,6 +2,8 @@ import Link from "next/link";
 import NavAdmin from "../NavAdmin";
 import { emailDaEquipe } from "@/lib/equipe";
 import { visitasDeGente } from "@/lib/visitas-de-gente-servidor";
+import { URL_BASE } from "@/lib/seo";
+import { funilPorOrigem, rotuloDaOrigem, type LinhaPorOrigem } from "@/lib/links-de-campanha";
 import { notFound } from "next/navigation";
 import {
   montarFunil,
@@ -9,6 +11,7 @@ import {
   municipiosMaisConsultados,
   municipiosQueConverteram,
   MINIMO_PARA_DIAGNOSTICO,
+  origemDe,
   type ContagemPorTipo,
   type TipoEvento,
 } from "@/lib/analytics";
@@ -67,7 +70,7 @@ export default async function MedicaoPage({
     codigoIbge: string | null;
     visitante: string;
   }[] = [];
-  let origens: { origem: string | null; visitantes: number }[] = [];
+  let origens: LinhaPorOrigem[] = [];
   let robosDescartados = 0;
 
   try {
@@ -83,12 +86,9 @@ export default async function MedicaoPage({
     }
     contagens = [...porTipo].map(([tipo, c]) => ({ tipo: tipo as TipoEvento, eventos: c.eventos, visitantes: c.visitantes.size }));
     brutos = gente.map((e) => ({ tipo: e.tipo as TipoEvento, municipio: e.municipio, uf: e.uf, codigoIbge: e.codigoIbge, visitante: e.visitante }));
-    const porOrigem = new Map<string | null, Set<string>>();
-    for (const e of gente) porOrigem.set(e.origem, (porOrigem.get(e.origem) ?? new Set()).add(e.visitante));
-    origens = [...porOrigem]
-      .map(([origem, v]) => ({ origem, visitantes: v.size }))
-      .sort((a, b) => b.visitantes - a.visitantes)
-      .slice(0, 8);
+    // Por canal: a origem de cada visitante é a da página onde entrou, e lead
+    // é quem pediu proposta ou deixou contato no mesmo dia (lib/links-de-campanha.ts).
+    origens = funilPorOrigem(gente, origemDe(URL_BASE)).slice(0, 10);
   } catch (e) {
     console.error("[medicao] leitura:", e);
   }
@@ -264,19 +264,37 @@ export default async function MedicaoPage({
           {/* ── DE ONDE VEM ── */}
           {origens.length > 0 && (
             <section className="bg-card border border-border rounded-2xl p-6">
-              <h2 className="font-semibold text-sm mb-1">De onde chegaram</h2>
-              <p className="text-xs text-muted mb-4">
-                Só o endereço do site de origem. O caminho completo pode trazer termo de busca e
-                identificador de campanha, e não é guardado.
+              <h2 className="font-semibold text-sm mb-1">De onde chegaram, e quem virou lead</h2>
+              <p className="text-xs text-muted mb-4 max-w-[62ch]">
+                A origem é o site de onde a pessoa veio ou, nos links marcados da Prospecção, o canal
+                do link. Lead é quem pediu proposta ou deixou contato no mesmo dia. Instagram, WhatsApp
+                e e-mail quase nunca dizem de onde vem a visita: sem o link marcado, caem em acesso
+                direto. Termo de busca e parâmetro de anúncio não são guardados.
               </p>
-              <ul className="flex flex-col divide-y divide-border">
-                {origens.map((o) => (
-                  <li key={o.origem ?? "direto"} className="flex items-center justify-between py-2">
-                    <span className="text-sm">{o.origem ?? "acesso direto"}</span>
-                    <span className="text-sm tabular-nums text-muted">{o.visitantes}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs text-muted text-left">
+                      <th scope="col" className="font-normal pb-2 pr-3">Origem</th>
+                      <th scope="col" className="font-normal pb-2 px-2 text-right">Visitantes</th>
+                      <th scope="col" className="font-normal pb-2 px-2 text-right">Abriram um Raio-X</th>
+                      <th scope="col" className="font-normal pb-2 pl-2 text-right">Leads</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border border-t border-border">
+                    {origens.map((o) => (
+                      <tr key={o.origem ?? "direto"}>
+                        <td className="py-2 pr-3 break-words">{rotuloDaOrigem(o.origem)}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-muted">{o.visitantes}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-muted">{o.raioX}</td>
+                        <td className="py-2 pl-2 text-right tabular-nums font-semibold" style={{ color: o.leads ? "var(--brand-claro)" : "var(--muted)" }}>
+                          {o.leads}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
           )}
         </>

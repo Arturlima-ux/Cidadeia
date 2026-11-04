@@ -1100,7 +1100,8 @@ export const decisoesObra = pgTable("decisoes_obra", {
 export const eventos = pgTable("eventos", {
   id: text("id").primaryKey(),
   tipo: text("tipo", {
-    enum: ["visita", "raio_x", "demo", "proposta_aberta", "proposta_enviada", "kit_baixado", "modulo"],
+    // Texto no banco: valor novo aqui não pede migração.
+    enum: ["visita", "raio_x", "demo", "proposta_aberta", "proposta_enviada", "kit_baixado", "modulo", "contato_deixado"],
   }).notNull(),
   caminho: text("caminho").notNull(),
   uf: text("uf"),

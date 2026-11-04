@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { leads } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { enviarEmail } from "@/lib/email";
 import { limitarUso } from "@/lib/rate-limit";
 import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
@@ -72,6 +73,7 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
   } catch (e) {
     console.error("[lead] falha ao gravar:", e);
   }
+  if (gravado) await registrarEvento({ tipo: "contato_deixado", caminho: caminhoDoRaioX(municipio), codigoIbge: municipio.codigo, detalhe: "raio-x" });
 
   // 2) o Raio-X em texto (o mesmo que a página mostra)
   let corpo: Bloco[];

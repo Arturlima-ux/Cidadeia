@@ -12,7 +12,7 @@ export default function ContarVisita() {
     const avisar = () => {
       if (feito) return;
       feito = true;
-      const corpo = JSON.stringify({ origem: document.referrer || "" });
+      const corpo = JSON.stringify({ origem: document.referrer || "", busca: location.search.slice(0, 500) });
       try {
         const blob = new Blob([corpo], { type: "application/json" });
         if (navigator.sendBeacon?.("/api/visita", blob)) return;
