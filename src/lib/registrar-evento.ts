@@ -11,6 +11,7 @@ import {
   origemDe,
   type TipoEvento,
 } from "@/lib/analytics";
+import { origemDaCampanha, type Campanha } from "@/lib/links-de-campanha";
 
 // ── O REGISTRO QUE NÃO ATRASA NINGUÉM ──
 //
@@ -55,6 +56,10 @@ export type DadosDoEvento = {
    *  (app/api/visita): o cabeçalho referer desse aviso é a própria home, e a
    *  origem verdadeira chega aqui, lida de document.referrer. */
   referer?: string | null;
+  /** O link marcado pela mesa de prospecção ou de um perfil
+   *  (lib/links-de-campanha.ts). Quando há, a origem é o canal do link e o
+   *  detalhe leva o número do prospecto. */
+  campanha?: Campanha | null;
 };
 
 /**
@@ -86,9 +91,11 @@ export async function registrarEvento(dados: DadosDoEvento): Promise<void> {
       uf: dados.uf ?? null,
       codigoIbge: dados.codigoIbge ?? null,
       municipio: dados.municipio ?? null,
-      detalhe: dados.detalhe?.slice(0, 120) ?? null,
+      detalhe: (dados.detalhe ?? dados.campanha?.prospecto)?.slice(0, 120) ?? null,
       visitante: identificadorDoDia(enderecoDe(h), navegador, dia, chave),
-      origem: origemDe(dados.referer !== undefined ? dados.referer : h.get("referer")),
+      origem: dados.campanha
+        ? origemDaCampanha(dados.campanha)
+        : origemDe(dados.referer !== undefined ? dados.referer : h.get("referer")),
       dispositivo: dispositivoDe(navegador),
       criadoEm: new Date().toISOString(),
     };

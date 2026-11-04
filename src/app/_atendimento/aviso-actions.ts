@@ -6,6 +6,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { leads, pedidoEventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { enviarEmail } from "@/lib/email";
 import { montarEmail, saudacao } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
@@ -68,6 +69,7 @@ export async function inscreverAvisoDaCidade(entrada: unknown): Promise<Resultad
     cargo: d.cargo,
     email: d.email.toLowerCase(),
   });
+  await registrarEvento({ tipo: "contato_deixado", caminho: "/", codigoIbge: m.codigo, detalhe: "aviso" });
 
   const chave = chaveDoAviso(id);
   const cancelar = chave ? `${base()}/aviso/cancelar/${chave}` : null;

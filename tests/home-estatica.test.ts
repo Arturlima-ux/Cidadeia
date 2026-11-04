@@ -45,6 +45,6 @@ describe("home estática com versão montada", () => {
   it("a visita contada pelo navegador só vale da própria página", () => {
     const rota = ler("src/app/api/visita/route.ts");
     expect(rota).toMatch(/sec-fetch-site/);
-    expect(rota).toMatch(/registrarEvento\(\{ tipo: "visita", caminho: "\/", referer \}\)/);
+    expect(rota).toMatch(/registrarEvento\(\{ tipo: "visita", caminho: "\/", referer, campanha \}\)/);
   });
 });

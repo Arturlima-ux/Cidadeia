@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { leads } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { enviarEmail } from "@/lib/email";
 import { montarEmail, saudacao, type Bloco } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
@@ -76,6 +77,7 @@ export async function solicitarProjecao(entrada: unknown): Promise<ResultadoProj
   } catch (e) {
     console.error("[projecao] falha ao gravar:", e);
   }
+  if (gravado) await registrarEvento({ tipo: "contato_deixado", caminho: "/", codigoIbge: municipio.codigo, detalhe: "projecao" });
 
   // 2) monta a projeção com a série que o Tesouro tiver.
   let corpo: Bloco[];

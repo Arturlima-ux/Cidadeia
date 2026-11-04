@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
+import { lerCampanha } from "@/lib/links-de-campanha";
 import Link from "next/link";
 import DadosDoTesouro from "./DadosDoTesouro";
 import EsqueletoRaioX from "@/components/site/EsqueletoRaioX";
@@ -106,7 +107,13 @@ export async function generateMetadata({ params }: { params: Promise<{ uf: strin
   return m.uf === "DF" ? { ...meta, robots: { index: false, follow: true } } : meta;
 }
 
-export default async function RaioXMunicipioPage({ params }: { params: Promise<{ uf: string; slug: string }> }) {
+export default async function RaioXMunicipioPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ uf: string; slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { uf, slug } = await params;
   const m = acharMunicipio(uf, slug);
   if (!m) notFound();
@@ -114,9 +121,13 @@ export default async function RaioXMunicipioPage({ params }: { params: Promise<{
   // ── A MEDIÇÃO QUE DIZ QUAIS MUNICÍPIOS VIRAM PROPOSTA ──
   // Dois eventos: "visita" alimenta a base do funil, "raio_x" marca a
   // intenção sobre um município específico. Roda depois da resposta sair.
-  await registrarEvento({ tipo: "visita", caminho: `/raio-x/${uf}/${slug}` });
+  // O link marcado da mesa de prospecção diz o canal e o prospecto
+  // (lib/links-de-campanha.ts); sem ele, a origem é o referer, como sempre.
+  const campanha = lerCampanha(await searchParams);
+  await registrarEvento({ tipo: "visita", caminho: `/raio-x/${uf}/${slug}`, campanha });
   await registrarEvento({
     tipo: "raio_x",
+    campanha,
     caminho: `/raio-x/${uf}/${slug}`,
     uf: m.uf,
     codigoIbge: m.codigo,

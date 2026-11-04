@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import { leads, pedidoEventos } from "@/db/schema";
 import { gerarId } from "@/lib/id";
+import { registrarEvento } from "@/lib/registrar-evento";
 import { enviarEmail } from "@/lib/email";
 import { h, montarEmail } from "@/lib/email-modelo";
 import { limitarUso } from "@/lib/rate-limit";
@@ -66,6 +67,7 @@ export async function pedirLigacao(entrada: unknown): Promise<ResultadoLigacao> 
       descricao: JSON.stringify({ telefone, horario: d.horario, pagina: d.origem ?? null }),
       autor: "site",
     });
+    await registrarEvento({ tipo: "contato_deixado", caminho: d.origem?.slice(0, 300) || "/", codigoIbge: municipio?.codigo ?? null, detalhe: "ligacao" });
   } catch (e) {
     console.error("[ligacao] falha ao gravar:", e);
   }

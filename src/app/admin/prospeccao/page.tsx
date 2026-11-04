@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { like } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import { db } from "@/db";
-import { pedidoEventos } from "@/db/schema";
+import { eventos, pedidoEventos } from "@/db/schema";
+import { URL_BASE } from "@/lib/seo";
+import { aberturasPorProspecto, linkMarcado, type Abertura } from "@/lib/links-de-campanha";
 import { lerSessao } from "@/lib/sessao";
 import { emailDaEquipe } from "@/lib/equipe";
 import { caminhoDoRaioX } from "@/lib/slug-municipio";
 import {
+  CANAIS,
   ETAPAS,
   ROTULO_CANAL,
   ROTULO_SITUACAO,
@@ -27,6 +30,7 @@ import { levarSinalParaProspeccao } from "./actions";
 import { ESTADOS } from "@/lib/estados";
 import { ROTULO_FAIXA, cidadesComGancho, conferidoEm, contarPorFaixa, type Faixa } from "@/lib/ganchos-prospeccao";
 import AcoesProspecto from "./AcoesProspecto";
+import CopiarLink from "./CopiarLink";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +116,21 @@ export default async function ProspeccaoPage({
     .limit(20_000);
 
   const todos = montarTodos(registros);
+
+  // Quem abriu o link marcado de cada prospecto (lib/links-de-campanha.ts).
+  // A visita guarda o número do prospecto no detalhe; robô e sessão da
+  // equipe nem chegam a ser gravados (lib/analytics.ts, naoEhVisitante).
+  let aberturas = new Map<string, Abertura>();
+  try {
+    const visitas = await db
+      .select({ detalhe: eventos.detalhe, visitante: eventos.visitante, criadoEm: eventos.criadoEm })
+      .from(eventos)
+      .where(and(eq(eventos.tipo, "visita"), like(eventos.detalhe, "pros\\_%")))
+      .limit(20_000);
+    aberturas = aberturasPorProspecto(visitas);
+  } catch (e) {
+    console.error("[prospeccao] aberturas do link:", e);
+  }
   // Quem abordar: as prefeituras com gancho na LRF que ainda não estão na mesa.
   const naMesa = new Set(todos.map((p) => p.dados.codigoIbge).filter((c): c is string => !!c));
   const comGancho = cidadesComGancho({ uf: ufFiltro, ignorar: naMesa });
@@ -197,6 +216,11 @@ export default async function ProspeccaoPage({
                     {" · "}
                     {p.dados.municipio}/{p.dados.uf}
                     {p.dados.pessoa && ` · ${p.dados.pessoa}`}
+                    {aberturas.has(p.id) && (
+                      <span className="font-medium" style={{ color: "var(--brand-claro)" }}>
+                        {" "}· abriu o link {quando(aberturas.get(p.id)!.ultima, agora)}
+                      </span>
+                    )}
                     <span className="block text-sm text-muted mt-0.5">{p.proxima.acao}</span>
                   </p>
                   <a href={`#${p.id}`} className="text-sm font-semibold hover:underline">
@@ -332,18 +356,49 @@ export default async function ProspeccaoPage({
           ) : (
             <ul className="space-y-2.5">
               {lista.map((p) => (
-                <Cartao key={p.id} p={p} hoje={hoje} agora={agora} />
+                <Cartao key={p.id} p={p} hoje={hoje} agora={agora} abertura={aberturas.get(p.id) ?? null} />
               ))}
             </ul>
           )}
+        </section>
+
+        {/* ── LINKS DOS PERFIS ──
+            O mesmo link marcado, sem prospecto: para a bio do Instagram, o
+            perfil do LinkedIn, a assinatura do e-mail e o status do WhatsApp.
+            A Medição soma quem chega por cada um. */}
+        <section aria-labelledby="titulo-perfis" className="rounded-[22px] border border-border p-5 sm:p-6" style={{ background: "var(--card)" }}>
+          <h2 id="titulo-perfis" className="text-xl font-semibold">
+            Links para os perfis
+          </h2>
+          <p className="text-sm text-muted mt-1 max-w-[62ch]">
+            Ponha cada um no lugar do canal (bio, perfil, assinatura). Quem chegar por ele aparece com
+            o canal em Medição, em vez de &ldquo;acesso direto&rdquo;.
+          </p>
+          <ul className="mt-4 divide-y divide-[color:var(--border)] border-y border-border">
+            {CANAIS.filter((k) => k !== "ligacao").map((k) => {
+              const link = linkMarcado(URL_BASE, "/", k);
+              return (
+                <li key={k} className="py-3 grid sm:grid-cols-[8rem_minmax(0,1fr)_auto] gap-x-4 gap-y-1 items-center">
+                  <span className="font-medium">{ROTULO_CANAL[k]}</span>
+                  <code className="text-xs text-muted break-all min-w-0">{link}</code>
+                  <CopiarLink link={link} />
+                </li>
+              );
+            })}
+          </ul>
         </section>
       </div>
     </div>
   );
 }
 
-function Cartao({ p, hoje, agora }: { p: Prospecto; hoje: string; agora: number }) {
+function Cartao({ p, hoje, agora, abertura }: { p: Prospecto; hoje: string; agora: number; abertura: Abertura | null }) {
   const link = linkDoContato(p.dados.canal, p.dados.contato);
+  // O link para mandar: o Raio-X da cidade, marcado com o canal e este
+  // prospecto. Sem cidade da tabela do IBGE, a página inicial.
+  const caminho = p.dados.codigoIbge ? caminhoDoRaioX({ uf: p.dados.uf, nome: p.dados.municipio }) : "/";
+  const marcado = linkMarcado(URL_BASE, caminho, p.dados.canal, p.id);
+  const jaAbordada = !["mapeada", "aquecendo"].includes(p.situacao);
   const atrasada = p.proxima && p.proxima.data < hoje;
   return (
     <li id={p.id} className="scroll-mt-24 rounded-2xl border border-border p-4 sm:p-5 grid lg:grid-cols-[minmax(0,1fr)_auto] gap-4" style={{ background: "var(--card)" }}>
@@ -378,6 +433,20 @@ function Cartao({ p, hoje, agora }: { p: Prospecto; hoje: string; agora: number 
             ))}
         </p>
         {p.dados.gancho && <p className="text-sm mt-2 leading-relaxed">Gancho: {p.dados.gancho}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+          <CopiarLink link={marcado} rotulo={p.dados.codigoIbge ? "Copiar link do Raio-X" : "Copiar link do site"} />
+          {abertura ? (
+            <span
+              className="font-medium"
+              style={{ color: "var(--brand-claro)" }}
+              title="Cada pessoa conta uma vez por dia: o site não guarda quem é, e o identificador muda à meia-noite."
+            >
+              Link aberto {abertura.pessoas === 1 ? "1 vez" : `${abertura.pessoas} vezes`}, a última {quando(abertura.ultima, agora)}
+            </span>
+          ) : (
+            jaAbordada && <span className="text-xs text-muted">Link ainda não aberto</span>
+          )}
+        </div>
         {p.proxima && (
           <p className="text-sm mt-2">
             <span className="font-medium" style={{ color: atrasada ? "var(--urgente)" : "var(--foreground)" }}>
