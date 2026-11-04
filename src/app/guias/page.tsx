@@ -6,9 +6,9 @@ import { compartilhamento } from "@/lib/seo";
 import { GUIAS } from "@/lib/guias";
 
 export const metadata = compartilhamento({
-  titulo: "Guias de LRF, LAI e contratação para a prefeitura",
+  titulo: "Guias de LRF, LAI e Fundeb para a prefeitura",
   descricao:
-    "Prazos do RREO e do RGF, limites da despesa com pessoal, prazo da LAI e da ouvidoria e dispensa de licitação para software, com o artigo de cada regra.",
+    "RREO e RGF, despesa com pessoal, mínimos de saúde e educação, os 70% do Fundeb, portal da transparência, LAI e dispensa, com o artigo de cada regra.",
   caminho: "/guias",
 });
 
