@@ -24,7 +24,7 @@ export const LINK_DA_FONTE: Record<(typeof FONTES_OFICIAIS)[number], string> = {
 
 export const SICONFI = LINK_DA_FONTE["Tesouro Nacional"];
 
-export type ChaveLei = "lrf" | "lai" | "lei13460" | "lei14133" | "lgpd";
+export type ChaveLei = "lrf" | "lai" | "lei13460" | "lei14133" | "lgpd" | "constituicao" | "lc141" | "fundeb";
 
 export const LEIS: Record<ChaveLei, { nome: string; numero: string; url: string }> = {
   lrf: {
@@ -51,5 +51,20 @@ export const LEIS: Record<ChaveLei, { nome: string; numero: string; url: string 
     nome: "Lei Geral de Proteção de Dados",
     numero: "Lei nº 13.709/2018",
     url: "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
+  },
+  constituicao: {
+    nome: "Constituição Federal",
+    numero: "Constituição de 1988",
+    url: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm",
+  },
+  lc141: {
+    nome: "Lei da aplicação mínima em saúde",
+    numero: "Lei Complementar nº 141/2012",
+    url: "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp141.htm",
+  },
+  fundeb: {
+    nome: "Lei do Fundeb",
+    numero: "Lei nº 14.113/2020",
+    url: "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14113.htm",
   },
 };

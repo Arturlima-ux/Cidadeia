@@ -55,6 +55,30 @@ export const GUIAS: Guia[] = [
       "O limite do art. 75, II, da Lei 14.133, a soma do ano que evita o fracionamento, o aviso de três dias úteis e o que o processo precisa ter.",
     revisadoEm: "2026-10-23",
   },
+  {
+    slug: "minimo-saude-educacao",
+    titulo: "Mínimo de saúde e educação: 15% e 25% do município",
+    chamada: "Quanto a prefeitura tem de aplicar em saúde e em educação",
+    descricao:
+      "Saúde: 15% dos impostos e transferências (LC 141). Educação: 25% (art. 212 da Constituição). A base, onde se apura e o que acontece abaixo do mínimo.",
+    revisadoEm: "2026-11-04",
+  },
+  {
+    slug: "fundeb-70-por-cento",
+    titulo: "Fundeb: os 70% para os profissionais da educação",
+    chamada: "Os 70% do Fundeb: o que entra na conta e o que fica fora",
+    descricao:
+      "Pelo menos 70% do Fundeb vai para a remuneração dos profissionais da educação básica (Lei 14.113, art. 26). A base, quem conta e os 10% do ano seguinte.",
+    revisadoEm: "2026-11-04",
+  },
+  {
+    slug: "portal-da-transparencia-municipal",
+    titulo: "Portal da transparência da prefeitura: o que é lei",
+    chamada: "O que o portal da transparência da prefeitura tem de mostrar",
+    descricao:
+      "Receita e despesa em tempo real (LRF, art. 48-A), o que a LAI pede no site, a regra das cidades com até 10 mil habitantes e a sanção para quem não cumpre.",
+    revisadoEm: "2026-11-04",
+  },
 ];
 
 export function guiaPor(slug: string): Guia | undefined {
