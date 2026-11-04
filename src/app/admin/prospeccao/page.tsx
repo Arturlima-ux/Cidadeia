@@ -23,6 +23,9 @@ import {
 } from "@/lib/prospeccao";
 import NavAdmin from "../NavAdmin";
 import NovoProspecto from "./NovoProspecto";
+import { levarSinalParaProspeccao } from "./actions";
+import { ESTADOS } from "@/lib/estados";
+import { ROTULO_FAIXA, cidadesComGancho, conferidoEm, contarPorFaixa, type Faixa } from "@/lib/ganchos-prospeccao";
 import AcoesProspecto from "./AcoesProspecto";
 
 export const dynamic = "force-dynamic";
@@ -80,11 +83,19 @@ function textoDoRegistro(tipo: string, descricao: string, hoje: string): string 
   return descricao;
 }
 
-export default async function ProspeccaoPage({ searchParams }: { searchParams: Promise<{ etapa?: string }> }) {
+const COR_FAIXA: Record<Faixa, string> = { acima: "var(--urgente)", prudencial: "var(--medio)", alerta: "var(--brand-claro)" };
+
+export default async function ProspeccaoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ etapa?: string; uf?: string; faixa?: string; mais?: string }>;
+}) {
   if (!(await lerSessao())) redirect("/login");
   const email = await emailDaEquipe();
   if (!email) notFound();
-  const { etapa } = await searchParams;
+  const { etapa, uf: ufPedida, faixa: faixaPedida, mais } = await searchParams;
+  const ufFiltro = ufPedida && (ESTADOS as readonly string[]).includes(ufPedida) ? ufPedida : null;
+  const faixaFiltro = faixaPedida && faixaPedida in ROTULO_FAIXA ? (faixaPedida as Faixa) : null;
   const agora = agoraMs();
   const hoje = diaDeBrasilia(agora);
 
@@ -101,6 +112,12 @@ export default async function ProspeccaoPage({ searchParams }: { searchParams: P
     .limit(20_000);
 
   const todos = montarTodos(registros);
+  // Quem abordar: as prefeituras com gancho na LRF que ainda não estão na mesa.
+  const naMesa = new Set(todos.map((p) => p.dados.codigoIbge).filter((c): c is string => !!c));
+  const comGancho = cidadesComGancho({ uf: ufFiltro, ignorar: naMesa });
+  const porFaixa = contarPorFaixa(comGancho);
+  const sugestoes = (faixaFiltro ? comGancho.filter((x) => x.faixa === faixaFiltro) : comGancho).slice(0, mais ? 75 : 15);
+  const lidoEm = conferidoEm();
   const c = contagem(todos);
   const t = taxas(todos);
   const agenda = paraHoje(todos, hoje);
@@ -188,6 +205,108 @@ export default async function ProspeccaoPage({ searchParams }: { searchParams: P
                 </li>
               ))}
             </ul>
+          )}
+        </section>
+
+        {/* ── QUEM ABORDAR ──
+            A lista que tira o maior atrito da prospecção: as prefeituras com a
+            despesa com pessoal na faixa de alerta ou acima, pelo último RGF lido
+            pela vigia, com o gancho escrito (lib/ganchos-prospeccao.ts). */}
+        <section aria-labelledby="titulo-abordar" className="rounded-[22px] border border-border p-5 sm:p-6" style={{ background: "var(--card)" }}>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0">
+              <h2 id="titulo-abordar" className="text-xl font-semibold">
+                Quem abordar
+              </h2>
+              <p className="text-sm text-muted mt-1 max-w-[62ch]">
+                Prefeituras com a despesa com pessoal no alerta da LRF ou acima, pelo último RGF
+                {lidoEm ? ` lido em ${dataCurta(lidoEm, hoje)}` : ""}. Acima do limite primeiro, depois as maiores. As que já estão na mesa
+                não aparecem.
+              </p>
+            </div>
+            <form method="get" className="flex flex-wrap items-end gap-2">
+              <label className="grid gap-1 text-xs text-muted">
+                Estado
+                <select name="uf" defaultValue={ufFiltro ?? ""} className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
+                  <option value="">Todos</option>
+                  {ESTADOS.filter((u) => u !== "DF").map((u) => (
+                    <option key={u}>{u}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-xs text-muted">
+                Faixa
+                <select name="faixa" defaultValue={faixaFiltro ?? ""} className="rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground">
+                  <option value="">Todas</option>
+                  {(Object.keys(ROTULO_FAIXA) as Faixa[]).map((f) => (
+                    <option key={f} value={f}>
+                      {ROTULO_FAIXA[f]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button type="submit" className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-brand transition">
+                Filtrar
+              </button>
+            </form>
+          </div>
+          <p className="mt-4 text-sm flex flex-wrap gap-x-5 gap-y-1">
+            {(Object.keys(ROTULO_FAIXA) as Faixa[]).map((f) => (
+              <span key={f}>
+                <strong className="tabular-nums" style={{ color: COR_FAIXA[f] }}>
+                  {porFaixa[f]}
+                </strong>{" "}
+                <span className="text-muted">{ROTULO_FAIXA[f].toLowerCase()}</span>
+              </span>
+            ))}
+          </p>
+          {sugestoes.length === 0 ? (
+            <p className="mt-4 text-muted">Nenhuma prefeitura nessa faixa fora da mesa.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-[color:var(--border)] border-y border-border">
+              {sugestoes.map((x) => (
+                <li key={x.codigoIbge} className="py-3 grid sm:grid-cols-[minmax(0,1fr)_auto] gap-2 sm:gap-4 items-center">
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      <Link href={caminhoDoRaioX({ uf: x.uf, nome: x.municipio })} className="hover:underline">
+                        {x.municipio}/{x.uf}
+                      </Link>
+                      <span className="text-sm text-muted font-normal">
+                        {x.populacao ? ` · ${x.populacao.toLocaleString("pt-BR")} habitantes` : ""}
+                      </span>
+                    </p>
+                    <p className="text-sm mt-0.5">
+                      <strong className="tabular-nums" style={{ color: COR_FAIXA[x.faixa] }}>
+                        {x.pct.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                      </strong>{" "}
+                      <span className="text-muted">
+                        {ROTULO_FAIXA[x.faixa].toLowerCase()} · {x.periodo}
+                      </span>
+                      {x.conferir && (
+                        <span className="block text-xs mt-0.5" style={{ color: "var(--medio)" }}>
+                          Alto demais para ser comum: confira no Raio-X antes, pode ser erro de declaração.
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <form action={levarSinalParaProspeccao}>
+                    <input type="hidden" name="codigoIbge" value={x.codigoIbge} />
+                    <input type="hidden" name="gancho" value={x.gancho} />
+                    <button type="submit" className="whitespace-nowrap rounded-full bg-brand text-white px-4 py-2 text-xs font-semibold hover:bg-brand-dark transition">
+                      Levar para a prospecção
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!mais && (faixaFiltro ? porFaixa[faixaFiltro] : comGancho.length) > sugestoes.length && (
+            <Link
+              href={`/admin/prospeccao?${new URLSearchParams({ ...(ufFiltro ? { uf: ufFiltro } : {}), ...(faixaFiltro ? { faixa: faixaFiltro } : {}), mais: "1" }).toString()}#titulo-abordar`}
+              className="inline-block mt-3 text-sm text-muted hover:text-foreground"
+            >
+              Ver mais 60
+            </Link>
           )}
         </section>
 
