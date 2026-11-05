@@ -85,6 +85,15 @@ export async function montarBrasil(o: {
   const { palco, tela, rotulo } = o;
   const estilo = getComputedStyle(palco);
   const cor = (token: string) => new THREE.Color(estilo.getPropertyValue(token).trim() || "white");
+  // Os tons de teste (TonsDeTeste.tsx) trocam a cor das luzes do mapa sem
+  // trocar o roxo dos botões: --relevo-* vale mais que o token da marca.
+  const corOu = (token: string, reserva: string) => cor(estilo.getPropertyValue(token).trim() ? token : reserva);
+  const numero = (token: string, padrao: number) => {
+    const v = parseFloat(estilo.getPropertyValue(token));
+    return Number.isFinite(v) ? v : padrao;
+  };
+  const escalaHalo = numero("--relevo-halo", 1);
+  const forcaSopro = numero("--relevo-sopro", 1);
   const rgba = (c: THREE.Color, a: number) => {
     const s = c.clone().convertLinearToSRGB();
     return `rgba(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)},${a})`;
@@ -96,8 +105,8 @@ export async function montarBrasil(o: {
     chave: cor("--luz-chave"),
     ceu: cor("--luz-ceu"),
     recorte: cor("--luz-recorte"),
-    marca: cor("--brand"),
-    marcaClara: cor("--brand-claro"),
+    marca: corOu("--relevo-luz", "--brand"),
+    marcaClara: corOu("--relevo-luz-clara", "--brand-claro"),
     branco: cor("--foreground"),
     local: cor("--localizacao"),
     localClara: cor("--localizacao-clara"),
@@ -230,7 +239,7 @@ export async function montarBrasil(o: {
   };
   plano([4200, 4200], mancha([[0, rgba(C.chao, 0.9)], [0.4, rgba(C.chao, 0.45)], [1, rgba(C.fundo, 0)]]), -24, false, cena);
   plano([1300, 1250], mancha([[0, rgba(C.fundo, 0.9)], [0.62, rgba(C.fundo, 0.5)], [1, rgba(C.fundo, 0)]]), -23.5).position.z = 25;
-  const sopro = plano([1500, 1400], mancha([[0, rgba(C.marca, 0.16)], [0.55, rgba(C.marca, 0.05)], [1, rgba(C.marca, 0)]]), -23, true);
+  const sopro = plano([1500, 1400], mancha([[0, rgba(C.marca, 0.16 * forcaSopro)], [0.55, rgba(C.marca, 0.05 * forcaSopro)], [1, rgba(C.marca, 0)]]), -23, true);
   sopro.position.set(40, -23, 30);
 
   // ── A fita de luz da entrada: corre pela fronteira e apaga ──
@@ -279,7 +288,7 @@ export async function montarBrasil(o: {
   const luzes = CAPITAIS_NO_MAPA.map(([, x, y], n) => {
     const h = alturaEm(x, y);
     const p = new THREE.Vector3(paraX(x), h + 2.2, paraZ(y));
-    const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
+    const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80 * escalaHalo), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
     halo.position.copy(p); nucleo.position.copy(p);
     brasil.add(halo, nucleo);
     return { halo, nucleo, p, h, desde: -1, oculta: false, dist: Math.hypot(x - bx, y - by) / 1000, fase: (n * 0.61803) % 1, periodo: 4.2 + ((n * 37) % 10) * 0.32, n };
@@ -302,7 +311,7 @@ export async function montarBrasil(o: {
   })();
   const feixe = new THREE.Mesh(new THREE.PlaneGeometry(3.4, ALT_FEIXE), new THREE.MeshBasicMaterial({ map: texFeixe, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, opacity: 0 }));
   descartaveis.push(feixe.geometry, feixe.material);
-  const vNucleo = sprite(C.localClara, 19), vHalo = sprite(C.local, 96);
+  const vNucleo = sprite(C.localClara, 19), vHalo = sprite(C.local, 96 * escalaHalo);
   const ondas = [0, 0.5].map((f) => {
     const m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 72), new THREE.MeshBasicMaterial({ color: C.local, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
     m.rotation.x = -Math.PI / 2;

@@ -1,0 +1,61 @@
+/* ── TONS DE TESTE DA HOME (nov/2026, só na prévia) ──
+   O fundador não gostou do preto seco nem das luzes roxas e azuis. Três
+   tons de cinema para ele ver no site de verdade: o fundo vira um céu em
+   degradê vertical preso à tela, bordas escurecidas e grão de filme leve.
+   As luzes do mapa trocam de cor só dentro do mapa (--relevo-*), os
+   botões continuam no roxo da marca. Sai daqui quando ele escolher. */
+
+.pagina-inicial[data-tom] { background-attachment: fixed; }
+.pagina-inicial[data-tom]::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60;
+  background: radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(0, 0, 0, 0.5) 100%);
+}
+.pagina-inicial[data-tom]::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 61; opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+/* Sem os brilhos coloridos do topo. */
+.pagina-inicial[data-tom] .topo3d-pilula { box-shadow: 0 0 0 6px color-mix(in oklab, var(--foreground) 6%, transparent); }
+.pagina-inicial[data-tom] .topo3d-sobre i,
+.pagina-inicial[data-tom] .topo3d-ponto-cap,
+.pagina-inicial[data-tom] .topo3d-ponto-voce { box-shadow: none; }
+.pagina-inicial[data-tom] .topo3d-ponto-cap { background: var(--relevo-luz-clara); }
+.pagina-inicial[data-tom] .topo3d-ponto-voce { background: var(--localizacao); }
+.pagina-inicial[data-tom] .topo3d-voce { border-color: color-mix(in oklab, var(--localizacao) 40%, transparent); }
+
+/* A · Noite azul: céu de noite, cidades em branco frio, a sua em âmbar. */
+.pagina-inicial[data-tom="a"] {
+  --background: #0c121b; --superficie: #0f1620; --card: #131c27; --border: rgba(214, 228, 245, 0.1);
+  --grafite-parede: #1b2433; --grafite-chao: #121a26; --luz-ceu: #c9d7ec; --luz-recorte: #d6e2f2;
+  --relevo-luz: #cfdcee; --relevo-luz-clara: #f2f6ff; --relevo-halo: 0.4; --relevo-sopro: 0;
+  --localizacao: #f0b56a; --localizacao-clara: #ffe2b8;
+  background: linear-gradient(180deg, #070b12 0%, #0c1420 34%, #16233a 58%, #0c121b 100%);
+}
+/* B · Grafite quente: carvão puxado ao marrom, cidades em âmbar, a sua em branco. */
+.pagina-inicial[data-tom="b"] {
+  --background: #14110e; --superficie: #18140f; --card: #1d1914; --border: rgba(243, 236, 226, 0.1); --foreground: #f3eee6;
+  --grafite-parede: #2a241d; --grafite-chao: #1c1813; --luz-ceu: #eadfcc; --luz-recorte: #efe2cf;
+  --relevo-luz: #e8b878; --relevo-luz-clara: #ffe4c0; --relevo-halo: 0.4; --relevo-sopro: 0;
+  --localizacao: #f6efe4; --localizacao-clara: #ffffff;
+  background: linear-gradient(180deg, #0e0c0a 0%, #171410 34%, #28211a 58%, #14110e 100%);
+}
+/* C · Crepúsculo: ardósia com fundo violeta, cidades em lilás claro, a sua em âmbar. */
+.pagina-inicial[data-tom="c"] {
+  --background: #110f19; --superficie: #14121d; --card: #191623; --border: rgba(240, 236, 250, 0.1);
+  --grafite-parede: #252032; --grafite-chao: #191623; --luz-recorte: #e4def2;
+  --relevo-luz: #d9d0ee; --relevo-luz-clara: #f5f1ff; --relevo-halo: 0.4; --relevo-sopro: 0.35;
+  --localizacao: #f0b56a; --localizacao-clara: #ffe2b8;
+  background: linear-gradient(180deg, #0a0910 0%, #141120 34%, #251f36 58%, #110f19 100%);
+}
+
+/* O seletor dos tons, no canto de baixo. */
+.tons-teste {
+  position: fixed; left: 16px; bottom: 16px; z-index: 70; display: flex; align-items: center; gap: 4px; padding: 4px;
+  border-radius: 9999px; background: rgba(10, 10, 12, 0.82); border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; color: #f3f4f6;
+}
+.tons-teste span { padding: 0 8px 0 10px; opacity: 0.7; }
+.tons-teste a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 9999px; color: inherit; text-decoration: none; }
+.tons-teste a[aria-current] { background: #f3f4f6; color: #0b0b0d; font-weight: 600; }
+@media (max-width: 639px) { .tons-teste { left: 8px; right: 8px; bottom: 76px; justify-content: center; } .tons-teste span { display: none; } }
+@media (prefers-reduced-motion: reduce) { .pagina-inicial[data-tom] { background-attachment: scroll; } }
