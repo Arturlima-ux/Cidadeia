@@ -16,7 +16,7 @@ import BrasilRelevo from "./BrasilRelevo";
 // em globals.css, que está no limite em que o Turbopack divide a folha
 // (CLAUDE.md, armadilhas). Só tokens de cor: tests/design-system.test.ts.
 
-const ESTILO = `
+export const ESTILO_TOPO3D = `
 .topo3d { position: relative; height: clamp(600px, calc(100svh - 70px), 900px); overflow: hidden; }
 .topo3d::after { content: ""; position: absolute; inset: auto 0 0 0; height: 180px; background: linear-gradient(transparent, var(--background)); pointer-events: none; z-index: 1; }
 .topo3d-palco { position: absolute; inset: 0; }
@@ -104,7 +104,7 @@ const ESTILO = `
 export default function TopoBrasil({ busca }: { busca?: ReactNode }) {
   return (
     <section className="topo3d" aria-labelledby="topo3d-titulo">
-      <style href="cidadeia-topo3d" precedence="medium">{ESTILO}</style>
+      <style href="cidadeia-topo3d" precedence="medium">{ESTILO_TOPO3D}</style>
       <BrasilRelevo />
       <div className="topo3d-dentro">
         <div className="topo3d-tese">

@@ -6,6 +6,7 @@ import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { EVENTO_VISITANTE, guardarVisitante, lerVisitante, nomeDoLocal, type LocalAproximado } from "@/lib/onde-esta";
 import type { CenaBrasil } from "./brasil-relevo-cena";
 import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
+import { EVENTO_EDICAO, lerCidadeDaEdicao, type CidadeDaEdicao } from "@/lib/edicao";
 
 // ── O BRASIL EM RELEVO DO TOPO (o palco do 3D) ──
 //
@@ -28,13 +29,20 @@ import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 // Se o modo leve ligar no meio da visita (ModoLeve mediu quadros lentos), a
 // cena para na hora.
 
-export default function BrasilRelevo() {
+// ── A CIDADE DA EDIÇÃO (landing nova, /nova) ──
+// Com `edicao`, o ponto azul marca a cidade que a pessoa escolheu para a
+// edição de hoje (lib/edicao.ts), no lugar de onde ela está; a cidade
+// escolhida vale mais que a localização pela conexão. `pilula={false}` tira
+// o botão de proposta de cima do mapa, quando a página o põe em outro lugar.
+export default function BrasilRelevo({ pilula = true, edicao = false }: { pilula?: boolean; edicao?: boolean } = {}) {
   for (const src of ARQUIVOS_DA_ABERTURA) preload(src, { as: "image", fetchPriority: "low" });
   const palco = useRef<HTMLDivElement>(null);
   const tela = useRef<HTMLCanvasElement>(null);
   const rotulo = useRef<HTMLDivElement>(null);
   const cena = useRef<CenaBrasil | null>(null);
   const [local, setLocal] = useState<LocalAproximado | null>(null);
+  const [escolhida, setEscolhida] = useState<CidadeDaEdicao | null>(null);
+  const temEscolhida = useRef(false);
   const [hora, setHora] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
   const [semTresD, setSemTresD] = useState(false);
@@ -78,6 +86,13 @@ export default function BrasilRelevo() {
         if (!vivo) return c.destruir();
         cena.current = c;
         setGira(palco.current.hasAttribute("data-gira"));
+        const daEdicao = edicao ? lerCidadeDaEdicao() : null;
+        if (daEdicao?.lat !== undefined && daEdicao.lng !== undefined) {
+          temEscolhida.current = true;
+          setEscolhida(daEdicao);
+          requestAnimationFrame(() => c.definirVisitante({ lat: daEdicao.lat!, lng: daEdicao.lng! }));
+          return;
+        }
         const ja = lerVisitante();
         if (ja) {
           setLocal(ja);
@@ -101,46 +116,61 @@ export default function BrasilRelevo() {
     const aoVisitante = (e: Event) => {
       const l = (e as CustomEvent<LocalAproximado>).detail;
       setLocal(l);
+      if (temEscolhida.current) return;
       // Depois que o rótulo aparece, para a cena medir a largura dele.
       requestAnimationFrame(() => cena.current?.definirVisitante(l));
     };
+    const aoEdicao = (e: Event) => {
+      const c = (e as CustomEvent<CidadeDaEdicao>).detail;
+      if (c.lat === undefined || c.lng === undefined) return;
+      temEscolhida.current = true;
+      setEscolhida(c);
+      requestAnimationFrame(() => cena.current?.definirVisitante({ lat: c.lat!, lng: c.lng! }));
+    };
     const aoLeve = () => cena.current?.parar();
+    if (edicao) window.addEventListener(EVENTO_EDICAO, aoEdicao);
     window.addEventListener(EVENTO_VISITANTE, aoVisitante);
     window.addEventListener(EVENTO_LEVE, aoLeve);
     return () => {
       vivo = false;
       window.removeEventListener(EVENTO_VISITANTE, aoVisitante);
+      window.removeEventListener(EVENTO_EDICAO, aoEdicao);
       window.removeEventListener(EVENTO_LEVE, aoLeve);
       cena.current?.destruir();
       cena.current = null;
     };
+    // `edicao` não muda depois de montado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const nome = nomeDoLocal(local);
+  const nome = escolhida ? `${escolhida.nome}, ${escolhida.uf}` : nomeDoLocal(local);
+  const prefixo = escolhida ? "Edição de" : "Você está em";
   return (
     <div ref={palco} className="topo3d-palco" data-pronto={pronto ? "" : undefined}>
       <canvas
         ref={tela}
         className="topo3d-tela"
         role="img"
-        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? ` e, em azul, você, em ${nome}` : ""}`}
+        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? (escolhida ? ` e, em azul, ${nome}` : ` e, em azul, você, em ${nome}`) : ""}`}
       />
       <div ref={rotulo} className="topo3d-voce" aria-hidden hidden={!nome}>
         <i className="topo3d-ponto-voce" />
         <span>
-          Você está em <b>{nome}</b>
+          {prefixo} <b>{nome}</b>
         </span>
       </div>
-      <a href="#proposta" className="topo3d-pilula">
-        Receber proposta <span className="topo3d-seta" aria-hidden>→</span>
-      </a>
+      {pilula && (
+        <a href="#proposta" className="topo3d-pilula">
+          Receber proposta <span className="topo3d-seta" aria-hidden>→</span>
+        </a>
+      )}
       <div className="topo3d-rodape" aria-hidden>
         <span className="topo3d-legenda">
           {hora && <span>Brasília {hora}</span>}
           {!semTresD && (
             <>
               <span><i className="topo3d-ponto-cap" />Capitais</span>
-              {nome && <span><i className="topo3d-ponto-voce" />Você</span>}
+              {nome && <span><i className="topo3d-ponto-voce" />{escolhida ? "Sua cidade" : "Você"}</span>}
             </>
           )}
         </span>
