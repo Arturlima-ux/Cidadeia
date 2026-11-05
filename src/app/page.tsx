@@ -23,6 +23,7 @@ import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
 import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
 import TopoBrasil from "@/components/site/inicio/TopoBrasil";
+import RolarParaAqui from "@/components/site/inicio/RolarParaAqui";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import HomeMorador from "./_morador/HomeMorador";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
@@ -164,16 +165,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             No lugar do planeta: o Brasil esculpido em grafite, as capitais
             acendendo em roxo e o visitante em azul (TopoBrasil.tsx). O texto
             vem do servidor; o 3D chega depois do load. */}
-        <TopoBrasil />
-
-        <section className="relative">
-          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
-            {/* ── A BUSCA NO MEIO ──
-                A pessoa digita o nome (ou usa a localização) e a página
-                atualiza aqui mesmo, sem rolar. Sem JavaScript, /raio-x tem a
-                lista por estado. */}
-            <div className="heroi-busca mt-6 sm:mt-10 mx-auto">
-              <p className="text-[15px] font-semibold text-center mb-3">Sua prefeitura já está no mapa. Veja os números dela.</p>
+        <TopoBrasil
+          busca={
+            <>
               <AcheSuaCidade
                 key={municipio?.codigo ?? "sem-cidade"}
                 destino="/?m="
@@ -182,20 +176,27 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
                 localNoCampo
                 idCampo="municipio-topo"
                 rolarAoTopo={false}
+                rolarPara="numeros-da-cidade"
                 placeholder="Digite o nome do município"
                 inicial={municipio ? `${municipio.nome}, ${municipio.uf}` : ""}
               />
-              <p className="text-[13px] mt-2 text-center" style={{ color: "color-mix(in oklab, var(--foreground) 70%, transparent)" }}>
-                Sem login. Dado público do Tesouro Nacional, exercício de {LIMITE_DISPENSA.ano}.{" "}
+              <p className="topo3d-busca-nota">
+                Veja os números da sua prefeitura. Sem login, dado público do Tesouro Nacional, exercício de{" "}
+                {LIMITE_DISPENSA.ano}.{" "}
                 <noscript>
                   <Link href="/raio-x" className="underline">Escolher pela lista de estados</Link>
                 </noscript>
               </p>
-            </div>
+            </>
+          }
+        />
 
+        <section className="relative">
+          <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 pb-6 sm:pb-10">
             {/* Com município escolhido, a régua corre o número dele. */}
             {municipio && (
-              <div className="mt-12 max-w-[760px] mx-auto">
+              <div id="numeros-da-cidade" className="mt-12 max-w-[760px] mx-auto scroll-mt-24">
+                <RolarParaAqui key={municipio.codigo} id="numeros-da-cidade" />
                 {df ? (
                   <ReguaLrf dado={{ modo: "exemplo", aviso: "O DF segue limites da LRF de unidade da federação. Acima, um município de exemplo." }} />
                 ) : (

@@ -12,7 +12,9 @@ import { ehCodigoIbge, buscarMunicipioPorCodigo } from "@/lib/populacao-ibge";
 import { montarRaioX } from "@/lib/raio-x";
 import { RESSALVA_MINIMOS, resumoDoRaioX } from "@/lib/raio-x-texto";
 import { montarEmail, saudacao, type Bloco } from "@/lib/email-modelo";
-import { caminhoDoRaioX } from "@/lib/slug-municipio";
+import { caminhoDoRaioX, slugDeMunicipio } from "@/lib/slug-municipio";
+import { hojeEmBrasilia } from "@/lib/cobranca";
+import { montarCalendario, nomeDoCalendario } from "@/lib/calendario-prazos";
 import { CARGOS_LEAD } from "@/lib/leads";
 
 // ── O LEAD DO RAIO-X ──
@@ -94,11 +96,23 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
   const link = `${base}${caminhoDoRaioX(municipio)}`;
   const cidade = `${municipio.nome}/${municipio.uf}`;
 
+  // O calendário dos prazos da cidade vai anexo (lib/calendario-prazos.ts) e
+  // também por link, para quem tem anexo bloqueado no e-mail da prefeitura.
+  const calendario = montarCalendario({
+    codigoIbge: municipio.codigo,
+    municipio: municipio.nome,
+    uf: municipio.uf,
+    hoje: hojeEmBrasilia(),
+    link,
+  });
+  const linkCalendario = `${link}/prazos.ics`;
+
   // 3) para a pessoa
   const paraVoce = await enviarEmail({
     guardarNaCaixaDeSaida: true,
     para: dados.email,
-    assunto: `Raio-X da Prefeitura de ${cidade}: o que o Tesouro já publicou`,
+    assunto: `Raio-X da Prefeitura de ${cidade} e o calendário de prazos da LRF`,
+    anexos: [{ nome: nomeDoCalendario(slugDeMunicipio(municipio.nome), municipio.uf), conteudo: new TextEncoder().encode(calendario) }],
     html: montarEmail({
       remetente: { tipo: "cidadeia" },
       previa: `A leitura de cada número que ${municipio.nome} declarou ao Tesouro Nacional.`,
@@ -109,6 +123,9 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
         { p: `Como pedido, aqui está o Raio-X de ${cidade}, com a leitura de cada número que a prefeitura declarou ao Tesouro Nacional:` },
         ...corpo,
         { botao: "Ver o Raio-X completo", link, depois: { texto: "Ver o painel funcionando", link: `${base}/demo` } },
+        { secao: "Os prazos na sua agenda" },
+        { p: `Em anexo, os prazos de publicação do RREO e do RGF de ${cidade} nos próximos 12 meses, com lembrete 7 dias antes de cada um. Abra o arquivo no celular ou no computador para pôr na agenda.` },
+        { botao: "Abrir o calendário de prazos", link: linkCalendario },
         { secao: "O que não aparece em base pública" },
         { p: "Obra parada, prazo de ouvidoria vencendo, dispensa virando fracionamento, contrato perto do fim: é isso que o CidadeIA acompanha por dentro, todos os dias, e avisa antes de o Tribunal de Contas apontar." },
         { nota: "Dados públicos do Siconfi (Tesouro Nacional) e do IBGE. A página do município é refeita toda semana com o que o Tesouro publicar." },
@@ -121,6 +138,7 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
   await enviarEmail({
     para: process.env.PROPOSTA_DESTINO_EMAIL?.trim() || DESTINO_EQUIPE_PADRAO,
     assunto: `Lead do Raio-X — ${cidade} — ${dados.cargo}`,
+    anexos: [{ nome: nomeDoCalendario(slugDeMunicipio(municipio.nome), municipio.uf), conteudo: new TextEncoder().encode(calendario) }],
     html: montarEmail({
       remetente: { tipo: "equipe" },
       previa: `${dados.nome}, ${dados.cargo}. ${resumoEquipe}`,
@@ -139,6 +157,7 @@ export async function registrarLeadRaioX(entrada: unknown): Promise<ResultadoLea
         },
         ...corpo,
         { botao: "Abrir o Raio-X", link, depois: { texto: "Ver os interessados", link: `${base}/admin/interessados` } },
+        { p: `O calendário de prazos de ${cidade} vai anexo, para encaminhar junto se o e-mail da pessoa não saiu. Também fica em ${linkCalendario}` },
       ],
       assinatura: null,
       motivo: "Aviso interno de novo interessado.",
