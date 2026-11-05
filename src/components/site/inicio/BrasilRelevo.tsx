@@ -28,13 +28,23 @@ import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 // Se o modo leve ligar no meio da visita (ModoLeve mediu quadros lentos), a
 // cena para na hora.
 
-export default function BrasilRelevo() {
+// ── A CIDADE ESCOLHIDA (novembro de 2026) ──
+// Quando a pessoa busca o município no topo, a home volta com ele (?m=) e o
+// ponto azul passa a marcar a sede dele (lib/sede-no-mapa.ts), no lugar de
+// onde a conexão diz que ela está: a cidade escolhida vale mais.
+export type CidadeNoMapa = { nome: string; uf: string; lat: number; lng: number };
+
+export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa | null } = {}) {
   for (const src of ARQUIVOS_DA_ABERTURA) preload(src, { as: "image", fetchPriority: "low" });
   const palco = useRef<HTMLDivElement>(null);
   const tela = useRef<HTMLCanvasElement>(null);
   const rotulo = useRef<HTMLDivElement>(null);
   const cena = useRef<CenaBrasil | null>(null);
   const [local, setLocal] = useState<LocalAproximado | null>(null);
+  const escolhida = useRef<CidadeNoMapa | null>(cidade);
+  useEffect(() => {
+    escolhida.current = cidade;
+  }, [cidade]);
   const [hora, setHora] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
   const [semTresD, setSemTresD] = useState(false);
@@ -78,6 +88,11 @@ export default function BrasilRelevo() {
         if (!vivo) return c.destruir();
         cena.current = c;
         setGira(palco.current.hasAttribute("data-gira"));
+        const c0 = escolhida.current;
+        if (c0) {
+          requestAnimationFrame(() => c.definirVisitante({ lat: c0.lat, lng: c0.lng }));
+          return;
+        }
         const ja = lerVisitante();
         if (ja) {
           setLocal(ja);
@@ -101,6 +116,7 @@ export default function BrasilRelevo() {
     const aoVisitante = (e: Event) => {
       const l = (e as CustomEvent<LocalAproximado>).detail;
       setLocal(l);
+      if (escolhida.current) return;
       // Depois que o rótulo aparece, para a cena medir a largura dele.
       requestAnimationFrame(() => cena.current?.definirVisitante(l));
     };
@@ -116,19 +132,31 @@ export default function BrasilRelevo() {
     };
   }, []);
 
-  const nome = nomeDoLocal(local);
+  // A cidade muda sem desmontar o mapa (a busca troca só o ?m=): o ponto vai junto.
+  const chave = cidade ? `${cidade.lat},${cidade.lng}` : "";
+  useEffect(() => {
+    if (!cidade) {
+      if (local) cena.current?.definirVisitante(local);
+      return;
+    }
+    requestAnimationFrame(() => cena.current?.definirVisitante({ lat: cidade.lat, lng: cidade.lng }));
+    // Só a posição importa; `local` entra pelo evento do visitante.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chave]);
+
+  const nome = cidade ? `${cidade.nome}, ${cidade.uf}` : nomeDoLocal(local);
   return (
     <div ref={palco} className="topo3d-palco" data-pronto={pronto ? "" : undefined}>
       <canvas
         ref={tela}
         className="topo3d-tela"
         role="img"
-        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? ` e, em azul, você, em ${nome}` : ""}`}
+        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? (cidade ? ` e, em azul, ${nome}` : ` e, em azul, você, em ${nome}`) : ""}`}
       />
       <div ref={rotulo} className="topo3d-voce" aria-hidden hidden={!nome}>
         <i className="topo3d-ponto-voce" />
         <span>
-          Você está em <b>{nome}</b>
+          {cidade ? "Sua cidade:" : "Você está em"} <b>{nome}</b>
         </span>
       </div>
       <a href="#proposta" className="topo3d-pilula">
@@ -140,7 +168,7 @@ export default function BrasilRelevo() {
           {!semTresD && (
             <>
               <span><i className="topo3d-ponto-cap" />Capitais</span>
-              {nome && <span><i className="topo3d-ponto-voce" />Você</span>}
+              {nome && <span><i className="topo3d-ponto-voce" />{cidade ? "Sua cidade" : "Você"}</span>}
             </>
           )}
         </span>

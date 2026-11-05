@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import PerguntasQueTrocam from "./PerguntasQueTrocam";
-import BrasilRelevo from "./BrasilRelevo";
+import BrasilRelevo, { type CidadeNoMapa } from "./BrasilRelevo";
 
 // ── O TOPO DA HOME: O BRASIL EM RELEVO (novembro de 2026) ──
 //
@@ -31,8 +31,10 @@ const ESTILO = `
 .topo3d-sobre i { width: 6px; height: 6px; border-radius: 9px; background: var(--brand-claro); box-shadow: 0 0 12px var(--brand); }
 .topo3d-titulo { margin: 18px 0 0; font-family: var(--font-titulo); font-weight: 600; font-size: clamp(2.4rem, 4.2vw, 4.1rem); line-height: 0.96; letter-spacing: -0.05em; }
 .topo3d-titulo .perguntas-b { text-align: left; color: var(--brand-claro); }
+/* A resposta às perguntas: o posicionamento, visível (o h1 já o lê). */
+.topo3d-resposta { margin: 14px 0 0; font-family: var(--font-titulo); font-weight: 500; font-size: clamp(1.15rem, 1.7vw, 1.55rem); line-height: 1.2; letter-spacing: -0.02em; color: var(--foreground); }
 /* Acima da pílula (z 3): a lista de sugestões abre por cima do mapa. */
-.topo3d-busca { pointer-events: auto; margin-top: 28px; max-width: 26rem; }
+.topo3d-busca { pointer-events: auto; margin-top: 24px; max-width: 26rem; }
 .topo3d-busca-nota { margin-top: 10px; font-size: 13px; line-height: 1.45; color: color-mix(in oklab, var(--foreground) 72%, transparent); }
 .topo3d-lados { position: absolute; left: 16px; right: 16px; bottom: 19%; display: flex; justify-content: space-between; gap: 24px; }
 .topo3d-lado { max-width: 15rem; font-size: 14.5px; line-height: 1.5; color: var(--foreground); }
@@ -101,11 +103,11 @@ const ESTILO = `
 // computador (1366x800). Ele sobe para baixo do título; o mapa, a pílula de
 // proposta e as frases ficam onde estavam. A busca vem pronta da home
 // (page.tsx), que é quem sabe a cidade escolhida.
-export default function TopoBrasil({ busca }: { busca?: ReactNode }) {
+export default function TopoBrasil({ busca, cidade = null }: { busca?: ReactNode; cidade?: CidadeNoMapa | null }) {
   return (
     <section className="topo3d" aria-labelledby="topo3d-titulo">
       <style href="cidadeia-topo3d" precedence="medium">{ESTILO}</style>
-      <BrasilRelevo />
+      <BrasilRelevo cidade={cidade} />
       <div className="topo3d-dentro">
         <div className="topo3d-tese">
           <p className="topo3d-sobre"><i aria-hidden />Lê · Confere · Resolve</p>
@@ -115,12 +117,13 @@ export default function TopoBrasil({ busca }: { busca?: ReactNode }) {
             <span className="sr-only">A gestão municipal inteira, num lugar só.</span>
             <PerguntasQueTrocam />
           </h1>
+          <p className="topo3d-resposta" aria-hidden>A gestão municipal inteira, num lugar só.</p>
           {busca && <div className="topo3d-busca">{busca}</div>}
         </div>
         <div className="topo3d-lados">
           <p className="topo3d-lado">
-            <small>Num lugar só</small>
-            Atendimento, secretarias, obras, saúde, educação e finanças num sistema que lê as bases oficiais.
+            <small>O que a IA faz</small>
+            Lê o que é público e confere com a lei. Não lança nem altera nada na contabilidade da prefeitura.
           </p>
           <p className="topo3d-lado">
             <small>Sob consulta</small>
