@@ -42,7 +42,7 @@ export default function ConferenciaConformidade() {
                   style={{ background: "var(--accent)" }}
                 />
                 {NOME_BLOCO[b]}
-                <span className="opacity-60">({exigenciasDoBloco(b).length})</span>
+                <span>({exigenciasDoBloco(b).length})</span>
               </span>
             ))}
           </div>

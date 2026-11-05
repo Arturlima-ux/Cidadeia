@@ -46,7 +46,7 @@ export default function PrazosDoMunicipio({
       <p className="text-sm text-muted leading-relaxed mt-2 max-w-[62ch]">
         Os dois relatórios da <LinkOficial href={LEIS.lrf.url}>LRF</LinkOficial> são publicados até 30 dias depois
         do fim de cada período (arts. 52 e 55). Atrasar impede a prefeitura de receber transferências voluntárias.{" "}
-        <Link href="/guias/prazos-rreo-rgf" className="text-brand-claro hover:underline">
+        <Link href="/guias/prazos-rreo-rgf" className="text-brand-claro underline underline-offset-2 hover:decoration-2">
           O calendário do ano
         </Link>
       </p>
@@ -86,7 +86,7 @@ export default function PrazosDoMunicipio({
           </strong>{" "}
           prefeituras com RGF publicado já passaram do sinal de alerta da despesa com pessoal, pela conferência de{" "}
           {dataDoPanorama()}.{" "}
-          <Link href={`/panorama/${uf.toLowerCase()}`} className="text-brand-claro hover:underline">
+          <Link href={`/panorama/${uf.toLowerCase()}`} className="text-brand-claro underline underline-offset-2 hover:decoration-2">
             Ver o panorama do estado
           </Link>
         </p>
