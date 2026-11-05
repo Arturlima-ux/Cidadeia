@@ -1642,13 +1642,6 @@ select option {
 .perguntas[data-saindo] { opacity: 0; transform: translateY(-6px); }
 .perguntas-a { display: block; }
 .perguntas-b { display: block; text-align: right; color: var(--brand-claro); }
-.heroi-busca {
-  max-width: 640px;
-  padding: 14px;
-  border-radius: 22px;
-  background: color-mix(in oklab, var(--card) 92%, transparent);
-  border: 1px solid var(--border);
-}
 @media (prefers-reduced-motion: reduce) {
   /* Com menos movimento pedido, as perguntas trocam só pela opacidade. */
   .perguntas[data-saindo] { transform: none; }

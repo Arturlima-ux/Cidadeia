@@ -89,6 +89,16 @@ const fmtPop = (n: number) =>
     ? `${Math.round(n / 1000).toLocaleString("pt-BR")} mil moradores`
     : `${n} moradores`;
 
+/** Marca que a próxima tela deve rolar até `id` (RolarParaAqui.tsx). */
+export const CHAVE_ROLAR = "cidadeia-rolar-para";
+function pedirRolagem(id: string) {
+  try {
+    sessionStorage.setItem(CHAVE_ROLAR, id);
+  } catch {
+    // sem armazenamento (aba anônima, bloqueio): a página só não rola
+  }
+}
+
 export default function AcheSuaCidade({
   destino = "/?para=morador&m=",
   compacto = false,
@@ -98,6 +108,7 @@ export default function AcheSuaCidade({
   localNoCampo = false,
   idCampo,
   rolarAoTopo = true,
+  rolarPara,
   aoEscolher,
 }: {
   /** Endereço ao qual se soma o código IBGE. Texto, e não função: a home,
@@ -117,6 +128,9 @@ export default function AcheSuaCidade({
   idCampo?: string;
   /** O portal do morador abre do topo; o Raio-X da prefeitura fica onde está. */
   rolarAoTopo?: boolean;
+  /** id do lugar onde os números da cidade aparecem: com a busca no topo da
+   *  home, eles chegam abaixo do mapa, fora da tela. */
+  rolarPara?: string;
   /** Em vez de navegar, entrega a cidade escolhida (o montador da proposta). */
   aoEscolher?: (cidade: { codigo: string; nome: string; uf: string }) => void;
 }) {
@@ -158,8 +172,13 @@ export default function AcheSuaCidade({
       return;
     }
     router.push(`${destino}${l[0]}`, { scroll: false });
+    // A home sem cidade é estática: só a busca mudando, o roteador reaproveita
+    // a página que já tem e os números não chegam. O refresh pede ao servidor
+    // a versão montada (proxy.ts → app/inicio) sem recarregar a página.
+    if (destino.startsWith("/?")) router.refresh();
     // A cidade abre como portal, do topo.
     if (rolarAoTopo) setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 300);
+    if (rolarPara) pedirRolagem(rolarPara);
   };
 
   const estouAqui = () => {

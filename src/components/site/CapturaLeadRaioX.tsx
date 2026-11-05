@@ -2,11 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { registrarLeadRaioX } from "@/app/raio-x/lead-actions";
+import { inscreverAvisoDaCidade } from "@/app/_atendimento/aviso-actions";
 import { CARGOS_LEAD } from "@/lib/leads";
 import { IconCheck } from "@/components/icons";
 
 /**
- * "Receba este Raio-X por e-mail, com a leitura de cada número."
+ * "Receba este Raio-X e o calendário de prazos por e-mail."
+ *
+ * Um formulário só (novembro de 2026): o Raio-X por e-mail e o aviso da cidade
+ * pediam os mesmos três campos em dois quadros seguidos. Agora o aviso é uma
+ * caixa a marcar aqui, desmarcada, porque é outro consentimento (e-mails
+ * futuros). O calendário .ics vai anexo ao e-mail (lib/calendario-prazos.ts).
  *
  * A mensagem de sucesso depende do que aconteceu de verdade: "enviado para
  * o seu e-mail" só quando o servidor entregou; senão, "recebido — chega em
@@ -15,22 +21,28 @@ import { IconCheck } from "@/components/icons";
 export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge: string; municipio: string }) {
   const [pendente, iniciar] = useTransition();
   const [erro, setErro] = useState<{ texto: string; campo?: string } | null>(null);
-  const [feito, setFeito] = useState<{ enviado: boolean; email: string } | null>(null);
+  const [feito, setFeito] = useState<{ enviado: boolean; email: string; aviso: "ativado" | "ja" | "falhou" | null } | null>(null);
 
   function aoEnviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErro(null);
     const f = new FormData(e.currentTarget);
     const email = String(f.get("email") ?? "");
+    const querAviso = f.get("aviso") === "sim";
+    const dados = { codigoIbge, nome: f.get("nome"), cargo: f.get("cargo"), email };
     iniciar(async () => {
-      const r = await registrarLeadRaioX({
-        codigoIbge,
-        nome: f.get("nome"),
-        cargo: f.get("cargo"),
-        email,
-      });
-      if (r.ok) setFeito({ enviado: r.enviadoParaVoce, email });
-      else setErro({ texto: r.erro, campo: r.campo });
+      const r = await registrarLeadRaioX(dados);
+      if (!r.ok) {
+        setErro({ texto: r.erro, campo: r.campo });
+        return;
+      }
+      // O aviso é um pedido a mais: se falhar, o Raio-X já foi e a tela diz.
+      let aviso: "ativado" | "ja" | "falhou" | null = null;
+      if (querAviso) {
+        const a = await inscreverAvisoDaCidade(dados).catch(() => null);
+        aviso = a?.ok ? (a.jaInscrito ? "ja" : "ativado") : "falhou";
+      }
+      setFeito({ enviado: r.enviadoParaVoce, email, aviso });
     });
   }
 
@@ -44,8 +56,18 @@ export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge
         <p className="text-sm text-muted mt-2 leading-relaxed">
           {feito.enviado
             ? "O Raio-X de " + municipio + " com a leitura de cada número está na sua caixa de entrada (confira o spam)."
-            : "O Raio-X de " + municipio + " com a leitura de cada número chega em " + feito.email + " em até um dia útil."}
+            : "O Raio-X de " + municipio + " com a leitura de cada número chega em " + feito.email + " em até um dia útil."}{" "}
+          O calendário de prazos vai junto, em anexo: abra o arquivo para pôr na agenda.
         </p>
+        {feito.aviso && (
+          <p className="text-sm text-muted mt-2 leading-relaxed">
+            {feito.aviso === "ativado"
+              ? `Aviso de ${municipio} ativado: o primeiro e-mail, com a situação de hoje, chega amanhã de manhã.`
+              : feito.aviso === "ja"
+                ? `Você já recebe o aviso de ${municipio}.`
+                : `O aviso de ${municipio} não foi ativado agora. Tente de novo mais tarde, nesta mesma página.`}
+          </p>
+        )}
       </div>
     );
   }
@@ -57,10 +79,10 @@ export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge
 
   return (
     <form onSubmit={aoEnviar} className="rounded-2xl border border-border p-5 sm:p-6" style={{ background: "var(--card)" }}>
-      <h3 className="font-serif text-lg font-bold">Receba este Raio-X por e-mail</h3>
+      <h3 className="font-serif text-lg font-bold">Receba este Raio-X e o calendário de prazos</h3>
       <p className="text-sm text-muted mt-1.5 leading-relaxed max-w-[60ch]">
-        Com a leitura de cada número — o que ele diz, o que não diz, e o que perguntar à
-        prefeitura. Sem login, sem cartão.
+        Por e-mail: a leitura de cada número e os prazos do RREO e do RGF de {municipio} nos próximos 12
+        meses, para pôr na agenda com lembrete 7 dias antes. Sem login, sem cartão.
       </p>
       <div className="grid sm:grid-cols-[1fr_1fr] gap-3 mt-4">
         <div>
@@ -81,6 +103,13 @@ export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge
         <label className="block text-xs font-medium mb-1" htmlFor="lead-email">E-mail</label>
         <input id="lead-email" name="email" type="email" required autoComplete="email" className={campo("email")} />
       </div>
+      <label className="mt-4 flex items-start gap-3 text-sm leading-relaxed cursor-pointer">
+        <input type="checkbox" name="aviso" value="sim" className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--brand)]" />
+        <span>
+          Também quero o aviso grátis de {municipio}: um e-mail quando o RREO ou o RGF estiver a 7 dias do prazo
+          sem entrega, vencer ou for entregue. Para parar, um clique no fim de qualquer aviso.
+        </span>
+      </label>
       {erro && (
         <p className="text-sm mt-3 rounded-lg px-3 py-2 border" style={{ color: "var(--urgente)", background: "var(--urgente-tint)", borderColor: "var(--urgente-borda)" }}>
           {erro.texto}
@@ -91,7 +120,7 @@ export default function CapturaLeadRaioX({ codigoIbge, municipio }: { codigoIbge
         disabled={pendente}
         className="mt-4 bg-brand hover:bg-brand-dark text-white font-bold text-sm rounded-xl px-5 py-3 transition shadow-elevated disabled:opacity-60"
       >
-        {pendente ? "Enviando…" : "Quero o Raio-X por e-mail  →"}
+        {pendente ? "Enviando…" : "Quero o Raio-X e o calendário  →"}
       </button>
       <p className="text-[11px] text-muted mt-3 leading-relaxed">
         Usamos o e-mail só para mandar o Raio-X e, se você quiser, falar sobre o CidadeIA.

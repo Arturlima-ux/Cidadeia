@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import PerguntasQueTrocam from "./PerguntasQueTrocam";
 import BrasilRelevo from "./BrasilRelevo";
 
@@ -23,13 +24,16 @@ const ESTILO = `
 .topo3d-palco[data-pronto] .topo3d-tela { opacity: 1; }
 .topo3d-palco[data-gira] .topo3d-tela { cursor: grab; }
 .topo3d-palco[data-gira] .topo3d-tela:active { cursor: grabbing; }
-.topo3d-dentro { position: relative; z-index: 2; height: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 16px; pointer-events: none; }
+.topo3d-dentro { position: relative; z-index: 4; height: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 16px; pointer-events: none; }
 .topo3d-dentro a { pointer-events: auto; }
 .topo3d-tese { position: absolute; top: clamp(36px, 6vh, 64px); max-width: 36rem; }
 .topo3d-sobre { display: flex; align-items: center; gap: 10px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 .topo3d-sobre i { width: 6px; height: 6px; border-radius: 9px; background: var(--brand-claro); box-shadow: 0 0 12px var(--brand); }
 .topo3d-titulo { margin: 18px 0 0; font-family: var(--font-titulo); font-weight: 600; font-size: clamp(2.4rem, 4.2vw, 4.1rem); line-height: 0.96; letter-spacing: -0.05em; }
 .topo3d-titulo .perguntas-b { text-align: left; color: var(--brand-claro); }
+/* Acima da pílula (z 3): a lista de sugestões abre por cima do mapa. */
+.topo3d-busca { pointer-events: auto; margin-top: 28px; max-width: 26rem; }
+.topo3d-busca-nota { margin-top: 10px; font-size: 13px; line-height: 1.45; color: color-mix(in oklab, var(--foreground) 72%, transparent); }
 .topo3d-lados { position: absolute; left: 16px; right: 16px; bottom: 19%; display: flex; justify-content: space-between; gap: 24px; }
 .topo3d-lado { max-width: 15rem; font-size: 14.5px; line-height: 1.5; color: var(--foreground); }
 .topo3d-lado + .topo3d-lado { text-align: right; }
@@ -72,8 +76,9 @@ const ESTILO = `
   .topo3d { height: auto; display: flex; flex-direction: column; }
   .topo3d::after { display: none; }
   .topo3d-dentro { display: contents; }
-  .topo3d-tese { order: 1; position: relative; top: 0; z-index: 2; padding: 28px 16px 0; }
+  .topo3d-tese { order: 1; position: relative; top: 0; z-index: 4; padding: 28px 16px 0; }
   .topo3d-titulo { min-height: calc(3 * 0.96em); }
+  .topo3d-busca { margin-top: 22px; max-width: none; }
   .topo3d-palco { order: 2; position: relative; height: 420px; margin-top: -64px; }
   .topo3d-pilula { bottom: 30px; }
   .topo3d-lados { order: 3; position: relative; inset: auto; z-index: 2; flex-direction: column; gap: 20px; padding: 6px 16px 28px; }
@@ -90,7 +95,13 @@ const ESTILO = `
 }
 `;
 
-export default function TopoBrasil() {
+// ── A BUSCA NO TOPO (novembro de 2026) ──
+// A auditoria de conversão achou o Raio-X grátis, o convite que pede menos de
+// quem chega frio, abaixo da primeira tela no celular (390x844) e no
+// computador (1366x800). Ele sobe para baixo do título; o mapa, a pílula de
+// proposta e as frases ficam onde estavam. A busca vem pronta da home
+// (page.tsx), que é quem sabe a cidade escolhida.
+export default function TopoBrasil({ busca }: { busca?: ReactNode }) {
   return (
     <section className="topo3d" aria-labelledby="topo3d-titulo">
       <style href="cidadeia-topo3d" precedence="medium">{ESTILO}</style>
@@ -104,6 +115,7 @@ export default function TopoBrasil() {
             <span className="sr-only">A gestão municipal inteira, num lugar só.</span>
             <PerguntasQueTrocam />
           </h1>
+          {busca && <div className="topo3d-busca">{busca}</div>}
         </div>
         <div className="topo3d-lados">
           <p className="topo3d-lado">
