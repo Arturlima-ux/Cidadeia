@@ -7,6 +7,16 @@ import { EVENTO_VISITANTE, guardarVisitante, lerVisitante, nomeDoLocal, type Loc
 import type { CenaBrasil } from "./brasil-relevo-cena";
 import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 
+// ── A ENTRADA DO CARTAZ (nov/2026) ──
+// Pedido do fundador: o mapa começa a se mexer 0,05 s depois de aparecer, em
+// todo aparelho, e dá para ver: sobe, cresce e se acende em 1,2 s. Roda num script
+// pequeno junto do HTML, sem esperar o React (que hidrata depois), e conta a
+// partir de quando a imagem carregou: se contasse do HTML, num celular lento
+// a animação acabaria antes de a imagem chegar. Com movimento reduzido, só
+// aparece. O effect repete a entrada na navegação dentro do site (onde o
+// script do HTML não roda de novo); sem eval, que a CSP de produção barra.
+const ENTRADA_CARTAZ = `(function(p){var i=p&&p.querySelector("img");if(!i||i.getAnimations().length)return;var r=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var f=function(){if(i.getAnimations().length)return;i.animate(r?[{opacity:1},{opacity:1}]:[{opacity:0,transform:"translateY(70px) scale(0.9)",filter:"brightness(0.3)"},{opacity:1,transform:"none",filter:"none"}],{duration:r?0:1200,delay:r?0:50,easing:"cubic-bezier(0.16, 1, 0.3, 1)",fill:"both"})};if(i.complete&&i.naturalWidth)f();else{i.addEventListener("load",f,{once:true});i.addEventListener("error",f,{once:true})}})`;
+
 // ── O BRASIL EM RELEVO DO TOPO (o palco do 3D) ──
 //
 // O texto do topo chega pronto do servidor (TopoBrasil.tsx); aqui fica só o
@@ -45,6 +55,24 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
   useEffect(() => {
     escolhida.current = cidade;
   }, [cidade]);
+  // Navegação dentro do site: o script do HTML não roda, a entrada roda aqui.
+  useEffect(() => {
+    const cartaz = palco.current?.querySelector(".topo3d-cartaz");
+    const img = cartaz?.querySelector("img");
+    if (!img || img.getAnimations().length) return;
+    const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const entrar = () => {
+      if (img.getAnimations().length) return;
+      img.animate(
+        reduzir
+          ? [{ opacity: 1 }, { opacity: 1 }]
+          : [{ opacity: 0, transform: "translateY(70px) scale(0.9)", filter: "brightness(0.3)" }, { opacity: 1, transform: "none", filter: "none" }],
+        { duration: reduzir ? 0 : 1200, delay: reduzir ? 0 : 50, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" },
+      );
+    };
+    if (img.complete && img.naturalWidth) entrar();
+    else img.addEventListener("load", entrar, { once: true });
+  }, []);
   const [hora, setHora] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
   const [semTresD, setSemTresD] = useState(false);
@@ -153,6 +181,8 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
         <source media="(max-width: 859px)" srcSet="/mapa/cartaz-estreito.webp" width={780} height={840} />
         <img src="/mapa/cartaz-largo.webp" width={2160} height={1245} alt="" fetchPriority="high" decoding="async" />
       </picture>
+      <script dangerouslySetInnerHTML={{ __html: `${ENTRADA_CARTAZ}(document.currentScript.previousElementSibling)` }} />
+      <noscript><style>{`.topo3d-cartaz img{opacity:1}`}</style></noscript>
       <canvas
         ref={tela}
         className="topo3d-tela"

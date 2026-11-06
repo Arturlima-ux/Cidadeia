@@ -23,16 +23,16 @@ const ESTILO = `
 .topo3d::after { content: none; }
 .topo3d-palco { position: absolute; inset: 0; container-type: size; }
 /* O cartaz: o mapa já pronto, em imagem, na tela desde o primeiro desenho
-   (pedido do fundador: "assim que o cliente triscar", entrando em 0,05 s).
+   (pedido do fundador: "assim que o cliente triscar"; a entrada começa 0,05 s
+   depois de a imagem carregar e dura 1,2 s).
    A cena 3D monta por cima em ~2 s, no mesmo enquadramento: a imagem é
    um quadro dela, e cresce como ela, pelo tamanho do Brasil na tela
    (brasil-relevo-cena.ts, enquadrar: mapaPx). Tirada a 1440x830, onde o
    Brasil mede 744 px; no celular, a 390x420, onde mede 98% da largura. */
 .topo3d-cartaz { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%); mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
-.topo3d-cartaz img { position: absolute; left: 50%; top: 50%; max-width: none; height: auto; translate: -50% -50%; width: calc(1440 / 744 * min(min(100cqw, 1200px) * 0.62, 92cqh)); animation: topo3d-cartaz-entra 50ms var(--saida) both;
+.topo3d-cartaz img { position: absolute; left: 50%; top: 50%; max-width: none; height: auto; translate: -50% -50%; width: calc(1440 / 744 * min(min(100cqw, 1200px) * 0.62, 92cqh)); opacity: 0; /* a entrada (BrasilRelevo.tsx, ENTRADA_CARTAZ) traz para 1 */
   /* Só o país: o chão da imagem some em volta dele, sem quina de retângulo. */
   -webkit-mask-image: radial-gradient(ellipse 34% 44% at 53.5% 64%, black 78%, transparent 100%); mask-image: radial-gradient(ellipse 34% 44% at 53.5% 64%, black 78%, transparent 100%); }
-@keyframes topo3d-cartaz-entra { from { opacity: 0; scale: 0.985; } }
 .topo3d-palco[data-pronto] .topo3d-cartaz { visibility: hidden; transition: visibility 0s 800ms; }
 .topo3d-tela { -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%); mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
 .topo3d-tela { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 700ms var(--saida); }
@@ -110,7 +110,6 @@ const ESTILO = `
 }
 @media (prefers-reduced-motion: reduce) {
   .topo3d-tela, .topo3d-voce { transition: none; }
-  .topo3d-cartaz img { animation: none; }
 }
 `;
 
