@@ -12,7 +12,24 @@
 // continua sendo a do GPS, que só vem quando a pessoa toca em "usar minha
 // localização" (lib/localizacao.ts).
 
-export type LocalAproximado = { lat: number; lng: number; cidade: string | null; uf: string | null };
+export type LocalAproximado = {
+  lat: number;
+  lng: number;
+  cidade: string | null;
+  uf: string | null;
+  /** A prefeitura daquela cidade e a despesa com pessoal dela (app/api/onde-estou). */
+  prefeitura?: PrefeituraDoLocal | null;
+};
+
+export type PrefeituraDoLocal = {
+  codigo: string;
+  nome: string;
+  uf: string;
+  /** Despesa com pessoal ÷ RCL ajustada, no último RGF conferido. */
+  pessoal: number | null;
+  limite: number | null;
+  periodo: string | null;
+};
 
 /** O retângulo do Brasil, com folga: fora dele, não há ponto para acender. */
 const BRASIL = { latMin: -34.5, latMax: 5.8, lngMin: -74.5, lngMax: -28.5 };

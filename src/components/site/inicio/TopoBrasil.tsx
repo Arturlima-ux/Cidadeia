@@ -74,7 +74,7 @@ const ESTILO = `
 .topo3d-ponto-cap { background: var(--brand-claro); box-shadow: 0 0 10px var(--brand); }
 .topo3d-voce {
   position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none;
-  display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px 7px 10px; border-radius: 9999px;
+  display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 13px 8px 11px; border-radius: 14px;
   background: color-mix(in oklab, var(--background) 72%, transparent); border: 1px solid color-mix(in oklab, var(--localizacao) 35%, transparent);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   font-size: 12.5px; white-space: nowrap; color: var(--foreground);
@@ -83,7 +83,21 @@ const ESTILO = `
 }
 .topo3d-voce[data-visivel] { opacity: 1; }
 .topo3d-voce b { font-weight: 600; }
-.topo3d-voce > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.topo3d-voce-linha { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; }
+.topo3d-voce-linha > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* O número da prefeitura de quem abriu o site (app/api/onde-estou). */
+.topo3d-voce-numero { padding-left: 15px; font-size: 12px; color: color-mix(in oklab, var(--foreground) 78%, transparent); }
+.topo3d-voce-numero b { color: var(--brand-legivel); }
+.topo3d-voce-trocar { pointer-events: auto; margin-left: 15px; padding: 2px 0; border: 0; background: none; font: inherit; font-size: 11.5px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.topo3d-voce-trocar:hover { color: var(--foreground); }
+/* O ponto da cidade sobre o cartaz, até a cena 3D (que desenha o dela). */
+.topo3d-alvo { position: absolute; left: 0; top: 0; z-index: 2; width: 0; pointer-events: none; animation: topo3d-alvo-acende 600ms var(--saida) both; }
+.topo3d-alvo-feixe { position: absolute; left: -1px; top: 0; width: 2px; border-radius: 2px; background: linear-gradient(to bottom, transparent, var(--localizacao)); opacity: 0.8; }
+.topo3d-alvo-ponto { position: absolute; left: -5px; width: 10px; height: 10px; margin-top: -5px; border-radius: 9px; background: var(--localizacao); box-shadow: 0 0 0 4px color-mix(in oklab, var(--localizacao) 25%, transparent), 0 0 18px var(--localizacao); }
+.topo3d-alvo-ponto::after { content: ""; position: absolute; inset: -4px; border-radius: 99px; border: 1px solid var(--localizacao); animation: topo3d-alvo-onda 2.6s ease-out infinite; }
+@keyframes topo3d-alvo-acende { from { opacity: 0; } }
+@keyframes topo3d-alvo-onda { from { transform: scale(1); opacity: 0.8; } to { transform: scale(4.5); opacity: 0; } }
+.topo3d-palco[data-pronto] .topo3d-alvo { visibility: hidden; transition: visibility 0s 800ms; }
 @media (min-width: 640px) {
   .topo3d-dentro { padding-inline: 32px; }
   .topo3d-lados { left: 32px; right: 32px; }
@@ -110,6 +124,7 @@ const ESTILO = `
 }
 @media (prefers-reduced-motion: reduce) {
   .topo3d-tela, .topo3d-voce { transition: none; }
+  .topo3d-alvo, .topo3d-alvo-ponto::after { animation: none; }
 }
 `;
 

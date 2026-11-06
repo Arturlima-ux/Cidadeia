@@ -47,4 +47,20 @@ describe("onde o visitante está, pela conexão", () => {
     const fora = await GET(new Request("https://x/api/onde-estou", { headers: { "sec-fetch-site": "cross-site" } }));
     expect(fora.status).toBe(403);
   });
+
+  it("traz a prefeitura da cidade e a despesa com pessoal do último RGF conferido", async () => {
+    const r = await GET(new Request("https://x/api/onde-estou", { headers: { "x-vercel-ip-latitude": "-5.09", "x-vercel-ip-longitude": "-42.8", "x-vercel-ip-city": "Teresina", "x-vercel-ip-country-region": "PI" } }));
+    const j = await r.json();
+    expect(j.prefeitura).toMatchObject({ codigo: "2211001", nome: "Teresina", uf: "PI" });
+    expect(j.prefeitura.pessoal).toBeGreaterThan(0.2);
+    expect(j.prefeitura.pessoal).toBeLessThan(0.8);
+    expect(j.prefeitura.periodo).toMatch(/º (quadrimestre|semestre) de 20\d\d/);
+  });
+
+  it("sem o nome, acha a sede mais perto; longe de todas, não inventa", async () => {
+    const perto = await GET(new Request("https://x/api/onde-estou", { headers: { "x-vercel-ip-latitude": "-5.09", "x-vercel-ip-longitude": "-42.80" } }));
+    expect((await perto.json()).prefeitura).toMatchObject({ nome: "Teresina", uf: "PI" });
+    const mar = await GET(new Request("https://x/api/onde-estou", { headers: { "x-vercel-ip-latitude": "-20.5", "x-vercel-ip-longitude": "-30.0" } }));
+    expect((await mar.json()).prefeitura).toBeNull();
+  });
 });

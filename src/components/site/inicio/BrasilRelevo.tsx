@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import { EVENTO_LEVE, semMovimento } from "@/lib/modo-leve";
 import { EVENTO_VISITANTE, guardarVisitante, lerVisitante, nomeDoLocal, type LocalAproximado } from "@/lib/onde-esta";
 import type { CenaBrasil } from "./brasil-relevo-cena";
 import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
+import { naImagem } from "./cartaz-projecao";
+import { lugarDaEtiqueta, obstaculos } from "./etiqueta-do-ponto";
 
 // ── A ENTRADA DO MAPA: O BRASIL CRESCE DO PLANO (nov/2026) ──
 // Pedido do fundador: "o cliente triscou, abriu e automaticamente tem uma
@@ -76,6 +78,16 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
   const [pronto, setPronto] = useState(false);
   const [semTresD, setSemTresD] = useState(false);
   const [gira, setGira] = useState(false);
+  // A subida do Brasil (vídeo) acabou: o ponto da cidade pode acender.
+  const [cartazFeito, setCartazFeito] = useState(false);
+  const [alvo, setAlvo] = useState<{ x: number; chao: number; topo: number } | null>(null);
+  useEffect(() => {
+    const cartaz = palco.current?.querySelector<HTMLElement & { __feito?: number }>(".topo3d-cartaz");
+    if (!cartaz || cartaz.__feito) return setCartazFeito(true);
+    const feito = () => setCartazFeito(true);
+    cartaz.addEventListener("feito", feito, { once: true });
+    return () => cartaz.removeEventListener("feito", feito);
+  }, []);
 
   // O relógio de Brasília (de 15 em 15 s basta para os minutos).
   useEffect(() => {
@@ -146,7 +158,9 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
         })
         .catch(() => {});
     };
-    quandoLivre(() => { void montar(); perguntarLocal(); });
+    // O local vai já (é o "você está em…" que surpreende); a cena, quando der.
+    if (!lerVisitante()) perguntarLocal();
+    quandoLivre(() => { void montar(); });
 
     const aoVisitante = (e: Event) => {
       const l = (e as CustomEvent<LocalAproximado>).detail;
@@ -179,7 +193,43 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chave]);
 
-  const nome = cidade ? `${cidade.nome}, ${cidade.uf}` : nomeDoLocal(local);
+  // ── O PONTO SOBRE O CARTAZ (nov/2026) ──
+  // Enquanto a cena 3D não chega, o ponto da cidade e o "Você está em…"
+  // acendem sobre a imagem, no fim da subida, no mesmo lugar em que a cena
+  // vai pôr os dela (cartaz-projecao.ts). A etiqueta usa a mesma conta de
+  // lugar da cena (etiqueta-do-ponto.ts).
+  const onde = cidade ?? local;
+  useLayoutEffect(() => {
+    const p = palco.current, r = rotulo.current;
+    const img = p?.querySelector(".topo3d-cartaz img");
+    if (!p || !r || !img || !onde || !cartazFeito || pronto) return;
+    const medir = () => {
+      const caixa = img.getBoundingClientRect(), base = p.getBoundingClientRect();
+      if (!caixa.width) return;
+      const { chao, topo } = naImagem(onde.lat, onde.lng, p.clientWidth < 860);
+      const x = caixa.left - base.left + chao[0] * caixa.width;
+      const yChao = caixa.top - base.top + chao[1] * caixa.height;
+      const xTopo = caixa.left - base.left + topo[0] * caixa.width;
+      const yTopo = caixa.top - base.top + topo[1] * caixa.height;
+      setAlvo({ x, chao: yChao, topo: yTopo });
+      const [rx, ry] = lugarDaEtiqueta({ W: p.clientWidth, topo: [xTopo, yTopo], chao: [x, yChao], rw: r.offsetWidth, rh: r.offsetHeight, ...obstaculos(p) });
+      r.style.transform = `translate(${rx.toFixed(1)}px, ${ry.toFixed(1)}px)`;
+      r.setAttribute("data-visivel", "");
+    };
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(p);
+    return () => obs.disconnect();
+  }, [onde, cartazFeito, pronto]);
+
+  const pref = !cidade ? local?.prefeitura ?? null : null;
+  const nome = cidade ? `${cidade.nome}, ${cidade.uf}` : pref ? `${pref.nome}, ${pref.uf}` : nomeDoLocal(local);
+  const pct = (v: number) => `${(v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+  const trocar = () => {
+    const campo = document.querySelector<HTMLInputElement>(".topo3d-busca input");
+    campo?.scrollIntoView({ behavior: "smooth", block: "center" });
+    campo?.focus({ preventScroll: true });
+  };
   return (
     <div ref={palco} className="topo3d-palco" data-pronto={pronto ? "" : undefined}>
       {/* O Brasil crescendo (vídeo) e o mapa pronto (imagem), até a cena 3D
@@ -202,11 +252,29 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
         role="img"
         aria-label={`O Brasil em relevo${nome ? (cidade ? `, com ${nome} acesa` : `, com um ponto aceso em ${nome}`) : ""}`}
       />
-      <div ref={rotulo} className="topo3d-voce" aria-hidden hidden={!nome}>
-        <i className="topo3d-ponto-voce" />
-        <span>
-          {cidade ? "Sua cidade:" : "Você está em"} <b>{nome}</b>
+      {alvo && (
+        <div className="topo3d-alvo" aria-hidden style={{ transform: `translate(${alvo.x.toFixed(1)}px, ${alvo.topo.toFixed(1)}px)` }}>
+          <i className="topo3d-alvo-feixe" style={{ height: `${Math.max(0, alvo.chao - alvo.topo).toFixed(1)}px` }} />
+          <i className="topo3d-alvo-ponto" style={{ top: `${Math.max(0, alvo.chao - alvo.topo).toFixed(1)}px` }} />
+        </div>
+      )}
+      <div ref={rotulo} className="topo3d-voce" hidden={!nome}>
+        <span className="topo3d-voce-linha">
+          <i className="topo3d-ponto-voce" aria-hidden />
+          <span>
+            {cidade ? "Sua cidade:" : "Você está em"} <b>{nome}</b>
+          </span>
         </span>
+        {pref?.pessoal != null && (
+          <span className="topo3d-voce-numero">
+            Pessoal: <b>{pct(pref.pessoal)}</b> da receita{pref.limite ? ` · limite ${pct(pref.limite)}` : ""}
+          </span>
+        )}
+        {!cidade && (
+          <button type="button" className="topo3d-voce-trocar" onClick={trocar}>
+            Não é aqui? Trocar
+          </button>
+        )}
       </div>
       <a href="#solucoes" className="topo3d-pilula liquido liquido-flutua">
         Conhecer os módulos <span className="topo3d-seta" aria-hidden>→</span>

@@ -44,6 +44,7 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { aneisDoContorno } from "@/lib/contorno-brasil";
 import { CAPITAIS_NO_MAPA } from "@/lib/capitais-mapa";
+import { lugarDaEtiqueta, obstaculos } from "./etiqueta-do-ponto";
 
 export type Nivel = "baixa" | "media" | "alta";
 export type CenaBrasil = {
@@ -440,13 +441,19 @@ export async function montarBrasil(o: {
     if (!vPos) return;
     brasil.updateMatrixWorld();
     camera.updateMatrixWorld();
-    proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
     const W = palco.clientWidth, H = palco.clientHeight, rw = rotulo.offsetWidth, rh = rotulo.offsetHeight;
-    const x = Math.max(8, Math.min(W - rw - 8, ((proj.x + 1) / 2) * W - rw / 2));
-    const y = Math.max(8, ((1 - proj.y) / 2) * H - rh);
+    proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
+    const topo: [number, number] = [((proj.x + 1) / 2) * W, ((1 - proj.y) / 2) * H];
+    proj.copy(vPos).applyMatrix4(brasil.matrixWorld).project(camera);
+    const chao: [number, number] = [((proj.x + 1) / 2) * W, ((1 - proj.y) / 2) * H];
+    // Os obstáculos só mudam com o tamanho: medidos de novo no observador abaixo.
+    livres ??= obstaculos(palco);
+    const [x, y] = lugarDaEtiqueta({ W, topo, chao, rw, rh, ...livres });
     rotulo.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
   }
-  const medirRotulo = new ResizeObserver(() => posicionarRotulo());
+  let livres: ReturnType<typeof obstaculos> | null = null;
+  const medirRotulo = new ResizeObserver(() => { livres = null; posicionarRotulo(); });
+  medirRotulo.observe(palco);
   medirRotulo.observe(rotulo);
 
   // ── Um quadro ──
@@ -547,6 +554,15 @@ export async function montarBrasil(o: {
     (window as unknown as { __quadro?: (t: number) => string }).__quadro = (t) => {
       desenhar(inicio + t);
       return tela.toDataURL("image/png");
+    };
+    // E onde um ponto do mapa (x 0–1000, y 0–975) cai na tela, no chão e no
+    // topo do feixe do visitante: para o ponto da cidade sobre o vídeo.
+    (window as unknown as { __projetar?: (x: number, y: number) => number[] }).__projetar = (x, y) => {
+      brasil.updateMatrixWorld(); camera.updateMatrixWorld();
+      const W = palco.clientWidth, H = palco.clientHeight;
+      const tela2 = (v: THREE.Vector3) => { v.applyMatrix4(brasil.matrixWorld).project(camera); return [((v.x + 1) / 2) * W, ((1 - v.y) / 2) * H]; };
+      const h = alturaEm(x, y) + 2.4;
+      return [...tela2(new THREE.Vector3(paraX(x), h, paraZ(y))), ...tela2(new THREE.Vector3(paraX(x), h + ALT_FEIXE + 1, paraZ(y)))];
     };
     desenhar(inicio);
     avisar();
