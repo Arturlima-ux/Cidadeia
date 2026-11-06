@@ -8,7 +8,6 @@ import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { listarPortaisPublicados } from "@/lib/portais";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
-import BarraConversao from "@/components/site/BarraConversao";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
@@ -145,7 +144,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
       {!pedido && <ContarVisita />}
 
       <main id="conteudo">
-        <BarraConversao />
 
         {/* ═══ HERÓI ═══ */}
         {/* ── SEM SUSPENSE EM VOLTA DO TOPO ──
