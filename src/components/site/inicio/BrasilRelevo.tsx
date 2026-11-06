@@ -159,8 +159,8 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
           {cidade ? "Sua cidade:" : "Você está em"} <b>{nome}</b>
         </span>
       </div>
-      <a href="#proposta" className="topo3d-pilula">
-        Receber proposta <span className="topo3d-seta" aria-hidden>→</span>
+      <a href="#solucoes" className="topo3d-pilula">
+        Conhecer os módulos <span className="topo3d-seta" aria-hidden>→</span>
       </a>
       <div className="topo3d-rodape" aria-hidden>
         <span className="topo3d-legenda">
