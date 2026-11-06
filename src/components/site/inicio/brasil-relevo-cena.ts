@@ -10,6 +10,11 @@
 //   de nitidez em public/mapa/relevo: o aparelho baixa só o que consegue
 //   mostrar (celular 1024 px, notebook 2048, tela grande 4096). Abre com o
 //   nível leve e troca pelo nítido quando ele chega.
+// - Cartaz (nov/2026): o fundador pediu o mapa "assim que o cliente triscar",
+//   em 0,05 s. A cena leva ~2 s para montar, então o topo abre com uma imagem
+//   do mapa já pronto (public/mapa/cartaz-*.webp, tirada desta cena), e a
+//   cena entra por cima com semEntrada, já no estado final. A entrada abaixo
+//   só roda sem o cartaz.
 // - Entrada "contorno de luz" (escolhida pelo fundador entre três, no
 //   protótipo "Entradas do mapa", nov/2026): uma fita acesa corre pela
 //   fronteira a partir do litoral do Nordeste em 1,9 s, quase em velocidade
@@ -81,6 +86,8 @@ export async function montarBrasil(o: {
   rotulo: HTMLElement;
   parado: () => boolean;
   aoPronto: () => void;
+  /** Começa já no fim da entrada: a imagem do mapa (cartaz) já está na tela. */
+  semEntrada?: boolean;
 }): Promise<CenaBrasil> {
   const { palco, tela, rotulo } = o;
   const estilo = getComputedStyle(palco);
@@ -507,7 +514,9 @@ export async function montarBrasil(o: {
   const laco = (agora: number) => {
     quadro = 0;
     if (parado) return;
-    if (t0 < 0) t0 = agora;
+    // Com o cartaz na tela, o relógio começa como se a entrada já tivesse
+    // acabado: o país não some para subir de novo.
+    if (t0 < 0) t0 = agora - (o.semEntrada ? 10000 : 0);
     desenhar((agora - t0) / 1000);
     avisar();
     if (visivel && !document.hidden) quadro = requestAnimationFrame(laco);

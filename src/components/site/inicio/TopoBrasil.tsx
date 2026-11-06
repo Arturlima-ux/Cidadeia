@@ -21,7 +21,19 @@ const ESTILO = `
 /* O mapa some no fundo por máscara, e não por uma faixa pintada por cima:
    assim não há cor nenhuma para não bater com a seção de baixo. */
 .topo3d::after { content: none; }
-.topo3d-palco { position: absolute; inset: 0; }
+.topo3d-palco { position: absolute; inset: 0; container-type: size; }
+/* O cartaz: o mapa já pronto, em imagem, na tela desde o primeiro desenho
+   (pedido do fundador: "assim que o cliente triscar", entrando em 0,05 s).
+   A cena 3D monta por cima em ~2 s, no mesmo enquadramento: a imagem é
+   um quadro dela, e cresce como ela, pelo tamanho do Brasil na tela
+   (brasil-relevo-cena.ts, enquadrar: mapaPx). Tirada a 1440x830, onde o
+   Brasil mede 744 px; no celular, a 390x420, onde mede 98% da largura. */
+.topo3d-cartaz { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%); mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
+.topo3d-cartaz img { position: absolute; left: 50%; top: 50%; max-width: none; height: auto; translate: -50% -50%; width: calc(1440 / 744 * min(min(100cqw, 1200px) * 0.62, 92cqh)); animation: topo3d-cartaz-entra 50ms var(--saida) both;
+  /* Só o país: o chão da imagem some em volta dele, sem quina de retângulo. */
+  -webkit-mask-image: radial-gradient(ellipse 34% 44% at 53.5% 64%, black 78%, transparent 100%); mask-image: radial-gradient(ellipse 34% 44% at 53.5% 64%, black 78%, transparent 100%); }
+@keyframes topo3d-cartaz-entra { from { opacity: 0; scale: 0.985; } }
+.topo3d-palco[data-pronto] .topo3d-cartaz { visibility: hidden; transition: visibility 0s 800ms; }
 .topo3d-tela { -webkit-mask-image: linear-gradient(to bottom, black 68%, transparent 100%); mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
 .topo3d-tela { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 700ms var(--saida); }
 .topo3d-palco[data-pronto] .topo3d-tela { opacity: 1; }
@@ -85,6 +97,7 @@ const ESTILO = `
   .topo3d-titulo { min-height: calc(3 * 0.96em); }
   .topo3d-busca { margin-top: 22px; max-width: none; }
   .topo3d-palco { order: 2; position: relative; height: 420px; margin-top: -64px; }
+  .topo3d-cartaz img { width: 100cqw; -webkit-mask-image: radial-gradient(ellipse 54% 38% at 47.5% 52%, black 80%, transparent 100%); mask-image: radial-gradient(ellipse 54% 38% at 47.5% 52%, black 80%, transparent 100%); }
   .topo3d-pilula { bottom: 30px; }
   .topo3d-lados { order: 3; position: relative; inset: auto; z-index: 2; flex-direction: column; gap: 20px; padding: 6px 16px 28px; }
   .topo3d-lado { max-width: none; }
@@ -97,6 +110,7 @@ const ESTILO = `
 }
 @media (prefers-reduced-motion: reduce) {
   .topo3d-tela, .topo3d-voce { transition: none; }
+  .topo3d-cartaz img { animation: none; }
 }
 `;
 

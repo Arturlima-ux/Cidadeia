@@ -84,6 +84,7 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
           rotulo: rotulo.current,
           parado: semMovimento,
           aoPronto: () => setPronto(true),
+          semEntrada: true,
         });
         if (!vivo) return c.destruir();
         cena.current = c;
@@ -147,6 +148,11 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
   const nome = cidade ? `${cidade.nome}, ${cidade.uf}` : nomeDoLocal(local);
   return (
     <div ref={palco} className="topo3d-palco" data-pronto={pronto ? "" : undefined}>
+      {/* O mapa já pronto, até a cena 3D chegar (TopoBrasil.tsx, .topo3d-cartaz). */}
+      <picture className="topo3d-cartaz">
+        <source media="(max-width: 859px)" srcSet="/mapa/cartaz-estreito.webp" width={780} height={840} />
+        <img src="/mapa/cartaz-largo.webp" width={2160} height={1245} alt="" fetchPriority="high" decoding="async" />
+      </picture>
       <canvas
         ref={tela}
         className="topo3d-tela"
