@@ -7,17 +7,18 @@ import { EVENTO_VISITANTE, guardarVisitante, lerVisitante, nomeDoLocal, type Loc
 import type { CenaBrasil } from "./brasil-relevo-cena";
 import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 
-// ── A ENTRADA DO CARTAZ (nov/2026) ──
-// EM TESTE: ?entrada=luz|queda|varre troca a entrada, para o fundador
-// comparar na prévia. Sai quando ele escolher.
-// Pedido do fundador: o mapa começa a se mexer 0,05 s depois de aparecer, em
-// todo aparelho, e dá para ver: sobe, cresce e se acende em 1,2 s. Roda num script
-// pequeno junto do HTML, sem esperar o React (que hidrata depois), e conta a
-// partir de quando a imagem carregou: se contasse do HTML, num celular lento
-// a animação acabaria antes de a imagem chegar. Com movimento reduzido, só
-// aparece. O effect repete a entrada na navegação dentro do site (onde o
-// script do HTML não roda de novo); sem eval, que a CSP de produção barra.
-const ENTRADA_CARTAZ = `(function(p){var i=p&&p.querySelector("img");if(!i||i.getAnimations().length)return;var r=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var V={luz:[{opacity:1,clipPath:"circle(0% at 76% 46%)",filter:"brightness(3)"},{opacity:1,clipPath:"circle(62% at 76% 46%)",filter:"brightness(1.2)",offset:0.92},{opacity:1,clipPath:"circle(130% at 76% 46%)",filter:"none"}],queda:[{opacity:0,transform:"translateY(-180px) scale(1.3)",filter:"brightness(2.5)"},{opacity:1,offset:0.35},{opacity:1,transform:"none",filter:"none"}],varre:[{opacity:1,clipPath:"inset(0 72% 0 0)",filter:"brightness(3)"},{opacity:1,clipPath:"inset(0 20% 0 0)",filter:"brightness(1.2)",offset:0.92},{opacity:1,clipPath:"inset(0 0% 0 0)",filter:"none"}]};var k=new URLSearchParams(location.search).get("entrada");var e=V[k];var a=k==="luz"||k==="varre";var f=function(){if(i.getAnimations().length)return;i.animate(r?[{opacity:1},{opacity:1}]:e||[{opacity:0,transform:"translateY(70px) scale(0.9)",filter:"brightness(0.3)"},{opacity:1,transform:"none",filter:"none"}],{duration:r?0:a?1400:1200,delay:r?0:50,easing:a?"cubic-bezier(0.45, 0, 0.55, 1)":"cubic-bezier(0.16, 1, 0.3, 1)",fill:"both"})};if(i.complete&&i.naturalWidth)f();else{i.addEventListener("load",f,{once:true});i.addEventListener("error",f,{once:true})}})`;
+// ── A ENTRADA DO MAPA: O BRASIL CRESCE DO PLANO (nov/2026) ──
+// Pedido do fundador: "o cliente triscou, abriu e automaticamente tem uma
+// animação", com o Brasil crescendo do zero até o relevo. A cena 3D leva de
+// 2 a 9 s para montar, então a subida é um vídeo curto gravado da própria
+// cena (public/mapa/cresce-*.mp4, 1,4 s, ~60 KB), que toca 0,05 s depois de
+// poder tocar. No fim, a imagem do último quadro (cartaz-*.webp, mais
+// nítida) fica no lugar até a cena 3D assumir por cima, no mesmo quadro.
+// Roda num script pequeno junto do HTML, sem esperar o React. Se o vídeo
+// não tocar em 3 s (economia de bateria, rede ruim) ou com movimento
+// reduzido, a imagem aparece direto (subindo, ou parada). O elemento guarda
+// __feito e avisa "feito", para a cena 3D não cobrir o vídeo no meio.
+const ENTRADA_CARTAZ = `(function(c){if(!c||c.__iniciado)return;c.__iniciado=1;var i=c.querySelector("img"),v=c.querySelector("video"),r=matchMedia("(prefers-reduced-motion: reduce)").matches,e="cubic-bezier(0.16, 1, 0.3, 1)",tocou=0;function fim(sobe){if(c.__feito)return;c.__feito=1;i.animate(sobe&&!r?[{opacity:0,transform:"translateY(40px) scale(0.95)"},{opacity:1,transform:"none"}]:[{opacity:1},{opacity:1}],{duration:sobe&&!r?900:0,easing:e,fill:"both"});if(v){v.animate([{opacity:0},{opacity:0}],{duration:0,fill:"forwards"});try{v.pause()}catch(x){}}c.dispatchEvent(new Event("feito"))}if(r||!v||!v.play){fim(0);return}v.muted=true;v.addEventListener("playing",function(){tocou=1;v.animate([{opacity:1},{opacity:1}],{duration:0,fill:"forwards"})},{once:true});v.addEventListener("ended",function(){fim(0)},{once:true});var foi=0;function toca(){if(foi)return;foi=1;setTimeout(function(){var p=v.play();if(p&&p.catch)p.catch(function(){fim(1)})},50)}if(v.readyState>=3)toca();else v.addEventListener("canplay",toca,{once:true});setTimeout(function(){if(!tocou)fim(1)},3000)})`;
 
 // ── O BRASIL EM RELEVO DO TOPO (o palco do 3D) ──
 //
@@ -57,23 +58,19 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
   useEffect(() => {
     escolhida.current = cidade;
   }, [cidade]);
-  // Navegação dentro do site: o script do HTML não roda, a entrada roda aqui.
+  // Navegação dentro do site: o script do HTML não roda; a imagem só sobe.
   useEffect(() => {
-    const cartaz = palco.current?.querySelector(".topo3d-cartaz");
+    const cartaz = palco.current?.querySelector<HTMLElement & { __iniciado?: number; __feito?: number }>(".topo3d-cartaz");
     const img = cartaz?.querySelector("img");
-    if (!img || img.getAnimations().length) return;
+    if (!cartaz || !img || cartaz.__iniciado) return;
+    cartaz.__iniciado = 1;
+    cartaz.__feito = 1;
     const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const entrar = () => {
-      if (img.getAnimations().length) return;
-      img.animate(
-        reduzir
-          ? [{ opacity: 1 }, { opacity: 1 }]
-          : [{ opacity: 0, transform: "translateY(70px) scale(0.9)", filter: "brightness(0.3)" }, { opacity: 1, transform: "none", filter: "none" }],
-        { duration: reduzir ? 0 : 1200, delay: reduzir ? 0 : 50, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" },
-      );
-    };
-    if (img.complete && img.naturalWidth) entrar();
-    else img.addEventListener("load", entrar, { once: true });
+    img.animate(
+      reduzir ? [{ opacity: 1 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(40px) scale(0.95)" }, { opacity: 1, transform: "none" }],
+      { duration: reduzir ? 0 : 900, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" },
+    );
+    cartaz.querySelector("video")?.animate([{ opacity: 0 }, { opacity: 0 }], { duration: 0, fill: "forwards" });
   }, []);
   const [hora, setHora] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
@@ -113,8 +110,15 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
           tela: tela.current,
           rotulo: rotulo.current,
           parado: semMovimento,
-          aoPronto: () => setPronto(true),
-          semEntrada: true,
+          // A cena só cobre o mapa depois que a subida (vídeo) acabou.
+          aoPronto: () => {
+            const cartaz = palco.current?.querySelector<HTMLElement & { __feito?: number }>(".topo3d-cartaz");
+            if (!cartaz || cartaz.__feito) return setPronto(true);
+            cartaz.addEventListener("feito", () => setPronto(true), { once: true });
+            window.setTimeout(() => setPronto(true), 4000);
+          },
+          // ?captura=cresce: só para gravar o vídeo da entrada (window.__quadro(t) devolve cada quadro em PNG).
+          ...(new URLSearchParams(location.search).get("captura") === "cresce" ? { cresce: 1.4 } : { semEntrada: true }),
         });
         if (!vivo) return c.destruir();
         cena.current = c;
@@ -178,11 +182,18 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
   const nome = cidade ? `${cidade.nome}, ${cidade.uf}` : nomeDoLocal(local);
   return (
     <div ref={palco} className="topo3d-palco" data-pronto={pronto ? "" : undefined}>
-      {/* O mapa já pronto, até a cena 3D chegar (TopoBrasil.tsx, .topo3d-cartaz). */}
-      <picture className="topo3d-cartaz">
-        <source media="(max-width: 859px)" srcSet="/mapa/cartaz-estreito.webp" width={780} height={840} />
-        <img src="/mapa/cartaz-largo.webp" width={2160} height={1245} alt="" fetchPriority="high" decoding="async" />
-      </picture>
+      {/* O Brasil crescendo (vídeo) e o mapa pronto (imagem), até a cena 3D
+          chegar (TopoBrasil.tsx, .topo3d-cartaz; a entrada, ENTRADA_CARTAZ). */}
+      <div className="topo3d-cartaz">
+        <picture>
+          <source media="(max-width: 859px)" srcSet="/mapa/cartaz-estreito.webp" width={585} height={630} />
+          <img src="/mapa/cartaz-largo.webp" width={2160} height={1245} alt="" decoding="async" />
+        </picture>
+        <video muted playsInline preload="auto" disablePictureInPicture aria-hidden tabIndex={-1} width={1440} height={830}>
+          <source media="(max-width: 859px)" src="/mapa/cresce-estreito.mp4" type="video/mp4" />
+          <source src="/mapa/cresce-largo.mp4" type="video/mp4" />
+        </video>
+      </div>
       <script dangerouslySetInnerHTML={{ __html: `${ENTRADA_CARTAZ}(document.currentScript.previousElementSibling)` }} />
       <noscript><style>{`.topo3d-cartaz img{opacity:1}`}</style></noscript>
       <canvas

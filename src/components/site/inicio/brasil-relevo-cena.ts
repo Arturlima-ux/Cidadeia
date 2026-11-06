@@ -88,6 +88,10 @@ export async function montarBrasil(o: {
   aoPronto: () => void;
   /** Começa já no fim da entrada: a imagem do mapa (cartaz) já está na tela. */
   semEntrada?: boolean;
+  /** Só para gravar o vídeo da entrada (public/mapa/cresce-*): o relevo
+   *  cresce do plano em tantos segundos, sem a fita, e termina exatamente
+   *  no quadro em que a cena com semEntrada começa. */
+  cresce?: number;
 }): Promise<CenaBrasil> {
   const { palco, tela, rotulo } = o;
   const estilo = getComputedStyle(palco);
@@ -454,7 +458,8 @@ export async function montarBrasil(o: {
   function desenhar(s: number) {
     const quieto = parado;
     // A fita corre a fronteira (1,5 s, acelera e freia) e apaga de 2,0 a 2,9 s.
-    fita.m.visible = !quieto && s < 3.0;
+    const subida = o.cresce ? lim((s - (10 - o.cresce)) / o.cresce) : -1;
+    fita.m.visible = !quieto && s < 3.0 && subida < 0;
     if (fita.m.visible) {
       fita.m.geometry.setDrawRange(0, Math.floor((fita.total / 6) * vaiVem(s / 1.9)) * 6);
       (fita.m.material as THREE.MeshBasicMaterial).opacity = 1 - passo(s, 2.1, 2.9);
@@ -462,8 +467,8 @@ export async function montarBrasil(o: {
     // O país sobe de dentro da fita, enquanto ela ainda corre: altura de 2% a
     // 100% e o detalhe da superfície junto.
     relevo.visible = quieto || s > 0.5;
-    relevo.scale.y = quieto ? 1 : 0.02 + 0.98 * saida((s - 0.5) / 1.6);
-    matTerra.normalScale.setScalar(0.75 * (quieto ? 1 : saida((s - 0.6) / 1.6)));
+    relevo.scale.y = quieto ? 1 : subida >= 0 ? 0.02 + 0.98 * vaiVem(subida) : 0.02 + 0.98 * saida((s - 0.5) / 1.6);
+    matTerra.normalScale.setScalar(0.75 * (quieto ? 1 : subida >= 0 ? vaiVem(subida) : saida((s - 0.6) / 1.6)));
     const onda = quieto ? 9 : Math.max(0, s - 1.5) * 0.6;
     if (nitida && (quieto || s > 3.0)) { aplicar(nitida); nitida = null; }
     if (!mexeu) {
@@ -534,7 +539,18 @@ export async function montarBrasil(o: {
     posicionar(PHI, 0);
     await renderer.compileAsync(cena, camera).catch(() => {});
   }
-  if (parado) { desenhar(99); avisar(); } else retomar();
+  if (o.cresce) {
+    // Gravação do vídeo da entrada: sem laço; o gravador pede cada quadro.
+    const inicio = 10 - o.cresce;
+    // Devolve o quadro em PNG (lido logo depois de desenhar, antes de o
+    // navegador limpar a tela).
+    (window as unknown as { __quadro?: (t: number) => string }).__quadro = (t) => {
+      desenhar(inicio + t);
+      return tela.toDataURL("image/png");
+    };
+    desenhar(inicio);
+    avisar();
+  } else if (parado) { desenhar(99); avisar(); } else retomar();
 
   // O nível nítido chega depois e entra no primeiro quadro após a entrada
   // (desenhar), para a subida da textura não travar o país aparecendo.
@@ -560,6 +576,7 @@ export async function montarBrasil(o: {
       if (parado) desenhar(99);
     },
     parar() {
+      if (o.cresce) return; // na gravação, o modo leve não congela a cena
       parado = true;
       controles.enabled = false;
       palco.removeAttribute("data-gira");
