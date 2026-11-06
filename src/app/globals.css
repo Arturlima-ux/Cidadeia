@@ -148,9 +148,9 @@
   --relevo-halo: 0.45;
   --relevo-sopro: 0;
   --localizacao-clara: #ffffff;
-  --background: #0d0a08;
-  --superficie: #110d0a;
-  --card: #17120e;
+  --background: #0a0706;
+  --superficie: #0f0b09;
+  --card: #16110d;
   --foreground: #f5efe8;
   --muted: #9a8f85;
   --border: rgba(255, 226, 196, 0.12);
@@ -1079,13 +1079,12 @@ h1.font-serif,
   background: var(--violeta-profundo);
   border: 1px solid color-mix(in oklab, var(--accent-claro) 26%, transparent);
 }
-/* O céu da home (nov/2026): carvão quente com o calor da brasa subindo
-   atrás do mapa, preso à tela; bordas escurecidas e um grão de filme leve. */
+/* O fundo da home (nov/2026): o mesmo carvão do topo do começo ao fim. Era
+   um céu que acastanhava descendo e um calor de brasa preso à tela; o
+   fundador preferiu o tom do topo em todas as seções. Ficam as bordas
+   escurecidas e o grão de filme leve. */
 .tema-noite.pagina-inicial {
-  background:
-    radial-gradient(60% 45% at 66% 62%, rgba(255, 106, 31, 0.1), transparent 70%),
-    linear-gradient(180deg, #090706 0%, #120d0a 45%, #1a120c 70%, #0d0a08 100%);
-  background-attachment: fixed;
+  background: var(--background);
 }
 .tema-noite.pagina-inicial::before,
 .tema-noite.pagina-inicial::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; }
@@ -1094,7 +1093,6 @@ h1.font-serif,
   z-index: 61; opacity: 0.07; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 }
-@media (prefers-reduced-motion: reduce) { .tema-noite.pagina-inicial { background-attachment: scroll; } }
 .fecho-confianca { display: grid; gap: 20px 40px; margin: 0; }
 @media (min-width: 768px) { .fecho-confianca { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .fecho-confianca dt { font-weight: 600; color: var(--foreground); }
