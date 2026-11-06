@@ -5,6 +5,7 @@ import EstruturaB from "./EstruturaB";
 import EstruturaC from "./EstruturaC";
 import Carrossel from "./Carrossel";
 import type { CidadeDoMontador } from "./Pecas";
+import { DIAS_DA_CONFERENCIA } from "@/lib/panorama";
 
 // ── ESTRUTURA D · B + C COM O CARROSSEL (nov/2026) ──
 // O fundador escolheu juntar as duas: o mosaico de cinema do C abre, os
@@ -13,6 +14,14 @@ import type { CidadeDoMontador } from "./Pecas";
 // pedido dele. As peças de B e C são as mesmas (partes=...).
 
 const ESTILO = `
+.ed-bases { max-width: 1200px; margin-inline: auto; padding: clamp(40px, 5vw, 64px) 16px 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 20px 48px; align-items: baseline; }
+@media (min-width: 640px) { .ed-bases { padding-inline: 32px; } }
+.ed-bases-rot { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--brand-legivel); line-height: 1.6; margin: 0; max-width: 22ch; }
+.ed-bases ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px 40px; }
+.ed-bases a { font-family: var(--font-titulo); font-size: clamp(20px, 2vw, 28px); letter-spacing: -.03em; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; }
+.ed-bases a:hover { color: var(--foreground); }
+.ed .ec-mosaico { padding-top: clamp(56px, 7vw, 96px); }
+@media (max-width: 899px) { .ed-bases { grid-template-columns: 1fr; } .ed-bases ul { gap: 10px 28px; } }
 .car { padding-top: clamp(112px, 14vw, 200px); }
 .car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; }
 @media (min-width: 640px) { .car-cab { padding-inline: 32px; } }
@@ -123,6 +132,15 @@ export default function EstruturaD({ cidade, chave }: { cidade: CidadeDoMontador
     <div className="ed">
       <style href="cidadeia-estrutura-d" precedence="medium">{ESTILO}</style>
 
+      <section className="ed-bases" aria-labelledby="ed-bases-rot">
+        <p id="ed-bases-rot" className="ed-bases-rot">Lido {DIAS_DA_CONFERENCIA} nas bases oficiais</p>
+        <ul>
+          {FONTES_ABAIXO.map((f) => (
+            <li key={f.nome}><a href={f.link} target="_blank" rel="noopener noreferrer">{f.nome}</a></li>
+          ))}
+        </ul>
+      </section>
+
       <EstruturaC cidade={cidade} chave={chave} partes={["mosaico"]} />
 
       <section id="solucoes" className="scroll-mt-24" aria-labelledby="ed-titulo-modulos">
@@ -157,9 +175,6 @@ export default function EstruturaD({ cidade, chave }: { cidade: CidadeDoMontador
               <li key={p.titulo}><b>{p.titulo}</b><span>{p.texto}</span></li>
             ))}
           </ol>
-          <div className="ec-fontes" aria-label="Bases oficiais lidas">
-            {FONTES_ABAIXO.map((f) => <a key={f.nome} href={f.link} target="_blank" rel="noopener noreferrer">{f.nome}</a>)}
-          </div>
         </article>
       </section>
 
