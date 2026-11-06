@@ -151,7 +151,7 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
         ref={tela}
         className="topo3d-tela"
         role="img"
-        aria-label={`O Brasil em relevo de grafite, com as capitais acesas em roxo${nome ? (cidade ? ` e, em azul, ${nome}` : ` e, em azul, você, em ${nome}`) : ""}`}
+        aria-label={`O Brasil em relevo${nome ? (cidade ? `, com ${nome} acesa` : `, com um ponto aceso em ${nome}`) : ""}`}
       />
       <div ref={rotulo} className="topo3d-voce" aria-hidden hidden={!nome}>
         <i className="topo3d-ponto-voce" />
@@ -167,7 +167,6 @@ export default function BrasilRelevo({ cidade = null }: { cidade?: CidadeNoMapa 
           {hora && <span>Brasília {hora}</span>}
           {!semTresD && (
             <>
-              <span><i className="topo3d-ponto-cap" />Capitais</span>
               {nome && <span><i className="topo3d-ponto-voce" />{cidade ? "Sua cidade" : "Você"}</span>}
             </>
           )}

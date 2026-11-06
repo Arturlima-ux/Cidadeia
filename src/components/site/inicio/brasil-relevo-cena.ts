@@ -335,7 +335,9 @@ export async function montarBrasil(o: {
     descartaveis.push(s.material);
     return s;
   };
-  const luzes = CAPITAIS_NO_MAPA.map(([, x, y], n) => {
+  // As capitais piscando saíram (nov/2026): o mapa só acende onde o cliente
+  // está. A lista fica vazia, e o resto da cena segue igual.
+  const luzes = CAPITAIS_NO_MAPA.slice(0, 0).map(([, x, y], n) => {
     const h = alturaEm(x, y);
     const p = new THREE.Vector3(paraX(x), h + 2.2, paraZ(y));
     const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80 * escalaHalo), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
