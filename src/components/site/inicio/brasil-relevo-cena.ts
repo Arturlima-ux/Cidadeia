@@ -93,6 +93,23 @@ export async function montarBrasil(o: {
     return Number.isFinite(v) ? v : padrao;
   };
   const escalaHalo = numero("--relevo-halo", 1);
+  // O "olhar" do relevo (tons de teste, nov/2026). Sem os tokens, nada muda.
+  const temToken = (t: string) => estilo.getPropertyValue(t).trim() !== "";
+  const olhar = {
+    tinta: temToken("--relevo-tinta") ? cor("--relevo-tinta") : null,
+    brilho: temToken("--relevo-brilho") ? cor("--relevo-brilho") : null,
+    brilhoForca: numero("--relevo-brilho-forca", 0),
+    brilhoCorte: numero("--relevo-brilho-corte", 0.35),
+    borda: temToken("--relevo-borda") ? cor("--relevo-borda") : null,
+    bordaForca: numero("--relevo-borda-forca", 0),
+    bordaNoChao: numero("--relevo-borda-chao", 1),
+    nevoa: temToken("--relevo-nevoa") ? cor("--relevo-nevoa") : null,
+    nevoaPerto: numero("--relevo-nevoa-perto", 1600),
+    nevoaLonge: numero("--relevo-nevoa-longe", 3400),
+    chaveForca: numero("--relevo-chave-forca", 3.4),
+    contraForca: numero("--relevo-contra-forca", 1.1),
+    exposicao: numero("--relevo-exposicao", 1.05),
+  };
   const forcaSopro = numero("--relevo-sopro", 1);
   const rgba = (c: THREE.Color, a: number) => {
     const s = c.clone().convertLinearToSRGB();
@@ -118,7 +135,7 @@ export async function montarBrasil(o: {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, o.parado() ? 1 : NIVEIS[nivel].dpr));
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = olhar.exposicao;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const cena = new THREE.Scene();
@@ -126,6 +143,33 @@ export async function montarBrasil(o: {
   const ambiente = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   cena.environment = ambiente;
   cena.environmentIntensity = 0.3;
+  if (olhar.nevoa) cena.fog = new THREE.Fog(olhar.nevoa, olhar.nevoaPerto, olhar.nevoaLonge);
+  // Luz que nasce do próprio relevo: brilho nas encostas (onde o chão inclina)
+  // e na borda (onde a superfície vira de lado para a câmera).
+  const acender = (mat: THREE.MeshStandardMaterial, encosta: boolean) => {
+    const comEncosta = encosta && olhar.brilho && olhar.brilhoForca > 0;
+    const comBorda = olhar.borda && olhar.bordaForca > 0;
+    if (!comEncosta && !comBorda) return;
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uBrilho = { value: olhar.brilho ?? new THREE.Color(0) };
+      sh.uniforms.uBrilhoForca = { value: comEncosta ? olhar.brilhoForca : 0 };
+      sh.uniforms.uBrilhoCorte = { value: olhar.brilhoCorte };
+      sh.uniforms.uBorda = { value: olhar.borda ?? new THREE.Color(0) };
+      sh.uniforms.uBordaForca = { value: comBorda ? olhar.bordaForca * (encosta ? olhar.bordaNoChao : 1) : 0 };
+      sh.fragmentShader = sh.fragmentShader
+        .replace("#include <common>", "#include <common>\nuniform vec3 uBrilho; uniform float uBrilhoForca; uniform float uBrilhoCorte; uniform vec3 uBorda; uniform float uBordaForca;")
+        .replace(
+          "#include <emissivemap_fragment>",
+          `#include <emissivemap_fragment>
+          vec3 cimaV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+          float inclina = 1.0 - clamp(dot(normal, cimaV), 0.0, 1.0);
+          totalEmissiveRadiance += uBrilho * uBrilhoForca * smoothstep(uBrilhoCorte, uBrilhoCorte + 0.3, inclina);
+          float lado = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+          totalEmissiveRadiance += uBorda * uBordaForca * pow(lado, 3.0);`
+        );
+    };
+    mat.customProgramCacheKey = () => `olhar-${encosta ? 1 : 0}`;
+  };
   const camera = new THREE.PerspectiveCamera(28, 1, 10, 9000);
   const brasil = new THREE.Group();
   cena.add(brasil);
@@ -169,6 +213,8 @@ export async function montarBrasil(o: {
   // ── O relevo, na densidade do nível ──
   const matTerra = new THREE.MeshStandardMaterial({ roughness: 0.52, metalness: 0.32, normalScale: new THREE.Vector2(0.75, 0.75), alphaTest: 0.5 });
   descartaveis.push(matTerra);
+  if (olhar.tinta) matTerra.color.copy(olhar.tinta);
+  acender(matTerra, true);
   const aplicar = ([corImg, normal, mascara]: HTMLImageElement[]) => {
     matTerra.map?.dispose(); matTerra.normalMap?.dispose(); matTerra.alphaMap?.dispose();
     matTerra.map = textura(corImg, true);
@@ -205,6 +251,7 @@ export async function montarBrasil(o: {
   {
     const mat = new THREE.MeshStandardMaterial({ color: C.parede, roughness: 0.42, metalness: 0.5 });
     descartaveis.push(mat);
+    acender(mat, false);
     for (const r of aneisDoContorno()) {
       if (r.length < 8) continue;
       const forma = new THREE.Shape(r.map(([x, y]) => new THREE.Vector2(paraX(x), -paraZ(y))));
@@ -325,8 +372,8 @@ export async function montarBrasil(o: {
 
   // ── Luz de estúdio: rasante do noroeste, contraluz roxa, recorte frio ──
   cena.add(new THREE.HemisphereLight(C.ceu, C.fundo, 0.28));
-  const chave = new THREE.DirectionalLight(C.chave, 3.4); chave.position.set(-760, 360, -320); cena.add(chave);
-  const contra = new THREE.DirectionalLight(C.marca, 1.1); contra.position.set(560, 180, -900); cena.add(contra);
+  const chave = new THREE.DirectionalLight(C.chave, olhar.chaveForca); chave.position.set(-760, 360, -320); cena.add(chave);
+  const contra = new THREE.DirectionalLight(temToken("--relevo-contra") ? cor("--relevo-contra") : C.marca, olhar.contraForca); contra.position.set(560, 180, -900); cena.add(contra);
   const recorte = new THREE.DirectionalLight(C.recorte, 0.7); recorte.position.set(700, 280, 760); cena.add(recorte);
 
   // ── Câmera e giro com a mão (só com mouse e com movimento) ──

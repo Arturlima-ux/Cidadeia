@@ -5,7 +5,8 @@
    As luzes do mapa trocam de cor só dentro do mapa (--relevo-*), os
    botões continuam no roxo da marca. Sai daqui quando ele escolher. */
 
-.pagina-inicial[data-tom] { background-attachment: fixed; }
+/* O céu fica preso à tela (vale para todas as camadas do fundo). */
+.pagina-inicial[data-tom] { background-attachment: fixed !important; }
 .pagina-inicial[data-tom]::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60;
   background: radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(0, 0, 0, 0.5) 100%);
@@ -23,30 +24,47 @@
 .pagina-inicial[data-tom] .topo3d-ponto-voce { background: var(--localizacao); }
 .pagina-inicial[data-tom] .topo3d-voce { border-color: color-mix(in oklab, var(--localizacao) 40%, transparent); }
 
-/* A · Noite azul: céu de noite, cidades em branco frio, a sua em âmbar. */
-.pagina-inicial[data-tom="a"] {
-  --background: #0c121b; --superficie: #0f1620; --card: #131c27; --border: rgba(214, 228, 245, 0.1);
-  --grafite-parede: #1b2433; --grafite-chao: #121a26; --luz-ceu: #c9d7ec; --luz-recorte: #d6e2f2;
-  --relevo-luz: #cfdcee; --relevo-luz-clara: #f2f6ff; --relevo-halo: 0.4; --relevo-sopro: 0;
-  --localizacao: #f0b56a; --localizacao-clara: #ffe2b8;
-  background: linear-gradient(180deg, #070b12 0%, #0c1420 34%, #16233a 58%, #0c121b 100%);
+/* 1 · Relevo que é a luz (ref.: Immersive Geology, Md Saimon). Fundo carvão
+   quente; o Brasil escuro com as encostas acesas em âmbar, como brasa. */
+.pagina-inicial[data-tom="1"] {
+  --background: #0d0a08; --superficie: #110d0a; --card: #17120e; --border: rgba(255, 214, 170, 0.1);
+  --grafite-parede: #1a1410; --grafite-chao: #120e0b; --luz-ceu: #6b5442; --luz-chave: #ffd2a1; --luz-recorte: #ff9a4d;
+  --relevo-tinta: #3a332e; --relevo-brilho: #ff6a1f; --relevo-brilho-forca: 1.25; --relevo-brilho-corte: 0.28;
+  --relevo-borda: #ff8a3d; --relevo-borda-forca: 0.35; --relevo-chave-forca: 1.6; --relevo-contra: #ff7a2e; --relevo-contra-forca: 0.9;
+  --relevo-luz: #ffb46b; --relevo-luz-clara: #ffe2bf; --relevo-halo: 0.45; --relevo-sopro: 0;
+  --localizacao: #ffffff; --localizacao-clara: #ffffff;
+  background:
+    radial-gradient(60% 45% at 66% 62%, rgba(255, 106, 31, 0.10), transparent 70%),
+    linear-gradient(180deg, #090706 0%, #120d0a 45%, #1a120c 70%, #0d0a08 100%);
 }
-/* B · Grafite quente: carvão puxado ao marrom, cidades em âmbar, a sua em branco. */
-.pagina-inicial[data-tom="b"] {
-  --background: #14110e; --superficie: #18140f; --card: #1d1914; --border: rgba(243, 236, 226, 0.1); --foreground: #f3eee6;
-  --grafite-parede: #2a241d; --grafite-chao: #1c1813; --luz-ceu: #eadfcc; --luz-recorte: #efe2cf;
-  --relevo-luz: #e8b878; --relevo-luz-clara: #ffe4c0; --relevo-halo: 0.4; --relevo-sopro: 0;
-  --localizacao: #f6efe4; --localizacao-clara: #ffffff;
-  background: linear-gradient(180deg, #0e0c0a 0%, #171410 34%, #28211a 58%, #14110e 100%);
+/* 2 · Eclipse azul (ref.: ATLAS, Flatonica). Azul profundo, o Brasil em
+   silhueta com a borda acesa em luz fria, e uma coroa atrás, como eclipse. */
+.pagina-inicial[data-tom="2"] {
+  --background: #061220; --superficie: #08172a; --card: #0c1d33; --border: rgba(170, 215, 255, 0.12);
+  --grafite-parede: #0b1a2c; --grafite-chao: #081626; --luz-ceu: #3d6f9e; --luz-chave: #cfe7ff; --luz-recorte: #8fd3ff;
+  --relevo-tinta: #18222e; --relevo-borda: #6cc8ff; --relevo-borda-forca: 2.2; --relevo-borda-chao: 0.18; --relevo-chave-forca: 0.9;
+  --relevo-contra: #59b8ff; --relevo-contra-forca: 2.2;
+  --relevo-luz: #bfe6ff; --relevo-luz-clara: #ffffff; --relevo-halo: 0.45; --relevo-sopro: 0.6;
+  --localizacao: #ffffff; --localizacao-clara: #ffffff;
+  background:
+    radial-gradient(circle at 63% 50%, transparent 0 230px, rgba(160, 225, 255, 0.42) 262px, rgba(70, 160, 240, 0.18) 300px, rgba(40, 110, 210, 0.06) 360px, transparent 460px),
+    linear-gradient(180deg, #040b14 0%, #071628 40%, #0b2340 62%, #061220 100%);
 }
-/* C · Crepúsculo: ardósia com fundo violeta, cidades em lilás claro, a sua em âmbar. */
-.pagina-inicial[data-tom="c"] {
-  --background: #110f19; --superficie: #14121d; --card: #191623; --border: rgba(240, 236, 250, 0.1);
-  --grafite-parede: #252032; --grafite-chao: #191623; --luz-recorte: #e4def2;
-  --relevo-luz: #d9d0ee; --relevo-luz-clara: #f5f1ff; --relevo-halo: 0.4; --relevo-sopro: 0.35;
-  --localizacao: #f0b56a; --localizacao-clara: #ffe2b8;
-  background: linear-gradient(180deg, #0a0910 0%, #141120 34%, #251f36 58%, #110f19 100%);
+/* 3 · Poeira dourada (ref.: Cinematic Planet, Agemandi). Terra, névoa e luz
+   de fim de tarde; o fundo some numa poeira quente, nada é preto. */
+.pagina-inicial[data-tom="3"] {
+  --background: #1d140c; --superficie: #22170e; --card: #2a1d12; --border: rgba(255, 228, 190, 0.14); --foreground: #fbf3e8;
+  --grafite-parede: #4a3320; --grafite-chao: #2a1c11; --luz-ceu: #f3c58c; --luz-chave: #ffcf8f; --luz-recorte: #ffe2b8;
+  --relevo-tinta: #f2d6ae; --relevo-chave-forca: 5.2; --relevo-contra: #ffb070; --relevo-contra-forca: 1.8;
+  --relevo-nevoa: #a8743f; --relevo-nevoa-perto: 1750; --relevo-nevoa-longe: 4200; --relevo-exposicao: 1.35;
+  --relevo-luz: #fff0d6; --relevo-luz-clara: #ffffff; --relevo-halo: 0.4; --relevo-sopro: 0;
+  --localizacao: #ffffff; --localizacao-clara: #ffffff;
+  background:
+    radial-gradient(70% 55% at 62% 56%, rgba(240, 180, 110, 0.38), transparent 72%),
+    linear-gradient(180deg, #1a110a 0%, #3d2815 30%, #9a6a3a 56%, #4a3019 80%, #22170d 100%);
 }
+/* No tom 3 o fundo clareia atrás do mapa: o texto ganha uma sombra suave. */
+.pagina-inicial[data-tom="3"] .topo3d-tese { text-shadow: 0 1px 24px rgba(20, 12, 6, 0.55); }
 
 /* O seletor dos tons, no canto de baixo. */
 .tons-teste {

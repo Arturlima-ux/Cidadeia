@@ -5,14 +5,14 @@ import { useLayoutEffect, useState } from "react";
 // ── TONS DE TESTE (só na prévia, nunca em produção) ──
 // O estilo vem de public/teste/tons-de-teste.css, por <link>, e não por
 // import: assim ele não entra na folha da home nem chega à produção.
-// Lê ?tom=a|b|c e veste a home com o tom (tons-de-teste.css) antes de o mapa
+// Lê ?tom=1|2|3 e veste a home com o tom (tons-de-teste.css) antes de o mapa
 // em relevo montar, porque a cena 3D lê as cores na hora em que monta. Trocar
 // de tom recarrega a página para o mapa montar de novo com as cores novas.
 const TONS = [
   { chave: "", rotulo: "Hoje" },
-  { chave: "a", rotulo: "A · Noite azul" },
-  { chave: "b", rotulo: "B · Grafite quente" },
-  { chave: "c", rotulo: "C · Crepúsculo" },
+  { chave: "1", rotulo: "1 · Relevo aceso" },
+  { chave: "2", rotulo: "2 · Eclipse azul" },
+  { chave: "3", rotulo: "3 · Poeira dourada" },
 ] as const;
 
 export default function TonsDeTeste() {
