@@ -92,7 +92,9 @@ export const metadata: Metadata = {
 // parâmetro: é isso que mantém a página estática.
 export const revalidate = 3600;
 
-export default async function LandingPage({ pedido, estrutura }: { pedido?: PedidoDaHome; estrutura?: "a" | "b" | "c" | "d" }) {
+// A estrutura D (B + C com o carrossel) é a home desde nov/2026; as outras
+// seguem em /modelo/a|b|c para comparar, e a original em /modelo/o.
+export default async function LandingPage({ pedido, estrutura = "d" }: { pedido?: PedidoDaHome; estrutura?: "a" | "b" | "c" | "d" | "o" }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
   const parametros: Partial<PedidoDaHome> = pedido ?? {};
