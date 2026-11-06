@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 // pausa. Um botão liga o som e recomeça do início. Quem pediu menos movimento
 // no sistema vê a capa e dá o play quando quiser.
 
-export default function VideoExplicativo({ src, srcWebm, capa, titulo }: { src: string; srcWebm?: string; capa: string; titulo: string }) {
+export default function VideoExplicativo({ src, srcWebm, capa, titulo, id }: { src: string; srcWebm?: string; capa: string; titulo: string; id?: string }) {
   const video = useRef<HTMLVideoElement>(null);
   const [comSom, setComSom] = useState(false);
 
@@ -45,6 +45,7 @@ export default function VideoExplicativo({ src, srcWebm, capa, titulo }: { src: 
     <figure className="relative rounded-[28px] overflow-hidden border border-border" style={{ background: "var(--card)" }}>
       <video
         ref={video}
+        id={id}
         poster={capa}
         muted={!comSom}
         loop={!comSom}

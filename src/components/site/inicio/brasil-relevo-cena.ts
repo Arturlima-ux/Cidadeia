@@ -10,6 +10,11 @@
 //   de nitidez em public/mapa/relevo: o aparelho baixa só o que consegue
 //   mostrar (celular 1024 px, notebook 2048, tela grande 4096). Abre com o
 //   nível leve e troca pelo nítido quando ele chega.
+// - Cartaz (nov/2026): o fundador pediu o mapa "assim que o cliente triscar",
+//   em 0,05 s. A cena leva ~2 s para montar, então o topo abre com uma imagem
+//   do mapa já pronto (public/mapa/cartaz-*.webp, tirada desta cena), e a
+//   cena entra por cima com semEntrada, já no estado final. A entrada abaixo
+//   só roda sem o cartaz.
 // - Entrada "contorno de luz" (escolhida pelo fundador entre três, no
 //   protótipo "Entradas do mapa", nov/2026): uma fita acesa corre pela
 //   fronteira a partir do litoral do Nordeste em 1,9 s, quase em velocidade
@@ -39,6 +44,7 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import { aneisDoContorno } from "@/lib/contorno-brasil";
 import { CAPITAIS_NO_MAPA } from "@/lib/capitais-mapa";
+import { lugarDaEtiqueta, obstaculos } from "./etiqueta-do-ponto";
 
 export type Nivel = "baixa" | "media" | "alta";
 export type CenaBrasil = {
@@ -81,10 +87,43 @@ export async function montarBrasil(o: {
   rotulo: HTMLElement;
   parado: () => boolean;
   aoPronto: () => void;
+  /** Começa já no fim da entrada: a imagem do mapa (cartaz) já está na tela. */
+  semEntrada?: boolean;
+  /** Só para gravar o vídeo da entrada (public/mapa/cresce-*): o relevo
+   *  cresce do plano em tantos segundos, sem a fita, e termina exatamente
+   *  no quadro em que a cena com semEntrada começa. */
+  cresce?: number;
 }): Promise<CenaBrasil> {
   const { palco, tela, rotulo } = o;
   const estilo = getComputedStyle(palco);
   const cor = (token: string) => new THREE.Color(estilo.getPropertyValue(token).trim() || "white");
+  // As luzes do mapa podem ter cor própria (--relevo-*, em globals.css),
+  // diferente da cor dos botões: --relevo-* vale mais que o token da marca.
+  const corOu = (token: string, reserva: string) => cor(estilo.getPropertyValue(token).trim() ? token : reserva);
+  const numero = (token: string, padrao: number) => {
+    const v = parseFloat(estilo.getPropertyValue(token));
+    return Number.isFinite(v) ? v : padrao;
+  };
+  const escalaHalo = numero("--relevo-halo", 1);
+  // O "olhar" do relevo (nov/2026): a brasa nas encostas vem de globals.css
+  // (.tema-noite). Sem os tokens, o relevo volta ao grafite de estúdio.
+  const temToken = (t: string) => estilo.getPropertyValue(t).trim() !== "";
+  const olhar = {
+    tinta: temToken("--relevo-tinta") ? cor("--relevo-tinta") : null,
+    brilho: temToken("--relevo-brilho") ? cor("--relevo-brilho") : null,
+    brilhoForca: numero("--relevo-brilho-forca", 0),
+    brilhoCorte: numero("--relevo-brilho-corte", 0.35),
+    borda: temToken("--relevo-borda") ? cor("--relevo-borda") : null,
+    bordaForca: numero("--relevo-borda-forca", 0),
+    bordaNoChao: numero("--relevo-borda-chao", 1),
+    nevoa: temToken("--relevo-nevoa") ? cor("--relevo-nevoa") : null,
+    nevoaPerto: numero("--relevo-nevoa-perto", 1600),
+    nevoaLonge: numero("--relevo-nevoa-longe", 3400),
+    chaveForca: numero("--relevo-chave-forca", 3.4),
+    contraForca: numero("--relevo-contra-forca", 1.1),
+    exposicao: numero("--relevo-exposicao", 1.05),
+  };
+  const forcaSopro = numero("--relevo-sopro", 1);
   const rgba = (c: THREE.Color, a: number) => {
     const s = c.clone().convertLinearToSRGB();
     return `rgba(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)},${a})`;
@@ -96,8 +135,8 @@ export async function montarBrasil(o: {
     chave: cor("--luz-chave"),
     ceu: cor("--luz-ceu"),
     recorte: cor("--luz-recorte"),
-    marca: cor("--brand"),
-    marcaClara: cor("--brand-claro"),
+    marca: corOu("--relevo-luz", "--brand"),
+    marcaClara: corOu("--relevo-luz-clara", "--brand-claro"),
     branco: cor("--foreground"),
     local: cor("--localizacao"),
     localClara: cor("--localizacao-clara"),
@@ -109,7 +148,7 @@ export async function montarBrasil(o: {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, o.parado() ? 1 : NIVEIS[nivel].dpr));
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = olhar.exposicao;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const cena = new THREE.Scene();
@@ -117,6 +156,33 @@ export async function montarBrasil(o: {
   const ambiente = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   cena.environment = ambiente;
   cena.environmentIntensity = 0.3;
+  if (olhar.nevoa) cena.fog = new THREE.Fog(olhar.nevoa, olhar.nevoaPerto, olhar.nevoaLonge);
+  // Luz que nasce do próprio relevo: brilho nas encostas (onde o chão inclina)
+  // e na borda (onde a superfície vira de lado para a câmera).
+  const acender = (mat: THREE.MeshStandardMaterial, encosta: boolean) => {
+    const comEncosta = encosta && olhar.brilho && olhar.brilhoForca > 0;
+    const comBorda = olhar.borda && olhar.bordaForca > 0;
+    if (!comEncosta && !comBorda) return;
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uBrilho = { value: olhar.brilho ?? new THREE.Color(0) };
+      sh.uniforms.uBrilhoForca = { value: comEncosta ? olhar.brilhoForca : 0 };
+      sh.uniforms.uBrilhoCorte = { value: olhar.brilhoCorte };
+      sh.uniforms.uBorda = { value: olhar.borda ?? new THREE.Color(0) };
+      sh.uniforms.uBordaForca = { value: comBorda ? olhar.bordaForca * (encosta ? olhar.bordaNoChao : 1) : 0 };
+      sh.fragmentShader = sh.fragmentShader
+        .replace("#include <common>", "#include <common>\nuniform vec3 uBrilho; uniform float uBrilhoForca; uniform float uBrilhoCorte; uniform vec3 uBorda; uniform float uBordaForca;")
+        .replace(
+          "#include <emissivemap_fragment>",
+          `#include <emissivemap_fragment>
+          vec3 cimaV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+          float inclina = 1.0 - clamp(dot(normal, cimaV), 0.0, 1.0);
+          totalEmissiveRadiance += uBrilho * uBrilhoForca * smoothstep(uBrilhoCorte, uBrilhoCorte + 0.3, inclina);
+          float lado = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+          totalEmissiveRadiance += uBorda * uBordaForca * pow(lado, 3.0);`
+        );
+    };
+    mat.customProgramCacheKey = () => `olhar-${encosta ? 1 : 0}`;
+  };
   const camera = new THREE.PerspectiveCamera(28, 1, 10, 9000);
   const brasil = new THREE.Group();
   cena.add(brasil);
@@ -160,6 +226,8 @@ export async function montarBrasil(o: {
   // ── O relevo, na densidade do nível ──
   const matTerra = new THREE.MeshStandardMaterial({ roughness: 0.52, metalness: 0.32, normalScale: new THREE.Vector2(0.75, 0.75), alphaTest: 0.5 });
   descartaveis.push(matTerra);
+  if (olhar.tinta) matTerra.color.copy(olhar.tinta);
+  acender(matTerra, true);
   const aplicar = ([corImg, normal, mascara]: HTMLImageElement[]) => {
     matTerra.map?.dispose(); matTerra.normalMap?.dispose(); matTerra.alphaMap?.dispose();
     matTerra.map = textura(corImg, true);
@@ -196,6 +264,7 @@ export async function montarBrasil(o: {
   {
     const mat = new THREE.MeshStandardMaterial({ color: C.parede, roughness: 0.42, metalness: 0.5 });
     descartaveis.push(mat);
+    acender(mat, false);
     for (const r of aneisDoContorno()) {
       if (r.length < 8) continue;
       const forma = new THREE.Shape(r.map(([x, y]) => new THREE.Vector2(paraX(x), -paraZ(y))));
@@ -222,7 +291,9 @@ export async function montarBrasil(o: {
     return t;
   }
   const plano = (lado: [number, number], map: THREE.Texture, y: number, aditivo = false, onde = brasil as THREE.Object3D) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(...lado), new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, blending: aditivo ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(...lado), new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, toneMapped: false, fog: false, blending: aditivo ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    // Sem tone mapping: o chão sai na cor exata do token, e o topo não fica
+    // um degrau mais escuro que o resto da página (nov/2026).
     m.rotation.x = -Math.PI / 2; m.position.y = y;
     descartaveis.push(m.geometry, m.material as THREE.Material);
     onde.add(m);
@@ -230,7 +301,7 @@ export async function montarBrasil(o: {
   };
   plano([4200, 4200], mancha([[0, rgba(C.chao, 0.9)], [0.4, rgba(C.chao, 0.45)], [1, rgba(C.fundo, 0)]]), -24, false, cena);
   plano([1300, 1250], mancha([[0, rgba(C.fundo, 0.9)], [0.62, rgba(C.fundo, 0.5)], [1, rgba(C.fundo, 0)]]), -23.5).position.z = 25;
-  const sopro = plano([1500, 1400], mancha([[0, rgba(C.marca, 0.16)], [0.55, rgba(C.marca, 0.05)], [1, rgba(C.marca, 0)]]), -23, true);
+  const sopro = plano([1500, 1400], mancha([[0, rgba(C.marca, 0.16 * forcaSopro)], [0.55, rgba(C.marca, 0.05 * forcaSopro)], [1, rgba(C.marca, 0)]]), -23, true);
   sopro.position.set(40, -23, 30);
 
   // ── A fita de luz da entrada: corre pela fronteira e apaga ──
@@ -276,10 +347,12 @@ export async function montarBrasil(o: {
     descartaveis.push(s.material);
     return s;
   };
-  const luzes = CAPITAIS_NO_MAPA.map(([, x, y], n) => {
+  // As capitais piscando saíram (nov/2026): o mapa só acende onde o cliente
+  // está. A lista fica vazia, e o resto da cena segue igual.
+  const luzes = CAPITAIS_NO_MAPA.slice(0, 0).map(([, x, y], n) => {
     const h = alturaEm(x, y);
     const p = new THREE.Vector3(paraX(x), h + 2.2, paraZ(y));
-    const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
+    const halo = sprite(C.marca.clone().lerp(C.marcaClara, 0.25), 80 * escalaHalo), nucleo = sprite(C.marcaClara.clone().lerp(branco, 0.8), 17);
     halo.position.copy(p); nucleo.position.copy(p);
     brasil.add(halo, nucleo);
     return { halo, nucleo, p, h, desde: -1, oculta: false, dist: Math.hypot(x - bx, y - by) / 1000, fase: (n * 0.61803) % 1, periodo: 4.2 + ((n * 37) % 10) * 0.32, n };
@@ -302,7 +375,7 @@ export async function montarBrasil(o: {
   })();
   const feixe = new THREE.Mesh(new THREE.PlaneGeometry(3.4, ALT_FEIXE), new THREE.MeshBasicMaterial({ map: texFeixe, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, opacity: 0 }));
   descartaveis.push(feixe.geometry, feixe.material);
-  const vNucleo = sprite(C.localClara, 19), vHalo = sprite(C.local, 96);
+  const vNucleo = sprite(C.localClara, 19), vHalo = sprite(C.local, 96 * escalaHalo);
   const ondas = [0, 0.5].map((f) => {
     const m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 72), new THREE.MeshBasicMaterial({ color: C.local, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
     m.rotation.x = -Math.PI / 2;
@@ -316,8 +389,8 @@ export async function montarBrasil(o: {
 
   // ── Luz de estúdio: rasante do noroeste, contraluz roxa, recorte frio ──
   cena.add(new THREE.HemisphereLight(C.ceu, C.fundo, 0.28));
-  const chave = new THREE.DirectionalLight(C.chave, 3.4); chave.position.set(-760, 360, -320); cena.add(chave);
-  const contra = new THREE.DirectionalLight(C.marca, 1.1); contra.position.set(560, 180, -900); cena.add(contra);
+  const chave = new THREE.DirectionalLight(C.chave, olhar.chaveForca); chave.position.set(-760, 360, -320); cena.add(chave);
+  const contra = new THREE.DirectionalLight(temToken("--relevo-contra") ? cor("--relevo-contra") : C.marca, olhar.contraForca); contra.position.set(560, 180, -900); cena.add(contra);
   const recorte = new THREE.DirectionalLight(C.recorte, 0.7); recorte.position.set(700, 280, 760); cena.add(recorte);
 
   // ── Câmera e giro com a mão (só com mouse e com movimento) ──
@@ -349,7 +422,7 @@ export async function montarBrasil(o: {
     camera.updateProjectionMatrix();
     const estreito = w < 860;
     // O Brasil ocupa ~62% da coluna de conteúdo, sem passar da altura.
-    const mapaPx = estreito ? w * 0.98 : Math.min(Math.min(w, 1200) * 0.62, h * 1.02);
+    const mapaPx = estreito ? w * 0.98 : Math.min(Math.min(w, 1200) * 0.62, h * 0.92);
     dist = 1000 / ((mapaPx / w) * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
     alvo.set(estreito ? 0 : -90, 10, estreito ? 70 : -160);
     if (!mexeu) posicionar(PHI, 0);
@@ -368,13 +441,19 @@ export async function montarBrasil(o: {
     if (!vPos) return;
     brasil.updateMatrixWorld();
     camera.updateMatrixWorld();
-    proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
     const W = palco.clientWidth, H = palco.clientHeight, rw = rotulo.offsetWidth, rh = rotulo.offsetHeight;
-    const x = Math.max(8, Math.min(W - rw - 8, ((proj.x + 1) / 2) * W - rw / 2));
-    const y = Math.max(8, ((1 - proj.y) / 2) * H - rh);
+    proj.copy(topoFeixe).applyMatrix4(brasil.matrixWorld).project(camera);
+    const topo: [number, number] = [((proj.x + 1) / 2) * W, ((1 - proj.y) / 2) * H];
+    proj.copy(vPos).applyMatrix4(brasil.matrixWorld).project(camera);
+    const chao: [number, number] = [((proj.x + 1) / 2) * W, ((1 - proj.y) / 2) * H];
+    // Os obstáculos só mudam com o tamanho: medidos de novo no observador abaixo.
+    livres ??= obstaculos(palco);
+    const [x, y] = lugarDaEtiqueta({ W, topo, chao, rw, rh, ...livres });
     rotulo.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
   }
-  const medirRotulo = new ResizeObserver(() => posicionarRotulo());
+  let livres: ReturnType<typeof obstaculos> | null = null;
+  const medirRotulo = new ResizeObserver(() => { livres = null; posicionarRotulo(); });
+  medirRotulo.observe(palco);
   medirRotulo.observe(rotulo);
 
   // ── Um quadro ──
@@ -386,7 +465,8 @@ export async function montarBrasil(o: {
   function desenhar(s: number) {
     const quieto = parado;
     // A fita corre a fronteira (1,5 s, acelera e freia) e apaga de 2,0 a 2,9 s.
-    fita.m.visible = !quieto && s < 3.0;
+    const subida = o.cresce ? lim((s - (10 - o.cresce)) / o.cresce) : -1;
+    fita.m.visible = !quieto && s < 3.0 && subida < 0;
     if (fita.m.visible) {
       fita.m.geometry.setDrawRange(0, Math.floor((fita.total / 6) * vaiVem(s / 1.9)) * 6);
       (fita.m.material as THREE.MeshBasicMaterial).opacity = 1 - passo(s, 2.1, 2.9);
@@ -394,8 +474,8 @@ export async function montarBrasil(o: {
     // O país sobe de dentro da fita, enquanto ela ainda corre: altura de 2% a
     // 100% e o detalhe da superfície junto.
     relevo.visible = quieto || s > 0.5;
-    relevo.scale.y = quieto ? 1 : 0.02 + 0.98 * saida((s - 0.5) / 1.6);
-    matTerra.normalScale.setScalar(0.75 * (quieto ? 1 : saida((s - 0.6) / 1.6)));
+    relevo.scale.y = quieto ? 1 : subida >= 0 ? 0.02 + 0.98 * vaiVem(subida) : 0.02 + 0.98 * saida((s - 0.5) / 1.6);
+    matTerra.normalScale.setScalar(0.75 * (quieto ? 1 : subida >= 0 ? vaiVem(subida) : saida((s - 0.6) / 1.6)));
     const onda = quieto ? 9 : Math.max(0, s - 1.5) * 0.6;
     if (nitida && (quieto || s > 3.0)) { aplicar(nitida); nitida = null; }
     if (!mexeu) {
@@ -446,7 +526,9 @@ export async function montarBrasil(o: {
   const laco = (agora: number) => {
     quadro = 0;
     if (parado) return;
-    if (t0 < 0) t0 = agora;
+    // Com o cartaz na tela, o relógio começa como se a entrada já tivesse
+    // acabado: o país não some para subir de novo.
+    if (t0 < 0) t0 = agora - (o.semEntrada ? 10000 : 0);
     desenhar((agora - t0) / 1000);
     avisar();
     if (visivel && !document.hidden) quadro = requestAnimationFrame(laco);
@@ -464,7 +546,27 @@ export async function montarBrasil(o: {
     posicionar(PHI, 0);
     await renderer.compileAsync(cena, camera).catch(() => {});
   }
-  if (parado) { desenhar(99); avisar(); } else retomar();
+  if (o.cresce) {
+    // Gravação do vídeo da entrada: sem laço; o gravador pede cada quadro.
+    const inicio = 10 - o.cresce;
+    // Devolve o quadro em PNG (lido logo depois de desenhar, antes de o
+    // navegador limpar a tela).
+    (window as unknown as { __quadro?: (t: number) => string }).__quadro = (t) => {
+      desenhar(inicio + t);
+      return tela.toDataURL("image/png");
+    };
+    // E onde um ponto do mapa (x 0–1000, y 0–975) cai na tela, no chão e no
+    // topo do feixe do visitante: para o ponto da cidade sobre o vídeo.
+    (window as unknown as { __projetar?: (x: number, y: number) => number[] }).__projetar = (x, y) => {
+      brasil.updateMatrixWorld(); camera.updateMatrixWorld();
+      const W = palco.clientWidth, H = palco.clientHeight;
+      const tela2 = (v: THREE.Vector3) => { v.applyMatrix4(brasil.matrixWorld).project(camera); return [((v.x + 1) / 2) * W, ((1 - v.y) / 2) * H]; };
+      const h = alturaEm(x, y) + 2.4;
+      return [...tela2(new THREE.Vector3(paraX(x), h, paraZ(y))), ...tela2(new THREE.Vector3(paraX(x), h + ALT_FEIXE + 1, paraZ(y)))];
+    };
+    desenhar(inicio);
+    avisar();
+  } else if (parado) { desenhar(99); avisar(); } else retomar();
 
   // O nível nítido chega depois e entra no primeiro quadro após a entrada
   // (desenhar), para a subida da textura não travar o país aparecendo.
@@ -490,6 +592,7 @@ export async function montarBrasil(o: {
       if (parado) desenhar(99);
     },
     parar() {
+      if (o.cresce) return; // na gravação, o modo leve não congela a cena
       parado = true;
       controles.enabled = false;
       palco.removeAttribute("data-gira");

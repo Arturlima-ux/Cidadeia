@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 
 // ── AS PERGUNTAS QUE TROCAM NO TOPO ──
 //
-// Duas perguntas por vez, uma à esquerda e outra à direita, que trocam a
-// cada 2,8 s: cada par é um problema de prefeitura que um módulo resolve.
+// Uma pergunta e a resposta do CidadeIA, que trocam a cada 2,8 s. Até
+// nov/2026 eram duas perguntas de dor ("Prazo vencendo? Obra parada?");
+// o fundador pediu frases que façam o prefeito olhar o produto, então a
+// segunda linha virou o que o sistema entrega. Cada resposta tem lastro:
+// os avisos de prazo e de limite (lib/vigia-fiscal-alertas.ts), o ofício
+// montado (PASSOS) e o protocolo do portal do cidadão.
 // O servidor manda o primeiro par, que é o que fica sem JavaScript. A troca
 // roda em qualquer computador: no modo leve ela chegou a parar, e no
 // notebook do fundador o título ficava parado no primeiro par (nov/2026).
@@ -15,10 +19,11 @@ import { useEffect, useState } from "react";
 // este bloco é decorativo (aria-hidden).
 
 export const PERGUNTAS: [string, string][] = [
-  ["Prazo vencendo?", "Obra parada?"],
-  ["Folha no limite?", "Pedido sem resposta?"],
-  ["RGF atrasado?", "Estoque acabando?"],
-  ["Ano letivo curto?", "Compra sem plano?"],
+  ["Prazo da LRF?", "Avisado antes."],
+  ["Obra parada?", "Você sabe primeiro."],
+  ["Folha no limite?", "Aviso antes do alerta."],
+  ["Ofício urgente?", "Sai pronto."],
+  ["Morador esperando?", "Protocolo na hora."],
 ];
 
 const INTERVALO = 2800;

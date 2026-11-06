@@ -1,38 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { compartilhamento, DESCRICAO_PADRAO, JsonLdScript, ldSite, TITULO_DO_SITE } from "@/lib/seo";
-import { FONTES_OFICIAIS } from "@/lib/fontes-oficiais";
 import { Suspense } from "react";
 import { registrarEvento } from "@/lib/registrar-evento";
 import type { PedidoDaHome } from "@/lib/home-montada";
-import { AVISO_FRACIONAMENTO, LIMITE_DISPENSA } from "@/lib/contratacao";
+import { LIMITE_DISPENSA } from "@/lib/contratacao";
 import { listarPortaisPublicados } from "@/lib/portais";
-import { formatarMoedaExata } from "@/lib/formatadores";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
-import MontadorProposta from "@/components/site/MontadorProposta";
 import BarraConversao from "@/components/site/BarraConversao";
 import AcheSuaCidade from "@/components/morador/AcheSuaCidade";
 import EsqueletoFato from "@/components/site/EsqueletoFato";
 import PedirProjecao from "@/components/site/PedirProjecao";
 import AvisoDaCidade from "@/components/site/AvisoDaCidade";
 import ReguaLrf from "@/components/site/inicio/ReguaLrf";
-import MesaDeModulos from "@/components/site/inicio/MesaDeModulos";
-import { modulosNaOrdemDaHome } from "@/lib/modulos-detalhe";
 import HidratarAoChegar from "@/components/site/inicio/HidratarAoChegar";
-import ComoFunciona from "@/components/site/inicio/ComoFunciona";
 import ContarVisita from "@/components/site/inicio/ContarVisita";
 import TopoBrasil from "@/components/site/inicio/TopoBrasil";
 import RolarParaAqui from "@/components/site/inicio/RolarParaAqui";
-import VideoExplicativo from "@/components/site/VideoExplicativo";
 import HomeMorador from "./_morador/HomeMorador";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
+import { sedeNoMapa } from "@/lib/sede-no-mapa";
+import EstruturaD from "./_abaixo/EstruturaD";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
-import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 
 // ── A PÁGINA EM SEIS PARTES (enxuta, novembro de 2026) ──
 //
@@ -56,9 +50,6 @@ import { LINK_DA_FONTE } from "@/lib/links-oficiais";
 // Saiu também a entrada animada de cada seção. Sobra um único momento de
 // movimento, no topo.
 
-// Bases que o produto de fato lê, cada uma com o arquivo que a consome em
-// lib/: fatos-do-municipio (Tesouro), populacao-ibge, pncp, cnes, censo-escolar.
-const FONTES = FONTES_OFICIAIS;
 
 
 // ── A CANÔNICA DA HOME ──
@@ -111,6 +102,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
   // são os do Distrito Federal inteiro, que é quem reporta ao Tesouro.
   const dados = municipio ? municipioParaDados(municipio) : null;
   const df = ehDistritoFederal(municipio?.uf);
+  const sede = municipio ? sedeNoMapa(municipio.codigo) : null;
+  const cidadeNoMapa = municipio && sede ? { nome: municipio.nome, uf: municipio.uf, ...sede } : null;
+  const cidadeDoMontador = municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined;
   // A visita: na versão montada, registrada aqui; na estática, pelo aviso
   // do navegador (ContarVisita, app/api/visita).
   if (pedido) {
@@ -166,6 +160,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             acendendo em roxo e o visitante em azul (TopoBrasil.tsx). O texto
             vem do servidor; o 3D chega depois do load. */}
         <TopoBrasil
+          cidade={cidadeNoMapa}
           busca={
             <>
               <AcheSuaCidade
@@ -275,133 +270,10 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           </div>
         </section>
 
-        {/* ═══ DE ONDE VEM O DADO ═══
-            As nove bases numa linha reta entre dois fios (globals.css,
-            .faixa-reta). Era uma faixa roxa inclinada que corria de lado; saiu
-            no clima grafite (nov/2026). */}
-        <section className="pt-16 sm:pt-24" aria-labelledby="titulo-fontes">
-          <h2 id="titulo-fontes" className="inicio-sobre max-w-[1200px] mx-auto px-4 sm:px-8">
-            <i aria-hidden />
-            Lê direto das bases oficiais
-          </h2>
-          <div className="faixa-reta">
-            <ul>
-              {FONTES.map((f) => (
-                <li key={f} className="text-lg sm:text-2xl font-medium tracking-[-0.03em]">
-                  {/* Cada base leva ao próprio site: é onde conferir. */}
-                  <a href={LINK_DA_FONTE[f]} target="_blank" rel="noopener noreferrer" className="inicio-fonte">
-                    {f}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* ═══ MÓDULOS ═══
-            Cada módulo como o instrumento da parte da prefeitura que ele
-            cuida, e não seis cartões iguais. Ver MesaDeModulos.tsx. */}
-        <section id="solucoes" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 scroll-mt-24">
-          <div className="surge grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
-            <div>
-              <p className="inicio-sobre"><i aria-hidden />Módulos</p>
-              <h2 className="inicio-h2 max-w-[17ch]">Um módulo para cada parte da prefeitura.</h2>
-            </div>
-            <p className="text-muted leading-relaxed max-w-[42ch]">
-              Escolha uma pergunta e veja o módulo trabalhando. Cada um funciona sozinho: a prefeitura contrata só os que usa,
-              sem pacote fechado e sem cobrança por usuário.
-            </p>
-          </div>
-          <HidratarAoChegar id="mesa" className="surge">
-            <MesaDeModulos
-              limiteDispensa={LIMITE_DISPENSA.valor}
-              modulos={modulosNaOrdemDaHome().map(({ chave, nome, detalhe }) => ({ chave, nome, capacidades: detalhe.capacidades }))}
-            />
-          </HidratarAoChegar>
-        </section>
-
-        {/* ═══ COMO FUNCIONA ═══
-            Três passos, uma linha cada, sem nada a ligar no navegador
-            (ComoFunciona.tsx). */}
-        <ComoFunciona />
-
-        {/* ═══ PROPOSTA ═══ */}
-        {/* ═══ O VÍDEO, PARA REPASSAR ═══
-            Voltou em formato menor: em prefeitura quem acha o site quase
-            nunca é quem decide, e o vídeo é o que se manda adiante
-            (revisão de outubro de 2026). Ver VideoExplicativo.tsx. */}
-        <section className="tela-adiada pt-24 sm:pt-32">
-          <div className="surge max-w-[1200px] mx-auto px-4 sm:px-8 grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-6 lg:gap-16 items-end mb-10 sm:mb-12">
-            <div>
-              <p className="inicio-sobre"><i aria-hidden />Em vídeo</p>
-              <h2 className="inicio-h2 max-w-[16ch]">O CidadeIA em 30 segundos.</h2>
-            </div>
-            <p className="text-muted leading-relaxed max-w-[40ch]">
-              Para assistir agora, ou mandar para quem decide na prefeitura.
-            </p>
-          </div>
-          {/* O vídeo ocupa a tela e chega recortado na largura da coluna; o
-              recorte abre enquanto ele sobe (globals.css, .video-expande). */}
-          <div className="video-expande">
-            <HidratarAoChegar id="video">
-              <VideoExplicativo
-                src="/video/cidadeia-gestao.mp4"
-                srcWebm="/video/cidadeia-gestao.webm"
-                capa="/video/cidadeia-gestao-capa.jpg"
-                titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
-              />
-            </HidratarAoChegar>
-          </div>
-        </section>
-
-        {/* O fecho tem peso de fecho: um bloco com fundo próprio, e não mais
-            uma seção igual às outras (revisão de outubro de 2026). O fundo é
-            o roxo profundo da marca, sem contorno: a única mudança de campo
-            de cor da página, e ela marca a decisão. */}
-        <section id="proposta" className="tela-adiada max-w-[1200px] mx-auto px-4 sm:px-8 pt-28 sm:pt-36 pb-10 scroll-mt-24">
-          {/* Título, duas linhas e o montador, nessa ordem, em qualquer tela. */}
-          <div className="inicio-fecho surge relative isolate rounded-[32px] px-3 py-9 sm:px-12 sm:py-14 grid gap-y-10 lg:gap-y-12 items-start">
-            {/* O fundo do fecho: a grade de pontos e o brilho que se move,
-                atrás do vidro do preço (globals.css, .fecho-fundo). Numa
-                camada própria, e não no quadro, para o recorte não cortar o
-                halo do montador. */}
-            <div className="fecho-fundo" aria-hidden>
-              <div className="grade-pontos" />
-            </div>
-            <div className="px-2 sm:px-0">
-              {/* O título aceso como letreiro (globals.css, .fecho-neon): o
-                  bloco de que o fundador gostou na landing de campanha. */}
-              <h2 className="inicio-h2 fecho-neon max-w-[16ch]">Proposta pronta em um dia útil.</h2>
-              <p className="text-muted leading-relaxed mt-6 max-w-[46ch]">
-                Escolha o município e os módulos. Valor, termo de referência e
-                minuta de contrato chegam no mesmo e-mail, sem reunião antes.
-              </p>
-              {/* A dispensa em uma linha; por inteiro em /como-contratar e no kit. */}
-              <p className="mt-3 text-sm text-muted leading-relaxed max-w-[52ch]">
-                Cabe na dispensa por valor, até {formatarMoedaExata(LIMITE_DISPENSA.valor)} por ano ({LIMITE_DISPENSA.base}).{" "}
-                {AVISO_FRACIONAMENTO.curto} <Link href="/como-contratar" className="underline underline-offset-2">Como contratar</Link>
-              </p>
-            </div>
-          {/* ── O MUNICÍPIO SE ESCOLHE AQUI MESMO ──
-              Era "Escolher o município no topo da página ↑": quem chegava à
-              proposta subia a página inteira, escolhia, a home recarregava e
-              a pessoa descia de novo procurando onde estava. No último passo
-              antes do pedido, era o maior atrito do caminho (revisão de
-              novembro de 2026). Agora o campo está no próprio montador; com
-              município escolhido no topo, ele já vem preenchido. */}
-          <div id="montar-proposta" className="min-w-0 scroll-mt-24">
-            <HidratarAoChegar id="montador">
-              <MontadorProposta key={municipio?.codigo ?? "sem-municipio"} campoNoTopo resumoSobConsulta municipioInicial={municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined} />
-            </HidratarAoChegar>
-          </div>
-          </div>
-
-          {/* ═══ O FECHO É O MONTADOR ═══
-              O pedido de ligação saiu daqui em 14/10/2026: logo acima, o
-              montador já termina no botão de pedir a proposta, e dois pedidos
-              seguidos disputavam a mesma decisão. A ligação continua nas
-              páginas por cargo, no panorama, no Raio-X e na /proposta. */}
-        </section>
+        {/* ── DO FIM DO MAPA PARA BAIXO (nov/2026) ──
+            A estrutura D, aprovada pelo fundador: o mosaico, o carrossel dos
+            módulos, o vídeo e a proposta (app/_abaixo). */}
+        <EstruturaD cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
 
         <div className="pb-14 sm:pb-22" />
 

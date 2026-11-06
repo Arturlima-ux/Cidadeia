@@ -80,3 +80,22 @@ export function comReserva(
   if (!linha) return r;
   return { ok: true, dados: descompactar(linha), reserva: { conferidoEm: dados.geradoEm } };
 }
+
+/** A despesa com pessoal da prefeitura no último RGF conferido pela vigia,
+ *  em fração da RCL ajustada, com o limite máximo dela (54% no Executivo).
+ *  Para o "você está em…" do topo: um número só, sem consulta na hora. */
+export function pessoalConferido(
+  codigoIbge: string,
+  dados: { geradoEm: string | null; m: Record<string, LinhaReserva> } = DADOS
+): { pessoal: number; limite: number | null; periodo: string; conferidoEm: string | null } | null {
+  const l = dados.m[codigoIbge];
+  if (!l || !(l[4] > 0) || !(l[6] >= 0)) return null;
+  const [exercicio, periodicidade, periodo] = l;
+  const nome = periodicidade === "Q" ? "quadrimestre" : "semestre";
+  return {
+    pessoal: l[6] / l[4],
+    limite: l[9] != null && l[9] > 0 ? l[9] / l[4] : null,
+    periodo: `${periodo}º ${nome} de ${exercicio}`,
+    conferidoEm: dados.geradoEm,
+  };
+}

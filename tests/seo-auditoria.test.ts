@@ -209,7 +209,8 @@ describe("conteúdo: fontes, guias, prazos e notícias", async () => {
   it("as páginas que citam a fonte agora ligam para ela", () => {
     expect(ler("src/app/raio-x/[uf]/[slug]/page.tsx")).toContain("<LinkOficial href={SICONFI}>");
     expect(ler("src/components/site/inicio/ReguaLrf.tsx")).toContain("<LinkOficial href={SICONFI}>");
-    expect(ler("src/app/page.tsx")).toContain("LINK_DA_FONTE[f]");
+    // A home lista as bases do fim do mapa para baixo (app/_abaixo, nov/2026).
+    expect(ler("src/app/_abaixo/dados.ts")).toContain("LINK_DA_FONTE[f]");
     expect(ler("src/app/conformidade/page.tsx")).toContain("LEIS.lai.url");
   });
 

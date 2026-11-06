@@ -151,8 +151,7 @@ export default function SiteHeader({
             {!sessao && (
               <Link
                 href="/login"
-                className="hidden lg:inline-flex items-center rounded-full border px-4 py-2 text-[13px] font-medium text-foreground hover:bg-[color:var(--sutil)] pressiona"
-                style={{ borderColor: "color-mix(in oklab, var(--foreground) 22%, transparent)" }}
+                className="liquido hidden lg:inline-flex items-center rounded-full px-4 py-2 text-[13px] font-medium text-foreground pressiona"
               >
                 Entrar
               </Link>
@@ -165,8 +164,8 @@ export default function SiteHeader({
             ) : sessao ? (
               <Link
                 href="/dashboard"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
-                style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
+                className="liquido-marca whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
+                style={{ color: "var(--sobre-forte)" }}
               >
                 <span className="sm:hidden">Painel</span>
                 <span className="hidden sm:inline">Ir para o painel</span>
@@ -177,8 +176,8 @@ export default function SiteHeader({
                  cabeçalho de produto de um cabeçalho de template. */
               <Link
                 href="/proposta"
-                className="whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
-                style={{ background: "var(--brand)", color: "var(--sobre-forte)" }}
+                className="liquido-marca whitespace-nowrap inline-flex items-center min-h-11 lg:min-h-0 text-[13px] font-semibold rounded-full px-4 py-2 pressiona"
+                style={{ color: "var(--sobre-forte)" }}
               >
                 {/* Um texto só, "Receber proposta". No celular o "Receber" fica
                     só para o leitor de tela e o "proposta" ganha maiúscula.

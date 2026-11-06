@@ -40,7 +40,7 @@ export default function BarraConversao() {
           do rodapé no celular, onde o polegar alcança. */}
       {/* rodapé — celular */}
       <div
-        className={`sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
+        className={`barra-vidro sm:hidden fixed bottom-0 inset-x-0 z-40 px-4 py-3 flex items-center gap-3 transition-transform duration-300 ${
           visivel ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ background: "var(--background)" }}
@@ -54,7 +54,8 @@ export default function BarraConversao() {
             outros dois. */}
         <Link
           href="/proposta"
-          className="shrink-0 text-sm font-bold text-white bg-brand rounded-xl px-4 py-2.5"
+          className="liquido-marca shrink-0 text-sm font-bold rounded-full px-5 py-2.5 pressiona"
+          style={{ color: "var(--sobre-forte)" }}
         >
           Proposta
         </Link>
