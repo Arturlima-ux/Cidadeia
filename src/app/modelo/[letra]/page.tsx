@@ -9,12 +9,12 @@ import LandingPage from "../../page";
 export const metadata: Metadata = { robots: { index: false, follow: false }, title: "Estrutura em teste" };
 
 export function generateStaticParams() {
-  return [{ letra: "a" }, { letra: "b" }, { letra: "c" }];
+  return [{ letra: "a" }, { letra: "b" }, { letra: "c" }, { letra: "d" }];
 }
 
 export default async function Modelo({ params }: { params: Promise<{ letra: string }> }) {
   const { letra } = await params;
   if (process.env.VERCEL_ENV === "production") notFound();
-  if (letra !== "a" && letra !== "b" && letra !== "c") notFound();
+  if (letra !== "a" && letra !== "b" && letra !== "c" && letra !== "d") notFound();
   return <LandingPage estrutura={letra} />;
 }

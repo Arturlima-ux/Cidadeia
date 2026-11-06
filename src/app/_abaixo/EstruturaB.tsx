@@ -84,7 +84,10 @@ const ESTILO = `
 }
 `;
 
-export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador; chave: string }) {
+export default function EstruturaB({ cidade, chave, partes }: { cidade: CidadeDoMontador; chave: string; partes?: string[] }) {
+  const p = (k: string) => !partes || partes.includes(k);
+  // Montada dentro de outra estrutura, a numeração [01]…[05] não fecha: some.
+  const tag = (n: string, nome: string) => (partes ? nome : `[${n}] · ${nome}`);
   const n = numerosDoBrasil();
   const modulos = modulosAbaixo();
   const estados = estadosEmAlerta(5);
@@ -95,6 +98,7 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
     <div className="eb">
       <style href="cidadeia-estrutura-b" precedence="medium">{ESTILO}</style>
 
+      {p("abertura") && (
       <section className="eb-largura" aria-labelledby="eb-titulo">
         <h2 className="eb-escada" id="eb-titulo">
           <span>Lemos o Brasil</span>
@@ -103,7 +107,7 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           <span>por prefeitura.</span>
         </h2>
         <div className="eb-sobre">
-          <p className="eb-tag">[01] · O que é</p>
+          <p className="eb-tag">{tag("01", "O que é")}</p>
           <div>
             <p className="eb-grande">O CidadeIA reúne o atendimento, o gabinete, a saúde, a educação, as obras e as compras da prefeitura num sistema só.</p>
             <p>Ele lê o que a prefeitura já declarou ao Tesouro, ao IBGE, ao PNCP e às outras bases oficiais, confere cada prazo e cada limite com o artigo de lei ao lado e entrega o trabalho pronto. A equipe confere e assina.</p>
@@ -116,11 +120,13 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           <div><b>{n.texto.obrasParadas}</b><span className="eb-tag">Obras paradas</span><p>Paralisadas ou inacabadas no cadastro federal (ObrasGov).</p></div>
         </div>
       </section>
+      )}
 
+      {p("mapa") && (
       <section className="eb-largura" aria-labelledby="eb-titulo-mapa">
         <div className="eb-mapa">
           <div>
-            <p className="eb-tag">[02] · O mapa da LRF</p>
+            <p className="eb-tag">{tag("02", "O mapa da LRF")}</p>
             <h2 id="eb-titulo-mapa">Cada ponto é uma prefeitura.</h2>
             <div className="eb-pct">
               <b>{pct}%</b>
@@ -144,10 +150,12 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           </div>
         </div>
       </section>
+      )}
 
+      {p("modulos") && (
       <section id="solucoes" className="eb-largura eb-modulos scroll-mt-24" aria-labelledby="eb-titulo-modulos">
         <div className="eb-modulos-cab">
-          <p className="eb-tag">[03] · Módulos</p>
+          <p className="eb-tag">{tag("03", "Módulos")}</p>
           <h2 id="eb-titulo-modulos">Um módulo para cada parte da prefeitura.</h2>
         </div>
         <div className="eb-grade">
@@ -161,7 +169,9 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           ))}
         </div>
       </section>
+      )}
 
+      {p("passos") && (
       <section className="eb-largura eb-passos" aria-label="Como funciona">
         {PASSOS.map((p, i) => (
           <div key={p.titulo}>
@@ -171,22 +181,26 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           </div>
         ))}
       </section>
+      )}
 
+      {p("video") && (
       <section id="video" className="eb-largura eb-video scroll-mt-24" aria-labelledby="eb-titulo-video">
         <div className="eb-video-cab">
           <div>
-            <p className="eb-tag">[04] · Em vídeo</p>
+            <p className="eb-tag">{tag("04", "Em vídeo")}</p>
             <h2 id="eb-titulo-video">30 segundos.</h2>
           </div>
           <p>Do atendimento ao gabinete, do celular do morador às bases oficiais. Para assistir agora ou mandar para quem decide.</p>
         </div>
         <div className="eb-video-moldura"><Video /></div>
       </section>
+      )}
 
+      {p("fecho") && (
       <section id="proposta" className="eb-largura eb-fecho scroll-mt-24" aria-labelledby="eb-titulo-fecho">
         <div className="eb-fecho-cab">
           <div>
-            <p className="eb-tag">[05] · Proposta</p>
+            <p className="eb-tag">{tag("05", "Proposta")}</p>
             <h2 id="eb-titulo-fecho">Pronta em<span>um dia útil.</span></h2>
           </div>
           <div>
@@ -200,6 +214,7 @@ export default function EstruturaB({ cidade, chave }: { cidade: CidadeDoMontador
           {FONTES_ABAIXO.map((f) => <a key={f.nome} href={f.link} target="_blank" rel="noopener noreferrer">{f.nome}</a>)}
         </div>
       </section>
+      )}
     </div>
   );
 }

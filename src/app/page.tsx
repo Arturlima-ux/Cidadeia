@@ -35,6 +35,7 @@ import { sedeNoMapa } from "@/lib/sede-no-mapa";
 import EstruturaA from "./_abaixo/EstruturaA";
 import EstruturaB from "./_abaixo/EstruturaB";
 import EstruturaC from "./_abaixo/EstruturaC";
+import EstruturaD from "./_abaixo/EstruturaD";
 import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
@@ -91,7 +92,7 @@ export const metadata: Metadata = {
 // parâmetro: é isso que mantém a página estática.
 export const revalidate = 3600;
 
-export default async function LandingPage({ pedido, estrutura }: { pedido?: PedidoDaHome; estrutura?: "a" | "b" | "c" }) {
+export default async function LandingPage({ pedido, estrutura }: { pedido?: PedidoDaHome; estrutura?: "a" | "b" | "c" | "d" }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
   const parametros: Partial<PedidoDaHome> = pedido ?? {};
@@ -292,6 +293,8 @@ export default async function LandingPage({ pedido, estrutura }: { pedido?: Pedi
           <EstruturaA cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
         ) : estrutura === "b" ? (
           <EstruturaB cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
+        ) : estrutura === "d" ? (
+          <EstruturaD cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
         ) : estrutura === "c" ? (
           <EstruturaC cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
         ) : (

@@ -76,7 +76,8 @@ const ESTILO = `
 
 const POS = [["85%", "0%"], ["10%", "0%"], ["50%", "100%"], ["90%", "100%"], ["15%", "100%"], ["60%", "0%"]];
 
-export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador; chave: string }) {
+export default function EstruturaC({ cidade, chave, partes }: { cidade: CidadeDoMontador; chave: string; partes?: string[] }) {
+  const p = (k: string) => !partes || partes.includes(k);
   const n = numerosDoBrasil();
   const modulos = modulosAbaixo();
   const conferido = new Date(`${n.conferidoEm}T12:00:00Z`).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -84,6 +85,7 @@ export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador
     <div className="ec">
       <style href="cidadeia-estrutura-c" precedence="medium">{ESTILO}</style>
 
+      {p("mosaico") && (
       <section className="ec-largura ec-mosaico" aria-label="O que é o CidadeIA">
         <article className="ec-quadro ec-m1">
           <Image src="/estrutura/mapa.webp" alt="" fill sizes="(max-width: 899px) 100vw, 400px" />
@@ -112,7 +114,9 @@ export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador
           <p className="ec-frase">O morador fala com a prefeitura pelo celular.</p>
         </article>
       </section>
+      )}
 
+      {p("modulos") && (
       <section id="solucoes" className="ec-largura scroll-mt-24" aria-labelledby="ec-titulo-modulos">
         <article className="ec-quadro ec-banner">
           <Image src="/estrutura/modulos.webp" alt="" fill sizes="100vw" />
@@ -147,7 +151,9 @@ export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador
           </article>
         </div>
       </section>
+      )}
 
+      {p("video") && (
       <section id="video" className="ec-largura ec-video scroll-mt-24" aria-labelledby="ec-titulo-video">
         <div className="ec-video-cab">
           <div>
@@ -158,7 +164,9 @@ export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador
         </div>
         <div className="ec-video-moldura"><Video /></div>
       </section>
+      )}
 
+      {p("fecho") && (
       <section id="proposta" className="ec-largura ec-fecho scroll-mt-24" aria-labelledby="ec-titulo-fecho">
         <div className="ec-fecho-grade">
           <article className="ec-quadro so-texto ec-montador">
@@ -176,6 +184,7 @@ export default function EstruturaC({ cidade, chave }: { cidade: CidadeDoMontador
           </article>
         </div>
       </section>
+      )}
     </div>
   );
 }
