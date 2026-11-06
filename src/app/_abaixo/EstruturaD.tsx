@@ -7,10 +7,10 @@ import Carrossel from "./Carrossel";
 import type { CidadeDoMontador } from "./Pecas";
 
 // ── ESTRUTURA D · B + C COM O CARROSSEL (nov/2026) ──
-// O fundador escolheu juntar as duas: o mosaico de cinema do C abre, a
-// abertura em caixa alta e o mapa da LRF do B vêm em seguida, os módulos
-// correm num carrossel no jeito da vitrine da Apple Store, e o fecho é a
-// proposta do B. As peças de B e C são as mesmas (partes=...).
+// O fundador escolheu juntar as duas: o mosaico de cinema do C abre, os
+// módulos correm num carrossel no jeito da vitrine da Apple Store, e o fecho
+// é a proposta do B. A abertura com os números e o mapa da LRF do B saíram a
+// pedido dele. As peças de B e C são as mesmas (partes=...).
 
 const ESTILO = `
 .car { padding-top: clamp(112px, 14vw, 200px); }
@@ -124,7 +124,6 @@ export default function EstruturaD({ cidade, chave }: { cidade: CidadeDoMontador
       <style href="cidadeia-estrutura-d" precedence="medium">{ESTILO}</style>
 
       <EstruturaC cidade={cidade} chave={chave} partes={["mosaico"]} />
-      <EstruturaB cidade={cidade} chave={chave} partes={["abertura", "mapa"]} />
 
       <section id="solucoes" className="scroll-mt-24" aria-labelledby="ed-titulo-modulos">
         <Carrossel
