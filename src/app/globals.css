@@ -1799,6 +1799,6 @@ html[data-leve][data-rolou] .cabecalho-site {
 }
 
 .rodape-fundido {
-  background: linear-gradient(to bottom, transparent, var(--brand-profundo) 14rem);
-  padding-top: 8rem;
+  background: linear-gradient(to bottom, transparent, var(--brand-profundo) 9rem);
+  padding-top: 2rem;
 }

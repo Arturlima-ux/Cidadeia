@@ -14,6 +14,7 @@ import type { CidadeDoMontador } from "./Pecas";
 
 const ESTILO = `
 .ed .ec-mosaico { padding-top: clamp(8px, 1.5vw, 24px); }
+.ed .eb-fecho { padding-bottom: 24px; }
 .car { padding-top: clamp(112px, 14vw, 200px); }
 .car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; }
 @media (min-width: 640px) { .car-cab { padding-inline: 32px; } }
