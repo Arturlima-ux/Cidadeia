@@ -8,6 +8,8 @@ import type { CenaBrasil } from "./brasil-relevo-cena";
 import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 
 // ── A ENTRADA DO CARTAZ (nov/2026) ──
+// EM TESTE: ?entrada=luz|queda|varre troca a entrada, para o fundador
+// comparar na prévia. Sai quando ele escolher.
 // Pedido do fundador: o mapa começa a se mexer 0,05 s depois de aparecer, em
 // todo aparelho, e dá para ver: sobe, cresce e se acende em 1,2 s. Roda num script
 // pequeno junto do HTML, sem esperar o React (que hidrata depois), e conta a
@@ -15,7 +17,7 @@ import { ARQUIVOS_DA_ABERTURA } from "./relevo-abertura";
 // a animação acabaria antes de a imagem chegar. Com movimento reduzido, só
 // aparece. O effect repete a entrada na navegação dentro do site (onde o
 // script do HTML não roda de novo); sem eval, que a CSP de produção barra.
-const ENTRADA_CARTAZ = `(function(p){var i=p&&p.querySelector("img");if(!i||i.getAnimations().length)return;var r=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var f=function(){if(i.getAnimations().length)return;i.animate(r?[{opacity:1},{opacity:1}]:[{opacity:0,transform:"translateY(70px) scale(0.9)",filter:"brightness(0.3)"},{opacity:1,transform:"none",filter:"none"}],{duration:r?0:1200,delay:r?0:50,easing:"cubic-bezier(0.16, 1, 0.3, 1)",fill:"both"})};if(i.complete&&i.naturalWidth)f();else{i.addEventListener("load",f,{once:true});i.addEventListener("error",f,{once:true})}})`;
+const ENTRADA_CARTAZ = `(function(p){var i=p&&p.querySelector("img");if(!i||i.getAnimations().length)return;var r=window.matchMedia("(prefers-reduced-motion: reduce)").matches;var V={luz:[{opacity:1,clipPath:"circle(0% at 82% 42%)",filter:"brightness(3)"},{clipPath:"circle(40% at 82% 42%)",filter:"brightness(2)",offset:0.4},{opacity:1,clipPath:"circle(130% at 82% 42%)",filter:"none"}],queda:[{opacity:0,transform:"translateY(-180px) scale(1.3)",filter:"brightness(2.5)"},{opacity:1,offset:0.35},{opacity:1,transform:"none",filter:"none"}],varre:[{opacity:1,clipPath:"inset(0 100% 0 0)",filter:"brightness(3)"},{clipPath:"inset(0 45% 0 0)",filter:"brightness(2)",offset:0.5},{opacity:1,clipPath:"inset(0 0% 0 0)",filter:"none"}]};var e=V[new URLSearchParams(location.search).get("entrada")];var f=function(){if(i.getAnimations().length)return;i.animate(r?[{opacity:1},{opacity:1}]:e||[{opacity:0,transform:"translateY(70px) scale(0.9)",filter:"brightness(0.3)"},{opacity:1,transform:"none",filter:"none"}],{duration:r?0:1200,delay:r?0:50,easing:"cubic-bezier(0.16, 1, 0.3, 1)",fill:"both"})};if(i.complete&&i.naturalWidth)f();else{i.addEventListener("load",f,{once:true});i.addEventListener("error",f,{once:true})}})`;
 
 // ── O BRASIL EM RELEVO DO TOPO (o palco do 3D) ──
 //
