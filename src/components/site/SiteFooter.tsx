@@ -70,8 +70,7 @@ const COLUNAS = [
 
 /**
  * `assinatura`: só na home. O rodapé entra pela luz da página em vez de por
- * um corte reto, e fecha com o nome grande (quadro "CidadeIA — home pelas
- * referências", globals.css .rodape-assinatura).
+ * um corte reto. O nome grande no fim saiu a pedido do fundador (nov/2026).
  */
 export default function SiteFooter({ assinatura = false }: { assinatura?: boolean }) {
   return (
@@ -79,7 +78,7 @@ export default function SiteFooter({ assinatura = false }: { assinatura?: boolea
       <div className="max-w-[1200px] mx-auto px-4 sm:px-8 pt-12 pb-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 pb-8 border-b border-white/10">
           <div className="lg:col-span-1">
-            <MarcaCompleta tamanho={26} cor="#5f9bf0" corAcento="#6ee7b0" corTexto="#ffffff" />
+            <MarcaCompleta tamanho={26} cor="var(--brand)" corAcento="var(--accent)" corTexto="#ffffff" />
             <p className="text-sm mt-4 leading-relaxed max-w-xs">
               A gestão municipal inteira, num lugar só: atendimento ao cidadão,
               secretarias, obras, saúde, educação e finanças, com o que é público
@@ -153,11 +152,6 @@ export default function SiteFooter({ assinatura = false }: { assinatura?: boolea
           {LIMITE_DISPENSA.atualizadoPor} e reajustados anualmente — confirme o
           valor vigente com a assessoria jurídica da prefeitura.
         </p>
-        {assinatura && (
-          <p aria-hidden className="rodape-assinatura">
-            cidade<span>ia</span>
-          </p>
-        )}
       </div>
     </footer>
   );

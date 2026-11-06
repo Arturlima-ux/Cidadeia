@@ -1802,15 +1802,3 @@ html[data-leve][data-rolou] .cabecalho-site {
   background: linear-gradient(to bottom, transparent, var(--brand-profundo) 14rem);
   padding-top: 8rem;
 }
-.rodape-assinatura {
-  margin: 2.5rem 0 0;
-  font-size: clamp(5rem, 20.5vw, 16.5rem);
-  font-weight: 600;
-  line-height: 0.8;
-  letter-spacing: -0.07em;
-  color: var(--sobre-forte);
-  white-space: nowrap;
-  overflow: hidden;
-  padding-bottom: 0.06em;
-}
-.rodape-assinatura span { color: var(--brand-claro); }
