@@ -32,6 +32,9 @@ import CarregaRreo from "./_heroi/CarregaRreo";
 import CarregaRegua from "./_heroi/CarregaRegua";
 import { municipioDoParametro, municipioParaDados } from "@/lib/fatos-do-municipio";
 import { sedeNoMapa } from "@/lib/sede-no-mapa";
+import EstruturaA from "./_abaixo/EstruturaA";
+import EstruturaB from "./_abaixo/EstruturaB";
+import EstruturaC from "./_abaixo/EstruturaC";
 import { CONTATO_PUBLICO } from "@/lib/contato-comercial";
 import { AVISO_DF_COM_PESSOAL, ehDistritoFederal } from "@/lib/regioes-df";
 import { ESTADOS } from "@/lib/estados";
@@ -88,7 +91,7 @@ export const metadata: Metadata = {
 // parâmetro: é isso que mantém a página estática.
 export const revalidate = 3600;
 
-export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome }) {
+export default async function LandingPage({ pedido, estrutura }: { pedido?: PedidoDaHome; estrutura?: "a" | "b" | "c" }) {
   // Resolvido contra a lista local antes de qualquer rede: lixo na barra de
   // endereço vira a home inicial, não uma chamada à API do Tesouro.
   const parametros: Partial<PedidoDaHome> = pedido ?? {};
@@ -116,6 +119,7 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
   const df = ehDistritoFederal(municipio?.uf);
   const sede = municipio ? sedeNoMapa(municipio.codigo) : null;
   const cidadeNoMapa = municipio && sede ? { nome: municipio.nome, uf: municipio.uf, ...sede } : null;
+  const cidadeDoMontador = municipio && !df ? { nome: municipio.nome, uf: municipio.uf } : undefined;
   // A visita: na versão montada, registrada aqui; na estática, pelo aviso
   // do navegador (ContarVisita, app/api/visita).
   if (pedido) {
@@ -281,6 +285,17 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
           </div>
         </section>
 
+        {/* ── AS TRÊS ESTRUTURAS EM TESTE (nov/2026, só na prévia) ──
+            /modelo/a, /b e /c trocam tudo do fim do mapa para baixo
+            (app/_abaixo). Sem estrutura, a home segue como está. */}
+        {estrutura === "a" ? (
+          <EstruturaA cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
+        ) : estrutura === "b" ? (
+          <EstruturaB cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
+        ) : estrutura === "c" ? (
+          <EstruturaC cidade={cidadeDoMontador} chave={municipio?.codigo ?? "sem-municipio"} />
+        ) : (
+          <>
         {/* ═══ DE ONDE VEM O DADO ═══
             As nove bases numa linha reta entre dois fios (globals.css,
             .faixa-reta). Era uma faixa roxa inclinada que corria de lado; saiu
@@ -427,6 +442,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
               seguidos disputavam a mesma decisão. A ligação continua nas
               páginas por cargo, no panorama, no Raio-X e na /proposta. */}
         </section>
+
+          </>
+        )}
 
         <div className="pb-14 sm:pb-22" />
 
