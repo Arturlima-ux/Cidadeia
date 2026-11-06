@@ -3,7 +3,6 @@ import { FONTES_OFICIAIS, MUNICIPIOS_COM_PREFEITURA } from "@/lib/fontes-oficiai
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Olho from "@/components/site/Olho";
-import BarraConversao from "@/components/site/BarraConversao";
 import QuemVoceE from "@/components/site/quem-somos/QuemVoceE";
 import TempoQueVolta from "@/components/site/quem-somos/TempoQueVolta";
 import PecaUmaLigacao from "@/components/site/PecaUmaLigacao";
@@ -353,7 +352,6 @@ export default async function QuemSomosPage() {
             </div>
           </div>
         </section>
-        <BarraConversao />
       </main>
       <SiteFooter />
     </div>

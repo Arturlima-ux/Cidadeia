@@ -100,7 +100,6 @@ describe("a tabela de preços é interna", () => {
     "src/components/site/MontadorProposta.tsx",
     "src/components/site/SeletorPainelModulo.tsx",
     "src/components/site/PainelModuloFiel.tsx",
-    "src/components/site/BarraConversao.tsx",
     "src/components/site/Diagnostico.tsx",
   ];
 
@@ -148,9 +147,6 @@ describe("hierarquia de chamada para ação", () => {
   // na página, e eles não competem — um qualifica no topo (diagnóstico), o
   // outro converte no fecho (proposta).
 
-  const barra = semComentarios(
-    readFileSync("src/components/site/BarraConversao.tsx", "utf8")
-  );
 
   /**
    * Destinos de todo <Link> com fundo cheio da marca.
@@ -221,14 +217,6 @@ describe("hierarquia de chamada para ação", () => {
     expect(destinosCheios(home)).not.toContain("/transparencia");
   });
 
-  it("a barra fixa reforça o fecho, sem criar um terceiro caminho", () => {
-    // A barra cobre o cabeçalho ao rolar. Se o botão cheio dela levasse a
-    // outro lugar, o caminho principal do site trocaria sozinho conforme a
-    // rolagem — que é a definição do problema.
-    for (const destino of destinosCheios(barra)) {
-      expect(destino).toContain("/proposta");
-    }
-  });
 
   it("nenhum arquivo do site promete conversa antes do preço", () => {
     // ── POR QUE ISTO VARRE O PROJETO INTEIRO ──
