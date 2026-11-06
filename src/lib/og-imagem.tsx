@@ -18,12 +18,12 @@ export const TIPO_OG = "image/png";
 // As mesmas cores do tema noite (globals.css, .tema-noite). Eram as da
 // identidade antiga, azul e verde: o link no WhatsApp chegava com outra
 // marca. ImageResponse não lê variável CSS, por isso o valor vai escrito.
-const FUNDO = "#08090c";
-const CARTAO = "#14161b";
-const TEXTO = "#f3f4f6";
-const MUDO = "#8b8f98";
-const MARCA = "#7252f6";
-const DESTAQUE = "#a68fff";
+const FUNDO = "#0d0a08";
+const CARTAO = "#17120e";
+const TEXTO = "#f5efe8";
+const MUDO = "#9a8f85";
+const MARCA = "#f2701f";
+const DESTAQUE = "#ffad73";
 
 /** O endereço do site sem "https://": muda sozinho quando vier o domínio próprio. */
 const DOMINIO = new URL(URL_BASE).host;

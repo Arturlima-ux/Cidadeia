@@ -26,7 +26,6 @@ import TopoBrasil from "@/components/site/inicio/TopoBrasil";
 import RolarParaAqui from "@/components/site/inicio/RolarParaAqui";
 import VideoExplicativo from "@/components/site/VideoExplicativo";
 import CapitulosDoVideo from "@/components/site/inicio/CapitulosDoVideo";
-import TonsDeTeste from "@/components/site/inicio/TonsDeTeste";
 import HomeMorador from "./_morador/HomeMorador";
 import CarregaPessoal from "./_heroi/CarregaPessoal";
 import CarregaRreo from "./_heroi/CarregaRreo";
@@ -158,8 +157,6 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
 
       <main id="conteudo">
         <BarraConversao />
-        {/* Só na prévia: o fundador escolhe o tom da home (TonsDeTeste.tsx). */}
-        {process.env.VERCEL_ENV !== "production" && <TonsDeTeste />}
 
         {/* ═══ HERÓI ═══ */}
         {/* ── SEM SUSPENSE EM VOLTA DO TOPO ──
@@ -355,9 +352,9 @@ export default async function LandingPage({ pedido }: { pedido?: PedidoDaHome })
             <HidratarAoChegar id="video">
               <VideoExplicativo
                 id="video-cidadeia"
-                src="/video/cidadeia-gestao.mp4"
-                srcWebm="/video/cidadeia-gestao.webm"
-                capa="/video/cidadeia-gestao-capa.jpg"
+                src="/video/cidadeia-gestao-brasa.mp4"
+                srcWebm="/video/cidadeia-gestao-brasa.webm"
+                capa="/video/cidadeia-gestao-brasa-capa.jpg"
                 titulo="O CidadeIA em 30 segundos: a gestão municipal inteira num lugar só, do gabinete ao celular do morador."
               />
             </HidratarAoChegar>

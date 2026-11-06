@@ -85,15 +85,16 @@ export async function montarBrasil(o: {
   const { palco, tela, rotulo } = o;
   const estilo = getComputedStyle(palco);
   const cor = (token: string) => new THREE.Color(estilo.getPropertyValue(token).trim() || "white");
-  // Os tons de teste (TonsDeTeste.tsx) trocam a cor das luzes do mapa sem
-  // trocar o roxo dos botões: --relevo-* vale mais que o token da marca.
+  // As luzes do mapa podem ter cor própria (--relevo-*, em globals.css),
+  // diferente da cor dos botões: --relevo-* vale mais que o token da marca.
   const corOu = (token: string, reserva: string) => cor(estilo.getPropertyValue(token).trim() ? token : reserva);
   const numero = (token: string, padrao: number) => {
     const v = parseFloat(estilo.getPropertyValue(token));
     return Number.isFinite(v) ? v : padrao;
   };
   const escalaHalo = numero("--relevo-halo", 1);
-  // O "olhar" do relevo (tons de teste, nov/2026). Sem os tokens, nada muda.
+  // O "olhar" do relevo (nov/2026): a brasa nas encostas vem de globals.css
+  // (.tema-noite). Sem os tokens, o relevo volta ao grafite de estúdio.
   const temToken = (t: string) => estilo.getPropertyValue(t).trim() !== "";
   const olhar = {
     tinta: temToken("--relevo-tinta") ? cor("--relevo-tinta") : null,

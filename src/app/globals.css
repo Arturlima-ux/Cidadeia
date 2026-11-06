@@ -52,7 +52,7 @@
      parecer um alarme.
 
      Validadas com scripts/validate_palette.js do skill de dataviz, nos dois
-     temas, contra a superfície de cartão de cada um (#ffffff aqui, #14161b
+     temas, contra a superfície de cartão de cada um (#ffffff aqui, #17120e
      no escuro): faixa de luminosidade, piso de croma, separação sob
      daltonismo, piso de visão normal e contraste — tudo passa. A separação
      sob daltonismo fica na faixa 6–8 em alguns pares, o que só é legal com
@@ -124,34 +124,51 @@
    SiteHeader, SiteFooter e MontadorProposta leem os tokens em vez de cor
    fixa, basta envolver a página nesta classe para tudo acompanhar. */
 .tema-noite {
-  /* O Brasil em relevo do topo (BrasilRelevo.tsx): grafite acetinado e as
-     luzes de estúdio que desenham o relevo. O 3D lê estes tokens. */
-  --grafite-parede: #1c1b22;
-  --grafite-chao: #15131c;
-  --luz-chave: #fff4ea;
-  --luz-ceu: #cfcbe0;
-  --luz-recorte: #dcd5ff;
-  --localizacao-clara: #e8f1ff;
-  --background: #08090c;
-  --superficie: #0d0f13;
-  --card: #14161b;
-  --foreground: #f3f4f6;
-  --muted: #8b8f98;
-  --border: rgba(243, 244, 246, 0.13);
+  /* ── BRASA (nov/2026) ──
+     O fundador escolheu, entre três referências do Dribbble, a do relevo que
+     é a própria luz (Immersive Geology): carvão quente no lugar do preto seco
+     e as encostas do Brasil acesas em âmbar. O roxo e o azul do site saíram;
+     a marca agora é a brasa. O 3D do topo (BrasilRelevo.tsx) lê estes tokens. */
+  --grafite-parede: #1a1410;
+  --grafite-chao: #120e0b;
+  --luz-chave: #ffd2a1;
+  --luz-ceu: #6b5442;
+  --luz-recorte: #ff9a4d;
+  --relevo-tinta: #3a332e;
+  --relevo-brilho: #ff6a1f;
+  --relevo-brilho-forca: 1.25;
+  --relevo-brilho-corte: 0.28;
+  --relevo-borda: #ff8a3d;
+  --relevo-borda-forca: 0.35;
+  --relevo-chave-forca: 1.6;
+  --relevo-contra: #ff7a2e;
+  --relevo-contra-forca: 0.9;
+  --relevo-luz: #ffb46b;
+  --relevo-luz-clara: #ffe2bf;
+  --relevo-halo: 0.45;
+  --relevo-sopro: 0;
+  --localizacao-clara: #ffffff;
+  --background: #0d0a08;
+  --superficie: #110d0a;
+  --card: #17120e;
+  --foreground: #f5efe8;
+  --muted: #9a8f85;
+  --border: rgba(255, 226, 196, 0.12);
 
-  /* #7252f6, e não #7c5cff: branco sobre o roxo cheio (botão, faixa) dava
-     4,34:1, abaixo dos 4,5:1 da WCAG AA (medido pelo Lighthouse). Agora 4,94. */
-  --brand: #7252f6;
-  --brand-dark: #6344e0;
-  --brand-tint: rgba(124, 92, 255, 0.15);
-  --brand-profundo: #0c0a18;
-  /* Roxo muito escuro (Figma: cor/violeta-profundo): a pergunta escolhida
-     da mesa de módulos e as áreas especiais. Fica entre o fundo e o roxo da
-     marca, para o selecionado ter um degrau próprio sem acender a tela. */
-  --violeta-profundo: #171329;
-  --accent: #a68fff;
-  --accent-tint: rgba(166, 143, 255, 0.14);
-  --gradient-hero: linear-gradient(140deg, #0c0a18 0%, #171133 55%, #231a52 100%);
+  /* A brasa: #f2701f dá 6,7:1 contra o fundo e 6,4:1 com texto escuro
+     (--sobre-forte) por cima. Botão com texto branco usa --brand-dark
+     (#c2410c, 5,2:1), que já é o que a regra do .bg-brand no escuro pinta. */
+  --brand: #f2701f;
+  --brand-dark: #c2410c;
+  --brand-tint: rgba(242, 112, 31, 0.15);
+  --brand-profundo: #160c06;
+  /* O degrau escuro da marca (Figma: cor/violeta-profundo, o nome ficou):
+     a pergunta escolhida da mesa de módulos e as áreas especiais. */
+  --violeta-profundo: #1f130b;
+  --accent: #ffa261;
+  --accent-tint: rgba(255, 162, 97, 0.14);
+  --gradient-hero: linear-gradient(140deg, #160c06 0%, #24140a 55%, #3a1f0e 100%);
+  --sobre-forte: #1a0d05;
 
   --urgente: #ff5f52;
   --urgente-tint: rgba(255, 95, 82, 0.13);
@@ -160,7 +177,7 @@
   --medio-tint: rgba(232, 185, 73, 0.12);
   --medio-borda: rgba(232, 185, 73, 0.32);
   --info: #2fbf87;
-  --localizacao: #4d8ae8;
+  --localizacao: #f5ede4;
   --info-tint: rgba(47, 191, 135, 0.12);
   --info-borda: rgba(47, 191, 135, 0.3);
 
@@ -179,12 +196,12 @@
   --shadow-md: 0 10px 30px -8px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 28px 70px -18px rgba(0, 0, 0, 0.65);
 
-  --sutil: rgba(255, 255, 255, 0.06);
-  --brand-legivel: #b7a3ff;
+  --sutil: rgba(255, 226, 196, 0.06);
+  --brand-legivel: #ffad73;
 
   /* claros só do tema noite */
-  --brand-claro: #b7a3ff;
-  --accent-claro: #cbbcff;
+  --brand-claro: #ffad73;
+  --accent-claro: #ffcfa6;
 
   background: var(--background);
   color: var(--foreground);
@@ -430,7 +447,7 @@ button:active {
   top: 8px;
   z-index: 100;
   background: var(--brand);
-  color: #fff;
+  color: var(--sobre-forte);
   font-weight: 700;
   font-size: 14px;
   padding: 10px 16px;
@@ -443,7 +460,7 @@ button:active {
 }
 
 /* ── CONTRASTE DO BOTÃO NO TEMA ESCURO ──
-   O azul --brand (#4c8dff) serve bem como texto sobre o fundo escuro, mas
+   A cor --brand serve bem como texto sobre o fundo escuro, mas
    branco sobre ele dá 3,6:1 — abaixo do 4,5:1 que a WCAG AA pede para
    texto de botão. Aqui o botão usa o tom mais fundo (4,8:1) sem mudar a
    cor dos links. */
@@ -456,8 +473,8 @@ button:active {
   color: var(--brand-legivel);
 }
 .tema-noite .hover\:bg-brand-dark:hover {
-  /* Era #1d5bc4, um azul da paleta antiga: o botão roxo ficava azul no hover. */
-  background-color: #5236c4;
+  /* Um degrau abaixo do botão (#c2410c): escurece no hover, não troca de cor. */
+  background-color: #a8380b;
 }
 
 :where(a, button, summary):focus-visible {
@@ -955,13 +972,7 @@ h1.font-serif,
    da página fica parado de propósito.
    ═══════════════════════════════════════════════════════════════════════ */
 .pagina-inicial {
-  /* Clima grafite (nov/2026): os mesmos neutros do Brasil em relevo do topo,
-     com um leve viés violeta, em vez do azulado. Só na home: o tema noite
-     também veste outras páginas e o painel da equipe. */
-  --background: #09080c;
-  --superficie: #0e0d12;
-  --card: #131218;
-  --border: rgba(243, 241, 248, 0.1);
+  /* As cores vêm do tema noite (a brasa, nov/2026); aqui só a tipografia. */
   --font-titulo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-corpo: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   font-family: var(--font-corpo);
@@ -1068,6 +1079,22 @@ h1.font-serif,
   background: var(--violeta-profundo);
   border: 1px solid color-mix(in oklab, var(--accent-claro) 26%, transparent);
 }
+/* O céu da home (nov/2026): carvão quente com o calor da brasa subindo
+   atrás do mapa, preso à tela; bordas escurecidas e um grão de filme leve. */
+.tema-noite.pagina-inicial {
+  background:
+    radial-gradient(60% 45% at 66% 62%, rgba(255, 106, 31, 0.1), transparent 70%),
+    linear-gradient(180deg, #090706 0%, #120d0a 45%, #1a120c 70%, #0d0a08 100%);
+  background-attachment: fixed;
+}
+.tema-noite.pagina-inicial::before,
+.tema-noite.pagina-inicial::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+.tema-noite.pagina-inicial::before { background: radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(0, 0, 0, 0.5) 100%); }
+.tema-noite.pagina-inicial::after {
+  z-index: 61; opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) { .tema-noite.pagina-inicial { background-attachment: scroll; } }
 .fecho-confianca { display: grid; gap: 20px 40px; margin: 0; }
 @media (min-width: 768px) { .fecho-confianca { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .fecho-confianca dt { font-weight: 600; color: var(--foreground); }
@@ -1170,11 +1197,11 @@ h1.font-serif,
 
 .montador-cta {
   background: var(--brand);
-  color: white;
+  color: var(--sobre-forte);
   transition: transform 0.16s ease, background-color 0.2s ease;
 }
 .montador-cta:hover {
-  background: color-mix(in oklab, var(--brand) 88%, white);
+  background: color-mix(in oklab, var(--brand) 88%, var(--foreground));
 }
 .montador-cta:active {
   transform: scale(0.98);
