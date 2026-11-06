@@ -1466,6 +1466,63 @@ select option {
   .vidro { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
+/* ── VIDRO LÍQUIDO (nov/2026) ──
+   O efeito de vidro da Apple, pedido do fundador só nas barras e nos
+   botões. O expo-glass-effect é do React Native e não roda no site, então
+   é CSS: preenchimento translúcido, desfoque com saturação (o que dá a cor
+   viva por trás), um fio de luz em cima, uma volta clara na borda e um
+   brilho que nasce na quina de cima. O desfoque fica só no que flutua por
+   cima de conteúdo (cabeçalho, barra do celular, pílula do mapa); nos
+   botões que já ficam sobre fundo liso o vidro é só luz e preenchimento,
+   sem filtro, para não pesar na rolagem. */
+:root { --vidro-brilho: #ffffff; --vidro-sombra: #000000; }
+.liquido, .liquido-marca { position: relative; isolation: isolate; overflow: hidden; }
+.liquido {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--vidro-brilho) 16%, transparent), color-mix(in oklab, var(--vidro-brilho) 5%, transparent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--vidro-brilho) 38%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--vidro-brilho) 14%, transparent),
+    inset 0 -8px 16px -10px color-mix(in oklab, var(--vidro-brilho) 16%, transparent),
+    0 10px 28px -12px color-mix(in oklab, var(--vidro-sombra) 70%, transparent);
+}
+.liquido-marca {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--brand) 80%, var(--vidro-brilho)) 0%, var(--brand) 48%, color-mix(in oklab, var(--brand) 82%, var(--brand-dark)) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--vidro-brilho) 60%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--vidro-brilho) 22%, transparent),
+    inset 0 -6px 14px -8px color-mix(in oklab, var(--brand-dark) 90%, transparent),
+    0 10px 30px -10px color-mix(in oklab, var(--brand) 70%, transparent);
+}
+.liquido::before, .liquido-marca::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 70% at 28% -10%, color-mix(in oklab, var(--vidro-brilho) 26%, transparent), transparent 60%);
+  transition: opacity 200ms var(--saida);
+}
+.liquido-marca::before { background: radial-gradient(110% 80% at 28% -20%, color-mix(in oklab, var(--vidro-brilho) 38%, transparent), transparent 58%); }
+@media (hover: hover) and (pointer: fine) {
+  .liquido:hover { background: linear-gradient(180deg, color-mix(in oklab, var(--vidro-brilho) 22%, transparent), color-mix(in oklab, var(--vidro-brilho) 8%, transparent)); }
+  .liquido-marca:hover { filter: brightness(1.06); }
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquido-flutua { -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%); }
+  [data-rolou] .cabecalho-site {
+    background: color-mix(in oklab, var(--background) 58%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(18px) saturate(170%);
+    box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--vidro-brilho) 7%, transparent), 0 10px 30px -18px color-mix(in oklab, var(--vidro-sombra) 80%, transparent);
+  }
+  .barra-vidro {
+    background: color-mix(in oklab, var(--background) 55%, transparent) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+    backdrop-filter: blur(20px) saturate(170%);
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--vidro-brilho) 10%, transparent);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .liquido-flutua, .barra-vidro { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--card) !important; }
+}
+html[data-leve] .liquido-flutua, html[data-leve] .barra-vidro { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--card) !important; }
+
 /* ── MICROINTERAÇÕES DO CABEÇALHO ──
    Links do menu: a cor muda e um fundo suave aparece atrás, só com mouse
    (dezenas de vezes por dia: rápido e discreto). Botões em pílula afundam um

@@ -46,10 +46,10 @@ const ESTILO = `
 .topo3d-pilula {
   position: absolute; left: 50%; bottom: 13%; z-index: 3; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 12px; padding: 6px 6px 6px 22px; border-radius: 9999px;
-  background: var(--foreground); color: var(--background); font-size: 14.5px; font-weight: 600; white-space: nowrap;
-  box-shadow: 0 18px 50px -12px color-mix(in oklab, var(--brand) 75%, transparent), 0 0 0 6px color-mix(in oklab, var(--foreground) 6%, transparent);
+  color: var(--foreground); font-size: 14.5px; font-weight: 600; white-space: nowrap;
   transition: transform 180ms var(--saida);
 }
+.topo3d-pilula.liquido { position: absolute; }
 .topo3d-pilula:active { transform: translateX(-50%) scale(0.97); }
 .topo3d-pilula:focus-visible { outline: 2px solid var(--brand-claro); outline-offset: 3px; }
 .topo3d-seta { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9999px; background: var(--brand); color: var(--sobre-forte, var(--foreground)); transition: transform 180ms var(--saida); }

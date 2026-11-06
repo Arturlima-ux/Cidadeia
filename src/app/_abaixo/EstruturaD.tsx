@@ -51,8 +51,7 @@ const ESTILO = `
 .car-mais a { color: var(--foreground); }
 .car-setas { max-width: 1200px; margin-inline: auto; padding-inline: 16px; display: flex; justify-content: flex-end; gap: 12px; }
 @media (min-width: 640px) { .car-setas { padding-inline: 32px; } }
-.car-setas button { width: 44px; height: 44px; border-radius: 50%; border: 0; background: color-mix(in oklab, var(--foreground) 14%, transparent); color: var(--foreground); font-size: 24px; line-height: 1; cursor: pointer; transition: background-color .2s, opacity .2s; }
-.car-setas button:hover:not(:disabled) { background: color-mix(in oklab, var(--foreground) 22%, transparent); }
+.car-setas button { width: 44px; height: 44px; border-radius: 50%; border: 0; color: var(--foreground); font-size: 24px; line-height: 1; cursor: pointer; transition: opacity .2s; }
 .car-setas button:disabled { opacity: .35; cursor: default; }
 .ed-passos { max-width: 1200px; margin-inline: auto; padding: clamp(96px, 12vw, 160px) 16px 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px; }
 @media (min-width: 640px) { .ed-passos { padding-inline: 32px; } }

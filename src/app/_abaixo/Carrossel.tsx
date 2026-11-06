@@ -45,8 +45,8 @@ export default function Carrossel({ titulo, children, rotulo }: { titulo: ReactN
         {children}
       </div>
       <div className="car-setas">
-        <button type="button" onClick={() => andar(-1)} disabled={inicio} aria-label="Módulo anterior">‹</button>
-        <button type="button" onClick={() => andar(1)} disabled={fim} aria-label="Próximo módulo">›</button>
+        <button type="button" className="liquido" onClick={() => andar(-1)} disabled={inicio} aria-label="Módulo anterior">‹</button>
+        <button type="button" className="liquido" onClick={() => andar(1)} disabled={fim} aria-label="Próximo módulo">›</button>
       </div>
     </div>
   );
