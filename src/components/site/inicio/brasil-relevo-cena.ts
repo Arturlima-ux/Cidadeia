@@ -279,7 +279,9 @@ export async function montarBrasil(o: {
     return t;
   }
   const plano = (lado: [number, number], map: THREE.Texture, y: number, aditivo = false, onde = brasil as THREE.Object3D) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(...lado), new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, blending: aditivo ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(...lado), new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, toneMapped: false, fog: false, blending: aditivo ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    // Sem tone mapping: o chão sai na cor exata do token, e o topo não fica
+    // um degrau mais escuro que o resto da página (nov/2026).
     m.rotation.x = -Math.PI / 2; m.position.y = y;
     descartaveis.push(m.geometry, m.material as THREE.Material);
     onde.add(m);

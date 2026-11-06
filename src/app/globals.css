@@ -130,7 +130,7 @@
      e as encostas do Brasil acesas em âmbar. O roxo e o azul do site saíram;
      a marca agora é a brasa. O 3D do topo (BrasilRelevo.tsx) lê estes tokens. */
   --grafite-parede: #1a1410;
-  --grafite-chao: #120e0b;
+  --grafite-chao: #0e0a08;
   --luz-chave: #ffd2a1;
   --luz-ceu: #6b5442;
   --luz-recorte: #ff9a4d;
@@ -148,9 +148,9 @@
   --relevo-halo: 0.45;
   --relevo-sopro: 0;
   --localizacao-clara: #ffffff;
-  --background: #0a0706;
-  --superficie: #0f0b09;
-  --card: #16110d;
+  --background: #080505;
+  --superficie: #0d0908;
+  --card: #15100d;
   --foreground: #f5efe8;
   --muted: #9a8f85;
   --border: rgba(255, 226, 196, 0.12);
