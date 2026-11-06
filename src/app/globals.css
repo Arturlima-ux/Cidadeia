@@ -1422,7 +1422,8 @@ select option {
 }
 [data-rolou] .cabecalho-site {
   background: var(--background);
-  border-color: var(--border);
+  /* Sem fio embaixo: o cabeçalho se separa pelo desfoque, não por uma linha. */
+  border-color: transparent;
 }
 
 /* ── VIDRO ──
@@ -1697,7 +1698,8 @@ select option {
    Era uma faixa roxa inclinada que corria de lado; no clima grafite (nov/2026)
    é uma linha reta entre dois fios, com os nomes em cinza claro. */
 .faixa-reta {
-  border-block: 1px solid var(--border);
+  /* Sem os fios de ponta a ponta (nov/2026): eles cortavam a página em
+     faixas e o fundador lia como emenda. As bases ficam soltas no carvão. */
   padding-block: 1.4rem;
 }
 .faixa-reta ul {

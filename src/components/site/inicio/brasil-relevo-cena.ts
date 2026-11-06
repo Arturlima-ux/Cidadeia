@@ -408,7 +408,7 @@ export async function montarBrasil(o: {
     camera.updateProjectionMatrix();
     const estreito = w < 860;
     // O Brasil ocupa ~62% da coluna de conteúdo, sem passar da altura.
-    const mapaPx = estreito ? w * 0.98 : Math.min(Math.min(w, 1200) * 0.62, h * 1.02);
+    const mapaPx = estreito ? w * 0.98 : Math.min(Math.min(w, 1200) * 0.62, h * 0.92);
     dist = 1000 / ((mapaPx / w) * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
     alvo.set(estreito ? 0 : -90, 10, estreito ? 70 : -160);
     if (!mexeu) posicionar(PHI, 0);
