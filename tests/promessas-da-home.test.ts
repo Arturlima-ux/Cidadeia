@@ -52,7 +52,11 @@ function varrerFontes(dir: string): string[] {
   return achados;
 }
 
-const home = semComentarios(readFileSync("src/app/page.tsx", "utf8"));
+// Desde nov/2026 a home monta do fim do mapa para baixo com app/_abaixo:
+// o que ela promete está nos dois lugares.
+const home = semComentarios(
+  [readFileSync("src/app/page.tsx", "utf8"), ...readdirSync("src/app/_abaixo").map((f) => readFileSync(`src/app/_abaixo/${f}`, "utf8"))].join("\n")
+);
 
 describe("prova social não promete portal que não existe", () => {
   it("a afirmação de portal no ar nunca é texto solto", () => {

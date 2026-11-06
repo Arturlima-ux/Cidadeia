@@ -23,7 +23,7 @@ describe("números que batem entre as páginas", () => {
     expect(FONTES_OFICIAIS.length).toBe(9);
     // ComoFunciona.tsx saiu da lista em nov/2026: na home enxuta ele tem só
     // os três passos, sem o quadro das bases.
-    for (const p of ["src/app/page.tsx", "src/app/quem-somos/page.tsx", "src/app/governanca/page.tsx"]) {
+    for (const p of ["src/app/_abaixo/dados.ts", "src/app/quem-somos/page.tsx", "src/app/governanca/page.tsx"]) {
       expect(ler(p)).toMatch(/fontes-oficiais/);
     }
   });
@@ -35,7 +35,7 @@ describe("o que é jurídico, certo", () => {
 
   it("o limite da dispensa é da soma do ano, e o site diz isso", () => {
     expect(AVISO_FRACIONAMENTO.base).toMatch(/75, § 1º/);
-    for (const p of ["src/app/page.tsx", "src/app/como-contratar/page.tsx", "src/app/kit/page.tsx"]) {
+    for (const p of ["src/app/_abaixo/Pecas.tsx", "src/app/como-contratar/page.tsx", "src/app/kit/page.tsx"]) {
       expect(ler(p)).toMatch(/AVISO_FRACIONAMENTO/);
     }
   });

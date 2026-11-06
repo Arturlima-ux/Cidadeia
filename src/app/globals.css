@@ -1664,62 +1664,6 @@ html[data-leve] .liquido-flutua, html[data-leve] .barra-vidro { -webkit-backdrop
   overflow-x: auto;
 }
 
-/* As perguntas da mesa de módulos (MesaDeModulos.tsx).
-   Três degraus de profundidade, todos abaixo do painel: a pergunta comum
-   quase no tom do fundo, a que está sob o mouse um pouco acima, e a
-   escolhida no violeta profundo com um fio de 1px no roxo da marca. A faixa
-   de 3px à esquerda saiu (acabamento de out/2026): marcava o escolhido com
-   um enfeite em vez de um degrau. */
-.mesa-aba {
-  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
-  transition: background-color 180ms var(--saida), box-shadow 180ms var(--saida), transform 120ms var(--saida);
-}
-.mesa-aba[data-sel] {
-  background: var(--violeta-profundo);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent);
-}
-@media (hover: hover) and (pointer: fine) {
-  .mesa-aba:not([data-sel]):hover {
-    background: color-mix(in oklab, var(--foreground) 7%, transparent);
-  }
-}
-.mesa-aba:active {
-  transform: scale(0.99);
-}
-/* A pílula que corre entre as perguntas (MesaDeModulos.tsx). Com ela
-   ligada (data-pilula), o fundo da escolhida é o dela, e o contorno acende
-   na pergunta só quando a pílula chega. */
-.mesa-aba { position: relative; z-index: 1; }
-.mesa-pilula {
-  position: absolute;
-  left: 0;
-  top: 0;
-  pointer-events: none;
-  background: var(--violeta-profundo);
-  clip-path: inset(100%);
-}
-[data-pilula] .mesa-aba[data-sel] {
-  background: transparent;
-  transition: box-shadow 220ms var(--saida) 280ms;
-}
-
-/* O painel do módulo: borda mais baixa que a padrão e sombra com
-   deslocamento, para ele se assentar sobre o fundo em vez de recortar. */
-.mesa-painel {
-  border: 1px solid color-mix(in oklab, var(--foreground) 9%, transparent);
-  box-shadow: var(--shadow-lg);
-}
-
-/* O fecho de cada exemplo da mesa: o problema e o que vem depois.
-   --tom é a cor do status (médio ou urgente), passada pelo componente. */
-.mesa-conclusao {
-  background: color-mix(in oklab, var(--tom) 9%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tom) 28%, transparent);
-}
-.mesa-conclusao-consequencia {
-  color: color-mix(in oklab, var(--foreground) 78%, var(--tom));
-}
-
 /* ── O QUE ESTÁ LONGE DA TELA NÃO É DESENHADO AINDA ──
    Seções abaixo da dobra da home: o navegador pula estilo, layout e pintura
    delas até chegarem perto da tela (content-visibility). O HTML está todo
