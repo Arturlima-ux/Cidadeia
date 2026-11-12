@@ -22,7 +22,7 @@ import { PERCENTUAL_MINIMO_AF } from "@/lib/pnae";
 export const metadata = { title: "Pedido da merenda" };
 export const dynamic = "force-dynamic";
 
-const COR = { falta: "var(--urgente)", critico: "var(--urgente)", atencao: "var(--medio)", ok: "var(--accent)", sem_consumo: "var(--muted)" } as const;
+const COR = { falta: "var(--urgente)", critico: "var(--urgente)", atencao: "var(--medio)", ok: "var(--info)", sem_consumo: "var(--muted)" } as const;
 
 export default async function ReposicaoMerendaPage() {
   const ctx = await contextoDashboard();

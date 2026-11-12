@@ -75,7 +75,7 @@ export function FormularioRepasse({
         e não estimado pelo sistema.
       </p>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-3" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-3" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}
@@ -183,7 +183,7 @@ export function FormularioCompra({ ano }: { ano: number }) {
           {pendente ? "Lançando…" : "Lançar compra"}
         </button>
         {msg && (
-          <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+          <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
             {msg.texto}
           </p>
         )}

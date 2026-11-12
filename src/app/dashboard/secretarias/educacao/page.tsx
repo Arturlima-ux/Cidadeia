@@ -374,7 +374,7 @@ export default async function EducacaoPage() {
         {ativas.length === 0 ? null : (
           <div className="grid sm:grid-cols-2 gap-2">
             {situacoes.map(({ e, situacao, leitura }) => {
-              const corSit = situacao === "urgente" ? "var(--urgente)" : situacao === "atencao" ? "var(--medio)" : "var(--accent)";
+              const corSit = situacao === "urgente" ? "var(--urgente)" : situacao === "atencao" ? "var(--medio)" : "var(--info)";
               return (
                 <Link
                   key={e.id}

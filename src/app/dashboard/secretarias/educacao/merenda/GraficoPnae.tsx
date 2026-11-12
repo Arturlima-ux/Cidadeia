@@ -57,7 +57,7 @@ export default function GraficoPnae({ serie, atingiu, percentualAtual }: Props) 
   if (serie.length === 0) return null;
 
   const corSerie = "var(--brand-claro)";
-  const corMeta = atingiu ? "var(--accent)" : "var(--urgente)";
+  const corMeta = atingiu ? "var(--info)" : "var(--urgente)";
   const maximo = Math.max(PERCENTUAL_MINIMO_AF * 1.25, ...serie.map((p) => p.percentual)) ;
   const fechados = serie.filter((p) => !p.futuro);
   const ultimoFechado = fechados[fechados.length - 1];

@@ -21,7 +21,7 @@ export const metadata = { title: "Busca ativa escolar" };
 export const dynamic = "force-dynamic";
 
 const COR_FREQ = {
-  ok: "var(--accent)",
+  ok: "var(--info)",
   atencao: "var(--medio)",
   reprovacao: "var(--urgente)",
   sem_dado: "var(--muted)",
@@ -79,7 +79,7 @@ export default async function BuscaAtivaRedePage() {
         <Numero rotulo="Em busca ativa" valor={String(correndo.length)} />
         <Numero rotulo={`Abaixo de ${FREQUENCIA_MINIMA_LDB}%`} valor={String(abaixoDoMinimo)} cor={abaixoDoMinimo > 0 ? "var(--urgente)" : undefined} />
         <Numero rotulo="Bolsa Família em risco" valor={String(comBolsaEmRisco)} cor={comBolsaEmRisco > 0 ? "var(--medio)" : undefined} />
-        <Numero rotulo="Voltaram para a sala" valor={String(voltaram)} cor={voltaram > 0 ? "var(--accent)" : undefined} />
+        <Numero rotulo="Voltaram para a sala" valor={String(voltaram)} cor={voltaram > 0 ? "var(--info)" : undefined} />
       </div>
 
       {correndo.length === 0 ? (

@@ -101,7 +101,7 @@ export default function FormularioAps({
         </p>
       </div>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

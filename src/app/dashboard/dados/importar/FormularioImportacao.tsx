@@ -47,7 +47,7 @@ export default function FormularioImportacao() {
       <div className="bg-card border border-border rounded-2xl p-8 text-center">
         <div
           className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4"
-          style={{ background: "var(--accent-tint)", color: "var(--accent)" }}
+          style={{ background: "var(--info-tint)", color: "var(--info)" }}
         >
           <IconCheck className="w-6 h-6" />
         </div>

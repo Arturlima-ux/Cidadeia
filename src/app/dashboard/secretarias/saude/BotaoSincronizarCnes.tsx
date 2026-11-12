@@ -32,7 +32,7 @@ export default function BotaoSincronizarCnes({ destaque }: { destaque: boolean }
         {pendente ? "Consultando o CNES…" : destaque ? "Importar a rede do CNES agora  →" : "Atualizar pelo CNES"}
       </button>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-xs mt-2 max-w-md" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-xs mt-2 max-w-md" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

@@ -197,7 +197,7 @@ export default function PainelPncp({ ano }: { ano: number }) {
               className="text-sm rounded-lg px-4 py-3 mt-4 leading-relaxed"
               style={
                 importacao.ok
-                  ? { background: "var(--accent-tint)", color: "var(--accent)" }
+                  ? { background: "var(--info-tint)", color: "var(--info)" }
                   : { background: "var(--urgente-tint)", color: "var(--urgente)" }
               }
             >
@@ -284,7 +284,7 @@ export default function PainelPncp({ ano }: { ano: number }) {
           {resultado.total > 0 && ausentes.length === 0 && indeterminadas.length === 0 && (
             <p
               className="text-sm rounded-lg px-4 py-3 mt-4"
-              style={{ background: "var(--accent-tint)", color: "var(--accent)" }}
+              style={{ background: "var(--info-tint)", color: "var(--info)" }}
             >
               Todos os {resultado.total} processos conferidos constam no PNCP.
             </p>

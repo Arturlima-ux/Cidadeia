@@ -75,7 +75,7 @@ export default function FormularioOcorrencia({ unidadeId }: { unidadeId: string 
         </button>
       </div>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-xs sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-xs sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

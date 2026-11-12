@@ -122,7 +122,7 @@ export default function PainelObras({
           className="text-sm rounded-lg px-4 py-3 mt-5 leading-relaxed"
           style={
             resultado.ok
-              ? { background: "var(--accent-tint)", color: "var(--accent)" }
+              ? { background: "var(--info-tint)", color: "var(--info)" }
               : { background: "var(--urgente-tint)", color: "var(--urgente)" }
           }
         >
@@ -170,7 +170,7 @@ export default function PainelObras({
           {obras.length === 0 ? (
             <p
               className="text-sm rounded-lg px-4 py-3 mt-4"
-              style={{ background: "var(--accent-tint)", color: "var(--accent)" }}
+              style={{ background: "var(--info-tint)", color: "var(--info)" }}
             >
               Nenhuma obra pede decisão agora: as {total} estão dentro do prazo do contrato, com
               medição em dia.

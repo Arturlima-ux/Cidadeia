@@ -112,7 +112,7 @@ export default function PainelContratos({
           className="text-sm rounded-lg px-4 py-3 mt-5 leading-relaxed"
           style={
             resultado.ok
-              ? { background: "var(--accent-tint)", color: "var(--accent)" }
+              ? { background: "var(--info-tint)", color: "var(--info)" }
               : { background: "var(--urgente-tint)", color: "var(--urgente)" }
           }
         >
@@ -160,7 +160,7 @@ export default function PainelContratos({
           {contratos.length === 0 ? (
             <p
               className="text-sm rounded-lg px-4 py-3 mt-4"
-              style={{ background: "var(--accent-tint)", color: "var(--accent)" }}
+              style={{ background: "var(--info-tint)", color: "var(--info)" }}
             >
               Nenhum contrato pede decisão agora: todos os {total} estão vigentes com folga.
             </p>

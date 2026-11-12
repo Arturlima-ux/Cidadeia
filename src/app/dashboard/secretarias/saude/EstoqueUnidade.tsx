@@ -18,7 +18,7 @@ const COR: Record<SituacaoEstoque, string> = {
   falta: "var(--urgente)",
   critico: "var(--urgente)",
   atencao: "var(--medio)",
-  ok: "var(--accent)",
+  ok: "var(--info)",
   sem_consumo: "var(--muted)",
 };
 const ORDEM: Record<SituacaoEstoque, number> = { falta: 0, critico: 1, atencao: 2, sem_consumo: 3, ok: 4 };
@@ -108,7 +108,7 @@ export default function EstoqueUnidade({ unidadeId, linhas, fuso }: { unidadeId:
         </form>
       )}
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

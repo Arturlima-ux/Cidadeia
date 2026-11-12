@@ -33,7 +33,7 @@ export const dynamic = "force-dynamic";
 const COR = {
   abaixo: "var(--urgente)",
   perto: "var(--medio)",
-  atingido: "var(--accent)",
+  atingido: "var(--info)",
   sem_meta: "var(--muted)",
 } as const;
 
@@ -142,7 +142,7 @@ export default async function ApsPage({ searchParams }: { searchParams: Promise<
                     {l.tendencia === "sem_serie" ? (
                       <span className="text-muted">—</span>
                     ) : (
-                      <span style={{ color: l.tendencia === "caiu" ? "var(--urgente)" : l.tendencia === "subiu" ? "var(--accent)" : "var(--muted)" }}>
+                      <span style={{ color: l.tendencia === "caiu" ? "var(--urgente)" : l.tendencia === "subiu" ? "var(--info)" : "var(--muted)" }}>
                         {SETA[l.tendencia]} {l.anterior !== null ? `${l.anterior}%` : ""}
                       </span>
                     )}

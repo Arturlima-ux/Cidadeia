@@ -102,7 +102,7 @@ export default function ImportarRedeCenso({
         <p
           role={msg.tipo === "erro" ? "alert" : "status"}
           className="text-sm leading-relaxed"
-          style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}
+          style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}
         >
           {msg.texto}
         </p>
