@@ -7,6 +7,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 // o que acabou de chegar."): cartões altos lado a lado, uns escuros e uns
 // claros, que correm de lado com o dedo, a roda do mouse ou as setas. A
 // faixa começa alinhada à coluna do site e sangra até a borda direita.
+//
+// As setas na altura do título (11/11/2026): embaixo dos cartões, o
+// visitante só via que havia mais módulos depois de rolar a página até elas.
+// Uma fileira com o nome de cada módulo chegou a entrar no lugar e saiu a
+// pedido do fundador; ficaram só as setas, ao lado do título, em toda largura.
 // Sem script, a faixa continua rolando de lado normalmente.
 export default function Carrossel({ titulo, children, rotulo }: { titulo: ReactNode; children: ReactNode; rotulo: string }) {
   const trilho = useRef<HTMLDivElement>(null);
@@ -40,13 +45,15 @@ export default function Carrossel({ titulo, children, rotulo }: { titulo: ReactN
 
   return (
     <div className="car">
-      <div className="car-cab">{titulo}</div>
+      <div className="car-cab">
+        {titulo}
+        <div className="car-setas">
+          <button type="button" className="liquido" onClick={() => andar(-1)} disabled={inicio} aria-label="Módulo anterior">‹</button>
+          <button type="button" className="liquido" onClick={() => andar(1)} disabled={fim} aria-label="Próximo módulo">›</button>
+        </div>
+      </div>
       <div ref={trilho} className="car-trilho" role="region" aria-label={rotulo} tabIndex={0}>
         {children}
-      </div>
-      <div className="car-setas">
-        <button type="button" className="liquido" onClick={() => andar(-1)} disabled={inicio} aria-label="Módulo anterior">‹</button>
-        <button type="button" className="liquido" onClick={() => andar(1)} disabled={fim} aria-label="Próximo módulo">›</button>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ const ESTILO = `
 .ed .ec-mosaico { padding-top: clamp(8px, 1.5vw, 24px); }
 .ed .eb-fecho { padding-bottom: 24px; }
 .car { padding-top: clamp(112px, 14vw, 200px); }
-.car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; }
+.car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 @media (min-width: 640px) { .car-cab { padding-inline: 32px; } }
 .car-cab h2 { font-family: var(--font-titulo); font-size: clamp(28px, 3.2vw, 44px); line-height: 1.08; letter-spacing: -.035em; font-weight: 600; margin: 0; text-wrap: balance; }
 .car-cab h2 span { color: var(--muted); }
@@ -49,10 +49,10 @@ const ESTILO = `
 .car-trilha i { display: block; height: 100%; border-radius: 9px; background: var(--brand); }
 .car-mais { flex: 0 0 clamp(240px, 22vw, 300px); display: flex; flex-direction: column; justify-content: flex-end; }
 .car-mais a { color: var(--foreground); }
-.car-setas { max-width: 1200px; margin-inline: auto; padding-inline: 16px; display: flex; justify-content: flex-end; gap: 12px; }
-@media (min-width: 640px) { .car-setas { padding-inline: 32px; } }
+.car-setas { flex: none; display: flex; gap: 10px; }
 .car-setas button { width: 44px; height: 44px; border-radius: 50%; border: 0; color: var(--foreground); font-size: 24px; line-height: 1; cursor: pointer; transition: opacity .2s; }
 .car-setas button:disabled { opacity: .35; cursor: default; }
+@media (max-width: 639px) { .car-setas button { width: 40px; height: 40px; font-size: 22px; } }
 .ed-passos { max-width: 1200px; margin-inline: auto; padding: clamp(96px, 12vw, 160px) 16px 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px; }
 @media (min-width: 640px) { .ed-passos { padding-inline: 32px; } }
 .ed-passos .ec-quadro { min-height: 340px; }
