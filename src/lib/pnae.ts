@@ -146,6 +146,14 @@ function moeda(n: number): string {
 }
 
 /** Anos que valem oferecer na tela: o corrente e os dois anteriores. */
+// ── O ANO DA COMPRA É O ANO DA DATA DA COMPRA (nov/2026) ──
+// Vinha da tela: o ano aberto no seletor. Em janeiro, quem lançava a nota de
+// dezembro com a tela no ano novo punha a compra de 2026 nos 30% de 2027, e
+// o ano velho fechava com menos do que comprou. Agora o ano sai da data.
+export function anoDaCompra(dataCompra: string): number {
+  return Number(dataCompra.slice(0, 4));
+}
+
 export function anosPnae(hoje: Date = new Date()): number[] {
   const ano = hoje.getUTCFullYear();
   return [ano, ano - 1, ano - 2];

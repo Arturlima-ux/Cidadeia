@@ -4,12 +4,13 @@ import { z } from "zod";
 import { and, eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { estoqueMerenda, pnaeCompras, pnaeRepasses, escolas } from "@/db/schema";
+import { estoqueMerenda, pnaeCompras, pnaeRepasses, escolas, prefeituras } from "@/db/schema";
 import { gerarId } from "@/lib/id";
 import { lerSessao, temAcessoSecretaria, podeVerEscola, ehGestor } from "@/lib/sessao";
 import { auditar } from "@/lib/auditoria";
 import { itemDoCatalogoMerenda, nomeCanonicoDoItem } from "@/lib/merenda";
-import { MODALIDADES_COMPRA, MOTIVOS_DISPENSA_AF } from "@/lib/pnae";
+import { MODALIDADES_COMPRA, MOTIVOS_DISPENSA_AF, anoDaCompra } from "@/lib/pnae";
+import { fusoDoEstado, hojeNoFuso } from "@/lib/horario";
 
 // ── A MERENDA: O QUE TEM NA COZINHA E O QUE FOI COMPRADO ──
 //
@@ -161,7 +162,6 @@ export async function buscarMerendaDaRede(prefeituraId: string) {
 const MODALIDADES = MODALIDADES_COMPRA.map((m) => m.chave) as [string, ...string[]];
 
 const schemaCompra = z.object({
-  ano: z.coerce.number().int().min(2007).max(2100),
   descricao: z.string().trim().min(3, "Descreva o que foi comprado.").max(200),
   fornecedor: z.string().trim().max(160).optional(),
   valor: z.coerce.number().positive("Informe o valor da compra.").max(1_000_000_000),
@@ -171,13 +171,18 @@ const schemaCompra = z.object({
   dataCompra: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data da compra."),
 });
 
-export async function registrarCompraPnae(formData: FormData): Promise<ResultadoMerenda> {
+// O ano da compra sai da data da compra (anoDaCompra, lib/pnae.ts).
+async function estadoDaPrefeitura(prefeituraId: string): Promise<string | null> {
+  const [p] = await db.select({ estado: prefeituras.estado }).from(prefeituras).where(eq(prefeituras.id, prefeituraId)).limit(1);
+  return p?.estado ?? null;
+}
+
+export async function registrarCompraPnae(formData: FormData): Promise<{ ok: true; ano: number } | { ok: false; erro: string }> {
   const sessao = await lerSessao();
   if (!sessao || !podeGerirRede(sessao)) return { ok: false, erro: "Sem permissão." };
   if (sessao.demo) return { ok: false, erro: "Na demonstração os dados são fictícios e não são alterados." };
 
   const parsed = schemaCompra.safeParse({
-    ano: formData.get("ano"),
     descricao: formData.get("descricao"),
     fornecedor: formData.get("fornecedor") || undefined,
     valor: formData.get("valor"),
@@ -187,7 +192,11 @@ export async function registrarCompraPnae(formData: FormData): Promise<Resultado
     dataCompra: formData.get("dataCompra"),
   });
   if (!parsed.success) return { ok: false, erro: parsed.error.issues[0]?.message ?? "Dados inválidos." };
-  const d = parsed.data;
+  const d = { ...parsed.data, ano: anoDaCompra(parsed.data.dataCompra) };
+  if (d.ano < 2007 || d.ano > new Date().getUTCFullYear()) return { ok: false, erro: "Confira a data da compra." };
+  if (d.dataCompra > hojeNoFuso(fusoDoEstado(await estadoDaPrefeitura(sessao.prefeituraId)))) {
+    return { ok: false, erro: "A data da compra está no futuro." };
+  }
 
   await db.insert(pnaeCompras).values({
     id: gerarId("pnaec"),
@@ -209,7 +218,7 @@ export async function registrarCompraPnae(formData: FormData): Promise<Resultado
     resumo: `compra do PNAE ${d.ano}: ${d.descricao} — ${d.valor}${d.agriculturaFamiliar ? " (agricultura familiar)" : ""}`,
   });
   revalidatePath("/dashboard/secretarias/educacao/merenda");
-  return { ok: true };
+  return { ok: true, ano: d.ano };
 }
 
 export async function removerCompraPnae(id: string): Promise<ResultadoMerenda> {

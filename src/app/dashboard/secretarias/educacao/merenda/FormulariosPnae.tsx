@@ -84,7 +84,7 @@ export function FormularioRepasse({
 }
 
 /** Cada compra da merenda, com a marca da agricultura familiar. */
-export function FormularioCompra({ ano }: { ano: number }) {
+export function FormularioCompra({ ano, hoje }: { ano: number; hoje: string }) {
   const [pendente, iniciar] = useTransition();
   const [msg, setMsg] = useState<{ tipo: "ok" | "erro"; texto: string } | null>(null);
   const [af, setAf] = useState(false);
@@ -100,7 +100,12 @@ export function FormularioCompra({ ano }: { ano: number }) {
         iniciar(async () => {
           const r = await registrarCompraPnae(fd);
           if (r.ok) {
-            setMsg({ tipo: "ok", texto: "Compra lançada." });
+            // O ano vem da data da compra: a nota de dezembro lançada em
+            // janeiro vai para o ano dela, e a mensagem diz onde foi parar.
+            setMsg({
+              tipo: "ok",
+              texto: r.ano === ano ? "Compra lançada." : `Compra lançada nas compras de ${r.ano}, o ano da data dela.`,
+            });
             form.current?.reset();
             setAf(false);
           } else setMsg({ tipo: "erro", texto: r.erro });
@@ -108,7 +113,6 @@ export function FormularioCompra({ ano }: { ano: number }) {
       }}
       className="bg-card border border-border rounded-2xl p-4 grid gap-3 sm:grid-cols-2"
     >
-      <input type="hidden" name="ano" value={ano} />
       <div className="sm:col-span-2">
         <label htmlFor="cp-desc" className="block text-xs font-medium mb-1">
           O que foi comprado
@@ -131,7 +135,7 @@ export function FormularioCompra({ ano }: { ano: number }) {
         <label htmlFor="cp-data" className="block text-xs font-medium mb-1">
           Data da compra
         </label>
-        <input id="cp-data" name="dataCompra" type="date" required className={campo} />
+        <input id="cp-data" name="dataCompra" type="date" required max={hoje} defaultValue={hoje} className={campo} />
       </div>
       <div>
         <label htmlFor="cp-mod" className="block text-xs font-medium mb-1">
