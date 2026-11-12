@@ -15,6 +15,7 @@ import {
   PERCENTUAL_MINIMO_AF,
 } from "@/lib/pnae";
 import { formatarMoeda } from "@/lib/formatadores";
+import { fusoDoEstado, hojeNoFuso } from "@/lib/horario";
 
 // ── OS 30% DA AGRICULTURA FAMILIAR ──
 //
@@ -47,6 +48,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
   if (!ctx.temPlano("educacao")) return <BloqueioPlano plano="educacao" />;
 
   const opcoes = anosPnae();
+  const hoje = hojeNoFuso(fusoDoEstado(ctx.prefeitura.estado));
   const { ano: anoParam } = await searchParams;
   const ano = opcoes.find((a) => String(a) === anoParam) ?? opcoes[0]!;
 
@@ -159,6 +161,14 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
         <FormularioRepasse ano={ano} valorAtual={repasse?.valor ?? null} motivoAtual={repasse?.motivoDispensa ?? null} />
       </section>
 
+      {/* ── lançar compra ──
+          Antes da lista, a pedido do fundador: lançar é o que se faz toda
+          semana; a lista é para conferir. O ano sai da data da compra. */}
+      <section>
+        <h2 className="font-semibold text-sm text-muted mb-2">Lançar compra</h2>
+        <FormularioCompra ano={ano} hoje={hoje} />
+      </section>
+
       {/* ── as compras ── */}
       <section className="space-y-3">
         <h2 className="font-semibold text-sm text-muted">Compras de {ano} ({compras.length})</h2>
@@ -189,7 +199,7 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
                     <td className="px-4 py-2.5 text-muted hidden sm:table-cell">{c.fornecedor ?? "—"}</td>
                     <td className="px-4 py-2.5 tabular-nums text-muted">{c.dataCompra.split("-").reverse().join("/")}</td>
                     <td className="px-4 py-2.5 text-right tabular-nums font-semibold">{formatarMoeda(c.valor)}</td>
-                    <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: c.agriculturaFamiliar ? "var(--accent)" : "var(--muted)" }}>
+                    <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: c.agriculturaFamiliar ? "var(--info)" : "var(--muted)" }}>
                       {c.agriculturaFamiliar ? "Sim" : "—"}
                     </td>
                     <td className="px-2 py-2.5 text-right">{!ctx.sessao.demo && <BotaoRemoverCompra id={c.id} />}</td>
@@ -200,10 +210,6 @@ export default async function MerendaPage({ searchParams }: { searchParams: Prom
           </div>
         )}
 
-        <div>
-          <h3 className="text-xs font-bold text-muted mb-2">Lançar compra</h3>
-          <FormularioCompra ano={ano} />
-        </div>
       </section>
 
       <p className="text-xs text-muted leading-relaxed">
