@@ -79,6 +79,7 @@ function montarGrupos(
       {
         titulo: "Principal",
         itens: [
+          { href: "/dashboard/pronto", label: "Pronto para aprovar", icone: "pronto" },
           { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
           ...(minha ? [minha] : []),
           { href: "/dashboard/alertas", label: "Alertas da secretaria", icone: "alertas" },
@@ -99,6 +100,10 @@ function montarGrupos(
       titulo: "Início",
       itens: [
         ...(implantacaoAberta ? [itemImplantacao] : []),
+        // O trabalho que o sistema já montou em todos os módulos, esperando
+        // conferência (lib/pronto-para-aprovar.ts). Primeiro do menu porque é
+        // onde o dia do gestor começa.
+        { href: "/dashboard/pronto", label: "Pronto para aprovar", icone: "pronto" },
         { href: "/dashboard/ia", label: "IA Central", icone: "ia" },
         // Fora do Gestão: a vigia diária confere todos os módulos, e o
         // prefeito que contratou só a Saúde também recebe o que ela acha.

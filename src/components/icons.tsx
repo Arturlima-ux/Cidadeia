@@ -108,6 +108,15 @@ export const IconAlertas = (p: IconProps) =>
     p
   );
 
+export const IconPronto = (p: IconProps) =>
+  base(
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="4" />
+      <path d="M8.5 12.5l2.5 2.5 5-5.5" />
+    </>,
+    p
+  );
+
 export const IconConfiguracoes = (p: IconProps) =>
   base(
     <>

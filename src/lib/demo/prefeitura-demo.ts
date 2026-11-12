@@ -33,6 +33,7 @@ import {
   educacaoIndicadores,
   obras,
   licitacoes,
+  contratos,
   atendimentos,
   dashboardSnapshots,
   alertas,
@@ -52,7 +53,7 @@ const VALIDADE_MS = 24 * 60 * 60 * 1000;
 // Sobe quando o conteúdo da demo muda: a prefeitura existente é recriada
 // na próxima visita, em vez de esperar as 24 h. Sem isso, a demo mostrava
 // a rede antiga por um dia depois de publicar a nova.
-const VERSAO_DEMO = "2026-10-02-antecipacao";
+const VERSAO_DEMO = "2026-11-11-pronto-para-aprovar";
 const MARCA_VERSAO = `Vila Nova · demo ${VERSAO_DEMO}`;
 
 function diasAtras(d: number, hora = 14): string {
@@ -305,7 +306,7 @@ export async function garantirPrefeituraDemo(): Promise<void> {
 
   // ── Obras: uma parada há 41 dias, uma no ritmo, uma concluída ──
   await db.insert(obras).values([
-    { id: "demo_obra_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "Reforma da UBS Central", bairro: "Centro", progressoAtual: 20, progressoEsperado: 65, valorContrato: 480_000, status: "atrasada", latitude: -6.7712, longitude: -43.0221, createdAt: diasAtras(200), atualizadoEm: diasAtras(41) },
+    { id: "demo_obra_1", prefeituraId: ID_PREFEITURA_DEMO, nome: "Reforma da UBS Central", bairro: "Centro", progressoAtual: 20, progressoEsperado: 65, valorContrato: 480_000, status: "atrasada", vigenciaInicio: diasAtras(200).slice(0, 10), vigenciaFim: diasAFrente(60).slice(0, 10), fornecedorNome: "Construtora Serra Azul Ltda", latitude: -6.7712, longitude: -43.0221, createdAt: diasAtras(200), atualizadoEm: diasAtras(41) },
     { id: "demo_obra_2", prefeituraId: ID_PREFEITURA_DEMO, nome: "Pavimentação da Av. Beira-Rio", bairro: "Centro", progressoAtual: 72, progressoEsperado: 70, valorContrato: 1_250_000, status: "em_andamento", latitude: -6.7760, longitude: -43.0170, createdAt: diasAtras(150), atualizadoEm: diasAtras(5) },
     { id: "demo_obra_3", prefeituraId: ID_PREFEITURA_DEMO, nome: "Creche Municipal Jardim", bairro: "Jardim", progressoAtual: 100, progressoEsperado: 100, valorContrato: 690_000, status: "concluida", latitude: -6.7795, longitude: -43.0150, createdAt: diasAtras(400), atualizadoEm: diasAtras(20) },
   ]);
@@ -318,6 +319,14 @@ export async function garantirPrefeituraDemo(): Promise<void> {
     { id: "demo_lic_4", prefeituraId: ID_PREFEITURA_DEMO, numero: "PE 012/2026", objeto: "Medicamentos básicos", modalidade: "Pregão eletrônico", valorEstimado: 640_000, fornecedor: "Distribuidora Vida", status: "homologada", prazoFinal: diasAtras(60), createdAt: diasAtras(100) },
     { id: "demo_lic_5", prefeituraId: ID_PREFEITURA_DEMO, numero: "DL 007/2026", objeto: "Material de expediente", modalidade: "Dispensa de licitação", valorEstimado: 63_900, fornecedor: "Papelaria Central", status: "homologada", prazoFinal: diasAtras(30), createdAt: diasAtras(45) },
     { id: "demo_lic_6", prefeituraId: ID_PREFEITURA_DEMO, numero: "TP 003/2026", objeto: "Pavimentação Beira-Rio", modalidade: "Tomada de preços", valorEstimado: 2_100_000, fornecedor: null, status: "publicada", prazoFinal: diasAFrente(12), createdAt: diasAtras(10) },
+  ]);
+
+  // ── Contratos (como viriam do PNCP): um sem tempo de licitar, um para
+  // decidir, um em dia. Alimentam a renovação pronta para aprovar.
+  await db.insert(contratos).values([
+    { id: "demo_ct_1", prefeituraId: ID_PREFEITURA_DEMO, numeroContrato: "018/2025", processo: "PE 006/2025", objeto: "Coleta e transporte de resíduos sólidos urbanos", fornecedorNome: "Limpa Vila Serviços Ltda", fornecedorTipoPessoa: "PJ", valorInicial: 610_000, valorGlobal: 610_000, dataAssinatura: diasAtras(345).slice(0, 10), vigenciaInicio: diasAtras(345).slice(0, 10), vigenciaFim: diasAFrente(20).slice(0, 10), categoria: "Serviços", origem: "manual", createdAt: diasAtras(345) },
+    { id: "demo_ct_2", prefeituraId: ID_PREFEITURA_DEMO, numeroContrato: "024/2025", processo: "PE 011/2025", objeto: "Locação de veículos para o transporte escolar", fornecedorNome: "Rota Certa Transportes Ltda", fornecedorTipoPessoa: "PJ", valorInicial: 880_000, valorGlobal: 880_000, dataAssinatura: diasAtras(300).slice(0, 10), vigenciaInicio: diasAtras(300).slice(0, 10), vigenciaFim: diasAFrente(75).slice(0, 10), categoria: "Serviços", origem: "manual", createdAt: diasAtras(300) },
+    { id: "demo_ct_3", prefeituraId: ID_PREFEITURA_DEMO, numeroContrato: "031/2026", processo: "PE 002/2026", objeto: "Fornecimento de material de limpeza", fornecedorNome: "Higiene Norte Ltda", fornecedorTipoPessoa: "PJ", valorInicial: 95_000, valorGlobal: 95_000, dataAssinatura: diasAtras(90).slice(0, 10), vigenciaInicio: diasAtras(90).slice(0, 10), vigenciaFim: diasAFrente(275).slice(0, 10), categoria: "Compras", origem: "manual", createdAt: diasAtras(90) },
   ]);
 
   // ── Atendimento: uma no prazo, uma vencendo, uma respondida ──

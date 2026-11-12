@@ -16,6 +16,7 @@ import {
   IconConfiguracoes,
   IconModulos,
   IconDownload,
+  IconPronto,
 } from "@/components/icons";
 
 const ICONES = {
@@ -31,6 +32,7 @@ const ICONES = {
   configuracoes: IconConfiguracoes,
   modulos: IconModulos,
   download: IconDownload,
+  pronto: IconPronto,
 } as const;
 
 export type IconKey = keyof typeof ICONES;
