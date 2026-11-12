@@ -17,6 +17,7 @@ export const SECRETARIAS_VALIDAS = ["saude", "educacao", "obras", "licitacoes"] 
 // Telas que o secretário usa e que filtram por área por conta própria.
 const ROTAS_DO_SECRETARIO = [
   "/dashboard/ia", // o contexto da IA já é recortado pela área (lib/ia.ts)
+  "/dashboard/pronto", // cada fonte da fila tem a guarda da área (lib/pronto-para-aprovar-servidor.ts)
   "/dashboard/alertas", // filtra por área (lib/alerta-por-area.ts)
   "/dashboard/atendimento", // filtra por área (lib/ouvidoria-avisos.ts)
   "/dashboard/conta",

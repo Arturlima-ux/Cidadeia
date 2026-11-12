@@ -14,6 +14,7 @@ import {
   situacaoDaNotificacao,
   type AprovacaoNotificacao,
   type ContratoDaObra,
+  type MotivoNotificacao,
   type ObraParaNotificacao,
   type PacoteNotificacao,
   type SituacaoNotificacao,
@@ -111,7 +112,13 @@ function paraLeitura(obra: ObraParaNotificacao): ContratoDeObra {
   };
 }
 
-export type EstadoNaLista = { estado: "rascunho" | "aprovado" | "desatualizado"; texto: string };
+export type EstadoNaLista = {
+  estado: "rascunho" | "aprovado" | "desatualizado";
+  texto: string;
+  /** Para a fila "Pronto para aprovar", que lista sem abrir a obra. */
+  obraNome: string;
+  motivo: MotivoNotificacao;
+};
 
 /**
  * O que o painel de Obras diz sobre a notificação de cada obra que a pede.
@@ -157,16 +164,18 @@ export async function estadosDasNotificacoes(sessao: SessaoPayload, hoje: Date =
         aprovacoes.filter((a) => a.obraId === o.id),
         pacote
       );
+      const base = { obraNome: o.nome, motivo };
       mapa.set(
         o.id,
         s.tipo === "aprovado"
           ? {
+              ...base,
               estado: "aprovado",
               texto: `Notificação aprovada por ${s.aprovacao.usuarioNome} (${nomeDoCargo(s.aprovacao.usuarioCargo)}) em ${dataHoraNumerica(s.aprovacao.createdAt, fuso)}`,
             }
           : s.tipo === "desatualizado"
-            ? { estado: "desatualizado", texto: "A obra mudou depois da aprovação da notificação: conferir de novo" }
-            : { estado: "rascunho", texto: "Notificação à contratada montada, aguardando conferência" }
+            ? { ...base, estado: "desatualizado", texto: "A obra mudou depois da aprovação da notificação: conferir de novo" }
+            : { ...base, estado: "rascunho", texto: "Notificação à contratada montada, aguardando conferência" }
       );
     }
   } catch (e) {
