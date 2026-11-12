@@ -16,7 +16,7 @@ const ESTILO = `
 .ed .ec-mosaico { padding-top: clamp(8px, 1.5vw, 24px); }
 .ed .eb-fecho { padding-bottom: 24px; }
 .car { padding-top: clamp(112px, 14vw, 200px); }
-.car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 22px; }
+.car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 @media (min-width: 640px) { .car-cab { padding-inline: 32px; } }
 .car-cab h2 { font-family: var(--font-titulo); font-size: clamp(28px, 3.2vw, 44px); line-height: 1.08; letter-spacing: -.035em; font-weight: 600; margin: 0; text-wrap: balance; }
 .car-cab h2 span { color: var(--muted); }
@@ -49,25 +49,15 @@ const ESTILO = `
 .car-trilha i { display: block; height: 100%; border-radius: 9px; background: var(--brand); }
 .car-mais { flex: 0 0 clamp(240px, 22vw, 300px); display: flex; flex-direction: column; justify-content: flex-end; }
 .car-mais a { color: var(--foreground); }
-.car-nav { max-width: 1200px; margin-inline: auto; padding-inline: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
-@media (min-width: 640px) { .car-nav { padding-inline: 32px; } }
-.car-nomes { position: relative; flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding: 4px; }
-.car-nomes::-webkit-scrollbar { display: none; }
-.car-nomes button { flex: none; display: inline-flex; align-items: baseline; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 12%, transparent); transition: background-color .25s var(--saida), color .25s var(--saida), box-shadow .25s var(--saida); line-height: 40px; }
-.car-num { font-size: 11px; font-weight: 600; letter-spacing: .06em; font-variant-numeric: tabular-nums; opacity: .7; }
-@media (hover: hover) and (pointer: fine) { .car-nomes button:hover { color: var(--foreground); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 28%, transparent); } }
-.car-nomes button.aceso { background: var(--foreground); color: var(--background); box-shadow: none; }
-.car-nomes button.aceso .car-num { color: var(--brand); opacity: 1; }
-.car-nomes button:focus-visible { outline: 2px solid var(--brand-claro); outline-offset: 2px; }
 .car-setas { flex: none; display: flex; gap: 10px; }
 .car-setas button { width: 44px; height: 44px; border-radius: 50%; border: 0; color: var(--foreground); font-size: 24px; line-height: 1; cursor: pointer; transition: opacity .2s; }
 .car-setas button:disabled { opacity: .35; cursor: default; }
-@media (max-width: 639px) { .car-setas { display: none; } .car-nomes { margin-inline: -16px; padding-inline: 16px; } .car-nomes button { height: 38px; line-height: 38px; padding: 0 14px; font-size: 14px; } }
+@media (max-width: 639px) { .car-setas button { width: 40px; height: 40px; font-size: 22px; } }
 .ed-passos { max-width: 1200px; margin-inline: auto; padding: clamp(96px, 12vw, 160px) 16px 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px; }
 @media (min-width: 640px) { .ed-passos { padding-inline: 32px; } }
 .ed-passos .ec-quadro { min-height: 340px; }
 @media (max-width: 899px) { .ed-passos { grid-template-columns: 1fr; } .car-cartao { flex-basis: 82vw; } }
-@media (prefers-reduced-motion: reduce) { .car-cartao, .car-nomes button { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .car-cartao { transition: none; } }
 `;
 
 function Visual({ chave, obrasParadas }: { chave: string; obrasParadas: string }) {
@@ -139,7 +129,6 @@ export default function EstruturaD({ cidade, chave }: { cidade: CidadeDoMontador
       <section id="solucoes" className="scroll-mt-24" aria-labelledby="ed-titulo-modulos">
         <Carrossel
           rotulo="Os seis módulos do CidadeIA"
-          nomes={modulos.map((m) => m.nome)}
           titulo={<h2 id="ed-titulo-modulos">Os módulos. <span>Um para cada parte da prefeitura.</span></h2>}
         >
           {modulos.map((m, i) => (
