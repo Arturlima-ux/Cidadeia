@@ -87,7 +87,7 @@ export default function DadosDaEscola({
         perder antes de precisar repor.
       </p>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-4" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-4" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

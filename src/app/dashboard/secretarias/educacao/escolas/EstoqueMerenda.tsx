@@ -28,7 +28,7 @@ const COR: Record<SituacaoMerenda, string> = {
   falta: "var(--urgente)",
   critico: "var(--urgente)",
   atencao: "var(--medio)",
-  ok: "var(--accent)",
+  ok: "var(--info)",
   sem_consumo: "var(--muted)",
 };
 const ORDEM: Record<SituacaoMerenda, number> = { falta: 0, critico: 1, atencao: 2, sem_consumo: 3, ok: 4 };
@@ -130,7 +130,7 @@ export default function EstoqueMerenda({ escolaId, linhas, fuso }: { escolaId: s
         </form>
       )}
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

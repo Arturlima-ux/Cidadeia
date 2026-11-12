@@ -21,7 +21,7 @@ import {
 type Caso = CasoBuscaAtiva & { id: string; escolaId: string; observacao: string | null };
 
 const COR_FREQ = {
-  ok: "var(--accent)",
+  ok: "var(--info)",
   atencao: "var(--medio)",
   reprovacao: "var(--urgente)",
   sem_dado: "var(--muted)",
@@ -137,7 +137,7 @@ export default function BuscaAtivaEscola({ escolaId, casos }: { escolaId: string
         </form>
       )}
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}
@@ -195,7 +195,7 @@ export default function BuscaAtivaEscola({ escolaId, casos }: { escolaId: string
                   </p>
                 </div>
                 {et.feitaEm ? (
-                  <span className="text-xs font-bold shrink-0" style={{ color: "var(--accent)" }} aria-label="feito">
+                  <span className="text-xs font-bold shrink-0" style={{ color: "var(--info)" }} aria-label="feito">
                     ✓
                   </span>
                 ) : (

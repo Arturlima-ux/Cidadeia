@@ -31,12 +31,12 @@ import { podeVerEscola, ehGestor } from "@/lib/sessao";
 export const dynamic = "force-dynamic";
 
 const COR_SITUACAO = {
-  normal: { cor: "var(--accent)", fundo: "var(--accent-tint)", rotulo: "Sem pendência" },
+  normal: { cor: "var(--info)", fundo: "var(--info-tint)", rotulo: "Sem pendência" },
   atencao: { cor: "var(--medio)", fundo: "var(--medio-tint)", rotulo: "Atenção" },
   urgente: { cor: "var(--urgente)", fundo: "var(--urgente-tint)", rotulo: "Urgente" },
 } as const;
 
-const COR_CALENDARIO = { normal: "var(--accent)", atencao: "var(--medio)", estourado: "var(--urgente)" } as const;
+const COR_CALENDARIO = { normal: "var(--info)", atencao: "var(--medio)", estourado: "var(--urgente)" } as const;
 
 export default async function FichaEscolaPage({ params }: { params: Promise<{ id: string }> }) {
   const ctx = await contextoDashboard();

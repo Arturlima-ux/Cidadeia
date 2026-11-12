@@ -59,7 +59,7 @@ export function FormularioValorAluno({ ano, valorAtual }: { ano: number; valorAt
         que transforma a diferença entre a matrícula declarada e a real em reais.
       </p>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-3" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-3" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}
@@ -183,7 +183,7 @@ export function FormularioResultado({
         </p>
       </div>
       {msg && (
-        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--accent)" }}>
+        <p role={msg.tipo === "erro" ? "alert" : "status"} className="text-sm sm:col-span-2" style={{ color: msg.tipo === "erro" ? "var(--urgente)" : "var(--info)" }}>
           {msg.texto}
         </p>
       )}

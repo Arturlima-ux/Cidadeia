@@ -13,7 +13,7 @@ import { montarPedidoReposicao, NOME_CATEGORIA, ROTULO_SITUACAO, DIAS_DE_REPOSIC
 export const metadata = { title: "Pedido de reposição" };
 export const dynamic = "force-dynamic";
 
-const COR = { falta: "var(--urgente)", critico: "var(--urgente)", atencao: "var(--medio)", ok: "var(--accent)", sem_consumo: "var(--muted)" } as const;
+const COR = { falta: "var(--urgente)", critico: "var(--urgente)", atencao: "var(--medio)", ok: "var(--info)", sem_consumo: "var(--muted)" } as const;
 
 export default async function ReposicaoPage() {
   const ctx = await contextoDashboard();

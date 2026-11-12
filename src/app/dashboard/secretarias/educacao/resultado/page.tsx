@@ -32,7 +32,7 @@ export const metadata = { title: "Dinheiro e resultado" };
 export const dynamic = "force-dynamic";
 
 const COR = {
-  atingido: "var(--accent)",
+  atingido: "var(--info)",
   perto: "var(--medio)",
   abaixo: "var(--urgente)",
   sem_meta: "var(--muted)",
@@ -250,7 +250,7 @@ export default async function ResultadoPage({ searchParams }: { searchParams: Pr
                                   ? "var(--urgente)"
                                   : l.tendencia === "estavel"
                                     ? "var(--muted)"
-                                    : "var(--accent)",
+                                    : "var(--info)",
                             }}
                           >
                             {setaDaDirecao(l.valor, l.anterior)} {l.anterior !== null ? l.anterior.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : ""}

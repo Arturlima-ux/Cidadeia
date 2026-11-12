@@ -45,7 +45,7 @@ export type SituacaoMarcador = "urgente" | "atencao" | "normal";
 const COR: Record<SituacaoMarcador, string> = {
   urgente: "var(--urgente)",
   atencao: "var(--medio)",
-  normal: "var(--accent)",
+  normal: "var(--info)",
 };
 
 const ROTULO: Record<SituacaoMarcador, string> = {

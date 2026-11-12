@@ -29,14 +29,14 @@ export const metadata = { title: "Merenda e os 30% da agricultura familiar" };
 export const dynamic = "force-dynamic";
 
 const COR = {
-  cumprido: "var(--accent)",
+  cumprido: "var(--info)",
   perto: "var(--medio)",
   abaixo: "var(--urgente)",
   sem_base: "var(--muted)",
 } as const;
 
 const FUNDO = {
-  cumprido: "var(--accent-tint)",
+  cumprido: "var(--info-tint)",
   perto: "var(--medio-tint)",
   abaixo: "var(--urgente-tint)",
   sem_base: "var(--card)",
