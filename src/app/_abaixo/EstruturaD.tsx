@@ -19,7 +19,7 @@ const ESTILO = `
 .car-cab { max-width: 1200px; margin-inline: auto; padding-inline: 16px; margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 @media (min-width: 640px) { .car-cab { padding-inline: 32px; } }
 .car-cab h2 { font-family: var(--font-titulo); font-size: clamp(28px, 3.2vw, 44px); line-height: 1.08; letter-spacing: -.035em; font-weight: 600; margin: 0; text-wrap: balance; }
-.car-cab h2 span { color: var(--muted); }
+.car-cab h2 span { color: var(--muted); font-weight: 250; letter-spacing: -.045em; }
 .car-trilho { --entrada: max(16px, calc((100vw - 1200px) / 2 + 32px)); display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--entrada); padding: 8px var(--entrada) 28px; scrollbar-width: none; overscroll-behavior-x: contain; }
 .car-trilho::-webkit-scrollbar { display: none; }
 .car-trilho:focus-visible { outline: 2px solid var(--brand-claro); outline-offset: -2px; }
@@ -150,7 +150,7 @@ export default function EstruturaD({ cidade, chave }: { cidade: CidadeDoMontador
       <section className="ed-passos" aria-label="Como funciona">
         <article className="ec-quadro so-texto">
           <span className="ec-rot">Como funciona</span>
-          <p className="ec-frase" style={{ fontSize: "clamp(28px, 3vw, 44px)" }}>Do dado público ao trabalho feito.</p>
+          <p className="ec-frase" style={{ fontSize: "clamp(28px, 3vw, 44px)" }}><span className="fino">Do dado público</span> ao trabalho feito.</p>
         </article>
         <article className="ec-quadro so-texto">
           <ol className="ec-lista-passos">

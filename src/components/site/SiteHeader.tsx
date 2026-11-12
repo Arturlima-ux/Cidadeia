@@ -87,7 +87,7 @@ export default function SiteHeader({
               1366px com zoom de 125% cai aqui) o menu aperta: espaço menor,
               letra de 13px e rótulo curto. Só com 1280px ou mais ele aparecia,
               e no notebook com zoom a barra ficava vazia, só com o logo. */}
-          <nav aria-label="Principal no computador" className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 xl:gap-1.5 text-[13px] font-medium" style={{ color: "color-mix(in oklab, var(--foreground) 72%, transparent)" }}>
+          <nav aria-label="Principal no computador" className="menu-pilula hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-0.5 xl:gap-1 px-1.5 text-[13px] font-medium" style={{ color: "color-mix(in oklab, var(--foreground) 72%, transparent)" }}>
             {LINKS.map((l) =>
               l.filhos ? (
                 // Submenu sem JavaScript: abre ao passar o mouse e ao chegar

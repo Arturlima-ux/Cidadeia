@@ -18,6 +18,9 @@ const ESTILO = `
 .ec-quadro::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, color-mix(in oklab, var(--background) 10%, transparent) 30%, color-mix(in oklab, var(--background) 88%, transparent) 100%); }
 .ec-quadro.so-texto::after { display: none; }
 .ec-frase { font-family: var(--font-titulo); font-size: clamp(20px, 2vw, 28px); line-height: 1.15; letter-spacing: -.03em; font-weight: 500; margin: 0; max-width: 22ch; text-wrap: balance; }
+/* O traço fino das referências (nov/2026): a primeira metade leve, a segunda cheia. */
+.ec-frase .fino, .ec-video-cab h2 .fino { font-weight: 250; letter-spacing: -.055em; }
+.ec-frase .fino { display: block; }
 .ec-mosaico { padding-top: clamp(96px, 12vw, 160px); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr); grid-template-rows: minmax(300px, auto) minmax(300px, auto); gap: 12px; }
 .ec-m1 { grid-row: 1 / 3; min-height: 620px; }
 .ec-m1 > img { object-position: 60% 50%; }
@@ -158,7 +161,7 @@ export default function EstruturaC({ cidade, chave, partes }: { cidade: CidadeDo
         <div className="ec-video-cab">
           <div>
             <span className="ec-rot">Em vídeo</span>
-            <h2 id="ec-titulo-video">O CidadeIA em 30 segundos.</h2>
+            <h2 id="ec-titulo-video"><span className="fino">O CidadeIA</span> em 30 segundos.</h2>
           </div>
           <p>Do atendimento ao gabinete, do celular do morador às bases oficiais. Para assistir agora ou mandar para quem decide.</p>
         </div>

@@ -64,8 +64,9 @@ const ESTILO = `
 
 .eb-fecho { padding-block: clamp(112px, 14vw, 200px) 96px; }
 .eb-fecho-cab { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 48px; align-items: end; margin-bottom: 48px; }
-.eb-fecho-cab h2 { font-family: var(--font-titulo); font-weight: 600; text-transform: uppercase; font-size: clamp(40px, 6.4vw, 100px); line-height: .9; letter-spacing: -.05em; margin: 12px 0 0; }
-.eb-fecho-cab h2 span { color: var(--brand); display: block; padding-left: 1.2em; }
+/* Sem caixa-alta (nov/2026): o fino e o cheio dão o peso que as maiúsculas davam. */
+.eb-fecho-cab h2 { font-family: var(--font-titulo); font-weight: 250; font-size: clamp(44px, 6.8vw, 108px); line-height: .9; letter-spacing: -.06em; margin: 12px 0 0; }
+.eb-fecho-cab h2 span { color: var(--brand-claro); font-weight: 600; letter-spacing: -.055em; display: block; padding-left: 1.2em; }
 .eb-fecho-cab p { color: var(--muted); line-height: 1.6; }
 .eb-fecho-cab p + p { margin-top: 12px; font-size: 14px; }
 .eb-confianca { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; margin: 64px 0 0; }

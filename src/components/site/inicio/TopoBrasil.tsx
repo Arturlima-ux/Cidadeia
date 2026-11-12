@@ -41,11 +41,13 @@ const ESTILO = `
 .topo3d-palco[data-gira] .topo3d-tela:active { cursor: grabbing; }
 .topo3d-dentro { position: relative; z-index: 4; height: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 16px; pointer-events: none; }
 .topo3d-dentro a { pointer-events: auto; }
-.topo3d-tese { position: absolute; top: clamp(36px, 6vh, 64px); max-width: 36rem; }
-.topo3d-sobre { display: flex; align-items: center; gap: 10px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.topo3d-sobre i { width: 6px; height: 6px; border-radius: 9px; background: var(--brand-claro); box-shadow: 0 0 12px var(--brand); }
-.topo3d-titulo { margin: 18px 0 0; font-family: var(--font-titulo); font-weight: 600; font-size: clamp(2.4rem, 4.2vw, 4.1rem); line-height: 0.96; letter-spacing: -0.05em; }
-.topo3d-titulo .perguntas-b { text-align: left; color: var(--brand-claro); }
+.topo3d-tese { position: absolute; top: clamp(36px, 6vh, 64px); max-width: 46rem; }
+/* Contraste de peso (nov/2026, referências de landing pedidas pelo fundador):
+   a pergunta em traço fino, a resposta em traço cheio. Mesma família, dois
+   pesos extremos: é o contraste que dá a cara editorial, sem enfeite. */
+.topo3d-titulo { margin: 0; font-family: var(--font-titulo); font-weight: 600; font-size: clamp(2.7rem, 5.4vw, 5.2rem); line-height: 0.93; letter-spacing: -0.055em; }
+.topo3d-titulo .perguntas-a { font-weight: 250; letter-spacing: -0.06em; }
+.topo3d-titulo .perguntas-b { text-align: left; color: var(--brand-claro); font-weight: 600; }
 /* A resposta às perguntas: o posicionamento, visível (o h1 já o lê). */
 .topo3d-resposta { margin: 14px 0 0; font-family: var(--font-titulo); font-weight: 500; font-size: clamp(1.15rem, 1.7vw, 1.55rem); line-height: 1.2; letter-spacing: -0.02em; color: var(--foreground); }
 /* Acima da pílula (z 3): a lista de sugestões abre por cima do mapa. */
@@ -108,7 +110,7 @@ const ESTILO = `
   .topo3d::after { display: none; }
   .topo3d-dentro { display: contents; }
   .topo3d-tese { order: 1; position: relative; top: 0; z-index: 4; padding: 28px 16px 0; }
-  .topo3d-titulo { min-height: calc(3 * 0.96em); }
+  .topo3d-titulo { min-height: calc(3 * 0.93em); }
   .topo3d-busca { margin-top: 22px; max-width: none; }
   .topo3d-palco { order: 2; position: relative; height: 420px; margin-top: -64px; }
   .topo3d-cartaz img, .topo3d-cartaz video { width: 100cqw; -webkit-mask-image: radial-gradient(ellipse 54% 38% at 47.5% 52%, black 80%, transparent 100%); mask-image: radial-gradient(ellipse 54% 38% at 47.5% 52%, black 80%, transparent 100%); }
@@ -141,7 +143,6 @@ export default function TopoBrasil({ busca, cidade = null }: { busca?: ReactNode
       <BrasilRelevo cidade={cidade} />
       <div className="topo3d-dentro">
         <div className="topo3d-tese">
-          <p className="topo3d-sobre"><i aria-hidden />Lê · Confere · Resolve</p>
           {/* O h1 tem o texto de sempre para o leitor de tela e o buscador;
               as perguntas que trocam são o desenho (aria-hidden). */}
           <h1 id="topo3d-titulo" className="topo3d-titulo">
@@ -153,7 +154,7 @@ export default function TopoBrasil({ busca, cidade = null }: { busca?: ReactNode
         </div>
         <div className="topo3d-lados">
           <p className="topo3d-lado">
-            <small>O que a IA faz</small>
+            <small>O que faz</small>
             Lê o que é público e confere com a lei. Não lança nem altera nada na contabilidade da prefeitura.
           </p>
           <p className="topo3d-lado">

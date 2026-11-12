@@ -1476,6 +1476,11 @@ select option {
    botões que já ficam sobre fundo liso o vidro é só luz e preenchimento,
    sem filtro, para não pesar na rolagem. */
 :root { --vidro-brilho: #ffffff; --vidro-sombra: #000000; }
+/* O menu do computador num trilho de linha fina (nov/2026, referências de
+   landing pedidas pelo fundador). O trilho é um ::before de 38px: os itens
+   seguem altos (py-5) para o submenu abrir sem buraco entre eles. */
+.menu-pilula { isolation: isolate; }
+.menu-pilula::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 50%; height: 38px; transform: translateY(-50%); border-radius: 999px; pointer-events: none; background: color-mix(in oklab, var(--foreground) 3%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 12%, transparent); }
 .liquido, .liquido-marca { position: relative; isolation: isolate; overflow: hidden; }
 .liquido {
   background: linear-gradient(180deg, color-mix(in oklab, var(--vidro-brilho) 16%, transparent), color-mix(in oklab, var(--vidro-brilho) 5%, transparent));
@@ -1491,7 +1496,7 @@ select option {
     inset 0 1px 0 color-mix(in oklab, var(--vidro-brilho) 60%, transparent),
     inset 0 0 0 1px color-mix(in oklab, var(--vidro-brilho) 22%, transparent),
     inset 0 -6px 14px -8px color-mix(in oklab, var(--brand-dark) 90%, transparent),
-    0 10px 30px -10px color-mix(in oklab, var(--brand) 70%, transparent);
+    0 8px 22px -14px color-mix(in oklab, var(--brand) 55%, transparent);
 }
 .liquido::before, .liquido-marca::before {
   content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
