@@ -237,7 +237,16 @@ html.tema-champanhe .tema-noite {
   --gradient-hero: linear-gradient(140deg, #0e0d0b 0%, #171512 55%, #211e19 100%);
   --sobre-forte: #12100c;
   --vidro-brilho: #fff8ea;
+  /* O Brasil em champanhe (pedido do fundador, 12/11): o relevo continua o
+     mesmo, só a luz troca a brasa por um dourado claro. */
+  --grafite-parede: #17140f; --grafite-chao: #0c0a08;
+  --luz-chave: #f8ecd6; --luz-ceu: #5a5040; --luz-recorte: #e6cb98;
+  --relevo-tinta: #75684f; --relevo-brilho: #f0d9aa; --relevo-borda: #f3e2bd; --relevo-contra: #d6b886;
+  --relevo-luz: #ead6ae; --relevo-luz-clara: #fff4dc;
 }
+/* O cartaz do topo (imagem e vídeo) foi gravado em brasa: o filtro o leva
+   para o champanhe do 3D, que assume em seguida. */
+html.tema-champanhe .topo3d-cartaz { filter: grayscale(1) sepia(0.6) saturate(1.1) contrast(1.05) brightness(1.25); }
 /* Botão cheio: claro, com texto escuro (branco sobre prata não se lê). */
 html:is(.tema-prata, .tema-champanhe) .tema-noite .bg-brand { background-color: var(--brand); color: var(--sobre-forte); }
 html:is(.tema-prata, .tema-champanhe) .tema-noite .hover\:bg-brand-dark:hover { background-color: var(--brand-dark); }
