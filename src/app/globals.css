@@ -212,7 +212,8 @@
    quase monocromática. Duas versões para escolher, ligadas por ?tema= no
    endereço (layout.tsx, SCRIPT_INICIAL): "prata", fria, cromo puro; e
    "champanhe", prata com um dourado claro de acento. A escolhida vira o
-   .tema-noite; a outra sai. O 3D do topo lê os --relevo-* e acompanha. */
+   .tema-noite; a outra sai. O mapa do Brasil fica como está, em brasa, a
+   pedido do fundador: os --relevo-*, --luz-* e --grafite-* não mudam aqui. */
 html.tema-prata .tema-noite {
   --background: #060606; --superficie: #0b0b0c; --card: #121214;
   --foreground: #f2f2f0; --muted: #8e8e93;
@@ -222,11 +223,7 @@ html.tema-prata .tema-noite {
   --brand-claro: #dcdce1; --brand-legivel: #dcdce1;
   --accent: #c8c8ce; --accent-tint: rgba(200, 200, 206, 0.12); --accent-claro: #ededf1;
   --gradient-hero: linear-gradient(140deg, #0c0c0d 0%, #141416 55%, #1d1d20 100%);
-  --sobre-forte: #0a0a0b; --localizacao: #ffffff;
-  --grafite-parede: #141416; --grafite-chao: #0a0a0b;
-  --luz-chave: #f4f4f6; --luz-ceu: #4a4a50; --luz-recorte: #d8d8de;
-  --relevo-tinta: #3a3a3e; --relevo-brilho: #e9e9ee; --relevo-borda: #ffffff; --relevo-contra: #cfd2d8;
-  --relevo-luz: #e6e6ea; --relevo-luz-clara: #ffffff;
+  --sobre-forte: #0a0a0b;
   --vidro-brilho: #ffffff;
 }
 html.tema-champanhe .tema-noite {
@@ -238,19 +235,12 @@ html.tema-champanhe .tema-noite {
   --brand-claro: #e8d8b8; --brand-legivel: #e8d8b8;
   --accent: #cdb892; --accent-tint: rgba(205, 184, 146, 0.13); --accent-claro: #f0e5cd;
   --gradient-hero: linear-gradient(140deg, #0e0d0b 0%, #171512 55%, #211e19 100%);
-  --sobre-forte: #12100c; --localizacao: #fbf6ea;
-  --grafite-parede: #161513; --grafite-chao: #0b0a09;
-  --luz-chave: #f6efe2; --luz-ceu: #4d4840; --luz-recorte: #e2cfa8;
-  --relevo-tinta: #3b3a37; --relevo-brilho: #e4d2ad; --relevo-borda: #f3e7cc; --relevo-contra: #cbb68e;
-  --relevo-luz: #e8d6b4; --relevo-luz-clara: #fff7e6;
+  --sobre-forte: #12100c;
   --vidro-brilho: #fff8ea;
 }
 /* Botão cheio: claro, com texto escuro (branco sobre prata não se lê). */
 html:is(.tema-prata, .tema-champanhe) .tema-noite .bg-brand { background-color: var(--brand); color: var(--sobre-forte); }
 html:is(.tema-prata, .tema-champanhe) .tema-noite .hover\:bg-brand-dark:hover { background-color: var(--brand-dark); }
-/* O cartaz do topo (imagem e vídeo) foi gravado em brasa: o filtro tira a cor. */
-html.tema-prata .topo3d-cartaz { filter: grayscale(1) contrast(1.15) brightness(1.12); }
-html.tema-champanhe .topo3d-cartaz { filter: grayscale(1) sepia(0.32) saturate(0.85) contrast(1.12) brightness(1.08); }
 /* A resposta do título em cromo (prata) e em ouro velho (champanhe). */
 html.tema-prata .perguntas-b, html.tema-champanhe .perguntas-b {
   -webkit-background-clip: text; background-clip: text; color: transparent;
