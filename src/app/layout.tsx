@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     : {}),
 };
 
-const SCRIPT_INICIAL = `(function(){var d=document.documentElement;d.classList.add("com-js");try{var q=/[?&]leve=([01])/.exec(location.search);if(q)localStorage.setItem("cidadeia-leve-3",q[1]);var g=localStorage.getItem("cidadeia-leve-3");var n=navigator;if(g==="1"||(g!=="0"&&((n.hardwareConcurrency&&n.hardwareConcurrency<=2)||(n.deviceMemory&&n.deviceMemory<=2))))d.setAttribute("data-leve","")}catch(e){}})()`;
+const SCRIPT_INICIAL = `(function(){var d=document.documentElement;d.classList.add("com-js");try{var t=/[?&]tema=(prata|champanhe)/.exec(location.search);if(t)d.classList.add("tema-"+t[1]);var q=/[?&]leve=([01])/.exec(location.search);if(q)localStorage.setItem("cidadeia-leve-3",q[1]);var g=localStorage.getItem("cidadeia-leve-3");var n=navigator;if(g==="1"||(g!=="0"&&((n.hardwareConcurrency&&n.hardwareConcurrency<=2)||(n.deviceMemory&&n.deviceMemory<=2))))d.setAttribute("data-leve","")}catch(e){}})()`;
 
 export default function RootLayout({
   children,

@@ -207,6 +207,57 @@
   color: var(--foreground);
 }
 
+/* ── PRETO E PRATA: DUAS VERSÕES EM PROVA (nov/2026) ──
+   O fundador pediu a paleta das referências (Lavri): preto e prata, a marca
+   quase monocromática. Duas versões para escolher, ligadas por ?tema= no
+   endereço (layout.tsx, SCRIPT_INICIAL): "prata", fria, cromo puro; e
+   "champanhe", prata com um dourado claro de acento. A escolhida vira o
+   .tema-noite; a outra sai. O 3D do topo lê os --relevo-* e acompanha. */
+html.tema-prata .tema-noite {
+  --background: #060606; --superficie: #0b0b0c; --card: #121214;
+  --foreground: #f2f2f0; --muted: #8e8e93;
+  --border: rgba(255, 255, 255, 0.1); --sutil: rgba(255, 255, 255, 0.05);
+  --brand: #e6e6e9; --brand-dark: #c4c4c9; --brand-tint: rgba(230, 230, 233, 0.12);
+  --brand-profundo: #0c0c0d; --violeta-profundo: #18181a;
+  --brand-claro: #dcdce1; --brand-legivel: #dcdce1;
+  --accent: #c8c8ce; --accent-tint: rgba(200, 200, 206, 0.12); --accent-claro: #ededf1;
+  --gradient-hero: linear-gradient(140deg, #0c0c0d 0%, #141416 55%, #1d1d20 100%);
+  --sobre-forte: #0a0a0b; --localizacao: #ffffff;
+  --grafite-parede: #141416; --grafite-chao: #0a0a0b;
+  --luz-chave: #f4f4f6; --luz-ceu: #4a4a50; --luz-recorte: #d8d8de;
+  --relevo-tinta: #3a3a3e; --relevo-brilho: #e9e9ee; --relevo-borda: #ffffff; --relevo-contra: #cfd2d8;
+  --relevo-luz: #e6e6ea; --relevo-luz-clara: #ffffff;
+  --vidro-brilho: #ffffff;
+}
+html.tema-champanhe .tema-noite {
+  --background: #070707; --superficie: #0c0c0b; --card: #131312;
+  --foreground: #f3f1ec; --muted: #8f8b84;
+  --border: rgba(255, 248, 232, 0.1); --sutil: rgba(255, 248, 232, 0.05);
+  --brand: #dcc7a1; --brand-dark: #bba57d; --brand-tint: rgba(220, 199, 161, 0.13);
+  --brand-profundo: #0e0d0b; --violeta-profundo: #1a1814;
+  --brand-claro: #e8d8b8; --brand-legivel: #e8d8b8;
+  --accent: #cdb892; --accent-tint: rgba(205, 184, 146, 0.13); --accent-claro: #f0e5cd;
+  --gradient-hero: linear-gradient(140deg, #0e0d0b 0%, #171512 55%, #211e19 100%);
+  --sobre-forte: #12100c; --localizacao: #fbf6ea;
+  --grafite-parede: #161513; --grafite-chao: #0b0a09;
+  --luz-chave: #f6efe2; --luz-ceu: #4d4840; --luz-recorte: #e2cfa8;
+  --relevo-tinta: #3b3a37; --relevo-brilho: #e4d2ad; --relevo-borda: #f3e7cc; --relevo-contra: #cbb68e;
+  --relevo-luz: #e8d6b4; --relevo-luz-clara: #fff7e6;
+  --vidro-brilho: #fff8ea;
+}
+/* Botão cheio: claro, com texto escuro (branco sobre prata não se lê). */
+html:is(.tema-prata, .tema-champanhe) .tema-noite .bg-brand { background-color: var(--brand); color: var(--sobre-forte); }
+html:is(.tema-prata, .tema-champanhe) .tema-noite .hover\:bg-brand-dark:hover { background-color: var(--brand-dark); }
+/* O cartaz do topo (imagem e vídeo) foi gravado em brasa: o filtro tira a cor. */
+html.tema-prata .topo3d-cartaz { filter: grayscale(1) contrast(1.15) brightness(1.12); }
+html.tema-champanhe .topo3d-cartaz { filter: grayscale(1) sepia(0.32) saturate(0.85) contrast(1.12) brightness(1.08); }
+/* A resposta do título em cromo (prata) e em ouro velho (champanhe). */
+html.tema-prata .perguntas-b, html.tema-champanhe .perguntas-b {
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+html.tema-prata .perguntas-b { background-image: linear-gradient(180deg, #ffffff 0%, #c9c9cf 52%, #f1f1f4 100%); }
+html.tema-champanhe .perguntas-b { background-image: linear-gradient(180deg, #fbf3e2 0%, #cdb48a 55%, #f1e3c4 100%); }
+
 /* ── TEMA DO MORADOR ──
    "Sou morador" troca o site inteiro, não só o campo de busca: quem mora na
    cidade não é cliente, é dono do dinheiro. O roxo da venda vira um verde de
@@ -1476,6 +1527,11 @@ select option {
    botões que já ficam sobre fundo liso o vidro é só luz e preenchimento,
    sem filtro, para não pesar na rolagem. */
 :root { --vidro-brilho: #ffffff; --vidro-sombra: #000000; }
+/* O menu do computador num trilho de linha fina (nov/2026, referências de
+   landing pedidas pelo fundador). O trilho é um ::before de 38px: os itens
+   seguem altos (py-5) para o submenu abrir sem buraco entre eles. */
+.menu-pilula { isolation: isolate; }
+.menu-pilula::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 50%; height: 38px; transform: translateY(-50%); border-radius: 999px; pointer-events: none; background: color-mix(in oklab, var(--foreground) 3%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 12%, transparent); }
 .liquido, .liquido-marca { position: relative; isolation: isolate; overflow: hidden; }
 .liquido {
   background: linear-gradient(180deg, color-mix(in oklab, var(--vidro-brilho) 16%, transparent), color-mix(in oklab, var(--vidro-brilho) 5%, transparent));
@@ -1491,7 +1547,7 @@ select option {
     inset 0 1px 0 color-mix(in oklab, var(--vidro-brilho) 60%, transparent),
     inset 0 0 0 1px color-mix(in oklab, var(--vidro-brilho) 22%, transparent),
     inset 0 -6px 14px -8px color-mix(in oklab, var(--brand-dark) 90%, transparent),
-    0 10px 30px -10px color-mix(in oklab, var(--brand) 70%, transparent);
+    0 8px 22px -14px color-mix(in oklab, var(--brand) 55%, transparent);
 }
 .liquido::before, .liquido-marca::before {
   content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
