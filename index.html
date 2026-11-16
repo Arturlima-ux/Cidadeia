@@ -148,6 +148,10 @@ body.aberto .topo .ir:active{transform:translateY(9px);transition-duration:.18s;
 .onde-l span{font-style:italic;color:var(--tinta);border-bottom:1px dotted currentColor;margin-left:8px;padding-bottom:1px}
 body.pula #abertura *,body.pula #abertura *::before{animation-duration:.01s!important;animation-delay:0s!important}
 body.pula .heroi img{animation-duration:.01s!important;animation-delay:0s!important}
+/* A abertura nasce do escuro: nenhum fundo antigo por baixo enquanto a foto acende */
+html[data-sis="foto"] body[data-cena="abertura"]::before{content:"";position:fixed;inset:0;background:#0E0303}html[data-sis="foto"] body[data-cena="abertura"] .luz{visibility:hidden}
+/* Ao sair (fechar o navegador, trocar de app), a página volta ao escuro: a imagem que o celular guarda é a do começo da animação, não a página pronta */
+html:has(body.saindo){background:#0E0303}body.saindo>*{opacity:0!important;transition:none!important}
 
 /* II · A visita numa frase */
 .frase{font-family:var(--serif);font-weight:300;font-size:clamp(35px,9.8vw,46px);line-height:1.2;letter-spacing:-.012em;margin:4vh 0 0}
@@ -472,9 +476,10 @@ html[data-sis="foto"] .lk.men{font-family:var(--serif);font-style:italic;font-si
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
 <div class="heroi" id="heroi" aria-hidden="true"></div>
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n={almoco:"salmao",tarde:"gin",jantar:"mignon"}[d.dataset.tema],h=document.getElementById("heroi");
-document.body.dataset.cena="abertura";h.style.transition="none";h.dataset.n=n;
+document.body.dataset.cena="abertura";h.dataset.n=n;
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
-setTimeout(function(){h.style.transition=""},50);})();</script>
+var B=document.body,sai=function(){B.classList.add("saindo")},vem=function(){B.classList.remove("saindo")};
+addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEventListener("visibilitychange",function(){document.hidden?sai():vem()});})();</script>
 <div class="vela"></div><canvas id="po" aria-hidden="true"></canvas><div class="grao"></div>
 
 <header class="topo"><button class="logo" data-ir="abertura" aria-label="Pitanga, voltar ao início">Pitanga</button><button class="ir" id="ir"></button></header>
