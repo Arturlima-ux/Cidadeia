@@ -246,7 +246,7 @@ function nomeHTML(n) {
 const linha = i => `<li${FOTO.item[i.id] && SIS === "foto" ? ` class="cf"><figure><img ${foto(FOTO.item[i.id])} alt="${esc(i.nome)}" loading="lazy"></figure` : ""}><div class="l"><h4>${nomeHTML(i.nome)}</h4>${i.preco != null ? `<span class="pc">${preco(i.preco)}</span>` : ""}</div>${i.desc ? `<p>${esc(i.desc)}</p>` : ""}</li>`;
 const secao = (x, n) => {
   const curta = x.sub && x.sub.length < 24, so = x.itens.every(i => !i.desc);
-  return `<section class="sec${so ? " so" : ""}" id="s-${n}" data-n="${n}"><header><span class="sc">${String(n + 1).padStart(2, "0")}${curta ? " · " + esc(x.sub) : ""}</span><h3>${esc(x.nome)}</h3>${x.sub && !curta ? `<p>${esc(x.sub)}</p>` : ""}</header><ul>${x.itens.map(linha).join("")}</ul></section>`;
+  return `<section class="sec${so ? " so" : ""}" id="s-${n}" data-n="${n}"><header><i class="orn-s" aria-hidden="true"></i><h3>${esc(x.nome)}</h3><span class="sc">${curta ? esc(x.sub) : x.itens.length + (x.itens.length === 1 ? " item" : " itens")}</span>${x.sub && !curta ? `<p>${esc(x.sub)}</p>` : ""}</header><ul>${x.itens.map(linha).join("")}</ul></section>`;
 };
 // Rodapé de livro: um fio com um traço por capítulo (o atual aceso) e o sumário completo a um toque.
 let capAt = 0;
@@ -259,13 +259,13 @@ function marca(n, ja) {
   const m = MODS.find(x => x.id === mod); if (!m || !m.secs[n] || (n === capAt && !ja)) return;
   capAt = n;
   document.querySelectorAll("#caps .fio-c button").forEach((b, k) => { b.className = k < n ? "f" : k === n ? "a" : ""; });
-  $("#caps .rm").textContent = ROM[n];
+  
   const b = $("#caps .rod b"); b.textContent = m.secs[n].nome; b.classList.remove("troca"); void b.offsetWidth; b.classList.add("troca");
 }
 const vaiCap = n => document.getElementById("s-" + n)?.scrollIntoView({ behavior: calmo ? "auto" : "smooth", block: "start" });
 function indice(on) {
   const m = MODS.find(x => x.id === mod);
-  if (on && m) { $("#ind-t").textContent = m.nome; $("#ind-l").innerHTML = m.secs.map((x, n) => `<li style="animation-delay:${(.12 + .06 * n).toFixed(2)}s"><button data-cap="${n}" aria-current="${n === capAt}"><span>${ROM[n]}</span><b>${esc(x.nome)}</b><u></u><i>${x.itens.length}</i></button></li>`).join(""); }
+  if (on && m) { $("#ind-t").textContent = m.nome; $("#ind-l").innerHTML = m.secs.map((x, n) => `<li style="animation-delay:${(.12 + .06 * n).toFixed(2)}s"><button data-cap="${n}" aria-current="${n === capAt}"><span></span><b>${esc(x.nome)}</b><u></u><i>${x.itens.length}</i></button></li>`).join(""); }
   document.body.classList.toggle("com-indice", !!on);
 }
 function livro() {

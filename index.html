@@ -227,9 +227,18 @@ body.no-livro #livro{-webkit-mask-image:linear-gradient(transparent calc(44px + 
 .vol.vaz::after{display:none}
 .est-leg{margin:34px 0 26px;text-align:center;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--suave)}
 /* A carta: nome e preço na mesma linha de base, descrição sempre à vista */
-.sec{padding-top:54px;scroll-margin-top:66px;opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.sec{padding-top:78px;scroll-margin-top:30px;opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
 .sec.v{opacity:1;transform:none}
-.sec header{padding-bottom:18px;border-bottom:1px solid var(--borda)}
+.sec header{display:flex;flex-direction:column;align-items:center;text-align:center;padding-bottom:26px}
+.sec header .sc{margin-top:14px;letter-spacing:.3em}
+.sec header p{margin-left:auto;margin-right:auto}
+/* Abertura de seção: um fio que se desenha e um losango que acende; a pausa mostra onde começa a parte nova */
+.orn-s{position:relative;align-self:stretch;height:11px;margin-bottom:26px}
+.orn-s::before{content:"";position:absolute;left:0;right:0;top:5px;height:1px;background:linear-gradient(90deg,transparent,var(--borda) 14%,var(--borda) 43%,transparent 43.5%,transparent 56.5%,var(--borda) 57%,var(--borda) 86%,transparent);transform:scaleX(.15);opacity:0;transition:transform 1.6s var(--ease) .1s,opacity 1.2s var(--ease) .1s}
+.orn-s::after{content:"";position:absolute;left:50%;top:1px;width:8px;height:8px;margin-left:-4px;background:var(--acento);transform:rotate(45deg) scale(0);transition:transform .9s var(--ease) .75s}
+.sec.v .orn-s::before{transform:none;opacity:1}
+.sec.v .orn-s::after{transform:rotate(45deg) scale(1)}
+.sec h3{transition:letter-spacing 1.6s var(--ease)}
 .sec h3{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.04;letter-spacing:-.012em;margin:10px 0 0}
 .sec header p{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.4;color:var(--suave);margin:10px 0 0;max-width:40ch}
 .sec ul{list-style:none;margin:0;padding:0}
@@ -252,7 +261,7 @@ body.no-livro .caps{opacity:1;transform:none;pointer-events:auto}
 .fio-c .f i{background:color-mix(in srgb,var(--acento) 55%,transparent)}
 .fio-c .a i{background:var(--acento);transform:scaleY(3);box-shadow:0 0 10px color-mix(in srgb,var(--acento) 60%,transparent)}
 .rod{display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;column-gap:12px;width:100%;text-align:left;padding:0 0 4px}
-.rod .rm{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--acento);min-width:1.5em}
+.rod .rm{width:7px;height:7px;background:var(--acento);transform:rotate(45deg);align-self:center;margin:0 6px 0 5px}
 .rod b{font-family:var(--serif);font-weight:400;font-size:21px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rod b.troca{animation:surge .6s var(--ease)}
 .rod .su{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--tinta);padding-bottom:4px;border-bottom:1px solid var(--acento)}
@@ -266,7 +275,8 @@ body.com-indice .sumario{opacity:1;visibility:visible;transition-delay:0s}
 .sumario li{opacity:0}
 body.com-indice .sumario li{animation:surge .7s var(--ease) forwards}
 .sumario li button{display:flex;align-items:baseline;gap:12px;width:100%;padding:12px 0;text-align:left}
-.sumario li span{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--acento);min-width:2em}
+.sumario li span{width:7px;height:7px;box-sizing:border-box;border:1px solid var(--acento);transform:rotate(45deg) scale(.8);align-self:center;margin:0 9px 0 4px;flex:none;transition:background .4s var(--ease),transform .4s var(--ease)}
+.sumario li button[aria-current="true"] span{background:var(--acento);transform:rotate(45deg) scale(1)}
 .sumario li b{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.08}
 .sumario li u{flex:1;min-width:16px;border-bottom:1px dotted var(--borda);transform:translateY(-5px)}
 .sumario li i{font-style:normal;font-size:12px;color:var(--suave);font-variant-numeric:tabular-nums}
@@ -542,6 +552,6 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 </aside>
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
-<script type="module" src="/assets/carta.js?v=7"></script>
+<script type="module" src="/assets/carta.js?v=8"></script>
 </body>
 </html>
