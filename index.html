@@ -147,6 +147,7 @@ body.aberto .topo .ir:active{transform:translateY(9px);transition-duration:.18s;
 .onde-l{margin-top:20px;font-family:var(--serif);font-style:italic;font-size:16.5px;color:var(--suave);padding:4px 2px;opacity:0;animation:surge 1.2s var(--ease) 8s forwards}
 .onde-l span{font-style:italic;color:var(--tinta);border-bottom:1px dotted currentColor;margin-left:8px;padding-bottom:1px}
 body.pula #abertura *,body.pula #abertura *::before{animation-duration:.01s!important;animation-delay:0s!important}
+body.pula .heroi img{animation-duration:.01s!important;animation-delay:0s!important}
 
 /* II · A visita numa frase */
 .frase{font-family:var(--serif);font-weight:300;font-size:clamp(35px,9.8vw,46px);line-height:1.2;letter-spacing:-.012em;margin:4vh 0 0}
@@ -476,6 +477,8 @@ html[data-sis="foto"] .lk.men{font-family:var(--serif);font-style:italic;font-si
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n={almoco:"salmao",tarde:"gin",jantar:"mignon"}[d.dataset.tema],h=document.getElementById("heroi");
 document.body.dataset.cena="abertura";h.style.transition="none";h.dataset.n=n;
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
+var visto=false;try{visto=Date.now()-(+localStorage.getItem("pitanga-entrada")||0)<36e5;localStorage.setItem("pitanga-entrada",Date.now())}catch(e){}
+if(visto){document.body.classList.add("pula");d.classList.remove("cortina");setTimeout(function(){h.style.transition=""},50);return;}
 var d2=document.documentElement,feito=0,abre=function(){if(feito++)return;d2.classList.add("revela");d2.classList.remove("cortina");setTimeout(function(){h.style.transition="";d2.classList.remove("revela")},1000)};
 var im=h.querySelector("img"),f=document.fonts&&document.fonts.ready||Promise.resolve();
 Promise.all([im.decode?im.decode().catch(function(){}):Promise.resolve(),f]).then(abre);setTimeout(abre,2500);})();</script>
