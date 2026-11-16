@@ -477,7 +477,11 @@ html[data-sis="foto"] .lk.men{font-family:var(--serif);font-style:italic;font-si
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n={almoco:"salmao",tarde:"gin",jantar:"mignon"}[d.dataset.tema],h=document.getElementById("heroi");
 document.body.dataset.cena="abertura";h.style.transition="none";h.dataset.n=n;
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
-var visto=false;try{visto=Date.now()-(+localStorage.getItem("pitanga-entrada")||0)<36e5;localStorage.setItem("pitanga-entrada",Date.now())}catch(e){}
+var visto=/(?:^|; )pe=1/.test(document.cookie);
+try{visto=visto||Date.now()-(+localStorage.getItem("pitanga-entrada")||0)<36e5;localStorage.setItem("pitanga-entrada",Date.now())}catch(e){}
+try{visto=visto||!!sessionStorage.getItem("pe");sessionStorage.setItem("pe","1")}catch(e){}
+try{var nv=performance.getEntriesByType("navigation")[0];visto=visto||!!nv&&(nv.type==="reload"||nv.type==="back_forward")}catch(e){}
+document.cookie="pe=1;max-age=3600;path=/;SameSite=Lax";
 if(visto){document.body.classList.add("pula");d.classList.remove("cortina");setTimeout(function(){h.style.transition=""},50);return;}
 var d2=document.documentElement,feito=0,abre=function(){if(feito++)return;d2.classList.add("revela");d2.classList.remove("cortina");setTimeout(function(){h.style.transition="";d2.classList.remove("revela")},1000)};
 var im=h.querySelector("img"),f=document.fonts&&document.fonts.ready||Promise.resolve();
