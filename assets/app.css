@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600&display=swap");
+/* Pitanga · Mesa — um único mundo noturno e quente, de propósito (sem tema claro).
+   Cor: tinta quase preta com viés vermelho, creme, pitanga como acento, folha como segundo acento raro.
+   Tipo: Instrument Serif (voz da casa), Instrument Sans (interface), Yellowtail só no logotipo. */
+:root{
+  color-scheme: dark;
+  --ink:#120B0A; --ink-2:#1A1110; --ink-3:#241816; --ink-4:#2F201D;
+  --line:rgba(244,229,219,.09); --line-2:rgba(244,229,219,.16);
+  --cream:#F4E9DF; --cream-2:#E2D2C6; --mute:#A8928A; --mute-2:#7C6A64;
+  --pitanga:#E8473A; --pitanga-2:#FF6A5A; --pitanga-deep:#A0241F; --leaf:#B5C24F;
+  --ok:#7FC48A; --warn:#F0B44C;
+  --serif:"Instrument Serif", "Cormorant Garamond", Georgia, serif;
+  --sans:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --script:"Yellowtail", "Brush Script MT", cursive;
+  --r-sm:10px; --r:16px; --r-lg:24px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--ink);color:var(--cream)}
+body{font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--pitanga-2);outline-offset:3px;border-radius:8px}
+.num{font-variant-numeric:tabular-nums}
+.serif{font-family:var(--serif);font-weight:400;letter-spacing:-.01em}
+.logo{font-family:var(--script);line-height:1;color:var(--cream)}
+.eyebrow{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.muted{color:var(--mute)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:14px 22px;font-weight:600;font-size:.95rem;letter-spacing:.01em;transition:transform .2s var(--ease),background .2s,opacity .2s;text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-p{background:var(--pitanga);color:#fff}
+.btn-p:hover{background:var(--pitanga-2)}
+.btn-c{background:var(--cream);color:var(--ink)}
+.btn-g{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 1px var(--line-2)}
+.btn-g:hover{background:rgba(244,229,219,.05)}
+.btn-sm{padding:9px 14px;font-size:.84rem}
+.btn-block{width:100%}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:.78rem;background:rgba(244,229,219,.06);color:var(--cream-2);border:1px solid var(--line);white-space:nowrap}
+.tag{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line-2);padding:3px 8px;border-radius:999px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute-2);display:inline-block;flex-shrink:0}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.icon{width:20px;height:20px;flex-shrink:0}
+
+/* Status de preparo */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;letter-spacing:.02em;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-aguardando{color:var(--mute);background:rgba(168,146,138,.12)}
+.st-recebido{color:#9EC3FF;background:rgba(158,195,255,.12)}
+.st-preparo{color:var(--warn);background:rgba(240,180,76,.13)}
+.st-preparo::before{animation:pulse 1.4s infinite}
+.st-pronto{color:var(--ok);background:rgba(127,196,138,.14)}
+.st-servido{color:var(--mute-2);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+@keyframes pulse{50%{opacity:.25}}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:80;background:var(--cream);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:.88rem;font-weight:600;box-shadow:0 12px 40px rgba(0,0,0,.45);max-width:calc(100% - 32px);text-align:center;animation:toast .35s var(--ease)}
+@keyframes toast{from{opacity:0;transform:translate(-50%,10px)}}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Página do prato (sem foto): inicial em serifa e as cores dos ingredientes */
+.pag{position:absolute;inset:0;container-type:size;overflow:hidden;
+  background:radial-gradient(90% 70% at 85% 10%,color-mix(in srgb,var(--c1) 26%,transparent),transparent 65%),
+             radial-gradient(70% 60% at 10% 100%,color-mix(in srgb,var(--c2) 14%,transparent),transparent 70%),
+             linear-gradient(165deg,#22171500,#1B1210),#1B1210}
+.pag::before{content:"";position:absolute;inset:clamp(6px,4cqw,14px);border:1px solid rgba(244,229,219,.09);border-radius:inherit;pointer-events:none}
+.pag-l{position:absolute;left:8cqw;top:-6cqh;font-family:var(--serif);font-style:italic;font-size:92cqh;line-height:1;
+  color:color-mix(in srgb,var(--c1) 70%,#F4E9DF);opacity:.32;letter-spacing:-.04em;user-select:none}
+.pag-d{position:absolute;top:clamp(10px,7cqw,20px);right:clamp(10px,7cqw,20px);display:flex;gap:5px}
+.pag-d i{width:9px;height:9px;border-radius:50%;background:var(--c1);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.pag-d i:nth-child(2){background:var(--c2)}.pag-d i:nth-child(3){background:var(--c3)}
+@container (max-width:90px){.pag-l{left:0;right:0;top:50%;transform:translateY(-52%);text-align:center;font-size:72cqh;opacity:.85}.pag-d,.pag::before{display:none}}
+.ref{font-family:var(--serif);font-style:italic;color:var(--pitanga-2);line-height:1.25}
+.ref-c{font-size:.95rem}
+.ref-f{font-size:1.2rem;margin-top:-6px}
+.ref-l{display:block;font-size:.85rem}
+.folha .hero .pag-d{display:none}
+
+/* Página de reservas (/reservar): vidro e luz, a mesma linguagem da abertura.
+   O seletor html:has(#resumo) restringe estas regras à página do cliente. */
+html:has(#resumo){--serif:"Cormorant Garamond",Georgia,serif;--sans:"Manrope",system-ui,sans-serif;--ink:#1E0605;--ink-2:#2A0A08;--cream:#FBF1E8;--cream-2:#EBD9CC;--mute:rgba(251,241,232,.6);--mute-2:rgba(251,241,232,.4);
+  --line:rgba(255,255,255,.11);--line-2:rgba(255,255,255,.18);--pitanga-2:#FFB49A;--vidro:rgba(255,236,224,.065);--brilho:inset 0 1px 0 rgba(255,255,255,.2);--fosco:blur(26px) saturate(150%);background:#1E0605}
+html:has(#resumo) body{background:none;font-weight:400}
+html:has(#resumo) body::before{content:"";position:fixed;inset:-25%;z-index:0;pointer-events:none;animation:res-deriva 34s ease-in-out infinite alternate;
+  background:radial-gradient(38% 30% at 32% 26%,rgba(196,44,36,.85),transparent 70%),radial-gradient(34% 30% at 74% 66%,rgba(126,20,24,.9),transparent 70%),radial-gradient(26% 22% at 62% 38%,rgba(255,128,92,.34),transparent 70%)}
+@keyframes res-deriva{0%{transform:translate3d(-4%,-3%,0) rotate(0deg)}50%{transform:translate3d(5%,3%,0) rotate(14deg) scale(1.12)}100%{transform:translate3d(-2%,6%,0) rotate(-10deg) scale(1.04)}}
+html:has(#resumo) header,html:has(#resumo) main{position:relative;z-index:1}
+html:has(#resumo) header canvas,html:has(#resumo) header .veu{display:none}
+html:has(#resumo) header .w{padding-bottom:18px}
+html:has(#resumo) .top a.l{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;padding:10px 15px;border-radius:999px;background:var(--vidro);-webkit-backdrop-filter:var(--fosco);backdrop-filter:var(--fosco);box-shadow:var(--brilho),0 0 0 1px var(--line)}
+html:has(#resumo) h1{font-weight:300;font-size:clamp(3.3rem,14vw,5rem);line-height:.94;letter-spacing:-.02em;margin-top:44px}
+html:has(#resumo) h1 em,html:has(#resumo) .ticket .cod{background:linear-gradient(100deg,#FFD9B8,#FF9E86 55%,#FFC9A0);-webkit-background-clip:text;background-clip:text;color:transparent}
+html:has(#resumo) .lede{font-size:13.5px;line-height:1.6;color:var(--mute)}
+html:has(#resumo) .eyebrow{font-size:10.5px;letter-spacing:.34em;font-weight:500}
+html:has(#resumo) .bloco{border:0;border-radius:30px;padding:22px 20px;margin-top:12px;overflow:hidden;background:var(--vidro);-webkit-backdrop-filter:var(--fosco);backdrop-filter:var(--fosco);box-shadow:var(--brilho),0 0 0 1px var(--line),0 30px 70px -34px rgba(0,0,0,.75)}
+html:has(#resumo) .bloco h2{font-size:2.05rem;font-weight:400;line-height:1}
+html:has(#resumo) .bloco h2 small{font-size:11px;letter-spacing:.06em}
+html:has(#resumo) .passo b{font-weight:300;font-size:3.4rem;line-height:1}
+html:has(#resumo) .passo button,html:has(#resumo) .dia,html:has(#resumo) .hora,html:has(#resumo) .chips button,html:has(#resumo) .pre label,html:has(#resumo) .minhas a{border-color:var(--line-2);background:rgba(255,236,224,.045);box-shadow:var(--brilho);transition:background .3s,transform .25s}
+html:has(#resumo) .dias{margin:0 -20px;padding:2px 20px}
+html:has(#resumo) .dia{border-radius:18px}
+html:has(#resumo) .dia b{font-size:1.9rem;font-weight:400}
+html:has(#resumo) .dia[aria-pressed="true"]{background:var(--cream);color:#1E0605;border-color:var(--cream)}
+html:has(#resumo) .dia[aria-pressed="true"] small{color:#1E0605}
+html:has(#resumo) .hora{border-radius:16px;padding:12px 6px}
+html:has(#resumo) .hora[aria-pressed="true"],html:has(#resumo) .btn-p{background:linear-gradient(135deg,#FF8A6A,#E0432F 55%,#B32820);border-color:transparent;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 16px 40px -14px rgba(240,80,56,.85)}
+html:has(#resumo) .chips button[aria-pressed="true"]{background:rgba(255,236,224,.16);border-color:rgba(255,255,255,.4);color:var(--cream)}
+html:has(#resumo) .pre label{border-radius:18px}
+html:has(#resumo) .pre label:has(input:checked){border-color:rgba(255,180,154,.7);background:rgba(255,140,110,.12)}
+html:has(#resumo) .pre b{font-family:var(--serif);font-weight:400;font-size:1.3rem}
+html:has(#resumo) .campo input,html:has(#resumo) .campo textarea{border-radius:16px;border-color:var(--line-2);background:rgba(255,236,224,.045)}
+html:has(#resumo) .campo input:focus,html:has(#resumo) .campo textarea:focus{border-color:var(--pitanga-2)}
+html:has(#resumo) .politica{border:0;background:none;padding:0;border-radius:0}
+html:has(#resumo) .politica ol{font-size:13px;line-height:1.55}
+html:has(#resumo) .btn{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:16px 22px}
+html:has(#resumo) .btn-g{background:var(--vidro);box-shadow:var(--brilho),0 0 0 1px var(--line-2);-webkit-backdrop-filter:var(--fosco);backdrop-filter:var(--fosco)}
+html:has(#resumo) .btn-c{background:var(--cream);color:#1E0605}
+html:has(#resumo) .barra{z-index:20;background:none;padding:10px 0 calc(12px + env(safe-area-inset-bottom))}
+html:has(#resumo) .barra .w{max-width:592px;padding:8px 8px 8px 20px;border-radius:999px;margin:0 max(12px,env(safe-area-inset-left));background:rgba(40,10,8,.55);-webkit-backdrop-filter:var(--fosco);backdrop-filter:var(--fosco);box-shadow:var(--brilho),0 0 0 1px var(--line-2),0 24px 50px -18px rgba(0,0,0,.8)}
+@media (min-width:640px){html:has(#resumo) .barra .w{margin:0 auto}}
+html:has(#resumo) .barra .res{font-size:11px}
+html:has(#resumo) .barra .res b{font-family:var(--serif);font-weight:400;font-size:1.2rem}
+html:has(#resumo) .ticket{border:0;border-radius:34px;background:var(--vidro);-webkit-backdrop-filter:var(--fosco);backdrop-filter:var(--fosco);box-shadow:var(--brilho),0 0 0 1px var(--line-2),0 30px 70px -34px rgba(0,0,0,.75)}
+html:has(#resumo) .ticket .cab{background:linear-gradient(150deg,rgba(226,70,50,.34),transparent 72%);border-bottom:1px dashed var(--line-2)}
+html:has(#resumo) .ticket .cod{font-weight:400;font-size:3rem}
+html:has(#resumo) .ticket .cab .q{font-size:1.9rem;font-weight:300}
+html:has(#resumo) .ticket .info b{font-family:var(--serif);font-weight:400;font-size:1.3rem}
+html:has(#resumo) .relogio b{font-size:1.8rem}
+html:has(#resumo) .sheet{background:rgba(14,3,3,.55)}
+html:has(#resumo) .sheet .p{border:0;border-radius:34px 34px 0 0;background:rgba(46,12,10,.74);-webkit-backdrop-filter:blur(34px) saturate(160%);backdrop-filter:blur(34px) saturate(160%);box-shadow:var(--brilho),0 0 0 1px var(--line-2)}
+html:has(#resumo) .sheet h3{font-size:2.4rem;font-weight:300}
+html:has(#resumo) .toast{background:var(--cream);color:#1E0605;font-size:12px;letter-spacing:.04em}
+html:has(#resumo) .barra .btn{padding:14px 16px;font-size:10.5px;letter-spacing:.08em}

@@ -1,0 +1,23 @@
+const p = d => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+export const I = {
+  menu: p('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/>'),
+  vinho: p('<path d="M8 3h8l-.5 6a3.5 3.5 0 0 1-7 0z"/><path d="M12 12.5V20M8.5 20.5h7"/>'),
+  mesa: p('<path d="M3 9h18M5 9v10M19 9v10M8 9V6h8v3"/>'),
+  conta: p('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),
+  sino: p('<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>'),
+  mais: p('<path d="M12 5v14M5 12h14"/>'),
+  menos: p('<path d="M5 12h14"/>'),
+  ok: p('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+  x: p('<path d="M6 6l12 12M18 6 6 18"/>'),
+  seta: p('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+  voltar: p('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
+  brilho: p('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>'),
+  agua: p('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'),
+  repetir: p('<path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/>'),
+  chef: p('<path d="M7 14a4 4 0 1 1 1.2-7.8A4.5 4.5 0 0 1 16 5.5 4 4 0 1 1 17 14"/><path d="M7 14v6h10v-6"/>'),
+  relogio: p('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  enviar: p('<path d="M4 12 20 4l-6 16-2.5-6.5z"/>'),
+  qr: p('<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M14 14h2v2h-2zM18 14h2M14 18h2M18 18h2v2"/>'),
+  estrela: p('<path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8L3.5 9.7l5.9-.8z"/>'),
+  fogo: p('<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-3.5 2-5 1 1.5 2 2 2 2s-1-4 1-7z"/>'),
+};

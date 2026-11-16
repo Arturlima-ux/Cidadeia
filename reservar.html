@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120B0A">
+<title>Pitanga · Reservar mesa</title>
+<meta name="description" content="Reserve, altere ou cancele sua mesa na Pitanga Gastrobar, sem precisar de WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Yellowtail&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+.w{max-width:620px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+header{position:relative;overflow:hidden;padding-top:calc(18px + env(safe-area-inset-top))}
+header canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.75}
+header .veu{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,11,10,.2),var(--ink))}
+header .w{position:relative;padding-bottom:28px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top .logo{font-size:2rem;text-decoration:none}
+.top a.l{color:var(--cream-2);font-size:.88rem;text-decoration:none}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.8rem,11vw,4.2rem);line-height:.95;letter-spacing:-.02em;margin:56px 0 12px;text-wrap:balance}
+h1 em{color:var(--pitanga-2)}
+.lede{color:var(--cream-2);margin:0;max-width:40ch}
+main{padding-bottom:calc(140px + env(safe-area-inset-bottom))}
+.bloco{border-top:1px solid var(--line);padding-block:26px;display:flex;flex-direction:column;gap:14px}
+.bloco h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.bloco h2 small{font-family:var(--sans);font-size:.8rem;color:var(--mute)}
+.passo{display:flex;align-items:center;gap:18px}
+.passo button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line-2);background:none;display:grid;place-items:center}
+.passo b{font-family:var(--serif);font-weight:400;font-size:2.6rem;min-width:2ch;text-align:center}
+.dias{display:grid;grid-auto-flow:column;grid-auto-columns:64px;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1*max(20px,env(safe-area-inset-left)));padding:2px max(20px,env(safe-area-inset-left))}
+.dias::-webkit-scrollbar{display:none}
+.dia{border:1px solid var(--line-2);background:none;border-radius:16px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.dia small{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.dia b{font-family:var(--serif);font-weight:400;font-size:1.6rem;line-height:1}
+.dia[aria-pressed="true"]{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+.dia[aria-pressed="true"] small{color:var(--ink)}
+.dia:disabled{opacity:.3}
+.turno{display:flex;flex-direction:column;gap:8px}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.hora{border:1px solid var(--line-2);background:none;border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.hora b{font-weight:600;font-variant-numeric:tabular-nums}
+.hora small{font-size:.66rem;color:var(--mute)}
+.hora small.pouco{color:var(--warn)}
+.hora[aria-pressed="true"]{background:var(--pitanga);border-color:var(--pitanga);color:#fff}
+.hora[aria-pressed="true"] small{color:#fff}
+.hora:disabled{opacity:.3;text-decoration:line-through}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line-2);background:none;color:var(--cream-2);border-radius:999px;padding:9px 14px;font-size:.86rem}
+.chips button[aria-pressed="true"]{border-color:var(--cream);color:var(--cream);background:rgba(244,229,219,.07)}
+.pre{display:grid;gap:8px}
+.pre label{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:14px;cursor:pointer}
+.pre label:has(input:checked){border-color:var(--pitanga);background:rgba(232,71,58,.07)}
+.pre input{accent-color:var(--pitanga);width:18px;height:18px}
+.pre small{display:block;color:var(--mute);font-size:.8rem}
+.campos{display:grid;gap:12px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.campo input,.campo textarea{background:rgba(244,229,219,.05);border:1px solid var(--line-2);border-radius:14px;padding:13px 14px;outline:none;width:100%;resize:vertical}
+.campo input:focus,.campo textarea:focus{border-color:var(--pitanga)}
+.politica{border:1px solid var(--line-2);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(160deg,rgba(232,71,58,.08),transparent 60%)}
+.politica ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:var(--cream-2);font-size:.92rem}
+.politica .aceite{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.politica .aceite input{accent-color:var(--pitanga);width:18px;height:18px;margin-top:2px;flex-shrink:0}
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(rgba(18,11,10,0),var(--ink) 30%)}
+.barra .w{display:flex;gap:12px;align-items:center}
+.barra .res{flex:1;min-width:0;font-size:.82rem;color:var(--mute);line-height:1.3}
+.barra .res b{display:block;color:var(--cream);font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.erro{color:var(--pitanga-2);font-size:.86rem;margin:0}
+/* Confirmação / gerenciar */
+.ticket{border:1px solid var(--line-2);border-radius:26px;overflow:hidden;margin-top:8px}
+.ticket .cab{padding:22px;background:linear-gradient(150deg,rgba(232,71,58,.18),rgba(18,11,10,0) 70%);display:flex;flex-direction:column;gap:6px;border-bottom:1px dashed var(--line-2)}
+.ticket .cab .cod{font-family:var(--serif);font-size:2.6rem;letter-spacing:.12em;line-height:1}
+.ticket .cab .q{font-family:var(--serif);font-size:1.6rem;line-height:1.1;text-wrap:balance}
+.ticket .info{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 22px}
+.ticket .info div small{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.ticket .info div b{font-weight:600}
+.relogio{display:flex;align-items:center;gap:12px;padding:16px 22px;border-top:1px solid var(--line);font-size:.9rem}
+.relogio b{font-family:var(--serif);font-weight:400;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.acoes{display:grid;gap:10px;margin-top:18px}
+.sheet{position:fixed;inset:0;z-index:60;background:rgba(10,6,5,.75);backdrop-filter:blur(8px);display:flex;align-items:flex-end;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.sheet .p{width:100%;max-width:620px;margin:0 auto;background:var(--ink-2);border:1px solid var(--line-2);border-radius:28px 28px 0 0;padding:24px max(22px,env(safe-area-inset-left)) calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.sheet h3{font-family:var(--serif);font-weight:400;font-size:2rem;margin:0;line-height:1.05}
+.sheet .qr{align-self:center;background:#fff;border-radius:18px;padding:12px;width:200px;height:200px;position:relative}
+.sheet .qr canvas{width:100%;height:100%;image-rendering:pixelated}
+.sheet .demo{position:absolute;inset:auto 0 50% 0;transform:translateY(50%) rotate(-12deg);background:var(--pitanga);color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.2em;padding:6px 0;text-align:center}
+.minhas{display:grid;gap:8px}
+.minhas a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;color:var(--cream);text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <canvas id="aura"></canvas><div class="veu"></div>
+  <div class="w">
+    <div class="top"><a class="logo" href="/">Pitanga</a><a class="l" href="/">Conhecer a casa</a></div>
+    <h1 id="titulo">Sua mesa,<br><em>do seu jeito.</em></h1>
+    <p class="lede" id="lede">Escolha o dia e a hora e confirme em menos de um minuto. Para alterar ou cancelar, use o link da sua reserva. Não precisa ligar nem mandar mensagem.</p>
+  </div>
+</header>
+<main class="w" id="main"></main>
+<div class="barra" id="barra" hidden><div class="w"><div class="res" id="resumo"></div><button class="btn btn-p" id="continuar">Confirmar</button></div></div>
+<div id="camada"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import { colecao } from "/assets/store.js";
+import { PADRAO, OCASIOES, quando, limiteGratis, gratisAinda, ocupados, iso, dataLonga, codigo } from "/assets/reservas.js";
+import { SECOES, brl } from "/assets/data.js";
+import { aura } from "/assets/aura.js";
+import { I } from "/assets/icons.js";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toast = t => { const e = $("#toast"); e.textContent = t; e.hidden = false; clearTimeout(e._t); e._t = setTimeout(() => e.hidden = true, 2600); };
+aura($("#aura"), ["#E8473A", "#A0241F", "#B5C24F", "#F0C873"], "reservar");
+
+let lista = [], cfg = { ...PADRAO }, pend = null, pronto = false;
+const R = colecao("reservas", l => { lista = l; atualizar(); });
+const C = colecao("config", l => { const c = l.find(x => x.id === "reservas"); cfg = { ...PADRAO, ...(c || {}) }; atualizar(); });
+const MINHAS = "pitanga:minhas-reservas";
+const minhas = () => { try { return JSON.parse(localStorage.getItem(MINHAS)) || []; } catch { return []; } };
+const lembrar = id => { try { localStorage.setItem(MINHAS, JSON.stringify([...new Set([id, ...minhas()])].slice(0, 10))); } catch {} };
+const BOAS_VINDAS = SECOES.find(s => s.id === "autorais").itens.slice(0, 8);
+
+const params = new URLSearchParams(location.search);
+let codigoAberto = params.get("c");
+let editando = null; // id em edição
+const f = { pessoas: 2, data: null, hora: null, ocasiao: "Sem ocasião", pre: [], nome: "", tel: "", email: "", obs: "", aceite: false };
+
+function dias() {
+  const out = [], hoje = new Date(); hoje.setHours(12, 0, 0, 0);
+  for (let i = 0; i < cfg.diasAntecedencia; i++) { const d = new Date(hoje.getTime() + i * 864e5); out.push(d); }
+  return out;
+}
+function vagas(data, hora) { return cfg.lugaresPorHorario - ocupados(lista, data, hora, editando); }
+function horarioPassou(data, hora) { return new Date(`${data}T${hora}:00`).getTime() < Date.now() + 30 * 60e3; }
+
+function vForm() {
+  const ds = dias();
+  if (!f.data) f.data = iso(ds.find(d => !cfg.fechado.includes(d.getDay())) || ds[0]);
+  const fechado = cfg.fechado.includes(new Date(f.data + "T12:00:00").getDay());
+  const sinal = f.pessoas * cfg.sinalPorPessoa;
+  return `
+  <section class="bloco"><h2>Quantas pessoas?</h2>
+    <div class="passo"><button data-p="-1" aria-label="Menos uma pessoa">${I.menos}</button><b class="num" aria-live="polite">${f.pessoas}</b><button data-p="1" aria-label="Mais uma pessoa">${I.mais}</button>
+    <span class="muted">${f.pessoas === 1 ? "pessoa" : "pessoas"}</span></div>
+    ${f.pessoas >= cfg.maxPessoas ? `<p class="muted" style="margin:0">Para grupos acima de ${cfg.maxPessoas} pessoas, a casa monta o salão com você. Escreva nas observações e entramos em contato.</p>` : ""}
+  </section>
+  <section class="bloco"><h2>Dia <small>${esc(dataLonga(f.data))}</small></h2>
+    <div class="dias">${ds.map(d => { const k = iso(d); const fe = cfg.fechado.includes(d.getDay());
+      return `<button class="dia" data-d="${k}" aria-pressed="${k === f.data}" ${fe ? "disabled" : ""}><small>${d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "")}</small><b>${d.getDate()}</b><small>${d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</small></button>`; }).join("")}</div>
+  </section>
+  <section class="bloco"><h2>Horário</h2>
+    ${fechado ? `<p class="muted">A casa não abre neste dia.</p>` : cfg.turnos.map(t => `<div class="turno"><span class="eyebrow">${esc(t.nome)}</span><div class="horas">${t.horarios.map(h => {
+      const v = vagas(f.data, h), passou = horarioPassou(f.data, h), cabe = v >= f.pessoas && !passou;
+      return `<button class="hora" data-h="${h}" aria-pressed="${f.hora === h}" ${cabe ? "" : "disabled"}><b>${h}</b><small class="${cabe && v <= 8 ? "pouco" : ""}">${passou ? "encerrado" : !cabe ? "lotado" : v <= 8 ? "últimos lugares" : "disponível"}</small></button>`; }).join("")}</div></div>`).join("")}
+  </section>
+  <section class="bloco"><h2>A ocasião</h2>
+    <div class="chips">${OCASIOES.map(o => `<button data-o="${esc(o)}" aria-pressed="${f.ocasiao === o}">${esc(o)}</button>`).join("")}</div>
+    ${f.ocasiao === "Aniversário" ? `<p class="muted" style="margin:0">Conte nas observações de quem é o aniversário. A casa prepara uma surpresa.</p>` : ""}
+  </section>
+  <section class="bloco"><h2>Já pronto na chegada <small>opcional</small></h2>
+    <p class="muted" style="margin:0">Escolha um drink autoral e ele estará na mesa quando vocês sentarem. Ele entra na conta normalmente.</p>
+    <div class="pre">${BOAS_VINDAS.map(d => `<label><input type="checkbox" data-pre="${d.id}" ${f.pre.includes(d.id) ? "checked" : ""}><span><b>${esc(d.nome)}</b><small>${esc(d.desc)}</small></span><span class="num">${brl(d.preco)}</span></label>`).join("")}</div>
+  </section>
+  <section class="bloco"><h2>Seus dados</h2>
+    <div class="campos">
+      <div class="campo"><label for="nome">Nome</label><input id="nome" autocomplete="name" value="${esc(f.nome)}" placeholder="Para quem é a mesa"></div>
+      <div class="campo"><label for="tel">Celular</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" value="${esc(f.tel)}" placeholder="(86) 9 0000-0000"></div>
+      <div class="campo"><label for="email">E-mail <span style="text-transform:none;letter-spacing:0">(opcional, para receber a confirmação)</span></label><input id="email" type="email" autocomplete="email" value="${esc(f.email)}"></div>
+      <div class="campo"><label for="obs">Observações</label><textarea id="obs" rows="2" placeholder="Cadeirinha para criança, alergias, aniversariante…">${esc(f.obs)}</textarea></div>
+    </div>
+  </section>
+  <section class="bloco"><div class="politica">
+    <span class="eyebrow">Garantia de mesa</span>
+    <ol>
+      <li>Para segurar a mesa, a casa pede um sinal de <b class="num">${brl(cfg.sinalPorPessoa)}</b> por pessoa via Pix${f.pessoas ? `, ou seja, <b class="num">${brl(sinal)}</b>` : ""}. O valor é <b>abatido da sua conta</b>.</li>
+      <li>Cancelamento gratuito até <b>${cfg.janelaHoras} horas antes</b>${f.hora ? ` (até ${limiteGratis({ data: f.data, hora: f.hora }, cfg).toLocaleString("pt-BR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })})` : ""}. Nesse caso o sinal volta inteiro. Mudar dia, horário ou número de pessoas é livre, conforme a disponibilidade.</li>
+      <li>Cancelamento depois desse prazo ou não comparecimento: o sinal fica com a casa.</li>
+      <li>A mesa fica reservada por 15 minutos após o horário.</li>
+    </ol>
+    <label class="aceite"><input type="checkbox" id="aceite" ${f.aceite ? "checked" : ""}> Li e concordo com a política de reserva.</label>
+  </div></section>
+  ${minhas().length && !editando ? `<section class="bloco"><h2>Suas reservas</h2><div class="minhas">${minhas().map(id => R.get(id)).filter(Boolean).map(r => `<a href="?c=${r.id}"><span><b>${esc(dataLonga(r.data))}, ${r.hora}</b><br><small class="muted">${r.pessoas} ${r.pessoas === 1 ? "pessoa" : "pessoas"} · ${rotulo(r.status)}</small></span>${I.seta}</a>`).join("")}</div></section>` : ""}`;
+}
+const rotulo = s => ({ confirmada: "Confirmada", cancelada: "Cancelada", chegou: "Na mesa", noshow: "Não compareceu" }[s] || s);
+
+function resumo() {
+  if (codigoAberto) { $("#barra").hidden = true; return; }
+  $("#barra").hidden = false;
+  $("#resumo").innerHTML = f.hora ? `<b>${new Date(f.data + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" })} · ${f.hora}</b>${f.pessoas} ${f.pessoas === 1 ? "pessoa" : "pessoas"} · sinal de ${brl(f.pessoas * cfg.sinalPorPessoa)}` : `<b>Escolha um horário</b>${f.pessoas} ${f.pessoas === 1 ? "pessoa" : "pessoas"}`;
+  $("#continuar").textContent = editando ? "Salvar alteração" : "Confirmar e pagar sinal";
+}
+
+// ---------- Reserva aberta (confirmação / gerenciar) ----------
+function vReserva(r) {
+  const gratis = gratisAinda(r, cfg), lim = limiteGratis(r, cfg);
+  const ativa = r.status === "confirmada";
+  const pre = (r.pre || []).map(id => BOAS_VINDAS.find(b => b.id === id)?.nome).filter(Boolean);
+  return `<div class="ticket">
+    <div class="cab"><span class="eyebrow">Reserva ${rotulo(r.status).toLowerCase()}</span><span class="cod">${r.id}</span>
+      <span class="q">${esc(r.nome)}, ${r.status === "cancelada" ? "sua reserva foi cancelada." : r.status === "noshow" ? "sentimos sua falta." : r.status === "chegou" ? "bem-vindo à Pitanga." : "sua mesa está guardada."}</span></div>
+    <div class="info">
+      <div><small>Dia</small><b>${esc(dataLonga(r.data))}</b></div>
+      <div><small>Horário</small><b class="num">${r.hora}</b></div>
+      <div><small>Pessoas</small><b class="num">${r.pessoas}</b></div>
+      <div><small>Sinal</small><b class="num">${brl(r.sinal)}</b><br><small style="letter-spacing:.06em">${{ pago: "pago, abatido da conta", devolvido: "devolvido", retido: "retido pela casa", abatido: "abatido da conta" }[r.sinalStatus]}</small></div>
+      ${r.ocasiao && r.ocasiao !== "Sem ocasião" ? `<div><small>Ocasião</small><b>${esc(r.ocasiao)}</b></div>` : ""}
+      ${pre.length ? `<div><small>Na chegada</small><b>${pre.map(esc).join(", ")}</b></div>` : ""}
+      ${r.mesa ? `<div><small>Mesa</small><b class="num">${r.mesa}</b></div>` : ""}
+    </div>
+    ${ativa ? `<div class="relogio">${I.relogio}<div>${gratis ? `Cancelamento gratuito por mais <b id="cont">…</b><br><small class="muted">até ${lim.toLocaleString("pt-BR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</small>` : `<span>O prazo de cancelamento gratuito terminou às ${lim.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.</span>`}</div></div>` : ""}
+  </div>
+  <div class="acoes">
+    ${r.status === "chegou" && r.mesa ? `<a class="btn btn-p" href="/mesa?m=${r.mesa}">${I.menu} Abrir o cardápio da mesa ${r.mesa}</a>` : ""}
+    ${ativa ? `<a class="btn btn-c" id="cal" download="reserva-pitanga.ics">Adicionar à agenda</a>
+      <button class="btn btn-g" data-editar="${r.id}">Alterar dia, horário ou pessoas</button>
+      <button class="btn btn-g" data-cancelar="${r.id}" style="color:var(--pitanga-2)">Cancelar reserva</button>` : ""}
+    <button class="btn btn-g" data-copiar>Copiar link da reserva</button>
+    <a class="btn btn-g" href="/reservar">Fazer outra reserva</a>
+  </div>`;
+}
+function ics(r) {
+  const ini = quando(r), fim = new Date(ini.getTime() + 2 * 3600e3);
+  const z = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const txt = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Pitanga//Reservas//PT", "BEGIN:VEVENT", `UID:${r.id}@pitanga`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(ini)}`, `DTEND:${z(fim)}`,
+    `SUMMARY:Pitanga Gastrobar · mesa para ${r.pessoas}`, `DESCRIPTION:Reserva ${r.id}. Gerenciar: ${location.origin}/reservar?c=${r.id}`, "LOCATION:Pitanga Gastrobar\\, Teresina - PI", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  return "data:text/calendar;charset=utf-8," + encodeURIComponent(txt);
+}
+
+let relogio = null;
+function render() {
+  clearInterval(relogio);
+  if (codigoAberto) {
+    const r = R.get(codigoAberto);
+    $("#titulo").innerHTML = r ? `Reserva<br><em>${r.id}</em>` : "Reserva não encontrada";
+    $("#lede").textContent = r ? "Guarde este link. Por ele você altera ou cancela, sem precisar falar com ninguém." : "Confira o código no link que você recebeu.";
+    $("#main").innerHTML = r ? vReserva(r) : `<div class="acoes"><a class="btn btn-p" href="/reservar">Fazer uma reserva</a></div>`;
+    if (r) { const c = $("#cal"); if (c) c.href = ics(r); }
+    if (r?.status === "confirmada" && gratisAinda(r, cfg)) {
+      const tick = () => { const ms = limiteGratis(r, cfg) - Date.now(); if (ms <= 0) return render(); const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 60e3), s = Math.floor(ms % 60e3 / 1e3); const el = $("#cont"); if (el) el.textContent = `${h ? h + "h " : ""}${String(m).padStart(2, "0")}min ${String(s).padStart(2, "0")}s`; };
+      tick(); relogio = setInterval(tick, 1000);
+    }
+  } else {
+    $("#titulo").innerHTML = editando ? "Alterar<br><em>sua reserva</em>" : "Sua mesa,<br><em>do seu jeito.</em>";
+    const y = scrollY; $("#main").innerHTML = vForm(); scrollTo(0, y);
+  }
+  resumo();
+}
+function atualizar() { if (!pronto) return; cancelAnimationFrame(pend); pend = requestAnimationFrame(() => { if (document.activeElement?.matches("input,textarea") && !codigoAberto) { resumo(); return; } render(); }); }
+
+function abrir(id) { codigoAberto = id; editando = null; history.pushState(null, "", id ? `?c=${id}` : "/reservar"); scrollTo(0, 0); render(); }
+addEventListener("popstate", () => { codigoAberto = new URLSearchParams(location.search).get("c"); render(); });
+
+function sheet(html) { $("#camada").innerHTML = `<div class="sheet" data-fundo><div class="p" role="dialog" aria-modal="true">${html}</div></div>`; }
+const fechar = () => $("#camada").innerHTML = "";
+
+async function confirmar() {
+  f.nome = $("#nome").value.trim(); f.tel = $("#tel").value.trim(); f.email = $("#email").value.trim(); f.obs = $("#obs").value.trim(); f.aceite = $("#aceite").checked;
+  const falta = !f.hora ? "Escolha um horário." : !f.nome ? "Diga o nome para a reserva." : f.tel.replace(/\D/g, "").length < 10 ? "Informe um celular com DDD, para a casa avisar se algo mudar." : !f.aceite ? "Para confirmar, aceite a política de reserva." : vagas(f.data, f.hora) < f.pessoas ? "Esse horário acabou de lotar. Escolha outro." : "";
+  if (falta) { toast(falta); return; }
+  if (editando) {
+    const r = R.get(editando);
+    const novoSinal = f.pessoas * cfg.sinalPorPessoa, dif = novoSinal - r.sinal;
+    await R.salvar({ ...r, pessoas: f.pessoas, data: f.data, hora: f.hora, ocasiao: f.ocasiao, pre: f.pre, nome: f.nome, tel: f.tel, email: f.email, obs: f.obs, sinal: Math.max(r.sinal, novoSinal), historico: [...(r.historico || []), { em: Date.now(), acao: "alterada" }] });
+    toast(dif > 0 ? `Reserva alterada. Complemento de sinal: ${brl(dif)}.` : "Reserva alterada.");
+    return abrir(editando);
+  }
+  const valor = f.pessoas * cfg.sinalPorPessoa;
+  sheet(`<span class="eyebrow">Sinal da reserva · Pix</span><h3>${brl(valor)}</h3>
+    <p class="muted" style="margin:0">${f.pessoas} ${f.pessoas === 1 ? "pessoa" : "pessoas"} × ${brl(cfg.sinalPorPessoa)}. O valor é abatido da sua conta na Pitanga.</p>
+    <div class="qr"><canvas id="qr"></canvas><div class="demo">DEMONSTRAÇÃO</div></div>
+    <p class="muted" style="margin:0;font-size:.82rem">Modo demonstração: nenhum valor é cobrado. Na versão final, o Pix é gerado pelo banco da casa e a reserva confirma sozinha quando o pagamento cai.</p>
+    <button class="btn btn-p" id="pago">Simular pagamento confirmado</button><button class="btn btn-g" data-fechar>Voltar</button>`);
+  try {
+    if (!window.qrcode) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+    const q = qrcode(0, "M"); q.addData("DEMONSTRACAO-PITANGA-RESERVA-SEM-VALOR"); q.make();
+    const n = q.getModuleCount(), cv = $("#qr"), x = cv.getContext("2d"); cv.width = cv.height = n; x.fillStyle = "#fff"; x.fillRect(0, 0, n, n); x.fillStyle = "#120B0A";
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(k, r, 1, 1);
+  } catch {}
+}
+async function pago() {
+  let id; do { id = codigo(); } while (R.get(id));
+  const r = { id, pessoas: f.pessoas, data: f.data, hora: f.hora, ocasiao: f.ocasiao, pre: f.pre, nome: f.nome, tel: f.tel, email: f.email, obs: f.obs,
+    status: "confirmada", sinal: f.pessoas * cfg.sinalPorPessoa, sinalStatus: "pago", politica: { janelaHoras: cfg.janelaHoras, sinalPorPessoa: cfg.sinalPorPessoa, aceitaEm: Date.now() }, criada: Date.now(), historico: [{ em: Date.now(), acao: "criada" }] };
+  await R.salvar(r); lembrar(id); fechar(); Object.assign(f, { hora: null, aceite: false, pre: [], obs: "" });
+  abrir(id); toast("Mesa reservada.");
+}
+function pedirCancelamento(id) {
+  const r = R.get(id), gratis = gratisAinda(r, cfg);
+  sheet(`<span class="eyebrow">Cancelar reserva ${r.id}</span><h3>${gratis ? "Tudo bem, o sinal volta para você." : "O prazo gratuito já passou."}</h3>
+    <p class="muted" style="margin:0">${gratis ? `Você recebe de volta os <b class="num" style="color:var(--cream)">${brl(r.sinal)}</b> do sinal, pelo mesmo Pix.` : `Pela política aceita em ${new Date(r.politica?.aceitaEm || r.criada).toLocaleDateString("pt-BR")}, o sinal de <b class="num" style="color:var(--cream)">${brl(r.sinal)}</b> fica com a casa. Se quiser, altere o horário em vez de cancelar.`}</p>
+    <button class="btn btn-p" data-confirma-cancelar="${r.id}">Cancelar reserva</button>
+    ${gratis ? "" : `<button class="btn btn-c" data-editar="${r.id}">Prefiro alterar o horário</button>`}
+    <button class="btn btn-g" data-fechar>Manter reserva</button>`);
+}
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button,[data-fundo]"); if (!t) return;
+  if (t.matches("[data-fundo]") && e.target !== t) return;
+  const d = t.dataset;
+  if (d.fundo !== undefined || d.fechar !== undefined) fechar();
+  else if (d.p) { f.pessoas = Math.max(1, Math.min(cfg.maxPessoas, f.pessoas + +d.p)); if (f.hora && vagas(f.data, f.hora) < f.pessoas) f.hora = null; render(); }
+  else if (d.d) { f.data = d.d; f.hora = null; render(); }
+  else if (d.h) { f.hora = d.h; render(); }
+  else if (d.o) { f.ocasiao = d.o; render(); }
+  else if (t.id === "continuar") confirmar();
+  else if (t.id === "pago") pago();
+  else if (d.cancelar) pedirCancelamento(d.cancelar);
+  else if (d.confirmaCancelar) {
+    const r = R.get(d.confirmaCancelar), gratis = gratisAinda(r, cfg);
+    await R.salvar({ ...r, status: "cancelada", canceladaEm: Date.now(), sinalStatus: gratis ? "devolvido" : "retido", historico: [...(r.historico || []), { em: Date.now(), acao: gratis ? "cancelada no prazo" : "cancelada fora do prazo" }] });
+    fechar(); toast(gratis ? "Reserva cancelada. O sinal será devolvido." : "Reserva cancelada.");
+  }
+  else if (d.editar) { const r = R.get(d.editar); fechar(); Object.assign(f, { pessoas: r.pessoas, data: r.data, hora: r.hora, ocasiao: r.ocasiao, pre: r.pre || [], nome: r.nome, tel: r.tel, email: r.email || "", obs: r.obs || "", aceite: true }); editando = r.id; codigoAberto = null; history.pushState(null, "", `?c=${r.id}&alterar=1`); scrollTo(0, 0); render(); }
+  else if (d.copiar !== undefined) { const u = `${location.origin}/reservar?c=${codigoAberto}`; try { await navigator.clipboard.writeText(u); toast("Link copiado."); } catch { toast(u); } }
+});
+document.addEventListener("change", e => { const id = e.target.dataset?.pre; if (id) f.pre = e.target.checked ? [...f.pre, id] : f.pre.filter(x => x !== id); if (e.target.id === "aceite") f.aceite = e.target.checked; });
+document.addEventListener("input", e => { if (["nome", "tel", "email", "obs"].includes(e.target.id)) f[e.target.id] = e.target.value; });
+pronto = true; render();
+</script>
+</body>
+</html>

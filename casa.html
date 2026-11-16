@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120B0A">
+<title>Pitanga · Casa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Yellowtail&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+body{min-height:100dvh}
+.pad{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+header{position:sticky;top:0;z-index:10;background:rgba(18,11,10,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header .logo{font-size:1.9rem}
+header .casa{font-family:var(--serif);font-size:1.3rem;color:var(--mute)}
+.abas{display:flex;gap:4px;background:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:4px}
+.abas button{border:0;background:none;color:var(--mute);padding:8px 16px;border-radius:999px;font-weight:600;font-size:.88rem;display:flex;gap:8px;align-items:center}
+.abas button[aria-pressed="true"]{background:var(--cream);color:var(--ink)}
+.abas .n{min-width:20px;height:20px;border-radius:10px;background:var(--pitanga);color:#fff;font-size:.7rem;display:grid;place-items:center;padding:0 6px}
+.dir{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--mute);font-size:.85rem}
+.relogio{font-family:var(--serif);font-size:1.5rem;color:var(--cream)}
+main{padding-top:22px;padding-bottom:40px}
+
+/* Salão */
+.salao{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+@media (max-width:900px){.salao{grid-template-columns:1fr}}
+.mesas{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.m{position:relative;text-align:left;border:1px solid var(--line);background:var(--ink-2);border-radius:20px;padding:16px;min-height:150px;display:flex;flex-direction:column;gap:8px;transition:.25s var(--ease)}
+.m:hover{border-color:var(--line-2)}
+.m .n{font-family:var(--serif);font-size:2.4rem;line-height:.9}
+.m.livre{opacity:.45}
+.m.chama{border-color:var(--pitanga);box-shadow:0 0 0 0 rgba(232,71,58,.6);animation:chama 1.6s infinite}
+@keyframes chama{70%{box-shadow:0 0 0 12px rgba(232,71,58,0)}100%{box-shadow:0 0 0 0 rgba(232,71,58,0)}}
+.m .rod{margin-top:auto;display:flex;flex-direction:column;gap:2px}
+.m .rod b{font-family:var(--serif);font-weight:400;font-size:1.3rem}
+.m .flag{position:absolute;top:14px;right:14px}
+.lado{position:sticky;top:90px;display:flex;flex-direction:column;gap:12px}
+.lado h2,.col h2{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:0}
+.cham{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--ink-2);animation:fade .3s}
+.cham .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(232,71,58,.15);color:var(--pitanga-2);flex-shrink:0}
+.cham div{flex:1;min-width:0}
+.cham small{color:var(--mute);display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.vazio{color:var(--mute);font-size:.9rem;padding:14px;border:1px dashed var(--line-2);border-radius:16px;text-align:center}
+
+/* Cozinha / Bar */
+.kds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:1100px){.kds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.kds{grid-template-columns:1fr}}
+@media (max-width:760px){header .casa,.demo-b{display:none}}
+.col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.col-h{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px}
+.tk{border:1px solid var(--line);border-top:3px solid var(--c,var(--mute-2));background:var(--ink-2);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;animation:fade .35s}
+.tk[data-s="aguardando"]{--c:var(--mute-2);opacity:.75}
+.tk[data-s="recebido"]{--c:#9EC3FF}
+.tk[data-s="preparo"]{--c:var(--warn)}
+.tk[data-s="pronto"]{--c:var(--ok)}
+.tk-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tk-h b{font-family:var(--serif);font-weight:400;font-size:1.5rem}
+.tk-h .t{font-size:.8rem;color:var(--mute)}
+.tk-h .t.atraso{color:var(--pitanga-2);font-weight:700}
+.tk ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.tk li{display:flex;gap:10px;align-items:baseline}
+.tk li .q{font-weight:700;color:var(--cream)}
+.tk li em{display:block;font-style:normal;color:var(--warn);font-size:.82rem}
+.tk .btn{width:100%}
+
+/* Detalhe da mesa */
+.gaveta{position:fixed;inset:0;z-index:40;background:rgba(10,6,5,.6);display:flex;justify-content:flex-end;animation:fade .2s}
+.gaveta .g{width:min(440px,100%);height:100%;overflow:auto;background:var(--ink-2);border-left:1px solid var(--line-2);padding:24px max(22px,env(safe-area-inset-right)) 24px 22px;display:flex;flex-direction:column;gap:16px}
+.gaveta h2{font-family:var(--serif);font-weight:400;font-size:2.6rem;margin:0;line-height:1}
+.l{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);align-items:center}
+.demo-b{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;color:var(--mute)}
+</style>
+</head>
+<body>
+<header class="pad">
+  <span class="logo">Pitanga</span><span class="casa">Casa</span>
+  <div class="abas" role="group" aria-label="Painéis" id="abas"></div>
+  <div class="dir"><span class="demo-b" id="modo"></span><span class="relogio num" id="relogio"></span></div>
+</header>
+<main class="pad" id="main"></main>
+<div id="camada"></div>
+<div class="toast" id="toast" hidden></div>
+<script type="module" src="/assets/casa.js"></script>
+</body>
+</html>

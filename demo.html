@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120B0A">
+<title>Pitanga · Demonstração ao vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Yellowtail&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+html,body{height:100%;overflow:hidden}
+body{display:grid;grid-template-rows:auto 1fr;background:radial-gradient(1200px 700px at 20% 110%,rgba(160,36,31,.35),transparent 60%),var(--ink)}
+.bar{display:flex;align-items:center;gap:16px;padding:14px max(24px,env(safe-area-inset-left));border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar .logo{font-size:1.9rem}
+.bar h1{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:0;color:var(--cream-2)}
+.bar .dir{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.palco{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;padding:22px max(24px,env(safe-area-inset-left));min-height:0}
+.fones{display:flex;gap:22px;align-items:flex-start;height:100%;min-height:0}
+.fone{display:flex;flex-direction:column;gap:10px;align-items:center}
+.fone .eyebrow{display:flex;gap:8px;align-items:center}
+.moldura{width:calc(390px * var(--k));height:calc(844px * var(--k));border-radius:calc(54px * var(--k));padding:calc(10px * var(--k));background:#050303;box-shadow:0 0 0 1px #3a2b28,0 0 0 calc(3px * var(--k)) #1c1312,0 40px 80px rgba(0,0,0,.6);position:relative}
+.moldura::before{content:"";position:absolute;top:calc(20px * var(--k));left:50%;transform:translateX(-50%);width:calc(110px * var(--k));height:calc(30px * var(--k));border-radius:20px;background:#000;z-index:2}
+.moldura .tela{width:390px;height:844px;transform:scale(var(--k));transform-origin:0 0;border-radius:44px;overflow:hidden;background:var(--ink)}
+.moldura iframe{width:100%;height:100%;border:0;display:block}
+.casa{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
+.casa .tela{flex:1;border:1px solid var(--line-2);border-radius:20px;overflow:hidden;min-height:0;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.casa iframe{width:100%;height:100%;border:0;display:block}
+.casa .topo{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dica{font-size:.82rem;color:var(--mute);max-width:60ch}
+@media (max-width:1000px){html,body{overflow:auto;height:auto}.palco{grid-template-columns:1fr}.casa .tela{height:80vh}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="logo">Pitanga</span><h1>A nova forma de pedir · demonstração ao vivo</h1>
+  <div class="dir">
+    <button class="btn btn-g btn-sm" id="umdois">Mostrar 1 celular</button>
+    <button class="btn btn-g btn-sm" id="reiniciar">Reiniciar demonstração</button>
+    <a class="btn btn-c btn-sm" href="/">Conhecer o projeto</a>
+  </div>
+</div>
+<div class="palco">
+  <div class="fones" id="fones">
+    <div class="fone"><span class="eyebrow">Cliente 1 · Mesa 7</span><div class="moldura"><div class="tela"><iframe title="Celular do cliente 1" src="/mesa?m=7&p=a"></iframe></div></div></div>
+    <div class="fone" id="fone2"><span class="eyebrow">Cliente 2 · Mesa 7</span><div class="moldura"><div class="tela"><iframe title="Celular do cliente 2" src="/mesa?m=7&p=b"></iframe></div></div></div>
+  </div>
+  <div class="casa">
+    <div class="topo"><span class="eyebrow">Painel da casa · salão, cozinha e bar</span><span class="dica">Tudo o que acontece nos celulares aparece aqui na hora.</span></div>
+    <div class="tela"><iframe title="Painel da casa" src="/casa"></iframe></div>
+  </div>
+</div>
+<script>
+const fones = document.getElementById("fones"), palco = document.querySelector(".palco");
+function escala() {
+  const h = palco.clientHeight - 60;
+  const k = Math.max(.45, Math.min(.9, h / 844));
+  document.documentElement.style.setProperty("--k", k.toFixed(3));
+}
+addEventListener("resize", escala); escala();
+document.getElementById("umdois").onclick = e => { const f = document.getElementById("fone2"); f.hidden = !f.hidden; e.target.textContent = f.hidden ? "Mostrar 2 celulares" : "Mostrar 1 celular"; };
+</script>
+<script type="module">
+import { zerar } from "/assets/store.js";
+document.getElementById("reiniciar").onclick = async () => {
+  try { Object.keys(localStorage).filter(k => k.startsWith("pitanga:")).forEach(k => localStorage.removeItem(k)); } catch {}
+  await zerar(7);
+  document.querySelectorAll("iframe").forEach(f => f.src = f.src);
+};
+</script>
+</body>
+</html>

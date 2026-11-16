@@ -1,0 +1,38 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/assets/f/:arquivo",
+      "destination": "https://cdn.jsdelivr.net/gh/Arturlima-ux/Cidadeia@8bd92d8cf9751a71d75e5ce55a249903f2f8f7f6/f/:arquivo"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/config.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        }
+      ]
+    },
+    {
+      "source": "/assets/f/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

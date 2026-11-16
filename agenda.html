@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#120B0A">
+<title>Pitanga · Agenda de reservas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Yellowtail&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+.pad{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+header{position:sticky;top:0;z-index:10;background:rgba(18,11,10,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header .logo{font-size:1.9rem;text-decoration:none}
+.abas{display:flex;gap:4px;background:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:4px}
+.abas a{color:var(--mute);padding:8px 16px;border-radius:999px;font-weight:600;font-size:.88rem;text-decoration:none}
+.abas a[aria-current="page"]{background:var(--cream);color:var(--ink)}
+.dir{margin-left:auto;display:flex;gap:8px;align-items:center}
+main{padding-top:22px;padding-bottom:50px;display:flex;flex-direction:column;gap:22px}
+.dia-nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dia-nav h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,5vw,3rem);margin:0;line-height:1}
+.dia-nav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);background:none;display:grid;place-items:center}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpis div{background:var(--ink);padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.kpis b{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpis small{color:var(--mute);font-size:.8rem}
+.grade{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}
+@media (max-width:980px){.grade{grid-template-columns:1fr}}
+.slot{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.slot .h{font-family:var(--serif);font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+.slot .cap{height:4px;border-radius:2px;background:var(--line);margin-top:10px;overflow:hidden}
+.slot .cap i{display:block;height:100%;background:var(--pitanga)}
+.slot .cap+small{display:block;color:var(--mute);font-size:.72rem;margin-top:4px}
+.res{display:grid;gap:8px}
+.r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--ink-2)}
+.r.cancelada,.r.noshow{opacity:.5}
+.r b{font-weight:600}
+.r .meta{color:var(--mute);font-size:.82rem;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.r .obs{color:var(--warn);font-size:.82rem;margin-top:4px}
+.r .ac{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.vazio{color:var(--mute);font-size:.88rem;padding:6px 0}
+aside{position:sticky;top:90px;display:flex;flex-direction:column;gap:12px}
+aside h2{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:0}
+.cfg{border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--ink-2)}
+.cfg label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.88rem}
+.cfg input{width:84px;background:var(--ink);border:1px solid var(--line-2);border-radius:10px;padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums}
+.cfg .dias7{display:flex;gap:4px}
+.cfg .dias7 button{flex:1;border:1px solid var(--line-2);background:none;border-radius:8px;padding:6px 0;font-size:.72rem;color:var(--cream-2)}
+.cfg .dias7 button[aria-pressed="true"]{background:var(--pitanga);border-color:var(--pitanga);color:#fff}
+.gaveta{position:fixed;inset:0;z-index:40;background:rgba(10,6,5,.6);display:flex;justify-content:flex-end}
+.gaveta .g{width:min(420px,100%);height:100%;overflow:auto;background:var(--ink-2);border-left:1px solid var(--line-2);padding:24px 22px;display:flex;flex-direction:column;gap:14px}
+.gaveta h3{font-family:var(--serif);font-weight:400;font-size:2rem;margin:0}
+.mesas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mesas button{border:1px solid var(--line-2);background:none;border-radius:12px;padding:12px 0;font-family:var(--serif);font-size:1.4rem}
+.mesas button:disabled{opacity:.3}
+</style>
+</head>
+<body>
+<header class="pad">
+  <a class="logo" href="/">Pitanga</a>
+  <nav class="abas" aria-label="Painéis"><a href="/casa">Salão</a><a href="/casa?v=cozinha">Cozinha</a><a href="/casa?v=bar">Bar</a><a href="/agenda" aria-current="page">Reservas</a></nav>
+  <div class="dir"><a class="btn btn-g btn-sm" href="/reservar" target="_blank">Página de reservas do cliente</a></div>
+</header>
+<main class="pad" id="main"></main>
+<div id="camada"></div>
+<div class="toast" id="toast" hidden></div>
+<script type="module">
+import { colecao, mesa, todas } from "/assets/store.js";
+import { PADRAO, quando, gratisAinda, ocupados, iso, dataLonga } from "/assets/reservas.js";
+import { porId, brl } from "/assets/data.js";
+import { I } from "/assets/icons.js";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toast = t => { const e = $("#toast"); e.textContent = t; e.hidden = false; clearTimeout(e._t); e._t = setTimeout(() => e.hidden = true, 2400); };
+let lista = [], cfg = { ...PADRAO }, mesasEstado = [], dia = iso(new Date()), aberta = null, pronto = false;
+const R = colecao("reservas", l => { const novas = l.filter(r => !lista.find(x => x.id === r.id)); if (lista.length && novas.length) toast(`Nova reserva: ${novas[0].nome}, ${novas[0].pessoas} pessoas às ${novas[0].hora}`); lista = l; render(); });
+const C = colecao("config", l => { const c = l.find(x => x.id === "reservas"); cfg = { ...PADRAO, ...(c || {}) }; render(); });
+todas(l => { mesasEstado = l; if (aberta) render(); });
+
+const ST = { confirmada: ["Confirmada", "st-recebido"], chegou: ["Na mesa", "st-pronto"], cancelada: ["Cancelada", "st-servido"], noshow: ["Não veio", "st-aguardando"] };
+const SN = { pago: "sinal pago", devolvido: "sinal devolvido", retido: "sinal retido", abatido: "sinal abatido" };
+
+function render() {
+  if (!pronto) return;
+  const doDia = lista.filter(r => r.data === dia).sort((a, b) => a.hora.localeCompare(b.hora));
+  const ativas = doDia.filter(r => r.status === "confirmada" || r.status === "chegou");
+  const retidos = lista.filter(r => r.sinalStatus === "retido").reduce((a, r) => a + r.sinal, 0);
+  const horas = [...new Set(doDia.map(r => r.hora))].sort();
+  const sem = ["D", "S", "T", "Q", "Q", "S", "S"];
+  $("#main").innerHTML = `
+  <div class="dia-nav"><button data-dia="-1" aria-label="Dia anterior">${I.voltar}</button><h1>${esc(dataLonga(dia))}</h1><button data-dia="1" aria-label="Próximo dia">${I.seta}</button>
+    ${dia !== iso(new Date()) ? `<button class="btn btn-g btn-sm" style="width:auto;height:auto;border-radius:999px" data-hoje>Hoje</button>` : ""}</div>
+  <div class="kpis">
+    <div><b>${ativas.length}</b><small>reservas ativas</small></div>
+    <div><b>${ativas.reduce((a, r) => a + r.pessoas, 0)}</b><small>pessoas esperadas</small></div>
+    <div><b>${brl(ativas.reduce((a, r) => a + r.sinal, 0))}</b><small>em sinais do dia</small></div>
+    <div><b>${brl(retidos)}</b><small>sinais retidos (cancelamentos tardios e faltas)</small></div>
+  </div>
+  <div class="grade"><section>${horas.length ? "" : `<div class="vazio" style="padding:20px 0;border-top:1px solid var(--line)">Nenhuma reserva para este dia. As novas aparecem aqui na hora.</div>`}${horas.map(h => {
+    const rs = doDia.filter(r => r.hora === h), oc = ocupados(lista, dia, h);
+    return `<div class="slot"><div><div class="h">${h}</div><div class="cap"><i style="width:${Math.min(100, oc / cfg.lugaresPorHorario * 100)}%"></i></div><small class="num">${oc}/${cfg.lugaresPorHorario} lugares</small></div>
+      <div class="res">${rs.length ? rs.map(r => {
+        const passou = Date.now() > quando(r).getTime() + 15 * 60e3;
+        const pre = (r.pre || []).map(id => porId(id)?.nome).filter(Boolean);
+        return `<div class="r ${r.status}"><div><b>${esc(r.nome)}</b> · <span class="num">${r.pessoas}</span> ${r.pessoas === 1 ? "pessoa" : "pessoas"} <span class="st ${ST[r.status][1]}" style="margin-left:6px">${ST[r.status][0]}${r.mesa ? " · mesa " + r.mesa : ""}</span>
+          <div class="meta"><span class="num">${esc(r.id)}</span><span>${esc(r.tel)}</span><span>${brl(r.sinal)} · ${SN[r.sinalStatus]}</span>${r.ocasiao && r.ocasiao !== "Sem ocasião" ? `<span style="color:var(--pitanga-2)">${esc(r.ocasiao)}</span>` : ""}</div>
+          ${pre.length ? `<div class="meta">Na chegada: ${pre.map(esc).join(", ")}</div>` : ""}${r.obs ? `<div class="obs">${esc(r.obs)}</div>` : ""}</div>
+          <div class="ac">${r.status === "confirmada" ? `<button class="btn btn-c btn-sm" data-chegou="${r.id}">Chegou</button>${passou ? `<button class="btn btn-g btn-sm" data-noshow="${r.id}">Não veio</button>` : ""}` : ""}</div></div>`;
+      }).join("") : `<div class="vazio">Sem reservas.</div>`}</div></div>`;
+  }).join("")}</section>
+  <aside><h2>Política e capacidade</h2><div class="cfg">
+    <label>Sinal por pessoa (R$)<input id="c-sinal" type="number" min="0" step="5" value="${cfg.sinalPorPessoa}"></label>
+    <label>Cancelamento grátis até (horas antes)<input id="c-janela" type="number" min="0" max="72" value="${cfg.janelaHoras}"></label>
+    <label>Lugares por horário<input id="c-lugares" type="number" min="1" value="${cfg.lugaresPorHorario}"></label>
+    <label>Máx. pessoas por reserva<input id="c-max" type="number" min="1" value="${cfg.maxPessoas}"></label>
+    <div><div class="eyebrow" style="margin-bottom:6px">Dias fechados</div><div class="dias7">${sem.map((n, i) => `<button data-fecha="${i}" aria-pressed="${cfg.fechado.includes(i)}" aria-label="${["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][i]}">${n}</button>`).join("")}</div></div>
+    <button class="btn btn-p btn-sm" id="salvar-cfg">Salvar política</button>
+    <small class="muted">Vale para novas reservas. Quem já reservou mantém a política que aceitou.</small>
+  </div></aside></div>`;
+  $("#camada").innerHTML = aberta ? gavetaMesa(aberta) : "";
+}
+function gavetaMesa(id) {
+  const r = R.get(id); if (!r) return "";
+  const ocup = n => { const m = mesasEstado.find(x => x.mesa === n); return m && (Object.keys(m.membros).length || m.pedidos.length || m.reserva); };
+  return `<div class="gaveta" data-fundo><div class="g" role="dialog" aria-label="Sentar reserva">
+    <span class="eyebrow">Reserva ${esc(r.id)}</span><h3>${esc(r.nome)}</h3>
+    <p class="muted" style="margin:0">${r.pessoas} ${r.pessoas === 1 ? "pessoa" : "pessoas"} · ${r.hora}${r.ocasiao && r.ocasiao !== "Sem ocasião" ? " · " + esc(r.ocasiao) : ""}. Escolha a mesa: o sinal de ${brl(r.sinal)} fica registrado para abater na conta${(r.pre || []).length ? " e os drinks de chegada vão direto para o bar" : ""}.</p>
+    <div class="mesas">${Array.from({ length: 12 }, (_, i) => i + 1).map(n => `<button data-sentar="${r.id}:${n}" ${ocup(n) ? "disabled" : ""} aria-label="Mesa ${n}">${n}</button>`).join("")}</div>
+    <button class="btn btn-g" data-fechar>Voltar</button></div></div>`;
+}
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button,[data-fundo]"); if (!t) return;
+  if (t.matches("[data-fundo]") && e.target !== t) return;
+  const d = t.dataset;
+  if (d.dia) { const x = new Date(dia + "T12:00:00"); x.setDate(x.getDate() + +d.dia); dia = iso(x); render(); }
+  else if (d.hoje !== undefined) { dia = iso(new Date()); render(); }
+  else if (d.fundo !== undefined || d.fechar !== undefined) { aberta = null; render(); }
+  else if (d.chegou) { aberta = d.chegou; render(); }
+  else if (d.sentar) {
+    const [id, n] = d.sentar.split(":"); const r = R.get(id);
+    await mesa(+n).update(s => {
+      s.reserva = { id: r.id, nome: r.nome, pessoas: r.pessoas, ocasiao: r.ocasiao, sinal: r.sinal };
+      s.membros["res-" + r.id] = { nome: r.nome, cor: "#F0C873", desde: Date.now() };
+      (r.pre || []).forEach(pid => { const it = porId(pid); if (it) s.pedidos.push({ uid: Math.random().toString(36).slice(2), id: pid, curso: "bebida", por: "res-" + r.id, obs: "Drink de chegada (reserva)", preco: it.preco, status: "recebido", em: Date.now() }); });
+    });
+    await R.salvar({ ...r, status: "chegou", mesa: +n, chegouEm: Date.now(), sinalStatus: "abatido" });
+    aberta = null; toast(`${r.nome} na mesa ${n}.`);
+  }
+  else if (d.noshow) { const r = R.get(d.noshow); await R.salvar({ ...r, status: "noshow", sinalStatus: "retido", historico: [...(r.historico || []), { em: Date.now(), acao: "não compareceu" }] }); toast("Marcado como não compareceu. Sinal retido."); }
+  else if (d.fecha) { const i = +d.fecha; cfg.fechado = cfg.fechado.includes(i) ? cfg.fechado.filter(x => x !== i) : [...cfg.fechado, i]; render(); }
+  else if (t.id === "salvar-cfg") {
+    const n = id => Math.max(0, Number($(id).value) || 0);
+    await C.salvar({ ...cfg, id: "reservas", sinalPorPessoa: n("#c-sinal"), janelaHoras: n("#c-janela"), lugaresPorHorario: Math.max(1, n("#c-lugares")), maxPessoas: Math.max(1, n("#c-max")) });
+    toast("Política salva.");
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && aberta) { aberta = null; render(); } });
+pronto = true; render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
