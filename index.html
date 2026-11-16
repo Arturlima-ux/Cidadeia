@@ -12,7 +12,7 @@
 // O tema acompanha o relógio de Teresina: almoço até as 16h, fim de tarde até as 18h, jantar depois. ?tema=almoco|tarde|jantar força um deles (para demonstração).
 (function(){var q=new URLSearchParams(location.search).get("tema"),h=+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",hour12:false,timeZone:"America/Fortaleza"}).slice(0,2);
 document.documentElement.dataset.tema=/^(almoco|tarde|jantar)$/.test(q)?q:h>=5&&h<16?"almoco":h<18&&h>=16?"tarde":"jantar";
-var si=new URLSearchParams(location.search).get("sistema");document.documentElement.dataset.sis=/^(gomos|tinta|tacas|estante)$/.test(si)?si:"foto";if(document.documentElement.dataset.sis==="foto")document.documentElement.classList.add("cortina");})();
+var si=new URLSearchParams(location.search).get("sistema");document.documentElement.dataset.sis=/^(gomos|tinta|tacas|estante)$/.test(si)?si:"foto";})();
 </script>
 <style>
 :root{--serif:"Cormorant Garamond","Cormorant",Georgia,serif;--sans:"Manrope",system-ui,-apple-system,sans-serif;--ease:cubic-bezier(.2,.7,.2,1);--fosco:blur(26px) saturate(150%);
@@ -382,9 +382,6 @@ html[data-sis="tacas"] :is(#escrever,.acoes a.lk.ac,.onde .lk.ac):active{backgro
 @media (max-height:740px){.ga{width:min(240px,66vw);margin-bottom:38px}.ga .gb{bottom:-36px;font-size:20px}.tb{height:27vh}.tb .lb{top:20px;font-size:19px}.il b{font-size:32px}.ti .il{padding:14px 0 12px}.ti .il small{display:none}}
 /* ===================== Foto: o sistema principal =====================
    Fotos reais da casa em tela cheia, vidro por cima, e a foto tocada vira a próxima cena. */
-/* Cortina de entrada: a página só aparece inteira, com foto e letras prontas, num único fade. */
-html.cortina{background:#0E0303}html.cortina body{opacity:0}
-html.revela body{transition:opacity .9s cubic-bezier(.2,.7,.2,1)}
 .heroi{position:fixed;inset:0;z-index:0;overflow:hidden;opacity:0;visibility:hidden;transition:opacity 1.2s var(--ease),visibility 0s 1.2s;background:#120404}
 html[data-sis="foto"] body[data-cena="abertura"] .heroi{opacity:1;visibility:visible;transition-delay:0s}
 .heroi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 40%;animation:camera 11s cubic-bezier(.2,.6,.2,1) forwards}
@@ -477,15 +474,7 @@ html[data-sis="foto"] .lk.men{font-family:var(--serif);font-style:italic;font-si
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n={almoco:"salmao",tarde:"gin",jantar:"mignon"}[d.dataset.tema],h=document.getElementById("heroi");
 document.body.dataset.cena="abertura";h.style.transition="none";h.dataset.n=n;
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
-var visto=/(?:^|; )pe=1/.test(document.cookie);
-try{visto=visto||Date.now()-(+localStorage.getItem("pitanga-entrada")||0)<36e5;localStorage.setItem("pitanga-entrada",Date.now())}catch(e){}
-try{visto=visto||!!sessionStorage.getItem("pe");sessionStorage.setItem("pe","1")}catch(e){}
-try{var nv=performance.getEntriesByType("navigation")[0];visto=visto||!!nv&&(nv.type==="reload"||nv.type==="back_forward")}catch(e){}
-document.cookie="pe=1;max-age=3600;path=/;SameSite=Lax";
-if(visto){document.body.classList.add("pula");d.classList.remove("cortina");setTimeout(function(){h.style.transition=""},50);return;}
-var d2=document.documentElement,feito=0,abre=function(){if(feito++)return;d2.classList.add("revela");d2.classList.remove("cortina");setTimeout(function(){h.style.transition="";d2.classList.remove("revela")},1000)};
-var im=h.querySelector("img"),f=document.fonts&&document.fonts.ready||Promise.resolve();
-Promise.all([im.decode?im.decode().catch(function(){}):Promise.resolve(),f]).then(abre);setTimeout(abre,2500);})();</script>
+document.body.classList.add("pula");setTimeout(function(){h.style.transition=""},50);})();</script>
 <div class="vela"></div><canvas id="po" aria-hidden="true"></canvas><div class="grao"></div>
 
 <header class="topo"><button class="logo" data-ir="abertura" aria-label="Pitanga, voltar ao início">Pitanga</button><button class="ir" id="ir"></button></header>
@@ -506,6 +495,7 @@ Promise.all([im.decode?im.decode().catch(function(){}):Promise.resolve(),f]).the
   <p class="pergunta">Qual será o seu?</p>
   <div class="portas"><button class="env" data-ir="visita"><span class="des"><i></i></span><b>Escrever a visita</b><small>Três toques e a casa escreve uma carta para você</small></button><i></i>
     <button class="liv" data-ir="livro"><span class="des"><i></i></span><b>Folhear a carta</b><small>Executivo, comes, bebes, vinhos e crepes</small></button></div>
+<script>if(document.documentElement.dataset.sis==="foto")document.querySelector(".portas").innerHTML='<button class="vd" data-ir="visita" data-porta><span class="ft"><img src="/assets/f/aperol-g.webp" srcset="/assets/f/aperol-m.webp 720w, /assets/f/aperol-g.webp 1170w" sizes="100vw" alt=""></span><span class="br"></span><small>I</small><b>Escrever a visita</b><i>Três toques e a casa escreve uma carta para você</i></button><button class="vd" data-ir="livro" data-porta><span class="ft"><img src="/assets/f/mar-g.webp" srcset="/assets/f/mar-m.webp 720w, /assets/f/mar-g.webp 1170w" sizes="100vw" alt=""></span><span class="br"></span><small>II</small><b>Folhear a carta</b><i>Executivo, comes, bebes, vinhos e crepes</i></button>';</script>
   <button class="onde-l" data-mapa>Av. João XXIII, 1161 · Jóquei<span>como chegar</span></button>
 </div></section>
 
