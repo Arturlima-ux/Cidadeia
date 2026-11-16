@@ -252,7 +252,7 @@ const secao = (x, n) => {
 let capAt = 0;
 function rodape(m) {
   $("#caps").innerHTML = `<div><div class="fio-c">${m.secs.map((x, k) => `<button data-cap="${k}" aria-label="${esc(x.nome)}"><i></i></button>`).join("")}</div>
-    <button class="rod" data-indice aria-label="Abrir o cardápio completo"><span class="rm"></span><b></b><span class="su">Cardápio</span></button></div>`;
+    <button class="rod" data-indice aria-label="Ver tudo desta seção"><span class="rm"></span><b></b><span class="su">Ver tudo</span></button></div>`;
   marca(0, true);
 }
 function marca(n, ja) {
