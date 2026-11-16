@@ -39,7 +39,7 @@ function heroi() {
   if (SIS !== "foto") return;
   const n = FOTO.heroi[agora], h = $("#heroi");
   if (h.dataset.n === n) return;
-  h.dataset.n = n; h.innerHTML = `<img ${foto(n)} alt="" decoding="async" fetchpriority="high">`;
+  h.dataset.n = n; h.innerHTML = `<img class="ok" ${foto(n)} alt="" decoding="async" fetchpriority="high">`;
 }
 // Mudança de foco: o que foi tocado fica nítido e acende; todo o resto perde o foco e sai, como uma câmera que reajusta.
 let foco = [];
