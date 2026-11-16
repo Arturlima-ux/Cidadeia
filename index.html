@@ -149,6 +149,10 @@ body.aberto .topo .ir:active{transform:translateY(9px);transition-duration:.18s;
 body.pula #abertura *,body.pula #abertura *::before{animation-duration:.01s!important;animation-delay:0s!important}
 body.pula .heroi img{animation-duration:.01s!important;animation-delay:0s!important}
 /* A abertura nasce do escuro: nenhum fundo antigo por baixo enquanto a foto acende */
+/* Sem o desenho da fruta, a frase começa logo que a foto acende: sem espera parada */
+html[data-sis="foto"] .verso span:nth-child(1){animation-delay:.5s}html[data-sis="foto"] .verso span:nth-child(2){animation-delay:1.1s}html[data-sis="foto"] .verso span:nth-child(3){animation-delay:1.7s}
+html[data-sis="foto"] #abertura .orn{animation-delay:2.5s}html[data-sis="foto"] #abertura .pergunta{animation-delay:2.9s}
+html[data-sis="foto"] #abertura .portas{animation-delay:3.8s}html[data-sis="foto"] #abertura .onde-l{animation-delay:4.4s}
 html[data-sis="foto"] body[data-cena="abertura"]::before{content:"";position:fixed;inset:0;background:#0E0303}html[data-sis="foto"] body[data-cena="abertura"] .luz{visibility:hidden}
 /* Ao sair (fechar o navegador, trocar de app), a página volta ao escuro: a imagem que o celular guarda é a do começo da animação, não a página pronta */
 html:has(body.saindo){background:#0E0303}body.saindo>*{opacity:0!important;transition:none!important}
