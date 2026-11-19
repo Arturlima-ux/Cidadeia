@@ -1,4 +1,5 @@
-import { SECOES, PRATOS, porId } from "/assets/data.js";
+import { SECOES, PRATOS, porId, todos } from "/assets/data.js";
+import { inicia as iniciaMinha } from "/assets/minha.js?v=5";
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -14,8 +15,8 @@ const txt = i => norm(`${i.nome} ${i.desc || ""} ${(i.ing || []).join(" ")}`);
 // ---------- Cenas ----------
 // O momento decide as cores da casa inteira. Vem do relógio de Teresina (almoço até as 16h, fim de tarde até as 18h,
 // jantar depois), é reconferido a cada minuto e cede a vez quando o cliente diz para quando é a visita.
-const forcado = (new URLSearchParams(location.search).get("tema") || "").match(/^(almoco|tarde|jantar)$/)?.[0];
-const relogio = () => { const h = +new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", hour12: false, timeZone: "America/Fortaleza" }).slice(0, 2); return forcado || (h >= 5 && h < 16 ? "almoco" : h >= 16 && h < 18 ? "tarde" : "jantar"); };
+// Tema fixo (pedido do dono): sempre o salão de fim de tarde, não depende da hora nem de ?hora=/?tema=.
+const relogio = () => "tarde";
 let agora = relogio();
 const LUZ = { almoco: "dia", tarde: "tarde", jantar: "noite" };
 const COR = { almoco: "#F5EEE4", tarde: "#25101B", jantar: "#1E0605" };
@@ -27,7 +28,7 @@ document.documentElement.dataset.sis = SIS;
 const ESTRELA = (() => { let d = ""; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 6 : 15; d += `${k ? "L" : "M"}${(Math.cos(a) * r).toFixed(1)} ${(Math.sin(a) * r).toFixed(1)}`; } return d + "Z"; })();
 // Fotos reais, do Instagram da casa. Só levam nome de prato quando a própria legenda da casa diz qual é.
 const FOTO = {
-  heroi: { almoco: "salmao", tarde: "gin", jantar: "mignon" },
+  heroi: { almoco: "marca", tarde: "marca", jantar: "marca" },
   porta: { visita: "aperol", livro: "mar" },
   modulo: { executivo: ["pescada", "50% 45%"], comes: ["mar", "50% 50%"], bebes: ["margarita", "50% 42%"], vinhos: ["mignon", "92% 18%"] },
   item: { "ex-pescada": "pescada", "ex-bacalhau": "risoto", "ex-maria-maria": "churros", "mar-vermelho": "mar", "carne-de-sol-grelhada": "carne" },
@@ -37,8 +38,9 @@ const src = n => (window.FOTOS_INLINE || {})[n] || `/assets/f/${n}-g.webp`;
 const foto = (n, larg = "100vw") => (window.FOTOS_INLINE || {})[n] ? `src="${src(n)}"` : `src="/assets/f/${n}-g.webp" srcset="/assets/f/${n}-m.webp 720w, /assets/f/${n}-g.webp 1170w" sizes="${larg}"`;
 function heroi() {
   if (SIS !== "foto") return;
-  const n = FOTO.heroi[agora], h = $("#heroi");
-  if (h.dataset.n === n) return;
+  const n = (location.search.match(/[?&]hero=([\w-]+)/) || [])[1] || FOTO.heroi[agora], h = $("#heroi");
+  if (h.dataset.n === n || n === "marca") return;
+  if (window.__h3d) { window.__h3d.fim(); window.__h3d = null; }
   h.dataset.n = n; h.innerHTML = `<img class="ok" ${foto(n)} alt="" decoding="async" fetchpriority="high">`;
 }
 // Mudança de foco: o que foi tocado fica nítido e acende; todo o resto perde o foco e sai, como uma câmera que reajusta.
@@ -46,7 +48,7 @@ let foco = [];
 const desfoca = (els, dur = 560) => els.forEach((el, i) => foco.push(el.animate(
   [{ opacity: 1, filter: "blur(0px)", transform: "translateY(0)" }, { opacity: 0, filter: "blur(9px)", transform: "translateY(-10px)" }],
   { duration: dur, delay: i * 45, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })));
-const refoca = () => { foco.forEach(a => a.cancel()); foco = []; };
+const refoca = () => { foco.forEach(a => a.cancel()); foco = []; window.__h3d?.desfoca(false); };
 function acende(t, fim) {
   t.classList.add("abre");
   foco.push(t.animate([{ transform: "scale(1)" }, { transform: "scale(1.035)" }], { duration: 700, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }));
@@ -55,7 +57,7 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b, sm], k) => `<button class="vd" data-ir="${ir}" data-porta><span class="ft"><img ${foto(FOTO.porta[ir])} alt=""></span><span class="br"></span><small>${ROM[k]}</small><b>${b}</b><i>${sm}</i></button>`).join("");
+  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b, sm], k) => `<button class="vd" data-ir="${ir}" data-porta><small>${ROM[k]}</small><b>${b}</b><i>${sm}</i></button>`).join("");
   if (SIS === "gomos") el.innerHTML = `<div class="ga"><svg viewBox="-150 -100 300 200" aria-hidden="true">
       <path class="deco" pathLength="1" d="M0 -8 C-26 -40 -30 -92 0 -98 C30 -92 26 -40 0 -8 Z"/><path class="deco" pathLength="1" d="M0 8 C-26 40 -30 92 0 98 C30 92 26 40 0 8 Z"/>
       <path class="lobo l" pathLength="1" d="M-8 0 C-40 -52 -136 -46 -140 0 C-136 46 -40 52 -8 0 Z"/><path class="lobo r" pathLength="1" d="M8 0 C40 -52 136 -46 140 0 C136 46 40 52 8 0 Z"/>
@@ -75,6 +77,7 @@ function toca(t, e, fim) {
   if (SIS === "foto") {
     if (t.dataset.porta !== undefined) {
       desfoca([...document.querySelectorAll("#abertura>.col>.sc, #abertura .verso, #abertura .orn, #abertura .pergunta, #abertura .onde-l"), ...[...document.querySelectorAll(".portas .vd")].filter(x => x !== t)]);
+      if (window.__h3d) window.__h3d.desfoca(true);
       const h = $("#heroi img"); if (h) foco.push(h.animate([{ filter: "blur(0px) brightness(1)" }, { filter: "blur(18px) brightness(.5)" }], { duration: 900, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }));
       return acende(t, fim);
     }
@@ -104,7 +107,7 @@ function toca(t, e, fim) {
   fim();
 }
 function veste() {
-  const t = v.momento || agora;
+  const t = agora; // fixo: a escolha do momento da visita não repinta a casa
   document.documentElement.dataset.tema = t;
   document.querySelector('meta[name="theme-color"]').content = COR[t];
   document.body.dataset.cena = cena; heroi();
@@ -243,7 +246,7 @@ function nomeHTML(n) {
   const o = n.match(/^(.*?)\s+-\s*([A-Z]{2,3})$/); if (o) return `${esc(o[1])}<span class="or">${o[2]}</span>`;
   const p = n.match(/^(.*?)\s*(\([^)]*\))$/); return p ? `${esc(p[1])} <small>${esc(p[2])}</small>` : esc(n);
 }
-const linha = i => `<li${FOTO.item[i.id] && SIS === "foto" ? ` class="cf"><figure><img ${foto(FOTO.item[i.id])} alt="${esc(i.nome)}" loading="lazy"></figure` : ""}><div class="l"><h4>${nomeHTML(i.nome)}</h4>${i.preco != null ? `<span class="pc">${preco(i.preco)}</span>` : ""}</div>${i.desc ? `<p>${esc(i.desc)}</p>` : ""}</li>`;
+const linha = i => `<li${FOTO.item[i.id] && SIS === "foto" ? ` class="cf"><figure><img ${foto(FOTO.item[i.id])} alt="${esc(i.nome)}" loading="lazy"></figure` : ""}><div class="l"><h4>${nomeHTML(i.nome)}</h4>${i.preco != null ? `<span class="pc">${preco(i.preco)}</span>` : ""}<div class="mk" data-id="${i.id}"></div></div>${i.desc ? `<p>${esc(i.desc)}</p>` : ""}</li>`;
 const secao = (x, n) => {
   const curta = x.sub && x.sub.length < 24, so = x.itens.every(i => !i.desc);
   return `<section class="sec${so ? " so" : ""}" id="s-${n}" data-n="${n}"><header><i class="orn-s" aria-hidden="true"></i><h3>${esc(x.nome)}</h3><span class="sc">${curta ? esc(x.sub) : x.itens.length + (x.itens.length === 1 ? " item" : " itens")}</span>${x.sub && !curta ? `<p>${esc(x.sub)}</p>` : ""}</header><ul>${x.itens.map(linha).join("")}</ul></section>`;
@@ -306,10 +309,10 @@ function livro() {
     + (m.id === "executivo" ? `<div class="p79"><span>${esc(m.linha)}</span><b>79</b></div>` : m.secs.length ? `<p>${esc(m.linha)}</p>` : `<p>A carta de crepes ainda não está disponível aqui.</p>`);
   $("#idx").innerHTML = m.secs.map(secao).join("") + (m.secs.length ? `<p class="rodape">Preços em reais</p>` : "");
   const secs = [...document.querySelectorAll("#idx .sec")];
-  if (calmo || !("IntersectionObserver" in window)) return secs.forEach(x => x.classList.add("v"));
+  if (!("IntersectionObserver" in window)) return secs.forEach(x => x.classList.add("v"));
   const surge = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("v"); surge.unobserve(e.target); } }), { root: $("#livro"), rootMargin: "0px 0px -8% 0px" });
   espia = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && marca(+e.target.dataset.n)), { root: $("#livro"), rootMargin: "-22% 0px -72% 0px" });
-  secs.forEach(x => { surge.observe(x); espia.observe(x); });
+  secs.forEach(x => { if (calmo) x.classList.add("v"); else surge.observe(x); espia.observe(x); });
 }
 
 // ---------- Como chegar ----------
@@ -326,12 +329,87 @@ const LOCAL = { lat: -5.0801091, lng: -42.7846717, nome: "Pitanga Gastrobar", en
 }
 const mapa = on => document.body.classList.toggle("com-mapa", on);
 
+
+// ---------- Linha viva da abertura ----------
+// Memória só deste aparelho: a contagem de visitas e os últimos pratos marcados. Nada sai daqui.
+const VK = "pitanga-visitas";
+const lerV = () => { try { return JSON.parse(localStorage.getItem(VK)) || {}; } catch { return {}; } };
+const gravaV = o => { try { localStorage.setItem(VK, JSON.stringify(o)); } catch {} };
+{ const o = lerV(); let novo = false; try { novo = !sessionStorage.getItem("pitanga-sessao"); sessionStorage.setItem("pitanga-sessao", "1"); } catch {} if (novo) gravaV({ ...o, n: (o.n || 0) + 1 }); }
+const marcou = id => { const o = lerV(); gravaV({ ...o, ult: [id, ...(o.ult || []).filter(x => x !== id)].slice(0, 6) }); };
+const POOL = { almoco: ["Mar Vermelho", "Pescada do Pitanga", "Arrastão", "Carne de Sol Grelhada"], tarde: ["Gin do Del", "Aperol Spritz"], jantar: ["Mignon Bordelaise", "Segundo Sol", "Carne de Sol Grelhada"] };
+const porNome = n => todos().find(i => i.nome === n);
+function viva() {
+  const el = $("#viva"); if (!el) return;
+  const d = (location.search.match(/[?&]demo=(\d+)/) || [])[1];
+  const o = lerV(), n = d ? +d : o.n || 0;
+  const ult = (d ? (+d >= 10 ? ["mar-vermelho", "mignon-bordelaise"] : +d >= 2 ? ["mar-vermelho"] : []) : o.ult || []).map(porId).filter(Boolean);
+  let html = "";
+  if (n >= 2 && ult.length) html = `Da última vez você marcou <b>${esc(ult[0].nome)}</b>.`;
+  else if (n >= 2) { const l = (POOL[agora] || []).map(porNome).filter(Boolean); if (l.length) html = `Uma sugestão da carta para agora: <b>${esc(l[new Date().getDate() % l.length].nome)}</b>.`; }
+  if (!html) { el.hidden = true; return; }
+  el.innerHTML = html + ` <button data-ir="livro">ver na carta</button>`; el.hidden = false;
+}
+
+
+// ---------- Estou perdido ----------
+// Duas ou três perguntas gentis, cada uma com "pular". As sugestões saem só de nomes, descrições e preços da carta.
+const PD = { fome: null, leve: null, bebida: null, passo: 0, volta: 0, foco: null };
+const PDQ = [
+  ["fome", "Com fome ou só beliscando?", [["f", "Com fome"], ["b", "Só beliscando"]]],
+  ["leve", "Algo mais leve ou mais reconfortante?", [["l", "Mais leve"], ["r", "Mais reconfortante"]]],
+  ["bebida", "Quer uma bebida também?", [["s", "Quero"], ["n", "Agora não"]]],
+];
+const RE_LEVE = /salada|pescada|salm|peixe|carpaccio|ceviche|legum|verde/, RE_REC = /risoto|gnocchi|fettuccine|queijo|molho branco|baiao|feij|cupim|costela|gratin|creme|farofa/;
+const semente = () => { const d = new Date(); return d.getFullYear() * 400 + d.getMonth() * 31 + d.getDate() + PD.volta; };
+const gira = (a, n) => a.length ? a.map((x, k) => [x, (k * 7 + n) % a.length * 1000 + k]).sort((p, q) => p[1] - q[1]).map(p => p[0]) : a;
+function pdSugere() {
+  const secsDe = ids => ids.flatMap(sec), n = semente();
+  let pool = PD.fome === "b" ? secsDe(["prosa", "saladas"]) : secsDe(["poesias", "grelhados", "paixao", "contos"]);
+  const re = PD.leve === "l" ? RE_LEVE : PD.leve === "r" ? RE_REC : null;
+  const ok = re ? pool.filter(i => re.test(txt(i))) : [];
+  const ordem = [...gira(ok, n), ...gira(pool.filter(i => !ok.includes(i)), n)];
+  const pratos = ordem.slice(0, 3);
+  const bebida = PD.bebida === "s" ? gira(sec("autorais"), n)[0] : null;
+  return { pratos, bebida };
+}
+const pdItem = (i, rot) => `<div class="r"><b>${nomeHTML ? nomeHTML(i.nome) : esc(i.nome)}</b>${i.desc ? `<span>${esc(i.desc)}</span>` : ""}<span>${rot ? rot + " · " : ""}${i.preco != null ? `<i>${preco(i.preco)}</i>` : ""}</span></div>`;
+function pdPinta() {
+  const el = $("#pd"); if (!el) return;
+  if (PD.passo < PDQ.length) {
+    const [k, q, ops] = PDQ[PD.passo];
+    el.innerHTML = `<small>Sem pressa · ${PD.passo + 1} de ${PDQ.length}</small><h3 id="pd-t" tabindex="-1">${q}</h3><p>Ninguém aqui espera que você saiba. Pode pular.</p>
+      <div class="op">${ops.map(([v2, r]) => `<button data-pd="r" data-k="${k}" data-v="${v2}">${r}</button>`).join("")}</div>
+      <div class="ac"><button class="pu" data-pd="r" data-k="${k}" data-v="">Prefiro pular</button><button class="pu" data-pd="fecha">Fechar</button></div>`;
+  } else {
+    const { pratos, bebida } = pdSugere();
+    el.innerHTML = `<small>Três ideias. Nenhuma obrigação.</small><h3 id="pd-t" tabindex="-1">Para começar a conversar</h3>
+      ${pratos.map(i => pdItem(i, i.grupo)).join("")}${bebida ? pdItem(bebida, "Para acompanhar") : ""}
+      <p style="margin-top:14px;font-size:12.5px">Sobre alergias e restrições: a carta não detalha tudo. Pergunte ao salão, sem pressa.</p>
+      <div class="ac"><button data-pd="outra">Outras ideias</button><button data-ir="livro" data-pd="fecha">Ver a carta</button><button class="pu" data-pd="fecha">Fechar</button></div>`;
+  }
+  el.querySelector("#pd-t")?.focus({ preventScroll: true });
+}
+const pdAbre = on => {
+  document.body.classList.toggle("com-pd", on);
+  if (on) { PD.fome = PD.leve = PD.bebida = null; PD.passo = 0; PD.volta = 0; PD.foco = document.activeElement; pdPinta(); document.getElementById("livro")?.setAttribute("inert", ""); }
+  else { document.getElementById("livro")?.removeAttribute("inert"); PD.foco?.focus?.({ preventScroll: true }); }
+};
+
 // ---------- Toques ----------
 document.addEventListener("click", e => {
   if (cena === "abertura" && !document.body.classList.contains("pula")) document.body.classList.add("pula");
   if (e.target.closest("[data-mapa-fecha]") || (document.body.classList.contains("com-mapa") && !e.target.closest(".mapa"))) return mapa(false);
   const t = e.target.closest("button"); if (!t) return;
   const d = t.dataset;
+  if (d.mk === "+" && d.id) marcou(d.id);
+  if (d.pd) {
+    if (d.pd === "abre") pdAbre(true);
+    else if (d.pd === "fecha") pdAbre(false);
+    else if (d.pd === "r") { if (d.v) PD[d.k] = d.v; PD.passo++; pdPinta(); }
+    else if (d.pd === "outra") { PD.volta++; pdPinta(); }
+    if (!d.ir) return;
+  }
   if (d.ir) { if (d.porta !== undefined) toca(t, e, () => ir(d.ir)); else ir(d.ir); }
   else if (d.abre) { aberta = aberta === d.abre ? null : d.abre; frase(); baixo(); }
   else if (d.escolhe) escolhe(d.escolhe);
@@ -349,7 +427,7 @@ document.addEventListener("click", e => {
   else if (d.indice !== undefined) indice(true);
 });
 document.addEventListener("input", e => { if (e.target.id === "nome") v.nome = e.target.value; });
-document.addEventListener("keydown", e => { if (e.key === "Escape") { mapa(false); indice(false); } if (e.key === "Enter" && e.target.id === "nome") { e.target.blur(); $("#escrever")?.click(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { mapa(false); indice(false); if (document.body.classList.contains("com-pd")) pdAbre(false); } if (e.key === "Enter" && e.target.id === "nome") { e.target.blur(); $("#escrever")?.click(); } });
 
 // ---------- Luz de vela e poeira dourada ----------
 addEventListener("pointermove", e => { document.body.style.setProperty("--vx", e.clientX + "px"); document.body.style.setProperty("--vy", e.clientY + "px"); }, { passive: true });
@@ -389,3 +467,7 @@ addEventListener("pointermove", e => { document.body.style.setProperty("--vx", e
 }
 portas();
 veste();
+
+// Minha mesa: lista pessoal do cliente (assets/minha.js)
+iniciaMinha({ MODS, preco, esc });
+viva();

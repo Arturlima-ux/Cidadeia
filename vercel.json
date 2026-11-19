@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/assets/f/:arquivo",
-      "destination": "https://cdn.jsdelivr.net/gh/Arturlima-ux/Cidadeia@8bd92d8cf9751a71d75e5ce55a249903f2f8f7f6/f/:arquivo"
+      "destination": "https://cdn.jsdelivr.net/gh/Arturlima-ux/Cidadeia@4bf1faa5a77ccf82ae680fbe6c9b5b98141f2cfe/f/:arquivo"
     }
   ],
   "headers": [
