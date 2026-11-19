@@ -1,16 +1,16 @@
 {
- "geradoEm": "2026-11-16",
+ "geradoEm": "2026-11-19",
  "fonte": "ObrasGov (Cadastro Integrado de Projetos de Investimento)",
  "brasil": {
-  "paralisadas": 830,
+  "paralisadas": 832,
   "inacabadas": 1029,
-  "emExecucao": 21108
+  "emExecucao": 21130
  },
  "porUf": {
   "AC": {
    "paralisadas": 12,
    "inacabadas": 13,
-   "emExecucao": 293
+   "emExecucao": 294
   },
   "AL": {
    "paralisadas": 12,
@@ -30,12 +30,12 @@
   "BA": {
    "paralisadas": 57,
    "inacabadas": 65,
-   "emExecucao": 1720
+   "emExecucao": 1726
   },
   "CE": {
    "paralisadas": 33,
    "inacabadas": 17,
-   "emExecucao": 1058
+   "emExecucao": 1061
   },
   "DF": {
    "paralisadas": 6,
@@ -45,7 +45,7 @@
   "ES": {
    "paralisadas": 6,
    "inacabadas": 28,
-   "emExecucao": 256
+   "emExecucao": 257
   },
   "GO": {
    "paralisadas": 37,
@@ -53,17 +53,17 @@
    "emExecucao": 803
   },
   "MA": {
-   "paralisadas": 105,
+   "paralisadas": 107,
    "inacabadas": 51,
-   "emExecucao": 1456
+   "emExecucao": 1458
   },
   "MG": {
    "paralisadas": 88,
    "inacabadas": 93,
-   "emExecucao": 1825
+   "emExecucao": 1826
   },
   "MS": {
-   "paralisadas": 22,
+   "paralisadas": 23,
    "inacabadas": 13,
    "emExecucao": 500
   },
@@ -75,7 +75,7 @@
   "PA": {
    "paralisadas": 83,
    "inacabadas": 31,
-   "emExecucao": 1001
+   "emExecucao": 1003
   },
   "PB": {
    "paralisadas": 36,
@@ -85,22 +85,22 @@
   "PE": {
    "paralisadas": 35,
    "inacabadas": 44,
-   "emExecucao": 1005
+   "emExecucao": 1007
   },
   "PI": {
    "paralisadas": 24,
    "inacabadas": 69,
-   "emExecucao": 1065
+   "emExecucao": 1066
   },
   "PR": {
    "paralisadas": 12,
    "inacabadas": 51,
-   "emExecucao": 869
+   "emExecucao": 870
   },
   "RJ": {
    "paralisadas": 25,
    "inacabadas": 38,
-   "emExecucao": 561
+   "emExecucao": 562
   },
   "RN": {
    "paralisadas": 53,
@@ -118,9 +118,9 @@
    "emExecucao": 244
   },
   "RS": {
-   "paralisadas": 42,
+   "paralisadas": 41,
    "inacabadas": 40,
-   "emExecucao": 1442
+   "emExecucao": 1443
   },
   "SC": {
    "paralisadas": 15,
