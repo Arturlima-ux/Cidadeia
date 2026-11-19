@@ -11,8 +11,7 @@
 const css = `
 .qa{position:absolute;inset:0;overflow:hidden;background:var(--r-fora);transition:background 1.4s var(--ease),--lz 1.6s cubic-bezier(.3,.05,.2,1);--px:0;--py:0;--sw:0;--lz:0}
 .qa .r-fora{position:absolute;inset:0;background:radial-gradient(70% 38% at 85% 0%,var(--r-f1),transparent 70%),radial-gradient(80% 40% at 0% 100%,var(--r-f2),transparent 70%)}
-.qa .r-cartao{position:absolute;inset:8px;border-radius:38px;overflow:hidden;background:var(--r-lei-c);isolation:isolate;
-  box-shadow:0 0 0 1px var(--r-aro),0 40px 80px -40px var(--r-sombra);
+.qa .r-cartao{position:absolute;inset:0;border-radius:0;overflow:hidden;background:var(--r-lei-c);isolation:isolate;
   transition:inset .9s var(--ease),border-radius .9s var(--ease),transform .9s var(--ease),opacity .6s var(--ease) .3s;
   --lx:62%;--ly:16%;--r:70px}
 .qa i{position:absolute;display:block;pointer-events:none}
@@ -34,7 +33,7 @@ html[data-tema="jantar"] .qa .r-lamps{background:radial-gradient(circle at 24% 4
   -webkit-mask-image:radial-gradient(circle at var(--lx) var(--ly),transparent 0,transparent calc(var(--r)*.45),#000 var(--r));mask-image:radial-gradient(circle at var(--lx) var(--ly),transparent 0,transparent calc(var(--r)*.45),#000 var(--r))}
 .qa .r-luz{inset:0;mix-blend-mode:var(--r-mix);background:radial-gradient(circle at var(--lx) var(--ly),var(--r-b1) 0,var(--r-b2) 22%,transparent 55%);background-size:100% 100%;opacity:var(--r-bo)}
 .qa .r-grao{inset:0;opacity:var(--r-gr);mix-blend-mode:overlay;background-image:var(--qa-grao)}
-.qa .r-aro{inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.1)}
+.qa .r-aro{display:none}
 @property --r{syntax:"<length>";inherits:true;initial-value:70px}
 @property --lz{syntax:"<number>";inherits:true;initial-value:0}
 @property --sw{syntax:"<number>";inherits:true;initial-value:0}
