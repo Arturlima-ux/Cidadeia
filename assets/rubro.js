@@ -132,21 +132,15 @@ export function hora(el, h) {
     addEventListener("deviceorientation", e => { if (e.gamma == null) return; alvo(e.gamma / 28, (e.beta - 55) / 28); }, { passive: true });
 }
 
-/* ---------- botões: ímã suave, brilho que segue o toque, seta que passa e volta ---------- */
+/* ---------- botões: o preenchimento sobe, o filete interno se completa, a seta desliza (o CSS faz; aqui só o estado "preso") ----------
+   Delegado no documento: os botões da abertura são montados por carta.js, depois deste módulo. */
 function botoes() {
-  const bs = document.querySelectorAll("#abertura .vd, #abertura .onde-l, .topo .perd");
-  bs.forEach(b => {
-    const mede = e => { const r = b.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
-    const move = e => {
-      const [a, c] = mede(e); b.style.setProperty("--mx", (a * 100).toFixed(1) + "%"); b.style.setProperty("--my", (c * 100).toFixed(1) + "%");
-      if (!calmo()) { b.style.setProperty("--ix", ((a - .5) * 7).toFixed(2) + "px"); b.style.setProperty("--iy", ((c - .5) * 5).toFixed(2) + "px"); }
-    };
-    b.addEventListener("pointerenter", move, { passive: true });
-    b.addEventListener("pointermove", move, { passive: true });
-    b.addEventListener("pointerdown", e => { move(e); b.classList.add("preso"); b.classList.remove("seta"); void b.offsetWidth; b.classList.add("seta"); }, { passive: true });
-    const solta = () => { b.classList.remove("preso"); b.style.setProperty("--ix", "0px"); b.style.setProperty("--iy", "0px"); };
-    b.addEventListener("pointerup", solta, { passive: true }); b.addEventListener("pointercancel", solta, { passive: true }); b.addEventListener("pointerleave", solta, { passive: true });
-  });
+  if (botoes.feito) return; botoes.feito = true;
+  const alvo = e => e.target.closest && e.target.closest("#abertura .vd, #abertura .onde-l");
+  const solta = () => document.querySelectorAll("#abertura .preso").forEach(b => b.classList.remove("preso"));
+  document.addEventListener("pointerdown", e => { const b = alvo(e); if (b) b.classList.add("preso"); }, { passive: true });
+  ["pointerup", "pointercancel", "pointerleave", "dragstart", "contextmenu"].forEach(t => document.addEventListener(t, solta, { passive: true }));
+  document.addEventListener("pointerout", e => { const b = alvo(e); if (b && !b.contains(e.relatedTarget)) b.classList.remove("preso"); }, { passive: true });
 }
 
 /* ---------- a escrita ---------- */

@@ -665,81 +665,88 @@ html[data-sis="foto"] #abertura .verso em{font-style:normal;background:none;colo
 html[data-sis="foto"] .viva{text-align:left;margin-top:6px}
 html[data-sis="foto"] .viva button{color:var(--a-cur);font:italic 400 15px var(--serif);letter-spacing:0;text-transform:none}
 
-/* COMANDA: o rodapé da abertura são objetos de mesa. Dois bilhetes com entalhes e picote; horários e endereço como linha de cardápio com pontilhado; "Estou perdido" como bilhete escrito à mão */
-html[data-sis="foto"] #abertura .comanda{--h:64px;--fita:22px;--papel:#F6E4CA;--tinta-p:#3F1420;--lacre:#A2261E;--fio:rgba(255,239,219,.42);
-  position:fixed;z-index:4;left:28px;right:28px;bottom:calc(18px + env(safe-area-inset-bottom));max-width:424px;margin:0 auto;display:flex;flex-direction:column}
+/* ============ MAISON: hospitalidade silenciosa. Filetes de 1px, Cormorant, cantos de 2px, nada de sombra ============ */
+html[data-sis="foto"] #abertura{--creme:#F4E4CB;--creme-2:#E8CDA8;--vinho:#3A1220;--fio:rgba(255,239,219,.26)}
+
+/* logo solto: sem círculo, creme quente sobre um véu fino no alto da foto */
+html[data-sis="foto"] .topo{padding-left:max(28px,env(safe-area-inset-left));padding-right:max(28px,env(safe-area-inset-right))}
+html[data-sis="foto"] .topo .logo{width:auto;height:auto;min-width:44px;min-height:44px;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;display:block;-webkit-tap-highlight-color:transparent;position:relative}
+html[data-sis="foto"] .topo .logo img{display:block;height:auto;width:min(118px,31vw);filter:sepia(.14) brightness(1.05) drop-shadow(0 1px 10px rgba(22,5,10,.5));transition:opacity .3s var(--ease)}
+html[data-sis="foto"] .topo .logo:active img{opacity:.78}
+html[data-sis="foto"] .topo .logo:focus-visible{outline:1px solid var(--a-ink,#FFEFDB);outline-offset:6px;border-radius:2px}
+html[data-sis="foto"] #abertura::before{content:"";position:fixed;z-index:-1;top:0;left:0;right:0;width:auto;height:calc(172px + env(safe-area-inset-top));pointer-events:none;
+  background:linear-gradient(180deg,rgba(22,6,12,.72),rgba(22,6,12,.48) 46%,rgba(22,6,12,0))}
+/* "Estou perdido" sai da abertura; o recurso continua no código */
+html[data-sis="foto"] body[data-cena="abertura"] .perd{display:none}
+
+/* rodapé: um bloco só, preso à base */
+html[data-sis="foto"] #abertura .comanda{position:fixed;z-index:6;left:28px;right:28px;bottom:calc(20px + env(safe-area-inset-bottom));max-width:424px;margin:0 auto;display:flex;flex-direction:column}
 html[data-sis="foto"] #abertura .comanda>*{opacity:0;animation:surge 1.2s var(--ease) 14s forwards}
 html[data-sis="foto"] #abertura .comanda>.onde-l{animation-delay:14.15s}html[data-sis="foto"] #abertura .comanda>.portas{animation-delay:14.4s}
 html[data-sis="foto"] body.q-on #abertura .comanda>.hor{animation-delay:1s}html[data-sis="foto"] body.q-on #abertura .comanda>.onde-l{animation-delay:1.15s}html[data-sis="foto"] body.q-on #abertura .comanda>.portas{animation-delay:1.4s}
 html[data-sis="foto"] body.pula #abertura .comanda>*{animation-delay:0s}
 
-/* linha de cardápio: ROTULO ········ texto */
-html[data-sis="foto"] #abertura .hor{position:static;margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:5px;align-items:baseline;letter-spacing:0;text-transform:none;font:inherit;text-shadow:0 1px 8px rgba(20,4,10,.7)}
-html[data-sis="foto"] .hor span{display:contents;padding:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--a-ink);font:600 9.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
-html[data-sis="foto"] .hor i{flex:1;display:flex;align-items:baseline;justify-content:flex-end;gap:9px;margin:0;font:italic 500 17px/1 var(--serif);letter-spacing:0;text-transform:none;color:var(--a-ink);opacity:1}
-html[data-sis="foto"] .hor i::before,html[data-sis="foto"] .onde-l::after{content:"";flex:1;min-width:10px;height:0;border-bottom:1.5px dotted var(--fio);transform:translateY(-3px);transition:border-color .3s var(--ease)}
+/* horários: papel timbrado, canto superior direito, alinhado ao logo */
+html[data-sis="foto"] #abertura .hor{position:fixed;z-index:4;margin:0;top:calc(29px + env(safe-area-inset-top));right:max(28px,env(safe-area-inset-right));display:grid;grid-template-columns:auto auto;justify-content:end;column-gap:12px;row-gap:9px;align-items:baseline;text-align:left;letter-spacing:0;text-transform:none;text-shadow:0 1px 3px rgba(20,4,10,.55)}
+html[data-sis="foto"] .hor span{display:contents;color:var(--a-ink);font:600 9px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;white-space:nowrap}
+html[data-sis="foto"] .hor i{display:block;margin:0;font:italic 400 17px/1 var(--serif);letter-spacing:.005em;text-transform:none;color:var(--a-ink);opacity:1;white-space:nowrap}
+html[data-sis="foto"] .hor i::before{display:none}
 
-/* endereço: o toque é a linha inteira (44px), o desenho tem 26 */
-html[data-sis="foto"] #abertura .onde-l{position:relative;width:auto;margin:9px 0 0;padding:10px 0 0;border-top:1px solid rgba(255,239,219,.18);display:flex;align-items:baseline;gap:10px;border-radius:0;text-align:left;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transform:none;text-wrap:nowrap;white-space:nowrap;
-  color:var(--a-ink);font:italic 500 16.5px/1 var(--serif);letter-spacing:0;text-shadow:0 1px 8px rgba(20,4,10,.7);-webkit-tap-highlight-color:transparent}
-html[data-sis="foto"] .onde-l::before{content:"";position:absolute;inset:-9px -8px -9px -8px}
-html[data-sis="foto"] .onde-l::after{order:1;margin-left:2px;margin-right:2px}
-html[data-sis="foto"] .onde-l span{order:2;flex:none;display:block;margin:0;border:0;padding:0;font:400 21px/1 "Yellowtail",cursive;letter-spacing:0;text-transform:none;color:var(--a-cur);text-shadow:none;transition:color .3s var(--ease)}
-html[data-sis="foto"] .onde-l span::first-letter{text-transform:uppercase}
-html[data-sis="foto"] .onde-l.preso span{color:#FFD3BE}
-html[data-sis="foto"] .onde-l.preso::after,html[data-sis="foto"] .onde-l:focus-visible::after{border-color:var(--a-cur)}
-html[data-sis="foto"] .onde-l:focus-visible{outline:2px solid var(--a-ink);outline-offset:6px;border-radius:2px}
+/* endereço: uma linha entre dois filetes; o toque é a linha inteira */
+html[data-sis="foto"] #abertura .onde-l{position:relative;width:auto;min-height:48px;margin:0;padding:0;border:0;border-top:1px solid var(--fio);display:flex;align-items:center;justify-content:space-between;gap:14px;border-radius:0;text-align:left;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transform:none;white-space:nowrap;
+  color:var(--a-ink);font:400 17px/1 var(--serif);letter-spacing:.01em;text-shadow:0 1px 8px rgba(20,4,10,.6);-webkit-tap-highlight-color:transparent}
+html[data-sis="foto"] .onde-l::before{display:none}
+html[data-sis="foto"] .onde-l::after{content:"";order:3;flex:none;width:0;height:0;border:0;margin:0;transform:none}
+html[data-sis="foto"] .onde-l span{order:2;flex:none;display:flex;align-items:center;gap:10px;margin:0;border:0;padding:0;font:600 9.5px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--a-cur);text-shadow:none;transition:color .3s var(--ease)}
+html[data-sis="foto"] .onde-l span::first-letter{text-transform:none}
+html[data-sis="foto"] .onde-l span::after{content:"";width:24px;height:8px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8'%3E%3Cpath d='M0 4H23M19.6 .8 23 4 19.6 7.2' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8'%3E%3Cpath d='M0 4H23M19.6 .8 23 4 19.6 7.2' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat;transition:transform .45s var(--ease)}
+html[data-sis="foto"] .onde-l.preso span,html[data-sis="foto"] .onde-l:focus-visible span{color:#FFD3BE}
+html[data-sis="foto"] .onde-l.preso span::after,html[data-sis="foto"] .onde-l:focus-visible span::after{transform:translateX(5px)}
+@media(hover:hover){html[data-sis="foto"] .onde-l:hover span{color:#FFD3BE}html[data-sis="foto"] .onde-l:hover span::after{transform:translateX(5px)}}
+html[data-sis="foto"] .onde-l:focus-visible{outline:1px solid var(--a-ink);outline-offset:-1px;border-radius:2px}
 
-/* os bilhetes */
-html[data-sis="foto"] #abertura .portas{position:static;z-index:auto;width:auto;max-width:none;margin:14px 0 0;padding:0;display:flex;gap:10px;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-html[data-sis="foto"] .portas .vd{--pic:rgba(63,20,32,.5);position:relative;flex:1 1 0;min-width:0;height:var(--h);min-height:0;padding:0 14px;margin:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) var(--fita);align-items:center;justify-items:start;gap:0;overflow:visible;isolation:isolate;border-radius:5px;text-align:left;white-space:nowrap;
-  font-family:"Yellowtail",cursive;font-weight:400;letter-spacing:0;-webkit-tap-highlight-color:transparent;
-  -webkit-mask-image:radial-gradient(circle at 0 calc(100% - var(--fita)),#0000 6px,#000 6.5px),radial-gradient(circle at 100% calc(100% - var(--fita)),#0000 6px,#000 6.5px);-webkit-mask-composite:source-in;
-  mask-image:radial-gradient(circle at 0 calc(100% - var(--fita)),#0000 6px,#000 6.5px),radial-gradient(circle at 100% calc(100% - var(--fita)),#0000 6px,#000 6.5px);mask-composite:intersect;
-  transform:none;transition:transform .35s var(--ease),filter .3s var(--ease),background-color .3s var(--ease)}
-html[data-sis="foto"] .portas .vd[data-ir="visita"]{flex-grow:1.2;color:var(--tinta-p);background:var(--papel);--pic:rgba(162,38,30,.55);
-  box-shadow:inset 0 0 0 3px var(--papel),inset 0 0 0 4px rgba(162,38,30,.3)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"]{color:var(--a-ink);background-color:transparent;border:1px solid rgba(255,239,219,.62);--pic:rgba(255,239,219,.5);background-origin:border-box;
-  background-image:radial-gradient(circle at 0 calc(100% - var(--fita)),#0000 6.3px,rgba(255,239,219,.62) 6.5px,rgba(255,239,219,.62) 7.5px,#0000 7.8px),radial-gradient(circle at 100% calc(100% - var(--fita)),#0000 6.3px,rgba(255,239,219,.62) 6.5px,rgba(255,239,219,.62) 7.5px,#0000 7.8px)}
-html[data-sis="foto"] .portas .vd b{grid-row:1;grid-column:1;align-self:center;font:inherit;font-size:var(--rot,23px);line-height:1;padding-top:2px;overflow:hidden;text-overflow:clip;max-width:100%}
-html[data-sis="foto"] .portas .vd small{grid-row:2;grid-column:1;align-self:center;margin:0;font:700 8px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--lacre)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"] small{color:var(--a-cur);margin-left:-1px}
-html[data-sis="foto"] .portas .vd small{display:block}
-html[data-sis="foto"] .portas .vd i{display:none}
-/* picote e código de barras: a linha tracejada liga os dois entalhes */
-html[data-sis="foto"] .portas .vd::before{content:"";position:absolute;z-index:1;left:12px;right:12px;top:calc(100% - var(--fita) - 1px);width:auto;height:2px;border-radius:0;background:radial-gradient(circle at 50% 50%,currentColor var(--dot,.85px),#0000 calc(var(--dot,.85px) + .3px)) 0 0/5px 2px repeat-x;color:var(--pic);opacity:.8;transition:opacity .3s var(--ease),background-position .35s var(--ease)}
-html[data-sis="foto"] .portas .vd::after{content:"";position:absolute;z-index:1;right:14px;bottom:calc((var(--fita) - 8px)/2);top:auto;left:auto;width:30px;height:8px;opacity:.5;color:var(--pic);transition:none;
-  background:repeating-linear-gradient(90deg,currentColor 0 1px,#0000 1px 3px),repeating-linear-gradient(90deg,currentColor 0 2px,#0000 2px 7px)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"]::after{color:var(--a-cur);opacity:.55}
-/* toque: o bilhete desce, o picote acende */
-@media(hover:hover){html[data-sis="foto"] .portas .vd:hover::before{opacity:1}html[data-sis="foto"] .portas .vd:hover{transform:translateY(-1px)}}
-html[data-sis="foto"] .portas .vd.preso,html[data-sis="foto"] .portas .vd.abre{transform:translateY(2px) scale(.985);transition-duration:.1s}
-html[data-sis="foto"] .portas .vd[data-ir="visita"].preso,html[data-sis="foto"] .portas .vd[data-ir="visita"].abre{filter:brightness(.92)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"].preso,html[data-sis="foto"] .portas .vd[data-ir="livro"].abre{background-color:rgba(255,239,219,.12)}
-html[data-sis="foto"] .portas .vd.preso::before,html[data-sis="foto"] .portas .vd.abre::before{--dot:1.25px;opacity:1;background-position:2.5px 0}
-html[data-sis="foto"] .portas .vd[data-ir="visita"].preso::before{color:var(--lacre)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"].preso::before{color:var(--a-cur)}
-/* foco por teclado: dentro do bilhete (a máscara cortaria um contorno de fora) */
-html[data-sis="foto"] .portas .vd:focus-visible{outline:0}
-html[data-sis="foto"] .portas .vd[data-ir="visita"]:focus-visible{box-shadow:inset 0 0 0 3px var(--papel),inset 0 0 0 5px var(--tinta-p)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"]:focus-visible{border-color:var(--a-ink);box-shadow:inset 0 0 0 2px var(--a-ink)}
-html[data-sis="foto"] .portas .vd:focus-visible::before{opacity:1}
+/* os dois convites */
+html[data-sis="foto"] #abertura .portas{position:static;z-index:auto;width:auto;max-width:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-sis="foto"] .portas .vd{position:relative;isolation:isolate;overflow:hidden;flex:none;width:100%;height:56px;min-height:44px;margin:0;padding:0 22px 0 24px;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:16px;border:0;border-radius:2px;text-align:left;white-space:nowrap;
+  font:500 21px/1 var(--serif);letter-spacing:.015em;text-transform:none;filter:none;-webkit-mask:none;mask:none;-webkit-tap-highlight-color:transparent;transform:none;transition:transform .4s var(--ease),color .4s var(--ease),box-shadow .4s var(--ease)}
+html[data-sis="foto"] .portas .vd small,html[data-sis="foto"] .portas .vd i{display:none}
+html[data-sis="foto"] .portas .vd b{display:block;font:inherit;line-height:1;padding:0 0 1px;overflow:hidden;text-overflow:clip;max-width:100%;text-shadow:none}
+/* seta fina: haste de 1px e ponta aberta */
+html[data-sis="foto"] .portas .vd .sa{flex:none;display:block;width:24px;height:8px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8'%3E%3Cpath d='M0 4H23M19.6 .8 23 4 19.6 7.2' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8'%3E%3Cpath d='M0 4H23M19.6 .8 23 4 19.6 7.2' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") center/100% 100% no-repeat;transition:transform .45s var(--ease)}
+/* preenchimento que sobe */
+html[data-sis="foto"] .portas .vd::after{content:"";position:absolute;z-index:-1;inset:0;width:auto;height:auto;top:0;right:0;bottom:0;left:0;opacity:1;background-image:none;transform:scaleY(0);transform-origin:50% 100%;transition:transform .5s var(--ease)}
+/* filete interno: a moldura do convite */
+html[data-sis="foto"] .portas .vd::before{content:"";position:absolute;z-index:1;inset:4px;width:auto;height:auto;top:4px;right:4px;bottom:4px;left:4px;border:1px solid transparent;border-radius:1px;background:none;opacity:1;pointer-events:none;transition:inset .5s var(--ease),border-color .4s var(--ease)}
 
-/* "Estou perdido": recado à mão, sublinhado com picote */
-html[data-sis="foto"] .perd{position:relative;min-height:44px;padding:0 3px;border:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;font:400 22px/1 "Yellowtail",cursive;letter-spacing:0;text-transform:none;color:var(--a-ink);text-shadow:0 1px 10px rgba(20,4,10,.75);-webkit-tap-highlight-color:transparent;transition:transform .3s var(--ease),color .3s var(--ease)}
-html[data-sis="foto"] .perd::after{content:"";position:absolute;left:3px;right:3px;bottom:9px;height:2px;background:radial-gradient(circle at 50% 50%,currentColor .85px,#0000 1.15px) 0 0/5px 2px repeat-x;opacity:.6;transition:opacity .3s var(--ease),background-position .35s var(--ease)}
-html[data-sis="foto"] .perd.preso{transform:translateY(1px);color:#FFD3BE}
-html[data-sis="foto"] .perd.preso::after{opacity:1;background-position:2.5px 0;color:var(--a-cur)}
-html[data-sis="foto"] .perd:focus-visible{outline:2px solid var(--a-ink);outline-offset:2px;border-radius:2px}
-html[data-sis="foto"] body[data-cena="abertura"] .perd{color:var(--a-ink)}
-html[data-sis="foto"] body[data-cena="abertura"] .perd.preso{color:#FFD3BE}
+html[data-sis="foto"] .portas .vd[data-ir="visita"]{color:var(--vinho);background:var(--creme)}
+html[data-sis="foto"] .portas .vd[data-ir="visita"]::before{border-color:rgba(58,18,32,.34)}
+html[data-sis="foto"] .portas .vd[data-ir="visita"]::after{background:var(--creme-2)}
+html[data-sis="foto"] .portas .vd[data-ir="livro"]{color:var(--a-ink);background:transparent;box-shadow:inset 0 0 0 1px rgba(255,239,219,.5)}
+html[data-sis="foto"] .portas .vd[data-ir="livro"]::after{background:rgba(255,239,219,.15)}
 
-@media (max-width:385px){html[data-sis="foto"] #abertura .comanda{left:22px;right:22px}html[data-sis="foto"] #abertura .comanda{--x:0}html[data-sis="foto"] .portas .vd{--rot:20px;padding:0 12px}html[data-sis="foto"] .portas .vd::after{right:12px}html[data-sis="foto"] .hor i{font-size:16px}}
-@media (max-height:740px){html[data-sis="foto"] #abertura .comanda{--h:56px;--fita:20px;bottom:calc(14px + env(safe-area-inset-bottom))}html[data-sis="foto"] .portas .vd{--rot:21px}html[data-sis="foto"] #abertura .portas{margin-top:11px}html[data-sis="foto"] .hor{gap:5px}html[data-sis="foto"] #abertura .onde-l{margin-top:7px;padding-top:8px}}
-@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .comanda>*{animation:none;opacity:1}html[data-sis="foto"] .portas .vd,html[data-sis="foto"] .perd{transition:none}html[data-sis="foto"] .portas .vd:hover,html[data-sis="foto"] .portas .vd.preso,html[data-sis="foto"] .portas .vd.abre,html[data-sis="foto"] .perd.preso{transform:none}}
-/* o logo mora no vermelho da marca */
-html[data-sis="foto"] .topo .logo{width:58px;height:58px;border-radius:50%;background:#A2261E;display:grid;place-items:center;box-shadow:0 0 0 3px rgba(255,255,255,.22),0 10px 20px -8px rgba(30,5,3,.6)}
-html[data-sis="foto"] .topo .logo img{height:auto;width:44px;filter:none}
+/* toque e passagem: o preenchimento sobe, o filete interno se completa, a seta desliza */
+@media(hover:hover){
+  html[data-sis="foto"] .portas .vd:hover::after{transform:scaleY(1)}
+  html[data-sis="foto"] .portas .vd:hover .sa{transform:translateX(5px)}
+  html[data-sis="foto"] .portas .vd[data-ir="visita"]:hover::before{border-color:rgba(58,18,32,.62);inset:3px}
+  html[data-sis="foto"] .portas .vd[data-ir="livro"]:hover{box-shadow:inset 0 0 0 1px rgba(255,239,219,.9)}
+  html[data-sis="foto"] .portas .vd[data-ir="livro"]:hover::before{border-color:rgba(255,239,219,.4)}
+}
+html[data-sis="foto"] .portas .vd.preso,html[data-sis="foto"] .portas .vd.abre,html[data-sis="foto"] .portas .vd:focus-visible{transition-duration:.18s}
+html[data-sis="foto"] .portas .vd.preso::after,html[data-sis="foto"] .portas .vd.abre::after,html[data-sis="foto"] .portas .vd:focus-visible::after{transform:scaleY(1)}
+html[data-sis="foto"] .portas .vd.preso .sa,html[data-sis="foto"] .portas .vd.abre .sa,html[data-sis="foto"] .portas .vd:focus-visible .sa{transform:translateX(6px)}
+html[data-sis="foto"] .portas .vd.preso{transform:scale(.99)}
+html[data-sis="foto"] .portas .vd[data-ir="visita"].preso::before,html[data-sis="foto"] .portas .vd[data-ir="visita"].abre::before,html[data-sis="foto"] .portas .vd[data-ir="visita"]:focus-visible::before{border-color:rgba(58,18,32,.66);inset:3px}
+html[data-sis="foto"] .portas .vd[data-ir="livro"].preso,html[data-sis="foto"] .portas .vd[data-ir="livro"].abre,html[data-sis="foto"] .portas .vd[data-ir="livro"]:focus-visible{box-shadow:inset 0 0 0 1px rgba(255,239,219,.95)}
+html[data-sis="foto"] .portas .vd[data-ir="livro"].preso::before,html[data-sis="foto"] .portas .vd[data-ir="livro"].abre::before,html[data-sis="foto"] .portas .vd[data-ir="livro"]:focus-visible::before{border-color:rgba(255,239,219,.42)}
+/* foco por teclado: anel hairline por fora, fora do overflow */
+html[data-sis="foto"] .portas .vd:focus-visible{outline:1px solid var(--a-ink);outline-offset:3px}
+
+/* telas baixas ou estreitas: os dois lado a lado, sem seta */
+@media (max-height:740px){html[data-sis="foto"] #abertura .comanda{bottom:calc(14px + env(safe-area-inset-bottom))}html[data-sis="foto"] #abertura .onde-l{min-height:44px}
+  html[data-sis="foto"] #abertura .portas{flex-direction:row;gap:10px;margin-top:4px}html[data-sis="foto"] .portas .vd{flex:1 1 0;min-width:0;height:52px;padding:0 10px;justify-content:center;font-size:18px}html[data-sis="foto"] .portas .vd .sa{display:none}}
+@media (max-width:385px){html[data-sis="foto"] #abertura .comanda{left:22px;right:22px}html[data-sis="foto"] .topo{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}html[data-sis="foto"] #abertura .hor{right:max(22px,env(safe-area-inset-right))}html[data-sis="foto"] .hor i{font-size:16px}html[data-sis="foto"] .onde-l{font-size:16px;gap:8px}html[data-sis="foto"] .onde-l span{letter-spacing:.16em;gap:8px}html[data-sis="foto"] .onde-l span::after{width:18px}}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .comanda>*{animation:none;opacity:1}html[data-sis="foto"] .portas .vd,html[data-sis="foto"] .portas .vd::before,html[data-sis="foto"] .portas .vd::after,html[data-sis="foto"] .portas .vd .sa,html[data-sis="foto"] .onde-l span::before,html[data-sis="foto"] .onde-l span::after,html[data-sis="foto"] .topo .logo img{transition:none}html[data-sis="foto"] .portas .vd.preso{transform:none}}
 </style>
 </head>
 <body data-luz="noite">
@@ -803,6 +810,6 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=34"></script>
+<script type="module" src="/assets/carta.js?v=35"></script>
 </body>
 </html>
