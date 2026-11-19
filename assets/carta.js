@@ -57,7 +57,7 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b, sm], k) => `<button class="vd" data-ir="${ir}" data-porta><b>${b}</b><i>${sm}</i><span class="sa" aria-hidden="true"></span></button>`).join("");
+  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b, sm], k) => `<button class="vd" data-ir="${ir}" data-porta><b>${b}</b><i>${sm}</i></button>`).join("");
   if (SIS === "gomos") el.innerHTML = `<div class="ga"><svg viewBox="-150 -100 300 200" aria-hidden="true">
       <path class="deco" pathLength="1" d="M0 -8 C-26 -40 -30 -92 0 -98 C30 -92 26 -40 0 -8 Z"/><path class="deco" pathLength="1" d="M0 8 C-26 40 -30 92 0 98 C30 92 26 40 0 8 Z"/>
       <path class="lobo l" pathLength="1" d="M-8 0 C-40 -52 -136 -46 -140 0 C-136 46 -40 52 -8 0 Z"/><path class="lobo r" pathLength="1" d="M8 0 C40 -52 136 -46 140 0 C136 46 40 52 8 0 Z"/>
