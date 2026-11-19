@@ -662,7 +662,6 @@ html[data-sis="foto"] #abertura .verso,html[data-sis="foto"] #abertura .pergunta
 html[data-sis="foto"] #abertura .verso{font-size:var(--ph);line-height:1.28;color:var(--a-ink);text-wrap:balance}
 html[data-sis="foto"] #abertura .pergunta{font-size:calc(var(--ph)*1.2);line-height:1.1;color:var(--a-cur);margin:.1em 0 0 .3em;white-space:nowrap}
 html[data-sis="foto"] #abertura .verso em{font-style:normal;background:none;color:inherit}
-html[data-sis="foto"] #abertura :is(.verso,.pergunta):not([data-esc]){visibility:hidden}
 html[data-sis="foto"] .viva{text-align:left;margin-top:6px}
 html[data-sis="foto"] .viva button{color:var(--a-cur);font:italic 400 15px var(--serif);letter-spacing:0;text-transform:none}
 
@@ -727,7 +726,7 @@ html[data-sis="foto"] body[data-cena="abertura"] .perd{color:var(--a-ink)}
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
 <div class="heroi" id="heroi" aria-hidden="true"></div>
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n=(location.search.match(/[?&]hero=([\w-]+)/)||[])[1]||"marca",h=document.getElementById("heroi");
-document.body.dataset.cena="abertura";h.dataset.n=n;setTimeout(function(){document.querySelectorAll("#abertura .verso:not([data-esc]),#abertura .pergunta:not([data-esc])").forEach(function(e){e.dataset.esc="txt"})},6000);
+document.body.dataset.cena="abertura";h.dataset.n=n;
 if(n==="marca"){import(/[?&]fundo=foto/.test(location.search)?"/assets/casa.js":"/assets/rubro.js").then(function(m){h.innerHTML=m.default();m.hora(h,m.agora());m.escreve&&m.escreve();setInterval(function(){m.hora(h,m.agora())},60000)});return}
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
 var im=h.querySelector("img"),ok=function(){im.classList.add("ok")};im.decode?im.decode().then(ok,ok):ok();setTimeout(ok,3500);
@@ -783,6 +782,6 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=32"></script>
+<script type="module" src="/assets/carta.js?v=33"></script>
 </body>
 </html>

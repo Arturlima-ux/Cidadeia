@@ -15,7 +15,7 @@ const txt = i => norm(`${i.nome} ${i.desc || ""} ${(i.ing || []).join(" ")}`);
 // ---------- Cenas ----------
 // O momento decide as cores da casa inteira. Vem do relógio de Teresina (almoço até as 16h, fim de tarde até as 18h,
 // jantar depois), é reconferido a cada minuto e cede a vez quando o cliente diz para quando é a visita.
-// Tema fixo (pedido do dono): sempre o salão de fim de tarde, não depende da hora nem de ?hora=/?tema=.
+// Tema fixo (pedido do dono): sempre o salão de fim de tarde.
 const relogio = () => "tarde";
 let agora = relogio();
 const LUZ = { almoco: "dia", tarde: "tarde", jantar: "noite" };
@@ -107,7 +107,7 @@ function toca(t, e, fim) {
   fim();
 }
 function veste() {
-  const t = agora; // fixo: a escolha do momento da visita não repinta a casa
+  const t = agora; // fixo
   document.documentElement.dataset.tema = t;
   document.querySelector('meta[name="theme-color"]').content = COR[t];
   document.body.dataset.cena = cena; heroi();
