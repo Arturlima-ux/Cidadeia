@@ -747,6 +747,9 @@ html[data-sis="foto"] .portas .vd:focus-visible{outline:1px solid var(--a-ink);o
   html[data-sis="foto"] #abertura .portas{flex-direction:row;gap:10px;margin-top:4px}html[data-sis="foto"] .portas .vd{flex:1 1 0;min-width:0;height:52px;padding:0 10px;justify-content:center;font-size:18px}html[data-sis="foto"] .portas .vd .sa{display:none}}
 @media (max-width:385px){html[data-sis="foto"] #abertura .comanda{left:22px;right:22px}html[data-sis="foto"] .topo{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}html[data-sis="foto"] #abertura .hor{right:max(22px,env(safe-area-inset-right))}html[data-sis="foto"] .hor i{font-size:16px}html[data-sis="foto"] .onde-l{font-size:16px;gap:8px}html[data-sis="foto"] .onde-l span{letter-spacing:.16em;gap:8px}html[data-sis="foto"] .onde-l span::after{width:18px}}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .comanda>*{animation:none;opacity:1}html[data-sis="foto"] .portas .vd,html[data-sis="foto"] .portas .vd::before,html[data-sis="foto"] .portas .vd::after,html[data-sis="foto"] .portas .vd .sa,html[data-sis="foto"] .onde-l span::before,html[data-sis="foto"] .onde-l span::after,html[data-sis="foto"] .topo .logo img{transition:none}html[data-sis="foto"] .portas .vd.preso{transform:none}}
+
+/* o logo solto: nas outras telas, uma sombra suave no topo evita que o conteudo rolando passe por baixo das letras */
+body:not([data-cena="abertura"]) .topo::before{content:"";position:fixed;z-index:-1;left:0;right:0;top:0;height:calc(104px + env(safe-area-inset-top));pointer-events:none;background:linear-gradient(rgba(28,8,18,.98) 0,rgba(28,8,18,.96) 58%,rgba(28,8,18,0) 100%)}
 </style>
 </head>
 <body data-luz="noite">
