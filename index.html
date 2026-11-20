@@ -1475,6 +1475,11 @@ body.pula .qd-ln,body.pula .qd-tr,body.pula .qd-tk,body.pula .qd-n>i,body.pula .
   .qd-q,.qd-c,.qd-ctl,.qd-f{transition:none!important}
 }
 </style>
+<style id="zsem">
+/* sem régua, sem contador e sem numerais: só o rótulo, a sala acende com o dedo */
+html[data-qd="1"] .qd-ct,html[data-qd="1"] .qd-tr,html[data-qd="1"] .qd-tk,html[data-qd="1"] .qd-tl,html[data-qd="1"] .qd-f,html[data-qd="1"] .qd-n,html[data-qd="1"] .qd-lab{display:none!important}
+html[data-qd="1"] .qd-cn{min-width:0;width:auto;margin:0}
+</style>
 </head>
 <body data-luz="noite">
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
@@ -1539,7 +1544,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=57"></script>
+<script type="module" src="/assets/carta.js?v=58"></script>
 <script>
 /* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
    assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */
