@@ -844,16 +844,13 @@ html[data-sis="foto"] #abertura .serv{gap:calc(var(--u)*.75)}
 html[data-sis="foto"] #abertura .serv,html[data-sis="foto"] #abertura .hor span,html[data-sis="foto"] #abertura .hor i{font-size:15px}
 @media (max-height:740px){html[data-sis="foto"]{--pill:48px}}
 html[data-sis="foto"] #abertura .comanda>.portas{opacity:1;animation:none}
-html[data-sis="foto"] #abertura .portas .vd{opacity:0}
-html[data-sis="foto"] #abertura .portas .vd .vd-pl b{opacity:0}
-html[data-sis="foto"] body.q-on #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .portas .vd{animation:z6-in 1.5s cubic-bezier(.22,.8,.2,1) 1.3s both}
-html[data-sis="foto"] body.q-on #abertura .portas .vd[data-ir="livro"],html[data-sis="foto"] body.pula #abertura .portas .vd[data-ir="livro"]{animation-delay:2s}
-html[data-sis="foto"] body.q-on #abertura .portas .vd .vd-pl b,html[data-sis="foto"] body.pula #abertura .portas .vd .vd-pl b{animation:z6-t 1s cubic-bezier(.22,.8,.2,1) 1.8s both}
-html[data-sis="foto"] body.q-on #abertura .portas .vd[data-ir="livro"] .vd-pl b,html[data-sis="foto"] body.pula #abertura .portas .vd[data-ir="livro"] .vd-pl b{animation-delay:2.5s}
-html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .portas .vd .vd-pl b{animation-delay:0s}
-@keyframes z6-in{from{opacity:0;clip-path:inset(0 100% 0 0 round 999px);transform:translateY(10px)}35%{opacity:1}to{opacity:1;clip-path:inset(0 0 0 0 round 999px);transform:none}}
-@keyframes z6-t{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .portas .vd .vd-pl b{animation:none;opacity:1}}
+html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{opacity:0;animation:none}
+html[data-sis="foto"] body.escrito #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .portas .vd{animation:z6-in 1s cubic-bezier(.22,.8,.2,1) .4s both}
+html[data-sis="foto"] body.escrito #abertura .portas .vd[data-ir="livro"],html[data-sis="foto"] body.pula #abertura .portas .vd[data-ir="livro"]{animation-delay:1.7s}
+html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation:surge 1.2s cubic-bezier(.22,.8,.2,1) 3.1s both}
+html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+@keyframes z6-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{animation:none!important;opacity:1}}
 </style>
 </head>
 <body data-luz="noite">
