@@ -853,8 +853,6 @@ html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"
 html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 @keyframes z6-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{animation:none!important;opacity:1}}
-html[data-sis="foto"] body:not(.escrevendo):not(.escrito) #abertura :is(.verso,.pergunta){visibility:hidden;animation:z6-rev 0s 5s forwards}
-@keyframes z6-rev{to{visibility:visible}}
 body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;background:#1d0b14}
 </style>
 </head>
@@ -863,7 +861,7 @@ body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;backgroun
 <div class="heroi" id="heroi" aria-hidden="true"></div>
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n=(location.search.match(/[?&]hero=([\w-]+)/)||[])[1]||"marca",h=document.getElementById("heroi");
 document.body.dataset.cena="abertura";h.dataset.n=n;
-if(n==="marca"){import(/[?&]fundo=foto/.test(location.search)?"/assets/casa.js":"/assets/rubro.js?v=47").then(function(m){h.innerHTML=m.default();m.hora(h,m.agora());m.escreve&&m.escreve();setInterval(function(){m.hora(h,m.agora())},60000)});return}
+if(n==="marca"){import(/[?&]fundo=foto/.test(location.search)?"/assets/casa.js":"/assets/rubro.js?v=48").then(function(m){h.innerHTML=m.default();m.hora(h,m.agora());m.escreve&&m.escreve();setInterval(function(){m.hora(h,m.agora())},60000)});return}
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
 var im=h.querySelector("img"),ok=function(){im.classList.add("ok")};im.decode?im.decode().then(ok,ok):ok();setTimeout(ok,3500);
 var gl3=!/[?&]flat=1/.test(location.search);try{gl3=gl3&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&!!document.createElement("canvas").getContext("webgl")}catch(e){gl3=false}
@@ -878,8 +876,8 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <section class="cena on" id="abertura"><div class="col">
   <span class="sc" hidden>Gastrobar · Teresina</span>
   <svg hidden aria-hidden="true"><path id="casca"/></svg><!-- carta.js desenha aqui o contorno da fruta antiga; sem uso na abertura nova -->
-  <h1 class="verso">Aqui, cada prato tem nome de <em>canção</em>, de <em>poema</em>, de <em>escritora</em>.</h1>
-  <p class="pergunta">Qual será o seu?</p>
+  <h1 class="verso" aria-label="Aqui, cada prato tem nome de canção, de poema, de escritora."></h1>
+  <p class="pergunta"></p>
   <p class="viva" id="viva" hidden></p>
   <div class="comanda">
     <div class="portas"><button class="vd" data-ir="visita" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Escrever a visita</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button><button class="vd" data-ir="livro" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Folhear a carta</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button></div>

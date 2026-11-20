@@ -204,6 +204,9 @@ function quebra(p) {
 export function escreve() {
   const v = document.querySelector("#abertura .verso"), q = document.querySelector("#abertura .pergunta");
   if (!v || !q || v.dataset.esc) return; v.dataset.esc = "1";
+  // a frase nasce aqui, já sob o controle da animação: o HTML não traz texto solto que apareça antes da escrita
+  if (!v.firstChild) v.innerHTML = "Aqui, cada prato tem nome de <em>canção</em>, de <em>poema</em>, de <em>escritora</em>.";
+  if (!q.firstChild) q.textContent = "Qual será o seu?";
   const A = quebra(v), B = quebra(q), todas = A.concat(B);
   const pen = document.createElement("i-n");
   const root = document.querySelector(".qa");
