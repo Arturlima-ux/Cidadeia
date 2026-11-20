@@ -54,8 +54,8 @@ w-i{display:inline-block;opacity:0;color:inherit}
 k-w{position:relative;display:inline-block}
 k-w::before{content:"";position:absolute;z-index:-1;pointer-events:none;clip-path:inset(0 100% 0 0)}
 k-w.fim::before{clip-path:inset(0 0 0 0)}
-body.escrevendo:not(.z7-fim) :is(.verso,.pergunta) w-i{will-change:transform,opacity}
-html[data-fv="b"] body.escrevendo:not(.z7-fim) :is(.verso,.pergunta) w-i{will-change:transform,opacity,filter}
+body.escrevendo :is(.verso,.pergunta) w-i{will-change:transform,opacity}
+html[data-fv="b"] body.escrevendo :is(.verso,.pergunta) w-i{will-change:transform,opacity,filter}
 :is(.verso,.pergunta)[data-feito] :is(w-i,k-w::before),:is(.verso,.pergunta)[data-feito] w-i,:is(.verso,.pergunta)[data-feito] k-w::before{transition:none!important}
 w-d.on w-i{opacity:1}
 
@@ -118,13 +118,14 @@ export function agora() {
 }
 
 /* ---------- a lâmpada: um alvo (x,y em px dentro do cartão) e uma posição que o persegue com amortecimento ---------- */
-const L = { x: 0, y: 0, tx: 0, ty: 0, raf: 0, root: null, sala: null, pausa: 0 };
+const L = { x: 0, y: 0, tx: 0, ty: 0, raf: 0, root: null, sala: null, pausa: 0, congela: false };
 function lampPasso() {
   L.x += (L.tx - L.x) * .085; L.y += (L.ty - L.y) * .085;
   L.sala.style.setProperty("--lx", L.x.toFixed(1) + "px"); L.sala.style.setProperty("--ly", L.y.toFixed(1) + "px");
   const d = document.documentElement.style, w = L.sala.clientWidth || 380, h = L.sala.clientHeight || 800;
   // a sombra das letras cai para o lado oposto ao da luz
-  d.setProperty("--sx", (-(L.x / w - .5) * 7).toFixed(2) + "px"); d.setProperty("--sy", (1.2 + (-(L.y / h - .5)) * 4).toFixed(2) + "px");
+  // depois que a frase termina a sombra das letras fica parada: a luz ainda se acomoda, mas o texto não se mexe mais
+  if (!L.congela) { d.setProperty("--sx", (-(L.x / w - .5) * 7).toFixed(2) + "px"); d.setProperty("--sy", (1.2 + (-(L.y / h - .5)) * 4).toFixed(2) + "px"); }
   L.raf = (Math.abs(L.tx - L.x) + Math.abs(L.ty - L.y) > .4) ? requestAnimationFrame(lampPasso) : 0;
 }
 function lampPara(x, y, seco) {
@@ -252,7 +253,7 @@ export function escreve() {
   if (!q.firstChild) q.textContent = "Qual será o seu?";
   const A = quebra(v), B = quebra(q), todas = A.concat(B);
   const root = document.querySelector(".qa");
-  const acende = () => { if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b); };
+  const acende = () => { L.congela = true; if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b); };
   let nl = 0; const lz = () => { nl = Math.min(3, nl + 1); if (root) root.style.setProperty("--lz", (nl / 3).toFixed(2)); };
   const luzNa = w => { if (!L.sala) return; const r = w.d.getBoundingClientRect(), s = L.sala.getBoundingClientRect(); lampPara(r.left - s.left + r.width / 2, r.top - s.top + r.height * .35); };
   const mostra = (w, fim) => { w.d.classList.add("on"); if (!fim) luzNa(w); };
@@ -261,7 +262,7 @@ export function escreve() {
     nl = 3; if (root) root.style.setProperty("--lz", "1");
     [v, q].forEach(e => e.dataset.feito = "1");
     todas.forEach(w => { mostra(w, true); grifa(w, true); });
-    document.body.classList.add("escrito", "q-on", "z7-fim"); if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b, true);
+    document.body.classList.add("escrito", "q-on", "z7-fim"); if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b, true); if (L.sala) { cancelAnimationFrame(L.raf); L.raf = 0; lampPasso(); } L.congela = true;
   };
   const pula = document.body.classList.contains("pula");
   if (calmo() || pula) return tudo();
