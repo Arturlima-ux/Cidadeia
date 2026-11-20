@@ -853,6 +853,8 @@ html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"
 html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 @keyframes z6-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{animation:none!important;opacity:1}}
+html[data-sis="foto"] body:not(.escrevendo):not(.escrito) #abertura :is(.verso,.pergunta){visibility:hidden;animation:z6-rev 0s 5s forwards}
+@keyframes z6-rev{to{visibility:visible}}
 body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;background:#1d0b14}
 </style>
 </head>
