@@ -295,19 +295,19 @@ export function escreve() {
     const nlinhas = linhas.length; let ultimo = 0;
     linhas.forEach((ws, li) => {
       const x0 = Math.min(...ws.map(w => w.r.left)), x1 = Math.max(...ws.map(w => w.r.right)), cx = (x0 + x1) / 2;
-      let t = 250 + li * (nlinhas > 3 ? 470 : 540);
+      let t = 400 + li * (nlinhas > 3 ? 620 : 720);
       ws.forEach((w, i) => {
         w.d.style.setProperty("--dx", ((w.r.left + w.r.width / 2 - cx) * .1).toFixed(1) + "px");
         const ti = t; ev(ti, () => mostra(w));
-        if (w.kw) ev(ti + 600, () => grifa(w));
-        t += 50 + w.len * 6 + (/,$/.test(w.txt) ? 110 : 0);
+        if (w.kw) ev(ti + 750, () => grifa(w));
+        t += 60 + w.len * 7.5 + (/,$/.test(w.txt) ? 140 : 0);
         ultimo = Math.max(ultimo, ti);
       });
     });
     /* pausa dramática mais longa, em foco parado; depois a pergunta, maior e mais lenta */
-    let t = ultimo + 800; tq = t;
-    B.forEach((w, i) => { w.d.style.setProperty("--dx", ((i - 1.5) * 14) + "px"); ev(t, () => mostra(w)); if (i < 3) t += 150; });
-    fimT = t + 800;
+    let t = ultimo + 1140; tq = t;
+    B.forEach((w, i) => { w.d.style.setProperty("--dx", ((i - 1.5) * 14) + "px"); ev(t, () => mostra(w)); if (i < 3) t += 180; });
+    fimT = t + 1000;
   }
   agenda.sort((a, b) => a[0] - b[0]);
   total = agenda.length; window.__escrita = { fimMs: fimT, variante: VARIANTE };
