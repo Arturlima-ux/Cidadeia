@@ -43,7 +43,8 @@ a{color:inherit}
 .ph.dim.on{opacity:1}
 /* a sala acesa: a mesma foto, revelada por máscaras radiais presas às luminárias */
 .ph.lit{opacity:0}
-.ph.lit img{filter:saturate(1.06) contrast(1.03)}
+.ph.lit img{filter:saturate(1.06) contrast(1.03);transition:filter .7s ease}
+.world.sel .ph.lit img{filter:saturate(1.12) contrast(1.05) brightness(1.2)}
 .halos{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
 .halo{position:absolute;left:0;top:0;width:340px;height:340px;margin:-170px 0 0 -170px;border-radius:50%;opacity:0;transform:scale(.4);
   background:radial-gradient(circle,rgba(255,214,150,.62) 0,rgba(255,170,90,.26) 22%,rgba(255,140,60,.08) 48%,transparent 70%)}
@@ -127,6 +128,44 @@ a{color:inherit}
 .cena.lit .cn .ln>span{transform:none;opacity:1}
 .cena.lit .cn .rule{transform:none}
 
+
+/* ============ ENTRADAS v4: e=0 faixas | e=1 luminárias | e=2 quadros | e=3 lanterna ============ */
+.world{position:absolute;inset:0;transform-origin:50% 50%;transition:transform 1.05s cubic-bezier(.55,0,.2,1)}
+.dimmer{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .7s ease}
+#ents{position:absolute;inset:0;pointer-events:none}
+body.e0 #ents,body.e1 .strips,body.e2 .strips,body.e3 .strips{display:none}
+.ent{position:absolute;z-index:6;opacity:0;pointer-events:none;transition:opacity 1.4s ease}
+.ent.on{opacity:1;pointer-events:auto}
+.hit{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;display:block}
+.cap{font-family:var(--serif);color:var(--ivory);line-height:1;letter-spacing:-.004em;white-space:nowrap;
+  text-shadow:0 0 18px rgba(14,9,6,.85),0 1px 3px rgba(14,9,6,.7),0 0 2px rgba(14,9,6,.6)}
+body:not(.e0) .logo{left:50%;width:94px;margin-left:-47px}
+.entrada.zoom .copy,.entrada.zoom .dock,.entrada.zoom .ent,.entrada.zoom .logo{opacity:0!important;transition:opacity .5s ease!important}
+/* e=1 */
+.e1b{display:block}
+.e1b .cap{position:absolute;left:12px;top:40px;font-size:23px;pointer-events:none}
+.e1b:focus-within .cap,.e2b:focus-within .cap{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-color:var(--coral)}
+/* e=2 */
+.e2b .hit{-webkit-clip-path:var(--poly);clip-path:var(--poly)}
+.e2p{position:absolute;z-index:6;cursor:pointer}
+.e2p .cap{display:block;font-size:22px;font-style:italic;padding-top:11px;position:relative}
+.e2p .cap::before{content:"";position:absolute;left:0;top:0;width:26px;height:1px;background:var(--ivory)}
+.e2p.r .cap::before{left:auto;right:0}
+/* e=3 */
+body.e3 .world{filter:brightness(.82)}
+body.e3 .copy h1{font-size:min(8.4vw,3.8vh)}
+body.e3 .copy .q{font-size:min(6.8vw,3.1vh)}
+body.e3 .entrada{touch-action:none}
+.names{position:absolute;left:0;right:0;z-index:6;pointer-events:none}
+.nm{display:block;width:100%;height:56px;padding:0 20px;color:rgba(246,236,220,.92);font-family:var(--serif);font-size:min(10vw,4.8vh);line-height:56px;letter-spacing:-.012em;
+  text-shadow:0 1px 16px rgba(14,9,6,.6);opacity:0;pointer-events:none;transition:opacity 1.4s ease;white-space:nowrap}
+.nm.on{opacity:1;pointer-events:auto}
+.nm:focus-visible{outline:0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:8px;text-decoration-color:var(--coral)}
+.lantern{position:absolute;left:0;top:0;width:400px;height:400px;margin:-200px 0 0 -200px;border-radius:50%;pointer-events:none;z-index:7;
+  mix-blend-mode:screen;opacity:0;transition:opacity .62s ease;will-change:transform;
+  background:radial-gradient(circle,rgba(255,216,160,.62) 0,rgba(255,176,104,.3) 34%,rgba(255,150,80,.08) 62%,transparent 72%)}
+.lantern.on{opacity:1;transition-duration:.14s}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important}
 }
@@ -135,10 +174,10 @@ a{color:inherit}
 <body>
 <main>
 <section class="entrada" id="entrada" aria-label="Entrada">
-  <div class="ph dim" id="dim"><img id="imgDim" src="/assets/f/casa-1-w.webp" alt="" decoding="async" fetchpriority="high"><div class="cool" id="cool"></div></div>
+  <div class="world" id="world"><div class="ph dim" id="dim"><img id="imgDim" src="/assets/f/casa-1-w.webp" alt="" decoding="async" fetchpriority="high"><div class="cool" id="cool"></div></div>
   <div class="ph lit" id="lit"><img id="imgLit" src="/assets/f/casa-1-w.webp" alt="Salão do Pitanga: parede laranja, três quadros e luminárias acesas" decoding="async"></div>
   <div class="halos" id="halos" aria-hidden="true"></div>
-  <div class="vig" id="vig" aria-hidden="true"></div>
+  <div class="vig" id="vig" aria-hidden="true"></div><div class="dimmer" id="dimmer" aria-hidden="true"></div></div>
   <div class="scrim" aria-hidden="true"></div>
 
   <a class="logo" id="logo" href="#" aria-label="Pitanga Gastrobar" onclick="return false"><img src="/assets/f/logo.png" alt="Pitanga Gastrobar" width="608" height="308"></a>
@@ -153,6 +192,7 @@ a{color:inherit}
     <span class="q" id="q">Qual será o seu?</span>
   </div>
 
+  <div id="ents"></div><div class="lantern" id="lantern" aria-hidden="true"></div>
   <div class="dock" id="dock">
     <div class="strips">
       <button class="strip s1" type="button" data-go="reserva"><span class="sp" style="background-image:url(/assets/f/casa-2-w.webp);background-position:50% 36%"></span><span class="t">Escrever a visita</span><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M0 6h33M28 1l5 5-5 5"/></svg></button>
@@ -187,11 +227,15 @@ a{color:inherit}
   var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   var ent=$("entrada"),imgs=[$("imgDim"),$("imgLit")],lit=$("lit"),dim=$("dim"),halos=$("halos"),vig=$("vig"),cool=$("cool");
   var IW=1755,IH=1545;               /* tamanho natural da foto */
-  var FOCUS=.675;                    /* centro horizontal do recorte: o quadro do rosto, com as luminárias */
+  var Q=(location.search.match(/[?&]e=(\d)/)||[])[1],E=Q==null?1:+Q;if(E>3)E=1;
+  document.body.className="e"+E;
+  var FOCUS=E===2?.74:.675;                    /* centro horizontal do recorte: o quadro do rosto, com as luminárias */
   /* pontos reais na foto (frações do quadro original 1170x1030) */
   var LAMPS=[{x:.532,y:.062,cx:.50,cy:.12,at:900},{x:.769,y:.124,cx:.74,cy:.19,at:1650},{x:.944,y:.172,cx:.91,cy:.22,at:2400},{x:.162,y:.058,cx:.17,cy:.12,at:2400}];
   var PAINT={x:.62,y:.325,w:.30,h:.50};  /* quadro do rosto (centro e caixa) */
-  var geo=null,els=[],pg=null,done=false,raf=0,t0=0;
+  var PICT=[[[937,205],[1271,270],[1233,786],[925,798]],[[1517,373],[1681,402],[1654,722],[1487,724]]];  /* quadros em px da casa-1-w.webp 1755x1545 */
+  var ENT=[{key:"reserva",label:"Escrever a visita"},{key:"carta",label:"Folhear a carta"}];
+  var ents=[],geo=null,els=[],pg=null,done=false,raf=0,t0=0;
 
   /* ---- matemática do object-fit:cover para travar luzes na foto ---- */
   function layout(){
@@ -211,6 +255,7 @@ a{color:inherit}
       pg.style.transform="translate("+(off+PAINT.x*dw-PAINT.w*dw/2)+"px,"+(oy+PAINT.y*dh-PAINT.h*dh/2)+"px)"}
     vig.style.transformOrigin="50% 50%";
     if(done)paint(1);
+    layoutEnts();
   }
   function build(){
     LAMPS.forEach(function(l){
@@ -218,6 +263,57 @@ a{color:inherit}
       halos.appendChild(h);halos.appendChild(c);els.push({h:h,c:c});
     });
     pg=document.createElement("div");pg.className="pglow";halos.appendChild(pg);
+  }
+
+  /* ---- entradas ---- */
+  var entsEl=$("ents"),namesEl=null,lamp2=[0,1];
+  function mk(tag,cls,html){var n=document.createElement(tag);n.className=cls;if(html!=null)n.innerHTML=html;return n}
+  function buildEnts(){
+    if(E===0)return;
+    if(E===1){
+      ENT.forEach(function(d,i){var b=mk("div","ent e1b");var h=mk("button","hit");h.type="button";h.setAttribute("aria-label",d.label);
+        b.appendChild(h);b.appendChild(mk("span","cap",d.label));b.dataset.go=d.key;entsEl.appendChild(b);ents.push({box:b,btn:h,d:d})});
+    }else if(E===2){
+      ENT.forEach(function(d,i){var b=mk("div","ent e2b");var h=mk("button","hit");h.type="button";h.setAttribute("aria-label",d.label);b.appendChild(h);
+        var pl=mk("div","e2p"+(i?" r":""));pl.appendChild(mk("span","cap",d.label));pl.setAttribute("aria-hidden","true");pl.style.opacity=0;pl.style.transition="opacity 1.4s ease";
+        entsEl.appendChild(b);entsEl.appendChild(pl);ents.push({box:b,btn:h,pl:pl,d:d})});
+    }else{
+      namesEl=mk("div","names");
+      ENT.forEach(function(d){var h=mk("button","nm",d.label);h.type="button";h.setAttribute("aria-label",d.label);namesEl.appendChild(h);ents.push({btn:h,d:d})});
+      entsEl.appendChild(namesEl);entsEl.style.pointerEvents="none";
+    }
+  }
+  function layoutEnts(){
+    if(E===0||!geo)return;var W=geo.W,H=geo.H;
+    if(E===1){
+      var cand=[0,1,2].filter(function(k){return LAMPS[k].px>=40&&LAMPS[k].px<=W-40});
+      if(cand.length<2)cand=[0,1,2].filter(function(k){return LAMPS[k].px>0&&LAMPS[k].px<W});
+      cand.sort(function(a,b){return LAMPS[a].px-LAMPS[b].px});lamp2=cand.slice(0,2);
+      ents.forEach(function(en,i){var l=LAMPS[lamp2[i]];if(!l)return;en.k=lamp2[i];
+        var cw=en.box.querySelector(".cap").offsetWidth||150,w=Math.max(cw+24,132),left=Math.max(4,Math.min(W-w-4,l.px-w/2));
+        var top=Math.max(2,l.py-18);en.box.style.cssText+=";left:"+left+"px;top:"+top+"px;width:"+w+"px;height:"+(l.py-top+112)+"px";
+        en.cx=l.px;en.cy=l.py+10;
+        var cap=en.box.querySelector(".cap");cap.style.top=(l.py-top+19)+"px";
+        /* legenda centrada sob a luminária, sem sair da tela */
+        cap.style.left=Math.max(12,Math.min(w-cw-12,i===0?l.px-left-cw/2:l.px-left-26))+"px";
+      });
+    }else if(E===2){
+      ents.forEach(function(en,i){
+        var pts=PICT[i].map(function(q){return [geo.ox+q[0]/IW*geo.dw,geo.oy+q[1]/IH*geo.dh]});
+        var xs=pts.map(function(q){return q[0]}),ys=pts.map(function(q){return q[1]});
+        var x0=Math.min.apply(0,xs),x1=Math.max.apply(0,xs),y0=Math.min.apply(0,ys),y1=Math.max.apply(0,ys);
+        var cx0=Math.max(0,x0),cx1=Math.min(W,x1);
+        en.box.style.cssText+=";left:"+x0+"px;top:"+y0+"px;width:"+(x1-x0)+"px;height:"+(y1-y0)+"px";
+        en.box.style.setProperty("--poly","polygon("+pts.map(function(q){return (q[0]-x0).toFixed(1)+"px "+(q[1]-y0).toFixed(1)+"px"}).join(",")+")");
+        en.cx=(pts[0][0]+pts[1][0]+pts[2][0]+pts[3][0])/4;en.cy=(y0+y1)/2;
+        var pl=en.pl,cw=pl.offsetWidth||130;
+        if(i===0){pl.style.left=Math.max(18,Math.min(W-cw-18,(pts[3][0])+4))+"px";pl.style.right="auto";pl.style.top=(Math.max(pts[2][1],pts[3][1])+10)+"px"}
+        else{pl.style.left="auto";pl.style.right=Math.max(18,W-Math.min(x1,W)+ 0)+"px";pl.style.top=(Math.max(pts[2][1],pts[3][1])+10)+"px"}
+      });
+    }else{
+      var dh=$("dock").getBoundingClientRect().height;
+      namesEl.style.bottom=(dh+10)+"px";namesEl.style.height="112px";
+    }
   }
   var ease=function(t){t=Math.max(0,Math.min(1,t));return 1-Math.pow(1-t,3)};
   var ease2=function(t){t=Math.max(0,Math.min(1,t));return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
@@ -263,8 +359,10 @@ a{color:inherit}
     [].forEach.call(document.querySelectorAll("#h1 .ln"),function(n){n.classList.add("on")});
     $("q").classList.add("on");
     [].forEach.call(document.querySelectorAll(".strip"),function(n){n.classList.add("on")});
+    entsOn(0);entsOn(1);
     $("foot").classList.add("on");
   }
+  function entsOn(i){var en=ents[i];if(!en)return;if(en.box)en.box.classList.add("on");else en.btn.classList.add("on");if(en.pl)en.pl.style.opacity=1}
   function skip(){
     if(done)return;
     T.forEach(clearTimeout);cancelAnimationFrame(raf);showAll();
@@ -280,15 +378,16 @@ a{color:inherit}
     [].forEach.call(lines,function(n,i){at(3500+i*360,function(){n.classList.add("on")})});
     at(3500+4*360+80,function(){$("q").classList.add("on")});
     var st=document.querySelectorAll(".strip");
-    at(5200,function(){st[0].classList.add("on")});
-    at(5520,function(){st[1].classList.add("on");$("foot").classList.add("on")});
+    at(5200,function(){st[0].classList.add("on");entsOn(0)});
+    at(5520,function(){st[1].classList.add("on");entsOn(1);$("foot").classList.add("on")});
   }
   function dockHeight(){
     var d=$("dock").getBoundingClientRect().height;
-    ent.style.setProperty("--stack",(d+22)+"px");
+    ent.style.setProperty("--stack",(d+22+(E===3?114:0))+"px");
+    layoutEnts();
   }
 
-  build();layout();dockHeight();
+  build();buildEnts();layout();dockHeight();
   addEventListener("resize",function(){layout();dockHeight()});
   /* carrega foto antes de começar a sequência */
   var img=imgs[0];
@@ -325,19 +424,61 @@ a{color:inherit}
     anim(14,far,1450,setR,function(){ring.style.opacity=0;cena.style.clipPath="none";$("volt").focus({preventScroll:true});busy=false});
   }
   function closeScene(){
-    if(busy)return;busy=true;
+    if(busy)return;busy=true;resetSel();
     var far=Math.max(Math.hypot(origin.x,origin.y),Math.hypot(innerWidth-origin.x,origin.y),Math.hypot(origin.x,innerHeight-origin.y),Math.hypot(innerWidth-origin.x,innerHeight-origin.y))+40;
     cena.classList.remove("lit");ent.classList.remove("walk");ent.removeAttribute("inert");
     ring.style.opacity=1;setR(far);
     anim(far,14,1000,setR,function(){ring.style.opacity=0;cena.classList.remove("show");cena.style.clipPath="circle(0px at 50% 50%)";cena.setAttribute("aria-hidden","true");busy=false;last&&last.focus({preventScroll:true})});
   }
-  [].forEach.call(document.querySelectorAll("[data-go]"),function(b){
+  if(E===0)[].forEach.call(document.querySelectorAll(".strip[data-go]"),function(b){
     b.addEventListener("click",function(e){
       var r=b.getBoundingClientRect(),x=e.clientX,y=e.clientY;
       if(!x&&!y){x=r.left+r.width/2;y=r.top+r.height/2}
       openScene(b.dataset.go,x,y,b);
     });
   });
+
+  /* ---- seleção por modo ---- */
+  var dimmer=$("dimmer"),world=$("world"),lantern=$("lantern");
+  function dimAt(x,y,r0,r1,a){dimmer.style.background="radial-gradient(circle at "+x+"px "+y+"px,rgba(8,5,3,0) "+r0+"px,rgba(8,5,3,"+a+") "+r1+"px)";dimmer.style.opacity=1}
+  function resetSel(){
+    dimmer.style.opacity=0;world.classList.remove("sel");ent.classList.remove("zoom");world.style.transform="none";
+    els.forEach(function(e,k){var l=LAMPS[k];e.h.style.transform="translate("+l.px+"px,"+l.py+"px) scale(1.15)";e.h.style.opacity=l.vis?.5:0;e.c.style.opacity=l.vis?.65:0});
+  }
+  function choose(i,btn){
+    var en=ents[i],d=en.d;
+    if(E===1){
+      var k=en.k;
+      els.forEach(function(e,j){var l=LAMPS[j];e.h.style.transition="transform 1s cubic-bezier(.22,.7,.12,1),opacity .6s ease";e.c.style.transition="opacity .5s ease";
+        if(j===k){e.h.style.transform="translate("+l.px+"px,"+l.py+"px) scale(3.1)";e.h.style.opacity=1;e.c.style.opacity=1}
+        else{e.h.style.opacity=.1;e.c.style.opacity=.25}});
+      dimAt(LAMPS[k].px,LAMPS[k].py+60,60,Math.max(geo.W,geo.H)*.5,.62);
+      var go1=function(){openScene(d.key,en.cx,en.cy,btn)};if(RM)go1();else setTimeout(go1,420);
+    }else if(E===2){
+      if(busy||ent.classList.contains("zoom"))return;
+      world.style.transformOrigin=en.cx+"px "+en.cy+"px";
+      dimAt(en.cx,en.cy,90,Math.max(geo.W,geo.H)*.55,.7);
+      ent.classList.add("zoom");
+      world.style.transform="scale(1.85)";world.classList.add("sel");
+      var go2=function(){openScene(d.key,en.cx,en.cy,btn)};
+      if(RM)go2();else setTimeout(go2,620);
+    }else{
+      openScene(d.key,lastPt.x,lastPt.y,btn);
+    }
+  }
+  var lastPt={x:0,y:0};
+  ents.forEach(function(en,i){
+    var go=function(e){if(e&&e.clientX!=null&&(e.clientX||e.clientY))lastPt={x:e.clientX,y:e.clientY};else{var r=en.btn.getBoundingClientRect();lastPt={x:r.left+Math.min(r.width,200)/2,y:r.top+r.height/2}}choose(i,en.btn)};
+    en.btn.addEventListener("click",go);
+    if(en.pl)en.pl.addEventListener("click",function(){choose(i,en.btn)});
+  });
+  /* lanterna: só enquanto o dedo está na tela */
+  if(E===3){
+    var mv=function(e){if(e.pointerType==="mouse"&&!(e.buttons&1))return;lantern.style.transform="translate("+e.clientX+"px,"+e.clientY+"px)";lantern.classList.add("on")};
+    var up=function(){lantern.classList.remove("on")};
+    ent.addEventListener("pointerdown",mv);ent.addEventListener("pointermove",mv);
+    ent.addEventListener("pointerup",up);ent.addEventListener("pointercancel",up);ent.addEventListener("pointerleave",up);
+  }
   $("volt").addEventListener("click",closeScene);
   addEventListener("keydown",function(e){if(e.key==="Escape"&&cena.classList.contains("show"))closeScene()});
 })();
