@@ -909,6 +909,16 @@ html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"
 html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 html[data-sis="foto"] body.pula #abertura .tk-b,html[data-sis="foto"] body.pula #abertura .tk-l i,html[data-sis="foto"] body.pula #abertura .tk-s,html[data-sis="foto"] body.pula #abertura .tk-a:first-child{animation-delay:0s}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .tk-b{clip-path:none;animation:none!important}html[data-sis="foto"] #abertura .tk-s{opacity:1;animation:none!important}html[data-sis="foto"] #abertura .tk-l i{transform:none;animation:none!important}html[data-sis="foto"] #abertura .tk-a{stroke-dashoffset:0;animation:none!important}html[data-sis="foto"] .tk-b,html[data-sis="foto"] .tk-s,html[data-sis="foto"] .tk-a{transition:none}}
+/* acabamento: sombra de papel, luz no topo, fio interno pontilhado */
+html[data-sis="foto"] .vd.tkv{filter:drop-shadow(0 9px 12px rgba(8,2,6,.42)) drop-shadow(0 1px 1px rgba(8,2,6,.5))}
+html[data-sis="foto"] .vd[data-ir="visita"] .tk-b{background:linear-gradient(180deg,#F8ECD6 0%,#F1E0C4 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(120,80,40,.18)}
+html[data-sis="foto"] .vd[data-ir="visita"] .tk-s{background:linear-gradient(180deg,#EBD8B3 0%,#E2CCA4 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(120,80,40,.2)}
+html[data-sis="foto"] .vd[data-ir="livro"] .tk-b{background:linear-gradient(180deg,rgba(52,18,34,.94),rgba(34,10,22,.94));box-shadow:inset 1px 0 0 rgba(255,239,219,.5),inset 0 1px 0 rgba(255,239,219,.5),inset 0 -1px 0 rgba(255,239,219,.5)}
+html[data-sis="foto"] .vd[data-ir="livro"] .tk-s{background:linear-gradient(180deg,rgba(72,26,46,.95),rgba(50,16,32,.95))}
+html[data-sis="foto"] .tk-b::before{content:"";position:absolute;inset:4px 0 4px 4px;border:1px dashed currentColor;border-right:0;border-radius:8px 0 0 8px;opacity:.2;pointer-events:none}
+html[data-sis="foto"] .vd[data-ir="livro"] .tk-b::before{inset:5px 0 5px 5px;opacity:.22}
+html[data-sis="foto"] .tk-l{font-size:calc(var(--t2)*1.1);letter-spacing:.012em}
+html[data-sis="foto"] .vd[data-ir="visita"] .tk-a{color:#B4331F}
 </style>
 </head>
 <body data-luz="noite">
