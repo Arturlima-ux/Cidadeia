@@ -57,7 +57,7 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "quadros";
+  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "final";
   document.documentElement.dataset.bt = BT;
   if (SIS === "foto" && BT === "quadros") return quadros(el);
   if (SIS === "foto" && BT === "objeto") {
@@ -388,55 +388,55 @@ function quadros() {
   const R = document.documentElement, B = document.body;
   R.dataset.bt = "editorial"; R.dataset.qd = "1"; // herda o ritmo vertical da abertura editorial; os botões antigos ficam escondidos
   const ab = document.getElementById("abertura");
-  const S = quadros.S || (quadros.S = { on: false, A: [], t: 0 });
+  const S = quadros.S || (quadros.S = { on: false, key: null, p: 0, id: null, hold: false, A: [] });
   if (S.limpa) S.limpa();
   if (ab.querySelector(".qd-zoom")) return;
   const dbg = /[?&]qd=dbg/.test(location.search);
+  let sabe = false; try { sabe = !!localStorage.getItem("qd-sabe"); } catch {}
   const zoom = document.createElement("div"); zoom.className = "qd-zoom";
-  zoom.innerHTML = `<div class="qd-ph"><div class="qd-kb">${QD.map((d, k) => {
-    const [a, ...b] = d.rot.split(" "), l = [a, b.join(" ")];
-    return `<div class="qd-q" data-k="${d.ir}" data-i="${k}"><div class="qd-lift" aria-hidden="true"><img src="/assets/f/casa-1-w.webp" alt="" decoding="async"></div>` +
-      `<button class="qd-b" data-ir="${d.ir}" data-porta aria-label="${d.rot}"><span class="qd-lab" aria-hidden="true"><i class="qd-ln"></i><span class="qd-n"><i>${d.n}</i></span><span class="qd-t">${l.map((t, i) => `<span class="qd-r"><span style="--i:${i}">${t}</span></span>`).join("")}</span><i class="qd-u"></i></span></button></div>`;
-  }).join("")}${dbg ? '<svg class="qd-dbg" aria-hidden="true"></svg>' : ""}</div></div>`;
-  ab.prepend(zoom);
+  zoom.innerHTML = `<div class="qd-ph"><div class="qd-kb">${QD.map((d, k) =>
+    `<div class="qd-q" data-k="${d.ir}" data-i="${k}"><div class="qd-lift" aria-hidden="true"><img src="/assets/f/casa-1-w.webp" alt="" decoding="async"></div>` +
+    `<button class="qd-b" data-ir="${d.ir}" data-porta aria-label="${d.rot}"><span class="qd-lab" aria-hidden="true"><i class="qd-ln"></i><span class="qd-n"><i>${d.n}</i></span></span></button></div>`).join("")}${dbg ? '<svg class="qd-dbg" aria-hidden="true"></svg>' : ""}</div></div>`;
+  // os controles de segurar, embaixo: numeral, rótulo em serifa e um trilho de 1px que enche com o dedo
+  const ctl = document.createElement("div"); ctl.className = "qd-ctl";
+  ctl.innerHTML = QD.map((d, k) => `<button class="qd-c" data-ir="${d.ir}" data-porta data-k="${d.ir}" aria-label="${d.rot}"><span class="qd-cn" aria-hidden="true"><span class="qd-n"><i>${d.n}</i></span>${k || sabe ? "" : '<span class="qd-cs"><i>segure</i></span>'}</span><span class="qd-cl" aria-hidden="true"><span class="qd-r"><span>${d.rot}</span></span></span><i class="qd-tr" aria-hidden="true"></i><i class="qd-f" aria-hidden="true"></i></button>`).join("");
+  ab.prepend(zoom); ab.appendChild(ctl);
+  ["contextmenu", "selectstart", "dragstart"].forEach(t => ab.addEventListener(t, e => e.preventDefault()));
   const ph = zoom.firstChild, kb = ph.firstChild;
 
   // --- geometria: quadros em px dentro da caixa da foto ---
   const monta = () => {
+    const c = document.querySelector("#abertura .comanda");
+    if (c) ctl.style.setProperty("--qd-bot", (parseFloat(getComputedStyle(c).bottom) || 0) + c.offsetHeight + 22 + "px");
     const W = kb.clientWidth, H = kb.clientHeight; if (!W || !H) return;
     const s = Math.max(W / QD_IMG[0], H / QD_IMG[1]), ox = (W - QD_IMG[0] * s) * QD_POS[0], oy = (H - QD_IMG[1] * s) * QD_POS[1];
     const mp = p => [p[0] * s + ox, p[1] * s + oy];
-    const vw = document.documentElement.clientWidth, esq = ph.offsetLeft; // a caixa começa em -3% da tela
+    const vw = document.documentElement.clientWidth, esq = ph.offsetLeft;
     const m = 22 - esq, mx = vw - 22 - esq;
-    let prev = null;
-    let svg = "";
-    QD.forEach((d, k) => {
+    let prev = null, svg = "";
+    QD.forEach(d => {
       const q = kb.querySelector(`.qd-q[data-k="${d.ir}"]`), b = q.querySelector(".qd-b"), lab = b.firstChild, lift = q.firstChild;
       const P = d.q.map(mp), xs = P.map(p => p[0]), ys = P.map(p => p[1]);
       const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
       const pad = Math.max(8, (44 - Math.min(x1 - x0, y1 - y0)) / 2);
       Object.assign(b.style, { left: x0 - pad + "px", top: y0 - pad + "px", width: x1 - x0 + pad * 2 + "px", height: y1 - y0 + pad * 2 + "px" });
-      b.dataset.pad = pad; b.dataset.pw = x1 - x0; b.dataset.ph = y1 - y0;
-      lift.style.clipPath = `polygon(${P.map(p => `${(p[0]).toFixed(1)}px ${(p[1]).toFixed(1)}px`).join(",")})`;
+      b.dataset.pad = pad;
+      lift.style.clipPath = `polygon(${P.map(p => `${p[0].toFixed(1)}px ${p[1].toFixed(1)}px`).join(",")})`;
       lift.style.setProperty("--my0", y0 + "px"); lift.style.setProperty("--my1", y1 + "px");
-      // a plaquinha: à esquerda do quadro (texto à direita, fio apontando para a moldura); se não couber, à direita
+      // o numeral com um fio curto, à esquerda do quadro, apontando para a moldura (à direita se faltar espaço)
       const ly = P[0][1] + (P[3][1] - P[0][1]) * d.y, lerp = (a, c) => a[0] + (c[0] - a[0]) * ((ly - a[1]) / (c[1] - a[1]));
-      const eL = lerp(P[0], P[3]), eR = lerp(P[1], P[2]); let LD = 13, GP = 6;
-      const w = lab.offsetWidth, h = lab.offsetHeight;
-      // limite da esquerda: a margem da tela ou a moldura do quadro anterior, medida na altura da plaquinha
+      const eL = lerp(P[0], P[3]), eR = lerp(P[1], P[2]), LD = 22, GP = 6, w = lab.offsetWidth;
       const lim = prev ? lerp(prev[1], prev[2]) + 4 : m;
       let lado = "e", bx = eL - 2 - LD - GP - w;
-      if (bx < lim) { LD = 10; GP = 5; bx = eL - 2 - LD - GP - w; }
-      if (bx < lim && eR + 2 + 13 + 6 + w <= mx) { lado = "d"; LD = 13; GP = 6; bx = eR + 2 + LD + GP; }
+      if (bx < lim && eR + 2 + LD + GP + w <= mx) { lado = "d"; bx = eR + 2 + LD + GP; }
       lab.dataset.lado = lado; lab.style.setProperty("--ld", LD + "px");
       lab.style.left = bx - (x0 - pad) + "px"; lab.style.top = ly - 6 - (y0 - pad) + "px";
-      lab.style.setProperty("--w", w + "px");
       prev = P;
-      if (dbg) svg += `<polygon points="${P.map(p => p.join(",")).join(" ")}" fill="none" stroke="#7CFF4D" stroke-width="1.5"/><rect x="${x0 - pad}" y="${y0 - pad}" width="${x1 - x0 + pad * 2}" height="${y1 - y0 + pad * 2}" fill="none" stroke="#FF3DE0" stroke-width="1"/><rect x="${bx}" y="${ly - 6}" width="${w}" height="${h}" fill="none" stroke="#3DE8FF" stroke-width="1"/>`;
+      if (dbg) svg += `<polygon points="${P.map(p => p.join(",")).join(" ")}" fill="none" stroke="#7CFF4D" stroke-width="1.5"/><rect x="${x0 - pad}" y="${y0 - pad}" width="${x1 - x0 + pad * 2}" height="${y1 - y0 + pad * 2}" fill="none" stroke="#FF3DE0" stroke-width="1"/>`;
     });
     if (dbg) { const e = kb.querySelector(".qd-dbg"); e.setAttribute("viewBox", `0 0 ${W} ${H}`); e.innerHTML = svg; }
   };
-  monta(); addEventListener("resize", monta); document.fonts?.ready.then(monta); setTimeout(monta, 600);
+  monta(); addEventListener("resize", monta); document.fonts?.ready.then(monta); setTimeout(monta, 600); setTimeout(monta, 1800);
   if (window.ResizeObserver) new ResizeObserver(monta).observe(ph);
 
   // --- a camada acompanha a foto: paralaxe (--px/--py vêm do .qa), câmera lenta e escala da escrita têm os mesmos relógios ---
@@ -457,43 +457,95 @@ function quadros() {
   };
   if (!liga()) { let n = 0; const t = setInterval(() => { if (liga() || ++n > 100) clearInterval(t); }, 100); }
 
-  // --- toque: a luz de galeria sobe no quadro; ao soltar, a câmera caminha até ele e a rota abre ---
+  // --- segurar: o progresso é o gesto. O trilho, a luz de galeria e a câmera andam juntos com p (0 a 1) ---
+  const HOLD = 1000, SOLTA = 420, KMAX = .5, ez = p => p * p * (3 - 2 * p);
   const cartao = () => document.querySelector(".qa .r-cartao");
-  S.limpa = () => {
-    S.A.forEach(a => { try { a.cancel(); } catch {} }); S.A = []; clearTimeout(S.t); clearTimeout(S.f);
-    zoom.style.transformOrigin = ""; const c = cartao(); if (c) c.style.transformOrigin = "";
-    zoom.querySelectorAll(".qd-q").forEach(q => q.classList.remove("on", "abre", "fora")); S.on = false; S.down = null;
+  const alvo = k => ({ row: ctl.querySelector(`.qd-c[data-ir="${k}"]`), q: kb.querySelector(`.qd-q[data-k="${k}"]`), b: kb.querySelector(`.qd-b[data-ir="${k}"]`) });
+  const camera = k => {
+    const { b } = alvo(k), W = innerWidth, H = innerHeight, r = b.getBoundingClientRect(), pad = +b.dataset.pad, pw = r.width - pad * 2, ph2 = r.height - pad * 2;
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, sc = Math.max(1.5, Math.min(.84 * W / pw, .6 * H / ph2, 2.35));
+    const dx = Math.max(-(sc - 1) * (W - cx), Math.min((sc - 1) * cx, W / 2 - cx)), dy = Math.max(-(sc - 1) * (H - cy), Math.min((sc - 1) * cy, H * .4 - cy));
+    return { cx, cy, sc, dx, dy };
   };
-  zoom.addEventListener("pointerdown", e => {
-    const b = e.target.closest(".qd-b"); if (!b || S.on || (e.pointerType === "mouse" && e.button)) return;
-    clearTimeout(S.t); S.down = b; b.parentNode.classList.add("on");
-  }, { passive: true });
-  const solta = ime => { if (!S.down || S.on) return; const q = S.down.parentNode; S.down = null; clearTimeout(S.t); S.t = setTimeout(() => { if (!S.on) q.classList.remove("on"); }, ime ? 0 : 160); };
-  zoom.addEventListener("pointerup", () => solta(), { passive: true }); zoom.addEventListener("pointercancel", () => solta(true), { passive: true });
-  addEventListener("pageshow", () => { if (S.on) S.limpa(); });
-  zoom.addEventListener("click", e => {
-    const b = e.target.closest(".qd-b"); if (!b) return;
-    e.stopPropagation(); e.preventDefault();
-    if (S.on) return;
-    const nome = b.dataset.ir;
+  const tr = (C, k) => `translate3d(${(C.dx * k).toFixed(2)}px,${(C.dy * k).toFixed(2)}px,0) scale(${(1 + (C.sc - 1) * k).toFixed(4)})`;
+  const reseta = () => {
+    const c = cartao(); zoom.style.transform = zoom.style.transformOrigin = "";
+    if (c) { c.style.transform = c.style.transformOrigin = c.style.transition = ""; }
+    ctl.querySelectorAll(".qd-c").forEach(r => { r.style.removeProperty("--p"); r.classList.remove("ativo", "feito", "kb"); });
+    kb.querySelectorAll(".qd-lift").forEach(l => { l.style.opacity = ""; }); kb.querySelectorAll(".qd-q").forEach(q => q.classList.remove("fora"));
+    ctl.classList.remove("segura"); B.classList.remove("qd-seg"); R.style.removeProperty("--qd-hold"); S.key = null; S.cam = null; S.p = 0;
+  };
+  const pinta = () => {
+    const { row, q } = alvo(S.key), e = ez(S.p), c = cartao();
+    row.style.setProperty("--p", S.p.toFixed(4));
+    q.firstChild.style.opacity = S.p > 0 ? Math.min(1, e * 1.25).toFixed(3) : "";
+    R.style.setProperty("--qd-hold", (e * .8).toFixed(3));
+    const t = tr(S.cam, KMAX * e); zoom.style.transform = t; if (c) { c.style.transition = "none"; c.style.transform = t; }
+  };
+  let raf = 0, last = 0;
+  const passo = t => {
+    const dt = Math.max(0, Math.min(50, t - last)); last = t;
+    S.p = S.hold ? Math.min(1, S.p + dt / HOLD) : Math.max(0, S.p - dt / (S.lento ? 700 : SOLTA));
+    pinta();
+    if (S.hold && S.p >= 1) return completa(S.key, false);
+    if (S.hold || S.p > 0) raf = requestAnimationFrame(passo); else { raf = 0; reseta(); }
+  };
+  const roda = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(passo); } };
+  const completa = (key, direto) => {
+    if (S.on) return; S.on = true; S.hold = false; S.id = null; cancelAnimationFrame(raf); raf = 0;
+    try { navigator.vibrate && navigator.vibrate(10); } catch {}
     if (cena === "abertura" && !B.classList.contains("pula")) B.classList.add("pula");
-    if (calmo) return ir(nome);
-    S.on = true; clearTimeout(S.t);
-    const q = b.parentNode; q.classList.add("on", "abre"); zoom.querySelectorAll(".qd-q").forEach(o => { if (o !== q) o.classList.add("fora"); });
-    // o resto da abertura recua; sem desfoque
+    if (S.key !== key) { reseta(); S.key = key; }
+    S.cam = S.cam || camera(key);
+    const { row, q } = alvo(key), c = cartao(), C = S.cam;
+    if (direto) row.classList.add("kb");
+    row.style.setProperty("--p", 1); row.classList.add("ativo", "feito"); ctl.classList.add("segura"); q.firstChild.style.opacity = 1;
+    kb.querySelectorAll(".qd-q").forEach(o => { if (o !== q) o.classList.add("fora"); });
     foco.push(...[...document.querySelectorAll("#abertura>.col>.sc, #abertura .verso, #abertura .orn, #abertura .pergunta, #abertura .serv")].map((z, i) =>
       z.animate([{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-8px)" }], { duration: 380, delay: i * 28, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })));
-    // a câmera: a foto (e a cópia acesa) crescem em direção ao centro do quadro; mesma origem, mesmo relógio
-    const W = innerWidth, H = innerHeight, r = b.getBoundingClientRect(), pad = +b.dataset.pad, pw = r.width - pad * 2, ph2 = r.height - pad * 2;
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const sc = Math.max(1.5, Math.min(.84 * W / pw, .6 * H / ph2, 2.35));
-    const dx = Math.max(-(sc - 1) * (W - cx), Math.min((sc - 1) * cx, W / 2 - cx)), dy = Math.max(-(sc - 1) * (H - cy), Math.min((sc - 1) * cy, H * .4 - cy));
-    const kf = [{ transform: "translate3d(0,0,0) scale(1)" }, { transform: `translate3d(${dx.toFixed(1)}px,${dy.toFixed(1)}px,0) scale(${sc.toFixed(3)})` }];
-    const op = { duration: 1100, easing: "cubic-bezier(.45,0,.1,1)", fill: "forwards" };
-    zoom.style.transformOrigin = `${cx}px ${cy}px`; const c = cartao(); if (c) c.style.transformOrigin = `${cx}px ${cy}px`;
+    // a transição final: da posição em que a câmera parou até o quadro cheio; mesma origem, mesmo relógio
+    const k0 = direto ? 0 : KMAX * ez(1), kf = [{ transform: tr(C, k0) }, { transform: tr(C, 1) }], op = { duration: direto ? 1100 : 900, easing: "cubic-bezier(.4,0,.1,1)", fill: "forwards" };
+    zoom.style.transformOrigin = `${C.cx}px ${C.cy}px`; if (c) { c.style.transformOrigin = `${C.cx}px ${C.cy}px`; c.style.transition = "none"; }
     S.A.push(zoom.animate(kf, op)); if (c) S.A.push(c.animate(kf, op));
-    S.f = setTimeout(() => { ir(nome); S.t = setTimeout(() => S.limpa && S.limpa(), 1500); }, 680);
-  }, true);
+    S.f = setTimeout(() => { ir(key); S.t = setTimeout(() => S.limpa && S.limpa(), 1500); }, direto ? 680 : 560);
+  };
+  S.limpa = () => {
+    S.A.forEach(a => { try { a.cancel(); } catch {} }); S.A = []; clearTimeout(S.t); clearTimeout(S.f); cancelAnimationFrame(raf); raf = 0;
+    reseta(); S.on = false; S.hold = false; S.id = null;
+  };
+  const inicia = e => {
+    const el = e.target.closest(".qd-c,.qd-b"); if (!el || S.on || S.id != null || calmo || (e.pointerType === "mouse" && e.button)) return;
+    const key = el.dataset.ir;
+    if (S.key && S.key !== key) { cancelAnimationFrame(raf); raf = 0; reseta(); }
+    S.id = e.pointerId; S.x = e.clientX; S.y = e.clientY; S.t0 = performance.now(); S.hold = true; S.lento = false;
+    if (!S.key) { S.key = key; S.cam = camera(key); zoom.style.transformOrigin = `${S.cam.cx}px ${S.cam.cy}px`; const c = cartao(); if (c) c.style.transformOrigin = `${S.cam.cx}px ${S.cam.cy}px`; }
+    try { el.setPointerCapture(e.pointerId); } catch {}
+    alvo(key).row.classList.add("ativo"); ctl.classList.add("segura"); B.classList.add("qd-seg"); getSelection()?.removeAllRanges();
+    ctl.querySelectorAll(".qd-cs").forEach(h => h.remove()); try { localStorage.setItem("qd-sabe", "1"); } catch {}
+    roda();
+  };
+  const larga = (e, toque) => {
+    if (e.pointerId !== S.id) return; S.id = null; if (S.on) return; S.hold = false;
+    if (toque && performance.now() - S.t0 < 260) { S.p = Math.max(S.p, .15); S.lento = true; } // toque rápido: só um empurrãozinho, o trilho volta
+    roda();
+  };
+  [ctl, zoom].forEach(z => {
+    z.addEventListener("pointerdown", inicia);
+    z.addEventListener("pointerup", e => larga(e, true));
+    z.addEventListener("pointercancel", e => larga(e, false));
+    z.addEventListener("lostpointercapture", e => larga(e, false));
+    z.addEventListener("pointermove", e => { if (e.pointerId === S.id && Math.hypot(e.clientX - S.x, e.clientY - S.y) > 18) larga(e, false); });
+    // clique de ponteiro nunca navega (só o segurar); Enter/Espaço (detail 0) e movimento reduzido navegam direto
+    z.addEventListener("click", e => {
+      const el = e.target.closest(".qd-c,.qd-b"); if (!el) return;
+      e.stopPropagation(); e.preventDefault(); if (S.on) return;
+      if (calmo) { if (cena === "abertura" && !B.classList.contains("pula")) B.classList.add("pula"); S.on = true; return ir(el.dataset.ir); }
+      if (e.detail === 0) completa(el.dataset.ir, true);
+    }, true);
+  });
+  addEventListener("scroll", e => { if (S.id != null) larga({ pointerId: S.id }, false); }, true);
+  document.addEventListener("visibilitychange", () => { if (document.hidden && S.id != null) larga({ pointerId: S.id }, false); });
+  addEventListener("pageshow", () => { if (S.on) S.limpa(); });
 }
 // Toque com gesto: cada sistema tem a sua forma de responder antes de abrir o caminho
 function inunda(cor, x, y, fim) {

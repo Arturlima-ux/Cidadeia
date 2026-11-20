@@ -1384,11 +1384,15 @@ html[data-sis="foto"][data-bt="editorial"] .tr-cl{position:fixed;z-index:4;displ
 html[data-sis="foto"][data-bt="editorial"] .tr-cl{white-space:nowrap;align-items:flex-end}
 </style>
 <style id="zqua">
-/* ============ ?bt=quadros: os quadros reais da parede são os botões. Sem botão desenhado; só a plaquinha de museu ============ */
-html[data-qd]{--qd-ease:cubic-bezier(.16,1,.3,1);--qd-line:cubic-bezier(.65,0,.2,1);--qd-cream:#F4E4CB}
+/* ============ ?bt=quadros: os quadros reais da parede e dois controles de SEGURAR embaixo. Sem botão desenhado ============ */
+html[data-qd]{--qd-ease:cubic-bezier(.16,1,.3,1);--qd-line:cubic-bezier(.65,0,.2,1);--qd-cream:#F4E4CB;--qd-coral:#E65A41}
 html[data-qd] .portas{display:none!important}
-/* os quadros ficam atrás do texto; o texto da abertura não toma o toque, só a frase */
-html[data-qd] #abertura .col{pointer-events:none}
+/* segurar não pode abrir menu de copiar, lupa, callout nem menu de contexto: nada na abertura é selecionável */
+html[data-qd] #abertura,html[data-qd] #abertura *,html[data-qd] .heroi,html[data-qd] .heroi *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html[data-qd] .heroi img,html[data-qd] .qd-lift img{-webkit-user-drag:none;pointer-events:none}
+body.qd-seg #abertura,body.qd-seg #abertura *{-webkit-user-select:none!important;user-select:none!important}
+/* o texto da abertura fica atrás; só a frase e o bloco de horários tomam toque. Ao segurar, eles recuam junto com o progresso */
+html[data-qd] #abertura .col{pointer-events:none;opacity:calc(1 - var(--qd-hold,0))}
 html[data-qd] #abertura .col>*{pointer-events:auto}
 html[data-qd][data-tema="almoco"]{--qd-f:brightness(1.12) saturate(1.12) contrast(.98)}
 html[data-qd][data-tema="tarde"]{--qd-f:brightness(.92) saturate(1.2) sepia(.22) hue-rotate(-6deg)}
@@ -1402,51 +1406,57 @@ html[data-qd][data-tema="jantar"] .qa .f2{opacity:0}
 html[data-fv="a"] body.escrevendo .qd-ph{transform-origin:55% 26%;animation:r-sw 22s ease-in-out infinite alternate,z7-ra 7.6s cubic-bezier(.3,.1,.25,1) both}
 html[data-fv="b"] body.escrevendo .qd-ph{transform-origin:55% 26%;animation:r-sw 22s ease-in-out infinite alternate,z7-rb 8s cubic-bezier(.25,.1,.25,1) both}
 .qd-kb{position:absolute;inset:0;transform-origin:50% 30%;animation:r-kb 60s ease-in-out infinite alternate}
-.qd-q{position:absolute;inset:0;pointer-events:none}
-body:not(.escrito):not(.pula) .qd-q{visibility:hidden}
-.qd-q{transition:opacity .3s cubic-bezier(.4,0,.2,1)}
+.qd-q{position:absolute;inset:0;pointer-events:none;transition:opacity .3s cubic-bezier(.4,0,.2,1)}
 .qd-q.fora{opacity:0}
-/* a luz de galeria: cópia recortada do próprio quadro, um degrau mais clara; nada de halo */
-.qd-lift{position:absolute;inset:0;opacity:0;transition:opacity .26s ease;-webkit-mask-image:linear-gradient(180deg,#000 var(--my0),rgba(0,0,0,.66) var(--my1));mask-image:linear-gradient(180deg,#000 var(--my0),rgba(0,0,0,.66) var(--my1))}
+body:not(.escrito):not(.pula) .qd-q{visibility:hidden}
+/* a luz de galeria: cópia recortada do próprio quadro, um degrau mais clara; a opacidade vem do progresso (JS). Nada de halo */
+.qd-lift{position:absolute;inset:0;opacity:0;-webkit-mask-image:linear-gradient(180deg,#000 var(--my0),rgba(0,0,0,.66) var(--my1));mask-image:linear-gradient(180deg,#000 var(--my0),rgba(0,0,0,.66) var(--my1))}
 .qd-lift img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:93% 30%;filter:var(--qd-f) brightness(1.32) contrast(1.06)}
-.qd-q.on .qd-lift{opacity:1;transition-duration:.18s}
-@media(hover:hover){.qd-q:has(.qd-b:hover) .qd-lift{opacity:.55}.qd-q.on:has(.qd-b:hover) .qd-lift{opacity:1}}
-.qd-q:has(.qd-b:focus-visible) .qd-lift{opacity:.55}
-/* o botão é o quadro todo */
-.qd-b{position:absolute;display:block;padding:0;margin:0;border:0;background:none;border-radius:2px;pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;outline:none;color:var(--qd-cream)}
+.qd-b,.qd-c{display:block;padding:0;margin:0;border:0;background:none;color:var(--qd-cream);cursor:pointer;touch-action:none;outline:none;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.qd-b{position:absolute;border-radius:2px;pointer-events:auto}
 body:not(.escrito):not(.pula) .qd-b{pointer-events:none}
 .qd-b:focus-visible{outline:1px solid var(--qd-cream);outline-offset:3px}
-/* a plaquinha */
+/* numeral e fio no quadro: só isso; o rótulo mora embaixo */
 .qd-lab{position:absolute;display:block;white-space:nowrap;text-align:right;pointer-events:none;color:var(--qd-cream);text-shadow:0 1px 12px rgba(30,8,6,.6),0 0 2px rgba(30,8,6,.35)}
-.qd-lab[data-lado="d"]{text-align:left}
-.qd-n{display:block;overflow:hidden;font:600 8.5px/12px var(--sans,Manrope,sans-serif);letter-spacing:.26em;text-transform:uppercase;opacity:.82;margin-right:-.26em}
-.qd-lab[data-lado="d"] .qd-n{margin-right:0}
-.qd-n>i,.qd-r>span{display:block;font-style:normal;transform:translateY(115%)}
-.qd-t{display:block;margin-top:2px}
-.qd-r{display:block;overflow:hidden;padding:.14em 0 .2em;margin:-.14em 0 -.2em;font:500 15.5px/1.12 var(--serif,"Cormorant Garamond",Georgia,serif);letter-spacing:.005em}
-.qd-ln,.qd-u{position:absolute;display:block;height:1px;background:var(--qd-cream);transform:scaleX(0)}
-.qd-ln{top:6px;width:var(--ld,13px);left:calc(100% + 6px);transform-origin:0 50%;opacity:.8}
+.qd-n{display:block;overflow:hidden;font:600 8.5px/12px var(--sans,Manrope,sans-serif);letter-spacing:.26em;text-transform:uppercase;opacity:.86;margin-right:-.26em}
+.qd-n>i,.qd-r>span,.qd-cs>i{display:block;font-style:normal;transform:translateY(115%)}
+.qd-ln{position:absolute;display:block;height:1px;background:var(--qd-cream);transform:scaleX(0);top:6px;width:var(--ld,22px);left:calc(100% + 6px);transform-origin:0 50%;opacity:.8}
+.qd-lab[data-lado="d"]{text-align:left}.qd-lab[data-lado="d"] .qd-n{margin-right:0}
 .qd-lab[data-lado="d"] .qd-ln{left:auto;right:calc(100% + 6px);transform-origin:100% 50%}
-.qd-u{left:0;right:0;bottom:-3px;transform-origin:100% 50%;transition:transform .42s var(--qd-line)}
-.qd-lab[data-lado="d"] .qd-u{transform-origin:0 50%}
-.qd-q.abre .qd-u,.qd-b:focus-visible .qd-u{transform:scaleX(1)}
-.qd-q.on .qd-u{transform:scaleX(1)}
-.qd-lab{transition:opacity .3s cubic-bezier(.4,0,.2,1) .35s}
-.qd-q.abre .qd-lab{opacity:0}
-/* entrada: uma plaquinha por vez. Só começa com body.escrito / body.pula */
-.qd-q[data-k="livro"]{--qd-d:.2s}.qd-q[data-k="visita"]{--qd-d:1.75s}
-body.escrito .qd-q .qd-ln,body.pula .qd-q .qd-ln{animation:qd-traco .9s var(--qd-line) var(--qd-d) both}
-body.escrito .qd-q .qd-n>i,body.pula .qd-q .qd-n>i{animation:qd-sobe 1s var(--qd-ease) calc(var(--qd-d) + .2s) both}
-body.escrito .qd-q .qd-r>span,body.pula .qd-q .qd-r>span{animation:qd-sobe 1.1s var(--qd-ease) calc(var(--qd-d) + .36s + var(--i)*.1s) both}
+/* os controles: uma linha por controle, largura toda, trilho de 1px que enche da esquerda para a direita (creme para coral) */
+.qd-ctl{position:fixed;z-index:2;left:var(--m,28px);right:var(--m,28px);bottom:var(--qd-bot,190px);max-width:480px;display:flex;flex-direction:column;transition:opacity .3s}
+body:not(.escrito):not(.pula) .qd-ctl{visibility:hidden;pointer-events:none}
+.qd-c{position:relative;width:100%;height:62px;display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;text-align:left;--p:0;transition:opacity .3s cubic-bezier(.4,0,.2,1)}
+.qd-ctl.segura .qd-c:not(.ativo){opacity:.3}
+.qd-c:focus-visible{outline:1px solid var(--qd-cream);outline-offset:-3px}
+.qd-cn{display:block;align-self:center}
+.qd-cn .qd-n{opacity:.8}
+.qd-cs{display:block;overflow:hidden;margin-top:2px;font:500 7.5px/10px var(--sans,Manrope,sans-serif);letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+.qd-cl{display:block}
+.qd-cl .qd-r{display:block;overflow:hidden;padding:.16em 0 .22em;margin:-.16em 0 -.22em;font:500 clamp(27px,7.6vw,32px)/1.05 var(--serif,"Cormorant Garamond",Georgia,serif);letter-spacing:-.005em;white-space:nowrap;color:var(--qd-cream)}
+.qd-cl .qd-r>span{transition:transform .22s ease}
+.qd-c.feito .qd-r>span{transform:scale(.99) translateX(1px);transition-duration:.12s}
+.qd-tr,.qd-f{position:absolute;left:0;right:0;bottom:0;display:block;pointer-events:none}
+.qd-tr{height:1px;background:rgba(244,228,203,.26);transform:scaleX(0);transform-origin:0 50%}
+.qd-f{height:2px;background:linear-gradient(90deg,var(--qd-cream),var(--qd-coral));clip-path:inset(0 calc((1 - var(--p,0))*100%) 0 0)}
+.qd-c.kb .qd-f{transition:clip-path .55s var(--qd-line)}
+@media(max-height:740px){.qd-c{height:56px}}
+/* entrada: controle 1 completa (trilho, numeral, rótulo, numeral do quadro), depois o 2. Só começa com body.escrito / body.pula */
+.qd-q[data-k="livro"],.qd-c[data-k="livro"]{--qd-d:.2s}.qd-q[data-k="visita"],.qd-c[data-k="visita"]{--qd-d:1.6s}
+body.escrito .qd-ln,body.pula .qd-ln{animation:qd-traco .9s var(--qd-line) calc(var(--qd-d) + .5s) both}
+body.escrito .qd-tr,body.pula .qd-tr{animation:qd-traco 1.1s var(--qd-line) var(--qd-d) both}
+body.escrito .qd-n>i,body.pula .qd-n>i,body.escrito .qd-cs>i,body.pula .qd-cs>i{animation:qd-sobe 1s var(--qd-ease) calc(var(--qd-d) + .25s) both}
+body.escrito .qd-cs>i,body.pula .qd-cs>i{animation-delay:calc(var(--qd-d) + .9s)}
+body.escrito .qd-r>span,body.pula .qd-r>span{animation:qd-sobe 1.1s var(--qd-ease) calc(var(--qd-d) + .4s) both}
 @keyframes qd-traco{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes qd-sobe{from{transform:translateY(115%)}to{transform:none}}
-/* tocar na abertura pula só a ENTRADA das plaquinhas; a foto e a câmera seguem como estão */
-body.pula .qd-q .qd-ln,body.pula .qd-q .qd-n>i,body.pula .qd-q .qd-r>span{animation-duration:.01s!important;animation-delay:0s!important}
+/* tocar na abertura pula só a ENTRADA; a foto e a câmera seguem como estão */
+body.pula .qd-ln,body.pula .qd-tr,body.pula .qd-n>i,body.pula .qd-cs>i,body.pula .qd-r>span{animation-duration:.01s!important;animation-delay:0s!important}
 .qd-dbg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 @media (prefers-reduced-motion:reduce){
   .qd-ph,.qd-kb{animation:none!important}
-  .qd-n>i,.qd-r>span,.qd-ln{animation:none!important;transform:none!important}
-  .qd-lift,.qd-q,.qd-u{transition:none!important}
+  .qd-n>i,.qd-r>span,.qd-cs>i,.qd-ln,.qd-tr{animation:none!important;transform:none!important}
+  .qd-q,.qd-c,.qd-ctl,.qd-f{transition:none!important}
 }
 </style>
 </head>
@@ -1513,7 +1523,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=55"></script>
+<script type="module" src="/assets/carta.js?v=56"></script>
 <script>
 /* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
    assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */
