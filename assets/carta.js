@@ -57,7 +57,7 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "t";
+  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "final";
   document.documentElement.dataset.bt = BT;
   if (SIS === "foto" && BT === "objeto") {
     // Objetos da casa: dois livrinhos de capa de tecido (livro de visitas e carta), com etiqueta colada, fita marcadora e bloco de folhas. O toque levanta a capa.
@@ -122,6 +122,90 @@ function portas() {
     // Portal: cada botão é um vão em arco abatido (moldura, soleira) com uma folha de porta entreaberta; o rótulo é a inscrição da folha.
     const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
     el.innerHTML = PORTA.map(([ir, b], k) => `<button class="vd pt-b ${k ? "pt-r" : "pt-e"}" data-ir="${ir}" data-porta aria-label="${b}"><span class="pt-m" aria-hidden="true"></span><span class="pt-v" aria-hidden="true"><span class="pt-vista"></span><span class="pt-rev"></span><span class="pt-fol"><span class="pt-l">${letras(b)}</span><span class="pt-puxa"></span></span></span><span class="pt-s" aria-hidden="true"></span></button>`).join("");
+    return;
+  }
+  if (SIS === "foto" && BT === "final") {
+    // Final: índice editorial em repouso; ao toque, o arco da sala nasce sob o dedo e abre a próxima tela.
+    document.documentElement.dataset.bt = "editorial";
+    const pal = (t, k0) => t.split(" ").map((w, k) => `<span class="ed-w" style="--k:${k0 + k}"><span class="ed-e" style="--k:${k0 + k}"><span class="ed-r"><span class="ed-a">${w}</span><span class="ed-b" aria-hidden="true">${w}</span></span></span></span>`).join(" ");
+    const seta = `<svg class="ed-s" viewBox="0 0 30 8" aria-hidden="true"><path pathLength="1" d="M0 4H29.5M26 .5L29.5 4L26 7.5"/></svg>`;
+    el.innerHTML = PORTA.map(([ir, b], k) => `<button class="vd ed" data-ir="${ir}" data-porta aria-label="${b}">${k ? "" : `<span class="ed-ru ed-t" aria-hidden="true"></span>`}<span class="ed-n" aria-hidden="true"><span class="ed-ne">0${k + 1}</span></span><span class="ed-tt" aria-hidden="true">${pal(b, 0)}</span>${seta}<span class="ed-ru ed-f" aria-hidden="true"></span></button>`).join("");
+    // a frase sobe o que for preciso para nunca encostar nas linhas (medido, não adivinhado)
+    const ajusta = () => {
+      const col = document.querySelector("#abertura .col"), q = document.querySelector("#abertura .pergunta"), c = document.querySelector("#abertura .comanda");
+      if (!col || !q || !c) return;
+      const root = document.documentElement; root.style.removeProperty("--ed-sp");
+      const sp = parseFloat(getComputedStyle(col, "::before").height) || 0, op = q.offsetParent || document.body;
+      const qb = op.getBoundingClientRect().top + q.offsetTop + q.offsetHeight, cima = c.getBoundingClientRect().top - 26, sobra = qb - cima;
+      if (sobra > 0) root.style.setProperty("--ed-sp", Math.max(64, sp - sobra) + "px");
+    };
+    ajusta(); addEventListener("resize", ajusta); document.fonts?.ready.then(ajusta); setTimeout(ajusta, 400);
+    const S = window.__tr || (window.__tr = { on: false, A: [], t: 0 });
+    let ov = document.querySelector(".tr-ov");
+    if (!ov) {
+      ov = document.createElement("div"); ov.className = "tr-ov"; ov.setAttribute("aria-hidden", "true");
+      ov.innerHTML = `<img class="tr-ph" src="/assets/f/casa-1-g.webp" alt="" decoding="async"><i class="tr-sh"></i>`;
+      document.body.appendChild(ov);
+      const im = ov.firstChild; im.decode && im.decode().catch(() => {});
+      addEventListener("pageshow", () => { if (!S.on) ov.classList.remove("on"); });
+    }
+    const bez = (x1, y1, x2, y2) => { const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      return t => { let s = t; for (let i = 0; i < 8; i++) { const e = ((ax * s + bx) * s + cx) * s - t, d = (3 * ax * s + 2 * bx) * s + cx; if (Math.abs(e) < 1e-5 || !d) break; s -= e / d; } return ((ay * s + by) * s + cy) * s; }; };
+    const sobe = bez(.62, 0, .12, 1);
+    const SW = 38, SH = 58; // o grão da janela sob o dedo
+    const clipDe = (l, t, r, b, W, H) => { const w = r - l, h = b - t, q = Math.max(0, Math.min(w / 2, (h - 2) / 2)); return `inset(${t.toFixed(2)}px ${(W - r).toFixed(2)}px ${(H - b).toFixed(2)}px ${l.toFixed(2)}px round ${q.toFixed(2)}px ${q.toFixed(2)}px 2px 2px)`; };
+    const semente = (x, y) => { const W = innerWidth, H = innerHeight; return [clipDe(x, y, x, y, W, H), clipDe(x - SW / 2, y - SH / 2, x + SW / 2, y + SH / 2, W, H)]; };
+    const para = () => { S.A.forEach(a => { try { a.cancel(); } catch {} }); S.A = []; };
+    const limpa = () => { para(); ov.classList.remove("on"); document.querySelector(".tr-cl")?.remove(); ov.style.opacity = ""; S.on = false; };
+    if (!el.__tr) {
+      el.__tr = true;
+      el.addEventListener("pointerdown", e => {
+        const b = e.target.closest(".ed"); if (!b || S.on || calmo || (e.pointerType === "mouse" && e.button)) return;
+        clearTimeout(S.t); para(); ov.style.opacity = ""; ov.classList.add("on");
+        const [a0, a1] = semente(e.clientX, e.clientY);
+        S.A.push(ov.animate([{ clipPath: a0 }, { clipPath: a1 }], { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }));
+        S.x = e.clientX; S.y = e.clientY; S.down = true;
+      }, { passive: true });
+      const solta = () => { if (!S.down) return; S.down = false; clearTimeout(S.t); S.t = setTimeout(() => { if (!S.on) limpa(); }, 140); };
+      el.addEventListener("pointerup", solta, { passive: true }); el.addEventListener("pointercancel", () => { S.down = false; if (!S.on) limpa(); }, { passive: true });
+      el.addEventListener("pointerleave", solta, { passive: true });
+      el.addEventListener("click", e => {
+        const b = e.target.closest(".ed"); if (!b) return;
+        e.stopPropagation(); e.preventDefault();
+        if (S.on) return;
+        const nome = b.dataset.ir;
+        if (cena === "abertura" && !document.body.classList.contains("pula")) document.body.classList.add("pula");
+        if (calmo) return ir(nome);
+        S.on = true; clearTimeout(S.t);
+        const W = innerWidth, H = innerHeight, r = b.querySelector(".ed-tt").getBoundingClientRect();
+        const kb = !e.clientX && !e.clientY;
+        const x = kb ? r.left + r.width / 2 : e.clientX, y = kb ? r.top + r.height / 2 : e.clientY;
+        b.classList.add("abre");
+        // o resto da abertura recua; nada de desfoque
+        foco.push(...[...document.querySelectorAll("#abertura>.col>.sc, #abertura .verso, #abertura .orn, #abertura .pergunta, #abertura .serv"), ...[...document.querySelectorAll(".portas .vd")].filter(z => z !== b), b.querySelector(".ed-s")]
+          .map((z, i) => z.animate([{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-8px)" }], { duration: 380, delay: i * 28, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })));
+        // o rótulo creme fica preso: uma cópia exata viaja sobre a foto
+        document.querySelector(".tr-cl")?.remove();
+        const cl = document.createElement("span"); cl.className = "tr-cl"; cl.setAttribute("aria-hidden", "true");
+        cl.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+        const tt = b.querySelector(".ed-tt"), cs = getComputedStyle(tt); cl.style.font = cs.font; cl.style.letterSpacing = cs.letterSpacing; cl.style.lineHeight = cs.lineHeight; cl.textContent = b.getAttribute("aria-label"); document.body.appendChild(cl); tt.style.visibility = "hidden";
+        ov.classList.add("on"); para();
+        // a janela: um arco (semicírculo no alto, base reta) que sobe do dedo e se alarga até a tela inteira; o arco final tem o centro em y=0 e cobre os cantos
+        const w0 = SW, h0 = SH, R1 = (W + 4) / 2, N = 44, ks = [];
+        const l0 = x - w0 / 2, t0 = y - h0 / 2, b0 = y + h0 / 2;
+        for (let i = 0; i <= N; i++) {
+          const pv = sobe(i / N), ph = Math.pow(pv, 1.22);
+          const w = w0 + (W + 4 - w0) * ph, cx = x + (W / 2 - x) * ph;
+          ks.push({ clipPath: clipDe(cx - w / 2, t0 + (-R1 - t0) * pv, cx + w / 2, b0 + (H + 2 - b0) * pv, W, H) });
+        }
+        const A = ov.animate(ks, { duration: 640, easing: "linear", fill: "forwards" }); S.A.push(A);
+        setTimeout(() => {
+          ir(nome);
+          const f = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 640, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+          S.A.push(f, cl.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 640, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })); f.finished.then(limpa, limpa); setTimeout(limpa, 900);
+        }, 680);
+      }, true);
+    }
     return;
   }
   if (SIS === "foto" && BT === "editorial") {
@@ -235,7 +319,7 @@ function portas() {
         if (cena === "abertura" && !document.body.classList.contains("pula")) document.body.classList.add("pula");
         if (calmo) return ir(nome);
         S.on = true; clearTimeout(S.t);
-        const W = innerWidth, H = innerHeight, r = b.querySelector(".tr-t").getBoundingClientRect();
+        const W = innerWidth, H = innerHeight, r = b.querySelector(".ed-tt").getBoundingClientRect();
         const kb = !e.clientX && !e.clientY;
         const x = kb ? r.left + r.width / 2 : e.clientX, y = kb ? r.top + r.height / 2 : e.clientY;
         b.classList.add("abre");

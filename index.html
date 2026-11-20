@@ -1375,6 +1375,14 @@ html[data-sis="foto"][data-bt="transicao"] #abertura .col::before{height:max(3vh
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"][data-bt="transicao"] #abertura .tr-l i{transform:none;animation:none!important}html[data-sis="foto"][data-bt="transicao"] #abertura .tr-h{transform:none;animation:none!important}html[data-sis="foto"][data-bt="transicao"] #abertura .tr-a{opacity:.9;animation:none!important}}
 </style>
 <style id="zper">html[data-sis="foto"]:is([data-bt="cinetica"],[data-bt="transicao"],[data-bt="janela"]) #abertura .pergunta{font-size:clamp(32px,9vw,40px)}</style>
+<style id="zfin">
+html[data-sis="foto"][data-bt="editorial"] .tr-ov{position:fixed;inset:0;z-index:4;pointer-events:none;visibility:hidden;overflow:hidden;background:#25101B;clip-path:inset(50% 50% 50% 50%)}
+html[data-sis="foto"][data-bt="editorial"] .tr-ov.on{visibility:visible}
+html[data-sis="foto"][data-bt="editorial"] .tr-ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 42%;filter:brightness(1) saturate(1.18) sepia(.2) hue-rotate(-6deg)}
+html[data-sis="foto"][data-bt="editorial"] .tr-sh{position:absolute;inset:0;background:linear-gradient(0deg,rgba(37,16,27,.94) 0,rgba(37,16,27,.7) 24%,rgba(37,16,27,.12) 52%,rgba(37,16,27,0) 70%)}
+html[data-sis="foto"][data-bt="editorial"] .tr-cl{position:fixed;z-index:4;display:flex;align-items:flex-end;color:var(--creme);pointer-events:none}
+html[data-sis="foto"][data-bt="editorial"] .tr-cl{white-space:nowrap;align-items:flex-end}
+</style>
 </head>
 <body data-luz="noite">
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
@@ -1439,7 +1447,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=53"></script>
+<script type="module" src="/assets/carta.js?v=54"></script>
 <script>
 /* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
    assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */
