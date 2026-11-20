@@ -961,6 +961,64 @@ html[data-bt="coral"][data-sis="foto"] .vd[data-ir="visita"] .tk-s,html[data-bt=
 html[data-bt="coral"][data-sis="foto"] .vd[data-ir="visita"] .tk-a{color:#FFF1E4}
 html[data-bt="coral"][data-sis="foto"] .vd[data-ir="livro"] .tk-b{background:linear-gradient(180deg,rgba(52,18,34,.95),rgba(34,10,22,.95))}
 </style>
+<style id="z11">
+/* --- botões "casa" (cores e folha do logo) e "reto" (sóbrio, maiúsculas, preenchimento que varre) --- */
+html[data-sis="foto"] #abertura .portas{gap:12px}
+html[data-sis="foto"] .vd.bxv{display:block;padding:0;border-radius:0;background:none;overflow:visible;height:56px;min-height:56px;-webkit-tap-highlight-color:transparent;position:relative}
+html[data-sis="foto"] #abertura .portas .vd.bxv{opacity:1;animation:none!important;--b0:.1s}
+html[data-sis="foto"] #abertura .portas .vd.bxv[data-ir="livro"]{--b0:.55s}
+html[data-sis="foto"] .bx-p{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;overflow:hidden;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+html[data-sis="foto"] .bx-fill{position:absolute;inset:0;transform:scaleX(0);transform-origin:0 50%;transition:transform .55s cubic-bezier(.65,0,.2,1)}
+html[data-sis="foto"] .bx-l{position:relative;z-index:1;display:block;overflow:hidden;white-space:nowrap}
+html[data-sis="foto"] .bx-l i{display:inline-block;font-style:normal;font-size:inherit;line-height:inherit;color:inherit;will-change:transform}
+html[data-sis="foto"] .bx-l i.sp{width:.3em}
+html[data-sis="foto"] .bx-a{position:relative;z-index:1;flex:none;width:22px;height:10px;fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+html[data-sis="foto"] .vd.bxv.preso .bx-fill,html[data-sis="foto"] .vd.bxv.abre .bx-fill{transform:none;transition-duration:.4s}
+html[data-sis="foto"] .vd.bxv.preso .bx-a,html[data-sis="foto"] .vd.bxv.abre .bx-a{transform:translateX(7px)}
+@media (hover:hover){html[data-sis="foto"] .vd.bxv:hover .bx-fill{transform:none}html[data-sis="foto"] .vd.bxv:hover .bx-a{transform:translateX(6px)}}
+html[data-sis="foto"] .vd.bxv:focus-visible{outline:1px solid var(--creme);outline-offset:4px}
+/* entrada */
+html[data-sis="foto"] #abertura .bxv .bx-p{clip-path:inset(0 100% 0 0)}
+html[data-sis="foto"] #abertura .bxv .bx-l i{transform:translateY(120%)}
+html[data-sis="foto"] #abertura .bxv .bx-a{opacity:0;stroke-dashoffset:60}
+html[data-sis="foto"] body.escrito #abertura .bxv .bx-p,html[data-sis="foto"] body.pula #abertura .bxv .bx-p{animation:tk-imp .9s cubic-bezier(.65,0,.2,1) var(--b0) both}
+html[data-sis="foto"] body.escrito #abertura .bxv .bx-l i,html[data-sis="foto"] body.pula #abertura .bxv .bx-l i{animation:tk-sobe .8s cubic-bezier(.16,1,.3,1) calc(var(--b0) + .4s + var(--k)*26ms) both}
+html[data-sis="foto"] body.escrito #abertura .bxv .bx-a,html[data-sis="foto"] body.pula #abertura .bxv .bx-a{animation:bx-seta .6s cubic-bezier(.65,0,.2,1) calc(var(--b0) + 1.1s) both}
+@keyframes bx-seta{from{opacity:1;stroke-dashoffset:60}to{opacity:1;stroke-dashoffset:0}}
+html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:2.6s}
+html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+body.pula #abertura .bxv .bx-p,body.pula #abertura .bxv .bx-l i,body.pula #abertura .bxv .bx-a,body.pula #abertura .cs-folha{animation-duration:.01s!important;animation-delay:0s!important}
+/* ---------- reto: sóbrio ---------- */
+html[data-sis="foto"] .vd.bxv.reto .bx-p{padding:0 22px 0 24px;border-radius:2px;font-family:var(--sans);font-weight:600;font-size:12.5px;letter-spacing:.24em;line-height:1;transition:color .4s ease}
+html[data-sis="foto"] .vd.reto[data-ir="visita"] .bx-p{background:var(--creme);color:var(--vinho)}
+html[data-sis="foto"] .vd.reto[data-ir="visita"] .bx-fill{background:#2A0E1A}
+html[data-sis="foto"] .vd.reto[data-ir="livro"] .bx-p{color:var(--creme);box-shadow:inset 0 0 0 1px rgba(255,239,219,.8);background:rgba(24,6,14,.28)}
+html[data-sis="foto"] .vd.reto[data-ir="livro"] .bx-fill{background:var(--creme)}
+html[data-sis="foto"] .vd.reto[data-ir="visita"].preso .bx-p,html[data-sis="foto"] .vd.reto[data-ir="visita"].abre .bx-p{color:var(--creme)}
+html[data-sis="foto"] .vd.reto[data-ir="livro"].preso .bx-p,html[data-sis="foto"] .vd.reto[data-ir="livro"].abre .bx-p{color:var(--vinho)}
+@media (hover:hover){html[data-sis="foto"] .vd.reto[data-ir="visita"]:hover .bx-p{color:var(--creme)}html[data-sis="foto"] .vd.reto[data-ir="livro"]:hover .bx-p{color:var(--vinho)}}
+html[data-sis="foto"] .vd.bxv.reto .bx-l{padding:.3em 0}
+/* ---------- casa: cores do logo + folha que brota ---------- */
+html[data-sis="foto"] .vd.bxv.casa .bx-p{padding:0 22px 0 28px;border-radius:999px;font-family:var(--serif);font-weight:500;font-size:calc(var(--t2)*1.1);line-height:1.05}
+html[data-sis="foto"] .vd.casa[data-ir="visita"] .bx-p{background:linear-gradient(180deg,#E65A41 0%,#C7371F 100%);color:#FFF4E8;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 18px -10px rgba(10,2,6,.7)}
+html[data-sis="foto"] .vd.casa[data-ir="visita"] .bx-fill{background:#8F2414}
+html[data-sis="foto"] .vd.casa[data-ir="livro"] .bx-p{background:rgba(28,8,16,.42);color:var(--creme);box-shadow:inset 0 0 0 1px rgba(255,239,219,.7)}
+html[data-sis="foto"] .vd.casa[data-ir="livro"] .bx-fill{background:rgba(255,239,219,.16)}
+html[data-sis="foto"] .vd.casa .bx-l{padding:.16em 0 .22em;margin:-.16em 0 -.22em}
+html[data-sis="foto"] .cs-folha{position:absolute;z-index:3;width:15px;height:20px;top:-11px;right:46px;transform-origin:50% 100%;transform:rotate(22deg);pointer-events:none;transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
+html[data-sis="foto"] .cs-folha.f1{right:58px;transform:rotate(-18deg)}
+html[data-sis="foto"] .cs-fl{fill:#93B83C;stroke:none}
+html[data-sis="foto"] .cs-nv{fill:none;stroke:#3C5A12;stroke-width:1;stroke-linecap:round;opacity:.55}
+html[data-sis="foto"] .vd.casa.preso .cs-folha,html[data-sis="foto"] .vd.casa.abre .cs-folha{transform:rotate(-8deg) scale(1.2)}
+html[data-sis="foto"] .vd.casa.preso .cs-folha.f1,html[data-sis="foto"] .vd.casa.abre .cs-folha.f1{transform:rotate(10deg) scale(1.2)}
+html[data-sis="foto"] #abertura .cs-folha{opacity:0;transform:rotate(22deg) scale(0)}
+html[data-sis="foto"] #abertura .cs-folha.f1{transform:rotate(-18deg) scale(0)}
+html[data-sis="foto"] body.escrito #abertura .cs-folha,html[data-sis="foto"] body.pula #abertura .cs-folha{animation:cs-brota .9s cubic-bezier(.34,1.56,.64,1) calc(var(--b0) + 1.2s) both}
+html[data-sis="foto"] body.escrito #abertura .cs-folha.f1,html[data-sis="foto"] body.pula #abertura .cs-folha.f1{animation-name:cs-brota1}
+@keyframes cs-brota{from{opacity:0;transform:rotate(22deg) scale(0)}to{opacity:1;transform:rotate(22deg) scale(1)}}
+@keyframes cs-brota1{from{opacity:0;transform:rotate(-18deg) scale(0)}to{opacity:1;transform:rotate(-18deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .bxv .bx-p{clip-path:none;animation:none!important}html[data-sis="foto"] #abertura .bxv .bx-l i{transform:none;animation:none!important}html[data-sis="foto"] #abertura .bxv .bx-a{opacity:1;stroke-dashoffset:0;animation:none!important}html[data-sis="foto"] #abertura .cs-folha{opacity:1;transform:rotate(22deg);animation:none!important}html[data-sis="foto"] #abertura .cs-folha.f1{transform:rotate(-18deg)}}
+</style>
 </head>
 <body data-luz="noite">
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
@@ -1025,7 +1083,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=49"></script>
+<script type="module" src="/assets/carta.js?v=50"></script>
 <script>
 /* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
    assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */

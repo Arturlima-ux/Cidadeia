@@ -59,7 +59,13 @@ function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
   const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "t";
   document.documentElement.dataset.bt = BT;
-  if (SIS === "foto" && BT === "tinta") {
+  if (SIS === "foto" && (BT === "casa" || BT === "reto")) {
+    const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
+    const seta = `<svg class="bx-a" viewBox="0 0 22 10" aria-hidden="true"><path d="M0 5h21M16.5 1l4.5 4-4.5 4"/></svg>`;
+    // a folha do logo, que brota do botão
+    const folha = k => `<svg class="cs-folha f${k}" viewBox="0 0 16 22" aria-hidden="true"><path class="cs-fl" d="M8 21C2.5 15.5 1.5 8 8 1c6.5 7 5.5 14.5 0 20Z"/><path class="cs-nv" d="M8 20V6"/></svg>`;
+    el.innerHTML = PORTA.map(([ir, b], k) => `<button class="vd bxv ${BT}" data-ir="${ir}" data-porta aria-label="${b}"><span class="bx-p"><span class="bx-fill" aria-hidden="true"></span><span class="bx-l" aria-hidden="true">${letras(BT === "reto" ? b.toUpperCase() : b)}</span>${seta}</span>${BT === "casa" ? folha(k) : ""}</button>`).join("");
+  } else if (SIS === "foto" && BT === "tinta") {
     // Sem caixa: o rótulo grande, um traço de tinta que se desenha embaixo e uma seta fina.
     const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
     el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd tnv" data-ir="${ir}" data-porta aria-label="${b}"><span class="tn-r"><span class="tn-l" aria-hidden="true">${letras(b)}</span><svg class="tn-a" viewBox="0 0 26 12" aria-hidden="true"><path d="M1 6h23M18 1l6 5-6 5" pathLength="100"/></svg></span><svg class="tn-f" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.2C52 2.2 104 7 160 4.2S262 2.6 298 4.6" pathLength="100"/></svg></button>`).join("");
