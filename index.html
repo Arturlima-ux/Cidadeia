@@ -821,6 +821,7 @@ html[data-sis="foto"]{--pill:52px}
 html[data-sis="foto"] #abertura .portas{margin:0;gap:10px}
 html[data-sis="foto"] .portas .vd{height:var(--pill);min-height:var(--pill)}
 html[data-sis="foto"] .vd-fio{display:none}
+html[data-sis="foto"] .portas .vd{-webkit-backdrop-filter:none;backdrop-filter:none}
 html[data-sis="foto"] .vd-pl{inset:0;border-radius:999px;padding:0 8px 0 28px;overflow:hidden;font-size:calc(var(--t2)*1.04)}
 html[data-sis="foto"] .vd[data-ir="visita"] .vd-pl{background:var(--creme);color:var(--vinho)}
 html[data-sis="foto"] .vd[data-ir="livro"] .vd-pl{background:rgba(24,6,14,.38);color:var(--creme);box-shadow:inset 0 0 0 1px rgba(255,239,219,.7)}
@@ -839,7 +840,8 @@ html[data-sis="foto"] .vd-c .vd-s{margin:0;width:16px;height:9px;stroke-width:1.
 html[data-sis="foto"] .vd:not(.toque):hover .vd-c,html[data-sis="foto"] .vd.preso .vd-c{transform:scale(1.06)}
 html.oculto .vd-pl::after,html.oculto .vd-c::before,body:not([data-cena="abertura"]) .vd-pl::after,body:not([data-cena="abertura"]) .vd-c::before{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] .vd-pl::after,html[data-sis="foto"] .vd-c::before{animation:none}}
-html[data-sis="foto"] #abertura .onde-l{display:block;text-align:right;line-height:1.35}
+html[data-sis="foto"] #abertura .onde-l{display:block;text-align:right;line-height:1.35;white-space:nowrap;font-size:14px;padding-top:0}
+html[data-sis="foto"] #abertura .onde-l::before{display:none}
 html[data-sis="foto"] #abertura .serv{gap:calc(var(--u)*.75)}
 html[data-sis="foto"] #abertura .serv,html[data-sis="foto"] #abertura .hor span,html[data-sis="foto"] #abertura .hor i{font-size:15px}
 @media (max-height:740px){html[data-sis="foto"]{--pill:48px}}
@@ -880,7 +882,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
     <div class="portas"><button class="vd" data-ir="visita" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Escrever a visita</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button><button class="vd" data-ir="livro" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Folhear a carta</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button></div>
     <div class="serv">
       <p class="hor"><span>Almoço <i>sexta a domingo · 12h</i></span><span>Jantar <i>segunda a sábado · 18h</i></span></p>
-      <p class="onde-l">Av. João XXIII, 1161<br>Jóquei · <button class="mapa-l" data-mapa>Como chegar</button></p>
+      <p class="onde-l">Av. João XXIII, 1161 · Jóquei · <button class="mapa-l" data-mapa>Como chegar</button></p>
     </div>
 </div>
 </div></section>
