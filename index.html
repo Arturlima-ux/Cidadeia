@@ -853,6 +853,7 @@ html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"
 html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 @keyframes z6-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{animation:none!important;opacity:1}}
+body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;background:#1d0b14}
 </style>
 </head>
 <body data-luz="noite">
@@ -919,5 +920,13 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
 <script type="module" src="/assets/carta.js?v=46"></script>
+<script>
+/* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
+   assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */
+(function(){var d=document,B;function cobre(){B=d.body;if(B&&B.dataset.cena==="abertura")B.classList.add("cobre")}
+function volta(){B=d.body;if(B&&B.classList.contains("cobre"))location.reload()}
+d.addEventListener("visibilitychange",function(){d.hidden?cobre():volta()});
+addEventListener("pagehide",cobre);addEventListener("pageshow",function(e){if(e.persisted)volta()});})();
+</script>
 </body>
 </html>
