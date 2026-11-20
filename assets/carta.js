@@ -51,13 +51,13 @@ const desfoca = (els, dur = 560) => els.forEach((el, i) => foco.push(el.animate(
 const refoca = () => { foco.forEach(a => a.cancel()); foco = []; window.__h3d?.desfoca(false); };
 function acende(t, fim) {
   t.classList.add("abre");
-  foco.push(t.animate([{ transform: "scale(1)" }, { transform: "scale(1.035)" }], { duration: 700, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }));
+  if (!t.classList.contains("vd")) foco.push(t.animate([{ transform: "scale(1)" }, { transform: "scale(1.035)" }], { duration: 700, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }));
   setTimeout(fim, 680);
 }
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b, sm], k) => `<button class="vd" data-ir="${ir}" data-porta><b>${b}</b><i>${sm}</i></button>`).join("");
+  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd" data-ir="${ir}" data-porta><span class="vd-pl"><i class="vd-f"></i><b>${b}</b><span class="vd-c" aria-hidden="true"><svg class="vd-s" viewBox="0 0 18 10"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button>`).join("");
   if (SIS === "gomos") el.innerHTML = `<div class="ga"><svg viewBox="-150 -100 300 200" aria-hidden="true">
       <path class="deco" pathLength="1" d="M0 -8 C-26 -40 -30 -92 0 -98 C30 -92 26 -40 0 -8 Z"/><path class="deco" pathLength="1" d="M0 8 C-26 40 -30 92 0 98 C30 92 26 40 0 8 Z"/>
       <path class="lobo l" pathLength="1" d="M-8 0 C-40 -52 -136 -46 -140 0 C-136 46 -40 52 -8 0 Z"/><path class="lobo r" pathLength="1" d="M8 0 C40 -52 136 -46 140 0 C136 46 40 52 8 0 Z"/>
@@ -76,7 +76,7 @@ function toca(t, e, fim) {
   if (calmo) return fim();
   if (SIS === "foto") {
     if (t.dataset.porta !== undefined) {
-      desfoca([...document.querySelectorAll("#abertura>.col>.sc, #abertura .verso, #abertura .orn, #abertura .pergunta, #abertura .onde-l"), ...[...document.querySelectorAll(".portas .vd")].filter(x => x !== t)]);
+      desfoca([...document.querySelectorAll("#abertura>.col>.sc, #abertura .verso, #abertura .orn, #abertura .pergunta, #abertura .serv"), ...[...document.querySelectorAll(".portas .vd")].filter(x => x !== t)]);
       if (window.__h3d) window.__h3d.desfoca(true);
       const h = $("#heroi img"); if (h) foco.push(h.animate([{ filter: "blur(0px) brightness(1)" }, { filter: "blur(18px) brightness(.5)" }], { duration: 900, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }));
       return acende(t, fim);

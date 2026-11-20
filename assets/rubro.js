@@ -132,15 +132,45 @@ export function hora(el, h) {
     addEventListener("deviceorientation", e => { if (e.gamma == null) return; alvo(e.gamma / 28, (e.beta - 55) / 28); }, { passive: true });
 }
 
-/* ---------- botões: o preenchimento sobe, o filete interno se completa, a seta desliza (o CSS faz; aqui só o estado "preso") ----------
+/* ---------- botões: ponto de luz no filete ----------
+   O CSS faz o repouso (ponto, rastro e seta em laço). Aqui ficam:
+   - o toque: o ponto dispara do lugar onde está até o dedo (160ms) e a placa acende (CSS, 150ms)
+   - a pausa dos laços com a aba oculta
    Delegado no documento: os botões da abertura são montados por carta.js, depois deste módulo. */
 function botoes() {
   if (botoes.feito) return; botoes.feito = true;
-  const alvo = e => e.target.closest && e.target.closest("#abertura .vd, #abertura .onde-l");
+  const calma = () => matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const alvo = e => e.target.closest && e.target.closest("#abertura .vd, #abertura .onde-l .mapa-l");
   const solta = () => document.querySelectorAll("#abertura .preso").forEach(b => b.classList.remove("preso"));
-  document.addEventListener("pointerdown", e => { const b = alvo(e); if (b) b.classList.add("preso"); }, { passive: true });
-  ["pointerup", "pointercancel", "pointerleave", "dragstart", "contextmenu"].forEach(t => document.addEventListener(t, solta, { passive: true }));
-  document.addEventListener("pointerout", e => { const b = alvo(e); if (b && !b.contains(e.relatedTarget)) b.classList.remove("preso"); }, { passive: true });
+  const root = document.documentElement;
+  const oculta = () => root.classList.toggle("oculto", document.hidden);
+  document.addEventListener("visibilitychange", oculta); oculta();
+  const sai = new WeakMap();
+  // o ponto ocioso visível agora (ida ou volta): a posição dele é o ponto de partida do disparo
+  const dispara = (b, e) => {
+    const fio = b.querySelector(".vd-fio"), d = fio && fio.querySelector(".vd-d"); if (!d || calma()) return;
+    const fr = fio.getBoundingClientRect(); if (!fr.width) return;
+    let x0 = fr.width / 2;
+    const ps = [...fio.querySelectorAll(".vd-p")].map(p => ({ p, o: +getComputedStyle(p).opacity })).sort((m, n) => n.o - m.o);
+    if (ps[0] && ps[0].o > .02) x0 = ps[0].p.querySelector("u").getBoundingClientRect().left - fr.left;
+    const x1 = Math.max(0, Math.min(fr.width - 3, (e.clientX || fr.left + fr.width / 2) - fr.left - 1.5));
+    clearTimeout(sai.get(b)); d.getAnimations().forEach(a => a.cancel());
+    d.classList.toggle("e", x1 < x0);
+    b.classList.add("toque");
+    const dur = Math.max(110, Math.min(200, Math.abs(x1 - x0) * .7));
+    d.animate([{ transform: `translateX(${x0}px)`, opacity: 1 }, { transform: `translateX(${x1}px)`, opacity: 1 }], { duration: dur, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" });
+  };
+  const apaga = b => {
+    const d = b.querySelector(".vd-d"); if (!d) return;
+    sai.set(b, setTimeout(() => {
+      // fica onde parou e some devagar
+      const xf = getComputedStyle(d).transform;
+      d.animate([{ transform: xf, opacity: 1 }, { transform: xf, opacity: 0 }], { duration: 420, easing: "ease-out", fill: "forwards" }).finished.then(() => { d.getAnimations().forEach(a => a.cancel()); b.classList.remove("toque"); }, () => {});
+    }, 120));
+  };
+  document.addEventListener("pointerdown", e => { const b = alvo(e); if (!b) return; b.classList.add("preso"); if (b.classList.contains("vd")) dispara(b, e); }, { passive: true });
+  ["pointerup", "pointercancel", "dragstart", "contextmenu"].forEach(t => document.addEventListener(t, () => { solta(); document.querySelectorAll("#abertura .vd.toque").forEach(apaga); }, { passive: true }));
+  document.addEventListener("pointerout", e => { const b = alvo(e); if (b && !b.contains(e.relatedTarget)) { b.classList.remove("preso"); if (b.classList.contains("vd") && b.classList.contains("toque")) apaga(b); } }, { passive: true });
 }
 
 /* ---------- a escrita ---------- */

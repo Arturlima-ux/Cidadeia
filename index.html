@@ -709,55 +709,140 @@ html[data-sis="foto"]{--u:8px;--m:calc(var(--u)*3.5);--gap:calc(var(--u)*1.5);
   --logo-w:min(118px,31vw)}
 @media (max-width:385px){html[data-sis="foto"]{--m:calc(var(--u)*3)}}
 
-/* rodapé: só os dois botões, presos à base, na mesma margem da grade */
-html[data-sis="foto"] #abertura .comanda{position:fixed;z-index:6;left:var(--m);right:var(--m);bottom:max(var(--m),calc(env(safe-area-inset-bottom) + var(--u)*1.5));max-width:424px;margin:0 auto;display:flex;flex-direction:column}
+/* ==========================================================================================
+   PONTO DE LUZ NO FILETE (protoZ5)
+   Joalheria e relojoaria: duas placas retas, uma sobre a outra, cada uma com um filete de 1px
+   na base. Um ponto de luz âmbar (3px, halo curto) percorre o filete de ponta a ponta, ida e
+   volta, em 5s, deixando um rastro que se apaga logo. A segunda placa anda meio ciclo atrás.
+   A seta de 18px avança 3px quando o ponto chega ao seu lado e volta.
+   Só transform e opacity rodam em loop; aba oculta e cena fora da abertura pausam tudo.
+
+   Estrutura de cada botão (carta.js):
+   .vd > .vd-pl (placa: fundo + preenchimento .vd-f + rótulo b + seta .vd-s) + .vd-fio (filete 1px)
+   .vd-fio > .vd-p.a (ida) + .vd-p.b (volta) + .vd-d (ponto do toque, disparado por rubro.js)
+   ========================================================================================== */
+html[data-sis="foto"]{--bleed:calc(var(--u)*1.5);--ponto:#FFC27E;--halo:rgba(255,124,84,.9);--ciclo:5s}
+
+/* rodapé: placas e, abaixo, o bloco compacto de horários e localização no canto direito */
+html[data-sis="foto"] #abertura .comanda{position:fixed;z-index:6;left:var(--m);right:var(--m);bottom:max(var(--m),calc(env(safe-area-inset-bottom) + var(--u)*1.5));max-width:424px;margin:0 auto;display:flex;flex-direction:column;gap:calc(var(--u)*2.5)}
 html[data-sis="foto"] #abertura .comanda>*{opacity:0;animation:surge 1.2s var(--ease) 14s forwards}
 html[data-sis="foto"] #abertura .comanda>.portas{animation-delay:14.3s}
-html[data-sis="foto"] body.q-on #abertura .comanda>.hor{animation-delay:1s}html[data-sis="foto"] body.q-on #abertura .comanda>.portas{animation-delay:1.3s}
+html[data-sis="foto"] #abertura .comanda>.serv{animation-delay:14.9s}
+html[data-sis="foto"] body.q-on #abertura .comanda>.portas{animation-delay:1.3s}html[data-sis="foto"] body.q-on #abertura .comanda>.serv{animation-delay:1.9s}
 html[data-sis="foto"] body.pula #abertura .comanda>*{animation-delay:0s}
 
-/* horários: logo abaixo do logo, na mesma margem; uma só família, dois pesos de voz.
-   Ficam fora do eixo da frase e dos botões e não competem com eles. */
-html[data-sis="foto"] #abertura .hor{position:fixed;z-index:4;margin:0;left:max(var(--m),env(safe-area-inset-left));top:calc(env(safe-area-inset-top) + var(--u)*2 + var(--logo-w)*.5066 + var(--u)*1.5);
-  display:grid;grid-template-columns:auto auto;justify-content:start;column-gap:var(--u);row-gap:2px;align-items:baseline;text-align:left;
-  font-family:var(--serif);letter-spacing:.01em;text-transform:none;text-shadow:0 1px 3px rgba(20,4,10,.6),0 0 12px rgba(20,4,10,.35)}
-html[data-sis="foto"] .hor span{display:contents;color:var(--a-ink);font:400 var(--t0)/var(--lh-fino) var(--serif);letter-spacing:.02em;text-transform:none;white-space:nowrap}
-html[data-sis="foto"] .hor i{display:block;margin:0;font:italic 400 var(--t0)/var(--lh-fino) var(--serif);letter-spacing:.01em;text-transform:none;color:var(--a-ink);opacity:.92;white-space:nowrap}
+/* ---- o bloco do canto: horários bem juntos e, logo abaixo, o endereço, alinhados à direita na margem ---- */
+html[data-sis="foto"] #abertura .serv{align-self:flex-end;display:flex;flex-direction:column;align-items:flex-end;gap:calc(var(--u)*.5);text-align:right;font-family:var(--serif);text-shadow:0 1px 3px rgba(20,4,10,.65),0 0 12px rgba(20,4,10,.4)}
+html[data-sis="foto"] #abertura .hor{position:static;margin:0;display:grid;grid-template-columns:auto auto;justify-content:end;column-gap:var(--u);row-gap:0;align-items:baseline;text-align:left;font-family:var(--serif);letter-spacing:.01em;text-transform:none;text-shadow:inherit}
+html[data-sis="foto"] .hor span{display:contents;color:var(--a-ink);font:400 var(--t0)/1.3 var(--serif);letter-spacing:.02em;text-transform:none;white-space:nowrap}
+html[data-sis="foto"] .hor i{display:block;justify-self:end;margin:0;font:italic 400 var(--t0)/1.3 var(--serif);letter-spacing:.01em;text-transform:none;color:var(--a-ink);opacity:.92;white-space:nowrap}
 html[data-sis="foto"] .hor i::before{display:none}
+html[data-sis="foto"] #abertura .onde-l{position:relative;margin:0;padding:calc(var(--u)*1.25) 0 0;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 calc(var(--u)*1.25);font:400 var(--t0)/1.3 var(--serif);letter-spacing:.01em;color:var(--a-ink);opacity:1;animation:none;text-shadow:inherit}
+html[data-sis="foto"] #abertura .onde-l::before{content:"";position:absolute;top:0;right:0;width:calc(var(--u)*3.5);height:1px;background:rgba(255,239,219,.4)}
+html[data-sis="foto"] .onde-l .mapa-l{position:relative;font:italic 400 var(--t0)/1.3 var(--serif);letter-spacing:.01em;color:var(--a-cur);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:rgba(255,143,120,.55);padding:0;min-height:0;border:0;background:none;-webkit-tap-highlight-color:transparent;transition:text-decoration-color .3s var(--ease),color .3s var(--ease)}
+html[data-sis="foto"] .onde-l .mapa-l::before{content:"";position:absolute;inset:-15px -10px}
+html[data-sis="foto"] .onde-l .mapa-l.preso,html[data-sis="foto"] .onde-l .mapa-l:focus-visible{color:var(--a-ink);text-decoration-color:currentColor}
+html[data-sis="foto"] .onde-l .mapa-l:focus-visible{outline:1px solid var(--a-ink);outline-offset:4px;border-radius:2px}
 
-/* os dois convites: empilhados, na largura da grade */
-html[data-sis="foto"] #abertura .portas{position:static;z-index:auto;width:auto;max-width:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--gap);border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-html[data-sis="foto"] .portas .vd{position:relative;isolation:isolate;overflow:hidden;flex:none;width:100%;height:var(--bt-h);min-height:44px;margin:0;padding:0 var(--m);display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:center;gap:0;border:0;border-radius:2px;text-align:center;white-space:nowrap;
-  font:500 var(--t2)/1 var(--serif);letter-spacing:.03em;text-transform:none;filter:none;-webkit-mask:none;mask:none;-webkit-tap-highlight-color:transparent;transform:none;transition:transform .4s var(--ease),color .4s var(--ease),box-shadow .4s var(--ease)}
-html[data-sis="foto"] .portas .vd small,html[data-sis="foto"] .portas .vd i{display:none}
-html[data-sis="foto"] .portas .vd b{display:block;font:inherit;line-height:1;padding:0 0 1px;overflow:hidden;text-overflow:clip;max-width:100%;text-shadow:none}
-/* preenchimento que sobe: é o retorno do toque */
-html[data-sis="foto"] .portas .vd::after{content:"";position:absolute;z-index:-1;inset:0;width:auto;height:auto;top:0;right:0;bottom:0;left:0;opacity:1;background-image:none;transform:scaleY(0);transform-origin:50% 100%;transition:transform .5s var(--ease)}
-html[data-sis="foto"] .portas .vd::before{display:none}
+/* ---- as duas placas ---- */
+html[data-sis="foto"] #abertura .portas{position:static;z-index:auto;width:auto;max-width:none;margin:0 calc(var(--bleed)*-1);padding:0;display:flex;flex-direction:column;gap:0;border-radius:0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-sis="foto"] .portas .vd{position:relative;display:block;flex:none;width:100%;height:calc(var(--bt-h) + 1px);min-height:44px;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible;text-align:left;white-space:nowrap;
+  color:var(--a-ink);font:500 var(--t2)/1 var(--serif);letter-spacing:.03em;text-transform:none;filter:none;-webkit-mask:none;mask:none;-webkit-tap-highlight-color:transparent;transform:none;isolation:isolate;transition:none}
+html[data-sis="foto"] .portas .vd::before,html[data-sis="foto"] .portas .vd::after{display:none}
+html[data-sis="foto"] .portas .vd small,html[data-sis="foto"] .portas .vd>i{display:none}
+html[data-sis="foto"] .vd-pl{position:absolute;inset:0 0 1px 0;display:flex;align-items:center;justify-content:space-between;padding:0 var(--bleed);overflow:hidden;border-radius:2px;background:transparent}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-pl{background:var(--creme);color:var(--vinho)}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-pl{color:var(--a-ink)}
+/* preenchimento: sobe de baixo (150ms) no toque e no foco */
+html[data-sis="foto"] .vd-f{position:absolute;z-index:0;inset:0;transform:scaleY(0);transform-origin:50% 100%;transition:transform .5s var(--ease);will-change:transform}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-f{background:#F3CC96}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-f{background:rgba(255,239,219,.13)}
+html[data-sis="foto"] .portas .vd b{position:relative;z-index:1;display:block;font:inherit;line-height:1;padding:0 0 1px;max-width:100%;overflow:hidden;text-overflow:clip;text-shadow:none;transition:transform .5s var(--ease)}
+/* seta: traço de 1px, 18px de largura */
+html[data-sis="foto"] .vd-s{position:relative;z-index:1;flex:none;display:block;width:18px;height:10px;margin-left:var(--u);overflow:visible;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;opacity:.85;animation:vd-seta var(--ciclo) ease-in-out var(--d,0s) infinite}
+/* o filete: 1px creme a 25%; é a linha de separação entre as placas e a base da última */
+html[data-sis="foto"] .vd-fio{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(255,239,219,.25);clip-path:inset(-9px 0 -9px 0);pointer-events:none}
+html[data-sis="foto"] .vd-p{position:absolute;left:0;top:0;width:100%;height:1px;opacity:0;will-change:transform,opacity;animation:vd-ida var(--ciclo) cubic-bezier(.45,0,.35,1) var(--d,0s) infinite}
+html[data-sis="foto"] .vd-p.b{animation-name:vd-volta}
+html[data-sis="foto"] .vd-p u,html[data-sis="foto"] .vd-d u{position:absolute;top:-1px;display:block;width:3px;height:3px;border-radius:50%;background:var(--ponto);box-shadow:0 0 5px 1px var(--halo),0 0 2px 0 rgba(255,214,160,.9)}
+html[data-sis="foto"] .vd-p s,html[data-sis="foto"] .vd-d s{position:absolute;top:0;display:block;width:44px;height:1px}
+html[data-sis="foto"] .vd-p.a u,html[data-sis="foto"] .vd-d u{right:0}
+html[data-sis="foto"] .vd-p.a s{right:3px;background:linear-gradient(90deg,rgba(255,170,104,0),rgba(255,176,112,.9))}
+html[data-sis="foto"] .vd-p.b u{left:0}
+html[data-sis="foto"] .vd-p.b s{left:3px;background:linear-gradient(270deg,rgba(255,170,104,0),rgba(255,176,112,.9))}
+/* ponto do toque (rubro.js o anima do ponto ocioso até o dedo) */
+html[data-sis="foto"] .vd-d{position:absolute;left:0;top:0;width:3px;height:1px;opacity:0;will-change:transform,opacity}
+html[data-sis="foto"] .vd-d s{right:3px;background:linear-gradient(90deg,rgba(255,170,104,0),rgba(255,176,112,.95));transform-origin:100% 50%}
+html[data-sis="foto"] .vd-d.e s{transform:scaleX(-1);right:auto;left:3px;transform-origin:0 50%}
+html[data-sis="foto"] .vd.toque .vd-p{visibility:hidden}
+html[data-sis="foto"] .vd.toque .vd-s{animation-play-state:paused}
 
-html[data-sis="foto"] .portas .vd[data-ir="visita"]{color:var(--vinho);background:var(--creme)}
-html[data-sis="foto"] .portas .vd[data-ir="visita"]::after{background:var(--creme-2)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"]{color:var(--a-ink);background:transparent;box-shadow:inset 0 0 0 1px rgba(255,239,219,.55)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"]::after{background:rgba(255,239,219,.15)}
+/* ida (0 a 44%), pausa no fim, volta (50 a 94%); cada trecho entra e sai com fade curto, como um tique */
+@keyframes vd-ida{0%{transform:translateX(calc(-100% + 3px));opacity:0}4%{opacity:1}40%{opacity:1}44%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:0}}
+@keyframes vd-volta{0%,50%{transform:translateX(calc(100% - 3px));opacity:0}54%{opacity:1}90%{opacity:1}94%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:0}}
+@keyframes vd-seta{0%,34%{transform:translateX(0)}44%{transform:translateX(3px)}56%,100%{transform:translateX(0)}}
 
+/* a segunda placa anda meio ciclo atrás da primeira */
+html[data-sis="foto"] .vd[data-ir="livro"]{--d:-2.5s}
+html[data-sis="foto"] .vd[data-ir="visita"]{--d:-0.6s}
+
+/* foco, toque e abertura: a placa acende, o rótulo desloca 4px */
+html[data-sis="foto"] .vd.preso .vd-f,html[data-sis="foto"] .vd.abre .vd-f,html[data-sis="foto"] .vd:focus-visible .vd-f{transform:scaleY(1);transition-duration:.15s}
+html[data-sis="foto"] .vd.preso b,html[data-sis="foto"] .vd.abre b,html[data-sis="foto"] .vd:focus-visible b{transform:translateX(4px);transition-duration:.15s}
 @media(hover:hover){
-  html[data-sis="foto"] .portas .vd:hover::after{transform:scaleY(1)}
-  html[data-sis="foto"] .portas .vd[data-ir="livro"]:hover{box-shadow:inset 0 0 0 1px rgba(255,239,219,.9)}
+  html[data-sis="foto"] .vd:hover .vd-f{transform:scaleY(1);transition-duration:.35s}
+  html[data-sis="foto"] .vd:hover b{transform:translateX(4px);transition-duration:.35s}
 }
-html[data-sis="foto"] .portas .vd.preso,html[data-sis="foto"] .portas .vd.abre,html[data-sis="foto"] .portas .vd:focus-visible{transition-duration:.18s}
-html[data-sis="foto"] .portas .vd.preso::after,html[data-sis="foto"] .portas .vd.abre::after,html[data-sis="foto"] .portas .vd:focus-visible::after{transform:scaleY(1)}
-html[data-sis="foto"] .portas .vd.preso{transform:scale(.99)}
-html[data-sis="foto"] .portas .vd[data-ir="livro"].preso,html[data-sis="foto"] .portas .vd[data-ir="livro"].abre{box-shadow:inset 0 0 0 1px rgba(255,239,219,.95)}
-/* foco por teclado: anel de 1px por fora, fora do overflow */
-html[data-sis="foto"] .portas .vd:focus-visible{outline:1px solid var(--a-ink);outline-offset:3px}
+html[data-sis="foto"] .portas .vd:focus-visible{outline:1px solid var(--a-ink);outline-offset:4px}
 
-/* telas baixas (até 700px de altura): os dois lado a lado, rótulo um degrau abaixo */
-@media (max-height:700px){html[data-sis="foto"] #abertura .portas{flex-direction:row}
-  html[data-sis="foto"] .portas .vd{flex:1 1 0;min-width:0;height:var(--bt-h-baixo);padding:0 var(--u);font-size:var(--t1)}}
-@media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .comanda>*{animation:none;opacity:1}html[data-sis="foto"] .portas .vd,html[data-sis="foto"] .portas .vd::after,html[data-sis="foto"] .topo .logo img{transition:none}html[data-sis="foto"] .portas .vd.preso{transform:none}}
+/* pausas: aba oculta (rubro.js marca .oculto) e qualquer cena que não seja a abertura */
+html.oculto .vd-p,html.oculto .vd-s,body:not([data-cena="abertura"]) .vd-p,body:not([data-cena="abertura"]) .vd-s{animation-play-state:paused}
+
+/* telas de até 800px de altura: a frase sobe um pouco para não encostar nas placas */
+@media (max-height:800px){html[data-sis="foto"] #abertura .col::before{height:max(4vh,calc(34svh - 84px))}}
+/* telas baixas: placas um degrau mais finas, ainda empilhadas e com alvo de 44px ou mais */
+@media (max-height:700px){html[data-sis="foto"]{--bt-h:calc(var(--u)*6);--t2:20.5px}
+  html[data-sis="foto"] #abertura .comanda{gap:calc(var(--u)*1.5)}}
+
+/* movimento reduzido: versão estática; um ponto parado no centro do filete, sem rastro, sem laço */
+@media (prefers-reduced-motion:reduce){
+  html[data-sis="foto"] #abertura .comanda>*{animation:none;opacity:1}
+  html[data-sis="foto"] .vd-s,html[data-sis="foto"] .vd-p{animation:none}
+  html[data-sis="foto"] .vd-p.a{opacity:1;transform:translateX(calc(-50% + 1.5px))}
+  html[data-sis="foto"] .vd-p.b,html[data-sis="foto"] .vd-p s,html[data-sis="foto"] .vd-d{display:none}
+  html[data-sis="foto"] .vd-f,html[data-sis="foto"] .portas .vd b,html[data-sis="foto"] .topo .logo img{transition:none}
+}
 
 /* o logo solto: nas outras telas, uma sombra suave no topo evita que o conteudo rolando passe por baixo das letras */
 body:not([data-cena="abertura"]) .topo::before{content:"";position:fixed;z-index:-1;left:0;right:0;top:0;height:calc(104px + env(safe-area-inset-top));pointer-events:none;background:linear-gradient(rgba(28,8,18,.98) 0,rgba(28,8,18,.96) 58%,rgba(28,8,18,0) 100%)}
+</style>
+<style id="z6">
+html[data-sis="foto"]{--pill:52px}
+html[data-sis="foto"] #abertura .portas{margin:0;gap:10px}
+html[data-sis="foto"] .portas .vd{height:var(--pill);min-height:var(--pill)}
+html[data-sis="foto"] .vd-fio{display:none}
+html[data-sis="foto"] .vd-pl{inset:0;border-radius:999px;padding:0 8px 0 28px;overflow:hidden;font-size:calc(var(--t2)*1.04)}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-pl{background:var(--creme);color:var(--vinho);box-shadow:0 10px 28px -10px rgba(255,150,100,.55)}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-pl{background:rgba(24,6,14,.38);color:var(--creme);box-shadow:inset 0 0 0 1.5px rgba(255,239,219,.75)}
+html[data-sis="foto"] .vd-pl::after{content:"";position:absolute;z-index:2;top:0;bottom:0;left:0;width:38%;pointer-events:none;transform:translateX(-160%) skewX(-18deg);animation:z6-luz 5.2s cubic-bezier(.5,0,.3,1) var(--zd,0s) infinite}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-pl::after{background:linear-gradient(90deg,transparent,rgba(255,176,112,.75),transparent)}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-pl::after{background:linear-gradient(90deg,transparent,rgba(255,239,219,.28),transparent);--zd:-2.6s}
+html[data-sis="foto"] .vd-c{position:relative;z-index:3;flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;margin-left:var(--u)}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-c{background:var(--vinho);color:var(--creme)}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-c{background:var(--creme);color:var(--vinho)}
+html[data-sis="foto"] .vd-c::before{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid currentColor;opacity:0;animation:z6-eco 2.6s ease-out var(--ze,0s) infinite}
+html[data-sis="foto"] .vd[data-ir="visita"] .vd-c::before{border-color:var(--vinho)}
+html[data-sis="foto"] .vd[data-ir="livro"] .vd-c::before{border-color:var(--creme);--ze:-1.3s}
+html[data-sis="foto"] .vd-c .vd-s{margin:0;width:16px;height:9px;stroke-width:1.6;opacity:1;color:inherit}
+@keyframes z6-luz{0%{transform:translateX(-160%) skewX(-18deg)}38%,100%{transform:translateX(420%) skewX(-18deg)}}
+@keyframes z6-eco{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(1.34);opacity:0}}
+html[data-sis="foto"] .vd:not(.toque):hover .vd-c,html[data-sis="foto"] .vd.preso .vd-c{transform:scale(1.06)}
+html.oculto .vd-pl::after,html.oculto .vd-c::before,body:not([data-cena="abertura"]) .vd-pl::after,body:not([data-cena="abertura"]) .vd-c::before{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"] .vd-pl::after,html[data-sis="foto"] .vd-c::before{animation:none}}
+html[data-sis="foto"] #abertura .onde-l{display:block;text-align:right;line-height:1.35}
+html[data-sis="foto"] #abertura .serv{gap:calc(var(--u)*.75)}
+html[data-sis="foto"] #abertura .serv,html[data-sis="foto"] #abertura .hor span,html[data-sis="foto"] #abertura .hor i{font-size:15px}
+@media (max-height:740px){html[data-sis="foto"]{--pill:48px}}
 </style>
 </head>
 <body data-luz="noite">
@@ -784,9 +869,12 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
   <p class="pergunta">Qual será o seu?</p>
   <p class="viva" id="viva" hidden></p>
   <div class="comanda">
-    <p class="hor"><span>Almoço <i>sexta a domingo · 12h</i></span><span>Jantar <i>segunda a sábado · 18h</i></span></p>
-    <div class="portas"><button class="vd" data-ir="visita" data-porta><small aria-hidden="true">I</small><b>Escrever a visita</b><i>Três toques e a casa escreve uma carta para você</i></button><button class="vd" data-ir="livro" data-porta><small aria-hidden="true">II</small><b>Folhear a carta</b><i>Executivo, comes, bebes, vinhos e crepes</i></button></div>
-  </div>
+    <div class="portas"><button class="vd" data-ir="visita" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Escrever a visita</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button><button class="vd" data-ir="livro" data-porta><span class="vd-pl"><i class="vd-f"></i><b>Folhear a carta</b><svg class="vd-s" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button></div>
+    <div class="serv">
+      <p class="hor"><span>Almoço <i>sexta a domingo · 12h</i></span><span>Jantar <i>segunda a sábado · 18h</i></span></p>
+      <p class="onde-l">Av. João XXIII, 1161<br>Jóquei · <button class="mapa-l" data-mapa>Como chegar</button></p>
+    </div>
+</div>
 </div></section>
 
 <!-- II -->
@@ -820,6 +908,6 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=36"></script>
+<script type="module" src="/assets/carta.js?v=46"></script>
 </body>
 </html>
