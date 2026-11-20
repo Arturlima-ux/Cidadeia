@@ -45,24 +45,59 @@ html[data-tema="jantar"] .qa .r-lamps{background:radial-gradient(circle at 24% 4
 body:not([data-cena="abertura"]) .qa .r-cartao{inset:0;border-radius:0;transform:scale(1.03);opacity:0}
 @media(prefers-reduced-motion:reduce){.qa,.qa .r-foto img{animation:none}.qa .r-cartao{--r:190vmax;animation:none}}
 
-/* a frase: cada letra é um <c-h>; entra úmida e seca devagar */
-c-h{opacity:0;color:var(--a-wet);transition:opacity .22s ease-out,color 2.6s ease-out}
-c-h.on{opacity:1;color:var(--cor-final,inherit)}
+/* ============ A frase (z7). Cada palavra é um <w-d>; o movimento mora em <w-i>, dentro de <w-m> (a "linha invisível").
+   Duas personalidades, escolhidas por ?f=a|b (html[data-fv]). Só transform, opacity, filter leve e clip-path. ============ */
+a-n{display:inline}
 w-d{display:inline-block;white-space:nowrap}
-.verso c-h{--cor-final:var(--a-ink)}
-.verso k-w c-h{--cor-final:var(--a-cur2)}
-.pergunta c-h{--cor-final:var(--a-cur)}
+w-m{display:inline-block}
+w-i{display:inline-block;opacity:0;color:inherit}
 k-w{position:relative;display:inline-block}
-k-w::before{content:"";position:absolute;z-index:-1;left:-.14em;right:-.1em;top:.3em;bottom:.04em;background:var(--a-wash);
-  -webkit-mask:var(--grifo) 0 0/100% 100% no-repeat;mask:var(--grifo) 0 0/100% 100% no-repeat;clip-path:inset(0 100% 0 0);transition:clip-path 1.1s cubic-bezier(.45,.05,.2,1)}
+k-w::before{content:"";position:absolute;z-index:-1;pointer-events:none;clip-path:inset(0 100% 0 0)}
 k-w.fim::before{clip-path:inset(0 0 0 0)}
+body.escrevendo:not(.z7-fim) :is(.verso,.pergunta) w-i{will-change:transform,opacity}
+html[data-fv="b"] body.escrevendo:not(.z7-fim) :is(.verso,.pergunta) w-i{will-change:transform,opacity,filter}
+:is(.verso,.pergunta)[data-feito] :is(w-i,k-w::before),:is(.verso,.pergunta)[data-feito] w-i,:is(.verso,.pergunta)[data-feito] k-w::before{transition:none!important}
+w-d.on w-i{opacity:1}
+
+/* ---- A: revelação por palavra, de dentro de uma linha invisível; grifo de pincel desenhado depois que a palavra assenta ---- */
+html[data-fv="a"] w-m{clip-path:inset(-.55em -.5em -.3em -.5em)}
+html[data-fv="a"] w-i{transform:translate3d(0,160%,0) rotate(4deg);transform-origin:0 100%;
+  transition:transform 1.35s cubic-bezier(.16,1,.3,1),opacity .45s ease-out,color 1.2s ease .1s}
+html[data-fv="a"] w-d.on w-i{transform:none}
+html[data-fv="a"] .pergunta w-i{transition-duration:1.8s,.6s,1.2s}
+html[data-fv="a"] k-w.fim w-i{color:var(--a-cur2)}
+html[data-fv="a"] k-w::before{left:-.16em;right:-.1em;top:.32em;bottom:.02em;background:var(--a-wash);
+  -webkit-mask:var(--grifo) 0 0/100% 100% no-repeat;mask:var(--grifo) 0 0/100% 100% no-repeat;transition:clip-path 1.05s cubic-bezier(.6,.02,.2,1)}
+
 k-w[data-g="0"]{--grifo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M2 22 C4 8 14 4 40 7 C66 9 88 5 97 11 C100 18 99 28 95 34 C70 38 40 33 14 36 C5 36 1 31 2 22Z'/%3E%3C/svg%3E")}
 k-w[data-g="1"]{--grifo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M1 18 C3 9 20 6 46 9 C72 12 90 6 98 14 C99 22 98 31 93 35 C66 33 36 38 12 35 C3 33 0 27 1 18Z'/%3E%3C/svg%3E")}
 k-w[data-g="2"]{--grifo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M3 20 C5 10 18 7 44 9 C68 7 90 8 98 13 C99 21 97 29 94 33 C64 36 38 31 13 35 C4 34 2 28 3 20Z'/%3E%3C/svg%3E")}
-i-n{display:inline-block;width:0;height:0;position:relative;vertical-align:baseline}
-i-n::after{content:"";position:absolute;left:.05em;bottom:-.05em;width:.028em;height:.78em;background:var(--a-cur);border-radius:1px;transform:skewX(-14deg);transform-origin:50% 100%;opacity:.9;transition:opacity 1.2s ease}
-i-n.sai::after{opacity:0}
-a-n{display:inline}
+
+/* ---- B: cinemática. A linha vem do desfoque ao foco, com as palavras se aproximando (tracking que fecha); traço fino de tinta sob cada palavra ---- */
+html[data-fv="b"] w-i{filter:blur(9px);transform:translate3d(var(--dx,0px),6px,0) scale(1.06);transform-origin:50% 60%;
+  transition:opacity 1.35s cubic-bezier(.3,.6,.2,1),filter 1.6s cubic-bezier(.2,.7,.2,1),transform 2.2s cubic-bezier(.16,1,.3,1),color 1.4s ease .2s}
+html[data-fv="b"] w-d.on w-i{filter:none;transform:none}
+html[data-fv="b"] .pergunta w-i{filter:blur(14px);transform:translate3d(var(--dx,0px),10px,0) scale(1.1);transition-duration:1.7s,2s,2.8s,1.4s}
+html[data-fv="b"] k-w.fim w-i{color:var(--a-cur2)}
+html[data-fv="b"] k-w::before{left:-.04em;right:-.22em;top:auto;bottom:-.08em;height:.34em;background:var(--a-cur);opacity:.9;
+  -webkit-mask:var(--traco) 0 0/100% 100% no-repeat;mask:var(--traco) 0 0/100% 100% no-repeat;transition:clip-path 1.25s cubic-bezier(.5,0,.15,1)}
+html[data-fv="b"] k-w[data-g="0"]{--traco:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 15 C20 13 52 11 80 7.6 C89 6.5 95 4.5 100 1.2 C96 6 90 9.6 80 11.4 C52 15.6 22 16.6 0 15Z'/%3E%3C/svg%3E")}
+html[data-fv="b"] k-w[data-g="1"]{--traco:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 12 C24 15 56 14 82 9 C90 7.4 96 5 100 1.6 C97 7.4 91 11.8 82 13.6 C56 18.4 24 18.4 0 12Z'/%3E%3C/svg%3E")}
+html[data-fv="b"] k-w[data-g="2"]{--traco:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 14 C18 11 46 12 74 9.4 C87 8 95 5.2 100 1 C97 7 90 11.2 74 13.4 C46 17 18 17.6 0 14Z'/%3E%3C/svg%3E")}
+
+/* ---- a câmera e a vinheta respiram junto, sem chamar atenção ---- */
+.qa .r-cartao::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(120% 82% at 50% 40%,transparent 48%,rgba(8,2,2,.5) 100%)}
+html[data-fv="a"] body.escrevendo .qa .r-foto{transform-origin:55% 26%;animation:z7-ra 7.6s cubic-bezier(.3,.1,.25,1) both}
+html[data-fv="b"] body.escrevendo .qa .r-foto{transform-origin:55% 26%;animation:z7-rb 8s cubic-bezier(.25,.1,.25,1) both}
+html[data-fv="a"] body.escrevendo .qa .r-cartao::after{animation:z7-va 6s ease-out both}
+html[data-fv="b"] body.escrevendo .qa .r-cartao::after{animation:z7-vb 6.5s ease-out both}
+@keyframes z7-ra{from{scale:1}to{scale:1.022}}
+@keyframes z7-rb{from{scale:1}to{scale:1.045}}
+@keyframes z7-va{from{opacity:0}to{opacity:.5}}
+@keyframes z7-vb{from{opacity:0}to{opacity:.85}}
+@media(prefers-reduced-motion:reduce){.qa .r-foto,.qa .r-cartao::after{animation:none!important}}
+
+i-n{display:none}
 b-s{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 `;
 
@@ -173,84 +208,129 @@ function botoes() {
   document.addEventListener("pointerout", e => { const b = alvo(e); if (b && !b.contains(e.relatedTarget)) { b.classList.remove("preso"); if (b.classList.contains("vd") && b.classList.contains("toque")) apaga(b); } }, { passive: true });
 }
 
-/* ---------- a escrita ---------- */
+/* ---------- a escrita (z7): palavras, não letras ---------- */
+const VARIANTE = (() => { try { return String(new URLSearchParams(location.search).get("f") || "a").toLowerCase() === "b" ? "b" : "a"; } catch { return "a"; } })();
+
+/* Divide o parágrafo em palavras: <w-d> > [<k-w> se grifada] > <w-m><w-i>letras</w-i></w-m> (+ pontuação em peça própria). */
 function quebra(p) {
-  const letras = []; let k = -1;
+  const cs = []; let k = -1;
   const anda = (n, em) => n.childNodes.forEach(c => {
-    if (c.nodeType === 3) for (const ch of c.textContent.replace(/\s+/g, " ")) letras.push({ ch, em });
+    if (c.nodeType === 3) for (const ch of c.textContent.replace(/\s+/g, " ")) cs.push({ ch, em });
     else if (c.nodeType === 1) { if (c.tagName === "EM") { k++; anda(c, k); } else anda(c, em); }
   });
   anda(p, -1);
-  const texto = letras.map(l => l.ch).join("").trim();
+  const texto = cs.map(l => l.ch).join("").replace(/\s+/g, " ").trim();
   const sr = document.createElement("b-s"); sr.textContent = texto;
   const an = document.createElement("a-n"); an.setAttribute("aria-hidden", "true");
-  let w = null, seg = null, segEm = -2; const cs = [], kws = [];
-  const abreW = () => { w = document.createElement("w-d"); an.appendChild(w); seg = null; segEm = -2; };
-  letras.forEach((l, i) => {
-    if (l.ch === " ") { if (an.lastChild && i && i < letras.length - 1) an.appendChild(document.createTextNode(" ")); w = null; return; }
-    if (!w) abreW();
-    if (l.em !== segEm) {
-      segEm = l.em;
-      if (l.em >= 0) { seg = document.createElement("k-w"); seg.dataset.g = l.em; w.appendChild(seg); kws[l.em] = { el: seg, n: 0 }; } else seg = w;
-    }
-    const c = document.createElement("c-h"); c.textContent = l.ch; seg.appendChild(c);
-    cs.push({ c, ch: l.ch, kw: l.em >= 0 ? kws[l.em] : null, w });
-    if (l.em >= 0) kws[l.em].n++;
-  });
+  const peca = t => { const m = document.createElement("w-m"), i = document.createElement("w-i"); i.textContent = t; m.appendChild(i); return m; };
+  const palavras = []; let atual = [];
+  const fecha = () => {
+    if (!atual.length) return;
+    const d = document.createElement("w-d"); const txt = atual.map(x => x.ch).join(""); const em = atual.find(x => x.em >= 0);
+    let kw = null;
+    if (em) {
+      const nucleo = atual.filter(x => x.em >= 0).map(x => x.ch).join(""), resto = atual.filter(x => x.em < 0).map(x => x.ch).join("");
+      kw = document.createElement("k-w"); kw.dataset.g = em.em; kw.appendChild(peca(nucleo)); d.appendChild(kw);
+      if (resto) d.appendChild(peca(resto));
+    } else d.appendChild(peca(txt));
+    if (an.lastChild) an.appendChild(document.createTextNode(" "));
+    an.appendChild(d);
+    palavras.push({ d, kw, txt, len: txt.replace(/[^\p{L}]/gu, "").length });
+    atual = [];
+  };
+  cs.forEach(l => { if (l.ch === " ") fecha(); else atual.push(l); }); fecha();
   p.textContent = ""; p.append(sr, an);
-  return cs;
+  return palavras;
 }
 
 export function escreve() {
   const v = document.querySelector("#abertura .verso"), q = document.querySelector("#abertura .pergunta");
   if (!v || !q || v.dataset.esc) return; v.dataset.esc = "1";
+  document.documentElement.dataset.fv = VARIANTE;
   // a frase nasce aqui, já sob o controle da animação: o HTML não traz texto solto que apareça antes da escrita
   if (!v.firstChild) v.innerHTML = "Aqui, cada prato tem nome de <em>canção</em>, de <em>poema</em>, de <em>escritora</em>.";
   if (!q.firstChild) q.textContent = "Qual será o seu?";
   const A = quebra(v), B = quebra(q), todas = A.concat(B);
-  const pen = document.createElement("i-n");
   const root = document.querySelector(".qa");
   const acende = () => { if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b); };
   let nl = 0; const lz = () => { nl = Math.min(3, nl + 1); if (root) root.style.setProperty("--lz", (nl / 3).toFixed(2)); };
-  const mostra = (it, fim) => {
-    it.c.classList.add("on");
-    if (!fim) {
-      it.c.after(pen);
-      // a lâmpada vai à letra: coordenadas relativas ao cartão
-      if (L.sala) { const r = it.c.getBoundingClientRect(), s = L.sala.getBoundingClientRect(); lampPara(r.left - s.left + r.width / 2, r.top - s.top + r.height * .35); }
-    }
-    if (it.kw && --it.kw.n === 0) setTimeout(() => { it.kw.el.classList.add("fim"); lz(); }, fim ? 0 : 160);
+  const luzNa = w => { if (!L.sala) return; const r = w.d.getBoundingClientRect(), s = L.sala.getBoundingClientRect(); lampPara(r.left - s.left + r.width / 2, r.top - s.top + r.height * .35); };
+  const mostra = (w, fim) => { w.d.classList.add("on"); if (!fim) luzNa(w); };
+  const grifa = (w, fim) => { if (w.kw && !w.kw.classList.contains("fim")) { w.kw.classList.add("fim"); lz(); } };
+  const tudo = () => {
+    nl = 3; if (root) root.style.setProperty("--lz", "1");
+    [v, q].forEach(e => e.dataset.feito = "1");
+    todas.forEach(w => { mostra(w, true); grifa(w, true); });
+    document.body.classList.add("escrito", "q-on", "z7-fim"); if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b, true);
   };
-  const tudo = () => { nl = 3; if (root) root.style.setProperty("--lz", "1"); todas.forEach(it => { it.c.style.transition = "none"; mostra(it, true); }); pen.remove(); [v, q].forEach(e => e.dataset.feito = "1"); document.body.classList.add("escrito", "q-on"); if (root) root.classList.add("acesa"); const [a, b] = repouso(); lampPara(a, b, true); };
   const pula = document.body.classList.contains("pula");
   if (calmo() || pula) return tudo();
-  let t = 900; const agenda = [];
-  const ritmo = (it, i, lista) => {
-    const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453, r = x - Math.floor(x);
-    let d = 52 + r * 46;
-    if (it.ch === " ") d = 36;
-    if (/[a-zç]/i.test(it.ch) && lista[i + 1] && lista[i + 1].ch === " ") d += 18;
-    agenda.push([t, it]);
-    t += d + (it.ch === "," ? 300 : it.ch === "." ? 460 : 0);
+
+  /* ---------- a partitura: [instante em ms, ação]; montada depois da fonte, para medir as linhas já quebradas ---------- */
+  const agenda = []; const ev = (t, f) => agenda.push([t, f]);
+  const falado = (w, i) => { const x = Math.sin(i * 12.9898 + 4.1) * 43758.5453, r = x - Math.floor(x); return 112 + w.len * 18 + r * 30; };
+  let fimT = 0, tq = 0, total = 0;
+  const monta = () => {
+  if (VARIANTE === "a") {
+    /* A: palavra a palavra, no ritmo da fala; pausa nas vírgulas; grifos desenhados depois que a palavra assenta */
+    let t = 380;
+    let tUlt = 0;
+    A.forEach((w, i) => {
+      ev(t, () => mostra(w)); tUlt = t;
+      if (w.kw) ev(t + 640 + w.len * 14, () => grifa(w));
+      t += falado(w, i) + (/,$/.test(w.txt) ? 290 : 0);
+    });
+    /* pausa dramática: a frase respira (o último grifo ainda se desenha) antes da pergunta */
+    t = tUlt + 1650; tq = t;
+    B.forEach((w, i) => { ev(t, () => mostra(w)); if (i < 3) t += [330, 290, 240][i]; });
+    fimT = t + 1050;
+  } else {
+    /* B: por linha. Mede as linhas já quebradas; cada linha entra do desfoque ao foco, com as palavras em onda curta */
+    const topos = []; const linhas = [];
+    A.forEach(w => {
+      const r = w.d.getBoundingClientRect(), y = Math.round(r.top / 6);
+      let li = topos.indexOf(y); if (li < 0) { topos.push(y); li = topos.length - 1; linhas[li] = []; }
+      w.r = r; linhas[li].push(w);
+    });
+    const nlinhas = linhas.length; let ultimo = 0;
+    linhas.forEach((ws, li) => {
+      const x0 = Math.min(...ws.map(w => w.r.left)), x1 = Math.max(...ws.map(w => w.r.right)), cx = (x0 + x1) / 2;
+      let t = 560 + li * (nlinhas > 3 ? 780 : 900);
+      ws.forEach((w, i) => {
+        w.d.style.setProperty("--dx", ((w.r.left + w.r.width / 2 - cx) * .1).toFixed(1) + "px");
+        const ti = t; ev(ti, () => mostra(w));
+        if (w.kw) ev(ti + 900, () => grifa(w));
+        t += 70 + w.len * 9 + (/,$/.test(w.txt) ? 170 : 0);
+        ultimo = Math.max(ultimo, ti);
+      });
+    });
+    /* pausa dramática mais longa, em foco parado; depois a pergunta, maior e mais lenta */
+    let t = ultimo + 1480; tq = t;
+    B.forEach((w, i) => { w.d.style.setProperty("--dx", ((i - 1.5) * 14) + "px"); ev(t, () => mostra(w)); if (i < 3) t += 210; });
+    fimT = t + 1250;
+  }
+  agenda.sort((a, b) => a[0] - b[0]);
+  total = agenda.length; window.__escrita = { fimMs: fimT, variante: VARIANTE };
   };
-  A.forEach(ritmo); t += 380; const tq = t; B.forEach(ritmo);
-  const fimT = t;
-  let i = 0, ini = 0, feito = false, raf = 0;
+
+  let i = 0, ini = 0, feito = false, raf = 0, qon = false;
   const fecha = () => { if (feito) return; feito = true; cancelAnimationFrame(raf); tudo(); };
   const quadro = ts => {
     if (feito) return;
     if (!ini) ini = ts;
     const dt = ts - ini;
-    if (dt >= tq - 200) document.body.classList.add("q-on");
+    if (!qon && dt >= tq - 200) { qon = true; document.body.classList.add("q-on"); }
     // o buraco de luz cresce com a escrita (0 a 100%), do tamanho de uma lâmpada ao do salão
-    if (L.sala) L.sala.style.setProperty("--r", (95 + Math.pow(Math.min(1, i / agenda.length), .8) * 520).toFixed(0) + "px");
-    while (i < agenda.length && agenda[i][0] <= dt) { mostra(agenda[i][1]); i++; }
-    if (i < agenda.length) raf = requestAnimationFrame(quadro);
-    else { feito = true; document.body.classList.add("escrito"); setTimeout(() => pen.classList.add("sai"), 700); setTimeout(() => pen.remove(), 2200); setTimeout(acende, 500); }
+    if (L.sala) L.sala.style.setProperty("--r", (95 + Math.pow(Math.min(1, i / total), .8) * 520).toFixed(0) + "px");
+    while (i < total && agenda[i][0] <= dt) { agenda[i][1](); i++; }
+    if (i < total || dt < fimT) raf = requestAnimationFrame(quadro);
+    else {
+      feito = true; document.body.classList.add("escrito"); setTimeout(acende, 400);
+      setTimeout(() => document.body.classList.add("z7-fim"), 2600);
+    }
   };
-  const quando = () => { document.body.classList.add("escrevendo"); raf = requestAnimationFrame(quadro); };
+  const quando = () => { monta(); document.body.classList.add("escrevendo"); raf = requestAnimationFrame(quadro); };
   [v, q].forEach(e => e.addEventListener("pointerdown", () => { if (!feito) fecha(); }, { once: true }));
   const fonte = document.fonts && document.fonts.load ? Promise.race([document.fonts.load('40px "Yellowtail"'), new Promise(r => setTimeout(r, 1800))]) : Promise.resolve();
   fonte.then(quando, quando);
-  window.__escrita = { fimMs: fimT };
 }
