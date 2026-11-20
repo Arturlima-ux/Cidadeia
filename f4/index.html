@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f0a07">
+<title>Pitanga Gastrobar · A jornada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/assets/f/casa-1-w.webp" fetchpriority="high">
+<!-- Instrument Serif: serifa display de alto contraste, estreita e de corpo leve; é o que dá o tom de revista (o Cormorant/Playfair "de sempre" ficou genérico).
+     Hanken Grotesk: grotesca calma e neutra para os textos miúdos; some e deixa a foto falar. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root{--ivory:#f6ecdc;--ivory-2:rgba(246,236,220,.72);--coral:#ff6a4d;--ink:#0e0906;--hair:rgba(246,236,220,.26);
+  --serif:"Instrument Serif","Cormorant Garamond",Georgia,serif;--sans:"Hanken Grotesk",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.22,.7,.12,1);--h:100vh}
+@supports (height:100dvh){:root{--h:100dvh}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--ink);color:var(--ivory);overflow:hidden;overscroll-behavior:none}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
+
+/* A rolagem é a própria entrada: o trilho é alto, o palco gruda no topo e é pintado pelo progresso p (0..1) */
+#scroller{position:fixed;inset:0;height:var(--h);overflow-y:auto;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;outline:0}
+#scroller::-webkit-scrollbar{display:none}
+#rail{position:relative;height:calc(var(--h)*6.6)}
+#stage{position:sticky;top:0;height:var(--h);overflow:hidden;background:var(--ink);isolation:isolate}
+.lay{position:absolute;inset:0;overflow:hidden;will-change:opacity,transform}
+.lay img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+#sala{transform-origin:0 0}
+.shade{position:absolute;inset:0;background:var(--ink);opacity:0;pointer-events:none}
+.scrim{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(14,9,6,.62) 0,rgba(14,9,6,.22) 11%,rgba(14,9,6,0) 22%),
+   linear-gradient(to top,rgba(14,9,6,.94) 0,rgba(14,9,6,.9) 24%,rgba(14,9,6,.8) 40%,rgba(14,9,6,.42) 55%,rgba(14,9,6,0) 68%)}
+.scrim2{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(14,9,6,.78) 0,rgba(14,9,6,.55) 16%,rgba(14,9,6,0) 34%),linear-gradient(to top,rgba(14,9,6,.9) 0,rgba(14,9,6,.55) 30%,rgba(14,9,6,0) 58%)}
+
+.logo{position:absolute;z-index:8;left:50%;width:94px;margin-left:-47px;top:calc(env(safe-area-inset-top) + 16px);display:block;padding:4px 0;opacity:0;transition:opacity 1.1s ease}
+.logo img{display:block;width:100%;height:auto;filter:drop-shadow(0 1px 12px rgba(0,0,0,.45))}
+body.on .logo{opacity:1}
+
+/* sala: frase de abertura */
+.copy{position:absolute;z-index:4;left:20px;right:20px;bottom:var(--stack,190px)}
+.copy h1{font-family:var(--serif);font-weight:400;font-size:min(9.2vw,4.2vh);line-height:1.03;letter-spacing:-.012em}
+.ln{display:block;overflow:hidden;padding:.06em 0 .12em;margin:-.06em 0 -.12em}
+.ln>span{display:block;transform:translateY(112%);opacity:0;transition:transform 1.15s var(--ease),opacity .9s ease}
+body.on .ln>span{transform:none;opacity:1}
+body.on .ln:nth-child(2)>span{transition-delay:.12s}body.on .ln:nth-child(3)>span{transition-delay:.24s}body.on .ln:nth-child(4)>span{transition-delay:.36s}
+.hint{position:absolute;z-index:4;right:20px;bottom:calc(var(--stack,190px) - 44px);font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ivory-2);
+  opacity:0;transition:opacity 1.2s ease 1.6s;animation:flut 2.6s ease-in-out infinite}
+body.on .hint{opacity:1}
+@keyframes flut{50%{transform:translateY(5px)}}
+.foot{position:absolute;z-index:5;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr;column-gap:12px;padding:11px 20px env(safe-area-inset-bottom);
+  font-size:11px;line-height:1.35;letter-spacing:.025em;color:var(--ivory-2);background:rgba(14,9,6,.96)}
+.foot span{display:block;padding:0 0 3px}
+.foot .adr{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(246,236,220,.14);margin-top:8px}
+.foot .adr span{padding:0}
+.foot a{display:inline-flex;align-items:center;min-height:44px;padding-left:16px;color:var(--ivory);text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.foot a i{display:block;padding-bottom:2px;font-style:normal;border-bottom:1px solid var(--coral)}
+
+/* pratos */
+.dish img{transform-origin:50% 50%}
+.qline{position:absolute;z-index:5;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 76px);font-family:var(--serif);font-style:italic;font-size:min(7.6vw,3.5vh);line-height:1.1;color:var(--coral);opacity:0;text-shadow:0 1px 16px rgba(14,9,6,.55)}
+.dcap{position:absolute;z-index:5;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 56px);opacity:0;pointer-events:none}
+.dcap b{display:block;font-family:var(--serif);font-weight:400;font-size:min(11.5vw,5.6vh);line-height:.98;letter-spacing:-.018em;text-shadow:0 1px 22px rgba(14,9,6,.55)}
+.dcap i{display:block;width:34px;height:1px;background:var(--ivory);margin-bottom:16px;opacity:.8}
+
+/* convite: a frase que se completa tocando */
+#conv{position:absolute;z-index:6;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 70px);padding:0 20px;opacity:0;pointer-events:none}
+#conv.on{pointer-events:auto}
+.cv{display:block;width:100%;padding:26px 0 18px;cursor:pointer;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.cv .a{display:block;font-family:var(--serif);font-size:min(13.4vw,6.4vh);line-height:1;letter-spacing:-.02em;text-shadow:0 1px 24px rgba(14,9,6,.55)}
+.cv .b{display:block;margin-top:.5em;font-family:var(--serif);font-style:italic;font-size:min(8vw,3.8vh);line-height:1.05;color:var(--coral);
+  position:relative;width:max-content;max-width:100%;padding-bottom:7px}
+.cv .b::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--coral);transform:scaleX(.18);transform-origin:left;transition:transform .9s var(--ease)}
+.cv:active .b::after,.cv.go .b::after{transform:none}
+@media (hover:hover){.cv:hover .b::after{transform:scaleX(.6)}}
+
+/* a carta: a folha que sobe e vira a primeira página */
+#carta{position:absolute;z-index:7;inset:0;background:var(--ivory);color:var(--ink);will-change:transform;transform:translateY(100%);
+  box-shadow:0 -30px 60px rgba(14,9,6,.35)}
+#carta .in{position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top) + 18px);bottom:calc(env(safe-area-inset-bottom) + 24px);display:flex;flex-direction:column;justify-content:space-between}
+#carta .top{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(14,9,6,.6)}
+#carta h2{font-family:var(--serif);font-weight:400;font-size:min(30vw,14vh);line-height:.9;letter-spacing:-.035em}
+#carta p{margin-top:18px;font-family:var(--serif);font-style:italic;font-size:min(7vw,3.4vh);color:#a8321f}
+#carta .ft{font-size:11px;line-height:1.5;letter-spacing:.025em;color:rgba(14,9,6,.62);border-top:1px solid rgba(14,9,6,.16);padding-top:12px;display:flex;justify-content:space-between;gap:12px}
+
+.sr{position:absolute;left:12px;top:12px;z-index:50;padding:10px 14px;background:var(--ivory);color:var(--ink);font-size:13px;transform:translateY(-200%)}
+.sr:focus{transform:none}
+
+/* destino (placeholder das próximas telas, como nos outros protótipos) */
+.cena{position:fixed;inset:0;z-index:30;height:var(--h);overflow:hidden;background:var(--ink);visibility:hidden;clip-path:circle(0px at 50% 62%);transition:clip-path 1.1s cubic-bezier(.55,0,.2,1),visibility 0s linear 1.1s}
+.cena.show{visibility:visible;clip-path:circle(150% at 50% 62%);transition:clip-path 1.1s cubic-bezier(.55,0,.2,1),visibility 0s}
+.cena .bg{position:absolute;inset:0;transform:scale(1.16);filter:brightness(.45) saturate(.7);transition:transform 2.1s var(--ease),filter 1.9s ease}
+.cena .bg img{width:100%;height:100%;object-fit:cover;display:block}
+.cena.lit .bg{transform:scale(1);filter:brightness(1) saturate(1.05)}
+.cena .sc{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,9,6,.6) 0,rgba(14,9,6,0) 24%),linear-gradient(to top,rgba(14,9,6,.88) 0,rgba(14,9,6,.55) 34%,rgba(14,9,6,0) 62%)}
+.volt{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 10px);display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--ivory);opacity:0;transition:opacity .9s ease .9s}
+.volt svg{width:30px;height:12px;stroke:var(--ivory);fill:none;stroke-width:1.1}
+.cena.lit .volt{opacity:1}
+.cn{position:absolute;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 44px)}
+.cn small{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-2);margin-bottom:18px;opacity:0;transition:opacity 1s ease .9s}
+.cn h2{font-family:var(--serif);font-weight:400;font-size:min(15vw,7vh);line-height:.98;letter-spacing:-.02em;opacity:0;transform:translateY(14px);transition:opacity 1s ease .7s,transform 1.1s var(--ease) .7s}
+.cn p{margin-top:18px;font-size:12px;line-height:1.5;color:var(--ivory-2);letter-spacing:.02em;opacity:0;transition:opacity 1s ease 1.2s}
+.cena.lit .cn small,.cena.lit .cn p,.cena.lit .cn h2{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="sr" href="#" data-go="carta">Ir direto para a carta</a>
+<a class="sr" href="#" data-go="reserva" style="left:auto;right:12px">Escrever a visita</a>
+<div id="scroller" tabindex="0" aria-label="Role para entrar no Pitanga">
+ <div id="rail">
+  <div id="stage">
+   <div class="lay" id="sala"><img id="imgSala" src="/assets/f/casa-1-w.webp" alt="Salão do Pitanga: parede laranja, quadros e luminárias acesas" decoding="async" fetchpriority="high"></div>
+   <div class="shade" id="shade"></div>
+   <div class="scrim" id="scrim" aria-hidden="true"></div>
+
+   <div class="lay dish" id="d0"><img src="/assets/f/mignon-g.webp" alt="Mignon Bordelaise com arroz negro" style="object-position:50% 58%" decoding="async"></div>
+   <div class="lay dish" id="d1"><img src="/assets/f/carne-g.webp" alt="Carne de Sol Grelhada" style="object-position:50% 50%" decoding="async"></div>
+   <div class="lay dish" id="d2"><img src="/assets/f/mar-g.webp" alt="Mar Vermelho" style="object-position:50% 46%" decoding="async"></div>
+   <div class="lay" id="d3"><img src="/assets/f/casa-2-w.webp" alt="Mesas do salão do Pitanga" style="object-position:50% 40%" decoding="async"></div>
+   <div class="scrim2" id="scrim2" aria-hidden="true" style="opacity:0"></div>
+
+   <a class="logo" id="logo" href="#" aria-label="Pitanga Gastrobar" onclick="return false"><img src="/assets/f/logo.png" alt="Pitanga Gastrobar" width="608" height="308"></a>
+
+   <div class="copy" id="copy">
+    <h1><span class="ln"><span>Aqui, cada prato</span></span><span class="ln"><span>tem nome de canção,</span></span><span class="ln"><span>de poema,</span></span><span class="ln"><span>de escritora.</span></span></h1>
+   </div>
+   <div class="hint" id="hint" aria-hidden="true">deslize</div>
+   <div class="qline" id="q" aria-hidden="true">Qual será o seu?</div>
+   <div class="dcap" id="c0"><i></i><b>Mignon Bordelaise</b></div>
+   <div class="dcap" id="c1"><i></i><b>Carne de Sol Grelhada</b></div>
+   <div class="dcap" id="c2"><i></i><b>Mar Vermelho</b></div>
+
+   <div id="conv"><div class="cv" id="cv" role="link" tabindex="0" aria-label="A sua mesa já está posta. Escrever a visita"><span class="a">A sua mesa já está posta.</span><span class="b">Escreva a sua visita.</span></div></div>
+
+   <div class="foot" id="foot">
+    <span>Almoço sexta a domingo · 12h</span>
+    <span>Jantar segunda a sábado · 18h</span>
+    <div class="adr"><span>Av. João XXIII, 1161 · Jóquei</span><a href="https://www.google.com/maps/search/?api=1&amp;query=Av.+Jo%C3%A3o+XXIII%2C+1161%2C+J%C3%B3quei%2C+Teresina" target="_blank" rel="noopener"><i>Como chegar</i></a></div>
+   </div>
+
+   <div id="carta" aria-hidden="true"><div class="in">
+     <div class="top"><span>Pitanga Gastrobar</span><span>Carta</span></div>
+     <div><h2>A carta</h2><p>Aqui começa a carta do Pitanga.</p></div>
+     <div class="ft"><span>Almoço sexta a domingo · 12h<br>Jantar segunda a sábado · 18h</span><span style="text-align:right">Av. João XXIII, 1161<br>Jóquei</span></div>
+   </div></div>
+  </div>
+ </div>
+</div>
+
+<section class="cena" id="cena" role="dialog" aria-modal="true" aria-labelledby="cenaT" aria-hidden="true">
+  <div class="bg"><img id="cenaImg" alt=""></div><div class="sc"></div>
+  <button class="volt" id="volt" type="button"><svg viewBox="0 0 30 12" aria-hidden="true"><path d="M30 6H1M6 1L1 6l5 5"/></svg>voltar</button>
+  <div class="cn"><small>Próxima cena</small><h2 id="cenaT"></h2><p>Aqui começa a próxima tela do Pitanga.</p></div>
+</section>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var sc=$("scroller"),rail=$("rail"),sala=$("sala"),imgSala=$("imgSala"),shade=$("shade"),scrim=$("scrim"),scrim2=$("scrim2"),
+      copy=$("copy"),hint=$("hint"),foot=$("foot"),q=$("q"),conv=$("conv"),carta=$("carta"),cv=$("cv"),
+      D=[$("d0"),$("d1"),$("d2")],C=[$("c0"),$("c1"),$("c2")],d3=$("d3");
+  var IW=1755,IH=1545,FOCUS=.675,PAINT={x:.62,y:.325};
+  var geo={W:0,H:0,cx:0,cy:0},p=0,busy=false,commitT=0,raf=0,dest=null;
+  var cl=function(x){return x<0?0:x>1?1:x},sm=function(x){x=cl(x);return x*x*(3-2*x)};
+  var CEN={carta:{t:"Folhear a carta",img:"/assets/f/mignon-g.webp"},reserva:{t:"Escrever a visita",img:"/assets/f/casa-2-w.webp"}};
+
+  function layout(){
+    var W=sc.clientWidth,H=sc.clientHeight,s=Math.max(W/IW,H/IH),dw=IW*s,dh=IH*s;
+    var off=Math.min(0,Math.max(W-dw,W/2-FOCUS*dw)),px=dw>W?off/(W-dw):.5,oy=(H-dh)*.5;
+    imgSala.style.objectPosition=(px*100)+"% 50%";
+    geo={W:W,H:H,cx:off+PAINT.x*dw,cy:oy+PAINT.y*dh};
+    sc.style.setProperty("--stack",Math.round(Math.max(150,Math.min(210,H*.26)))+"px");
+    render();
+  }
+  function trap(pp,c,flat,half){var d=Math.abs(pp-c);return d<=flat?1:sm(1-(d-flat)/(half-flat))}
+
+  function render(){
+    raf=0;
+    var max=rail.offsetHeight-sc.clientHeight;p=max>0?cl(sc.scrollTop/max):0;
+    /* 1. sala: aproximação lenta até o quadro, que vai ao centro da tela */
+    var e=sm(p/.34),z=RM?1:1+1.9*e,tx=0,ty=0;
+    if(!RM){var tcx=geo.cx+(geo.W/2-geo.cx)*e,tcy=geo.cy+(geo.H*.42-geo.cy)*e;tx=tcx-z*geo.cx;ty=tcy-z*geo.cy}
+    sala.style.transform="translate3d("+tx+"px,"+ty+"px,0) scale("+z+")";
+    sala.style.opacity=1-sm((p-.27)/.13);
+    shade.style.opacity=.55*sm((p-.12)/.22)*(1-sm((p-.34)/.06));
+    scrim.style.opacity=1-sm(p/.2);
+    /* texto de abertura e rodapé de horários somem com o primeiro gesto */
+    var o=1-sm(p/.09);
+    copy.style.opacity=o;copy.style.transform="translate3d(0,"+(-34*sm(p/.12))+"px,0)";
+    hint.style.display=p>.03?"none":"";
+    foot.style.opacity=1-sm(p/.07);foot.style.pointerEvents=p<.04?"auto":"none";foot.style.visibility=p>.1?"hidden":"visible";
+    /* 2. pratos: corte em dissolve, cada um se aproxima devagar */
+    var cs=[.42,.55,.68];
+    for(var k=0;k<3;k++){
+      var op=trap(p,cs[k],.03,.095),local=cl((p-(cs[k]-.1))/.2);
+      D[k].style.opacity=op;D[k].style.visibility=op>0?"visible":"hidden";
+      D[k].firstElementChild.style.transform="scale("+(RM?1:1.16-.16*local)+") translate3d(0,"+(RM?0:(8-16*local))+"px,0)";
+      var co=sm((op-.55)/.45);C[k].style.opacity=co;C[k].style.transform="translate3d(0,"+((1-co)*14)+"px,0)";
+    }
+    scrim2.style.opacity=sm((p-.34)/.07)*(1-sm((p-.9)/.04));
+    q.style.opacity=sm((p-.36)/.05)*(1-sm((p-.7)/.05));
+    /* 3. convite: a mesa posta (salão), com a frase que se completa tocando */
+    var od=sm((p-.715)/.05)*(1-sm((p-.885)/.04));
+    d3.style.opacity=od;d3.style.visibility=od>0?"visible":"hidden";
+    d3.firstElementChild.style.transform="scale("+(RM?1:1.12-.12*cl((p-.7)/.2))+")";
+    var ci=sm((p-.75)/.05)*(1-sm((p-.87)/.03));
+    conv.style.opacity=ci;conv.style.transform="translate3d(0,"+((1-ci)*18)+"px,0)";conv.classList.toggle("on",ci>.6);
+    /* 4. a carta: a folha sobe e a página vira o começo da carta */
+    var t=sm((p-.875)/.115);carta.style.transform="translate3d(0,"+((1-t)*100)+"%,0)";
+    $("logo").style.opacity=p>.9?Math.max(0,1-(p-.9)/.04):"";
+    /* commit ao fim da rolagem */
+    if(p>=.992&&!busy){if(!commitT)commitT=setTimeout(function(){commitT=0;if(!busy&&p>=.985)go("carta")},380)}
+    else if(commitT&&p<.985){clearTimeout(commitT);commitT=0}
+  }
+  function ask(){if(!raf)raf=requestAnimationFrame(render)}
+  sc.addEventListener("scroll",ask,{passive:true});
+  addEventListener("resize",layout);addEventListener("orientationchange",layout);
+
+  /* destino */
+  function go(k){
+    if(busy)return;busy=true;dest=k;
+    var c=CEN[k],cn=$("cena");$("cenaImg").src=c.img;$("cenaT").textContent=c.t;
+    cn.setAttribute("aria-hidden","false");cn.classList.add("show");setTimeout(function(){cn.classList.add("lit")},60);
+    setTimeout(function(){$("volt").focus&&$("volt").focus()},800);
+  }
+  function back(){
+    var cn=$("cena");cn.classList.remove("lit");cn.classList.remove("show");cn.setAttribute("aria-hidden","true");
+    var max=rail.offsetHeight-sc.clientHeight;
+    sc.scrollTop=(dest==="reserva"?.80:.93)*max;
+    setTimeout(function(){busy=false;render()},700);
+  }
+  $("volt").addEventListener("click",back);
+  /* o convite: um toque na frase */
+  function pickConv(ev){if(ev&&ev.preventDefault)ev.preventDefault();cv.classList.add("go");setTimeout(function(){go("reserva")},RM?0:420)}
+  cv.addEventListener("click",pickConv);
+  cv.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" ")pickConv(ev)});
+  cv.addEventListener("contextmenu",function(ev){ev.preventDefault()});
+  document.querySelectorAll("[data-go]").forEach(function(a){a.addEventListener("click",function(ev){ev.preventDefault();go(a.getAttribute("data-go"))})});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&busy)back()});
+
+  layout();
+  var start=function(){document.body.classList.add("on")};
+  if(imgSala.complete)setTimeout(start,120);else{imgSala.addEventListener("load",function(){setTimeout(start,120)});setTimeout(start,2500)}
+  sc.focus&&sc.focus({preventScroll:true});
+  window.__f4={go:go,render:render,get p(){return p}};
+})();
+</script>
+</body>
+</html>
