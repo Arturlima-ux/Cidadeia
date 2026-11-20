@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F3EEE6">
+<title>Pitanga Gastrobar · A mesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* fallback local (so the prototype renders offline); production uses Google Fonts above */
+@font-face{font-family:"IS Serif Local";src:url(fonts/InstrumentSerif-Regular.ttf);font-style:normal;font-display:swap}
+@font-face{font-family:"IS Serif Local";src:url(fonts/InstrumentSerif-Italic.ttf);font-style:italic;font-display:swap}
+@font-face{font-family:"IS Sans Local";src:url(fonts/InstrumentSans-Regular.ttf);font-weight:400 500;font-display:swap}
+@font-face{font-family:"IS Sans Local";src:url(fonts/InstrumentSans-Bold.ttf);font-weight:600 700;font-display:swap}
+
+:root{
+  --paper:#F3EEE6; --paper-hi:#F8F4ED; --card:#FCFAF5; --ink:#1B1714; --ink-2:rgba(27,23,20,.68);
+  --hair:rgba(27,23,20,.16); --coral:#E8573F;
+  --serif:"Instrument Serif","IS Serif Local",Georgia,serif;
+  --sans:"Instrument Sans","IS Sans Local",system-ui,sans-serif;
+  --W:min(100vw,480px);
+  --u:min(calc(var(--W)/390),calc(100svh/844));
+  --ease:cubic-bezier(.22,.7,.1,1); --ease-io:cubic-bezier(.72,0,.18,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--paper);color:var(--ink);overflow:hidden;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+
+/* ---------- stage: the table ---------- */
+.stage{position:fixed;inset:0;margin:0 auto;width:var(--W);height:100svh;overflow:hidden;
+  background:
+   radial-gradient(120% 70% at 20% 8%,var(--paper-hi),transparent 70%),
+   repeating-linear-gradient(0deg,rgba(60,40,20,.028) 0 1px,transparent 1px calc(var(--u)*4)),
+   repeating-linear-gradient(90deg,rgba(60,40,20,.022) 0 1px,transparent 1px calc(var(--u)*4)),
+   var(--paper);}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.top{position:absolute;left:calc(var(--u)*24);top:calc(var(--u)*22);z-index:5}
+.top img{display:block;height:calc(var(--u)*40);width:auto}
+
+h1{position:absolute;left:calc(var(--u)*22);top:calc(var(--u)*80);z-index:4;font:400 calc(var(--u)*106)/.84 var(--serif);letter-spacing:-.025em}
+h1 .l{display:block;overflow:hidden;padding:0 .04em .2em 0;margin-bottom:-.12em}
+h1 .l>span{display:block}
+h1 .l2{padding-left:calc(var(--u)*58);font-style:italic}
+h1 .q{color:var(--coral);font-style:normal}
+.lede{position:absolute;left:calc(var(--u)*24);top:calc(var(--u)*286);width:calc(var(--u)*176);z-index:4;font:400 calc(var(--u)*13.5)/1.42 var(--sans);color:var(--ink-2)}
+
+/* ---------- table objects ---------- */
+.plate{position:absolute;z-index:1;right:calc(var(--u)*-28);top:calc(var(--u)*372);width:calc(var(--u)*300);height:calc(var(--u)*300);border-radius:50%;
+  box-shadow:0 calc(var(--u)*2) 0 rgba(255,255,255,.6) inset,0 calc(var(--u)*22) calc(var(--u)*34) calc(var(--u)*-18) rgba(60,40,20,.32)}
+.plate::before{content:"";position:absolute;inset:calc(var(--u)*-9);border-radius:50%;border:1px solid var(--hair)}
+.plate img{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 50%;display:block;transform:scale(1.02)}
+
+.card{position:absolute;z-index:3;display:block;background:var(--card);border:1px solid var(--hair);border-radius:calc(var(--u)*3);
+  transform:rotate(var(--r)) translate(0,0) scale(1);transform-origin:50% 50%;
+  box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 calc(var(--u)*1) calc(var(--u)*2) rgba(60,40,20,.10),0 calc(var(--u)*16) calc(var(--u)*26) calc(var(--u)*-14) rgba(60,40,20,.34);
+  transition:transform .32s var(--ease),box-shadow .32s var(--ease)}
+.card::before{content:"";position:absolute;inset:calc(var(--u)*7);border:1px solid var(--hair);border-radius:calc(var(--u)*1.5);pointer-events:none}
+.card.lift{transform:rotate(0) translate(0,calc(var(--u)*-8)) scale(1.07);
+  box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 calc(var(--u)*2) calc(var(--u)*4) rgba(60,40,20,.1),0 calc(var(--u)*44) calc(var(--u)*50) calc(var(--u)*-20) rgba(60,40,20,.42)}
+.card:active:not(.lift){transform:rotate(var(--r)) scale(.985)}
+.card .lab{font:400 calc(var(--u)*32)/.92 var(--serif);letter-spacing:-.015em;position:absolute}
+.card .lab i{display:block;font-style:italic;padding-left:calc(var(--u)*14)}
+.card .mk{position:absolute;font:500 calc(var(--u)*9.5)/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.card .go{position:absolute;width:calc(var(--u)*30);height:calc(var(--u)*30);right:calc(var(--u)*14);bottom:calc(var(--u)*14);border-radius:50%;border:1px solid var(--ink);display:grid;place-items:center}
+.card .go svg{width:calc(var(--u)*13);height:calc(var(--u)*13);stroke:var(--ink);fill:none;stroke-width:1.3}
+
+.carta{--r:-3.2deg;left:calc(var(--u)*24);top:calc(var(--u)*392);width:calc(var(--u)*168);height:calc(var(--u)*252)}
+.carta .spine{position:absolute;left:calc(var(--u)*17);top:calc(var(--u)*7);bottom:calc(var(--u)*7);border-left:1px solid var(--hair)}
+.carta .mk{left:calc(var(--u)*30);top:calc(var(--u)*28);line-height:1.7}
+.carta .lab{left:calc(var(--u)*30);bottom:calc(var(--u)*26);font-size:calc(var(--u)*42)}
+.carta .go{display:none}
+
+.visita{--r:2.4deg;right:calc(var(--u)*16);top:calc(var(--u)*642);width:calc(var(--u)*196);height:calc(var(--u)*124)}
+.visita .arch{position:absolute;left:calc(var(--u)*17);top:calc(var(--u)*17);width:calc(var(--u)*56);height:calc(var(--u)*90)}
+.visita .lab{left:calc(var(--u)*88);top:calc(var(--u)*18);font-size:calc(var(--u)*26)}
+.visita .wr{position:absolute;left:calc(var(--u)*88);right:calc(var(--u)*18);bottom:calc(var(--u)*26);border-bottom:1px solid var(--ink)}
+.visita .wr::after{content:"";position:absolute;right:0;bottom:calc(var(--u)*-3.5);width:calc(var(--u)*6);height:calc(var(--u)*6);border-radius:50%;background:var(--coral)}
+.visita .go{display:none}
+
+.arch{overflow:hidden;border-radius:999px 999px 0 0;border:1px solid var(--hair);background:#e9e1d6 center/cover no-repeat}
+.visita .arch{background-image:url(/assets/f/casa-1-w.webp);background-size:400% auto;background-position:63% 18%}
+
+/* ---------- footer ---------- */
+.foot{position:absolute;left:calc(var(--u)*24);right:calc(var(--u)*24);bottom:calc(var(--u)*18);z-index:4;display:flex;justify-content:space-between;align-items:flex-end;gap:calc(var(--u)*12);
+  font:400 calc(var(--u)*11.5)/1.5 var(--sans);color:var(--ink-2)}
+.foot::before{display:none}
+.foot b{font-weight:500;color:var(--ink)}
+.foot .r{text-align:right}
+.foot a{display:inline-block;padding:calc(var(--u)*8) 0;margin:calc(var(--u)*-8) 0;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:calc(var(--u)*3)}
+
+/* ---------- scene (next) ---------- */
+.scene{position:absolute;inset:0;z-index:20;background:var(--card);visibility:hidden;clip-path:inset(0 0 0 0);pointer-events:none}
+.scene.on{visibility:visible;pointer-events:auto}
+.scene .sl{position:absolute;left:calc(var(--u)*24);top:calc(var(--u)*92);font:400 calc(var(--u)*96)/.86 var(--serif);letter-spacing:-.025em;transform-origin:0 0;white-space:nowrap}
+.scene .sl i{display:block;padding-left:calc(var(--u)*50)}
+.scene .sa{border-radius:999px 999px 0 0;border:1px solid var(--hair);position:absolute;right:calc(var(--u)*24);bottom:calc(var(--u)*92);width:calc(var(--u)*190);transform-origin:0 0;background-repeat:no-repeat}
+.scene .sa.menu{height:calc(var(--u)*270)}.scene .sa.res{height:calc(var(--u)*306)}
+.scene .sn{position:absolute;left:calc(var(--u)*24);top:calc(var(--u)*330);font:500 calc(var(--u)*10)/1.6 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);opacity:0;width:calc(var(--u)*120)}
+.scene .sn::before{content:"";display:block;width:calc(var(--u)*28);border-top:1px solid var(--ink);margin-bottom:calc(var(--u)*12)}
+.scene .back{position:absolute;left:calc(var(--u)*12);bottom:calc(var(--u)*20);padding:calc(var(--u)*16) calc(var(--u)*12);display:flex;align-items:center;gap:calc(var(--u)*10);font:500 calc(var(--u)*15)/1 var(--sans);opacity:0}
+.scene .back svg{width:calc(var(--u)*22);height:calc(var(--u)*12);stroke:var(--ink);fill:none;stroke-width:1.3}
+.scene .st{position:absolute;left:calc(var(--u)*24);top:calc(var(--u)*22);opacity:0}
+.scene .st img{display:block;height:calc(var(--u)*40)}
+.scene .sa.menu{background-image:url(/assets/f/mar-g.webp);background-size:cover;background-position:50% 50%}
+.scene .sa.res{background-image:url(/assets/f/casa-1-w.webp);background-size:400% auto;background-position:63% 18%}
+.scene .sa.menu{opacity:0}
+.scene.show .sa.menu{animation:rise .8s var(--ease) both}
+.scene.show .sn{animation:fade .6s ease .6s both}
+.scene.show .back{animation:fade .6s ease .75s both}
+.scene.show .st{animation:fade .6s ease .3s both}
+
+/* ---------- entrance ---------- */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(calc(var(--u)*18))}to{opacity:1;transform:none}}
+@keyframes mask{from{transform:translateY(105%)}to{transform:none}}
+@keyframes set{from{opacity:0;transform:rotate(var(--r)) translate(calc(var(--u)*6),calc(var(--u)*-22)) scale(1.06);
+  box-shadow:0 calc(var(--u)*50) calc(var(--u)*50) calc(var(--u)*-20) rgba(60,40,20,.2)}to{opacity:1}}
+@keyframes plate{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.top{animation:fade .8s ease .1s backwards}
+h1 .l>span{animation:mask 1.1s var(--ease) calc(.35s + var(--i)*.14s) backwards}
+.lede{animation:fade 1s ease 1s backwards}
+.plate{animation:plate 1.2s var(--ease) 1.15s backwards}
+.carta{animation:set 1s var(--ease) 1.8s backwards}
+.visita{animation:set 1s var(--ease) 2.25s backwards}
+.foot{animation:fade 1s ease 2.8s backwards}
+
+.stage.busy .card,.stage.busy .foot a{pointer-events:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <a class="top" href="#" aria-label="Pitanga Gastrobar"><img src="logo-ink.png" alt="Pitanga Gastrobar"></a>
+
+  <h1 aria-label="Qual será o seu?">
+    <span class="l" aria-hidden="true"><span style="--i:0">Qual será</span></span>
+    <span class="l l2" aria-hidden="true"><span style="--i:1">o seu<span class="q">?</span></span></span>
+  </h1>
+  <p class="lede">Aqui, cada prato tem nome de canção, de poema, de escritora.</p>
+
+  <div class="plate" aria-hidden="true"><img src="/assets/f/mar-g.webp" alt=""></div>
+
+  <button class="card carta" type="button" data-go="menu" aria-label="Folhear a carta">
+    <span class="spine"></span>
+    <span class="mk">Pitanga<br>Gastrobar</span>
+    <span class="lab" data-lab>Folhear<i>a carta</i></span>
+  </button>
+
+  <button class="card visita" type="button" data-go="res" aria-label="Escrever a visita">
+    <span class="arch"></span>
+    <span class="lab" data-lab>Escrever<i>a visita</i></span>
+    <span class="wr"></span>
+  </button>
+
+  <footer class="foot">
+    <div><b>Almoço</b> sexta a domingo · 12h<br><b>Jantar</b> segunda a sábado · 18h</div>
+    <div class="r">Av. João XXIII, 1161 · Jóquei<br><a href="https://www.google.com/maps/search/?api=1&query=Av.+Jo%C3%A3o+XXIII+1161+Teresina" target="_blank" rel="noopener">Como chegar</a></div>
+  </footer>
+
+  <section class="scene" id="scene" aria-hidden="true" inert>
+    <div class="st"><img src="logo-ink.png" alt=""></div>
+    <h2 class="sl" id="sl"></h2>
+    <div class="sa" id="sa"></div>
+    <p class="sn">próxima cena<br>protótipo</p>
+    <button class="back" type="button" id="back"><svg viewBox="0 0 22 12"><path d="M22 6H1M6 1 1 6l5 5"/></svg>voltar</button>
+  </section>
+</main>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage'),scene=document.getElementById('scene'),sl=document.getElementById('sl'),sa=document.getElementById('sa'),back=document.getElementById('back');
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var DUR=reduce?10:720,LIFT=reduce?10:300,cur=null;
+  var LABEL={menu:['Folhear','a carta'],res:['Escrever','a visita']};
+  function rect(el){return el.getBoundingClientRect()}
+  function clipFor(r){var s=rect(stage);
+    return 'inset('+(r.top-s.top)+'px '+(s.right-r.right)+'px '+(s.bottom-r.bottom)+'px '+(r.left-s.left)+'px round 3px)'}
+  var E='cubic-bezier(.72,0,.18,1)';
+  function fsRatio(card){return parseFloat(getComputedStyle(card.querySelector('[data-lab]')).fontSize)/parseFloat(getComputedStyle(sl).fontSize)}
+  function from(el,a,card){ // transform that puts el's box onto card's counterpart box
+    var cl=rect(card.querySelector(a)),tl=rect(el);
+    return 'translate('+(cl.left-tl.left)+'px,'+(cl.top-tl.top)+'px) scale('+(cl.width/tl.width)+')'}
+  function open(card){
+    if(cur)return; cur=card; stage.classList.add('busy');
+    var k=card.dataset.go;
+    sl.innerHTML=LABEL[k][0]+'<i>'+LABEL[k][1]+'</i>'; sa.className='sa '+k;
+    card.classList.add('lift');
+    setTimeout(function(){
+      var cr=rect(card);
+      scene.style.transition='none'; scene.style.clipPath=clipFor(cr); scene.style.opacity='0';
+      scene.classList.add('on'); scene.removeAttribute('inert'); scene.setAttribute('aria-hidden','false');
+      sl.style.transition=sa.style.transition='none'; sl.style.transform=sa.style.transform='none';
+      var cl=rect(card.querySelector('[data-lab]')),tl=rect(sl);
+      sl.style.transform='translate('+(cl.left-tl.left)+'px,'+(cl.top-tl.top)+'px) scale('+fsRatio(card)+')';
+      if(card.querySelector('.arch'))sa.style.transform=from(sa,'.arch',card);
+      void scene.offsetWidth;
+      scene.style.transition='clip-path '+DUR+'ms '+E+',opacity 140ms linear';
+      sl.style.transition=sa.style.transition='transform '+DUR+'ms '+E;
+      scene.style.opacity='1'; scene.style.clipPath='inset(0px 0px 0px 0px round 0px)'; sl.style.transform=sa.style.transform='none';
+      setTimeout(function(){scene.classList.add('show'); back.focus({preventScroll:true})},Math.max(DUR*.7,60));
+    },LIFT);
+  }
+  function close(){
+    if(!cur)return; var card=cur;
+    scene.classList.remove('show');
+    var cr=rect(card), cl=rect(card.querySelector('[data-lab]')), tl=rect(sl);
+    scene.style.transition='clip-path '+DUR+'ms '+E+',opacity 160ms linear '+(DUR-160)+'ms';
+    sl.style.transition=sa.style.transition='transform '+DUR+'ms '+E;
+    scene.style.clipPath=clipFor(cr); scene.style.opacity='0';
+    sl.style.transform='translate('+(cl.left-tl.left)+'px,'+(cl.top-tl.top)+'px) scale('+fsRatio(card)+')';
+    if(card.querySelector('.arch'))sa.style.transform=from(sa,'.arch',card);
+    setTimeout(function(){
+      scene.classList.remove('on'); scene.setAttribute('inert',''); scene.setAttribute('aria-hidden','true');
+      card.classList.remove('lift'); stage.classList.remove('busy'); cur=null; card.focus({preventScroll:true});
+    },DUR+20);
+  }
+  document.querySelectorAll('.card').forEach(function(c){c.addEventListener('click',function(){open(c)})});
+  back.addEventListener('click',close);
+  addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+  // test hooks
+  window.__open=function(k){open(document.querySelector('[data-go='+k+']'))};
+})();
+</script>
+</body>
+</html>

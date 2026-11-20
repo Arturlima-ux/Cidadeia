@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F6F1E8">
+<title>Pitanga Gastrobar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root{
+  --paper:#F6F1E8; --ink:#17130F; --coral:#E65A41;
+  --mute:rgba(23,19,15,.64);
+  --serif:"Instrument Serif","Cormorant Garamond",Georgia,serif;
+  --sans:"Hanken Grotesk","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --gx:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--paper);color:var(--ink);overflow:hidden}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+/* ---------- página ---------- */
+.page{
+  position:relative;height:100dvh;min-height:560px;
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto;
+  padding:max(18px,env(safe-area-inset-top)) var(--gx) max(8px,env(safe-area-inset-bottom));
+}
+.head{height:44px;display:flex;align-items:center}
+.logo{display:block;width:92px;aspect-ratio:608/308;background:var(--ink);
+  -webkit-mask:url(/assets/f/logo.png) left center/contain no-repeat;mask:url(/assets/f/logo.png) left center/contain no-repeat}
+
+.stage{position:relative;min-height:0}
+.plate{position:absolute;left:6px;top:22px;width:74px;height:123px;background:url(/assets/f/casa-1-w.webp) 65.8% 15.4%/392% auto no-repeat;outline:1px solid var(--ink);outline-offset:6px}
+.hours{position:absolute;left:0;bottom:54px;width:160px;white-space:nowrap;font-size:11.5px;line-height:1.38;color:var(--mute);letter-spacing:.005em}
+.hours b{display:block;font-weight:500;color:var(--ink);letter-spacing:.14em;text-transform:uppercase;font-size:9.5px;margin-top:10px}
+.hours b:first-child{margin-top:0}
+
+.words{padding-right:50px;padding-top:6px}
+.words h1{font-family:var(--serif);font-weight:400;font-size:clamp(27px,8.25vw,36px);line-height:1.06;letter-spacing:-.012em}
+.words h1 span,.words .q span{display:block;white-space:nowrap}
+.words .q{font-family:var(--serif);font-style:italic;font-size:clamp(27px,8.25vw,36px);line-height:1.1;color:var(--coral);margin-top:.28em;letter-spacing:-.005em}
+
+.entries{display:grid;gap:10px;margin-top:40px}
+.entry{position:relative;display:flex;align-items:center;justify-content:space-between;
+  height:66px;padding:0 20px 3px 20px;border:1px solid var(--ink);
+  font-family:var(--serif);font-size:27px;letter-spacing:-.005em;
+  transition:background-color .14s ease,color .14s ease}
+.entry svg{width:34px;height:12px;flex:none;overflow:visible}
+.entry svg *{fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.entry:active,.entry.is-down{background:var(--ink);color:var(--paper)}
+
+.foot{display:flex;align-items:center;justify-content:space-between;min-height:46px;font-size:12px;color:var(--mute);letter-spacing:.005em}
+.foot a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;padding-left:12px}
+
+/* ---------- camadas de traço ---------- */
+canvas.ln{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#cLine{z-index:2}
+#cBand{z-index:4}
+.dot{position:fixed;z-index:3;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--coral);pointer-events:none;opacity:0;transform:scale(0)}
+
+/* ---------- cena seguinte (placeholder) ---------- */
+.scene{position:fixed;inset:0;z-index:5;visibility:hidden;color:#F6F1E8;
+  background:#2a1a10 center/cover no-repeat;
+  --bg:none}
+.scene::before{content:"";position:absolute;inset:0;background:var(--bg) center/cover no-repeat}
+.scene::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,9,5,.28) 0%,rgba(14,9,5,.10) 40%,rgba(14,9,5,.62) 100%)}
+.scene.on{visibility:visible}
+.scene>*{position:relative;z-index:1}
+.back{position:absolute;top:max(14px,env(safe-area-inset-top));left:calc(var(--gx) - 10px);height:48px;padding:0 10px;display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.04em;color:#F6F1E8}
+.back svg{width:30px;height:12px;overflow:visible}
+.back svg *{fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.scene .copy{position:absolute;left:var(--gx);right:var(--gx);bottom:max(48px,calc(env(safe-area-inset-bottom) + 40px))}
+.scene .kick{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.78;margin-bottom:14px}
+.scene h2{font-family:var(--serif);font-weight:400;font-size:clamp(46px,14vw,60px);line-height:.98;letter-spacing:-.015em}
+.scene .rule{display:block;height:1px;width:64px;background:#F6F1E8;margin-top:22px;opacity:.9}
+.scene .kick,.scene h2,.scene .rule,.scene .back{opacity:0}
+.scene.read .kick{opacity:.78;transition:opacity .7s ease .1s}
+.scene.read h2,.scene.read .back{opacity:1;transition:opacity .8s ease .22s,transform .9s cubic-bezier(.2,.7,.2,1) .22s}
+.scene.read .rule{opacity:.9;transition:opacity .8s ease .5s}
+.scene h2{transform:translateY(12px)}
+.scene.read h2{transform:none}
+.scene.leaving .kick,.scene.leaving h2,.scene.leaving .rule,.scene.leaving .back{opacity:0;transition:opacity .25s ease}
+
+/* ---------- entrada (somente quando .go) ---------- */
+.logo,.words h1 span,.words .q,.hours,.entry,.foot,.plate{opacity:0}
+.go .logo{animation:fade .9s ease .15s both}
+.go .words h1 span{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) both}
+.go .words h1 span:nth-child(1){animation-delay:1.25s}
+.go .words h1 span:nth-child(2){animation-delay:1.6s}
+.go .words h1 span:nth-child(3){animation-delay:1.95s}
+.go .words .q{animation:rise 1.1s cubic-bezier(.2,.7,.2,1) 3s both}
+.go .plate{animation:fade 1.4s ease 1.1s both}
+.go .hours{animation:fade 1s ease 2.5s both}
+.go .entry:nth-child(1){animation:rise .9s cubic-bezier(.2,.7,.2,1) 4s both}
+.go .entry:nth-child(2){animation:rise .9s cubic-bezier(.2,.7,.2,1) 4.2s both}
+.go .foot{animation:fade 1s ease 4.5s both}
+.go .dot{animation:dotin .7s cubic-bezier(.2,.7,.2,1) 3.75s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes dotin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+.still .logo,.still .words h1 span,.still .words .q,.still .hours,.still .entry,.still .foot,.still .plate{opacity:1;animation:none!important}
+.still .dot{opacity:1;transform:none;animation:none!important}
+
+@media (max-height:760px){
+  .plate{top:20px;width:60px;height:99px}
+  .words h1,.words .q{font-size:clamp(25px,7.6vw,32px)}
+  .entry{height:58px;font-size:25px}
+  .entries{margin-top:34px;gap:8px}
+  .head{height:38px}
+  .logo{width:80px}
+  .foot{min-height:40px}.foot a{min-height:40px}
+}
+@media (prefers-reduced-motion:reduce){
+  .logo,.words h1 span,.words .q,.hours,.entry,.foot,.plate{opacity:1!important;animation:none!important}
+  .dot{opacity:1!important;transform:none!important;animation:none!important}
+  .scene.read h2,.scene.read .kick,.scene.read .back,.scene.read .rule{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <header class="head"><span class="logo" role="img" aria-label="Pitanga Gastrobar"></span></header>
+
+  <div class="stage" id="stage">
+    <div class="plate" role="img" aria-label="Quadro da casa: um rosto desenhado em uma única linha"></div>
+    <p class="hours">
+      <b>Almoço</b>sexta a domingo · 12h
+      <b>Jantar</b>segunda a sábado · 18h
+    </p>
+  </div>
+
+  <main class="words" id="words">
+    <h1><span>Aqui, cada prato</span><span>tem nome de canção,</span><span>de poema, de escritora.</span></h1>
+    <p class="q"><span>Qual será o seu?</span></p>
+  </main>
+
+  <nav class="entries" id="entries" aria-label="Entrar">
+    <button type="button" class="entry" data-go="visita"><span>Escrever a visita</span>
+      <svg viewBox="0 0 34 12" aria-hidden="true"><path d="M0 6H33M28 1.2 33 6l-5 4.8"/></svg></button>
+    <button type="button" class="entry" data-go="carta"><span>Folhear a carta</span>
+      <svg viewBox="0 0 34 12" aria-hidden="true"><path d="M0 6H33M28 1.2 33 6l-5 4.8"/></svg></button>
+  </nav>
+
+  <footer class="foot">
+    <span>Av. João XXIII, 1161 · Jóquei</span>
+    <a href="https://www.google.com/maps/search/?api=1&query=Av.+Jo%C3%A3o+XXIII+1161+J%C3%B3quei+Teresina" target="_blank" rel="noopener">Como chegar</a>
+  </footer>
+</div>
+
+<canvas class="ln" id="cLine" aria-hidden="true"></canvas>
+<span class="dot" id="dot" aria-hidden="true"></span>
+<canvas class="ln" id="cBand" aria-hidden="true"></canvas>
+
+<section class="scene" id="scene" aria-hidden="true" role="region" aria-label="Prévia da próxima tela">
+  <button type="button" class="back" id="back"><svg viewBox="0 0 30 12" aria-hidden="true"><path d="M30 6H1M6 1.2 1 6l5 4.8"/></svg>voltar</button>
+  <div class="copy"><p class="kick">Próxima tela · prévia</p><h2 id="sceneLabel"></h2><i class="rule"></i></div>
+</section>
+
+<script>
+(function(){
+'use strict';
+var INK='#17130F', IVORY='#F6F1E8';
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var qs=new URLSearchParams(location.search);
+var still=qs.has('still')||reduce;
+var root=document.documentElement;
+var page=document.getElementById('page'),stage=document.getElementById('stage'),words=document.getElementById('words'),
+    entries=document.getElementById('entries'),dotEl=document.getElementById('dot'),
+    cL=document.getElementById('cLine'),cB=document.getElementById('cBand'),
+    scene=document.getElementById('scene'),label=document.getElementById('sceneLabel');
+var xL=cL.getContext('2d'),xB=cB.getContext('2d');
+var DPR=Math.min(window.devicePixelRatio||1,2),VW=0,VH=0;
+
+/* ------------------------------------------------------------------
+   O ROSTO: um único traço. Coordenadas de projeto 0..340 x 0..440.
+   Ordem do lápis: coque (espiral) > coroa > testa > nariz > lábios >
+   queixo > pescoço (frente, base, costas) > orelha > bochecha > olho >
+   sobrancelha > mecha que contorna a cabeça > ombro > cauda.
+------------------------------------------------------------------- */
+var FACE=[
+ // coque em espiral
+ [234,84],[241,79],[246,86],[241,95],[231,95],[225,86],[229,75],[241,69],[254,74],[260,88],[255,102],[241,109],
+ // coroa e testa
+ [220,112],[196,108],[170,107],[147,115],[130,131],[119,151],[114,171],
+ // arcada, nasio, nariz
+ [112,186],[115,197],[112,207],[105,221],[96,236],[90,247],[93,254],[102,256],[109,254],
+ // lábios
+ [110,262],[104,269],[109,277],[105,284],[109,292],[108,301],
+ // queixo
+ [102,314],[102,330],[112,343],
+ // pescoço: frente, base, costas, e linha da face até o olho
+ [124,357],[131,377],[141,393],[162,403],[192,403],[219,391],[229,371],[227,345],[222,322],[221,298],[214,274],[201,253],[183,239],[167,229],[158,221],
+ // olho (amêndoa) e traço do canto externo que vira mecha
+ [147,223],[134,223],[123,217],[129,209],[141,206],[152,210],[160,216],
+ [168,205],[171,188],[181,167],[201,149],[228,139],
+ // mecha que contorna a cabeça
+ [256,150],[271,178],[275,220],[267,262],[258,296],
+ // ombro e saída
+ [255,330],[262,356],[280,377],[302,390],[319,405],[322,426]
+];
+var FIG={x0:80,x1:322,y0:60,y1:426}; /* extensão útil */
+
+function dist(a,b){return Math.hypot(a[0]-b[0],a[1]-b[1])}
+function crSpline(P,step){
+  var out=[],n=P.length;
+  var ext=[[2*P[0][0]-P[1][0],2*P[0][1]-P[1][1]]].concat(P,[[2*P[n-1][0]-P[n-2][0],2*P[n-1][1]-P[n-2][1]]]);
+  for(var i=1;i<ext.length-2;i++){
+    var p0=ext[i-1],p1=ext[i],p2=ext[i+1],p3=ext[i+2];
+    var t0=0,t1=t0+Math.sqrt(dist(p0,p1)),t2=t1+Math.sqrt(dist(p1,p2)),t3=t2+Math.sqrt(dist(p2,p3));
+    var N=Math.max(2,Math.ceil(dist(p1,p2)/step));
+    for(var k=0;k<N;k++){
+      var t=t1+(t2-t1)*k/N;
+      var A1=lerp(p0,p1,(t-t0)/(t1-t0)),A2=lerp(p1,p2,(t-t1)/(t2-t1)),A3=lerp(p2,p3,(t-t2)/(t3-t2));
+      var B1=lerp(A1,A2,(t-t0)/(t2-t0)),B2=lerp(A2,A3,(t-t1)/(t3-t1));
+      out.push(lerp(B1,B2,(t-t1)/(t2-t1)));
+    }
+  }
+  out.push(P[n-1].slice());
+  return out;
+}
+function lerp(a,b,u){return[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u]}
+
+/* ------------------------------------------------------------------
+   Estado do traço principal (rosto + cauda) em px de viewport
+------------------------------------------------------------------- */
+var L={pts:[],cum:[],wid:[],total:0,Q:[0,0]};
+function rect(el){return el.getBoundingClientRect()}
+
+function layout(){
+  VW=innerWidth;VH=innerHeight;
+  [cL,cB].forEach(function(c){c.width=Math.round(VW*DPR);c.height=Math.round(VH*DPR)});
+  var st=rect(stage),en=rect(entries);
+  var fh=FIG.y1-FIG.y0,s=Math.min(st.height/fh,.92);
+  var endX=VW-30;                                   // x do fim do rosto
+  var ox=endX-322*s, oy=st.top+Math.max(0,(st.height-fh*s)*0.35)-FIG.y0*s;
+  var face=FACE.map(function(p){return[ox+p[0]*s,oy+p[1]*s]});
+  var E=face[face.length-1];
+  var qy=en.top-24, ex=E[0];
+  var dy=qy-E[1];
+  var tail=[E,[ex+7,E[1]+dy*.22],[ex-5,E[1]+dy*.48],[ex+3,E[1]+dy*.74],[ex-6,qy-26],[ex-30,qy-5],[ex-76,qy-1]];
+  var tx=ex-76, targetX=28, n=Math.max(2,Math.round((tx-targetX)/62));
+  for(var i=1;i<=n;i++){var u=i/n;tail.push([tx+(targetX-tx)*u,qy+(i%2?2.4:-1.8)*(1-u*.4)])}
+  tail[tail.length-1][1]=qy;
+  var fs=crSpline(face,2.4), ts=crSpline(tail,2.4);
+  var pts=fs.concat(ts.slice(1));
+  var cum=[0];
+  for(var j=1;j<pts.length;j++)cum[j]=cum[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]);
+  var total=cum[cum.length-1];
+  // largura: pressão suave (fino-grosso) + afinamento nas pontas
+  var wid=pts.map(function(_,j){
+    var d=cum[j];
+    var pr=.5+.5*Math.sin(d*.019+1.1)*.6+.5*Math.sin(d*.0067+2.3)*.4;      // 0..1
+    var w=.95+1.65*pr;
+    w*=Math.min(1,.45+d/38);
+    w*=Math.min(1,.7+(total-d)/60);
+    return w*(s>.75?1:.88+s*.16);
+  });
+  L={pts:pts,cum:cum,wid:wid,total:total,Q:[targetX,qy],s:s};
+  dotEl.style.left=targetX+'px';dotEl.style.top=qy+'px';
+}
+
+function drawLine(p){
+  xL.setTransform(DPR,0,0,DPR,0,0);xL.clearRect(0,0,VW,VH);
+  if(p<=0)return;
+  var lim=p*L.total,pts=L.pts,cum=L.cum;
+  xL.strokeStyle=INK;xL.lineCap='round';xL.lineJoin='round';
+  var i=1;
+  while(i<pts.length&&cum[i-1]<lim){
+    var j=i,w=L.wid[i];
+    xL.lineWidth=w;xL.beginPath();xL.moveTo(pts[i-1][0],pts[i-1][1]);
+    var k=0;
+    while(j<pts.length&&k<3&&cum[j]<=lim){xL.lineTo(pts[j][0],pts[j][1]);j++;k++}
+    if(j<pts.length&&cum[j]>lim&&cum[j-1]<lim){
+      var u=(lim-cum[j-1])/(cum[j]-cum[j-1]);
+      xL.lineTo(pts[j-1][0]+(pts[j][0]-pts[j-1][0])*u,pts[j-1][1]+(pts[j][1]-pts[j-1][1])*u);j=pts.length;
+    }
+    xL.stroke();i=Math.max(j,i+1);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Entrada
+------------------------------------------------------------------- */
+var ease=function(t){return .5-.5*Math.cos(Math.PI*Math.min(1,Math.max(0,t)))};
+var state='boot',t0=0,DRAW_DELAY=350,DRAW_DUR=3600;
+function frameIn(now){
+  if(state!=='in')return;
+  var p=ease((now-t0-DRAW_DELAY)/DRAW_DUR);
+  drawLine(p);
+  if(now-t0<DRAW_DELAY+DRAW_DUR+30)requestAnimationFrame(frameIn);else{drawLine(1);state='rest'}
+}
+function start(){
+  layout();
+  if(still){root.classList.add('still');drawLine(1);state='rest';return}
+  root.classList.add('go');state='in';t0=performance.now();requestAnimationFrame(frameIn);
+}
+var ready=false;
+function boot(){if(ready)return;ready=true;start()}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){requestAnimationFrame(boot)});setTimeout(boot,1500)}else boot();
+var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){if(!ready)return;layout();if(state==='rest')drawLine(1)},120)});
+
+/* ------------------------------------------------------------------
+   Transição: o traço continua do ponto coral e varre a tela
+------------------------------------------------------------------- */
+var PHOTO={visita:'/assets/f/casa-1-g.webp',carta:'/assets/f/mar-g.webp'};
+var NAMES={visita:'Escrever a visita',carta:'Folhear a carta'};
+var imgs={};
+Object.keys(PHOTO).forEach(function(k){var im=new Image();im.src=PHOTO[k];imgs[k]=im});
+
+var B=null; // trajeto da varredura
+function buildBand(){
+  var Q=L.Q,W=VW,H=VH,y1=H-96,sp=Math.min(176,(y1-70)/3);
+  var rows=[];for(var y=y1;y>40;y-=sp)rows.push(y);
+  var ya=y1-92;
+  var P=[[Q[0],Q[1]],[Q[0]+44,Q[1]+9],[Q[0]+150,Q[1]+30],[Q[0]+260,Q[1]+(ya-Q[1])*.5],[W-10,ya-6],[W+70,ya+4],[W+128,ya+38],[W+104,y1-14],[W+40,y1+2]];
+  var dir=-1;
+  rows.forEach(function(y,i){
+    var a=dir>0?-20:W+20,b=dir>0?W+20:-20;
+    // linha com leve ondulação
+    var n=4;for(var k=0;k<=n;k++){var u=k/n,x=a+(b-a)*u;
+      var yy=y+(k%2?-1:1)*(i%2?-9:9)*(k===0||k===n?0.3:1);
+      if(k===0&&i===0)continue;P.push([x,yy])}
+    // curva fora da tela até a próxima linha
+    if(i<rows.length-1){var ny=rows[i+1],ox=dir>0?W+110:-110;
+      P.push([ox,y-(y-ny)*.15]);P.push([ox+(dir>0?18:-18),(y+ny)/2]);P.push([ox,ny+(y-ny)*.15]);}
+    dir=-dir;
+  });
+  var pts=crSpline(P,2.5),cum=[0];
+  for(var j=1;j<pts.length;j++)cum[j]=cum[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]);
+  B={pts:pts,cum:cum,total:cum[cum.length-1],Wmax:Math.min(300,sp*1.9)};
+}
+function pathUpTo(ctx,from,lim){
+  var pts=B.pts,cum=B.cum;ctx.beginPath();var started=false;
+  for(var i=from;i<pts.length;i++){
+    if(cum[i]>lim){
+      if(i>0&&cum[i-1]<lim){var u=(lim-cum[i-1])/(cum[i]-cum[i-1]);
+        var x=pts[i-1][0]+(pts[i][0]-pts[i-1][0])*u,y=pts[i-1][1]+(pts[i][1]-pts[i-1][1])*u;
+        if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)}
+      break}
+    if(!started){ctx.moveTo(pts[i][0],pts[i][1]);started=true}else ctx.lineTo(pts[i][0],pts[i][1]);
+  }
+}
+var FUN=950;
+function smooth(x){x=Math.min(1,Math.max(0,x));return x*x*(3-2*x)}
+function coverRect(img){var s=Math.max(VW/img.naturalWidth,VH/img.naturalHeight),w=img.naturalWidth*s,h=img.naturalHeight*s;return[(VW-w)/2,(VH-h)/2,w,h]}
+function drawBand(p,key,penOnly){
+  xB.setTransform(DPR,0,0,DPR,0,0);xB.clearRect(0,0,VW,VH);
+  if(p<=0)return;
+  var lim=p*B.total,pts=B.pts,cum=B.cum;
+  // 1) a "tinta": funil que nasce do ponto e se abre até a largura cheia
+  xB.save();xB.lineCap='round';xB.lineJoin='round';xB.strokeStyle='#000';xB.fillStyle='#000';
+  var fi=0;
+  var nextD=0;
+  for(var i=1;i<pts.length&&cum[i]<=Math.min(lim,FUN);i++){
+    var d=cum[i],w=Math.max(.01,B.Wmax*Math.pow(smooth(d/FUN),1.7));
+    if(d<nextD)continue;nextD=d+Math.max(1.5,w*.2);
+    xB.beginPath();xB.arc(pts[i][0],pts[i][1],w/2,0,6.2832);xB.fill();fi=i;
+  }
+  // corpo: traço único de largura cheia, a partir do fim do funil
+  var s0=0;while(s0<pts.length-1&&cum[s0]<FUN)s0++;
+  if(lim>FUN){xB.lineWidth=B.Wmax;pathUpTo(xB,s0,lim);xB.stroke();
+    // ligação funil -> corpo
+    xB.beginPath();xB.arc(pts[s0][0],pts[s0][1],B.Wmax/2,0,6.2832);xB.fill()}
+  // ponta do funil em preenchimento contínuo (círculos densos)
+  xB.restore();
+  // 2) a tinta vira foto
+  xB.save();xB.globalCompositeOperation='source-in';
+  var im=imgs[key];
+  if(im&&im.complete&&im.naturalWidth){var r=coverRect(im);xB.drawImage(im,r[0],r[1],r[2],r[3])}else{xB.fillStyle='#2a1a10';xB.fillRect(0,0,VW,VH)}
+  var g=xB.createLinearGradient(0,0,0,VH);g.addColorStop(0,'rgba(14,9,5,.28)');g.addColorStop(.4,'rgba(14,9,5,.10)');g.addColorStop(1,'rgba(14,9,5,.62)');
+  xB.globalCompositeOperation='source-atop';xB.fillStyle=g;xB.fillRect(0,0,VW,VH);xB.restore();
+  // 3) o fio: lápis de tinta sobre o papel, marfim sobre a foto
+  xB.save();xB.lineCap='round';xB.lineJoin='round';
+  xB.lineWidth=1.3;
+  var sFade=170;
+  // trecho inicial em tinta (ainda sobre o papel)
+  xB.strokeStyle=INK;xB.globalCompositeOperation='source-over';
+  var lim2=Math.min(lim,sFade);pathUpTo(xB,0,lim2);xB.stroke();
+  if(lim>sFade){
+    var a=.85*(1-smooth((p-.72)/.2));
+    if(a>0){xB.globalAlpha=a;xB.strokeStyle=IVORY;
+      var k=0;while(k<pts.length-1&&cum[k]<sFade)k++;
+      pathUpTo(xB,k,lim);xB.stroke()}
+  }
+  xB.restore();
+}
+var anim=null;
+function runBand(from,to,dur,key,done){
+  var s=performance.now();
+  (function f(now){
+    var u=Math.min(1,(now-s)/dur);
+    var e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2; // quadrática in-out
+    var p=from+(to-from)*e;
+    drawBand(p,key);
+    if(u<1)anim=requestAnimationFrame(f);else{anim=null;done&&done()}
+  })(s);
+}
+var current=null,busy=false;
+function openScene(key,btn){
+  if(busy||state!=='rest')return;busy=true;current=key;
+  btn&&btn.classList.add('is-down');
+  label.textContent=NAMES[key];
+  scene.style.setProperty('--bg','url('+PHOTO[key]+')');
+  page.setAttribute('inert','');
+  buildBand();
+  if(reduce){
+    scene.classList.add('on');scene.removeAttribute('aria-hidden');
+    scene.style.opacity=0;scene.style.transition='opacity .35s ease';
+    requestAnimationFrame(function(){scene.style.opacity=1});
+    setTimeout(function(){scene.classList.add('read');busy=false;document.getElementById('back').focus()},380);return;
+  }
+  runBand(0,1,1650,key,function(){
+    scene.classList.add('on');scene.removeAttribute('aria-hidden');
+    xB.setTransform(1,0,0,1,0,0);xB.clearRect(0,0,cB.width,cB.height);
+    requestAnimationFrame(function(){scene.classList.add('read');busy=false;document.getElementById('back').focus()});
+  });
+}
+function closeScene(){
+  if(busy)return;busy=true;
+  var key=current;
+  if(reduce){scene.style.opacity=0;setTimeout(function(){scene.classList.remove('on','read');scene.setAttribute('aria-hidden','true');page.removeAttribute('inert');scene.style.opacity='';scene.style.transition='';busy=false;
+    var b=document.querySelector('.entry.is-down');b&&b.classList.remove('is-down')},360);return}
+  scene.classList.add('leaving');
+  setTimeout(function(){
+    drawBand(1,key);
+    scene.classList.remove('on','read','leaving');scene.setAttribute('aria-hidden','true');
+    runBand(1,0,1300,key,function(){
+      xB.setTransform(1,0,0,1,0,0);xB.clearRect(0,0,cB.width,cB.height);
+      page.removeAttribute('inert');busy=false;
+      var b=document.querySelector('.entry.is-down');b&&b.classList.remove('is-down');
+      var t=document.querySelector('.entry[data-go="'+key+'"]');t&&t.focus({preventScroll:true});
+    });
+  },260);
+}
+document.querySelectorAll('.entry').forEach(function(b){b.addEventListener('click',function(){openScene(b.dataset.go,b)})});
+document.getElementById('back').addEventListener('click',closeScene);
+addEventListener('keydown',function(e){if(e.key==='Escape'&&scene.classList.contains('on'))closeScene()});
+})();
+</script>
+</body>
+</html>

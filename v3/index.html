@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f0a07">
+<title>Pitanga Gastrobar · A sala acende</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/assets/f/casa-1-w.webp" fetchpriority="high">
+<!-- Instrument Serif: serifa display de alto contraste, estreita e de corpo leve; é o que dá o tom de revista (o Cormorant/Playfair "de sempre" ficou genérico).
+     Hanken Grotesk: grotesca calma e neutra para os textos miúdos; some e deixa a foto falar. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root{
+  --ivory:#f6ecdc;
+  --ivory-2:rgba(246,236,220,.72);
+  --coral:#ff6a4d;
+  --ink:#0e0906;
+  --hair:rgba(246,236,220,.26);
+  --serif:"Instrument Serif","Cormorant Garamond",Georgia,serif;
+  --sans:"Hanken Grotesk",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.22,.7,.12,1);
+  --h:100vh;
+}
+@supports (height:100dvh){:root{--h:100dvh}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--ink);color:var(--ivory);overflow:hidden;overscroll-behavior:none}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
+
+/* ============ ENTRADA ============ */
+.entrada{position:fixed;inset:0;height:var(--h);overflow:hidden;background:var(--ink);isolation:isolate;
+  transition:filter 1.1s ease}
+.entrada.walk{filter:brightness(.62)}
+.ph{position:absolute;inset:0}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+/* a sala apagada: fria, escura */
+.ph.dim{opacity:0;transition:opacity 1s ease}
+.ph.dim img{filter:brightness(.4) saturate(.4) contrast(1.12)}
+.cool{position:absolute;inset:0;background:#14233f;opacity:0;mix-blend-mode:color;pointer-events:none}
+.ph.dim.on{opacity:1}
+/* a sala acesa: a mesma foto, revelada por máscaras radiais presas às luminárias */
+.ph.lit{opacity:0}
+.ph.lit img{filter:saturate(1.06) contrast(1.03)}
+.halos{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
+.halo{position:absolute;left:0;top:0;width:340px;height:340px;margin:-170px 0 0 -170px;border-radius:50%;opacity:0;transform:scale(.4);
+  background:radial-gradient(circle,rgba(255,214,150,.62) 0,rgba(255,170,90,.26) 22%,rgba(255,140,60,.08) 48%,transparent 70%)}
+.core{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;opacity:0;background:#fff3d8;
+  box-shadow:0 0 10px 3px rgba(255,226,170,.95),0 0 26px 8px rgba(255,190,110,.6);mix-blend-mode:screen}
+.pglow{position:absolute;left:0;top:0;pointer-events:none;border-radius:50%;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(closest-side,rgba(255,196,120,.34),rgba(255,160,80,.12) 55%,transparent)}
+.vig{position:absolute;inset:-150%;pointer-events:none;opacity:1;transform:scale(.4);
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(9,6,4,0) 30%,rgba(9,6,4,.5) 68%,rgba(9,6,4,.94) 100%)}
+.scrim{position:absolute;inset:0;pointer-events:none;
+  background:
+   linear-gradient(to bottom,rgba(14,9,6,.62) 0,rgba(14,9,6,.22) 11%,rgba(14,9,6,0) 22%),
+   linear-gradient(to top,rgba(14,9,6,.94) 0,rgba(14,9,6,.9) 24%,rgba(14,9,6,.8) 40%,rgba(14,9,6,.42) 55%,rgba(14,9,6,0) 68%)}
+
+.logo{position:absolute;left:20px;top:calc(env(safe-area-inset-top) + 16px);display:block;width:116px;opacity:0;transform:translateY(-6px);
+  transition:opacity 1.1s ease,transform 1.1s var(--ease);padding:4px 0}
+.logo img{display:block;width:100%;height:auto;filter:drop-shadow(0 1px 12px rgba(0,0,0,.45))}
+.logo.on{opacity:1;transform:none}
+
+.copy{position:absolute;left:20px;right:20px;bottom:var(--stack,250px);}
+.copy h1{font-family:var(--serif);font-weight:400;color:var(--ivory);
+  font-size:min(9.2vw,4.2vh);line-height:1.03;letter-spacing:-.012em;margin-bottom:.46em}
+.ln{display:block;overflow:hidden;padding:.06em 0 .12em;margin:-.06em 0 -.12em}
+.ln>span{display:block;transform:translateY(112%);opacity:0;transition:transform 1.15s var(--ease),opacity .9s ease}
+.ln.on>span{transform:none;opacity:1}
+.copy .q{display:block;font-family:var(--serif);font-style:italic;font-size:min(7.6vw,3.5vh);line-height:1.1;color:var(--coral);
+  opacity:0;transform:translateY(8px);transition:opacity 1.2s ease,transform 1.2s var(--ease)}
+.copy .q.on{opacity:1;transform:none}
+
+.dock{position:absolute;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom)}
+.strips{display:block}
+.strip{position:relative;display:flex;align-items:center;justify-content:space-between;width:100%;height:clamp(66px,9.2vh,84px);padding:0 20px;overflow:hidden;
+  border-top:1px solid var(--hair);opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity 1.1s ease,transform 1.1s var(--ease)}
+.strip.on{opacity:1;transform:none;pointer-events:auto}
+.strip .sp{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;transform:scale(1.04);transition:transform 1.4s var(--ease),filter .5s ease;filter:brightness(.82) saturate(1.05)}
+.strip::before{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(to right,rgba(14,9,6,.78) 0,rgba(14,9,6,.52) 52%,rgba(14,9,6,.12) 100%)}
+.strip .t,.strip svg{position:relative;z-index:2}
+.strip .t{font-family:var(--serif);font-size:clamp(25px,3.5vh,29px);line-height:1;letter-spacing:-.006em;color:var(--ivory);text-shadow:0 1px 14px rgba(0,0,0,.4)}
+.strip svg{width:34px;height:12px;flex:none;stroke:var(--ivory);fill:none;stroke-width:1.1;transition:transform .5s var(--ease)}
+.strip:active .sp{filter:brightness(1.05) saturate(1.1);transform:scale(1.09)}
+.strip:active svg{transform:translateX(5px)}
+@media (hover:hover){.strip:hover .sp{filter:brightness(1.02);transform:scale(1.08)}.strip:hover svg{transform:translateX(5px)}}
+.strip.s1{border-top-color:rgba(246,236,220,.34)}
+
+.foot{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;row-gap:0;padding:11px 20px 0;
+  font-size:11px;line-height:1.35;letter-spacing:.025em;color:var(--ivory-2);background:rgba(14,9,6,.96);
+  opacity:0;transition:opacity 1.2s ease}
+.foot.on{opacity:1}
+.foot span{display:block;padding:0 0 3px}
+.foot .adr{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(246,236,220,.14);margin-top:8px}
+.foot .adr span{padding:0}
+.foot a{display:inline-flex;align-items:center;min-height:44px;padding-left:16px;color:var(--ivory);text-decoration:none;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.foot a i{display:block;position:relative;padding-bottom:2px;font-style:normal;border-bottom:1px solid var(--coral)}
+.foot .adr span{color:var(--ivory-2)}
+
+/* ============ CENA (placeholder da próxima tela) ============ */
+#ring{position:fixed;inset:0;z-index:20;pointer-events:none;mix-blend-mode:screen;opacity:0}
+.cena{position:fixed;inset:0;z-index:30;height:var(--h);overflow:hidden;background:var(--ink);visibility:hidden;clip-path:circle(0px at 50% 50%)}
+.cena.show{visibility:visible}
+.cena .bg{position:absolute;inset:0;transform:scale(1.16);filter:brightness(.45) saturate(.7);
+  transition:transform 2.1s var(--ease),filter 1.9s ease}
+.cena .bg img{width:100%;height:100%;object-fit:cover;display:block}
+.cena.lit .bg{transform:scale(1);filter:brightness(1) saturate(1.05)}
+.cena .sc{position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(14,9,6,.6) 0,rgba(14,9,6,0) 24%),linear-gradient(to top,rgba(14,9,6,.88) 0,rgba(14,9,6,.55) 34%,rgba(14,9,6,0) 62%)}
+.volt{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 10px);display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 10px;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--ivory);opacity:0;transition:opacity .9s ease .9s}
+.volt svg{width:30px;height:12px;stroke:var(--ivory);fill:none;stroke-width:1.1}
+.cena.lit .volt{opacity:1}
+.cn{position:absolute;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 44px)}
+.cn small{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-2);margin-bottom:18px;
+  opacity:0;transition:opacity 1s ease .9s}
+.cn h2{font-family:var(--serif);font-weight:400;font-size:min(15vw,7vh);line-height:.98;letter-spacing:-.02em}
+.cn .ln>span{transition-delay:.7s}
+.cn .rule{height:1px;background:var(--hair);margin:22px 0 14px;transform:scaleX(0);transform-origin:left;transition:transform 1.4s var(--ease) 1.1s}
+.cn p{font-size:12px;line-height:1.5;color:var(--ivory-2);letter-spacing:.02em;opacity:0;transition:opacity 1s ease 1.4s}
+.cena.lit .cn small,.cena.lit .cn p{opacity:1}
+.cena.lit .cn .ln>span{transform:none;opacity:1}
+.cena.lit .cn .rule{transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important}
+}
+</style>
+</head>
+<body>
+<main>
+<section class="entrada" id="entrada" aria-label="Entrada">
+  <div class="ph dim" id="dim"><img id="imgDim" src="/assets/f/casa-1-w.webp" alt="" decoding="async" fetchpriority="high"><div class="cool" id="cool"></div></div>
+  <div class="ph lit" id="lit"><img id="imgLit" src="/assets/f/casa-1-w.webp" alt="Salão do Pitanga: parede laranja, três quadros e luminárias acesas" decoding="async"></div>
+  <div class="halos" id="halos" aria-hidden="true"></div>
+  <div class="vig" id="vig" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <a class="logo" id="logo" href="#" aria-label="Pitanga Gastrobar" onclick="return false"><img src="/assets/f/logo.png" alt="Pitanga Gastrobar" width="608" height="308"></a>
+
+  <div class="copy" id="copy">
+    <h1 id="h1">
+      <span class="ln"><span>Aqui, cada prato</span></span>
+      <span class="ln"><span>tem nome de canção,</span></span>
+      <span class="ln"><span>de poema,</span></span>
+      <span class="ln"><span>de escritora.</span></span>
+    </h1>
+    <span class="q" id="q">Qual será o seu?</span>
+  </div>
+
+  <div class="dock" id="dock">
+    <div class="strips">
+      <button class="strip s1" type="button" data-go="reserva"><span class="sp" style="background-image:url(/assets/f/casa-2-w.webp);background-position:50% 36%"></span><span class="t">Escrever a visita</span><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M0 6h33M28 1l5 5-5 5"/></svg></button>
+      <button class="strip s2" type="button" data-go="carta"><span class="sp" style="background-image:url(/assets/f/mignon-g.webp);background-position:50% 58%"></span><span class="t">Folhear a carta</span><svg viewBox="0 0 34 12" aria-hidden="true"><path d="M0 6h33M28 1l5 5-5 5"/></svg></button>
+    </div>
+    <div class="foot" id="foot">
+      <span>Almoço sexta a domingo · 12h</span>
+      <span>Jantar segunda a sábado · 18h</span>
+      <div class="adr"><span>Av. João XXIII, 1161 · Jóquei</span><a href="https://www.google.com/maps/search/?api=1&amp;query=Av.+Jo%C3%A3o+XXIII%2C+1161%2C+J%C3%B3quei%2C+Teresina" target="_blank" rel="noopener"><i>Como chegar</i></a></div>
+    </div>
+  </div>
+</section>
+
+<div id="ring" aria-hidden="true"></div>
+
+<section class="cena" id="cena" role="dialog" aria-modal="true" aria-labelledby="cenaT" aria-hidden="true">
+  <div class="bg"><img id="cenaImg" alt=""></div>
+  <div class="sc"></div>
+  <button class="volt" id="volt" type="button"><svg viewBox="0 0 30 12" aria-hidden="true"><path d="M30 6H1M6 1L1 6l5 5"/></svg>voltar</button>
+  <div class="cn">
+    <small>Próxima cena</small>
+    <h2 id="cenaT"><span class="ln"><span id="cenaL"></span></span></h2>
+    <div class="rule"></div>
+    <p>Aqui começa a próxima tela do Pitanga.</p>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var ent=$("entrada"),imgs=[$("imgDim"),$("imgLit")],lit=$("lit"),dim=$("dim"),halos=$("halos"),vig=$("vig"),cool=$("cool");
+  var IW=1755,IH=1545;               /* tamanho natural da foto */
+  var FOCUS=.675;                    /* centro horizontal do recorte: o quadro do rosto, com as luminárias */
+  /* pontos reais na foto (frações do quadro original 1170x1030) */
+  var LAMPS=[{x:.532,y:.062,cx:.50,cy:.12,at:900},{x:.769,y:.124,cx:.74,cy:.19,at:1650},{x:.944,y:.172,cx:.91,cy:.22,at:2400},{x:.162,y:.058,cx:.17,cy:.12,at:2400}];
+  var PAINT={x:.62,y:.325,w:.30,h:.50};  /* quadro do rosto (centro e caixa) */
+  var geo=null,els=[],pg=null,done=false,raf=0,t0=0;
+
+  /* ---- matemática do object-fit:cover para travar luzes na foto ---- */
+  function layout(){
+    var W=ent.clientWidth,H=ent.clientHeight,s=Math.max(W/IW,H/IH),dw=IW*s,dh=IH*s;
+    var off=Math.min(0,Math.max(W-dw,W/2-FOCUS*dw)),px=dw>W?off/(W-dw):.5;
+    var oy=(H-dh)*.5; /* vertical centrado */
+    geo={W:W,H:H,dw:dw,dh:dh,ox:off,oy:oy};
+    imgs.forEach(function(i){i.style.objectPosition=(px*100)+"% 50%"});
+    LAMPS.forEach(function(l,k){
+      var e=els[k];if(!e)return;
+      l.px=off+l.x*dw;l.py=oy+l.y*dh;l.mx=off+l.cx*dw;l.my=oy+l.cy*dh;
+      l.vis=l.px>-60&&l.px<W+60;
+      e.h.style.transform="translate("+l.px+"px,"+l.py+"px) scale("+(done?1:(e.h.__s||.4))+")";
+      e.c.style.transform="translate("+l.px+"px,"+l.py+"px)";
+    });
+    if(pg){pg.style.width=PAINT.w*dw+"px";pg.style.height=PAINT.h*dh*1.0+"px";
+      pg.style.transform="translate("+(off+PAINT.x*dw-PAINT.w*dw/2)+"px,"+(oy+PAINT.y*dh-PAINT.h*dh/2)+"px)"}
+    vig.style.transformOrigin="50% 50%";
+    if(done)paint(1);
+  }
+  function build(){
+    LAMPS.forEach(function(l){
+      var h=document.createElement("div");h.className="halo";var c=document.createElement("div");c.className="core";
+      halos.appendChild(h);halos.appendChild(c);els.push({h:h,c:c});
+    });
+    pg=document.createElement("div");pg.className="pglow";halos.appendChild(pg);
+  }
+  var ease=function(t){t=Math.max(0,Math.min(1,t));return 1-Math.pow(1-t,3)};
+  var ease2=function(t){t=Math.max(0,Math.min(1,t));return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2};
+  var seg=function(t,a,d){return Math.max(0,Math.min(1,(t-a)/d))};
+
+  /* ---- a sala acende: tudo em função do tempo t (ms) ---- */
+  function paint(t){
+    if(t===1&&done)t=1e5;
+    dim.style.opacity=Math.min(1,seg(t,0,900));
+    cool.style.opacity=.34*(1-ease2(seg(t,2600,1500)));
+    var masks=[],R=Math.max(geo.W,geo.H)*.62;
+    LAMPS.forEach(function(l,k){
+      var e=els[k],p=seg(t,l.at,1500),a=ease(p);
+      /* acende como um dimmer: sobe rápido, assenta devagar, com um leve respiro */
+      var f=seg(t,l.at,420),core=f<1?f*f:1,bloom=ease(seg(t,l.at,1300));
+      e.c.style.opacity=l.vis?core*(1-.35*ease2(seg(t,l.at+500,1400))):0;
+      e.h.__s=.4+.75*bloom;
+      e.h.style.transform="translate("+l.px+"px,"+l.py+"px) scale("+e.h.__s+")";
+      if(a>0){var r=a*R*(k<3?1:.9);masks.push("radial-gradient(circle "+Math.max(1,r)+"px at "+l.mx+"px "+l.my+"px,#000 0,rgba(0,0,0,.9) 38%,rgba(0,0,0,.35) 70%,transparent 100%)")}
+    });
+    /* depois da última luminária, a sala inteira se abre */
+    var open=ease2(seg(t,2900,1500));
+    if(open>=1){lit.style.webkitMaskImage=lit.style.maskImage="none"}
+    else{
+      if(open>0){masks.push("radial-gradient(circle "+(open*Math.hypot(geo.W,geo.H)*1.1)+"px at "+(geo.W*.55)+"px "+(geo.H*.3)+"px,#000 0,#000 55%,transparent 100%)")}
+      var m=masks.length?masks.join(","):"linear-gradient(transparent,transparent)";
+      lit.style.webkitMaskImage=lit.style.maskImage=m;
+    }
+    lit.style.opacity=masks.length||open>0?1:0;
+    pg.style.opacity=.9*ease2(seg(t,3200,1400));
+    /* a vinheta se abre */
+    var v=ease2(seg(t,2800,1800));
+    vig.style.transform="scale("+(.4+.12*v)+")";
+    vig.style.opacity=1-.38*v;
+    /* o halo assenta num brilho discreto */
+    els.forEach(function(e,k){var l=LAMPS[k];if(!l.vis)return;var b=ease(seg(t,l.at,1300));var settle=1-.5*ease2(seg(t,l.at+1000,1800));e.h.style.opacity=b*settle})
+  }
+
+  var T=[];function at(ms,fn){T.push(setTimeout(fn,ms))}
+  function showAll(){
+    done=true;paint(1);
+    $("logo").classList.add("on");
+    [].forEach.call(document.querySelectorAll("#h1 .ln"),function(n){n.classList.add("on")});
+    $("q").classList.add("on");
+    [].forEach.call(document.querySelectorAll(".strip"),function(n){n.classList.add("on")});
+    $("foot").classList.add("on");
+  }
+  function skip(){
+    if(done)return;
+    T.forEach(clearTimeout);cancelAnimationFrame(raf);showAll();
+  }
+  function run(){
+    t0=performance.now();
+    (function loop(now){
+      var t=now-t0;paint(t);
+      if(t<5700){raf=requestAnimationFrame(loop)}else{done=true;paint(1)}
+    })(t0);
+    at(2900,function(){$("logo").classList.add("on")});
+    var lines=document.querySelectorAll("#h1 .ln");
+    [].forEach.call(lines,function(n,i){at(3500+i*360,function(){n.classList.add("on")})});
+    at(3500+4*360+80,function(){$("q").classList.add("on")});
+    var st=document.querySelectorAll(".strip");
+    at(5200,function(){st[0].classList.add("on")});
+    at(5520,function(){st[1].classList.add("on");$("foot").classList.add("on")});
+  }
+  function dockHeight(){
+    var d=$("dock").getBoundingClientRect().height;
+    ent.style.setProperty("--stack",(d+22)+"px");
+  }
+
+  build();layout();dockHeight();
+  addEventListener("resize",function(){layout();dockHeight()});
+  /* carrega foto antes de começar a sequência */
+  var img=imgs[0];
+  function go(){ if(RM){showAll()}else{run()} }
+  if(document.fonts&&document.fonts.ready){Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,900)})]).then(function(){dockHeight()})}
+  if(img.complete&&img.naturalWidth)go();else{img.addEventListener("load",go);img.addEventListener("error",go)}
+  ent.addEventListener("pointerdown",function(e){ if(!done&&!e.target.closest(".strip")&&!e.target.closest("a"))skip() });
+
+  /* ---- transição: a luz caminha para dentro da cena ---- */
+  var cena=$("cena"),ring=$("ring"),cimg=$("cenaImg"),busy=false,last=null,origin={x:0,y:0};
+  var SCENES={
+    reserva:{label:"Escrever a visita",src:"/assets/f/casa-2-w.webp",pos:"50% 40%"},
+    carta:{label:"Folhear a carta",src:"/assets/f/mignon-g.webp",pos:"34% 50%"}
+  };
+  function setR(r){
+    cena.style.clipPath="circle("+r+"px at "+origin.x+"px "+origin.y+"px)";
+    ring.style.background="radial-gradient(circle at "+origin.x+"px "+origin.y+"px,rgba(255,190,110,0) "+Math.max(0,r-2)+"px,rgba(255,196,128,.5) "+(r+3)+"px,rgba(255,170,90,.16) "+(r+70)+"px,rgba(255,150,70,0) "+(r+170)+"px)";
+  }
+  function anim(from,to,dur,fn,end){
+    if(RM){fn(to);end&&end();return}
+    var s=performance.now();
+    (function f(n){var p=Math.min(1,(n-s)/dur),e=ease2(p);fn(from+(to-from)*e);if(p<1)requestAnimationFrame(f);else end&&end()})(s);
+  }
+  function openScene(key,x,y,btn){
+    if(busy)return;busy=true;last=btn;
+    skip();
+    var S=SCENES[key];origin={x:x,y:y};
+    cimg.src=S.src;cimg.style.objectPosition=S.pos;$("cenaL").textContent=S.label;
+    cena.classList.remove("lit");cena.classList.add("show");cena.setAttribute("aria-hidden","false");
+    ring.style.opacity=1;setR(0);
+    ent.classList.add("walk");ent.setAttribute("inert","");
+    var far=Math.max(Math.hypot(x,y),Math.hypot(innerWidth-x,y),Math.hypot(x,innerHeight-y),Math.hypot(innerWidth-x,innerHeight-y))+40;
+    requestAnimationFrame(function(){cena.classList.add("lit")});
+    anim(14,far,1450,setR,function(){ring.style.opacity=0;cena.style.clipPath="none";$("volt").focus({preventScroll:true});busy=false});
+  }
+  function closeScene(){
+    if(busy)return;busy=true;
+    var far=Math.max(Math.hypot(origin.x,origin.y),Math.hypot(innerWidth-origin.x,origin.y),Math.hypot(origin.x,innerHeight-origin.y),Math.hypot(innerWidth-origin.x,innerHeight-origin.y))+40;
+    cena.classList.remove("lit");ent.classList.remove("walk");ent.removeAttribute("inert");
+    ring.style.opacity=1;setR(far);
+    anim(far,14,1000,setR,function(){ring.style.opacity=0;cena.classList.remove("show");cena.style.clipPath="circle(0px at 50% 50%)";cena.setAttribute("aria-hidden","true");busy=false;last&&last.focus({preventScroll:true})});
+  }
+  [].forEach.call(document.querySelectorAll("[data-go]"),function(b){
+    b.addEventListener("click",function(e){
+      var r=b.getBoundingClientRect(),x=e.clientX,y=e.clientY;
+      if(!x&&!y){x=r.left+r.width/2;y=r.top+r.height/2}
+      openScene(b.dataset.go,x,y,b);
+    });
+  });
+  $("volt").addEventListener("click",closeScene);
+  addEventListener("keydown",function(e){if(e.key==="Escape"&&cena.classList.contains("show"))closeScene()});
+})();
+</script>
+</body>
+</html>

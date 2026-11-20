@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12090C">
+<title>Pitanga Gastrobar · Traço contínuo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/*
+  Tipografia: Instrument Serif (títulos) + Inter (apoio, 11-13px, caixa alta espaçada).
+  A Instrument Serif tem contraste alto e fios finos, parentes do traço de 1px do desenho,
+  e o itálico conversa com o script do logo. A Inter some: só informa.
+*/
+:root{
+  --ink:#12090C; --ink2:#1B1013; --ivory:#F3EBDD; --coral:#E65A41;
+  --dim:rgba(243,235,221,.66); --faint:rgba(243,235,221,.16);
+  --u:calc(min(100vw,440px)/390);
+  --serif:'Instrument Serif','Times New Roman',serif;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.2,.7,.15,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--ink);color:var(--ivory);overflow:hidden;overscroll-behavior:none}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus{outline:none}
+:focus-visible{outline:1px solid var(--coral);outline-offset:3px}
+
+#stage{position:relative;width:min(100vw,440px);height:100vh;height:100dvh;margin:0 auto;overflow:hidden;background:var(--ink);isolation:isolate}
+
+/* ---------- cena de baixo (revelada) ---------- */
+#next{position:absolute;inset:0;z-index:1;background:var(--ink);overflow:hidden}
+#next .ph{position:absolute;inset:-2%;background-size:cover;background-position:50% 40%;will-change:transform;
+  filter:brightness(.72) saturate(.92)}
+#next .sh{position:absolute;inset:0;background:
+  linear-gradient(to bottom,rgba(18,9,12,.62) 0%,rgba(18,9,12,.18) 30%,rgba(18,9,12,.5) 58%,rgba(18,9,12,.94) 100%)}
+#next .tx{position:absolute;left:calc(var(--u)*28);right:calc(var(--u)*60);opacity:0;will-change:transform,opacity}
+#next .eb{font-size:calc(var(--u)*11);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:500}
+#next h2{font-family:var(--serif);font-weight:400;font-size:calc(var(--u)*58);line-height:.98;letter-spacing:-.012em;margin-top:calc(var(--u)*14);color:var(--ivory)}
+#next h2 i{display:block;color:var(--ivory)}
+#back{position:absolute;left:calc(var(--u)*16);z-index:4;display:flex;align-items:center;gap:calc(var(--u)*10);
+  padding:calc(var(--u)*14) calc(var(--u)*12);font-size:calc(var(--u)*12);letter-spacing:.2em;text-transform:uppercase;font-weight:500;color:var(--ivory);opacity:0}
+#back svg{width:calc(var(--u)*16);height:calc(var(--u)*16)}
+
+/* ---------- desenho: uma linha so ---------- */
+#line{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible;
+  filter:drop-shadow(0 0 calc(var(--u)*3) rgba(18,9,12,.55))}
+#line path{fill:none;stroke:url(#lg);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+#pen{fill:var(--coral)}
+
+/* ---------- cena de cima (entrada) ---------- */
+#landing{position:absolute;inset:0;z-index:2;background:var(--ink);overflow:hidden;will-change:transform;
+  box-shadow:0 calc(var(--u)*30) calc(var(--u)*80) rgba(6,2,4,.8)}
+#landing .ph{position:absolute;inset:0;background:url(/assets/f/casa-1-w.webp) 30% 20%/cover no-repeat;
+  filter:brightness(.62) saturate(.9) contrast(1.04);opacity:0;transform:scale(1.09);transform-origin:50% 30%}
+#landing .sh{position:absolute;inset:0;background:
+  radial-gradient(120% 70% at 50% 28%,rgba(18,9,12,0) 0%,rgba(18,9,12,.5) 100%),
+  linear-gradient(to bottom,rgba(18,9,12,.7) 0%,rgba(18,9,12,.1) 20%,rgba(18,9,12,.2) 36%,rgba(18,9,12,.86) 52%,var(--ink) 64%)}
+.logo{position:absolute;top:calc(var(--u)*26 + env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:center;opacity:0}
+.logo img{height:calc(var(--u)*44);width:auto;display:block}
+.stack{position:absolute;left:calc(var(--u)*28);right:calc(var(--u)*28);bottom:calc(var(--u)*150 + env(safe-area-inset-bottom))}
+h1{font-family:var(--serif);font-weight:400;font-size:calc(var(--u)*33);line-height:1.04;letter-spacing:-.008em}
+h1 .l{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+h1 .l>span{display:block;transform:translateY(110%)}
+h1 .q{font-style:italic;color:var(--coral);margin-top:calc(var(--u)*10)}
+.info{margin-top:calc(var(--u)*20);padding-top:calc(var(--u)*14);border-top:1px solid var(--faint);opacity:0;
+  font-size:calc(var(--u)*12.5);line-height:1.62;color:var(--dim);letter-spacing:.01em}
+.info .k{font-size:.84em;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory);font-weight:500;margin-right:.7em}
+.info .end{display:flex;justify-content:space-between;align-items:baseline;margin-top:calc(var(--u)*4)}
+.info a{font-size:.86em;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory);text-decoration:none;font-weight:500;
+  border-bottom:1px solid var(--coral);padding-bottom:2px;white-space:nowrap;margin-left:12px}
+
+.panels{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*6);
+  padding:0 calc(var(--u)*6);transform:translateY(120%);pointer-events:none}
+.panel{position:relative;height:calc(var(--u)*136 + env(safe-area-inset-bottom));padding:calc(var(--u)*16) calc(var(--u)*16) calc(var(--u)*30 + env(safe-area-inset-bottom));
+  border-radius:calc(var(--u)*22) calc(var(--u)*22) 0 0;overflow:hidden;touch-action:none;display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid var(--faint);border-bottom:0;background:var(--ink2);transition:transform .45s var(--ease)}
+.panel .pb{position:absolute;inset:0;background-size:cover;background-position:50% 45%;filter:brightness(.55) saturate(.9);transition:filter .5s,transform .8s var(--ease)}
+.panel::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(18,9,12,.1),rgba(18,9,12,.82))}
+.panel>*:not(.pb){position:relative;z-index:1}
+.panel.held{transform:translateY(calc(var(--u)*-6))}
+.panel.held .pb{filter:brightness(.72) saturate(1)}
+.chev{width:calc(var(--u)*18);height:calc(var(--u)*10);display:block}
+.panel .nm{font-family:var(--serif);font-size:calc(var(--u)*25);line-height:1.02;letter-spacing:-.005em}
+.panel .nm span{display:block}
+
+/* ---------- entrada calma (so uma vez) ---------- */
+.go #landing .ph{animation:phIn 3.4s var(--ease) .1s forwards}
+.go .logo{animation:fadeUp 1.4s var(--ease) .6s forwards}
+.go h1 .l>span{animation:lineUp 1.3s var(--ease) forwards}
+.go h1 .l:nth-child(1)>span{animation-delay:2.1s}
+.go h1 .l:nth-child(2)>span{animation-delay:2.4s}
+.go h1 .l:nth-child(3)>span{animation-delay:2.7s}
+.go h1 .q>span{animation-delay:3.3s}
+.go .info{animation:fadeUp 1.4s var(--ease) 4.0s forwards}
+.go .panels{animation:panelsIn 1.1s var(--ease) 4.4s forwards}
+.go.live .panels{pointer-events:auto}
+.go.ready .panels{animation:none;transform:none}
+.go.nudge .panels{animation:nudge 1.3s cubic-bezier(.3,.9,.3,1) 0s 1}
+@keyframes phIn{to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(calc(var(--u)*10))}to{opacity:1;transform:none}}
+@keyframes lineUp{to{transform:none}}
+@keyframes panelsIn{to{transform:translateY(0)}}
+@keyframes nudge{0%{transform:translateY(0)}38%{transform:translateY(calc(var(--u)*-16))}100%{transform:translateY(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  .go #landing .ph{animation:none;opacity:1;transform:none}
+  .go .logo,.go .info{animation:none;opacity:1}
+  .go h1 .l>span{animation:none;transform:none}
+  .go .panels{animation:none;transform:none}
+  .go.nudge .panels{animation:none}
+  .go.ready .panels{transform:none}
+  .panel,.panel .pb{transition:none}
+}
+</style>
+</head>
+<body>
+<main id="stage" class="go-pre">
+
+  <!-- cena revelada -->
+  <section id="next" aria-label="Próxima cena" inert>
+    <div class="ph"></div><div class="sh"></div>
+    <div class="tx" id="ntx">
+      <p class="eb">Próxima cena</p>
+      <h2 id="nlabel"></h2>
+    </div>
+    <button id="back" type="button" aria-label="Voltar à entrada">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>voltar
+    </button>
+  </section>
+
+  <!-- o traço contínuo: um único path -->
+  <svg id="line" aria-hidden="true" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="800">
+        <stop id="g0" offset="0" stop-color="#F3EBDD"/>
+        <stop id="g1" offset=".5" stop-color="#F3EBDD"/>
+        <stop id="g2" offset=".6" stop-color="#E65A41"/>
+        <stop id="g3" offset="1" stop-color="#E65A41"/>
+      </linearGradient>
+    </defs>
+    <path id="trace" d="M0 0"/>
+    <circle id="pen" r="2.6" cx="-10" cy="-10"/>
+  </svg>
+
+  <!-- cena de entrada -->
+  <section id="landing" aria-label="Entrada">
+    <div class="ph"></div><div class="sh"></div>
+    <div class="logo"><img src="/assets/f/logo.png" alt="Pitanga Gastrobar" width="608" height="308"></div>
+
+    <div class="stack" id="stack">
+      <h1>
+        <span class="l"><span>Aqui, cada prato</span></span>
+        <span class="l"><span>tem nome de canção,</span></span>
+        <span class="l"><span>de poema, de escritora.</span></span>
+        <span class="l q"><span>Qual será o seu?</span></span>
+      </h1>
+      <div class="info">
+        <div><span class="k">Almoço</span>sexta a domingo · 12h</div>
+        <div><span class="k">Jantar</span>segunda a sábado · 18h</div>
+        <div class="end"><span>Av. João XXIII, 1161 · Jóquei</span><a href="https://www.google.com/maps/search/?api=1&query=Av.+Jo%C3%A3o+XXIII%2C+1161+J%C3%B3quei+Teresina" target="_blank" rel="noopener">Como chegar</a></div>
+      </div>
+    </div>
+
+    <div class="panels" id="panels">
+      <button class="panel" type="button" data-k="visita">
+        <div class="pb" style="background-image:url(/assets/f/casa-2-m.webp)"></div>
+        <svg class="chev" viewBox="0 0 18 10" fill="none" stroke="#E65A41" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9l8-8 8 8"/></svg>
+        <span class="nm"><span>Escrever</span><span>a visita</span></span>
+      </button>
+      <button class="panel" type="button" data-k="carta">
+        <div class="pb" style="background-image:url(/assets/f/carne-m.webp);background-position:50% 55%"></div>
+        <svg class="chev" viewBox="0 0 18 10" fill="none" stroke="#E65A41" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 9l8-8 8 8"/></svg>
+        <span class="nm"><span>Folhear</span><span>a carta</span></span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var stage=$('#stage'), landing=$('#landing'), next=$('#next'), svg=$('#line'), trace=$('#trace'), pen=$('#pen'),
+    panels=$('#panels'), back=$('#back'), nph=next.querySelector('.ph'), ntx=$('#ntx'), nlabel=$('#nlabel'),
+    stack=$('#stack'), logoEl=document.querySelector('.logo');
+var RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var SCENES={
+  visita:{label:'<span>Escrever</span><i>a visita</i>',img:'/assets/f/casa-2-g.webp',pos:'50% 40%'},
+  carta:{label:'<span>Folhear</span><i>a carta</i>',img:'/assets/f/carne-g.webp',pos:'50% 50%'}
+};
+var STOP=[{e:0,s:'g0'}];
+
+/* ---- face: um unico traco, desenhado para esta casa (coordenadas de projeto 390 x ~) ---- */
+var FACE=[
+ 'M 158 446','C 168 428 172 410 170 396',
+ 'C 182 410 196 416 210 414','C 238 410 258 380 268 338','C 276 306 284 272 276 238',
+ 'C 290 204 304 166 278 142','C 258 126 232 138 238 156','C 244 170 264 166 262 152',
+ 'C 240 128 210 126 186 136','C 150 148 126 196 124 248','C 122 296 142 346 166 380',
+ 'C 146 338 144 302 150 274','C 160 288 178 290 190 274',
+ 'C 196 298 204 318 200 334','C 197 344 210 348 216 340',
+ 'C 226 322 226 298 238 278','C 248 290 264 290 274 274',
+ 'C 270 302 258 330 252 352','C 248 372 232 382 218 380',
+ 'C 208 372 200 374 192 380','C 200 390 212 390 222 384',
+ 'C 232 404 242 424 250 446'
+].join(' ');
+var FB={x0:124,x1:304,y0:126,y1:446}; /* caixa do rosto */
+
+var u=1,W=390,H=844,Hu=844,Lf=1,Lt=1,Ltot=2,pts=null;
+var e=0,p=0,openK=null;
+
+function nums(d,fn){ /* mapeia pares de numeros do path */
+  var parts=d.split(' '),out=[],i=0;
+  while(i<parts.length){var t=parts[i];
+    if(/^[MC]$/.test(t)){out.push(t);i++;continue}
+    out.push(fn(+parts[i],+parts[i+1]).join(' '));i+=2;}
+  return out.join(' ');
+}
+function layout(){
+  W=stage.clientWidth;H=stage.clientHeight;u=W/390;Hu=H/u;
+  svg.setAttribute('viewBox','0 0 390 '+Hu.toFixed(2));
+  /* regiao livre para o rosto: entre o logo e o titulo */
+  var top=(logoEl.getBoundingClientRect().bottom)/u+10;
+  var sRect=stack.getBoundingClientRect();
+  var bot=sRect.top/u-18;
+  var avail=bot-top, fh=FB.y1-FB.y0;
+  var s=Math.max(.56,Math.min(1.04,avail/fh));
+  var cx=(FB.x0+FB.x1)/2, tx=195-cx*s+6*s, ty=top+Math.max(0,(avail-fh*s)/2)-FB.y0*s;
+  var face=nums(FACE,function(x,y){return [(x*s+tx).toFixed(2),(y*s+ty).toFixed(2)]});
+  /* ponta do pescoco direito */
+  var P0={x:250*s+tx,y:446*s+ty};
+  var yU=Hu-150; /* sublinhado, sob o rotulo da proxima cena */
+  var yA=Math.max(P0.y+70,yU-40);
+  var tail=[
+    'C',(P0.x+7).toFixed(1),(P0.y+34).toFixed(1),(P0.x+66).toFixed(1),(P0.y+30).toFixed(1),(352).toFixed(1),(P0.y+82).toFixed(1),
+    'C',(356).toFixed(1),(Math.min(yA-10,P0.y+130)).toFixed(1),(356).toFixed(1),(yA-8).toFixed(1),(352).toFixed(1),(yA+8).toFixed(1),
+    'C',(346).toFixed(1),(yU-4).toFixed(1),(322).toFixed(1),(yU+1).toFixed(1),(290).toFixed(1),(yU+1).toFixed(1),
+    'C',(190).toFixed(1),(yU+3).toFixed(1),(96).toFixed(1),(yU-5).toFixed(1),(28).toFixed(1),(yU-1).toFixed(1)
+  ].join(' ');
+  trace.setAttribute('d',face+' '+tail);
+  var tmp=document.createElementNS('http://www.w3.org/2000/svg','path');tmp.setAttribute('d',face);
+  Lf=tmp.getTotalLength();Ltot=trace.getTotalLength();Lt=Ltot-Lf;
+  trace.style.strokeDasharray=Ltot+' '+Ltot;
+  var g=document.getElementById('lg');g.setAttribute('y1',top);g.setAttribute('y2',yU);
+  var fr=(P0.y-top)/(yU-top);
+  $('#g1').setAttribute('offset',Math.max(.05,fr-.02).toFixed(3));
+  $('#g2').setAttribute('offset',Math.min(.95,fr+.07).toFixed(3));
+  /* rotulo da proxima cena ancorado ao sublinhado */
+  ntx.style.bottom=((H-yU*u)+16*u)+'px';
+  back.style.top=(yU*u+22*u).toFixed(1)+'px';
+  render();
+}
+function clamp(v,a,b){return v<a?a:v>b?b:v}
+function sstep(a,b,v){v=clamp((v-a)/(b-a),0,1);return v*v*(3-2*v)}
+
+function render(){
+  var lp=clamp((p-.12)/.78,0,1);
+  var shown=Lf*e+Lt*(e>=1?lp:0);
+  trace.style.strokeDashoffset=Ltot-shown;
+  trace.style.opacity=shown<1?0:1;
+  if(shown>=1){var pt=trace.getPointAtLength(Math.min(shown,Ltot));pen.setAttribute('cx',pt.x);pen.setAttribute('cy',pt.y);pen.style.opacity=1}else pen.style.opacity=0;
+  var fo=1-sstep(0,.28,p);
+  $('#g0').setAttribute('stop-opacity',fo);$('#g1').setAttribute('stop-opacity',fo);
+  /* paisagem */
+  var dy=p*H;
+  landing.style.transform=p>0?'translate3d(0,'+(-dy).toFixed(2)+'px,0)':'';
+  landing.style.borderRadius=p>0?'0 0 '+(26*u*clamp(p*10,0,1)).toFixed(1)+'px '+(26*u*clamp(p*10,0,1)).toFixed(1)+'px':'0';
+  landing.style.visibility=p>=.999?'hidden':'visible';
+  var q=1-p;
+  nph.style.transform='translate3d(0,'+(q*q*5).toFixed(2)+'%,0) scale('+(1+.1*q).toFixed(4)+')';
+  var r=sstep(.5,.95,p);
+  ntx.style.opacity=r;ntx.style.transform='translate3d(0,'+((1-r)*26*u).toFixed(1)+'px,0)';
+  back.style.opacity=sstep(.8,1,p);
+}
+
+/* ---- tweens ---- */
+var raf=0;
+function stopT(){if(raf){cancelAnimationFrame(raf);raf=0}}
+function tween(from,to,ms,ease,set,done){
+  stopT();
+  if(RM)ms=Math.min(ms,220);
+  var t0=performance.now();
+  (function f(t){var k=clamp((t-t0)/ms,0,1);set(from+(to-from)*ease(k));if(k<1)raf=requestAnimationFrame(f);else{raf=0;done&&done()}})(t0);
+}
+var easeIO=function(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2};
+var easeO=function(k){return 1-Math.pow(1-k,3)};
+/* longa, elegante: arranca devagar, desliza, assenta */
+function easeIO2(k){return k<.5?8*k*k*k*k:1-Math.pow(-2*k+2,4)/2}
+
+function setScene(k){
+  var s=SCENES[k];openK=k;nlabel.innerHTML=s.label;nph.style.backgroundImage='url('+s.img+')';nph.style.backgroundPosition=s.pos;
+}
+function openScene(ms,from,k){
+  if(k)setScene(k);
+  tween(from,1,ms,ms>700?easeIO:easeO,function(v){p=v;render()},function(){
+    p=1;render();landing.inert=true;next.inert=false;try{back.focus({preventScroll:true,focusVisible:false})}catch(x){}
+  });
+}
+function closeScene(){
+  landing.style.visibility='visible';next.inert=true;landing.inert=false;
+  tween(p,0,RM?200:1000,easeIO,function(v){p=v;render()},function(){p=0;render()});
+}
+function snapBack(from){tween(from,0,RM?200:460,easeO,function(v){p=v;render()},function(){p=0;render()})}
+
+/* ---- gesto ---- */
+var drag=null;
+Array.prototype.forEach.call(panels.querySelectorAll('.panel'),function(el){
+  el.addEventListener('pointerdown',function(ev){
+    if(drag||!ev.isPrimary||ev.button>0)return;
+    stopT();
+    drag={id:ev.pointerId,el:el,k:el.dataset.k,y0:ev.clientY,x0:ev.clientX,t0:performance.now(),moved:false,s:[[performance.now(),ev.clientY]],p0:p};
+    try{el.setPointerCapture(ev.pointerId)}catch(x){}
+    el.classList.add('held');
+  });
+  el.addEventListener('pointermove',function(ev){
+    if(!drag||ev.pointerId!==drag.id)return;
+    var dy=drag.y0-ev.clientY,now=performance.now();
+    drag.s.push([now,ev.clientY]);while(drag.s.length>1&&now-drag.s[0][0]>110)drag.s.shift();
+    if(!drag.moved){if(Math.abs(dy)<7&&Math.abs(ev.clientX-drag.x0)<7)return;drag.moved=true;setScene(drag.k);}
+    p=clamp(dy/H,0,1);render();
+  });
+  function end(ev,cancel){
+    if(!drag||ev.pointerId!==drag.id)return;
+    var d=drag;drag=null;d.el.classList.remove('held');
+    try{d.el.releasePointerCapture(d.id)}catch(x){}
+    if(cancel){snapBack(p);return}
+    if(!d.moved){openScene(RM?220:1050,0,d.k);return} /* toque simples */
+    var a=d.s[0],b=d.s[d.s.length-1],vy=(a[1]-b[1])/Math.max(1,b[0]-a[0]); /* px/ms, positivo = para cima */
+    if(p>.3||vy>.45){
+      var rem=(1-p)*H, ms=clamp(rem/Math.max(.9,vy)*1.1,420,900);
+      openScene(ms,p);
+    }else snapBack(p);
+  }
+  el.addEventListener('pointerup',function(ev){end(ev,false)});
+  el.addEventListener('pointercancel',function(ev){end(ev,true)});
+  el.addEventListener('click',function(ev){ /* teclado (Enter/Espaco): detail===0 */
+    if(ev.detail===0&&!drag&&p===0)openScene(RM?220:1050,0,el.dataset.k);
+  });
+});
+back.addEventListener('click',function(){closeScene()});
+stage.addEventListener('contextmenu',function(ev){ev.preventDefault()});
+stage.addEventListener('selectstart',function(ev){ev.preventDefault()});
+stage.addEventListener('dragstart',function(ev){ev.preventDefault()});
+
+/* ---- entrada ---- */
+function intro(){
+  layout();
+  stage.classList.add('go');
+  if(RM){e=1;p=0;render();stage.classList.add('live','ready');return}
+  setTimeout(function(){
+    tween(0,1,3900,easeIO2,function(v){e=v;render()});
+  },700);
+  setTimeout(function(){stage.classList.add('live')},4900);
+  setTimeout(function(){stage.classList.add('ready','nudge')},5600);
+  setTimeout(function(){ /* aquece as fotos da proxima cena */
+    ['/assets/f/casa-2-g.webp','/assets/f/carne-g.webp'].forEach(function(s){var i=new Image();i.src=s});
+  },1500);
+}
+window.addEventListener('resize',function(){if(!drag)layout()});
+var started=false;function go(){if(started)return;started=true;intro()}
+var img=new Image();img.src='/assets/f/casa-1-w.webp';
+var wait=[ (img.decode?img.decode().catch(function(){}):Promise.resolve()), (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()) ];
+Promise.all(wait).then(go);setTimeout(go,1800);
+/* ganchos para teste */
+window.__e2={setP:function(v){p=v;render()},get p(){return p},setScene:setScene,get e(){return e}};
+})();
+</script>
+</body>
+</html>
