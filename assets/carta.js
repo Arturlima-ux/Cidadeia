@@ -57,7 +57,13 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  if (SIS === "foto" && !/[?&]bt=a/.test(location.search)) {
+  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "t";
+  document.documentElement.dataset.bt = BT;
+  if (SIS === "foto" && BT === "tinta") {
+    // Sem caixa: o rótulo grande, um traço de tinta que se desenha embaixo e uma seta fina.
+    const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
+    el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd tnv" data-ir="${ir}" data-porta aria-label="${b}"><span class="tn-r"><span class="tn-l" aria-hidden="true">${letras(b)}</span><svg class="tn-a" viewBox="0 0 26 12" aria-hidden="true"><path d="M1 6h23M18 1l6 5-6 5" pathLength="100"/></svg></span><svg class="tn-f" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5.2C52 2.2 104 7 160 4.2S262 2.6 298 4.6" pathLength="100"/></svg></button>`).join("");
+  } else if (SIS === "foto" && BT !== "a") {
     // Botão-comanda: um bilhete de duas peças. O corpo traz o rótulo; o canhoto, a seta, e se solta ao toque.
     const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
     const seta = `<svg class="tk-a" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg>`;
