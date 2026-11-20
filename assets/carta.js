@@ -57,7 +57,7 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "final";
+  const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "quadros";
   document.documentElement.dataset.bt = BT;
   if (SIS === "foto" && BT === "quadros") return quadros(el);
   if (SIS === "foto" && BT === "objeto") {
