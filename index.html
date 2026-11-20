@@ -853,6 +853,13 @@ html[data-sis="foto"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"
 html[data-sis="foto"] body.pula #abertura .portas .vd,html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 @keyframes z6-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] #abertura .portas .vd,html[data-sis="foto"] #abertura .comanda>.serv{animation:none!important;opacity:1}}
+/* entrada do logo: revela-se da esquerda para a direita, como escrito, saindo do desfoque; uma vez só, ao abrir a página */
+html[data-sis="foto"] .topo .logo img{-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 33%,transparent 66%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,#000 33%,transparent 66%,transparent 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:z8-logo 2.4s cubic-bezier(.22,.8,.2,1) .3s both;will-change:mask-position,filter,opacity,transform}
+@keyframes z8-logo{
+ 0%{-webkit-mask-position:100% 0;mask-position:100% 0;opacity:0;transform:translateY(6px) scale(1.03);filter:blur(9px) sepia(.14) brightness(1.05) drop-shadow(0 1px 10px rgba(22,5,10,.5))}
+ 25%{opacity:1}
+ 100%{-webkit-mask-position:0 0;mask-position:0 0;opacity:1;transform:none;filter:blur(0) sepia(.14) brightness(1.05) drop-shadow(0 1px 10px rgba(22,5,10,.5))}}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"] .topo .logo img{animation:none;-webkit-mask-image:none;mask-image:none}}
 body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;background:#1d0b14}
 </style>
 </head>
