@@ -1192,6 +1192,189 @@ html[data-sis="foto"] body.pula #abertura .comanda>.serv{animation-delay:0s}
 body.pula #abertura .pt-b *{animation-duration:.01s!important;animation-delay:0s!important}
 @media (prefers-reduced-motion:reduce){html[data-sis="foto"] body:not(.escrito):not(.pula) #abertura .pt-b>*,html[data-sis="foto"] body:not(.escrito):not(.pula) #abertura .pt-b .pt-l i{visibility:visible}html[data-sis="foto"] #abertura .pt-b *{animation:none!important;transition:none!important}}
 </style>
+<style id="zedi">
+/* ===== ?bt=editorial: índice de revista. Serifa grande, fio de 1px de borda a borda, numeral em sans. Nenhum objeto, nenhuma caixa. ===== */
+html[data-sis="foto"][data-bt="editorial"]{--ed-h:68px;--ed-rule:rgba(244,228,203,.35);--ed-ease:cubic-bezier(.2,.7,0,1);--ed-coral:#E65A41}
+html[data-sis="foto"][data-bt="editorial"] #abertura .col::before{height:var(--ed-sp,max(4vh,calc(34svh - 84px)))}
+html[data-sis="foto"][data-bt="editorial"] #abertura .comanda{gap:calc(var(--u)*2)}
+html[data-sis="foto"][data-bt="editorial"] #abertura .pergunta{font-size:clamp(32px,9vw,40px)}
+html[data-sis="foto"][data-bt="editorial"] #abertura .portas{margin:0 calc(var(--m)*-1);gap:0}
+html[data-sis="foto"][data-bt="editorial"] #abertura .portas .vd.ed{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) 30px;column-gap:0;align-items:center;height:var(--ed-h);min-height:var(--ed-h);padding:0 var(--m);margin:0;width:100%;opacity:1;animation:none!important;color:var(--creme);text-align:left;white-space:nowrap;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible;-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
+html[data-sis="foto"][data-bt="editorial"] .vd.ed:focus-visible{outline:1px solid var(--creme);outline-offset:-6px}
+/* fios */
+.ed-ru{position:absolute;left:0;right:0;height:1px;background:var(--ed-rule);transform-origin:0 50%;pointer-events:none}
+.ed-ru.ed-t{top:0}.ed-ru.ed-f{bottom:0}
+/* numeral */
+.ed-n{display:block;overflow:hidden;padding:3px 0;font:500 10.5px/1 var(--sans);letter-spacing:.16em;font-variant-numeric:tabular-nums;color:rgba(244,228,203,.72)}
+.ed-ne{display:block}
+/* título: cada palavra numa máscara; a irmã em itálico espera logo abaixo */
+.ed-tt{display:block;font:400 clamp(28px,8.4vw,34px)/1.1 var(--serif);letter-spacing:-.012em;color:var(--creme);overflow:hidden;text-overflow:clip}
+.ed-w{display:inline-block;position:relative;overflow:hidden;vertical-align:top;padding:.1em .06em .2em 0;margin:-.1em -.06em -.2em 0}
+.ed-e,.ed-r{display:block}
+.ed-r{transition:transform .5s var(--ed-ease)}
+.ed-b{position:absolute;left:0;top:calc(100% + .3em);font-style:italic;font-weight:400;letter-spacing:-.005em;color:var(--ed-coral);white-space:nowrap}
+.vd.ed.preso .ed-r,.vd.ed.abre .ed-r{transform:translateY(calc(-100% - .3em));transition-duration:.8s;transition-delay:calc(var(--k)*55ms)}
+@media (hover:hover){.vd.ed:hover .ed-r{transform:translateY(calc(-100% - .3em));transition-duration:.8s;transition-delay:calc(var(--k)*55ms)}}
+/* seta de 1px */
+.ed-s{justify-self:end;width:30px;height:8px;overflow:visible;fill:none;stroke:var(--creme);stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1;transition:transform .8s var(--ed-ease)}
+.vd.ed.preso .ed-s,.vd.ed.abre .ed-s{transform:translateX(7px)}
+@media (hover:hover){.vd.ed:hover .ed-s{transform:translateX(7px)}}
+/* entrada: linha 1 termina, depois a linha 2. Só começa com body.escrito / body.pula */
+html[data-sis="foto"][data-bt="editorial"] #abertura .vd.ed{--b0:.1s}
+html[data-sis="foto"][data-bt="editorial"] #abertura .vd.ed[data-ir="livro"]{--b0:1.45s}
+.ed-ru{transform:scaleX(0)}
+.ed-ne{transform:translateY(200%)}.ed-e{transform:translateY(125%)}
+.ed-s{stroke-dashoffset:1;opacity:0}
+@keyframes ed-fio{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ed-sobe{from{transform:translateY(125%)}to{transform:none}}
+@keyframes ed-traco{from{opacity:1;stroke-dashoffset:1}to{opacity:1;stroke-dashoffset:0}}
+body.escrito #abertura .vd.ed .ed-ru,body.pula #abertura .vd.ed .ed-ru{animation:ed-fio 1.4s var(--ed-ease) var(--b0) both}
+body.escrito #abertura .vd.ed .ed-ru.ed-f,body.pula #abertura .vd.ed .ed-ru.ed-f{animation-delay:calc(var(--b0) + .12s)}
+body.escrito #abertura .vd.ed .ed-ne,body.pula #abertura .vd.ed .ed-ne{animation:ed-sobe 1.1s var(--ed-ease) calc(var(--b0) + .3s) both;--from:200%}
+body.escrito #abertura .vd.ed .ed-e,body.pula #abertura .vd.ed .ed-e{animation:ed-sobe 1.25s var(--ed-ease) calc(var(--b0) + .38s + var(--k)*80ms) both}
+body.escrito #abertura .vd.ed .ed-s,body.pula #abertura .vd.ed .ed-s{animation:ed-traco 1s var(--ed-ease) calc(var(--b0) + .95s) both}
+html[data-sis="foto"][data-bt="editorial"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"][data-bt="editorial"] body.pula #abertura .comanda>.serv{animation-delay:3.2s}
+html[data-sis="foto"][data-bt="editorial"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+/* o toque só adianta a ENTRADA, nunca o que é do repouso */
+body.pula #abertura .vd.ed .ed-ru,body.pula #abertura .vd.ed .ed-ne,body.pula #abertura .vd.ed .ed-e,body.pula #abertura .vd.ed .ed-s{animation-duration:.01s!important;animation-delay:0s!important}
+@media (max-height:740px){html[data-sis="foto"][data-bt="editorial"]{--ed-h:60px}.ed-tt{font-size:clamp(26px,7.6vw,31px)}}
+@media (prefers-reduced-motion:reduce){
+  .ed-ru{transform:none}.ed-ne,.ed-e{transform:none}.ed-s{stroke-dashoffset:0;opacity:1}
+  body.escrito #abertura .vd.ed .ed-ru,body.pula #abertura .vd.ed .ed-ru,body.escrito #abertura .vd.ed .ed-ne,body.pula #abertura .vd.ed .ed-ne,body.escrito #abertura .vd.ed .ed-e,body.pula #abertura .vd.ed .ed-e,body.escrito #abertura .vd.ed .ed-s,body.pula #abertura .vd.ed .ed-s{animation:none}
+  .ed-r,.ed-s{transition:none}
+}
+</style>
+<style id="zcin">
+/* --- variante "cinetica": o rótulo é o botão. Linhas de largura total, índice 01/02, filete de 1px; ao toque cada letra rola na vertical (odômetro) para a mesma palavra em itálico coral. Sem caixas, sem ícones. --- */
+html[data-sis="foto"][data-bt="cinetica"]{--ci-h:72px;--ci-fs:clamp(29px,9.2vw,38px);--ci-ex:cubic-bezier(.16,1,.3,1);--ci-coral:#E65A41}
+@media (max-height:700px){html[data-sis="foto"][data-bt="cinetica"]{--ci-h:64px;--ci-fs:clamp(28px,8.8vw,35px)}}
+html[data-sis="foto"][data-bt="cinetica"] #abertura .portas{margin:0;gap:0}
+html[data-sis="foto"][data-bt="cinetica"] #abertura .portas .vd.ci-v{display:grid;grid-template-columns:34px 1fr;align-items:center;height:var(--ci-h);min-height:var(--ci-h);padding:0;border:0;border-radius:0;background:none;overflow:visible;color:var(--creme);text-align:left;opacity:1;animation:none!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation;--b0:.1s}
+html[data-sis="foto"][data-bt="cinetica"] #abertura .portas .vd.ci-v[data-ir="livro"]{--b0:1.5s}
+html[data-sis="foto"][data-bt="cinetica"] .ci-n{font:500 10.5px/1 var(--sans);letter-spacing:.16em;color:rgba(244,228,203,.55);font-variant-numeric:tabular-nums;transform:translateY(-1px)}
+html[data-sis="foto"][data-bt="cinetica"] .ci-l{display:flex;align-items:flex-start;white-space:nowrap;font:300 var(--ci-fs)/1.2 var(--serif);letter-spacing:0;font-kerning:none}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v i.ci-sp{width:.24em;height:1.2em}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v i.ci-c,html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v i.ci-sp{flex:none;display:block;font-size:inherit;line-height:inherit;color:inherit;font-style:normal}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v i.ci-c{height:1.2em;overflow:visible;clip-path:inset(0 -.25em)}
+html[data-sis="foto"][data-bt="cinetica"] .ci-r,html[data-sis="foto"][data-bt="cinetica"] .ci-s{display:block}
+html[data-sis="foto"][data-bt="cinetica"] .ci-s{transition:transform .3s var(--ci-ex) 0s;will-change:transform}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v .ci-s b{position:static;display:block;height:1.2em;max-width:none;padding:0;overflow:visible;font:inherit;line-height:1.2;text-align:center;transition:none}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v .ci-s b.ci-i{font-style:italic;font-weight:400;color:var(--ci-coral)}
+html[data-sis="foto"][data-bt="cinetica"] .ci-f{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(244,228,203,.3);transform-origin:0 50%;pointer-events:none}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v.preso .ci-s,html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v.abre .ci-s{transform:translateY(-50%);transition:transform .56s var(--ci-ex) calc(var(--k)*18ms)}
+html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v:focus-visible{outline:1px solid rgba(244,228,203,.7);outline-offset:-1px}
+/* entrada: o filete se desenha, o índice aparece, as letras sobem da máscara; o botão 1 termina antes de o 2 começar */
+html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-r{transform:translateY(112%)}
+html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-f{transform:scaleX(0)}
+html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-n{opacity:0}
+html[data-sis="foto"][data-bt="cinetica"] body.escrito #abertura .ci-r,html[data-sis="foto"][data-bt="cinetica"] body.pula #abertura .ci-r{animation:ci-sobe .8s var(--ci-ex) calc(var(--b0) + .2s + var(--k)*20ms) both}
+html[data-sis="foto"][data-bt="cinetica"] body.escrito #abertura .ci-f,html[data-sis="foto"][data-bt="cinetica"] body.pula #abertura .ci-f{animation:ci-fio .9s cubic-bezier(.65,0,.2,1) var(--b0) both}
+html[data-sis="foto"][data-bt="cinetica"] body.escrito #abertura .ci-n,html[data-sis="foto"][data-bt="cinetica"] body.pula #abertura .ci-n{animation:ci-n .6s ease-out calc(var(--b0) + .2s) both}
+@keyframes ci-sobe{from{transform:translateY(112%)}to{transform:none}}
+@keyframes ci-fio{from{transform:scaleX(0)}to{transform:none}}
+@keyframes ci-n{from{opacity:0}to{opacity:1}}
+html[data-sis="foto"][data-bt="cinetica"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"][data-bt="cinetica"] body.pula #abertura .comanda>.serv{animation-delay:3s}
+html[data-sis="foto"][data-bt="cinetica"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+body.pula #abertura .ci-r,body.pula #abertura .ci-f,body.pula #abertura .ci-n{animation-duration:.01s!important;animation-delay:0s!important}
+/* a frase não pode encostar nas linhas */
+html[data-sis="foto"][data-bt="cinetica"] #abertura .col::before{height:max(4vh,calc(30svh - 84px))}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-r,html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-f,html[data-sis="foto"][data-bt="cinetica"] #abertura .ci-n{transform:none;opacity:1;animation:none!important}html[data-sis="foto"][data-bt="cinetica"] .ci-s,html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v.preso .ci-s,html[data-sis="foto"][data-bt="cinetica"] .vd.ci-v.abre .ci-s{transition:none}}
+</style>
+<style id="zjan">
+/* --- variante "janela": linhas tipográficas com uma janela estreita da sala no fim; o toque a abre --- */
+html[data-sis="foto"][data-bt="janela"]{--jn-h:80px;--jn-ci:10px;--jn-cs:15px;--jn-e:cubic-bezier(.16,1,.3,1);--jn-s:cubic-bezier(.65,0,.2,1)}
+@media (max-height:740px){html[data-sis="foto"][data-bt="janela"]{--jn-h:72px;--jn-ci:9px}}
+/* a frase assenta sobre as linhas: nunca as toca, em qualquer altura */
+html[data-sis="foto"][data-bt="janela"] #abertura{padding-bottom:calc(var(--m) + var(--u)*2.5 + 65px + var(--jn-h)*2 + 30px)}
+html[data-sis="foto"][data-bt="janela"] #abertura .col::before{height:auto;flex:1 1 0;min-height:6vh}
+html[data-sis="foto"][data-bt="janela"] #abertura .portas{gap:0;margin:0}
+html[data-sis="foto"][data-bt="janela"] #abertura .portas .vd.jn{display:block;position:relative;width:100%;height:var(--jn-h);min-height:var(--jn-h);padding:0;border:0;border-radius:0;background:none;overflow:visible;color:var(--creme);opacity:1;animation:none!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation;--b0:.15s}
+html[data-sis="foto"][data-bt="janela"] #abertura .portas .vd.jn[data-ir="livro"]{--b0:1.7s}
+html[data-bt="janela"] .jn-n{position:absolute;left:0;top:calc(var(--jn-h)/2 - 27px);font:500 10.5px/1 var(--sans);letter-spacing:.2em;color:var(--a-cur);opacity:.9}
+html[data-bt="janela"] .jn-l{position:absolute;left:0;top:0;bottom:0;width:calc(100% - 88px);display:flex;align-items:center;transition:transform .8s var(--jn-e)}
+html[data-bt="janela"] .jn-m{display:block;overflow:hidden;padding:.14em .2em .22em 0;margin:0}
+html[data-bt="janela"] .jn-t{display:block;white-space:nowrap;font:500 calc(var(--t3)*1.04)/1 var(--serif);letter-spacing:0}
+/* a janela: caixa da altura da linha; em repouso só uma faixa dela aparece */
+html[data-bt="janela"] .jn-w{position:absolute;right:0;top:0;width:72px;height:var(--jn-h);overflow:hidden;clip-path:inset(var(--jn-ci) var(--jn-cs) var(--jn-ci) var(--jn-cs));transition:clip-path .75s var(--jn-e)}
+html[data-bt="janela"] .jn-i{position:absolute;display:block;max-width:none;height:auto;width:calc(72px / var(--cw));left:calc(36px - var(--fx) * 72px / var(--cw));top:calc(var(--jn-h)/2 - var(--fy) * 72px / var(--cw) * var(--ar));transform-origin:calc(var(--fx)*100%) calc(var(--fy)*100%);transform:translate(0,0) scale(1);filter:brightness(.86) saturate(.95);transition:transform 1s var(--jn-e),filter .7s var(--jn-e)}
+html[data-bt="janela"] .jn-h,html[data-bt="janela"] .jn-h2{position:absolute;left:0;right:0;bottom:0;height:1px;transform-origin:0 50%}
+html[data-bt="janela"] .jn-h{background:rgba(255,239,219,.28)}
+html[data-bt="janela"] .jn-h2{background:var(--creme);transform:scaleX(0);transform-origin:100% 50%;transition:transform .8s var(--jn-e)}
+/* toque */
+html[data-bt="janela"] .vd.jn.preso .jn-w,html[data-bt="janela"] .vd.jn.abre .jn-w{clip-path:inset(0 0 0 0)}
+html[data-bt="janela"] .vd.jn.preso .jn-i,html[data-bt="janela"] .vd.jn.abre .jn-i{transform:translate(calc(-3px + var(--jx,0)*-6px),calc(2px + var(--jy,0)*-3px)) scale(1.12);filter:brightness(1) saturate(1)}
+html[data-bt="janela"] .vd.jn.preso .jn-l,html[data-bt="janela"] .vd.jn.abre .jn-l{transform:translateX(6px)}
+html[data-bt="janela"] .vd.jn.preso .jn-h2,html[data-bt="janela"] .vd.jn.abre .jn-h2{transform:scaleX(1);transform-origin:0 50%}
+html[data-bt="janela"] .vd.jn.jn-go .jn-w{visibility:hidden}
+@media (hover:hover){html[data-bt="janela"] .vd.jn:hover .jn-w{clip-path:inset(0 0 0 0)}html[data-bt="janela"] .vd.jn:hover .jn-i{transform:translate(-3px,2px) scale(1.12);filter:none}html[data-bt="janela"] .vd.jn:hover .jn-h2{transform:scaleX(1);transform-origin:0 50%}}
+html[data-bt="janela"] .vd.jn:focus-visible{outline:1px solid rgba(255,239,219,.75);outline-offset:3px}
+/* entrada: a linha 1 termina; só então a 2 */
+html[data-bt="janela"] body:not(.escrito):not(.pula) .jn-w{clip-path:inset(var(--jn-h) var(--jn-cs) 0 var(--jn-cs))}
+html[data-bt="janela"] body:not(.escrito):not(.pula) .jn-t{transform:translateY(112%)}
+html[data-bt="janela"] body:not(.escrito):not(.pula) .jn-h{transform:scaleX(0)}
+html[data-bt="janela"] body:not(.escrito):not(.pula) .jn-n{opacity:0}
+html[data-bt="janela"] body.escrito .jn-w,html[data-bt="janela"] body.pula .jn-w{animation:jn-w 1.15s var(--jn-e) var(--b0) backwards}
+html[data-bt="janela"] body.escrito .jn-i,html[data-bt="janela"] body.pula .jn-i{animation:jn-i 1.6s var(--jn-e) var(--b0) backwards}
+html[data-bt="janela"] body.escrito .jn-t,html[data-bt="janela"] body.pula .jn-t{animation:jn-t 1.05s var(--jn-e) calc(var(--b0) + .3s) backwards}
+html[data-bt="janela"] body.escrito .jn-h,html[data-bt="janela"] body.pula .jn-h{animation:jn-h 1.1s var(--jn-s) calc(var(--b0) + .45s) backwards}
+html[data-bt="janela"] body.escrito .jn-n,html[data-bt="janela"] body.pula .jn-n{animation:jn-n .8s ease calc(var(--b0) + .7s) backwards}
+@keyframes jn-w{from{clip-path:inset(var(--jn-h) var(--jn-cs) 0 var(--jn-cs))}}
+@keyframes jn-i{from{transform:scale(1.3)}}
+@keyframes jn-t{from{transform:translateY(112%)}}
+@keyframes jn-h{from{transform:scaleX(0)}}
+@keyframes jn-n{from{opacity:0}}
+html[data-sis="foto"][data-bt="janela"] body.escrito #abertura .comanda>.serv{animation-delay:3.4s}
+html[data-sis="foto"][data-bt="janela"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+html[data-bt="janela"] body.pula .jn-w,html[data-bt="janela"] body.pula .jn-i,html[data-bt="janela"] body.pula .jn-t,html[data-bt="janela"] body.pula .jn-h,html[data-bt="janela"] body.pula .jn-n{animation-duration:.01s!important;animation-delay:0s!important}
+.jn-ov{position:fixed;z-index:31;overflow:hidden;pointer-events:none;background:#150605}
+.jn-ov img{position:absolute;display:block;max-width:none;height:auto}
+@media (prefers-reduced-motion:reduce){html[data-bt="janela"] .jn-w,html[data-bt="janela"] .jn-i,html[data-bt="janela"] .jn-t,html[data-bt="janela"] .jn-h,html[data-bt="janela"] .jn-n{animation:none!important;transition:none!important}}
+</style>
+<style id="ztra">
+/* --- variante "transicao": o botão é a passagem. Repouso só tipográfico; todo o ofício está no toque (arco de foto que cresce do dedo, em carta.js) --- */
+html[data-sis="foto"][data-bt="transicao"]{--tr-fs:min(38px,9.8vw);--tr-ex:cubic-bezier(.16,1,.3,1);--tr-io:cubic-bezier(.65,0,.1,1);--tr-h:60px}
+@media (max-height:760px){html[data-sis="foto"][data-bt="transicao"]{--tr-fs:min(33px,8.6vw);--tr-h:52px}}
+html[data-sis="foto"][data-bt="transicao"] #abertura .portas{gap:2px;margin:0}
+html[data-sis="foto"][data-bt="transicao"] #abertura .portas .vd.tr-b{opacity:1;animation:none!important;display:flex;align-items:center;justify-content:flex-start;height:var(--tr-h);min-height:var(--tr-h);color:var(--creme);--b0:.2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html[data-sis="foto"][data-bt="transicao"] #abertura .portas .vd.tr-b[data-ir="livro"]{--b0:2s}
+html[data-sis="foto"][data-bt="transicao"] .vd.tr-b:active{transform:none}
+html[data-sis="foto"][data-bt="transicao"] .tr-w{display:inline-flex;align-items:flex-end;gap:14px;margin:0 auto 0 0;text-align:left}
+html[data-sis="foto"][data-bt="transicao"] .tr-t{position:relative;display:block}
+html[data-sis="foto"][data-bt="transicao"] .tr-l{display:block;overflow:hidden;white-space:nowrap;padding:.16em 0 .2em;margin:-.16em 0 -.2em;font-family:var(--serif);font-weight:300;font-size:var(--tr-fs);line-height:1.04;letter-spacing:-.004em;text-shadow:0 1px 14px rgba(20,4,10,.45)}
+html[data-sis="foto"][data-bt="transicao"] .tr-l i{display:inline-block;font-style:normal;font-size:inherit;line-height:inherit;color:inherit;will-change:transform}
+html[data-sis="foto"][data-bt="transicao"] .tr-l i.sp{width:.26em}
+html[data-sis="foto"][data-bt="transicao"] .tr-l i.tr-c{font-style:italic;font-weight:400;color:var(--a-cur);padding-right:.02em}
+html[data-sis="foto"][data-bt="transicao"] .tr-h{display:block;height:1px;margin-top:9px;background:rgba(255,239,219,.5);transform-origin:0 50%}
+html[data-sis="foto"][data-bt="transicao"] .tr-a{flex:none;display:block;width:20px;height:8px;margin:0 0 -3.5px;overflow:visible;fill:none;stroke:var(--creme);stroke-width:1;stroke-linecap:round;stroke-linejoin:round;opacity:.9;transition:transform .5s var(--tr-ex)}
+html[data-sis="foto"][data-bt="transicao"] .vd.tr-b.preso .tr-a,html[data-sis="foto"][data-bt="transicao"] .vd.tr-b.abre .tr-a{transform:translateX(5px)}
+html[data-sis="foto"][data-bt="transicao"] .vd.tr-b:focus-visible{outline:1px solid var(--creme);outline-offset:2px}
+/* entrada, sequencial: botão 1 por inteiro (letras sobem na linha-máscara, filete se traça, seta chega); só então o botão 2 */
+html[data-sis="foto"][data-bt="transicao"] #abertura .tr-l i{transform:translateY(122%)}
+html[data-sis="foto"][data-bt="transicao"] #abertura .tr-h{transform:scaleX(0)}
+html[data-sis="foto"][data-bt="transicao"] #abertura .tr-a{opacity:0}
+html[data-sis="foto"][data-bt="transicao"] body.escrito #abertura .tr-l i,html[data-sis="foto"][data-bt="transicao"] body.pula #abertura .tr-l i{animation:tr-sobe .95s var(--tr-ex) calc(var(--b0) + var(--k)*24ms) both}
+html[data-sis="foto"][data-bt="transicao"] body.escrito #abertura .tr-h,html[data-sis="foto"][data-bt="transicao"] body.pula #abertura .tr-h{animation:tr-fio 1s var(--tr-io) calc(var(--b0) + .5s) both}
+html[data-sis="foto"][data-bt="transicao"] body.escrito #abertura .tr-a,html[data-sis="foto"][data-bt="transicao"] body.pula #abertura .tr-a{animation:tr-seta .7s var(--tr-ex) calc(var(--b0) + 1.2s) both}
+html[data-sis="foto"][data-bt="transicao"] body.escrito #abertura .comanda>.serv,html[data-sis="foto"][data-bt="transicao"] body.pula #abertura .comanda>.serv{animation-delay:3.7s}
+html[data-sis="foto"][data-bt="transicao"] body.pula #abertura .comanda>.serv{animation-delay:0s}
+@keyframes tr-sobe{from{transform:translateY(122%)}to{transform:none}}
+@keyframes tr-fio{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes tr-seta{from{opacity:0;transform:translateX(-10px)}to{opacity:.9;transform:none}}
+/* só a entrada acelera ao toque */
+body.pula #abertura .tr-l i,body.pula #abertura .tr-h,body.pula #abertura .tr-a{animation-duration:.01s!important;animation-delay:0s!important}
+/* a janela: foto do salão, no mesmo grau da hora, com o pé escurecido para o rótulo creme */
+html[data-sis="foto"][data-bt="transicao"] .tr-ov{position:fixed;inset:0;z-index:4;pointer-events:none;visibility:hidden;overflow:hidden;background:#25101B;clip-path:inset(50% 50% 50% 50%)}
+html[data-sis="foto"][data-bt="transicao"] .tr-ov.on{visibility:visible}
+html[data-sis="foto"][data-bt="transicao"] .tr-ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 42%;filter:brightness(1) saturate(1.18) sepia(.2) hue-rotate(-6deg)}
+html[data-sis="foto"][data-bt="transicao"] .tr-sh{position:absolute;inset:0;background:linear-gradient(0deg,rgba(37,16,27,.94) 0,rgba(37,16,27,.7) 24%,rgba(37,16,27,.12) 52%,rgba(37,16,27,0) 70%)}
+html[data-sis="foto"][data-bt="transicao"] .tr-cl{position:fixed;z-index:4;display:flex;align-items:flex-end;color:var(--creme);pointer-events:none}
+html[data-sis="foto"][data-bt="transicao"] .tr-cl .tr-t{display:block}
+/* a abertura em si: a pergunta não encosta nos botões */
+html[data-sis="foto"][data-bt="transicao"] #abertura .col::before{height:max(3vh,calc(33svh - 84px))}
+@media (max-height:760px){html[data-sis="foto"][data-bt="transicao"] #abertura .col::before{height:max(2vh,calc(29svh - 84px))}}
+@media (prefers-reduced-motion:reduce){html[data-sis="foto"][data-bt="transicao"] #abertura .tr-l i{transform:none;animation:none!important}html[data-sis="foto"][data-bt="transicao"] #abertura .tr-h{transform:none;animation:none!important}html[data-sis="foto"][data-bt="transicao"] #abertura .tr-a{opacity:.9;animation:none!important}}
+</style>
+<style id="zper">html[data-sis="foto"]:is([data-bt="cinetica"],[data-bt="transicao"],[data-bt="janela"]) #abertura .pergunta{font-size:clamp(32px,9vw,40px)}</style>
 </head>
 <body data-luz="noite">
 <div class="luz noite"></div><div class="luz tarde"></div><div class="luz dia"></div><div class="luz carta"></div>
@@ -1256,7 +1439,7 @@ addEventListener("pagehide",sai);addEventListener("pageshow",vem);document.addEv
 <aside class="sumario" id="indice" aria-label="Tudo nesta seção"><button class="x" data-ind-fecha>Fechar</button><span class="sc">Tudo em</span><h3 id="ind-t"></h3><ol id="ind-l"></ol></aside>
 
 <div class="pd-v" data-pd="fecha"></div><aside class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Estou perdido"></aside>
-<script type="module" src="/assets/carta.js?v=51"></script>
+<script type="module" src="/assets/carta.js?v=53"></script>
 <script>
 /* Ao sair do app/aba durante a abertura, cobre a tela e, ao voltar, recomeça do zero:
    assim o celular nunca mostra a frase "pronta" de uma visita anterior antes de recarregar. */
