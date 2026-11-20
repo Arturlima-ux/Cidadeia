@@ -59,6 +59,71 @@ function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
   const BT = (location.search.match(/[?&]bt=(\w+)/) || [])[1] || "t";
   document.documentElement.dataset.bt = BT;
+  if (SIS === "foto" && BT === "objeto") {
+    // Objetos da casa: dois livrinhos de capa de tecido (livro de visitas e carta), com etiqueta colada, fita marcadora e bloco de folhas. O toque levanta a capa.
+    el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd ob-v ob-${ir}" data-ir="${ir}" data-porta aria-label="${b}"><span class="ob-w"><span class="ob-pg" aria-hidden="true"></span><span class="ob-fita" aria-hidden="true"><span class="ob-fi"></span></span><span class="ob-capa" aria-hidden="true"><span class="ob-lomb"></span><span class="ob-et"><span class="ob-tx">${b}</span></span></span></span></button>`).join("");
+    return;
+  }
+  if (SIS === "foto" && BT === "fruto") {
+    // Pitanga num fio: a fruta pende do fio por um cabinho; puxar o fio para o lado do rótulo a amadurece e abre o caminho. Um toque faz o mesmo percurso sozinho.
+    const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
+    const folha = `M13 10.5C10.6 9.5 7.6 9.7 5.4 11.4 8.2 11.5 10.7 11.2 13 10.9Z`;
+    const folha2 = `M13 10.3C11.6 8.3 9.7 6.7 7.6 6.2 8.2 8.3 10.3 9.9 13 10.7Z`;
+    const fruta = k => `<svg class="fr-v" viewBox="0 0 26 34" aria-hidden="true"><defs>
+      <radialGradient id="fa${k}" cx=".36" cy=".3" r=".8"><stop offset="0" style="stop-color:var(--fa1)"/><stop offset=".5" style="stop-color:var(--fa2)"/><stop offset="1" style="stop-color:var(--fa3)"/></radialGradient>
+      <radialGradient id="fb${k}" cx=".36" cy=".3" r=".8"><stop offset="0" style="stop-color:var(--fb1)"/><stop offset=".5" style="stop-color:var(--fb2)"/><stop offset="1" style="stop-color:var(--fb3)"/></radialGradient>
+      <radialGradient id="fs${k}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".62"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="fl${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B7D655"/><stop offset="1" stop-color="#5F8A1E"/></linearGradient></defs>
+      <path class="fr-pe" d="M13 10.6C13 7 12.4 3.8 13 .6"/>
+      <ellipse cx="13" cy="21.4" rx="11.2" ry="11" fill="url(#fa${k})"/>
+      <ellipse class="fr-rp" cx="13" cy="21.4" rx="11.2" ry="11" fill="url(#fb${k})"/>
+      <g class="fr-co"><path d="M13 10.7V31.7"/><path d="M13 10.5A8.3 10.8 0 0 1 13 31.9"/><path d="M13 10.5A8.3 10.8 0 0 0 13 31.9"/></g>
+      <g class="fr-lo"><path d="M13 10.8A4.4 10.5 0 0 1 13 31.6"/><path d="M13 10.8A4.4 10.5 0 0 0 13 31.6"/></g>
+      <ellipse cx="8.8" cy="16" rx="3.6" ry="2" transform="rotate(-34 8.8 16)" fill="url(#fs${k})"/>
+      <g class="fr-ca" fill="url(#fl${k})"><path d="${folha}"/><path d="${folha2}"/><path d="M13 10.3C12.2 8.7 12.3 7.2 13 6.1 13.7 7.2 13.8 8.7 13 10.3Z"/><g transform="translate(26 0) scale(-1 1)"><path d="${folha}"/><path d="${folha2}"/></g></g>
+      <circle class="fr-no" cx="13" cy=".7" r="1"/></svg>`;
+    el.innerHTML = PORTA.map(([ir, b], k) => `<button class="vd fr-b fr-${ir}" data-ir="${ir}" data-porta aria-label="${b}"><span class="fr-t" aria-hidden="true"><i class="fr-t0"></i><i class="fr-t1"></i></span><span class="fr-l" aria-hidden="true">${letras(b)}</span><span class="fr-l fr-m" aria-hidden="true">${letras(b)}</span><span class="fr-d" aria-hidden="true"><span class="fr-f"><span class="fr-s">${fruta(k)}</span></span></span></button>`).join("");
+    // gesto: arrastar para o rótulo. Passou da metade, abre; senão a fruta volta, balançando. Sem arrasto, o toque normal vale.
+    const reduz = matchMedia("(prefers-reduced-motion:reduce)").matches;
+    const balanco = (s, a) => s.animate([{ transform: `rotate(${a}deg)` }, { transform: `rotate(${-a * .55}deg)`, offset: .3 }, { transform: `rotate(${a * .26}deg)`, offset: .58 }, { transform: `rotate(${-a * .09}deg)`, offset: .8 }, { transform: "rotate(0deg)" }], { duration: 1000, easing: "ease-in-out" });
+    el.querySelectorAll(".fr-b").forEach(b => {
+      const sv = b.querySelector(".fr-s"), tr = b.querySelector(".fr-d");
+      let x0 = 0, xl = 0, tl = 0, vx = 0, len = 1, pp = 0, id = null, on = false, mov = false, nao = false;
+      b.addEventListener("pointerdown", e => {
+        if (reduz || (e.pointerType === "mouse" && e.button)) return;
+        x0 = xl = e.clientX; tl = performance.now(); vx = 0; pp = 0; len = tr.offsetWidth || 1; id = e.pointerId; on = true; mov = false;
+      });
+      b.addEventListener("pointermove", e => {
+        if (!on || e.pointerId !== id) return;
+        const dx = e.clientX - x0;
+        if (!mov) { if (Math.abs(dx) < 8) return; mov = true; b.classList.add("fr-arr"); try { b.setPointerCapture(id); } catch {} }
+        pp = Math.max(0, Math.min(1, -dx / len)); b.style.setProperty("--p", pp.toFixed(4));
+        const t = performance.now(), dt = Math.max(8, t - tl); vx = vx * .75 + ((e.clientX - xl) / dt) * .25; xl = e.clientX; tl = t;
+        b.style.setProperty("--sw", Math.max(-15, Math.min(15, vx * 22)).toFixed(2));
+      });
+      const solta = e => {
+        if (!on || e.pointerId !== id) return; on = false;
+        if (!mov) return;
+        b.classList.remove("fr-arr");
+        const sw = +b.style.getPropertyValue("--sw") || 0; b.style.setProperty("--sw", 0);
+        if (e.type === "pointerup" && (pp > .5 || vx < -.9)) { b.style.setProperty("--p", 1); }
+        else {
+          nao = true; setTimeout(() => { nao = false; }, 60);
+          b.style.setProperty("--p", 0); setTimeout(() => b.style.removeProperty("--p"), 760);
+        }
+        if (Math.abs(sw) > 1) balanco(sv, sw);
+      };
+      b.addEventListener("pointerup", solta); b.addEventListener("pointercancel", solta);
+      b.addEventListener("click", e => { if (nao) { e.stopPropagation(); e.preventDefault(); nao = false; } else if (!mov && !reduz) balanco(sv, -9); }, true);
+    });
+    return;
+  }
+  if (SIS === "foto" && BT === "portal") {
+    // Portal: cada botão é um vão em arco abatido (moldura, soleira) com uma folha de porta entreaberta; o rótulo é a inscrição da folha.
+    const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
+    el.innerHTML = PORTA.map(([ir, b], k) => `<button class="vd pt-b ${k ? "pt-r" : "pt-e"}" data-ir="${ir}" data-porta aria-label="${b}"><span class="pt-m" aria-hidden="true"></span><span class="pt-v" aria-hidden="true"><span class="pt-vista"></span><span class="pt-rev"></span><span class="pt-fol"><span class="pt-l">${letras(b)}</span><span class="pt-puxa"></span></span></span><span class="pt-s" aria-hidden="true"></span></button>`).join("");
+    return;
+  }
   if (SIS === "foto" && (BT === "casa" || BT === "reto")) {
     const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
     const seta = `<svg class="bx-a" viewBox="0 0 22 10" aria-hidden="true"><path d="M0 5h21M16.5 1l4.5 4-4.5 4"/></svg>`;
