@@ -57,7 +57,12 @@ function acende(t, fim) {
 const PORTA = [["visita", "Escrever a visita", "Três toques e a casa escreve uma carta para você"], ["livro", "Folhear a carta", "Executivo, comes, bebes, vinhos e crepes"]];
 function portas() {
   const el = document.querySelector(".portas"); if (SIS === "estante") return;
-  if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd" data-ir="${ir}" data-porta><span class="vd-pl"><i class="vd-f"></i><b>${b}</b><span class="vd-c" aria-hidden="true"><svg class="vd-s" viewBox="0 0 18 10"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button>`).join("");
+  if (SIS === "foto" && !/[?&]bt=a/.test(location.search)) {
+    // Botão-comanda: um bilhete de duas peças. O corpo traz o rótulo; o canhoto, a seta, e se solta ao toque.
+    const letras = t => [...t].map((c, k) => c === " " ? `<i class="sp"></i>` : `<i style="--k:${k}">${c}</i>`).join("");
+    const seta = `<svg class="tk-a" viewBox="0 0 18 10" aria-hidden="true"><path d="M0 5h17M13 1l4 4-4 4"/></svg>`;
+    el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd tkv" data-ir="${ir}" data-porta aria-label="${b}"><span class="tk-b"><span class="tk-l" aria-hidden="true">${letras(b)}</span></span><span class="tk-s" aria-hidden="true">${seta}${seta}</span></button>`).join("");
+  } else if (SIS === "foto") el.innerHTML = PORTA.map(([ir, b]) => `<button class="vd" data-ir="${ir}" data-porta><span class="vd-pl"><i class="vd-f"></i><b>${b}</b><span class="vd-c" aria-hidden="true"><svg class="vd-s" viewBox="0 0 18 10"><path d="M0 5h17M13 1l4 4-4 4"/></svg></span></span><span class="vd-fio" aria-hidden="true"><i class="vd-p a"><s></s><u></u></i><i class="vd-p b"><s></s><u></u></i><i class="vd-d"><s></s><u></u></i></span></button>`).join("");
   if (SIS === "gomos") el.innerHTML = `<div class="ga"><svg viewBox="-150 -100 300 200" aria-hidden="true">
       <path class="deco" pathLength="1" d="M0 -8 C-26 -40 -30 -92 0 -98 C30 -92 26 -40 0 -8 Z"/><path class="deco" pathLength="1" d="M0 8 C-26 40 -30 92 0 98 C30 92 26 40 0 8 Z"/>
       <path class="lobo l" pathLength="1" d="M-8 0 C-40 -52 -136 -46 -140 0 C-136 46 -40 52 -8 0 Z"/><path class="lobo r" pathLength="1" d="M8 0 C40 -52 136 -46 140 0 C136 46 40 52 8 0 Z"/>
