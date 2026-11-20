@@ -861,7 +861,7 @@ body.cobre::after{content:"";position:fixed;inset:0;z-index:2147483000;backgroun
 <div class="heroi" id="heroi" aria-hidden="true"></div>
 <script>(function(){var d=document.documentElement;if(d.dataset.sis!=="foto")return;var n=(location.search.match(/[?&]hero=([\w-]+)/)||[])[1]||"marca",h=document.getElementById("heroi");
 document.body.dataset.cena="abertura";h.dataset.n=n;
-if(n==="marca"){import(/[?&]fundo=foto/.test(location.search)?"/assets/casa.js":"/assets/rubro.js?v=49").then(function(m){h.innerHTML=m.default();m.hora(h,m.agora());m.escreve&&m.escreve();setInterval(function(){m.hora(h,m.agora())},60000)});return}
+if(n==="marca"){import(/[?&]fundo=foto/.test(location.search)?"/assets/casa.js":"/assets/rubro.js?v=50").then(function(m){h.innerHTML=m.default();m.hora(h,m.agora());m.escreve&&m.escreve();setInterval(function(){m.hora(h,m.agora())},60000)});return}
 h.innerHTML='<img src="/assets/f/'+n+'-g.webp" srcset="/assets/f/'+n+'-m.webp 720w, /assets/f/'+n+'-g.webp 1170w" sizes="100vw" alt="" decoding="async" fetchpriority="high">';
 var im=h.querySelector("img"),ok=function(){im.classList.add("ok")};im.decode?im.decode().then(ok,ok):ok();setTimeout(ok,3500);
 var gl3=!/[?&]flat=1/.test(location.search);try{gl3=gl3&&!matchMedia("(prefers-reduced-motion: reduce)").matches&&!!document.createElement("canvas").getContext("webgl")}catch(e){gl3=false}

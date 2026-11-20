@@ -209,7 +209,7 @@ function botoes() {
 }
 
 /* ---------- a escrita (z7): palavras, não letras ---------- */
-const VARIANTE = (() => { try { return String(new URLSearchParams(location.search).get("f") || "a").toLowerCase() === "b" ? "b" : "a"; } catch { return "a"; } })();
+const VARIANTE = (() => { try { return String(new URLSearchParams(location.search).get("f") || "b").toLowerCase() === "a" ? "a" : "b"; } catch { return "b"; } })();
 
 /* Divide o parágrafo em palavras: <w-d> > [<k-w> se grifada] > <w-m><w-i>letras</w-i></w-m> (+ pontuação em peça própria). */
 function quebra(p) {
