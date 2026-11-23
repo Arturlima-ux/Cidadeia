@@ -1,10 +1,10 @@
 {
- "geradoEm": "2026-11-19",
+ "geradoEm": "2026-11-23",
  "fonte": "ObrasGov (Cadastro Integrado de Projetos de Investimento)",
  "brasil": {
   "paralisadas": 832,
   "inacabadas": 1029,
-  "emExecucao": 21130
+  "emExecucao": 21139
  },
  "porUf": {
   "AC": {
@@ -20,7 +20,7 @@
   "AM": {
    "paralisadas": 26,
    "inacabadas": 22,
-   "emExecucao": 576
+   "emExecucao": 577
   },
   "AP": {
    "paralisadas": 5,
@@ -40,7 +40,7 @@
   "DF": {
    "paralisadas": 6,
    "inacabadas": 3,
-   "emExecucao": 185
+   "emExecucao": 186
   },
   "ES": {
    "paralisadas": 6,
@@ -60,7 +60,7 @@
   "MG": {
    "paralisadas": 88,
    "inacabadas": 93,
-   "emExecucao": 1826
+   "emExecucao": 1828
   },
   "MS": {
    "paralisadas": 23,
@@ -80,22 +80,22 @@
   "PB": {
    "paralisadas": 36,
    "inacabadas": 32,
-   "emExecucao": 887
+   "emExecucao": 886
   },
   "PE": {
    "paralisadas": 35,
    "inacabadas": 44,
-   "emExecucao": 1007
+   "emExecucao": 1009
   },
   "PI": {
    "paralisadas": 24,
    "inacabadas": 69,
-   "emExecucao": 1066
+   "emExecucao": 1068
   },
   "PR": {
    "paralisadas": 12,
    "inacabadas": 51,
-   "emExecucao": 870
+   "emExecucao": 871
   },
   "RJ": {
    "paralisadas": 25,
@@ -130,7 +130,7 @@
   "SE": {
    "paralisadas": 7,
    "inacabadas": 28,
-   "emExecucao": 369
+   "emExecucao": 370
   },
   "SP": {
    "paralisadas": 19,
