@@ -1,14 +1,14 @@
 {
- "geradoEm": "2026-11-19",
+ "geradoEm": "2026-11-26",
  "fonte": "Tesouro Nacional (Siconfi), RGF mais recente de cada prefeitura",
  "brasil": {
   "municipios": 5570,
-  "comNumero": 5521,
-  "alerta": 799,
-  "prudencial": 508,
-  "acimaDoLimite": 522,
-  "rgfAtrasado": 203,
-  "numerosQueNaoFecham": 44,
+  "comNumero": 5501,
+  "alerta": 791,
+  "prudencial": 505,
+  "acimaDoLimite": 519,
+  "rgfAtrasado": 186,
+  "numerosQueNaoFecham": 48,
   "semRgf": 16
  },
  "porUf": {
@@ -24,21 +24,21 @@
   },
   "AL": {
    "municipios": 102,
-   "comNumero": 98,
+   "comNumero": 97,
    "alerta": 17,
    "prudencial": 14,
-   "acimaDoLimite": 20,
-   "rgfAtrasado": 9,
+   "acimaDoLimite": 19,
+   "rgfAtrasado": 7,
    "numerosQueNaoFecham": 1,
    "semRgf": 0
   },
   "AM": {
    "municipios": 62,
    "comNumero": 62,
-   "alerta": 16,
-   "prudencial": 11,
+   "alerta": 17,
+   "prudencial": 10,
    "acimaDoLimite": 11,
-   "rgfAtrasado": 17,
+   "rgfAtrasado": 16,
    "numerosQueNaoFecham": 0,
    "semRgf": 0
   },
@@ -55,7 +55,7 @@
   "BA": {
    "municipios": 417,
    "comNumero": 417,
-   "alerta": 69,
+   "alerta": 68,
    "prudencial": 63,
    "acimaDoLimite": 84,
    "rgfAtrasado": 16,
@@ -64,10 +64,10 @@
   },
   "CE": {
    "municipios": 184,
-   "comNumero": 184,
+   "comNumero": 179,
    "alerta": 37,
-   "prudencial": 34,
-   "acimaDoLimite": 13,
+   "prudencial": 33,
+   "acimaDoLimite": 12,
    "rgfAtrasado": 0,
    "numerosQueNaoFecham": 0,
    "semRgf": 0
@@ -84,12 +84,12 @@
   },
   "GO": {
    "municipios": 246,
-   "comNumero": 242,
+   "comNumero": 240,
    "alerta": 38,
-   "prudencial": 26,
-   "acimaDoLimite": 40,
-   "rgfAtrasado": 10,
-   "numerosQueNaoFecham": 5,
+   "prudencial": 27,
+   "acimaDoLimite": 39,
+   "rgfAtrasado": 8,
+   "numerosQueNaoFecham": 6,
    "semRgf": 0
   },
   "MA": {
@@ -104,12 +104,12 @@
   },
   "MG": {
    "municipios": 853,
-   "comNumero": 846,
-   "alerta": 132,
-   "prudencial": 63,
-   "acimaDoLimite": 24,
-   "rgfAtrasado": 17,
-   "numerosQueNaoFecham": 3,
+   "comNumero": 841,
+   "alerta": 129,
+   "prudencial": 61,
+   "acimaDoLimite": 25,
+   "rgfAtrasado": 16,
+   "numerosQueNaoFecham": 4,
    "semRgf": 0
   },
   "MS": {
@@ -124,29 +124,29 @@
   },
   "MT": {
    "municipios": 142,
-   "comNumero": 138,
-   "alerta": 12,
+   "comNumero": 140,
+   "alerta": 13,
    "prudencial": 2,
    "acimaDoLimite": 1,
-   "rgfAtrasado": 11,
+   "rgfAtrasado": 10,
    "numerosQueNaoFecham": 3,
    "semRgf": 2
   },
   "PA": {
    "municipios": 144,
-   "comNumero": 136,
-   "alerta": 14,
+   "comNumero": 137,
+   "alerta": 15,
    "prudencial": 25,
    "acimaDoLimite": 57,
-   "rgfAtrasado": 20,
+   "rgfAtrasado": 19,
    "numerosQueNaoFecham": 8,
-   "semRgf": 7
+   "semRgf": 6
   },
   "PB": {
    "municipios": 223,
-   "comNumero": 223,
+   "comNumero": 222,
    "alerta": 38,
-   "prudencial": 31,
+   "prudencial": 30,
    "acimaDoLimite": 40,
    "rgfAtrasado": 1,
    "numerosQueNaoFecham": 0,
@@ -154,11 +154,11 @@
   },
   "PE": {
    "municipios": 185,
-   "comNumero": 183,
+   "comNumero": 184,
    "alerta": 27,
-   "prudencial": 28,
+   "prudencial": 30,
    "acimaDoLimite": 32,
-   "rgfAtrasado": 1,
+   "rgfAtrasado": 0,
    "numerosQueNaoFecham": 0,
    "semRgf": 0
   },
@@ -174,13 +174,13 @@
   },
   "PR": {
    "municipios": 399,
-   "comNumero": 387,
-   "alerta": 67,
+   "comNumero": 388,
+   "alerta": 63,
    "prudencial": 20,
    "acimaDoLimite": 22,
-   "rgfAtrasado": 32,
-   "numerosQueNaoFecham": 2,
-   "semRgf": 3
+   "rgfAtrasado": 28,
+   "numerosQueNaoFecham": 3,
+   "semRgf": 4
   },
   "RJ": {
    "municipios": 92,
@@ -188,7 +188,7 @@
    "alerta": 14,
    "prudencial": 5,
    "acimaDoLimite": 10,
-   "rgfAtrasado": 8,
+   "rgfAtrasado": 7,
    "numerosQueNaoFecham": 2,
    "semRgf": 0
   },
@@ -208,7 +208,7 @@
    "alerta": 4,
    "prudencial": 4,
    "acimaDoLimite": 2,
-   "rgfAtrasado": 2,
+   "rgfAtrasado": 1,
    "numerosQueNaoFecham": 0,
    "semRgf": 0
   },
@@ -218,14 +218,14 @@
    "alerta": 5,
    "prudencial": 3,
    "acimaDoLimite": 4,
-   "rgfAtrasado": 2,
+   "rgfAtrasado": 1,
    "numerosQueNaoFecham": 0,
    "semRgf": 0
   },
   "RS": {
    "municipios": 497,
-   "comNumero": 497,
-   "alerta": 50,
+   "comNumero": 492,
+   "alerta": 47,
    "prudencial": 26,
    "acimaDoLimite": 16,
    "rgfAtrasado": 1,
@@ -234,12 +234,12 @@
   },
   "SC": {
    "municipios": 295,
-   "comNumero": 294,
+   "comNumero": 292,
    "alerta": 27,
    "prudencial": 2,
    "acimaDoLimite": 3,
-   "rgfAtrasado": 6,
-   "numerosQueNaoFecham": 0,
+   "rgfAtrasado": 5,
+   "numerosQueNaoFecham": 1,
    "semRgf": 1
   },
   "SE": {
@@ -254,10 +254,10 @@
   },
   "SP": {
    "municipios": 645,
-   "comNumero": 642,
+   "comNumero": 638,
    "alerta": 68,
-   "prudencial": 35,
-   "acimaDoLimite": 22,
+   "prudencial": 34,
+   "acimaDoLimite": 21,
    "rgfAtrasado": 26,
    "numerosQueNaoFecham": 6,
    "semRgf": 0
@@ -274,16 +274,16 @@
   }
  },
  "anterior": {
-  "geradoEm": "2026-11-16",
+  "geradoEm": "2026-11-19",
   "brasil": {
    "municipios": 5570,
-   "comNumero": 5506,
-   "alerta": 787,
-   "prudencial": 510,
-   "acimaDoLimite": 524,
-   "rgfAtrasado": 214,
-   "numerosQueNaoFecham": 45,
-   "semRgf": 17
+   "comNumero": 5521,
+   "alerta": 799,
+   "prudencial": 508,
+   "acimaDoLimite": 522,
+   "rgfAtrasado": 203,
+   "numerosQueNaoFecham": 44,
+   "semRgf": 16
   },
   "porUf": {
    "AC": {
@@ -298,11 +298,11 @@
    },
    "AL": {
     "municipios": 102,
-    "comNumero": 102,
-    "alerta": 16,
-    "prudencial": 16,
-    "acimaDoLimite": 21,
-    "rgfAtrasado": 11,
+    "comNumero": 98,
+    "alerta": 17,
+    "prudencial": 14,
+    "acimaDoLimite": 20,
+    "rgfAtrasado": 9,
     "numerosQueNaoFecham": 1,
     "semRgf": 0
    },
@@ -312,27 +312,27 @@
     "alerta": 16,
     "prudencial": 11,
     "acimaDoLimite": 11,
-    "rgfAtrasado": 18,
+    "rgfAtrasado": 17,
     "numerosQueNaoFecham": 0,
     "semRgf": 0
    },
    "AP": {
     "municipios": 16,
-    "comNumero": 15,
+    "comNumero": 16,
     "alerta": 3,
     "prudencial": 1,
-    "acimaDoLimite": 6,
+    "acimaDoLimite": 7,
     "rgfAtrasado": 5,
-    "numerosQueNaoFecham": 3,
+    "numerosQueNaoFecham": 2,
     "semRgf": 0
    },
    "BA": {
     "municipios": 417,
-    "comNumero": 409,
-    "alerta": 67,
-    "prudencial": 59,
+    "comNumero": 417,
+    "alerta": 69,
+    "prudencial": 63,
     "acimaDoLimite": 84,
-    "rgfAtrasado": 15,
+    "rgfAtrasado": 16,
     "numerosQueNaoFecham": 1,
     "semRgf": 0
    },
@@ -358,19 +358,19 @@
    },
    "GO": {
     "municipios": 246,
-    "comNumero": 246,
+    "comNumero": 242,
     "alerta": 38,
-    "prudencial": 29,
-    "acimaDoLimite": 41,
-    "rgfAtrasado": 11,
+    "prudencial": 26,
+    "acimaDoLimite": 40,
+    "rgfAtrasado": 10,
     "numerosQueNaoFecham": 5,
     "semRgf": 0
    },
    "MA": {
     "municipios": 217,
     "comNumero": 217,
-    "alerta": 73,
-    "prudencial": 47,
+    "alerta": 75,
+    "prudencial": 46,
     "acimaDoLimite": 12,
     "rgfAtrasado": 3,
     "numerosQueNaoFecham": 0,
@@ -378,18 +378,18 @@
    },
    "MG": {
     "municipios": 853,
-    "comNumero": 848,
-    "alerta": 131,
-    "prudencial": 60,
-    "acimaDoLimite": 26,
-    "rgfAtrasado": 20,
-    "numerosQueNaoFecham": 4,
+    "comNumero": 846,
+    "alerta": 132,
+    "prudencial": 63,
+    "acimaDoLimite": 24,
+    "rgfAtrasado": 17,
+    "numerosQueNaoFecham": 3,
     "semRgf": 0
    },
    "MS": {
     "municipios": 79,
-    "comNumero": 76,
-    "alerta": 17,
+    "comNumero": 79,
+    "alerta": 20,
     "prudencial": 15,
     "acimaDoLimite": 6,
     "rgfAtrasado": 0,
@@ -398,11 +398,11 @@
    },
    "MT": {
     "municipios": 142,
-    "comNumero": 140,
-    "alerta": 13,
+    "comNumero": 138,
+    "alerta": 12,
     "prudencial": 2,
     "acimaDoLimite": 1,
-    "rgfAtrasado": 12,
+    "rgfAtrasado": 11,
     "numerosQueNaoFecham": 3,
     "semRgf": 2
    },
@@ -412,14 +412,14 @@
     "alerta": 14,
     "prudencial": 25,
     "acimaDoLimite": 57,
-    "rgfAtrasado": 21,
+    "rgfAtrasado": 20,
     "numerosQueNaoFecham": 8,
     "semRgf": 7
    },
    "PB": {
     "municipios": 223,
-    "comNumero": 222,
-    "alerta": 37,
+    "comNumero": 223,
+    "alerta": 38,
     "prudencial": 31,
     "acimaDoLimite": 40,
     "rgfAtrasado": 1,
@@ -428,9 +428,9 @@
    },
    "PE": {
     "municipios": 185,
-    "comNumero": 184,
+    "comNumero": 183,
     "alerta": 27,
-    "prudencial": 30,
+    "prudencial": 28,
     "acimaDoLimite": 32,
     "rgfAtrasado": 1,
     "numerosQueNaoFecham": 0,
@@ -448,27 +448,27 @@
    },
    "PR": {
     "municipios": 399,
-    "comNumero": 395,
+    "comNumero": 387,
     "alerta": 67,
-    "prudencial": 21,
+    "prudencial": 20,
     "acimaDoLimite": 22,
     "rgfAtrasado": 32,
     "numerosQueNaoFecham": 2,
-    "semRgf": 4
+    "semRgf": 3
    },
    "RJ": {
     "municipios": 92,
-    "comNumero": 83,
-    "alerta": 13,
-    "prudencial": 6,
-    "acimaDoLimite": 9,
-    "rgfAtrasado": 5,
+    "comNumero": 91,
+    "alerta": 14,
+    "prudencial": 5,
+    "acimaDoLimite": 10,
+    "rgfAtrasado": 8,
     "numerosQueNaoFecham": 2,
     "semRgf": 0
    },
    "RN": {
     "municipios": 167,
-    "comNumero": 163,
+    "comNumero": 166,
     "alerta": 14,
     "prudencial": 8,
     "acimaDoLimite": 14,
@@ -498,8 +498,8 @@
    },
    "RS": {
     "municipios": 497,
-    "comNumero": 494,
-    "alerta": 49,
+    "comNumero": 497,
+    "alerta": 50,
     "prudencial": 26,
     "acimaDoLimite": 16,
     "rgfAtrasado": 1,
@@ -508,11 +508,11 @@
    },
    "SC": {
     "municipios": 295,
-    "comNumero": 286,
-    "alerta": 25,
+    "comNumero": 294,
+    "alerta": 27,
     "prudencial": 2,
     "acimaDoLimite": 3,
-    "rgfAtrasado": 7,
+    "rgfAtrasado": 6,
     "numerosQueNaoFecham": 0,
     "semRgf": 1
    },
@@ -528,12 +528,12 @@
    },
    "SP": {
     "municipios": 645,
-    "comNumero": 641,
-    "alerta": 69,
-    "prudencial": 34,
+    "comNumero": 642,
+    "alerta": 68,
+    "prudencial": 35,
     "acimaDoLimite": 22,
-    "rgfAtrasado": 31,
-    "numerosQueNaoFecham": 5,
+    "rgfAtrasado": 26,
+    "numerosQueNaoFecham": 6,
     "semRgf": 0
    },
    "TO": {
